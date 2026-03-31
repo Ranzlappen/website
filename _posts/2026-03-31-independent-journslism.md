@@ -10,14 +10,14 @@ date: 2026-03-31
   <ol style="margin: 10px 0 0 0; padding-left: 22px;">
     <li><a href="#intro" style="text-decoration: none;">Western Media Trust Crisis</a>
       <ul style="margin: 2px 0; padding-left: 18px; list-style: disc;">
-        <li><a href="#data-snapshot" style="text-decoration: none;">US vs Europe Data Snapshot</a> — <a href="#source-1" style="text-decoration: none; font-size: 0.9em;">Source [1]</a></li>
+        <li><a href="#data-snapshot" style="text-decoration: none;">US vs Europe Data Snapshot</a></li>
       </ul>
     </li>
-    <li><a href="#corporate-public-failures" style="text-decoration: none;">Corporate and Public Media's Structural and Editorial Failures</a> — <a href="#source-1" style="text-decoration: none; font-size: 0.9em;">[1]</a> <a href="#source-2" style="text-decoration: none; font-size: 0.9em;">[2]</a> <a href="#source-3" style="text-decoration: none; font-size: 0.9em;">[3]</a></li>
-    <li><a href="#legacy-tv" style="text-decoration: none;">Legacy TV's Structural Limitations in Western Media</a> — <a href="#source-4" style="text-decoration: none; font-size: 0.9em;">[4]</a></li>
-    <li><a href="#education-decline" style="text-decoration: none;">The Self-Reinforcing Link to Educational Decline</a> — <a href="#source-5" style="text-decoration: none; font-size: 0.9em;">[5]</a> <a href="#source-6" style="text-decoration: none; font-size: 0.9em;">[6]</a></li>
-    <li><a href="#independent-journalism" style="text-decoration: none;">Independent Journalism's Rapid Ascent and Accountability Model</a> — <a href="#source-7" style="text-decoration: none; font-size: 0.9em;">[7]</a> <a href="#source-8" style="text-decoration: none; font-size: 0.9em;">[8]</a></li>
-    <li><a href="#ai-guardrails" style="text-decoration: none;">AI Development with Minimal Guardrails</a> — <a href="#source-9" style="text-decoration: none; font-size: 0.9em;">[9]</a> <a href="#source-10" style="text-decoration: none; font-size: 0.9em;">[10]</a> <a href="#source-11" style="text-decoration: none; font-size: 0.9em;">[11]</a> <a href="#source-12" style="text-decoration: none; font-size: 0.9em;">[12]</a></li>
+    <li><a href="#corporate-public-failures" style="text-decoration: none;">Corporate and Public Media's Structural and Editorial Failures</a></li>
+    <li><a href="#legacy-tv" style="text-decoration: none;">Legacy TV's Structural Limitations in Western Media</a></li>
+    <li><a href="#education-decline" style="text-decoration: none;">The Self-Reinforcing Link to Educational Decline</a></li>
+    <li><a href="#independent-journalism" style="text-decoration: none;">Independent Journalism's Rapid Ascent and Accountability Model</a></li>
+    <li><a href="#ai-guardrails" style="text-decoration: none;">AI Development with Minimal Guardrails</a></li>
     <li><a href="#key-takeaways" style="text-decoration: none;">Key Takeaways</a></li>
     <li><a href="#conclusion" style="text-decoration: none;">Conclusion</a></li>
     <li><a href="#sources" style="text-decoration: none;">Sources</a></li>
