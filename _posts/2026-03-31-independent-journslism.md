@@ -13,11 +13,38 @@ This analysis focuses exclusively on media ecosystems in Western democracies—t
 <div style="overflow-x: auto;">
   <table>
     <thead>
-      <tr><th>Country/Region</th><th>Trust in News (%)</th><th>Change Since 2015</th><th>Fake News Concern (%)</th></tr>
+      <tr>
+        <th>Country/Region</th>
+        <th>Trust in News (%)</th>
+        <th>Change Since 2015</th>
+        <th>Fake News Concern (%)</th>
+      </tr>
     </thead>
     <tbody>
-      <tr><td>United States</td><td>30</td><td>Stable (low)</td><td>73</td></tr>
-      <!-- etc. -->
+      <tr>
+        <td>United States</td>
+        <td>30</td>
+        <td>Stable (low)</td>
+        <td>73</td>
+      </tr>
+      <tr>
+        <td>Germany</td>
+        <td>45</td>
+        <td>-15pp</td>
+        <td>\~46 (Western Europe)</td>
+      </tr>
+      <tr>
+        <td>United Kingdom</td>
+        <td>35</td>
+        <td>-16pp</td>
+        <td>\~46 (Western Europe)</td>
+      </tr>
+      <tr>
+        <td>Western Europe</td>
+        <td>40–50 (avg)</td>
+        <td>Declining</td>
+        <td>46</td>
+      </tr>
     </tbody>
   </table>
 </div>
