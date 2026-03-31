@@ -974,6 +974,7 @@ img {
 .comment-context-select {
   margin-bottom: var(--space-lg);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-sm);
   font-size: 0.875rem;
@@ -988,6 +989,8 @@ img {
   font-family: var(--f-body);
   font-size: 0.85rem;
   cursor: pointer;
+  min-width: 0;
+  max-width: 100%;
 }
 .comment-context-select select:focus {
   outline: 2px solid var(--c-accent);
