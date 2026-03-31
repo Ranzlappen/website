@@ -5,7 +5,7 @@
   </time>
   <div class="post-list-item__content">
     <h3 class="post-list-item__title">{{ post.title }}</h3>
-    <p class="post-list-item__excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+    <p class="post-list-item__excerpt">{{ post.description | default: post.excerpt | strip_html | truncatewords: 30 }}</p>
     <div class="post-list-item__meta">
       {% if post.category %}
         <span class="post-card__category">{{ post.category }}</span>
