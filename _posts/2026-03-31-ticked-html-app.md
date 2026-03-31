@@ -57,7 +57,7 @@ At its core, the Log tab lets you press a button or hit Enter to instantly log t
 
 <div class="carousel">
 
-<img src="/assets/images/ticked/log-tab.gif" alt="Log tab — quick entry input, timeline view, and filters">
+<img src="/assets/images/ticked/log-tab.mp4" alt="Log tab — quick entry input, timeline view, and filters">
 
 <img src="/assets/images/ticked/processes-tab.svg" alt="Processes tab — checkpoint timeline, overdue indicators, and detail sheet">
 
