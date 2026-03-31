@@ -1,6 +1,9 @@
 (function () {
   'use strict';
 
+  // Disable on mobile/tablet (< 1024px) — desktop only
+  if (window.innerWidth < 1024) return;
+
   var synth = window.speechSynthesis;
   if (!synth) return;
 

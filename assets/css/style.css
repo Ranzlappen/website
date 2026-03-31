@@ -924,6 +924,9 @@ img {
   bottom: 0;
   left: 0;
   right: 0;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
   background: var(--c-surface);
   border-top: 1px solid var(--c-border);
   padding: var(--space-sm) var(--space-md);
@@ -931,18 +934,20 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
+  overflow: hidden;
 }
 .voting-mobile-bar__section {
   font-size: 0.75rem;
   color: var(--c-text-muted);
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.voting-mobile-bar .vote-btns { gap: var(--space-sm); }
+.voting-mobile-bar .vote-btns { gap: var(--space-sm); flex-shrink: 0; }
 .voting-mobile-bar .vote-btn { font-size: 1rem; padding: var(--space-xs); }
-.voting-mobile-bar .vote-pct { font-size: 0.75rem; }
+.voting-mobile-bar .vote-pct { font-size: 0.75rem; flex-shrink: 0; }
 
 /* ============================================================
    Comments (Giscus)
@@ -1531,7 +1536,12 @@ img {
 @media (max-width: 64rem) {
   .voting-sidebar { display: none; }
   .voting-mobile-bar { display: flex; }
-  body.has-voting-bar { padding-bottom: 3.5rem; }
+  body.has-voting-bar {
+    padding-bottom: 3rem;
+  }
+
+  /* Hide Read Aloud on mobile/tablet (< 1024px) */
+  .read-aloud { display: none !important; }
 }
 
 @media (max-width: 48rem) {
@@ -1552,12 +1562,6 @@ img {
   .footer-links { justify-content: center; }
   .footer-social { justify-content: center; }
   .footer-support { justify-content: center; }
-
-  .read-aloud {
-    justify-content: center;
-    width: 100%;
-    margin-top: var(--space-xs);
-  }
 }
 
 @media (max-width: 30rem) {
