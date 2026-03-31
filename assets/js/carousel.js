@@ -1,20 +1,30 @@
 /**
- * Image Carousel — auto-initialises every .carousel wrapper in the page.
+ * Media Carousel — auto-initialises every .carousel wrapper in the page.
  *
  * Usage in Markdown / HTML:
  *   <div class="carousel">
  *     ![Alt text](/path/to/img1.jpg)
- *     ![Alt text](/path/to/img2.jpg)
+ *     ![Alt text](/path/to/video.mp4)
  *   </div>
  *
- * Supports: arrows, dot indicators, keyboard (←/→), touch/swipe,
- * pause-on-hover, responsive sizing, and optional captions from alt text.
+ * Supports: images, videos (mp4/webm/ogg), arrows, dot indicators,
+ * keyboard (←/→), touch/swipe, pause-on-hover, responsive sizing,
+ * and optional captions from alt text.
  */
 (function () {
   'use strict';
 
   var SWIPE_THRESHOLD = 40;
   var AUTO_INTERVAL = 5000;
+  var VIDEO_EXTENSIONS = /\.(mp4|webm|ogg)(\?.*)?$/i;
+
+  function isVideoSource(src) {
+    return VIDEO_EXTENSIONS.test(src);
+  }
+
+  function getSlideVideo(slide) {
+    return slide.dataset.isVideo === 'true' ? slide.querySelector('video') : null;
+  }
 
   function initCarousel(wrapper) {
     /* ── Collect images & build DOM ─────────────────────────── */
@@ -25,7 +35,7 @@
     wrapper.innerHTML = '';
     wrapper.setAttribute('role', 'region');
     wrapper.setAttribute('aria-roledescription', 'carousel');
-    wrapper.setAttribute('aria-label', 'Image carousel');
+    wrapper.setAttribute('aria-label', 'Media carousel');
     wrapper.setAttribute('tabindex', '0');
 
     // Track
@@ -40,15 +50,36 @@
       slide.setAttribute('aria-roledescription', 'slide');
       slide.setAttribute('aria-label', 'Slide ' + (i + 1) + ' of ' + imgs.length);
 
-      img.setAttribute('draggable', 'false');
-      img.loading = 'lazy';
-      slide.appendChild(img);
+      var media;
+      var altText = (img.alt || '').trim();
+      var src = img.getAttribute('src') || img.src;
+
+      if (isVideoSource(src)) {
+        var video = document.createElement('video');
+        video.src = src;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('muted', '');
+        video.muted = true;
+        video.setAttribute('loop', '');
+        video.setAttribute('controls', '');
+        video.setAttribute('preload', 'metadata');
+        video.setAttribute('draggable', 'false');
+        if (altText) video.setAttribute('aria-label', altText);
+        slide.dataset.isVideo = 'true';
+        media = video;
+      } else {
+        img.setAttribute('draggable', 'false');
+        img.loading = 'lazy';
+        media = img;
+      }
+
+      slide.appendChild(media);
 
       // Caption from alt text
-      if (img.alt && img.alt.trim()) {
+      if (altText) {
         var cap = document.createElement('span');
         cap.className = 'carousel__caption';
-        cap.textContent = img.alt;
+        cap.textContent = altText;
         slide.appendChild(cap);
       }
 
@@ -94,6 +125,14 @@
     function goTo(index) {
       if (index < 0) index = slides.length - 1;
       if (index >= slides.length) index = 0;
+
+      // Pause video on the slide we're leaving
+      var leavingVideo = getSlideVideo(slides[current]);
+      if (leavingVideo) {
+        leavingVideo.pause();
+        leavingVideo.currentTime = 0;
+      }
+
       current = index;
       track.style.transform = 'translateX(-' + (current * 100) + '%)';
       dots.forEach(function (d, i) {
@@ -101,6 +140,13 @@
         d.setAttribute('aria-selected', i === current ? 'true' : 'false');
       });
       counter.textContent = (current + 1) + ' / ' + slides.length;
+
+      // Play video on the new active slide
+      var enteringVideo = getSlideVideo(slides[current]);
+      if (enteringVideo && !paused) {
+        enteringVideo.play().catch(function () {});
+      }
+
       resetAuto();
     }
 
@@ -113,13 +159,29 @@
     /* ── Auto-play ──────────────────────────────────────────── */
     function startAuto() {
       stopAuto();
-      if (!paused) autoTimer = setInterval(next, AUTO_INTERVAL);
+      if (!paused) {
+        autoTimer = setInterval(function () {
+          var currentVideo = getSlideVideo(slides[current]);
+          if (currentVideo && !currentVideo.paused && !currentVideo.ended) return;
+          next();
+        }, AUTO_INTERVAL);
+      }
     }
     function stopAuto() { clearInterval(autoTimer); autoTimer = null; }
     function resetAuto() { stopAuto(); startAuto(); }
 
-    wrapper.addEventListener('mouseenter', function () { paused = true; stopAuto(); });
-    wrapper.addEventListener('mouseleave', function () { paused = false; startAuto(); });
+    wrapper.addEventListener('mouseenter', function () {
+      paused = true;
+      stopAuto();
+      var v = getSlideVideo(slides[current]);
+      if (v) v.pause();
+    });
+    wrapper.addEventListener('mouseleave', function () {
+      paused = false;
+      startAuto();
+      var v = getSlideVideo(slides[current]);
+      if (v) v.play().catch(function () {});
+    });
 
     /* ── Keyboard ───────────────────────────────────────────── */
     wrapper.addEventListener('keydown', function (e) {

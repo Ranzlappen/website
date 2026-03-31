@@ -1638,7 +1638,8 @@ img {
   align-items: center;
   justify-content: center;
 }
-.carousel__slide img {
+.carousel__slide img,
+.carousel__slide video {
   display: block;
   width: 100%;
   height: auto;
@@ -1728,10 +1729,10 @@ img {
 /* Responsive tweaks */
 @media (max-width: 48rem) {
   .carousel__arrow { width: 2rem; height: 2rem; font-size: 1.2rem; }
-  .carousel__slide img { max-height: 55vh; }
+  .carousel__slide img, .carousel__slide video { max-height: 55vh; }
 }
 @media (max-width: 30rem) {
   .carousel__arrow { width: 1.75rem; height: 1.75rem; font-size: 1rem; }
   .carousel__counter { font-size: 0.65rem; }
-  .carousel__slide img { max-height: 45vh; }
+  .carousel__slide img, .carousel__slide video { max-height: 45vh; }
 }
