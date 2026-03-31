@@ -57,11 +57,11 @@ At its core, the Log tab lets you press a button or hit Enter to instantly log t
 
 <div class="carousel">
 
-![Log tab — quick entry input, timeline view, and filters](/assets/images/ticked/log-tab.svg)
+<img src="/assets/images/ticked/log-tab.svg" alt="Log tab — quick entry input, timeline view, and filters">
 
-![Processes tab — checkpoint timeline, overdue indicators, and detail sheet](/assets/images/ticked/processes-tab.svg)
+<img src="/assets/images/ticked/processes-tab.svg" alt="Processes tab — checkpoint timeline, overdue indicators, and detail sheet">
 
-![Export/backup panel and mobile swipe gesture in action](/assets/images/ticked/export-panel.svg)
+<img src="/assets/images/ticked/export-panel.svg" alt="Export/backup panel and mobile swipe gesture in action">
 
 </div>
 
