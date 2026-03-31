@@ -283,6 +283,9 @@
       }, function (err) {
         console.warn('Voting sidebar: failed to read down-votes from Firebase:', err);
       });
+      updateMobilePct(activeIdx);
+    }, function (err) {
+      console.warn('Voting sidebar: failed to read votes from Firebase:', err);
     });
 
     // Check if this visitor already voted
