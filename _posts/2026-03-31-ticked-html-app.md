@@ -27,6 +27,8 @@ comments: true
 
 Ticked gives you two seamless tabs: **Log** for quick timestamped entries and **Processes** for multi-stage workflow tracking. Every change auto-saves to your browser’s localStorage. Your data stays on your device, works completely offline, and never leaves your machine.
 
+At its core, the Log tab lets you press a button or hit Enter to instantly log the current timestamp like a traditional logbook. This simple one-action capture is particularly helpful for real-time time tracking, habit logging, event documentation, or quick personal journaling—eliminating friction so you can record exactly when something happens without extra steps or apps.
+
 <h2 id="core-features">Core Features</h2>
 
 - **Dual Tabs for Flexibility**  
@@ -39,7 +41,7 @@ Ticked gives you two seamless tabs: **Log** for quick timestamped entries and **
   For Log: All / Auto-logged / Custom / Edited. For Processes: All / Edited / Overdue. Combine with search, date pickers, and sort by time or name.
 
 - **Timeline & List Views**  
-  Toggle between chronological timeline (with day headers) and classic list. Swipe gestures on mobile for quick delete or actions.
+  Toggle between chronological timeline (with day headers) and classic list. Swipe gestures on mobile integrate well for phones, offering quick delete or actions.
 
 - **Silent Instant Logging**  
   Type, hit Enter or tap Log—entries save automatically with no buttons or spinners.
@@ -78,7 +80,8 @@ Use it immediately at the live demo or save the page as `index.html` for a porta
 - Daily personal workflows—log routines, side projects, or learning checkpoints.  
 - Team hand-off notes—export a clean JSON or offline HTML snapshot.  
 - Offline fieldwork—reliable tracking when connectivity is unavailable.  
-- Minimalist productivity—replace bloated apps with a tool you own.
+- Minimalist productivity—replace bloated apps with a tool you own.  
+- Logbook-style timestamping—freelance billable-hours logging or daily mood/event journaling.
 
 The app runs live at https://ranzlappen.github.io/ticked/.
 
@@ -107,4 +110,4 @@ Ticked stores everything in your browser’s localStorage. Clearing cookies or s
 
 Ticked delivers powerful workflow tracking in the lightest possible package. Whether you open it online for immediate use or save it locally for permanent offline access, you get instant logging, checkpoint progress, smart organization, and total data ownership. If you value speed, simplicity, and control over your own information, Ticked is ready the moment you open the page.
 
-Star the project on GitHub if it helps your workflow: [github.com/Ranzlappen/ticked](https://github.com/Ranzlappen/ticked).
+Star the project on GitHub if it helps your workflow: [github.com/Ranzlappen/ticked](https://github.com/Ranzlappen/ticked). 
