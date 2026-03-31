@@ -10,40 +10,40 @@ date: 2026-03-31
 This analysis focuses exclusively on media ecosystems in Western democracies—the United States and Europe—where corporate and public-funded outlets operate in relatively free but commercially and politically pressured environments. These systems differ markedly from state-controlled or suppressed media in non-Western contexts. Public trust in legacy Western media has collapsed. Reuters Institute’s Digital News Report 2025 shows overall trust stable at 40% globally, but with sharp Western declines: US at 30%, Germany at 45% (down 15 percentage points since 2015), and UK at 35% (down 16 points).<sup>[1]</sup> Concern over distinguishing truth from falsehood online reaches 73% in the US versus 46% in Western Europe.<sup>[1]</sup> These figures reflect shared structural failures—paywalls, advertising dependency, user-data exploitation, ideological framing, statistical manipulation, fluff, and suppressed feedback—driving audiences to independents while highlighting the need for minimally restricted AI.
 
 ### US vs Europe Data Snapshot
-<div style="overflow-x: auto;">
-  <table>
+<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.4; min-width: 640px; table-layout: auto;">
     <thead>
-      <tr>
-        <th>Country/Region</th>
-        <th>Trust in News (%)</th>
-        <th>Change Since 2015</th>
-        <th>Fake News Concern (%)</th>
+      <tr style="border-bottom: 2px solid #555;">
+        <th style="text-align: left; padding: 11px 10px; width: 37%;">Country/Region</th>
+        <th style="text-align: center; padding: 11px 8px; width: 18%;">Trust in News (%)</th>
+        <th style="text-align: left; padding: 11px 8px; width: 23%;">Change Since 2015</th>
+        <th style="text-align: center; padding: 11px 8px; width: 22%;">Fake News Concern (%)</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>United States</td>
-        <td>30</td>
-        <td>Stable (low)</td>
-        <td>73</td>
+      <tr style="border-bottom: 1px solid #333;">
+        <td style="padding: 11px 10px; font-weight: 500;">United States</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">30</td>
+        <td style="padding: 11px 8px;">Stable (low)</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">73</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #333;">
+        <td style="padding: 11px 10px; font-weight: 500;">Germany</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">45</td>
+        <td style="padding: 11px 8px;">-15pp</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">~46 (Western Europe)</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #333;">
+        <td style="padding: 11px 10px; font-weight: 500;">United Kingdom</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">35</td>
+        <td style="padding: 11px 8px;">-16pp</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">~46 (Western Europe)</td>
       </tr>
       <tr>
-        <td>Germany</td>
-        <td>45</td>
-        <td>-15pp</td>
-        <td>\~46 (Western Europe)</td>
-      </tr>
-      <tr>
-        <td>United Kingdom</td>
-        <td>35</td>
-        <td>-16pp</td>
-        <td>\~46 (Western Europe)</td>
-      </tr>
-      <tr>
-        <td>Western Europe</td>
-        <td>40–50 (avg)</td>
-        <td>Declining</td>
-        <td>46</td>
+        <td style="padding: 11px 10px; font-weight: 500;">Western Europe</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">40–50 (avg)</td>
+        <td style="padding: 11px 8px;">Declining</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">46</td>
       </tr>
     </tbody>
   </table>
