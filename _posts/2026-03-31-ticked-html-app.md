@@ -53,11 +53,15 @@ Ticked gives you two seamless tabs: **Log** for quick timestamped entries and **
 - **Advanced Backup & Export**  
   One-click JSON export, import, Google Drive sync option, and built-in “Download Offline HTML” for a self-contained backup file.
 
-[Insert Screenshot: Log tab showing quick entry input, timeline view, and filters]
+<div class="carousel">
 
-[Insert Screenshot: Processes tab with checkpoint timeline, overdue indicators, and detail sheet]
+![Log tab — quick entry input, timeline view, and filters](/assets/images/ticked/log-tab.svg)
 
-[Insert Screenshot: Export/backup panel and mobile swipe gesture in action]
+![Processes tab — checkpoint timeline, overdue indicators, and detail sheet](/assets/images/ticked/processes-tab.svg)
+
+![Export/backup panel and mobile swipe gesture in action](/assets/images/ticked/export-panel.svg)
+
+</div>
 
 <h2 id="technical-advantages">Technical Advantages</h2>
 
