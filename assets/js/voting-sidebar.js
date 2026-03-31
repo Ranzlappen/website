@@ -37,7 +37,10 @@
           if (loaded < total) return;
           try {
             var app = firebase.initializeApp(cfg);
-            firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(cfg.recaptchaSiteKey), true);
+            firebase.appCheck().activate(
+              new firebase.appCheck.ReCaptchaEnterpriseProvider(cfg.recaptchaSiteKey),
+              true
+            );
             db = firebase.database();
             firebaseReady = true;
             resolve(true);
@@ -281,7 +284,13 @@
   // Init
   // -------------------------------------------------------
   loadFirebase().then(function (ok) {
-    if (ok) loadVotes();
+    if (ok) {
+      firebase.appCheck().getToken().then(function () {
+        loadVotes();
+      }).catch(function () {
+        loadVotes();
+      });
+    }
   });
 
   // Set initial mobile bar content

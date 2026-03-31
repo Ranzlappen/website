@@ -200,6 +200,12 @@ img {
   font-weight: 800;
   font-size: 0.85rem;
 }
+.logo-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--border-radius-sm);
+  object-fit: contain;
+}
 
 /* Navigation */
 .nav-desktop {
@@ -477,6 +483,7 @@ img {
   transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
   display: flex;
   flex-direction: column;
+  transform: translateY(0);
 }
 .post-card:hover {
   transform: translateY(-2px);
