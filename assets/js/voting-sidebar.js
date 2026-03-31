@@ -37,7 +37,10 @@
           if (loaded < total) return;
           try {
             var app = firebase.initializeApp(cfg);
-            firebase.appCheck().activate(cfg.recaptchaSiteKey, true);
+            firebase.appCheck().activate(
+              new firebase.appCheck.ReCaptchaEnterpriseProvider(cfg.recaptchaSiteKey),
+              true
+            );
             db = firebase.database();
             firebaseReady = true;
             resolve(true);
