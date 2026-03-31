@@ -1,0 +1,156 @@
+---
+layout: default
+title: Contact
+subtitle: Drop me a line
+permalink: /contact/
+---
+
+<header class="page-header">
+  <h1>Contact</h1>
+  <p>Messages are submitted as GitHub Issues — no email needed.</p>
+</header>
+
+<div class="page-body">
+  <div class="contact-form">
+    <div class="form-group">
+      <label for="contact-name">Name</label>
+      <input type="text" id="contact-name" name="name" required placeholder="Your name">
+    </div>
+
+    <div class="form-group">
+      <label for="contact-email">Email <small style="color:var(--c-text-faint)">(optional)</small></label>
+      <input type="email" id="contact-email" name="email" placeholder="you@example.com">
+    </div>
+
+    <div class="form-group">
+      <label for="contact-subject">Subject</label>
+      <select id="contact-subject" name="subject">
+        <option value="general">General inquiry</option>
+        <option value="feedback">Feedback</option>
+        <option value="collaboration">Collaboration</option>
+        <option value="bug">Bug report</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="contact-message">Message</label>
+      <textarea id="contact-message" name="message" required placeholder="What's on your mind?"></textarea>
+    </div>
+
+    <!-- hCaptcha -->
+    <div class="form-group">
+      <div class="h-captcha" data-sitekey="{{ site.hcaptcha.site_key }}" data-theme="dark"></div>
+      <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    </div>
+
+    <button type="button" class="form-submit" id="contact-submit">
+      Send Message
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+      </svg>
+    </button>
+
+    <div class="form-status" id="contact-status"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var submitBtn = document.getElementById('contact-submit');
+  var statusEl = document.getElementById('contact-status');
+
+  submitBtn.addEventListener('click', function() {
+    var name = document.getElementById('contact-name').value.trim();
+    var email = document.getElementById('contact-email').value.trim();
+    var subject = document.getElementById('contact-subject').value;
+    var message = document.getElementById('contact-message').value.trim();
+
+    // Validate
+    if (!name || !message) {
+      showStatus('Please fill in your name and message.', 'error');
+      return;
+    }
+
+    // Check hCaptcha
+    var captchaResponse = '';
+    if (typeof hcaptcha !== 'undefined') {
+      captchaResponse = hcaptcha.getResponse();
+      if (!captchaResponse) {
+        showStatus('Please complete the CAPTCHA.', 'error');
+        return;
+      }
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    // Build GitHub Issue body
+    var issueTitle = '[Contact] ' + subject + ' — ' + name;
+    var issueBody = '**From:** ' + name + '\n' +
+      (email ? '**Email:** ' + email + '\n' : '') +
+      '**Subject:** ' + subject + '\n\n' +
+      '---\n\n' + message + '\n\n' +
+      '---\n*Submitted via contact form*';
+
+    // Option A: Direct GitHub API (requires a personal access token — see README)
+    // Option B: Use a serverless proxy (Cloudflare Worker) — recommended
+    var endpoint = '{{ site.contact_form.endpoint }}';
+
+    if (!endpoint) {
+      // Fallback: open a pre-filled GitHub Issue URL
+      var url = 'https://github.com/{{ site.repository }}/issues/new?' +
+        'title=' + encodeURIComponent(issueTitle) +
+        '&body=' + encodeURIComponent(issueBody) +
+        '&labels=contact-form';
+      window.open(url, '_blank');
+      showStatus('Redirecting to GitHub to submit your message…', 'success');
+      resetForm();
+      return;
+    }
+
+    // POST to proxy endpoint
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: issueTitle,
+        body: issueBody,
+        captcha: captchaResponse
+      })
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('Server error');
+      return r.json();
+    })
+    .then(function() {
+      showStatus('Message sent! Thanks for reaching out.', 'success');
+      resetForm();
+    })
+    .catch(function(err) {
+      showStatus('Failed to send. Please try again or open an issue on GitHub directly.', 'error');
+      console.error(err);
+    })
+    .finally(function() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Message';
+    });
+  });
+
+  function showStatus(msg, type) {
+    statusEl.textContent = msg;
+    statusEl.className = 'form-status ' + type;
+  }
+
+  function resetForm() {
+    document.getElementById('contact-name').value = '';
+    document.getElementById('contact-email').value = '';
+    document.getElementById('contact-message').value = '';
+    if (typeof hcaptcha !== 'undefined') hcaptcha.reset();
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send Message';
+  }
+})();
+</script>

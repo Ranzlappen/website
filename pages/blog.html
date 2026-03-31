@@ -1,0 +1,39 @@
+---
+layout: default
+title: Blog
+permalink: /blog/
+---
+
+<section class="page-content">
+  <div class="container">
+    <div class="section-header">
+      <h1 class="section-title">All Posts</h1>
+
+      <div class="view-toggle" role="group" aria-label="View mode">
+        <button id="view-grid" class="active" aria-label="Grid view" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </button>
+        <button id="view-list" aria-label="List view" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="posts-grid" id="posts-grid">
+      {% for post in site.posts %}
+        {% include post-card.html post=post %}
+      {% endfor %}
+    </div>
+
+    <div class="posts-list" id="posts-list" hidden>
+      {% for post in site.posts %}
+        {% include post-list-item.html post=post %}
+      {% endfor %}
+    </div>
+  </div>
+</section>

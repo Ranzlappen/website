@@ -1,0 +1,35 @@
+---
+layout: default
+title: Categories
+permalink: /categories/
+---
+
+<header class="page-header">
+  <h1>Categories</h1>
+  <p>Browse posts by topic</p>
+</header>
+
+<div class="page-body">
+  <!-- Category pills -->
+  <div class="taxonomy-list">
+    {% assign sorted_cats = site.categories | sort %}
+    {% for cat in sorted_cats %}
+      <a href="#{{ cat[0] | slugify }}">{{ cat[0] }} <span class="count">({{ cat[1].size }})</span></a>
+    {% endfor %}
+  </div>
+
+  <!-- Posts by category -->
+  {% for cat in sorted_cats %}
+  <section class="taxonomy-section" id="{{ cat[0] | slugify }}">
+    <h2>{{ cat[0] }}</h2>
+    <div class="taxonomy-posts">
+      {% for post in cat[1] %}
+      <a href="{{ post.url | relative_url }}">
+        <span>{{ post.title }}</span>
+        <span class="date">{{ post.date | date: "%b %-d, %Y" }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+</div>
