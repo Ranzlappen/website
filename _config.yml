@@ -74,6 +74,7 @@ giscus:
 # Firebase (voting sidebar)
 firebase:
   api_key: "AIzaSyByEwHUnausbBmyRT928uGTRw5ZvszjjiM"
+  app_id: "1:420991269376:web:8b2d0bcac98ffd92abb6e5"
   project_id: "proven-concept-436717-q3"
   database_url: "https://proven-concept-436717-q3-default-rtdb.europe-west1.firebasedatabase.app"
   recaptcha_site_key: "6LfAW58sAAAAAGOKjXy4zBHOJsxXiDJStaQ0Mtf8"
