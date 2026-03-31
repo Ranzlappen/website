@@ -13,7 +13,7 @@ author:
   name: "Ranzlappen"
   email: ""
   github: "Ranzlappen"
-  twitter: ""
+  twitter: "@MatthiasBro"
 
 # Build
 markdown: kramdown
@@ -64,9 +64,9 @@ plugins:
 # Giscus (GitHub Discussions comments)
 giscus:
   repo: "Ranzlappen/website"
-  repo_id: ""           # Get from https://giscus.app
+  repo_id: "R_kgDORsdF5A"           # Get from https://giscus.app
   category: "Blog Comments"
-  category_id: ""       # Get from https://giscus.app
+  category_id: "DIC_kwDORsdF5M4C5r45"       # Get from https://giscus.app
   mapping: "pathname"
   reactions_enabled: "1"
   theme: "preferred_color_scheme"
