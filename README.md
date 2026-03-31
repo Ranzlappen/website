@@ -8,12 +8,14 @@ A clean, dark-themed personal blog. No coding required to set up or maintain —
 
 1. [Get Your Blog Online (5 minutes)](#get-your-blog-online)
 2. [How to Write a New Post](#how-to-write-a-new-post)
-3. [Enable Comments (Giscus)](#enable-comments-giscus)
-4. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
-5. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
-6. [Connect Your Own Domain](#connect-your-own-domain)
-7. [Change Colors or Fonts](#change-colors-or-fonts)
-8. [Moderate Comments and Votes](#moderate-comments-and-votes)
+3. [Add an Image Carousel](#add-an-image-carousel)
+4. [Built-in Features](#built-in-features)
+5. [Enable Comments (Giscus)](#enable-comments-giscus)
+6. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
+7. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
+8. [Connect Your Own Domain](#connect-your-own-domain)
+9. [Change Colors or Fonts](#change-colors-or-fonts)
+10. [Moderate Comments and Votes](#moderate-comments-and-votes)
 
 ---
 
@@ -92,6 +94,45 @@ Use ### for sub-sections within a section.
 - `tags` can be multiple: `[raspberry-pi, automation, gardening]`.
 - `date` must match the date in the filename.
 - Want a cover image? Add the image file to `assets/images/`, then add `image: /assets/images/your-image.jpg` to the template header.
+
+---
+
+## Add an Image Carousel
+
+You can add a swipeable image carousel (gallery/slideshow) to any post. Wrap your images in a `<div class="carousel">` block:
+
+```html
+<div class="carousel">
+  <img src="/assets/images/screenshot-1.png" alt="Description of first image">
+  <img src="/assets/images/screenshot-2.png" alt="Description of second image">
+  <img src="/assets/images/screenshot-3.png" alt="Description of third image">
+</div>
+```
+
+That's it — the carousel auto-initializes with:
+
+- **Arrow buttons** and **dot indicators** for navigation
+- **Swipe gestures** on mobile
+- **Keyboard arrow keys** (← →)
+- **Auto-play** that pauses when you hover
+- **Captions** pulled from each image's `alt` text
+- **Slide counter** (e.g., "1 / 3")
+
+Upload your images to `assets/images/` and reference them in the `src` attribute. You can add as many images as you want.
+
+---
+
+## Built-in Features
+
+These features work automatically on every post — no setup needed:
+
+| Feature | What it does |
+|---------|-------------|
+| **Read Aloud** | Converts your article to speech with play/pause, speed, and volume controls (desktop only) |
+| **Search** | Full-text search across all posts — press `Ctrl+K` (or `Cmd+K` on Mac) to open |
+| **Reading Progress Bar** | Shows how far down the page the reader has scrolled |
+| **Dark / Light Theme** | Toggle between dark and light mode — preference is saved |
+| **Grid / List View** | Readers can switch between grid cards and a compact list on the blog page |
 
 ---
 
@@ -383,6 +424,7 @@ Vote data lives in your Firebase console:
 | Add a new page              | Create a `.md` file in `pages/` with layout/permalink headers  |
 | Moderate a comment          | Go to repo → Discussions tab → find and manage it              |
 | Check contact messages      | Go to repo → Issues tab → look for `[Contact]` labels         |
+| Add an image carousel       | Wrap `<img>` tags in `<div class="carousel">` in your post     |
 | Upload an image for a post  | Upload to `assets/images/` on GitHub, reference in your post   |
 
 ---
