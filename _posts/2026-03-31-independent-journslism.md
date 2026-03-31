@@ -3,6 +3,12 @@ title: "Western Media Trust Crisis: Independent Journalism & Open AI Rise"
 description: "Western media trust at record lows—US 30% (Reuters 2025), Germany 45% (-15pp), UK 35% (-16pp). Explore corporate/public broadcaster failures (paywalls, bias, compulsory fees, staff bloat), teen media literacy erosion, legacy TV limitations, and why independent voices plus minimally restricted AI (Grok's edge) are vital fixes."
 keywords: ["western media trust crisis 2025", "independent journalism Europe US", "ARD ZDF Rundfunkbeitrag debate", "public broadcaster staff bloat", "media literacy western teens", "Grok AI minimal guardrails", "US vs Europe media trust Reuters", "legacy TV feedback issues"]
 date: 2026-03-31
+<!--
+category: "?"
+tags: [?,?]
+image:
+comments: true
+-->
 ---
 
 <nav style="background: #1a1a1a; border: 1px solid #333; border-radius: 6px; padding: 18px 22px; margin-bottom: 28px; line-height: 1.7;">
