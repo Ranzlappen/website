@@ -30,11 +30,14 @@
       var s1 = document.createElement('script');
       s1.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
       s1.onload = function () {
-        var s2 = document.createElement('script');
-        s2.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js';
-        s2.onload = function () {
+        var loaded = 0;
+        var total = 2;
+        function onReady() {
+          loaded++;
+          if (loaded < total) return;
           try {
             var app = firebase.initializeApp(cfg);
+            firebase.appCheck().activate(cfg.recaptchaSiteKey, true);
             db = firebase.database();
             firebaseReady = true;
             resolve(true);
@@ -42,8 +45,17 @@
             console.warn('Firebase init error:', e);
             resolve(false);
           }
-        };
+        }
+
+        var s2 = document.createElement('script');
+        s2.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js';
+        s2.onload = onReady;
         document.head.appendChild(s2);
+
+        var s3 = document.createElement('script');
+        s3.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js';
+        s3.onload = onReady;
+        document.head.appendChild(s3);
       };
       document.head.appendChild(s1);
     });
