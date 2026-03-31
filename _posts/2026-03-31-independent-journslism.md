@@ -9,22 +9,22 @@ image:
 comments: true
 ---
 
-<nav style="background: #1a1a1a; border: 1px solid #333; border-radius: 6px; padding: 18px 22px; margin-bottom: 28px; line-height: 1.7;">
-  <strong style="font-size: 1.05em;">Table of Contents</strong>
-  <ol style="margin: 10px 0 0 0; padding-left: 22px;">
-    <li><a href="#intro" style="text-decoration: none;">Western Media Trust Crisis</a>
-      <ul style="margin: 2px 0; padding-left: 18px; list-style: disc;">
-        <li><a href="#data-snapshot" style="text-decoration: none;">US vs Europe Data Snapshot</a></li>
+<nav>
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#intro">Western Media Trust Crisis</a>
+      <ul>
+        <li><a href="#data-snapshot">US vs Europe Data Snapshot</a></li>
       </ul>
     </li>
-    <li><a href="#corporate-public-failures" style="text-decoration: none;">Corporate and Public Media's Structural and Editorial Failures</a></li>
-    <li><a href="#legacy-tv" style="text-decoration: none;">Legacy TV's Structural Limitations in Western Media</a></li>
-    <li><a href="#education-decline" style="text-decoration: none;">The Self-Reinforcing Link to Educational Decline</a></li>
-    <li><a href="#independent-journalism" style="text-decoration: none;">Independent Journalism's Rapid Ascent and Accountability Model</a></li>
-    <li><a href="#ai-guardrails" style="text-decoration: none;">AI Development with Minimal Guardrails</a></li>
-    <li><a href="#key-takeaways" style="text-decoration: none;">Key Takeaways</a></li>
-    <li><a href="#conclusion" style="text-decoration: none;">Conclusion</a></li>
-    <li><a href="#sources" style="text-decoration: none;">Sources</a></li>
+    <li><a href="#corporate-public-failures">Corporate and Public Media's Structural and Editorial Failures</a></li>
+    <li><a href="#legacy-tv">Legacy TV's Structural Limitations in Western Media</a></li>
+    <li><a href="#education-decline">The Self-Reinforcing Link to Educational Decline</a></li>
+    <li><a href="#independent-journalism">Independent Journalism's Rapid Ascent and Accountability Model</a></li>
+    <li><a href="#ai-guardrails">AI Development with Minimal Guardrails</a></li>
+    <li><a href="#key-takeaways">Key Takeaways</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+    <li><a href="#sources">Sources</a></li>
   </ol>
 </nav>
 
@@ -37,7 +37,7 @@ This analysis focuses exclusively on media ecosystems in Western democraciesthe 
 <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%;">
   <table style="width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.4; min-width: 640px; table-layout: auto;">
     <thead>
-      <tr style="border-bottom: 2px solid #555;">
+      <tr>
         <th style="text-align: left; padding: 11px 10px; width: 37%;">Country/Region</th>
         <th style="text-align: center; padding: 11px 8px; width: 18%;">Trust in News (%)</th>
         <th style="text-align: left; padding: 11px 8px; width: 23%;">Change Since 2015</th>
@@ -45,19 +45,19 @@ This analysis focuses exclusively on media ecosystems in Western democraciesthe 
       </tr>
     </thead>
     <tbody>
-      <tr style="border-bottom: 1px solid #333;">
+      <tr>
         <td style="padding: 11px 10px; font-weight: 500;">United States</td>
         <td style="text-align: center; padding: 11px 8px; font-weight: 500;">30</td>
         <td style="padding: 11px 8px;">Stable (low)</td>
         <td style="text-align: center; padding: 11px 8px; font-weight: 500;">73</td>
       </tr>
-      <tr style="border-bottom: 1px solid #333;">
+      <tr>
         <td style="padding: 11px 10px; font-weight: 500;">Germany</td>
         <td style="text-align: center; padding: 11px 8px; font-weight: 500;">45</td>
         <td style="padding: 11px 8px;">-15pp</td>
         <td style="text-align: center; padding: 11px 8px; font-weight: 500;">~46 (Western Europe)</td>
       </tr>
-      <tr style="border-bottom: 1px solid #333;">
+      <tr>
         <td style="padding: 11px 10px; font-weight: 500;">United Kingdom</td>
         <td style="text-align: center; padding: 11px 8px; font-weight: 500;">35</td>
         <td style="padding: 11px 8px;">-16pp</td>
