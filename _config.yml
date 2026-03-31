@@ -1,0 +1,86 @@
+# ============================================================
+# Site Settings
+# ============================================================
+title: "Ranzlappen"
+tagline: "Projects, Curiosities & Everything In Between"
+description: "A personal blog about passion projects, random experiments, and whatever catches my attention."
+url: "https://ranzlappen.github.io"
+baseurl: "/website"
+repository: "Ranzlappen/website"
+
+# Author
+author:
+  name: "Ranzlappen"
+  email: ""
+  github: "Ranzlappen"
+  twitter: ""
+
+# Build
+markdown: kramdown
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
+
+permalink: /blog/:year/:month/:day/:title/
+paginate: 9
+paginate_path: "/blog/page:num/"
+
+# Collections & Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      comments: true
+  - scope:
+      path: "pages"
+      type: "pages"
+    values:
+      layout: "page"
+
+# Exclude from build
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - README.md
+  - LICENSE
+  - .gitignore
+  - vendor
+
+# Plugins (GitHub Pages compatible)
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-paginate
+
+# ============================================================
+# Feature Configuration
+# ============================================================
+
+# Giscus (GitHub Discussions comments)
+giscus:
+  repo: "Ranzlappen/website"
+  repo_id: ""           # Get from https://giscus.app
+  category: "Blog Comments"
+  category_id: ""       # Get from https://giscus.app
+  mapping: "pathname"
+  reactions_enabled: "1"
+  theme: "preferred_color_scheme"
+
+# Firebase (voting sidebar)
+firebase:
+  api_key: ""
+  project_id: ""
+  database_url: ""
+
+# hCaptcha (contact form)
+hcaptcha:
+  site_key: ""
+
+# Contact form proxy (Cloudflare Worker URL)
+contact_form:
+  endpoint: ""
