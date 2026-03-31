@@ -3,14 +3,11 @@ title: "Ticked: Offline Process & Workflow Tracker"
 description: "Ticked is a free single-file HTML app for logging entries and tracking workflows via checkpoints. Fully offline with localStorage, instant auto-save, smart filters, timeline views, and export backups. No accounts, no servers—use instantly online or save locally as index.html for private productivity anywhere."
 keywords: ["ticked app", "offline workflow tracker", "process checkpoint tracker", "localstorage productivity tool", "single file html app", "privacy focused task logger", "pwa workflow tracker", "backup enabled productivity"]
 date: 2026-03-31
----
-
-<!--
-category: "?"
-tags: [?,?]
+category: "Projects"
+tags: [productivity, html, offline, tools]
 image:
 comments: true
--->
+---
 
 <nav style="background: #1a1a1a; border: 1px solid #333; border-radius: 6px; padding: 18px 22px; margin-bottom: 28px; line-height: 1.7;">
   <strong style="font-size: 1.05em;">Table of Contents</strong>
