@@ -477,6 +477,7 @@ img {
   transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
   display: flex;
   flex-direction: column;
+  transform: translateY(0);
 }
 .post-card:hover {
   transform: translateY(-2px);

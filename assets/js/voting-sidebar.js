@@ -284,7 +284,13 @@
   // Init
   // -------------------------------------------------------
   loadFirebase().then(function (ok) {
-    if (ok) loadVotes();
+    if (ok) {
+      firebase.appCheck().getToken().then(function () {
+        loadVotes();
+      }).catch(function () {
+        loadVotes();
+      });
+    }
   });
 
   // Set initial mobile bar content
