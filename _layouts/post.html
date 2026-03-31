@@ -23,6 +23,28 @@ layout: default
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
         {{ minutes }} min read
       </span>
+      <!-- Read Aloud Controls -->
+      <span class="read-aloud" id="read-aloud">
+        <button class="read-aloud__btn" id="read-aloud-play" type="button" aria-label="Play" title="Read aloud">
+          <svg class="read-aloud__icon-play" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
+          <svg class="read-aloud__icon-pause" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <button class="read-aloud__btn" id="read-aloud-stop" type="button" aria-label="Stop" title="Stop reading">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"/></svg>
+        </button>
+        <label class="read-aloud__slider" title="Speed">
+          <span class="read-aloud__label">Speed</span>
+          <input type="range" id="read-aloud-speed" min="0.5" max="2.5" step="0.1" value="1">
+          <span class="read-aloud__value" id="read-aloud-speed-val">1x</span>
+        </label>
+        <label class="read-aloud__slider" title="Volume">
+          <span class="read-aloud__label">Vol</span>
+          <input type="range" id="read-aloud-volume" min="0" max="1" step="0.1" value="1">
+        </label>
+        <select class="read-aloud__voice" id="read-aloud-voice" aria-label="Voice">
+          <option value="">Default</option>
+        </select>
+      </span>
       {% if page.author %}
       <span itemprop="author">{{ page.author }}</span>
       {% endif %}

@@ -1,11 +1,10 @@
 <article class="post-list-item">
+  <a href="{{ post.url | relative_url }}" class="post-list-item__link" aria-label="{{ post.title }}"></a>
   <time class="post-list-item__date" datetime="{{ post.date | date_to_xmlschema }}">
     {{ post.date | date: "%b %-d, %Y" }}
   </time>
   <div class="post-list-item__content">
-    <h3 class="post-list-item__title">
-      <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-    </h3>
+    <h3 class="post-list-item__title">{{ post.title }}</h3>
     <p class="post-list-item__excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
     <div class="post-list-item__meta">
       {% if post.category %}
