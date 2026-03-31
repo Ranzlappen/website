@@ -97,6 +97,8 @@ The app runs live at https://ranzlappen.github.io/ticked/.
 
 [Try It Now](https://ranzlappen.github.io/ticked/) – opens in seconds.
 
+**Development Note**: Ticked is still in active development. While the core functionality is stable and ready to use, occasional bugs may appear. Your feedback and bug reports via GitHub are welcome to help improve the app.
+
 <h2 id="important-note-on-data-persistence">Important Note on Data Persistence</h2>
 
 Ticked stores everything in your browser’s localStorage. Clearing cookies or site data for this domain will delete your entries and processes. Regular backups are strongly recommended. Use the built-in Export button to download a `.json` file anytime, or use the Download Offline HTML option for a complete self-contained backup.
@@ -114,4 +116,4 @@ Ticked stores everything in your browser’s localStorage. Clearing cookies or s
 
 Ticked delivers powerful workflow tracking in the lightest possible package. Whether you open it online for immediate use or save it locally for permanent offline access, you get instant logging, checkpoint progress, smart organization, and total data ownership. If you value speed, simplicity, and control over your own information, Ticked is ready the moment you open the page.
 
-Star the project on GitHub if it helps your workflow: [github.com/Ranzlappen/ticked](https://github.com/Ranzlappen/ticked). 
+Star the project on GitHub if it helps your workflow: [github.com/Ranzlappen/ticked](https://github.com/Ranzlappen/ticked).
