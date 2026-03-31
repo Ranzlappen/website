@@ -1,0 +1,62 @@
+{% if site.giscus.repo and site.giscus.repo_id != "" %}
+<section class="comments-section" id="comments">
+  <h2>Comments</h2>
+
+  <!-- Section context selector -->
+  <div class="comment-context-select">
+    <label for="comment-context">This comment is about:</label>
+    <select id="comment-context">
+      <option value="">Whole article</option>
+      <!-- Populated dynamically by JS from article H2s -->
+    </select>
+  </div>
+
+  <div id="giscus-container">
+    <script
+      src="https://giscus.app/client.js"
+      data-repo="{{ site.giscus.repo }}"
+      data-repo-id="{{ site.giscus.repo_id }}"
+      data-category="{{ site.giscus.category }}"
+      data-category-id="{{ site.giscus.category_id }}"
+      data-mapping="{{ site.giscus.mapping }}"
+      data-reactions-enabled="{{ site.giscus.reactions_enabled }}"
+      data-emit-metadata="1"
+      data-input-position="top"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  </div>
+</section>
+
+<script>
+  // Populate the comment context selector with H2 sections
+  document.addEventListener('DOMContentLoaded', function() {
+    var select = document.getElementById('comment-context');
+    var headings = document.querySelectorAll('.post-body h2');
+    headings.forEach(function(h) {
+      var opt = document.createElement('option');
+      opt.value = h.id || h.textContent.trim();
+      opt.textContent = h.textContent.trim();
+      select.appendChild(opt);
+    });
+
+    // When user changes section, update Giscus term to include section label
+    select.addEventListener('change', function() {
+      var giscusFrame = document.querySelector('iframe.giscus-frame');
+      if (giscusFrame) {
+        var section = this.value;
+        var msg = { giscus: { setConfig: {} } };
+        if (section) {
+          msg.giscus.setConfig.term = window.location.pathname + '#' + section;
+        } else {
+          msg.giscus.setConfig.term = window.location.pathname;
+        }
+        giscusFrame.contentWindow.postMessage(msg, 'https://giscus.app');
+      }
+    });
+  });
+</script>
+{% endif %}

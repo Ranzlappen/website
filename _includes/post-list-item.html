@@ -1,0 +1,20 @@
+<article class="post-list-item">
+  <time class="post-list-item__date" datetime="{{ post.date | date_to_xmlschema }}">
+    {{ post.date | date: "%b %-d, %Y" }}
+  </time>
+  <div class="post-list-item__content">
+    <h3 class="post-list-item__title">
+      <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+    </h3>
+    <p class="post-list-item__excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+    <div class="post-list-item__meta">
+      {% if post.category %}
+        <span class="post-card__category">{{ post.category }}</span>
+      {% endif %}
+      {% assign words = post.content | number_of_words %}
+      {% assign minutes = words | divided_by: 200 %}
+      {% if minutes < 1 %}{% assign minutes = 1 %}{% endif %}
+      <span>{{ minutes }} min read</span>
+    </div>
+  </div>
+</article>

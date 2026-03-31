@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  {% include head.html %}
+</head>
+<body{% if page.layout == 'post' %} class="has-voting-bar"{% endif %}>
+
+  {% include header.html %}
+  {% include search-modal.html %}
+
+  {% if page.layout == 'post' %}
+  <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+  {% endif %}
+
+  <main id="main-content" role="main">
+    {{ content }}
+  </main>
+
+  {% include footer.html %}
+
+  <!-- Core JS -->
+  <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+
+  {% if page.layout == 'post' %}
+  <!-- Firebase config for voting -->
+  <script>
+    window.__FIREBASE_CONFIG = {
+      apiKey: "{{ site.firebase.api_key }}",
+      projectId: "{{ site.firebase.project_id }}",
+      databaseURL: "{{ site.firebase.database_url }}"
+    };
+  </script>
+  <!-- Voting sidebar (Firebase) -->
+  <script src="{{ '/assets/js/voting-sidebar.js' | relative_url }}"></script>
+  {% endif %}
+
+  <!-- Search (lunr.js) -->
+  <script src="{{ '/assets/js/search.js' | relative_url }}"></script>
+</body>
+</html>

@@ -1,154 +1,170 @@
-# Ranzlappen — Jekyll Blog
+# Ranzlappen — Personal Blog
 
-A clean, dark-themed personal blog built with Jekyll, vanilla CSS, and zero frameworks. Features include per-section voting, Giscus comments, client-side search, and a contact form that submits to GitHub Issues.
+A clean, dark-themed personal blog. No coding required to set up or maintain — everything is done through GitHub's website (works on your phone).
 
 ---
 
 ## Table of Contents
 
-1. [Local Setup](#local-setup)
-2. [Deploy to GitHub Pages](#deploy-to-github-pages)
-3. [How to Add a New Post](#how-to-add-a-new-post)
-4. [Enable Giscus Comments](#enable-giscus-comments)
-5. [Set Up Firebase (Voting Sidebar)](#set-up-firebase-voting-sidebar)
-6. [Set Up hCaptcha (Contact Form)](#set-up-hcaptcha-contact-form)
-7. [Contact Form — GitHub Issues Proxy](#contact-form--github-issues-proxy)
-8. [Connect a Custom Domain (Squarespace)](#connect-a-custom-domain-squarespace)
-9. [Customize Colors & Fonts](#customize-colors--fonts)
-10. [Moderate Comments & Votes](#moderate-comments--votes)
-11. [Project Structure](#project-structure)
+1. [Get Your Blog Online (5 minutes)](#get-your-blog-online)
+2. [How to Write a New Post](#how-to-write-a-new-post)
+3. [Enable Comments (Giscus)](#enable-comments-giscus)
+4. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
+5. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
+6. [Connect Your Own Domain](#connect-your-own-domain)
+7. [Change Colors or Fonts](#change-colors-or-fonts)
+8. [Moderate Comments and Votes](#moderate-comments-and-votes)
 
 ---
 
-## Local Setup
+## Get Your Blog Online
 
-### Prerequisites
+You already have the repo at [github.com/Ranzlappen/website](https://github.com/Ranzlappen/website). If the files from the zip aren't uploaded yet:
 
-- Ruby 3.0+ (check with `ruby -v`)
-- Bundler (`gem install bundler`)
-- Git
+### Upload the files
 
-### Steps
+1. Go to your repo on GitHub.
+2. Click **Add file → Upload files**.
+3. Unzip the downloaded zip file on your phone/tablet (most file managers can do this).
+4. Drag or select **all files and folders** from inside the `website/` folder and upload them. Important: upload the *contents* of the `website/` folder, not the folder itself — so `_config.yml` should be at the root of your repo, not inside a subfolder.
+5. Scroll down, click **Commit changes**.
 
-```bash
-git clone https://github.com/Ranzlappen/website.git
-cd website
-bundle install
-bundle exec jekyll serve --livereload
-```
+### Turn on GitHub Pages
 
-Open `http://localhost:4000/website/` in your browser.
-
-> **Tip:** If you remove the `baseurl` in `_config.yml` (set it to `""`), the local URL becomes `http://localhost:4000/`.
-
----
-
-## Deploy to GitHub Pages
-
-1. Push the repository to `https://github.com/Ranzlappen/website`.
-2. Go to **Settings → Pages**.
+1. In your repo, tap **Settings** (gear icon, top right area).
+2. In the left sidebar, tap **Pages**.
 3. Under **Source**, select **Deploy from a branch**.
-4. Choose the `main` branch and `/ (root)` folder.
-5. Click **Save**. Your site will be live at `https://ranzlappen.github.io/website/` within a few minutes.
+4. Choose branch: **main**, folder: **/ (root)**.
+5. Tap **Save**.
+6. Wait 2-3 minutes, then visit: **https://ranzlappen.github.io/website/**
 
-> **Note:** If you use a custom domain, update `url` in `_config.yml` to your domain and set `baseurl` to `""`.
+That's it — your blog is live.
 
 ---
 
-## How to Add a New Post
+## How to Write a New Post
 
-Create **one file** in `_posts/` using the naming pattern:
+Every blog post is just a single text file. Here's how to create one:
+
+1. Go to your repo on GitHub.
+2. Navigate to the `_posts` folder.
+3. Tap **Add file → Create new file**.
+4. Name it using this exact pattern: `YYYY-MM-DD-your-title-here.md`
+   - Example: `2026-04-15-my-first-real-post.md`
+5. Paste this template at the top, then write your content below:
 
 ```
-YYYY-MM-DD-your-post-title.md
+---
+title: "Your Post Title Here"
+date: 2026-04-15
+category: "Projects"
+tags: [tag1, tag2]
+description: "A short summary for search engines and social media previews."
+comments: true
+---
+
+Write your post here using normal text.
+
+## Section Heading
+
+Use ## for section headings — these automatically show up in the
+voting sidebar and comment section picker.
+
+You can use **bold**, *italic*, [links](https://example.com),
+and all standard Markdown formatting.
+
+### Smaller Heading
+
+Use ### for sub-sections within a section.
+
+- Bullet points work too
+- Like this
+
+> This is a quote block
 ```
 
-### Frontmatter Template
+6. Scroll down and tap **Commit changes**.
+7. Wait 1-2 minutes — your post is live.
 
-```yaml
----
-title: "Your Post Title"
-date: 2026-04-01
-category: "Projects"          # Single category (appears as a label)
-tags: [tag1, tag2, tag3]      # Multiple tags
-description: "A short description for SEO and social sharing."
-image:                        # Optional: path to a hero image, e.g. /assets/images/my-post.jpg
-comments: true                # Set to false to disable comments on this post
----
+### Tips
 
-Your markdown content here. Use ## headings for sections — these
-automatically appear in the voting sidebar and the comment context selector.
-```
-
-### Important
-
-- Use `## Heading` (H2) for sections — these power the voting sidebar and comment section selector.
-- Add images to `/assets/images/` and reference them in your post or frontmatter.
-- The `category` field should be a single word or phrase. Common ones: `Projects`, `Workflow`, `Thoughts`, `Tutorials`.
-- The excerpt is auto-generated from the first paragraph, or you can set `excerpt:` manually in frontmatter.
-
-That's it — one file, push, done.
+- The `category` is a single label like `Projects`, `Thoughts`, `Tutorials`, `Workflow`.
+- `tags` can be multiple: `[raspberry-pi, automation, gardening]`.
+- `date` must match the date in the filename.
+- Want a cover image? Add the image file to `assets/images/`, then add `image: /assets/images/your-image.jpg` to the template header.
 
 ---
 
-## Enable Giscus Comments
+## Enable Comments (Giscus)
 
-Giscus uses GitHub Discussions as the comment backend. Here's how to set it up:
+Giscus lets visitors comment on your posts using their GitHub account. Comments are stored in your repo's Discussions tab — you have full control.
 
-### Step 1: Enable Discussions
+### Step 1: Turn on Discussions
 
-Go to your repo → **Settings → General** → scroll to **Features** → check **Discussions**.
+1. Go to your repo → **Settings**.
+2. Scroll down to **Features**.
+3. Check the box next to **Discussions**.
 
-### Step 2: Create a Category
+### Step 2: Create a comment category
 
-In your repo's **Discussions** tab, create a new category called **Blog Comments** (or whatever you prefer). Set the format to **Announcement** so only the Giscus bot creates new threads.
+1. Go to the **Discussions** tab in your repo (top menu bar).
+2. Tap the pencil/edit icon next to "Categories" in the left sidebar.
+3. Tap **New category**.
+4. Name it: `Blog Comments`
+5. Discussion format: choose **Announcement** (so only the bot creates threads).
+6. Save.
 
-### Step 3: Get Your Config
+### Step 3: Get your config codes
 
-Go to [https://giscus.app](https://giscus.app) and fill in:
+1. Open [giscus.app](https://giscus.app) in your browser.
+2. Fill in:
+   - Repository: `Ranzlappen/website`
+   - Page ↔ Discussion mapping: select **pathname**
+   - Category: select **Blog Comments**
+3. The page will show a code block. You need two values from it:
+   - `data-repo-id` (starts with `R_`)
+   - `data-category-id` (starts with `DIC_`)
 
-- **Repository:** `Ranzlappen/website`
-- **Page ↔ Discussion mapping:** `pathname`
-- **Category:** `Blog Comments`
+### Step 4: Paste them into your config
 
-The tool will generate values for `data-repo-id` and `data-category-id`.
-
-### Step 4: Update `_config.yml`
-
-```yaml
-giscus:
-  repo: "Ranzlappen/website"
-  repo_id: "R_xxxxx"           # ← paste from giscus.app
-  category: "Blog Comments"
-  category_id: "DIC_xxxxx"     # ← paste from giscus.app
-  mapping: "pathname"
-  reactions_enabled: "1"
-  theme: "preferred_color_scheme"
-```
-
-Push and the comment sections will appear on all posts.
+1. Go to your repo → open `_config.yml` → tap the pencil icon to edit.
+2. Find the `giscus:` section and fill in:
+   ```
+   giscus:
+     repo: "Ranzlappen/website"
+     repo_id: "R_paste_yours_here"
+     category: "Blog Comments"
+     category_id: "DIC_paste_yours_here"
+   ```
+3. Tap **Commit changes**.
+4. Wait 1-2 minutes — comments will now appear on every post.
 
 ---
 
-## Set Up Firebase (Voting Sidebar)
+## Enable Voting Sidebar (Firebase)
 
-The voting sidebar uses Firebase Realtime Database (free tier: 1 GB stored, 10 GB/month transfer).
+The voting sidebar lets readers vote 👍/👎 on each section of your articles. Votes are stored in Firebase (Google's free database).
 
-### Step 1: Create a Firebase Project
+### Step 1: Create a Firebase project
 
-1. Go to [https://console.firebase.google.com/](https://console.firebase.google.com/).
-2. Click **Add project** → name it (e.g., `ranzlappen-votes`) → disable Google Analytics (optional) → **Create project**.
+1. Go to [console.firebase.google.com](https://console.firebase.google.com/).
+2. Sign in with any Google account.
+3. Tap **Add project**.
+4. Name it something like `ranzlappen-votes`.
+5. You can disable Google Analytics (not needed) → tap **Create project**.
+6. Wait for it to finish, then tap **Continue**.
 
-### Step 2: Create a Realtime Database
+### Step 2: Create the database
 
-1. In the Firebase console, go to **Build → Realtime Database**.
-2. Click **Create Database**.
-3. Choose a region (e.g., `europe-west1`).
-4. Start in **locked mode** (we'll set rules next).
+1. In the Firebase console sidebar, tap **Build → Realtime Database**.
+2. Tap **Create Database**.
+3. Pick a location (choose the one closest to you, e.g., `europe-west1` for Europe).
+4. Select **Start in locked mode** → tap **Enable**.
 
-### Step 3: Set Database Rules
+### Step 3: Set security rules
 
-Go to **Realtime Database → Rules** and paste:
+1. In the Realtime Database page, tap the **Rules** tab.
+2. Delete everything there and paste this:
 
 ```json
 {
@@ -180,297 +196,220 @@ Go to **Realtime Database → Rules** and paste:
 }
 ```
 
-Key security features:
-- Anyone can read votes (public counters).
-- A visitor hash can only be written **once** (prevents vote manipulation).
-- Values are validated (must be `"up"` or `"down"`).
+3. Tap **Publish**.
 
-### Step 4: Get Your Config
+### Step 4: Register a web app
 
-1. In Firebase console → **Project settings** (gear icon) → scroll to **Your apps**.
-2. Click **Add app** → choose **Web** → register (no hosting needed).
-3. Copy the config values.
+1. In Firebase console, tap the **gear icon** (top left) → **Project settings**.
+2. Scroll down to **Your apps** → tap the **</>** (web) icon.
+3. Give it a nickname (e.g., `blog`) — you do NOT need Firebase Hosting, leave it unchecked.
+4. Tap **Register app**.
+5. You'll see a code block with your config. You need three values:
+   - `apiKey` (starts with `AIza...`)
+   - `projectId` (e.g., `ranzlappen-votes`)
+   - `databaseURL` (e.g., `https://ranzlappen-votes-default-rtdb.europe-west1.firebasedatabase.app`)
 
-### Step 5: Update `_config.yml`
+### Step 5: Paste them into your config
 
-```yaml
-firebase:
-  api_key: "AIzaSy..."
-  project_id: "ranzlappen-votes"
-  database_url: "https://ranzlappen-votes-default-rtdb.europe-west1.firebasedatabase.app"
-```
+1. Go to your repo → edit `_config.yml`.
+2. Find the `firebase:` section and fill in:
+   ```
+   firebase:
+     api_key: "AIzaSy..."
+     project_id: "ranzlappen-votes"
+     database_url: "https://ranzlappen-votes-default-rtdb.europe-west1.firebasedatabase.app"
+   ```
+3. Tap **Commit changes**.
 
-Push and the voting sidebar will be functional.
-
----
-
-## Set Up hCaptcha (Contact Form)
-
-### Step 1: Create an Account
-
-1. Go to [https://www.hcaptcha.com/signup-interstitial](https://www.hcaptcha.com/signup-interstitial).
-2. Sign up (free tier is fine for personal sites).
-
-### Step 2: Get Your Site Key
-
-1. In the hCaptcha dashboard, go to **Sites** → **+ New Site**.
-2. Add your domain(s): `ranzlappen.github.io` (and your custom domain if applicable).
-3. Copy the **Site Key**.
-
-### Step 3: Update `_config.yml`
-
-```yaml
-hcaptcha:
-  site_key: "your-site-key-here"
-```
-
-The hCaptcha widget will appear on the contact page.
+The voting sidebar will now work on every post.
 
 ---
 
-## Contact Form — GitHub Issues Proxy
+## Enable Contact Form CAPTCHA (hCaptcha)
 
-The contact form can work in two modes:
+The contact form uses hCaptcha to block spam bots. Without this step, the form still works (it opens a GitHub Issue page) but won't have CAPTCHA protection.
 
-### Mode 1: Direct GitHub Link (No Setup Required)
+### Step 1: Sign up
 
-If you leave `contact_form.endpoint` empty in `_config.yml`, the form opens a pre-filled GitHub Issue URL in a new tab. The visitor submits it themselves. This works immediately with zero setup.
+1. Go to [hcaptcha.com](https://www.hcaptcha.com/signup-interstitial).
+2. Create a free account.
 
-### Mode 2: Serverless Proxy (Cloudflare Worker)
+### Step 2: Add your site
 
-For a seamless experience where the visitor never leaves your site, deploy a small Cloudflare Worker that creates GitHub Issues on their behalf:
+1. In the hCaptcha dashboard, go to **Sites → + New Site**.
+2. Add your domain: `ranzlappen.github.io` (and your custom domain if you have one).
+3. Save. You'll get a **Site Key** — copy it.
 
-1. Create a **GitHub Personal Access Token** with `repo` scope at [https://github.com/settings/tokens](https://github.com/settings/tokens).
-2. Create a free Cloudflare account at [https://workers.cloudflare.com/](https://workers.cloudflare.com/).
-3. Create a new Worker with this code:
+### Step 3: Paste it into your config
 
-```javascript
-export default {
-  async fetch(request, env) {
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
-      });
-    }
+1. Go to your repo → edit `_config.yml`.
+2. Find the `hcaptcha:` section:
+   ```
+   hcaptcha:
+     site_key: "paste-your-site-key-here"
+   ```
+3. Tap **Commit changes**.
 
-    if (request.method !== 'POST') {
-      return new Response('Method not allowed', { status: 405 });
-    }
+### How the contact form works
 
-    const { title, body, captcha } = await request.json();
-
-    // Verify hCaptcha
-    const captchaResp = await fetch('https://api.hcaptcha.com/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `secret=${env.HCAPTCHA_SECRET}&response=${captcha}`,
-    });
-    const captchaData = await captchaResp.json();
-    if (!captchaData.success) {
-      return new Response(JSON.stringify({ error: 'CAPTCHA failed' }), { status: 403 });
-    }
-
-    // Create GitHub Issue
-    const ghResp = await fetch('https://api.github.com/repos/Ranzlappen/website/issues', {
-      method: 'POST',
-      headers: {
-        'Authorization': `token ${env.GITHUB_TOKEN}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'Ranzlappen-Contact-Form',
-      },
-      body: JSON.stringify({ title, body, labels: ['contact-form'] }),
-    });
-
-    if (!ghResp.ok) {
-      return new Response(JSON.stringify({ error: 'GitHub API error' }), { status: 500 });
-    }
-
-    return new Response(JSON.stringify({ success: true }), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-  },
-};
-```
-
-4. In the Worker settings, add **Environment Variables**:
-   - `GITHUB_TOKEN` → your personal access token (encrypt it)
-   - `HCAPTCHA_SECRET` → your hCaptcha secret key
-
-5. Deploy the worker and copy its URL (e.g., `https://contact-form.your-subdomain.workers.dev`).
-
-6. Update `_config.yml`:
-
-```yaml
-contact_form:
-  endpoint: "https://contact-form.your-subdomain.workers.dev"
-```
+When someone fills out the contact form, it opens a pre-filled GitHub Issue in your repo. You'll get a notification on GitHub whenever someone contacts you. You can respond directly from the Issues tab.
 
 ---
 
-## Connect a Custom Domain (Squarespace)
+## Connect Your Own Domain
 
-### Step 1: In GitHub
+If you have a domain (from Squarespace, Namecheap, or any registrar):
 
-1. Go to repo **Settings → Pages → Custom domain**.
-2. Enter your domain (e.g., `www.yourdomain.com`) and click **Save**.
-3. Check **Enforce HTTPS**.
+### In GitHub
 
-### Step 2: In Squarespace DNS
+1. Go to your repo → **Settings → Pages**.
+2. Under **Custom domain**, type your domain (e.g., `www.yourdomain.com`).
+3. Tap **Save**.
+4. Check **Enforce HTTPS**.
 
-If your domain is registered with Squarespace, go to **Domains → DNS Settings** and add:
+### In your domain registrar's DNS settings
 
-**For `yourdomain.com` (apex domain):**
+Add these records:
 
-| Type | Host | Value |
-|------|------|-------|
-| A | @ | 185.199.108.153 |
-| A | @ | 185.199.109.153 |
-| A | @ | 185.199.110.153 |
-| A | @ | 185.199.111.153 |
+**For the bare domain (yourdomain.com):**
 
-**For `www.yourdomain.com`:**
+| Type | Name/Host | Value |
+|------|-----------|-------|
+| A    | @         | 185.199.108.153 |
+| A    | @         | 185.199.109.153 |
+| A    | @         | 185.199.110.153 |
+| A    | @         | 185.199.111.153 |
 
-| Type | Host | Value |
-|------|------|-------|
-| CNAME | www | ranzlappen.github.io |
+**For www:**
 
-### Step 3: Update `_config.yml`
+| Type  | Name/Host | Value |
+|-------|-----------|-------|
+| CNAME | www       | ranzlappen.github.io |
 
-```yaml
-url: "https://www.yourdomain.com"
-baseurl: ""
-```
+### Update your config
 
-### Step 4: Create a CNAME File
+1. Edit `_config.yml` in your repo.
+2. Change these two lines:
+   ```
+   url: "https://www.yourdomain.com"
+   baseurl: ""
+   ```
+3. Create a new file in your repo root called `CNAME` (no extension) containing just:
+   ```
+   www.yourdomain.com
+   ```
+4. Commit both changes.
 
-Create a file called `CNAME` in the repo root containing just your domain:
-
-```
-www.yourdomain.com
-```
-
-DNS propagation takes up to 48 hours. HTTPS will be provisioned automatically by GitHub.
+DNS can take up to 48 hours to fully work, but usually it's done within an hour.
 
 ---
 
-## Customize Colors & Fonts
+## Change Colors or Fonts
 
-All visual settings are controlled via CSS variables in `assets/css/style.css` at the top of the file.
+All design settings are in one file: `assets/css/style.css`. Edit it on GitHub by tapping the pencil icon.
 
 ### Colors
 
-Edit the `:root` block for dark theme and `[data-theme="light"]` for light theme:
+At the very top of the file you'll see CSS variables. The main ones to change:
 
 ```css
-:root {
-  --c-bg:          #0b1210;    /* Page background */
-  --c-surface:     #15201b;    /* Cards, header */
-  --c-accent:      #4ade80;    /* Primary accent (green) */
-  --c-accent-dim:  #22c55e;    /* Hover state */
-  --c-text:        #dce8e2;    /* Main text */
-  --c-text-muted:  #7e948a;    /* Secondary text */
-  /* ... more variables */
-}
+--c-accent:      #4ade80;    /* The green accent color */
+--c-accent-dim:  #22c55e;    /* Darker green for hover states */
+--c-bg:          #0b1210;    /* Page background */
+--c-text:        #dce8e2;    /* Main text color */
 ```
+
+Change the hex values to any color you want. Use a color picker like [htmlcolorcodes.com](https://htmlcolorcodes.com/) to find hex codes.
+
+There's also a `[data-theme="light"]` section further down — those are the light mode colors.
 
 ### Fonts
 
-Replace the `--f-body` and `--f-heading` values. For Google Fonts, add a `<link>` in `_includes/head.html` and update the variable:
+Find these variables near the top:
+
+```css
+--f-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', ...
+--f-heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', ...
+```
+
+To use a Google Font instead, add a line in `_includes/head.html` before the CSS link:
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+```
+
+Then change the variable:
 
 ```css
 --f-body: 'Inter', sans-serif;
---f-heading: 'Space Grotesk', sans-serif;
-```
-
-### Spacing & Layout
-
-```css
---max-width: 72rem;      /* Max page width */
---content-width: 48rem;  /* Max post/page width */
---border-radius: 0.5rem; /* Corner rounding */
 ```
 
 ---
 
-## Moderate Comments & Votes
+## Moderate Comments and Votes
 
-### Comments (Giscus / GitHub Discussions)
+### Comments
 
-- Comments live in your repo's **Discussions** tab.
-- Delete, lock, or hide individual comments directly on GitHub.
-- To disable comments on a specific post, set `comments: false` in its frontmatter.
-- To disable comments site-wide, remove `giscus.repo_id` from `_config.yml`.
+Comments live in your repo's **Discussions** tab. You can:
 
-### Votes (Firebase)
+- **Delete** any comment by opening the discussion and using the three-dot menu.
+- **Lock** a discussion to prevent new comments.
+- **Disable comments** on a specific post by editing its file and changing `comments: true` to `comments: false`.
+- **Disable all comments** by removing `repo_id` from the `giscus:` section in `_config.yml`.
 
-- View and manage vote data in the [Firebase Console](https://console.firebase.google.com/) → **Realtime Database**.
-- Data is organized as `votes / [post-slug] / [section-id] / { up, down, voters }`.
-- To reset votes for a post, delete its node in the database.
-- To ban a voter, delete their hash from the `voters` node (they can then vote again — but the IP-hash system prevents most abuse).
-- To wipe all votes, delete the entire `votes` node.
+### Votes
+
+Vote data lives in your Firebase console:
+
+1. Go to [console.firebase.google.com](https://console.firebase.google.com/).
+2. Open your project → **Realtime Database**.
+3. You'll see the data organized as: `votes` → `post-name` → `section-name` → `up`, `down`, `voters`.
+4. To **reset votes** for a post: hover over the post name and tap the **X** to delete it.
+5. To **wipe everything**: delete the entire `votes` node.
+
+---
+
+## Quick Reference
+
+| I want to...               | Do this                                                        |
+|-----------------------------|----------------------------------------------------------------|
+| Write a new post            | Create a `.md` file in `_posts/` on GitHub                     |
+| Edit a post                 | Open the file on GitHub → tap pencil → edit → commit           |
+| Delete a post               | Open the file on GitHub → tap three dots → Delete              |
+| Change site name            | Edit `title` in `_config.yml`                                  |
+| Change colors               | Edit CSS variables at top of `assets/css/style.css`            |
+| Add a nav link              | Edit `_data/navigation.yml`                                    |
+| Add a new page              | Create a `.md` file in `pages/` with layout/permalink headers  |
+| Moderate a comment          | Go to repo → Discussions tab → find and manage it              |
+| Check contact messages      | Go to repo → Issues tab → look for `[Contact]` labels         |
+| Upload an image for a post  | Upload to `assets/images/` on GitHub, reference in your post   |
 
 ---
 
 ## Project Structure
 
 ```
-website/
-├── _config.yml              # Site configuration
-├── _data/
-│   └── navigation.yml       # Header & footer nav links
-├── _includes/
-│   ├── head.html            # <head> meta, CSS, OG tags
-│   ├── header.html          # Sticky header + mobile menu
-│   ├── footer.html          # Footer with social links
-│   ├── hero.html            # Homepage hero section
-│   ├── post-card.html       # Blog card (grid view)
-│   ├── post-list-item.html  # Blog row (list view)
-│   ├── giscus.html          # Giscus comment widget
-│   └── search-modal.html    # Search overlay
-├── _layouts/
-│   ├── default.html         # Base HTML shell
-│   ├── home.html            # Homepage with hero + posts
-│   ├── page.html            # Static pages
-│   └── post.html            # Blog post with sidebar + comments
-├── _posts/
-│   ├── 2026-03-10-automating-garden-raspberry-pi.md
-│   ├── 2026-03-20-tracking-everything-plain-text.md
-│   └── 2026-03-28-building-custom-mechanical-keyboard.md
-├── assets/
-│   ├── css/
-│   │   └── style.css        # All styles (CSS variables, responsive)
-│   ├── js/
-│   │   ├── main.js          # Header, theme, menu, progress bar
-│   │   ├── search.js        # Lunr.js search
-│   │   └── voting-sidebar.js # Firebase voting + scroll spy
-│   └── images/
-│       └── favicon.png      # ← Replace with your favicon
-├── pages/
-│   ├── about.md
-│   ├── blog.html
-│   ├── categories.html
-│   ├── contact.html
-│   ├── disclaimer.md
-│   ├── privacy.md
-│   └── tags.html
-├── 404.html
-├── index.html
-├── search.json              # Search index (auto-generated)
-├── robots.txt
-├── Gemfile
-├── .gitignore
-└── README.md
+your-repo/
+├── _config.yml              ← Site settings (name, Giscus, Firebase keys)
+├── _data/navigation.yml     ← Menu links (header and footer)
+├── _posts/                  ← Your blog posts go here (one .md file each)
+├── _includes/               ← Page building blocks (don't need to touch)
+├── _layouts/                ← Page templates (don't need to touch)
+├── assets/css/style.css     ← All design and colors
+├── assets/js/               ← Functionality (don't need to touch)
+├── assets/images/           ← Put your images here
+├── pages/                   ← Static pages (About, Contact, etc.)
+├── index.html               ← Homepage
+├── 404.html                 ← Page not found page
+└── README.md                ← This file
 ```
 
----
+**You only ever need to touch these:**
+- `_posts/` — to write articles
+- `_config.yml` — to change settings or add API keys
+- `assets/css/style.css` — to change the look
+- `assets/images/` — to upload images
+- `pages/` — to edit About, Contact, etc.
 
-## License
-
-This project's code is open source. Content (blog posts) is copyrighted by the author unless stated otherwise.
+Everything else runs automatically.

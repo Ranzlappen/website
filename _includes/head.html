@@ -1,0 +1,43 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{ page.description | default: site.description | strip_html | truncatewords: 50 }}">
+<meta name="author" content="{{ site.author.name }}">
+
+<!-- Open Graph -->
+<meta property="og:title" content="{{ page.title | default: site.title }}">
+<meta property="og:description" content="{{ page.description | default: page.excerpt | default: site.description | strip_html | truncatewords: 50 }}">
+<meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
+<meta property="og:url" content="{{ page.url | absolute_url }}">
+<meta property="og:site_name" content="{{ site.title }}">
+{% if page.image %}<meta property="og:image" content="{{ page.image | absolute_url }}">{% endif %}
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ page.title | default: site.title }}">
+<meta name="twitter:description" content="{{ page.description | default: page.excerpt | default: site.description | strip_html | truncatewords: 50 }}">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="{{ '/assets/images/favicon.png' | relative_url }}" sizes="32x32">
+<link rel="apple-touch-icon" href="{{ '/assets/images/favicon.png' | relative_url }}">
+
+<!-- RSS -->
+<link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
+
+<!-- Canonical -->
+<link rel="canonical" href="{{ page.url | absolute_url }}">
+
+<!-- Base URL for JS -->
+<meta name="baseurl" content="{{ site.baseurl }}">
+
+<!-- CSS -->
+<link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+
+<!-- Theme: apply saved preference before paint to prevent flash -->
+<script>
+  (function() {
+    var t = localStorage.getItem('theme');
+    if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  })();
+</script>
+
+{% seo %}
