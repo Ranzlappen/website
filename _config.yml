@@ -79,7 +79,7 @@ firebase:
 
 # hCaptcha (contact form)
 hcaptcha:
-  site_key: ""
+  site_key: "9cc636a2-90fa-45f4-859c-bf045cb61272"
 
 # Contact form proxy (Cloudflare Worker URL)
 contact_form:
