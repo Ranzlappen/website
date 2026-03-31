@@ -11,6 +11,10 @@ image:
 comments: true
 -->
 
+<h2 id="intro">Western Media Trust Crisis: Independent Journalism & Open AI Rise</h2>
+
+This analysis focuses exclusively on media ecosystems in Western democracies—the United States and Europe—where corporate and public-funded outlets operate in relatively free but commercially and politically pressured environments. These systems differ markedly from state-controlled or suppressed media in non-Western contexts. Public trust in legacy Western media has collapsed. Reuters Institute's Digital News Report 2025 shows overall trust stable at 40% globally, but with sharp Western declines: US at 30%, Germany at 45% (down 15 percentage points since 2015), and UK at 35% (down 16 points).<sup><a href="#source-1">[1]</a></sup> Concern over distinguishing truth from falsehood online reaches 73% in the US versus 46% in Western Europe.<sup><a href="#source-1">[1]</a></sup> These figures reflect shared structural failures—paywalls, advertising dependency, user-data exploitation, ideological framing, statistical manipulation, fluff, and suppressed feedback—driving audiences to independents while highlighting the need for minimally restricted AI.
+
 <nav style="background: #1a1a1a; border: 1px solid #333; border-radius: 6px; padding: 18px 22px; margin-bottom: 28px; line-height: 1.7;">
   <strong style="font-size: 1.05em;">Table of Contents</strong>
   <ol style="margin: 10px 0 0 0; padding-left: 22px;">
@@ -29,10 +33,6 @@ comments: true
     <li><a href="#sources" style="text-decoration: none;">Sources</a></li>
   </ol>
 </nav>
-
-<h2 id="intro">Western Media Trust Crisis: Independent Journalism & Open AI Rise</h2>
-
-This analysis focuses exclusively on media ecosystems in Western democracies—the United States and Europe—where corporate and public-funded outlets operate in relatively free but commercially and politically pressured environments. These systems differ markedly from state-controlled or suppressed media in non-Western contexts. Public trust in legacy Western media has collapsed. Reuters Institute's Digital News Report 2025 shows overall trust stable at 40% globally, but with sharp Western declines: US at 30%, Germany at 45% (down 15 percentage points since 2015), and UK at 35% (down 16 points).<sup><a href="#source-1">[1]</a></sup> Concern over distinguishing truth from falsehood online reaches 73% in the US versus 46% in Western Europe.<sup><a href="#source-1">[1]</a></sup> These figures reflect shared structural failures—paywalls, advertising dependency, user-data exploitation, ideological framing, statistical manipulation, fluff, and suppressed feedback—driving audiences to independents while highlighting the need for minimally restricted AI.
 
 <h3 id="data-snapshot">US vs Europe Data Snapshot</h3>
 
