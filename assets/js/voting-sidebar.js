@@ -301,11 +301,17 @@
   // -------------------------------------------------------
   loadFirebase().then(function (ok) {
     if (ok) {
-      loadVotes();
       if (appCheckReady) {
-        firebase.appCheck().getToken().catch(function (err) {
+        // Wait for App Check token before reading the database
+        firebase.appCheck().getToken(/* forceRefresh */ false).then(function () {
+          loadVotes();
+        }).catch(function (err) {
           console.warn('Voting sidebar: App Check token fetch failed:', err);
+          // Try loading votes anyway in case enforcement is relaxed
+          loadVotes();
         });
+      } else {
+        loadVotes();
       }
     }
   });
