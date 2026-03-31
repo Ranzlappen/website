@@ -39,6 +39,11 @@
   <script src="{{ '/assets/js/read-aloud.js' | relative_url }}"></script>
   {% endif %}
 
+  <!-- Image Carousel -->
+  {% if page.layout == 'post' %}
+  <script src="{{ '/assets/js/carousel.js' | relative_url }}"></script>
+  {% endif %}
+
   <!-- Search (lunr.js) -->
   <script src="{{ '/assets/js/search.js' | relative_url }}"></script>
 </body>
