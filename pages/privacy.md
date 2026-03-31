@@ -19,7 +19,7 @@ Comments are powered by **Giscus**, which uses GitHub Discussions. To leave a co
 
 ## Voting System (Firebase)
 
-The per-section voting feature uses **Google Firebase Realtime Database** to store anonymous votes. Your IP address is fetched via a third-party service (ipify) and hashed — the raw IP is never stored. A hashed identifier is used solely to prevent duplicate voting. No personal information is stored alongside votes.
+The per-section voting feature uses **Google Firebase Realtime Database** to store anonymous votes. Your IP address is fetched via a third-party service (ipify) and hashed — the raw IP is never stored. A hashed identifier is used solely to prevent duplicate voting. No personal information is stored alongside votes. Firebase may set cookies or use browser storage for App Check and session management as part of its normal operation.
 
 ## Contact Form (hCaptcha)
 
@@ -29,19 +29,21 @@ The contact form uses **hCaptcha** for spam protection. hCaptcha may set cookies
 
 This site does **not** use Google Analytics or any other tracking/analytics service. No tracking cookies are set.
 
-## Cookies
+## Cookies & Local Storage
 
-This site uses `localStorage` (not cookies) to remember your theme preference (dark/light) and view mode (grid/list). This data never leaves your browser.
+This site does not set any first-party cookies. It uses `localStorage` (not cookies) to remember your theme preference (dark/light), view mode (grid/list), and voting state. This data never leaves your browser.
+
+Third-party services loaded on this site — specifically **Firebase** (on pages with voting) and **hCaptcha** (on the contact form) — may set their own cookies for functionality such as bot detection and session management. These are not used for tracking or advertising.
 
 ## Third-Party Services Summary
 
-| Service | Purpose | Data collected |
-|---------|---------|----------------|
-| GitHub Pages | Hosting | Server logs |
-| Giscus | Comments | GitHub account (login required) |
-| Firebase | Voting | Hashed IP (anonymous) |
-| hCaptcha | Spam protection | See hCaptcha privacy policy |
-| ipify | IP detection for voting | IP address (hashed, not stored raw) |
+| Service | Purpose | Data collected | Sets cookies? |
+|---------|---------|----------------|---------------|
+| GitHub Pages | Hosting | Server logs | No |
+| Giscus | Comments | GitHub account (login required) | No |
+| Firebase | Voting | Hashed IP (anonymous) | May set functional cookies |
+| hCaptcha | Spam protection | See hCaptcha privacy policy | Yes (bot detection) |
+| ipify | IP detection for voting | IP address (hashed, not stored raw) | No |
 
 ## Your Rights
 
