@@ -11,12 +11,15 @@ This analysis focuses exclusively on media ecosystems in Western democracies—t
 
 ### US vs Europe Data Snapshot
 <div style="overflow-x: auto;">
-| Country/Region | Trust in News (%) | Change Since 2015 | Fake News Concern (%) |
-|----------------|-------------------|-------------------|-----------------------|
-| United States | 30                | Stable (low)      | 73                    |
-| Germany       | 45                | -15pp             | \~46 (Western Europe)  |
-| United Kingdom| 35                | -16pp             | \~46 (Western Europe)  |
-| Western Europe| 40–50 (avg)       | Declining         | 46                    |
+  <table>
+    <thead>
+      <tr><th>Country/Region</th><th>Trust in News (%)</th><th>Change Since 2015</th><th>Fake News Concern (%)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>United States</td><td>30</td><td>Stable (low)</td><td>73</td></tr>
+      <!-- etc. -->
+    </tbody>
+  </table>
 </div>
 
 *Source: Reuters Institute Digital News Report 2025*<sup>[1]</sup>
