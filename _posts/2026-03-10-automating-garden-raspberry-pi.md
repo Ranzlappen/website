@@ -4,7 +4,7 @@ date: 2026-03-10
 category: "Projects"
 tags: [raspberry-pi, automation, gardening, iot]
 description: "How I set up automatic watering, soil moisture monitoring, and a live dashboard for my balcony garden."
-image:
+image: /assets/images/garden-placeholder.svg
 comments: true
 ---
 
