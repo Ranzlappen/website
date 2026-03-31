@@ -9,17 +9,17 @@ image:
 comments: true
 ---
 
-<nav style="background: #1a1a1a; border: 1px solid #333; border-radius: 6px; padding: 18px 22px; margin-bottom: 28px; line-height: 1.7;">
-  <strong style="font-size: 1.05em;">Table of Contents</strong>
-  <ol style="margin: 10px 0 0 0; padding-left: 22px;">
-    <li><a href="#what-ticked-does" style="text-decoration: none;">What Ticked Does</a></li>
-    <li><a href="#core-features" style="text-decoration: none;">Core Features</a></li>
-    <li><a href="#technical-advantages" style="text-decoration: none;">Technical Advantages</a></li>
-    <li><a href="#potential-use-cases" style="text-decoration: none;">Potential Use Cases</a></li>
-    <li><a href="#how-to-get-started" style="text-decoration: none;">How to Get Started</a></li>
-    <li><a href="#important-note-on-data-persistence" style="text-decoration: none;">Important Note on Data Persistence</a></li>
-    <li><a href="#key-takeaways" style="text-decoration: none;">Key Takeaways</a></li>
-    <li><a href="#conclusion" style="text-decoration: none;">Conclusion</a></li>
+<nav>
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#what-ticked-does">What Ticked Does</a></li>
+    <li><a href="#core-features">Core Features</a></li>
+    <li><a href="#technical-advantages">Technical Advantages</a></li>
+    <li><a href="#potential-use-cases">Potential Use Cases</a></li>
+    <li><a href="#how-to-get-started">How to Get Started</a></li>
+    <li><a href="#important-note-on-data-persistence">Important Note on Data Persistence</a></li>
+    <li><a href="#key-takeaways">Key Takeaways</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
   </ol>
 </nav>
 

@@ -783,6 +783,34 @@ img {
   color: var(--c-text);
 }
 
+/* Post TOC Nav */
+.post-body nav {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 18px 22px;
+  margin-bottom: 28px;
+  line-height: 1.7;
+}
+.post-body nav strong {
+  font-size: 1.05em;
+}
+.post-body nav ol {
+  margin: 10px 0 0 0;
+  padding-left: 22px;
+}
+.post-body nav ul {
+  margin: 2px 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+.post-body nav a {
+  text-decoration: none;
+}
+.post-body thead tr {
+  border-bottom: 2px solid var(--c-border);
+}
+
 /* Post Tags */
 .post-tags {
   display: flex;
