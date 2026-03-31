@@ -16,6 +16,7 @@
   // -------------------------------------------------------
   var db = null;
   var firebaseReady = false;
+  var appCheckReady = false;
   var visitorHash = null;
 
   function loadFirebase() {
@@ -36,13 +37,26 @@
           loaded++;
           if (loaded < total) return;
           try {
-            var app = firebase.initializeApp(cfg);
-            firebase.appCheck().activate(
-              new firebase.appCheck.ReCaptchaEnterpriseProvider(cfg.recaptchaSiteKey),
-              true
-            );
+            var app = (firebase.apps && firebase.apps.length)
+              ? firebase.app()
+              : firebase.initializeApp(cfg);
             db = firebase.database();
             firebaseReady = true;
+
+            if (cfg.recaptchaSiteKey) {
+              try {
+                firebase.appCheck().activate(
+                  new firebase.appCheck.ReCaptchaEnterpriseProvider(cfg.recaptchaSiteKey),
+                  true
+                );
+                appCheckReady = true;
+              } catch (appCheckError) {
+                console.warn('App Check activation failed; continuing without App Check token prefetch:', appCheckError);
+              }
+            } else {
+              console.warn('Voting sidebar: recaptchaSiteKey missing. App Check is disabled for this session.');
+            }
+
             resolve(true);
           } catch (e) {
             console.warn('Firebase init error:', e);
@@ -261,6 +275,8 @@
         updatePctDisplay(idx);
       });
       updateMobilePct(activeIdx);
+    }, function (err) {
+      console.warn('Voting sidebar: failed to read votes from Firebase:', err);
     });
 
     // Check if this visitor already voted
@@ -285,11 +301,12 @@
   // -------------------------------------------------------
   loadFirebase().then(function (ok) {
     if (ok) {
-      firebase.appCheck().getToken().then(function () {
-        loadVotes();
-      }).catch(function () {
-        loadVotes();
-      });
+      loadVotes();
+      if (appCheckReady) {
+        firebase.appCheck().getToken().catch(function (err) {
+          console.warn('Voting sidebar: App Check token fetch failed:', err);
+        });
+      }
     }
   });
 
