@@ -8,14 +8,15 @@ A clean, dark-themed personal blog. No coding required to set up or maintain —
 
 1. [Get Your Blog Online (5 minutes)](#get-your-blog-online)
 2. [How to Write a New Post](#how-to-write-a-new-post)
-3. [Add an Image Carousel](#add-an-image-carousel)
-4. [Built-in Features](#built-in-features)
-5. [Enable Comments (Giscus)](#enable-comments-giscus)
-6. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
-7. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
-8. [Connect Your Own Domain](#connect-your-own-domain)
-9. [Change Colors or Fonts](#change-colors-or-fonts)
-10. [Moderate Comments and Votes](#moderate-comments-and-votes)
+3. [Article Status (Draft / Unpublished)](#article-status)
+4. [Add an Image Carousel](#add-an-image-carousel)
+5. [Built-in Features](#built-in-features)
+6. [Enable Comments (Giscus)](#enable-comments-giscus)
+7. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
+8. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
+9. [Connect Your Own Domain](#connect-your-own-domain)
+10. [Change Colors or Fonts](#change-colors-or-fonts)
+11. [Moderate Comments and Votes](#moderate-comments-and-votes)
 
 ---
 
@@ -94,6 +95,52 @@ Use ### for sub-sections within a section.
 - `tags` can be multiple: `[raspberry-pi, automation, gardening]`.
 - `date` must match the date in the filename.
 - Want a cover image? Add the image file to `assets/images/`, then add `image: /assets/images/your-image.jpg` to the template header.
+
+---
+
+## Article Status
+
+You can control the visibility of any post by adding a `status` field to its frontmatter. This is useful for work-in-progress drafts, placeholder articles, or posts you want to take down without deleting.
+
+### Supported values
+
+| Value | Behavior |
+|-------|----------|
+| `published` | **(Default)** Normal article — visible everywhere. You never need to add this explicitly. |
+| `draft` | Hidden from all listings, feeds, search, and sitemap. Still accessible via direct URL. Shows a banner: *"This article is a draft and may be incomplete or subject to change."* |
+| `placeholder` | Same as `draft`. Shows a banner: *"This article is a draft and may be incomplete or subject to change."* |
+| `unpublished` | Same hiding behavior. Shows a banner: *"This article is unpublished."* |
+
+### How to use it
+
+Add a `status` line to the frontmatter of any post:
+
+```
+---
+title: "My Work-in-Progress Post"
+date: 2026-04-15
+category: "Projects"
+tags: [tag1, tag2]
+description: "A short summary."
+status: draft
+comments: true
+---
+```
+
+To publish it later, either remove the `status` line or change it to `status: published`.
+
+### What gets hidden
+
+When a post's status is anything other than `published`, it is excluded from:
+
+- The homepage and blog page (grid and list views)
+- Category and tag pages (including the count pills)
+- Search results
+- The RSS feed (`/feed.xml`)
+- The sitemap (`/sitemap.xml`)
+- Previous/next navigation links on other posts
+
+The post itself **remains fully accessible** if someone visits its URL directly — they'll just see a small disclaimer banner at the top of the article.
 
 ---
 
@@ -418,6 +465,8 @@ Vote data lives in your Firebase console:
 | Write a new post            | Create a `.md` file in `_posts/` on GitHub                     |
 | Edit a post                 | Open the file on GitHub → tap pencil → edit → commit           |
 | Delete a post               | Open the file on GitHub → tap three dots → Delete              |
+| Save a post as draft        | Add `status: draft` to the post's frontmatter                  |
+| Publish a draft             | Remove the `status` line or change it to `status: published`   |
 | Change site name            | Edit `title` in `_config.yml`                                  |
 | Change colors               | Edit CSS variables at top of `assets/css/style.css`            |
 | Add a nav link              | Edit `_data/navigation.yml`                                    |
@@ -443,6 +492,8 @@ your-repo/
 ├── assets/images/           ← Put your images here
 ├── pages/                   ← Static pages (About, Contact, etc.)
 ├── index.html               ← Homepage
+├── feed.xml                 ← RSS/Atom feed (auto-generated, filtered by status)
+├── sitemap.xml              ← Sitemap (auto-generated, filtered by status)
 ├── 404.html                 ← Page not found page
 └── README.md                ← This file
 ```
