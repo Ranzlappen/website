@@ -203,7 +203,7 @@
     wrapper.addEventListener('touchmove', function (e) {
       var dx = e.changedTouches[0].clientX - touchStartX;
       var dy = e.changedTouches[0].clientY - touchStartY;
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+      if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
         isSwiping = true;
       }
     }, { passive: true });
