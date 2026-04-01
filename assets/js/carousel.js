@@ -61,8 +61,8 @@
         video.setAttribute('muted', '');
         video.muted = true;
         video.setAttribute('loop', '');
-        video.setAttribute('controls', '');
-        video.setAttribute('preload', 'metadata');
+        video.setAttribute('autoplay', '');
+        video.setAttribute('preload', 'none');
         video.setAttribute('draggable', 'false');
         if (altText) video.setAttribute('aria-label', altText);
         slide.dataset.isVideo = 'true';
@@ -209,10 +209,36 @@
     }, { passive: true });
 
     wrapper.addEventListener('touchend', function (e) {
-      if (!isSwiping) return;
       var dx = e.changedTouches[0].clientX - touchStartX;
-      if (dx > SWIPE_THRESHOLD) prev();
-      else if (dx < -SWIPE_THRESHOLD) next();
+      if (isSwiping) {
+        if (dx > SWIPE_THRESHOLD) prev();
+        else if (dx < -SWIPE_THRESHOLD) next();
+        return;
+      }
+      // Tap (no swipe) — toggle video play/pause
+      var video = getSlideVideo(slides[current]);
+      if (!video) return;
+      if (video.paused) {
+        video.play().catch(function () {});
+        showPlayPauseIcon(slides[current], false);
+      } else {
+        video.pause();
+        showPlayPauseIcon(slides[current], true);
+      }
+    });
+
+    // Desktop click-to-toggle (only on video slides, ignore arrows/dots)
+    track.addEventListener('click', function (e) {
+      if (e.target.closest('.carousel__arrow, .carousel__dots')) return;
+      var video = getSlideVideo(slides[current]);
+      if (!video) return;
+      if (video.paused) {
+        video.play().catch(function () {});
+        showPlayPauseIcon(slides[current], false);
+      } else {
+        video.pause();
+        showPlayPauseIcon(slides[current], true);
+      }
     });
 
     /* ── Init ───────────────────────────────────────────────── */
@@ -221,6 +247,22 @@
   }
 
   /* ── Helpers ────────────────────────────────────────────── */
+  function showPlayPauseIcon(slide, isPaused) {
+    var existing = slide.querySelector('.carousel__play-indicator');
+    if (existing) existing.remove();
+    var icon = document.createElement('div');
+    icon.className = 'carousel__play-indicator';
+    // Show what just happened: pause icon when paused, play icon when resumed
+    icon.innerHTML = isPaused
+      ? '<svg viewBox="0 0 24 24" width="48" height="48"><rect x="5" y="3" width="4" height="18" rx="1" fill="white"/><rect x="15" y="3" width="4" height="18" rx="1" fill="white"/></svg>'
+      : '<svg viewBox="0 0 24 24" width="48" height="48"><polygon points="6,3 20,12 6,21" fill="white"/></svg>';
+    slide.appendChild(icon);
+    // Force reflow then trigger fade-out
+    icon.offsetWidth;
+    icon.classList.add('carousel__play-indicator--fade');
+    icon.addEventListener('animationend', function () { icon.remove(); });
+  }
+
   function makeArrow(dir, html, label) {
     var btn = document.createElement('button');
     btn.className = 'carousel__arrow carousel__arrow--' + dir;
