@@ -1,3 +1,6 @@
+# [Status field update] Added status: "published" default for posts.
+# Removed jekyll-feed and jekyll-sitemap plugins (replaced by custom
+# filtered templates feed.xml and sitemap.xml) to support status filtering.
 # ============================================================
 # Site Settings
 # ============================================================
@@ -34,6 +37,7 @@ defaults:
     values:
       layout: "post"
       comments: true
+      status: "published"
   - scope:
       path: "pages"
       type: "pages"
@@ -52,9 +56,7 @@ exclude:
 
 # Plugins (GitHub Pages compatible)
 plugins:
-  - jekyll-feed
   - jekyll-seo-tag
-  - jekyll-sitemap
   - jekyll-paginate
 
 # ============================================================

@@ -1,3 +1,4 @@
+<!-- [Status field update] Added status badge (.post-card__status) for non-published posts. -->
 <article class="post-card">
   <a href="{{ post.url | relative_url }}" class="post-card__link" aria-label="{{ post.title }}">
     <div class="post-card__image{% unless post.image %} post-card__image--placeholder{% endunless %}">
@@ -11,6 +12,9 @@
       <div class="post-card__meta">
         {% if post.category %}
           <span class="post-card__category">{{ post.category }}</span>
+        {% endif %}
+        {% if post.status != "published" %}
+          <span class="post-card__status">{{ post.status | capitalize }}</span>
         {% endif %}
         <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
       </div>

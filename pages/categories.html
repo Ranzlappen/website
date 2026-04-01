@@ -2,6 +2,8 @@
 layout: default
 title: Categories
 permalink: /categories/
+# [Status field update] Filtered post loops and counts to only include published posts.
+# Categories with zero published posts are hidden entirely.
 ---
 
 <header class="page-header">
@@ -14,22 +16,32 @@ permalink: /categories/
   <div class="taxonomy-list">
     {% assign sorted_cats = site.categories | sort %}
     {% for cat in sorted_cats %}
-      <a href="#{{ cat[0] | slugify }}">{{ cat[0] }} <span class="count">({{ cat[1].size }})</span></a>
+      {% assign pub_count = 0 %}
+      {% for post in cat[1] %}{% if post.status == "published" %}{% assign pub_count = pub_count | plus: 1 %}{% endif %}{% endfor %}
+      {% if pub_count > 0 %}
+        <a href="#{{ cat[0] | slugify }}">{{ cat[0] }} <span class="count">({{ pub_count }})</span></a>
+      {% endif %}
     {% endfor %}
   </div>
 
   <!-- Posts by category -->
   {% for cat in sorted_cats %}
+    {% assign pub_count = 0 %}
+    {% for post in cat[1] %}{% if post.status == "published" %}{% assign pub_count = pub_count | plus: 1 %}{% endif %}{% endfor %}
+    {% if pub_count > 0 %}
   <section class="taxonomy-section" id="{{ cat[0] | slugify }}">
     <h2>{{ cat[0] }}</h2>
     <div class="taxonomy-posts">
       {% for post in cat[1] %}
+        {% if post.status == "published" %}
       <a href="{{ post.url | relative_url }}">
         <span>{{ post.title }}</span>
         <span class="date">{{ post.date | date: "%b %-d, %Y" }}</span>
       </a>
+        {% endif %}
       {% endfor %}
     </div>
   </section>
+    {% endif %}
   {% endfor %}
 </div>

@@ -2,6 +2,7 @@
 layout: default
 title: Blog
 permalink: /blog/
+# [Status field update] Added status == "published" filter to both grid and list post loops.
 ---
 
 <section class="page-content">
@@ -26,13 +27,17 @@ permalink: /blog/
 
     <div class="posts-grid" id="posts-grid">
       {% for post in site.posts %}
-        {% include post-card.html post=post %}
+        {% if post.status == "published" %}
+          {% include post-card.html post=post %}
+        {% endif %}
       {% endfor %}
     </div>
 
     <div class="posts-list" id="posts-list" hidden>
       {% for post in site.posts %}
-        {% include post-list-item.html post=post %}
+        {% if post.status == "published" %}
+          {% include post-list-item.html post=post %}
+        {% endif %}
       {% endfor %}
     </div>
   </div>

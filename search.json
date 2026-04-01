@@ -1,8 +1,11 @@
 ---
 layout: null
+# [Status field update] Filtered search index to only include published posts.
 ---
 [
-  {% for post in site.posts %}
+  {% assign published_posts = "" | split: "" %}
+  {% for post in site.posts %}{% if post.status == "published" %}{% assign published_posts = published_posts | push: post %}{% endif %}{% endfor %}
+  {% for post in published_posts %}
   {
     "title": {{ post.title | jsonify }},
     "url": "{{ post.url | relative_url }}",

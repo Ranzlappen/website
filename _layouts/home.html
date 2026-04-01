@@ -1,5 +1,6 @@
 ---
 layout: default
+# [Status field update] Added status == "published" filter to both grid and list post loops.
 ---
 
 {% include hero.html %}
@@ -28,14 +29,18 @@ layout: default
     <!-- Grid View -->
     <div class="posts-grid" id="posts-grid">
       {% for post in site.posts %}
-        {% include post-card.html post=post %}
+        {% if post.status == "published" %}
+          {% include post-card.html post=post %}
+        {% endif %}
       {% endfor %}
     </div>
 
     <!-- List View -->
     <div class="posts-list" id="posts-list" hidden>
       {% for post in site.posts %}
-        {% include post-list-item.html post=post %}
+        {% if post.status == "published" %}
+          {% include post-list-item.html post=post %}
+        {% endif %}
       {% endfor %}
     </div>
   </div>
