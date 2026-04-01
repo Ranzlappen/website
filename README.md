@@ -125,6 +125,20 @@ Final thoughts...
 
 The `id` on each `<h2>` must match the `href` in the table of contents (without the `#`). You can nest sub-sections with `<h3 id="...">` and use `<ul>` inside the `<ol>` for nested links. These HTML headings work the same as Markdown `##` headings for the voting sidebar and comment section picker.
 
+### Adding an image carousel to a post
+
+You can embed a swipeable image carousel anywhere in your post. Wrap your images in a `<div class="carousel">` block:
+
+```html
+<div class="carousel">
+  <img src="/assets/images/screenshot-1.png" alt="Description of first image">
+  <img src="/assets/images/screenshot-2.png" alt="Description of second image">
+  <img src="/assets/images/screenshot-3.png" alt="Description of third image">
+</div>
+```
+
+Upload your images to `assets/images/` first, then reference them in the `src` attribute. The `alt` text is used as captions. The carousel auto-initializes with arrow buttons, dot indicators, swipe gestures, keyboard navigation, auto-play, and a slide counter. See [Add an Image Carousel](#add-an-image-carousel) for full details.
+
 ---
 
 ## Article Status
