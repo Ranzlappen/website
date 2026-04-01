@@ -61,8 +61,8 @@
         video.setAttribute('muted', '');
         video.muted = true;
         video.setAttribute('loop', '');
-        video.setAttribute('controls', '');
-        video.setAttribute('preload', 'metadata');
+        video.setAttribute('autoplay', '');
+        video.setAttribute('preload', 'none');
         video.setAttribute('draggable', 'false');
         if (altText) video.setAttribute('aria-label', altText);
         slide.dataset.isVideo = 'true';

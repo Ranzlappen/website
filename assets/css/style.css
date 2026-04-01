@@ -1648,6 +1648,12 @@ img {
   user-select: none;
   -webkit-user-drag: none;
 }
+.carousel__slide video {
+  pointer-events: none;
+}
+.carousel__slide video::-webkit-media-controls {
+  display: none !important;
+}
 
 /* Caption */
 .carousel__caption {
