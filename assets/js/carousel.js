@@ -18,37 +18,12 @@
   var AUTO_INTERVAL = 5000;
   var VIDEO_EXTENSIONS = /\.(mp4|webm|ogg)(\?.*)?$/i;
 
-  // Global: track which video is currently playing across ALL carousels.
-  // Ensures only one video plays at any time on the page.
-  var activeVideo = null;
-
   function isVideoSource(src) {
     return VIDEO_EXTENSIONS.test(src);
   }
 
   function getSlideVideo(slide) {
     return slide.dataset.isVideo === 'true' ? slide.querySelector('video') : null;
-  }
-
-  /** Safely pause a video, guarding against interrupted-play race conditions. */
-  function safelyPause(video) {
-    if (!video) return;
-    try { video.pause(); } catch (_) {}
-    if (activeVideo === video) activeVideo = null;
-  }
-
-  /** Safely play a video. Pauses any other active video first (global). */
-  function safelyPlay(video) {
-    if (!video) return;
-    // Stop any other video playing anywhere on the page
-    if (activeVideo && activeVideo !== video) {
-      safelyPause(activeVideo);
-    }
-    activeVideo = video;
-    var p = video.play();
-    if (p && typeof p.catch === 'function') {
-      p.catch(function () { activeVideo = null; });
-    }
   }
 
   function initCarousel(wrapper) {
@@ -86,7 +61,6 @@
         video.setAttribute('muted', '');
         video.muted = true;
         video.setAttribute('loop', '');
-        // No autoplay attribute — playback is controlled entirely via JS
         video.setAttribute('preload', i === 0 ? 'metadata' : 'none');
         video.setAttribute('draggable', 'false');
         if (altText) video.setAttribute('aria-label', altText);
@@ -144,18 +118,14 @@
 
     /* ── State ──────────────────────────────────────────────── */
     var current = 0;
-    var paused = false;          // carousel-level pause (hover)
-    var userPausedVideo = false;  // user manually paused the current video (tap/click)
+    var paused = false;
     var autoTimer = null;
 
-    /**
-     * Pause every video in this carousel except an optional exemption.
-     * Called on every slide transition to guarantee nothing lingers.
-     */
-    function pauseAllVideos(except) {
+    /** Pause every video in this carousel. */
+    function pauseAllVideos() {
       slides.forEach(function (slide) {
         var v = getSlideVideo(slide);
-        if (v && v !== except) safelyPause(v);
+        if (v) { try { v.pause(); } catch (_) {} }
       });
     }
 
@@ -163,14 +133,10 @@
       if (index < 0) index = slides.length - 1;
       if (index >= slides.length) index = 0;
 
-      var leaving = current;
       current = index;
 
-      // Reset user-pause flag on slide change — new slide gets a fresh start
-      userPausedVideo = false;
-
-      // Pause ALL videos in this carousel first (catches edge cases)
-      pauseAllVideos(null);
+      // Pause all videos, then play the entering one
+      pauseAllVideos();
 
       track.style.transform = 'translateX(-' + (current * 100) + '%)';
       dots.forEach(function (d, i) {
@@ -179,15 +145,16 @@
       });
       counter.textContent = (current + 1) + ' / ' + slides.length;
 
-      // Auto-play video on the new active slide (unless carousel is paused)
+      // Auto-play video on the new active slide
       if (!paused) {
         var enteringVideo = getSlideVideo(slides[current]);
         if (enteringVideo) {
-          // Preload if needed, then play
           if (enteringVideo.preload === 'none') {
             enteringVideo.preload = 'metadata';
           }
-          safelyPlay(enteringVideo);
+          enteringVideo.currentTime = 0;
+          var p = enteringVideo.play();
+          if (p && typeof p.catch === 'function') { p.catch(function () {}); }
         }
       }
 
@@ -200,7 +167,7 @@
     prevBtn.addEventListener('click', prev);
     nextBtn.addEventListener('click', next);
 
-    /* ── Auto-play ──────────────────────────────────────────── */
+    /* ── Auto-advance ──────────────────────────────────────── */
     function startAuto() {
       stopAuto();
       if (!paused) {
@@ -217,16 +184,14 @@
     wrapper.addEventListener('mouseenter', function () {
       paused = true;
       stopAuto();
-      var v = getSlideVideo(slides[current]);
-      if (v && !v.paused) safelyPause(v);
     });
     wrapper.addEventListener('mouseleave', function () {
       paused = false;
       startAuto();
-      // Only resume if the user didn't manually pause the video
-      if (!userPausedVideo) {
-        var v = getSlideVideo(slides[current]);
-        if (v) safelyPlay(v);
+      var v = getSlideVideo(slides[current]);
+      if (v) {
+        var p = v.play();
+        if (p && typeof p.catch === 'function') { p.catch(function () {}); }
       }
     });
 
@@ -260,32 +225,8 @@
       if (isSwiping) {
         if (dx > SWIPE_THRESHOLD) prev();
         else if (dx < -SWIPE_THRESHOLD) next();
-        return;
       }
-      // Tap (no swipe) — toggle video play/pause
-      toggleCurrentVideo();
     });
-
-    // Desktop click-to-toggle (only on video slides, ignore arrows/dots)
-    track.addEventListener('click', function (e) {
-      if (e.target.closest('.carousel__arrow, .carousel__dots')) return;
-      toggleCurrentVideo();
-    });
-
-    /** Toggle play/pause for the current slide's video (user intent). */
-    function toggleCurrentVideo() {
-      var video = getSlideVideo(slides[current]);
-      if (!video) return;
-      if (video.paused) {
-        userPausedVideo = false;
-        safelyPlay(video);
-        showPlayPauseIcon(slides[current], false);
-      } else {
-        userPausedVideo = true;
-        safelyPause(video);
-        showPlayPauseIcon(slides[current], true);
-      }
-    }
 
     /* ── Init ───────────────────────────────────────────────── */
     goTo(0);
@@ -293,22 +234,6 @@
   }
 
   /* ── Helpers ────────────────────────────────────────────── */
-  function showPlayPauseIcon(slide, isPaused) {
-    var existing = slide.querySelector('.carousel__play-indicator');
-    if (existing) existing.remove();
-    var icon = document.createElement('div');
-    icon.className = 'carousel__play-indicator';
-    // Show what just happened: pause icon when paused, play icon when resumed
-    icon.innerHTML = isPaused
-      ? '<svg viewBox="0 0 24 24" width="48" height="48"><rect x="5" y="3" width="4" height="18" rx="1" fill="white"/><rect x="15" y="3" width="4" height="18" rx="1" fill="white"/></svg>'
-      : '<svg viewBox="0 0 24 24" width="48" height="48"><polygon points="6,3 20,12 6,21" fill="white"/></svg>';
-    slide.appendChild(icon);
-    // Force reflow then trigger fade-out
-    icon.offsetWidth;
-    icon.classList.add('carousel__play-indicator--fade');
-    icon.addEventListener('animationend', function () { icon.remove(); });
-  }
-
   function makeArrow(dir, html, label) {
     var btn = document.createElement('button');
     btn.className = 'carousel__arrow carousel__arrow--' + dir;
