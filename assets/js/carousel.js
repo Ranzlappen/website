@@ -18,12 +18,37 @@
   var AUTO_INTERVAL = 5000;
   var VIDEO_EXTENSIONS = /\.(mp4|webm|ogg)(\?.*)?$/i;
 
+  // Global: track which video is currently playing across ALL carousels.
+  // Ensures only one video plays at any time on the page.
+  var activeVideo = null;
+
   function isVideoSource(src) {
     return VIDEO_EXTENSIONS.test(src);
   }
 
   function getSlideVideo(slide) {
     return slide.dataset.isVideo === 'true' ? slide.querySelector('video') : null;
+  }
+
+  /** Safely pause a video, guarding against interrupted-play race conditions. */
+  function safelyPause(video) {
+    if (!video) return;
+    try { video.pause(); } catch (_) {}
+    if (activeVideo === video) activeVideo = null;
+  }
+
+  /** Safely play a video. Pauses any other active video first (global). */
+  function safelyPlay(video) {
+    if (!video) return;
+    // Stop any other video playing anywhere on the page
+    if (activeVideo && activeVideo !== video) {
+      safelyPause(activeVideo);
+    }
+    activeVideo = video;
+    var p = video.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(function () { activeVideo = null; });
+    }
   }
 
   function initCarousel(wrapper) {
@@ -61,8 +86,8 @@
         video.setAttribute('muted', '');
         video.muted = true;
         video.setAttribute('loop', '');
-        video.setAttribute('autoplay', '');
-        video.setAttribute('preload', 'none');
+        // No autoplay attribute — playback is controlled entirely via JS
+        video.setAttribute('preload', i === 0 ? 'metadata' : 'none');
         video.setAttribute('draggable', 'false');
         if (altText) video.setAttribute('aria-label', altText);
         slide.dataset.isVideo = 'true';
@@ -119,21 +144,34 @@
 
     /* ── State ──────────────────────────────────────────────── */
     var current = 0;
-    var paused = false;
+    var paused = false;          // carousel-level pause (hover)
+    var userPausedVideo = false;  // user manually paused the current video (tap/click)
     var autoTimer = null;
+
+    /**
+     * Pause every video in this carousel except an optional exemption.
+     * Called on every slide transition to guarantee nothing lingers.
+     */
+    function pauseAllVideos(except) {
+      slides.forEach(function (slide) {
+        var v = getSlideVideo(slide);
+        if (v && v !== except) safelyPause(v);
+      });
+    }
 
     function goTo(index) {
       if (index < 0) index = slides.length - 1;
       if (index >= slides.length) index = 0;
 
-      // Pause video on the slide we're leaving
-      var leavingVideo = getSlideVideo(slides[current]);
-      if (leavingVideo) {
-        leavingVideo.pause();
-        leavingVideo.currentTime = 0;
-      }
-
+      var leaving = current;
       current = index;
+
+      // Reset user-pause flag on slide change — new slide gets a fresh start
+      userPausedVideo = false;
+
+      // Pause ALL videos in this carousel first (catches edge cases)
+      pauseAllVideos(null);
+
       track.style.transform = 'translateX(-' + (current * 100) + '%)';
       dots.forEach(function (d, i) {
         d.classList.toggle('carousel__dot--active', i === current);
@@ -141,10 +179,16 @@
       });
       counter.textContent = (current + 1) + ' / ' + slides.length;
 
-      // Play video on the new active slide
-      var enteringVideo = getSlideVideo(slides[current]);
-      if (enteringVideo && !paused) {
-        enteringVideo.play().catch(function () {});
+      // Auto-play video on the new active slide (unless carousel is paused)
+      if (!paused) {
+        var enteringVideo = getSlideVideo(slides[current]);
+        if (enteringVideo) {
+          // Preload if needed, then play
+          if (enteringVideo.preload === 'none') {
+            enteringVideo.preload = 'metadata';
+          }
+          safelyPlay(enteringVideo);
+        }
       }
 
       resetAuto();
@@ -174,13 +218,16 @@
       paused = true;
       stopAuto();
       var v = getSlideVideo(slides[current]);
-      if (v) v.pause();
+      if (v && !v.paused) safelyPause(v);
     });
     wrapper.addEventListener('mouseleave', function () {
       paused = false;
       startAuto();
-      var v = getSlideVideo(slides[current]);
-      if (v) v.play().catch(function () {});
+      // Only resume if the user didn't manually pause the video
+      if (!userPausedVideo) {
+        var v = getSlideVideo(slides[current]);
+        if (v) safelyPlay(v);
+      }
     });
 
     /* ── Keyboard ───────────────────────────────────────────── */
@@ -216,30 +263,29 @@
         return;
       }
       // Tap (no swipe) — toggle video play/pause
-      var video = getSlideVideo(slides[current]);
-      if (!video) return;
-      if (video.paused) {
-        video.play().catch(function () {});
-        showPlayPauseIcon(slides[current], false);
-      } else {
-        video.pause();
-        showPlayPauseIcon(slides[current], true);
-      }
+      toggleCurrentVideo();
     });
 
     // Desktop click-to-toggle (only on video slides, ignore arrows/dots)
     track.addEventListener('click', function (e) {
       if (e.target.closest('.carousel__arrow, .carousel__dots')) return;
+      toggleCurrentVideo();
+    });
+
+    /** Toggle play/pause for the current slide's video (user intent). */
+    function toggleCurrentVideo() {
       var video = getSlideVideo(slides[current]);
       if (!video) return;
       if (video.paused) {
-        video.play().catch(function () {});
+        userPausedVideo = false;
+        safelyPlay(video);
         showPlayPauseIcon(slides[current], false);
       } else {
-        video.pause();
+        userPausedVideo = true;
+        safelyPause(video);
         showPlayPauseIcon(slides[current], true);
       }
-    });
+    }
 
     /* ── Init ───────────────────────────────────────────────── */
     goTo(0);
