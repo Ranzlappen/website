@@ -16,7 +16,7 @@ permalink: /tags/
     {% assign sorted_tags = site.tags | sort %}
     {% for tag in sorted_tags %}
       {% assign pub_count = 0 %}
-      {% for post in tag[1] %}{% if post.status == "published" %}{% assign pub_count = pub_count | plus: 1 %}{% endif %}{% endfor %}
+      {% for post in tag[1] %}{% if post.status == "published" or post.status == "placeholder" %}{% assign pub_count = pub_count | plus: 1 %}{% endif %}{% endfor %}
       {% if pub_count > 0 %}
         <a href="#{{ tag[0] | slugify }}">#{{ tag[0] }} <span class="count">({{ pub_count }})</span></a>
       {% endif %}
@@ -25,13 +25,13 @@ permalink: /tags/
 
   {% for tag in sorted_tags %}
     {% assign pub_count = 0 %}
-    {% for post in tag[1] %}{% if post.status == "published" %}{% assign pub_count = pub_count | plus: 1 %}{% endif %}{% endfor %}
+    {% for post in tag[1] %}{% if post.status == "published" or post.status == "placeholder" %}{% assign pub_count = pub_count | plus: 1 %}{% endif %}{% endfor %}
     {% if pub_count > 0 %}
   <section class="taxonomy-section" id="{{ tag[0] | slugify }}">
     <h2>#{{ tag[0] }}</h2>
     <div class="taxonomy-posts">
       {% for post in tag[1] %}
-        {% if post.status == "published" %}
+        {% if post.status == "published" or post.status == "placeholder" %}
       <a href="{{ post.url | relative_url }}">
         <span>{{ post.title }}</span>
         <span class="date">{{ post.date | date: "%b %-d, %Y" }}</span>

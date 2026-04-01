@@ -27,7 +27,7 @@ permalink: /blog/
 
     <div class="posts-grid" id="posts-grid">
       {% for post in site.posts %}
-        {% if post.status == "published" %}
+        {% if post.status == "published" or post.status == "placeholder" %}
           {% include post-card.html post=post %}
         {% endif %}
       {% endfor %}
@@ -35,7 +35,7 @@ permalink: /blog/
 
     <div class="posts-list" id="posts-list" hidden>
       {% for post in site.posts %}
-        {% if post.status == "published" %}
+        {% if post.status == "published" or post.status == "placeholder" %}
           {% include post-list-item.html post=post %}
         {% endif %}
       {% endfor %}

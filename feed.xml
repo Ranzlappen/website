@@ -23,7 +23,7 @@ layout: null
     {% if site.author.uri %}<uri>{{ site.author.uri | xml_escape }}</uri>{% endif %}
   </author>
   {% endif %}
-  {% for post in site.posts %}{% if post.status == "published" %}
+  {% for post in site.posts %}{% if post.status == "published" or post.status == "placeholder" %}
   <entry>
     <title type="html">{{ post.title | xml_escape }}</title>
     <link href="{{ post.url | absolute_url }}" rel="alternate" type="text/html" title="{{ post.title | xml_escape }}"/>

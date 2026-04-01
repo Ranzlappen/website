@@ -97,11 +97,13 @@ layout: default
       {% assign nav_newer = nil %}
       {% assign found_current = false %}
       {% for p in site.posts %}
+        {% assign p_visible = false %}
+        {% if p.status == "published" or p.status == "placeholder" %}{% assign p_visible = true %}{% endif %}
         {% if p.url == page.url %}
           {% assign found_current = true %}
-        {% elsif found_current and p.status == "published" and nav_older == nil %}
+        {% elsif found_current and p_visible and nav_older == nil %}
           {% assign nav_older = p %}
-        {% elsif found_current == false and p.status == "published" %}
+        {% elsif found_current == false and p_visible %}
           {% assign nav_newer = p %}
         {% endif %}
       {% endfor %}

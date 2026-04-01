@@ -6,6 +6,7 @@ date: 2026-03-31
 category: "Projects"
 tags: [productivity, html, offline, tools]
 image:
+status: placeholder
 comments: true
 ---
 

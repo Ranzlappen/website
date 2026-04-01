@@ -5,6 +5,7 @@ category: "Projects"
 tags: [hardware, diy, keyboards]
 description: "A deep dive into designing and hand-wiring a 60% mechanical keyboard with a custom PCB layout."
 image:
+status: placeholder
 comments: true
 ---
 
