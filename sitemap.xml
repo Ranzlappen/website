@@ -1,0 +1,22 @@
+---
+layout: null
+# [Status field update] Custom sitemap replacing jekyll-sitemap plugin.
+# Only includes posts where status == "published".
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% for page in site.pages %}{% if page.url and page.url != "/feed.xml" and page.url != "/robots.txt" and page.sitemap != false %}
+  <url>
+    <loc>{{ page.url | absolute_url | xml_escape }}</loc>
+    {% if page.date %}<lastmod>{{ page.date | date_to_xmlschema }}</lastmod>{% endif %}
+  </url>
+  {% endif %}{% endfor %}
+  {% for post in site.posts %}{% if post.status == "published" %}
+  <url>
+    <loc>{{ post.url | absolute_url | xml_escape }}</loc>
+    <lastmod>{{ post.date | date_to_xmlschema }}</lastmod>
+  </url>
+  {% endif %}{% endfor %}
+</urlset>

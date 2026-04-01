@@ -1742,3 +1742,27 @@ img {
   .carousel__counter { font-size: 0.65rem; }
   .carousel__slide img, .carousel__slide video { max-height: 45vh; }
 }
+
+/* [Status field update] Added .post-status-banner for article page disclaimer
+   and .post-card__status badge for card/list views of non-published posts. */
+/* --- Article Status (draft / placeholder / unpublished) --- */
+.post-status-banner {
+  border-left: 3px solid var(--c-accent);
+  background: var(--c-accent-bg);
+  padding: var(--space-sm) var(--space-lg);
+  margin-bottom: var(--space-lg);
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  color: var(--c-text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+.post-card__status {
+  background: rgba(250, 204, 21, 0.12);
+  color: #facc15;
+  padding: 2px 8px;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

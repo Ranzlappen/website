@@ -1,8 +1,16 @@
 ---
 layout: default
+# [Status field update] Added disclaimer banner for non-published articles.
+# Replaced page.previous/page.next with manual iteration to skip non-published posts.
 ---
 
 <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  {% if page.status == "draft" or page.status == "placeholder" %}
+  <div class="post-status-banner">This article is a draft and may be incomplete or subject to change.</div>
+  {% elsif page.status == "unpublished" %}
+  <div class="post-status-banner">This article is unpublished.</div>
+  {% endif %}
+
   <!-- Post Header -->
   <header class="post-header">
     {% if page.category %}
@@ -85,18 +93,30 @@ layout: default
   <!-- Post Navigation -->
   <nav class="post-body">
     <div class="post-nav" aria-label="Post navigation">
-      {% if page.previous.url %}
-      <a href="{{ page.previous.url | relative_url }}">
+      {% assign nav_older = nil %}
+      {% assign nav_newer = nil %}
+      {% assign found_current = false %}
+      {% for p in site.posts %}
+        {% if p.url == page.url %}
+          {% assign found_current = true %}
+        {% elsif found_current and p.status == "published" and nav_older == nil %}
+          {% assign nav_older = p %}
+        {% elsif found_current == false and p.status == "published" %}
+          {% assign nav_newer = p %}
+        {% endif %}
+      {% endfor %}
+      {% if nav_older %}
+      <a href="{{ nav_older.url | relative_url }}">
         <div class="post-nav__label">&larr; Previous</div>
-        <div class="post-nav__title">{{ page.previous.title }}</div>
+        <div class="post-nav__title">{{ nav_older.title }}</div>
       </a>
       {% else %}
       <span></span>
       {% endif %}
-      {% if page.next.url %}
-      <a href="{{ page.next.url | relative_url }}" class="post-nav__next">
+      {% if nav_newer %}
+      <a href="{{ nav_newer.url | relative_url }}" class="post-nav__next">
         <div class="post-nav__label">Next &rarr;</div>
-        <div class="post-nav__title">{{ page.next.title }}</div>
+        <div class="post-nav__title">{{ nav_newer.title }}</div>
       </a>
       {% endif %}
     </div>
