@@ -13,7 +13,7 @@ layout: null
     {% if page.date %}<lastmod>{{ page.date | date_to_xmlschema }}</lastmod>{% endif %}
   </url>
   {% endif %}{% endfor %}
-  {% for post in site.posts %}{% if post.status == "published" %}
+  {% for post in site.posts %}{% if post.status == "published" or post.status == "placeholder" %}
   <url>
     <loc>{{ post.url | absolute_url | xml_escape }}</loc>
     <lastmod>{{ post.date | date_to_xmlschema }}</lastmod>

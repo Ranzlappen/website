@@ -96,6 +96,35 @@ Use ### for sub-sections within a section.
 - `date` must match the date in the filename.
 - Want a cover image? Add the image file to `assets/images/`, then add `image: /assets/images/your-image.jpg` to the template header.
 
+### Using HTML headings with a table of contents
+
+For longer articles, you can use HTML headings with `id` attributes instead of Markdown `##` headings. This lets you add a clickable table of contents at the top. Here's the pattern:
+
+```html
+<nav>
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#first-section">First Section</a></li>
+    <li><a href="#second-section">Second Section</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ol>
+</nav>
+
+<h2 id="first-section">First Section</h2>
+
+Your content here...
+
+<h2 id="second-section">Second Section</h2>
+
+More content...
+
+<h2 id="conclusion">Conclusion</h2>
+
+Final thoughts...
+```
+
+The `id` on each `<h2>` must match the `href` in the table of contents (without the `#`). You can nest sub-sections with `<h3 id="...">` and use `<ul>` inside the `<ol>` for nested links. These HTML headings work the same as Markdown `##` headings for the voting sidebar and comment section picker.
+
 ---
 
 ## Article Status
@@ -107,9 +136,9 @@ You can control the visibility of any post by adding a `status` field to its fro
 | Value | Behavior |
 |-------|----------|
 | `published` | **(Default)** Normal article — visible everywhere. You never need to add this explicitly. |
+| `placeholder` | **Visible in all listings** (homepage, blog, categories, tags, search, feeds, sitemap) with a status badge. Still shows a banner on the article page: *"This article is a draft and may be incomplete or subject to change."* Use this for articles that are in progress but should already appear on the site. |
 | `draft` | Hidden from all listings, feeds, search, and sitemap. Still accessible via direct URL. Shows a banner: *"This article is a draft and may be incomplete or subject to change."* |
-| `placeholder` | Same as `draft`. Shows a banner: *"This article is a draft and may be incomplete or subject to change."* |
-| `unpublished` | Same hiding behavior. Shows a banner: *"This article is unpublished."* |
+| `unpublished` | Same hiding behavior as `draft`. Shows a banner: *"This article is unpublished."* |
 
 ### How to use it
 
@@ -131,7 +160,7 @@ To publish it later, either remove the `status` line or change it to `status: pu
 
 ### What gets hidden
 
-When a post's status is anything other than `published`, it is excluded from:
+When a post's status is `draft` or `unpublished`, it is excluded from:
 
 - The homepage and blog page (grid and list views)
 - Category and tag pages (including the count pills)
@@ -141,6 +170,8 @@ When a post's status is anything other than `published`, it is excluded from:
 - Previous/next navigation links on other posts
 
 The post itself **remains fully accessible** if someone visits its URL directly — they'll just see a small disclaimer banner at the top of the article.
+
+**Note:** `placeholder` articles are **not** hidden. They appear in all listings with a yellow "Placeholder" badge, making them useful for reserving spots on the site while the content is still being written.
 
 ---
 

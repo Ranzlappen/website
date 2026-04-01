@@ -5,6 +5,7 @@ category: "Workflow"
 tags: [productivity, plaintext, tools]
 description: "A case for using simple markdown files instead of fancy apps for personal knowledge management."
 image:
+status: placeholder
 comments: true
 ---
 

@@ -6,6 +6,7 @@ date: 2026-03-31
 category: "Media"
 tags: [journalism, media-trust, ai]
 image:
+status: placeholder
 comments: true
 ---
 
