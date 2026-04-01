@@ -1655,6 +1655,32 @@ img {
   display: none !important;
 }
 
+/* Play / Pause indicator */
+.carousel__play-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 1;
+}
+.carousel__play-indicator--fade {
+  animation: carousel-indicator-fade 0.6s ease forwards;
+}
+@keyframes carousel-indicator-fade {
+  0%   { opacity: 1; }
+  60%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* Caption */
 .carousel__caption {
   display: block;
