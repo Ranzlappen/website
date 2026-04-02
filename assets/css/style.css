@@ -1544,6 +1544,97 @@ img {
 .cookie-timeline__fill--expired { background: var(--c-danger); }
 .cookie-timeline__fill--warning { background: var(--c-warning); }
 
+/* Storage Section — collapsible category */
+.storage-section {
+  margin-bottom: var(--space-sm);
+}
+.storage-section:last-child { margin-bottom: 0; }
+
+.storage-section__toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  color: var(--c-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  gap: var(--space-sm);
+  text-align: left;
+  font-family: inherit;
+  line-height: 1.4;
+}
+.storage-section__toggle:hover,
+.storage-section__toggle:focus-visible {
+  border-color: var(--c-accent);
+  background: var(--c-surface);
+}
+
+.storage-section__icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+.storage-section__title { flex: 1; }
+.storage-section__count {
+  font-size: 0.75rem;
+  color: var(--c-text-muted);
+  font-weight: 400;
+  background: var(--c-surface);
+  padding: 2px var(--space-xs);
+  border-radius: var(--border-radius-sm);
+}
+.storage-section__chevron {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--c-text-faint);
+  transition: transform var(--transition-fast);
+}
+.storage-section__toggle[aria-expanded="true"] .storage-section__chevron {
+  transform: rotate(90deg);
+}
+
+.storage-section__content {
+  padding: var(--space-sm) 0 0 0;
+}
+.storage-section__content.is-collapsed {
+  display: none;
+}
+
+.storage-section__empty {
+  text-align: center;
+  color: var(--c-text-faint);
+  font-size: 0.8rem;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.storage-section__loading {
+  text-align: center;
+  color: var(--c-text-muted);
+  font-size: 0.8rem;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.cache-url-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cache-url-list li {
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+  color: var(--c-text-muted);
+  padding: 2px 0;
+  word-break: break-all;
+}
+.cache-url-list__more {
+  color: var(--c-text-faint);
+  font-style: italic;
+}
+
 /* ============================================================
    404 Page
    ============================================================ */
