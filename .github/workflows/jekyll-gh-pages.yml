@@ -48,8 +48,8 @@ jobs:
           npm run build
       - name: Copy PolyVote into _site
         run: |
-          cp -r polyvote/dist _site/polyvote
-          cp _site/polyvote/index.html _site/polyvote/404.html
+          sudo cp -r polyvote/dist _site/polyvote
+          sudo cp _site/polyvote/index.html _site/polyvote/404.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
