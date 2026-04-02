@@ -4,7 +4,7 @@
 # ============================================================
 # Site Settings
 # ============================================================
-title: "Ranzlappen"
+title: "RanzLappen"
 tagline: "Projects, Curiosities & Everything In Between"
 description: "A personal blog about passion projects, random experiments, and whatever catches my attention."
 url: "https://www.ranzlappen.com"
@@ -13,7 +13,7 @@ repository: "Ranzlappen/website"
 
 # Author
 author:
-  name: "Ranzlappen"
+  name: "RanzLappen"
   email: "info@ranzlappen.com"
   github: "Ranzlappen"
   twitter: "@MatthiasBro"
