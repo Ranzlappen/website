@@ -46,18 +46,23 @@ layout: default
         <button class="read-aloud__btn" id="read-aloud-stop" type="button" aria-label="Stop" title="Stop reading">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"/></svg>
         </button>
-        <label class="read-aloud__slider" title="Speed">
-          <span class="read-aloud__label">Speed</span>
-          <input type="range" id="read-aloud-speed" min="0.5" max="2.5" step="0.1" value="1">
-          <span class="read-aloud__value" id="read-aloud-speed-val">1x</span>
-        </label>
-        <label class="read-aloud__slider" title="Volume">
-          <span class="read-aloud__label">Vol</span>
-          <input type="range" id="read-aloud-volume" min="0" max="1" step="0.1" value="1">
-        </label>
-        <select class="read-aloud__voice" id="read-aloud-voice" aria-label="Voice">
-          <option value="">Default</option>
-        </select>
+        <button class="read-aloud__btn read-aloud__settings-toggle" id="read-aloud-settings-toggle" type="button" aria-label="Reading settings" title="Reading settings" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1.08z"/></svg>
+        </button>
+        <div class="read-aloud__settings-panel" id="read-aloud-settings-panel" role="group" aria-label="Reading settings">
+          <label class="read-aloud__slider" title="Speed">
+            <span class="read-aloud__label">Speed</span>
+            <input type="range" id="read-aloud-speed" min="0.5" max="2.5" step="0.1" value="1">
+            <span class="read-aloud__value" id="read-aloud-speed-val">1x</span>
+          </label>
+          <label class="read-aloud__slider" title="Volume">
+            <span class="read-aloud__label">Vol</span>
+            <input type="range" id="read-aloud-volume" min="0" max="1" step="0.1" value="1">
+          </label>
+          <select class="read-aloud__voice" id="read-aloud-voice" aria-label="Voice">
+            <option value="">Default</option>
+          </select>
+        </div>
       </span>
       {% if page.author %}
       <span itemprop="author">{{ page.author }}</span>
