@@ -53,6 +53,7 @@ exclude:
   - LICENSE
   - .gitignore
   - vendor
+  - polyvote
 
 # Plugins (GitHub Pages compatible)
 plugins:
