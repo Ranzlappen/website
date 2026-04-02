@@ -188,12 +188,47 @@ DATE: 2026-04-02
   });
 
   // -------------------------------------------------------
-  // Cookie Viewer Modal
+  // Browser Storage Viewer Modal
   // -------------------------------------------------------
   var cookieToggle = document.getElementById('cookie-toggle');
   var cookieOverlay = document.getElementById('cookie-overlay');
   var cookieClose = document.getElementById('cookie-close');
   var cookieBody = document.getElementById('cookie-body');
+
+  // -- Helpers --
+
+  function truncate(str, max) {
+    if (!str) return '—';
+    return str.length > max ? str.substring(0, max) + '…' : str;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function flagHtml(val) {
+    if (val) return '<span class="cookie-card__value cookie-card__value--flag cookie-card__value--yes">Yes</span>';
+    return '<span class="cookie-card__value cookie-card__value--flag cookie-card__value--no">No</span>';
+  }
+
+  function detectType(value) {
+    if (value === 'true' || value === 'false') return 'boolean';
+    if (value !== '' && !isNaN(Number(value))) return 'number';
+    try {
+      var parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return 'array';
+      if (typeof parsed === 'object' && parsed !== null) return 'object';
+    } catch (e) { /* not JSON */ }
+    return 'string';
+  }
+
+  function byteSize(str) {
+    var bytes = new Blob([str]).size;
+    if (bytes < 1024) return bytes + ' B';
+    return (bytes / 1024).toFixed(1) + ' KB';
+  }
+
+  // -- Data Gathering --
 
   function parseCookies() {
     var raw = document.cookie;
@@ -207,122 +242,198 @@ DATE: 2026-04-02
     });
   }
 
-  function truncate(str, max) {
-    if (!str) return '—';
-    return str.length > max ? str.substring(0, max) + '…' : str;
+  function parseStorage(storage) {
+    var items = [];
+    try {
+      for (var i = 0; i < storage.length; i++) {
+        var key = storage.key(i);
+        var val = storage.getItem(key);
+        items.push({ name: key, value: val || '' });
+      }
+    } catch (e) {
+      return null; // access denied
+    }
+    return items;
   }
 
-  function formatDate(d) {
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  function parseCacheStorage(callback) {
+    if (!('caches' in window)) { callback(null); return; }
+    var result = [];
+    caches.keys().then(function (names) {
+      if (!names.length) { callback(result); return; }
+      var remaining = names.length;
+      names.forEach(function (name) {
+        caches.open(name).then(function (cache) {
+          return cache.keys();
+        }).then(function (requests) {
+          var urls = requests.map(function (r) { return r.url; });
+          result.push({ cacheName: name, urls: urls });
+          remaining--;
+          if (remaining === 0) callback(result);
+        })['catch'](function () {
+          remaining--;
+          if (remaining === 0) callback(result);
+        });
+      });
+    })['catch'](function () {
+      callback(null);
+    });
   }
 
-  function timeRemaining(expires) {
-    var now = Date.now();
-    var diff = expires - now;
-    if (diff <= 0) return 'Expired';
-    var days = Math.floor(diff / 86400000);
-    var hours = Math.floor((diff % 86400000) / 3600000);
-    if (days > 0) return days + 'd ' + hours + 'h remaining';
-    var mins = Math.floor((diff % 3600000) / 60000);
-    return hours + 'h ' + mins + 'm remaining';
+  // -- Section Builder --
+
+  function buildSection(id, emoji, title, count, isCollapsed, contentHtml) {
+    var expanded = isCollapsed ? 'false' : 'true';
+    var collapsedClass = isCollapsed ? ' is-collapsed' : '';
+    var countLabel = count === 0 ? 'empty' : count;
+    var html = '';
+    html += '<div class="storage-section" id="storage-' + id + '">';
+    html += '  <button class="storage-section__toggle" aria-expanded="' + expanded + '" aria-controls="storage-' + id + '-content">';
+    html += '    <span class="storage-section__icon">' + emoji + '</span>';
+    html += '    <span class="storage-section__title">' + title + '</span>';
+    html += '    <span class="storage-section__count">' + countLabel + '</span>';
+    html += '    <span class="storage-section__chevron">&#9658;</span>';
+    html += '  </button>';
+    html += '  <div class="storage-section__content' + collapsedClass + '" id="storage-' + id + '-content">';
+    html += contentHtml;
+    html += '  </div>';
+    html += '</div>';
+    return html;
   }
 
-  function agePct(created, expires) {
-    var now = Date.now();
-    if (expires <= now) return 100;
-    var total = expires - created;
-    if (total <= 0) return 100;
-    var elapsed = now - created;
-    return Math.min(100, Math.max(0, (elapsed / total) * 100));
+  // -- Card Builders --
+
+  function buildCookieCardHtml(cookies) {
+    if (!cookies.length) return '<p class="storage-section__empty">No cookies found for this domain.</p>';
+    var domain = location.hostname;
+    var path = '/';
+    var isSecure = location.protocol === 'https:';
+    var html = '';
+    cookies.forEach(function (c) {
+      html += '<div class="cookie-card">';
+      html += '  <div class="cookie-card__name">' + escapeHtml(truncate(c.name, 40)) + '</div>';
+      html += '  <div class="cookie-card__grid">';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Value</span><span class="cookie-card__value">' + escapeHtml(truncate(c.value, 60)) + '</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Domain</span><span class="cookie-card__value">' + escapeHtml(domain) + '</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Path</span><span class="cookie-card__value">' + path + '</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Secure</span>' + flagHtml(isSecure) + '</div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">HttpOnly</span><span class="cookie-card__value cookie-card__value--flag cookie-card__value--no">N/A</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">SameSite</span><span class="cookie-card__value cookie-card__value--flag cookie-card__value--no">N/A</span></div>';
+      html += '  </div>';
+      html += '  <div class="cookie-timeline"><div class="cookie-timeline__row"><span>Session cookie (expiry not visible to client JS)</span></div>';
+      html += '    <div class="cookie-timeline__bar"><div class="cookie-timeline__fill" style="width: 0%"></div></div>';
+      html += '  </div>';
+      html += '</div>';
+    });
+    return html;
   }
 
-  function flagHtml(val) {
-    if (val) return '<span class="cookie-card__value cookie-card__value--flag cookie-card__value--yes">Yes</span>';
-    return '<span class="cookie-card__value cookie-card__value--flag cookie-card__value--no">No</span>';
+  function buildStorageCards(items) {
+    if (items === null) return '<p class="storage-section__empty">Access denied (private browsing or storage blocked).</p>';
+    if (!items.length) return '<p class="storage-section__empty">No items found.</p>';
+    var html = '';
+    items.forEach(function (item) {
+      var type = detectType(item.value);
+      var size = byteSize(item.name + item.value);
+      html += '<div class="cookie-card">';
+      html += '  <div class="cookie-card__name">' + escapeHtml(truncate(item.name, 40)) + '</div>';
+      html += '  <div class="cookie-card__grid">';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Value</span><span class="cookie-card__value">' + escapeHtml(truncate(item.value, 120)) + '</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Type</span><span class="cookie-card__value">' + type + '</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Size</span><span class="cookie-card__value">' + size + '</span></div>';
+      html += '  </div>';
+      html += '</div>';
+    });
+    return html;
   }
 
-  function buildCookieCards() {
+  function buildCacheCards(cacheData) {
+    if (cacheData === null) return '<p class="storage-section__empty">Cache Storage API not available.</p>';
+    if (!cacheData.length) return '<p class="storage-section__empty">No caches found.</p>';
+    var html = '';
+    cacheData.forEach(function (cache) {
+      var urlCount = cache.urls.length;
+      var maxUrls = 20;
+      html += '<div class="cookie-card">';
+      html += '  <div class="cookie-card__name">' + escapeHtml(truncate(cache.cacheName, 60)) + ' <span class="cookie-card__value" style="font-weight:400">(' + urlCount + ' entries)</span></div>';
+      html += '  <ul class="cache-url-list">';
+      var limit = Math.min(urlCount, maxUrls);
+      for (var i = 0; i < limit; i++) {
+        html += '    <li>' + escapeHtml(cache.urls[i]) + '</li>';
+      }
+      if (urlCount > maxUrls) {
+        html += '    <li class="cache-url-list__more">and ' + (urlCount - maxUrls) + ' more…</li>';
+      }
+      html += '  </ul>';
+      html += '</div>';
+    });
+    return html;
+  }
+
+  // -- Orchestrator --
+
+  function buildModalContent() {
     var cookies = parseCookies();
-    if (!cookies.length) {
-      cookieBody.innerHTML = '<p class="cookie-empty">No cookies found for this domain.</p>';
+    var localItems = parseStorage(localStorage);
+    var sessionItems = parseStorage(sessionStorage);
+    var hasCacheApi = 'caches' in window;
+
+    var totalSync = cookies.length + (localItems ? localItems.length : 0) + (sessionItems ? sessionItems.length : 0);
+
+    var html = '';
+    html += buildSection('cookies', '🍪', 'Cookies', cookies.length, false, buildCookieCardHtml(cookies));
+    html += buildSection('local', '💾', 'localStorage', localItems ? localItems.length : 0, false, buildStorageCards(localItems));
+    html += buildSection('session', '📋', 'sessionStorage', sessionItems ? sessionItems.length : 0, true, buildStorageCards(sessionItems));
+
+    if (hasCacheApi) {
+      html += buildSection('cache', '📦', 'Cache Storage', '…', true, '<p class="storage-section__loading">Loading cache data…</p>');
+    }
+
+    if (totalSync === 0 && !hasCacheApi) {
+      cookieBody.innerHTML = '<p class="cookie-empty">No browser storage data found for this domain.</p>';
       return;
     }
 
-    var html = '';
-    cookies.forEach(function (c) {
-      // Client JS can only see name=value; other attributes are not exposed.
-      // We show what's available and note the limitation.
-      var domain = location.hostname;
-      var path = '/';
-      var isSecure = location.protocol === 'https:';
-
-      // Try to detect expiry from known cookie patterns (not possible from document.cookie)
-      var expiresTs = null;
-      var createdTs = null;
-
-      // Build card
-      html += '<div class="cookie-card">';
-      html += '  <div class="cookie-card__name">' + truncate(c.name, 40) + '</div>';
-      html += '  <div class="cookie-card__grid">';
-
-      // Value
-      html += '    <div class="cookie-card__field">';
-      html += '      <span class="cookie-card__label">Value</span>';
-      html += '      <span class="cookie-card__value">' + truncate(c.value, 60) + '</span>';
-      html += '    </div>';
-
-      // Domain
-      html += '    <div class="cookie-card__field">';
-      html += '      <span class="cookie-card__label">Domain</span>';
-      html += '      <span class="cookie-card__value">' + domain + '</span>';
-      html += '    </div>';
-
-      // Path
-      html += '    <div class="cookie-card__field">';
-      html += '      <span class="cookie-card__label">Path</span>';
-      html += '      <span class="cookie-card__value">' + path + '</span>';
-      html += '    </div>';
-
-      // Secure
-      html += '    <div class="cookie-card__field">';
-      html += '      <span class="cookie-card__label">Secure</span>';
-      html += '      ' + flagHtml(isSecure);
-      html += '    </div>';
-
-      // HttpOnly
-      html += '    <div class="cookie-card__field">';
-      html += '      <span class="cookie-card__label">HttpOnly</span>';
-      html += '      <span class="cookie-card__value cookie-card__value--flag cookie-card__value--no">N/A<\/span>';
-      html += '    </div>';
-
-      // SameSite
-      html += '    <div class="cookie-card__field">';
-      html += '      <span class="cookie-card__label">SameSite</span>';
-      html += '      <span class="cookie-card__value cookie-card__value--flag cookie-card__value--no">N/A<\/span>';
-      html += '    </div>';
-
-      html += '  </div>';
-
-      // Timeline — session cookie (no expiry visible from JS)
-      html += '  <div class="cookie-timeline">';
-      html += '    <div class="cookie-timeline__row">';
-      html += '      <span>Session cookie (expiry not visible to client JS)</span>';
-      html += '    </div>';
-      html += '    <div class="cookie-timeline__bar">';
-      html += '      <div class="cookie-timeline__fill" style="width: 0%"></div>';
-      html += '    </div>';
-      html += '  </div>';
-
-      html += '</div>';
-    });
-
     cookieBody.innerHTML = html;
+
+    // Attach toggle handlers
+    var toggles = cookieBody.querySelectorAll('.storage-section__toggle');
+    for (var i = 0; i < toggles.length; i++) {
+      toggles[i].addEventListener('click', function () {
+        var expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', String(!expanded));
+        var contentId = this.getAttribute('aria-controls');
+        var content = document.getElementById(contentId);
+        if (content) content.classList.toggle('is-collapsed');
+      });
+    }
+
+    // Load Cache Storage async
+    if (hasCacheApi) {
+      parseCacheStorage(function (cacheData) {
+        var cacheContent = document.getElementById('storage-cache-content');
+        var cacheSection = document.getElementById('storage-cache');
+        if (!cacheContent || !cacheSection) return;
+
+        var count = 0;
+        if (cacheData) {
+          cacheData.forEach(function (c) { count += c.urls.length; });
+        }
+
+        // Update count badge
+        var badge = cacheSection.querySelector('.storage-section__count');
+        if (badge) badge.textContent = cacheData ? count : 0;
+
+        cacheContent.innerHTML = buildCacheCards(cacheData);
+      });
+    }
   }
+
+  // -- Modal Open / Close --
 
   function openCookieModal() {
     if (!cookieOverlay) return;
-    buildCookieCards();
+    buildModalContent();
     cookieOverlay.classList.add('is-open');
     document.body.style.overflow = 'hidden';
     setTimeout(function () { cookieClose && cookieClose.focus(); }, 100);
@@ -346,7 +457,6 @@ DATE: 2026-04-02
     });
   }
 
-  // Escape key closes cookie modal (integrate with existing keydown handler)
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && cookieOverlay && cookieOverlay.classList.contains('is-open')) {
       closeCookieModal();
