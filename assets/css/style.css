@@ -1,3 +1,8 @@
+/*
+CHANGE: Add cookie viewer modal styles and footer cookie button
+REASON: Style the cookie viewer modal, cookie cards, timeline bar, and footer button
+DATE: 2026-04-02
+*/
 /* ============================================================
    Ranzlappen — Custom CSS
    Dark-first theme with subtle green accent
@@ -1366,6 +1371,179 @@ img {
   border-top: 1px solid var(--c-border);
 }
 
+/* Footer Cookie Button */
+.footer-cookie-btn {
+  background: none;
+  border: none;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.footer-cookie-btn:hover {
+  color: var(--c-accent);
+  background: var(--c-accent-bg);
+}
+
+/* ============================================================
+   Cookie Viewer Modal
+   ============================================================ */
+.cookie-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--c-overlay);
+  z-index: 2000;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(var(--header-height) + var(--space-2xl)) var(--space-lg);
+  overflow-y: auto;
+}
+.cookie-overlay.is-open { display: flex; }
+
+.cookie-box {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius-lg);
+  width: 100%;
+  max-width: 42rem;
+  overflow: hidden;
+  box-shadow: 0 16px 48px var(--c-card-shadow);
+}
+
+.cookie-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--c-border);
+}
+.cookie-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--c-text);
+  margin: 0;
+}
+.cookie-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--c-text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: var(--border-radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.cookie-close:hover,
+.cookie-close:focus-visible {
+  color: var(--c-text);
+  background: var(--c-accent-bg);
+}
+
+.cookie-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: var(--space-md);
+}
+
+.cookie-empty {
+  text-align: center;
+  color: var(--c-text-faint);
+  font-size: 0.9rem;
+  padding: var(--space-lg);
+}
+
+/* Cookie Card */
+.cookie-card {
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+.cookie-card:last-child { margin-bottom: 0; }
+
+.cookie-card__name {
+  font-family: var(--f-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-accent);
+  margin-bottom: var(--space-xs);
+  word-break: break-all;
+}
+
+.cookie-card__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: var(--space-xs) var(--space-md);
+  font-size: 0.8rem;
+  margin-bottom: var(--space-sm);
+}
+.cookie-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cookie-card__label {
+  color: var(--c-text-faint);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.cookie-card__value {
+  color: var(--c-text);
+  font-family: var(--f-mono);
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+.cookie-card__value--flag {
+  font-family: var(--f-body);
+}
+.cookie-card__value--yes { color: var(--c-accent); }
+.cookie-card__value--no  { color: var(--c-text-faint); }
+
+/* Cookie Timeline */
+.cookie-timeline {
+  border-top: 1px solid var(--c-border);
+  padding-top: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+.cookie-timeline__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--c-text-muted);
+  margin-bottom: var(--space-xs);
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+.cookie-timeline__bar {
+  width: 100%;
+  height: 4px;
+  background: var(--c-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.cookie-timeline__fill {
+  height: 100%;
+  background: var(--c-accent);
+  border-radius: 2px;
+  transition: width var(--transition-base);
+}
+.cookie-timeline__fill--expired { background: var(--c-danger); }
+.cookie-timeline__fill--warning { background: var(--c-warning); }
+
 /* ============================================================
    404 Page
    ============================================================ */
@@ -1600,6 +1778,8 @@ img {
   .footer-links { justify-content: center; }
   .footer-social { justify-content: center; }
   .footer-support { justify-content: center; }
+  .footer-cookie-btn { margin: 0 auto; }
+  .cookie-card__grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 30rem) {

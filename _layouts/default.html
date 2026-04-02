@@ -1,3 +1,8 @@
+<!--
+CHANGE: Include cookie-modal.html component
+REASON: Load cookie viewer modal alongside existing search modal
+DATE: 2026-04-02
+-->
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -8,6 +13,7 @@
 
   {% include header.html %}
   {% include search-modal.html %}
+  {% include cookie-modal.html %}
 
   {% if page.layout == 'post' %}
   <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
