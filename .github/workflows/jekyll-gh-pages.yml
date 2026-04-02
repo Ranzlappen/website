@@ -35,6 +35,21 @@ jobs:
         with:
           source: ./
           destination: ./_site
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: polyvote/package-lock.json
+      - name: Build PolyVote
+        run: |
+          cd polyvote
+          npm ci
+          npm run build
+      - name: Copy PolyVote into _site
+        run: |
+          cp -r polyvote/dist _site/polyvote
+          cp _site/polyvote/index.html _site/polyvote/404.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
