@@ -1,9 +1,6 @@
 (function () {
   'use strict';
 
-  // Disable on mobile/tablet (< 1024px) — desktop only
-  if (window.innerWidth < 1024) return;
-
   var synth = window.speechSynthesis;
   if (!synth) return;
 
@@ -23,6 +20,25 @@
   var currentIndex = -1;
   var isPaused = false;
   var highlightedEl = null;
+  var iosResumeInterval = null;
+  var isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  function startIosWorkaround() {
+    if (iosResumeInterval || !isIos) return;
+    iosResumeInterval = setInterval(function () {
+      if (synth.speaking && !synth.paused) {
+        synth.pause();
+        synth.resume();
+      }
+    }, 14000);
+  }
+
+  function stopIosWorkaround() {
+    if (iosResumeInterval) {
+      clearInterval(iosResumeInterval);
+      iosResumeInterval = null;
+    }
+  }
 
   // --- Extract text from post body, ignoring links/images/nav ---
   function extractSentences() {
@@ -87,7 +103,9 @@
       highlightedEl = el;
       // Scroll into view if needed
       var rect = el.getBoundingClientRect();
-      if (rect.top < 80 || rect.bottom > window.innerHeight - 80) {
+      var mobileBar = document.querySelector('.voting-mobile-bar');
+      var bottomOffset = (mobileBar && window.getComputedStyle(mobileBar).display !== 'none') ? 120 : 80;
+      if (rect.top < 60 || rect.bottom > window.innerHeight - bottomOffset) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
@@ -122,6 +140,7 @@
       currentIndex = -1;
       showPlayIcon();
       clearHighlight();
+      stopIosWorkaround();
       return;
     }
 
@@ -206,6 +225,7 @@
     if (sentences.length === 0) return;
     isPaused = false;
     showPauseIcon();
+    startIosWorkaround();
     speakAt(0);
   });
 
@@ -215,6 +235,7 @@
     currentIndex = -1;
     showPlayIcon();
     clearHighlight();
+    stopIosWorkaround();
   });
 
   speedInput.addEventListener('input', function () {
@@ -228,9 +249,28 @@
     }
   });
 
+  // --- Settings panel toggle (mobile) ---
+  var settingsToggle = document.getElementById('read-aloud-settings-toggle');
+  var settingsPanel = document.getElementById('read-aloud-settings-panel');
+
+  if (settingsToggle && settingsPanel) {
+    settingsToggle.addEventListener('click', function () {
+      var isOpen = settingsPanel.classList.toggle('is-open');
+      settingsToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!settingsPanel.contains(e.target) && !settingsToggle.contains(e.target)) {
+        settingsPanel.classList.remove('is-open');
+        settingsToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   // Clean up on page leave
   window.addEventListener('beforeunload', function () {
     synth.cancel();
+    stopIosWorkaround();
   });
 
 })();

@@ -1829,6 +1829,15 @@ img {
   outline-offset: 1px;
 }
 
+/* Read Aloud Settings Toggle (hidden on desktop, visible on mobile) */
+.read-aloud__settings-toggle {
+  display: none;
+}
+/* Settings Panel: on desktop, children flow inline as if wrapper doesn't exist */
+.read-aloud__settings-panel {
+  display: contents;
+}
+
 /* Read Aloud Highlight */
 .read-aloud-highlight {
   background: var(--c-accent-bg);
@@ -1847,8 +1856,47 @@ img {
     padding-bottom: 3rem;
   }
 
-  /* Hide Read Aloud on mobile/tablet (< 1024px) */
-  .read-aloud { display: none !important; }
+  /* Read Aloud: compact mobile layout */
+  .read-aloud {
+    position: relative;
+  }
+  .read-aloud__btn {
+    width: 2rem;
+    height: 2rem;
+  }
+  .read-aloud__settings-toggle {
+    display: flex;
+  }
+  .read-aloud__settings-panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: var(--space-xs);
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--border-radius);
+    padding: var(--space-sm);
+    flex-direction: column;
+    gap: var(--space-sm);
+    z-index: 100;
+    min-width: 10rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .read-aloud__settings-panel.is-open {
+    display: flex;
+  }
+  .read-aloud__settings-panel .read-aloud__slider {
+    display: flex;
+  }
+  .read-aloud__settings-panel .read-aloud__slider input[type="range"] {
+    width: 5rem;
+  }
+  .read-aloud__settings-panel .read-aloud__voice {
+    display: block;
+    max-width: 100%;
+    width: 100%;
+  }
 }
 
 @media (max-width: 48rem) {
