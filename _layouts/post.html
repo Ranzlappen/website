@@ -6,9 +6,15 @@ layout: default
 
 <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
   {% if page.status == "draft" or page.status == "placeholder" %}
-  <div class="post-status-banner">This article is a draft and may be incomplete or subject to change.</div>
+  <div class="status-banner" id="status-banner" role="status" data-slug="{{ page.url | slugify }}">
+    <span class="status-banner__text">This article is a draft and may be incomplete or subject to change.</span>
+    <button class="status-banner__close" aria-label="Dismiss notice" type="button">&times;</button>
+  </div>
   {% elsif page.status == "unpublished" %}
-  <div class="post-status-banner">This article is unpublished.</div>
+  <div class="status-banner" id="status-banner" role="status" data-slug="{{ page.url | slugify }}">
+    <span class="status-banner__text">This article is unpublished.</span>
+    <button class="status-banner__close" aria-label="Dismiss notice" type="button">&times;</button>
+  </div>
   {% endif %}
 
   <!-- Post Header -->

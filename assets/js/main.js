@@ -182,4 +182,21 @@
     }
   });
 
+  // -------------------------------------------------------
+  // Status Banner (dismiss + sessionStorage)
+  // -------------------------------------------------------
+  var statusBanner = document.getElementById('status-banner');
+  if (statusBanner) {
+    var bannerKey = 'dismissed-banner-' + statusBanner.getAttribute('data-slug');
+    if (sessionStorage.getItem(bannerKey)) {
+      statusBanner.remove();
+    } else {
+      statusBanner.querySelector('.status-banner__close').addEventListener('click', function () {
+        statusBanner.classList.add('is-hidden');
+        sessionStorage.setItem(bannerKey, '1');
+        setTimeout(function () { statusBanner.remove(); }, 300);
+      });
+    }
+  }
+
 })();
