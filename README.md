@@ -1,4 +1,4 @@
-# Ranzlappen — Personal Blog
+# RanzLappen — Personal Blog
 
 A clean, dark-themed personal blog. No coding required to set up or maintain — everything is done through GitHub's website (works on your phone).
 

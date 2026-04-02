@@ -7,7 +7,7 @@ permalink: /disclaimer/
 
 ## General Information
 
-The information provided on **Ranzlappen** is for general informational purposes only. All content is published in good faith and for personal expression. I make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, or suitability of any information on this site.
+The information provided on **RanzLappen** is for general informational purposes only. All content is published in good faith and for personal expression. I make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, or suitability of any information on this site.
 
 ## Professional Advice
 
@@ -24,6 +24,10 @@ I do my best to keep things accurate, but mistakes happen. If you spot something
 ## Fair Use
 
 Any copyrighted material used on this blog is used under fair use guidelines for commentary, criticism, or educational purposes. If you believe your work has been used in a way that constitutes infringement, please contact me and I will address it promptly.
+
+## Browser Storage Viewer
+
+This site includes a browser storage viewer tool that displays cookies and other storage entries set by this site and its third-party services. The information shown is for transparency purposes only and should not be interpreted as a complete audit of all data stored by your browser. The tool reads what is accessible via standard browser APIs and may not reflect all storage set by third-party scripts.
 
 ## Liability
 
