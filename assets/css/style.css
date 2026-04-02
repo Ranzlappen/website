@@ -1748,9 +1748,9 @@ img {
 /* --- Article Status (draft / placeholder / unpublished) --- */
 .status-banner {
   position: fixed;
-  bottom: var(--space-lg);
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   max-width: calc(var(--content-width) - var(--space-xl));
   width: calc(100% - var(--space-xl));
   display: flex;
@@ -1771,7 +1771,7 @@ img {
 }
 .status-banner.is-hidden {
   opacity: 0;
-  transform: translateX(-50%) translateY(1rem);
+  transform: translate(-50%, -50%) translateY(1rem);
   pointer-events: none;
 }
 .status-banner__text {
