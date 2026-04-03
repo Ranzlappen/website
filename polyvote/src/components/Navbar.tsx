@@ -4,11 +4,19 @@
  * DATE: 2026-04-02
  */
 import { Link, useLocation } from 'react-router-dom';
-import { BarChart3, FileText, Home } from 'lucide-react';
+import { BarChart3, FileText, Home, ArrowLeft } from 'lucide-react';
 
 const links = [
   { to: '/', label: 'Home', icon: Home },
   { to: '/requests', label: 'Requests', icon: FileText },
+];
+
+const siteLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/blog/', label: 'Blog' },
+  { href: '/categories/', label: 'Categories' },
+  { href: '/about/', label: 'About' },
+  { href: '/contact/', label: 'Contact' },
 ];
 
 export default function Navbar() {
@@ -17,14 +25,22 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-surface-200 bg-surface/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        {/* Brand */}
-        <Link to="/" className="flex items-center gap-2 font-bold text-brand-400 text-lg">
+        {/* Brand – links back to main Jekyll site */}
+        <a href="/" className="flex items-center gap-2 font-bold text-brand-400 text-lg">
           <BarChart3 size={22} />
           PolyVote
-        </Link>
+        </a>
 
         {/* Nav links */}
         <nav className="flex items-center gap-1">
+          <a
+            href="/"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors"
+          >
+            <ArrowLeft size={16} />
+            Back to site
+          </a>
+          <span className="mx-1 h-4 w-px bg-surface-200" />
           {links.map(({ to, label, icon: Icon }) => {
             const active = pathname === to;
             return (

@@ -5,6 +5,8 @@ main:
     url: "/blog/"
   - title: "Categories"
     url: "/categories/"
+  - title: "PolyVote"
+    url: "/polyvote/"
   - title: "About"
     url: "/about/"
   - title: "Contact"
