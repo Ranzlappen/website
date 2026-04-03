@@ -1,7 +1,7 @@
 ---
 layout: null
 # [Status field update] Custom Atom feed replacing jekyll-feed plugin.
-# Only includes posts where status == "published".
+# Only includes posts where status == "published" or "placeholder".
 ---
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">

@@ -4,7 +4,7 @@ description: Backends and developer tools default to dark mode assuming long ses
 keywords: dark mode web design, light mode frontend, backend ui defaults, dark mode psychology, cognitive load ui, eye strain dark mode, web design status signal, frontend backend contrast
 date: 2026-04-03
 category: UX Design
-tags: dark-mode light-mode web-design ux-psychology frontend-backend
+tags: [dark-mode, light-mode, web-design, ux-psychology, frontend-backend]
 image: 
 status: placeholder
 comments: true
