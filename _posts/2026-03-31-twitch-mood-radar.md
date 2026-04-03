@@ -86,8 +86,6 @@ MoodRadar delivers an immediate, visual understanding of Twitch chat mood when t
 
 As an early-stage project it already provides usable value, and continued development will only make it sharper. Test it on your favorite high-energy stream and see the chat’s true demeanor at a glance.
 
-[Try MoodRadar Now](https://ranzlappen.github.io/ticked/moodradar.html)
-
 <h2 id="sources">Sources</h2>
 
 <a href="https://ranzlappen.github.io/ticked/moodradar.html" target="_blank" rel="noopener">MoodRadar Live Demo</a>  
