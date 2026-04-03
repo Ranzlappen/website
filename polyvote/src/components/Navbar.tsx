@@ -33,17 +33,15 @@ export default function Navbar() {
 
         {/* Nav links */}
         <nav className="flex items-center gap-1">
-          {/* Back to site link */}
           <a
             href="/"
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors text-gray-400 hover:text-gray-200 mr-2 border-r border-surface-200 pr-4"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors"
           >
             <ArrowLeft size={16} />
             Back to site
           </a>
-
-          {/* App navigation */}
-          {appLinks.map(({ to, label, icon: Icon }) => {
+          <span className="mx-1 h-4 w-px bg-surface-200" />
+          {links.map(({ to, label, icon: Icon }) => {
             const active = pathname === to;
             return (
               <Link

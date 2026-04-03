@@ -1,6 +1,6 @@
 /*
  * CHANGE: Expanded seed script – 24 topics across 8 categories
- * REASON: Populates the database with diverse topics for testing/preview
+ * REASON: Populates the database with extensive demo data for testing/preview
  * DATE: 2026-04-02
  *
  * Run with: npx tsx src/utils/seed.ts
@@ -19,20 +19,19 @@ const app = initializeApp({
 const db = getFirestore(app);
 
 const DAY = 86400000;
-const now = Date.now();
 
-// ── Seed data: 8 categories, ~24 topics, 2-4 metrics each ──
+// ── Seed data: 8 categories, ~24 topics, 2-4 metrics per topic ──
 
 const SEED_TOPICS = [
   // ═══════════════════════════════════════
-  // ── Technology (3) ─────────────────────
+  // ── Technology (3 topics) ──
   // ═══════════════════════════════════════
   {
     id: 'ai-regulation',
     title: 'AI Regulation Approaches',
     description: 'How should governments regulate artificial intelligence development and deployment?',
     category: 'Technology',
-    createdAt: now - DAY * 2,
+    createdAt: Date.now() - DAY * 2,
     totalVotes: 42,
     metrics: [
       {
@@ -60,7 +59,7 @@ const SEED_TOPICS = [
     title: 'Future of Remote Work',
     description: 'What will the workplace look like in 5 years? Fully remote, hybrid, or back to office?',
     category: 'Technology',
-    createdAt: now - DAY * 5,
+    createdAt: Date.now() - DAY * 5,
     totalVotes: 65,
     metrics: [
       {
@@ -84,52 +83,53 @@ const SEED_TOPICS = [
     ],
   },
   {
-    id: 'cryptocurrency-digital-currency',
+    id: 'crypto-digital-currency',
     title: 'Cryptocurrency & Digital Currency',
-    description: 'Should governments adopt central bank digital currencies or embrace decentralized crypto?',
+    description: 'Should governments embrace cryptocurrency or develop their own central bank digital currencies?',
     category: 'Technology',
-    createdAt: now - DAY * 8,
+    createdAt: Date.now() - DAY * 8,
     totalVotes: 87,
     metrics: [
       {
-        id: 'preferred-model',
-        label: 'Preferred Currency Model',
+        id: 'adoption',
+        label: 'Government Approach',
         choices: [
-          { id: 'cbdc', label: 'Central bank digital currency', color: '#60a5fa', votes: 30 },
-          { id: 'decentralized', label: 'Decentralized crypto (BTC, ETH)', color: '#fb923c', votes: 35 },
-          { id: 'traditional', label: 'Traditional fiat only', color: '#d1d5db', votes: 22 },
+          { id: 'embrace', label: 'Embrace crypto fully', color: '#4ade80', votes: 25 },
+          { id: 'cbdc', label: 'Central bank digital currency', color: '#60a5fa', votes: 32 },
+          { id: 'regulate', label: 'Regulate but allow', color: '#facc15', votes: 20 },
+          { id: 'ban', label: 'Ban cryptocurrency', color: '#f87171', votes: 10 },
         ],
       },
       {
-        id: 'regulation-level',
-        label: 'Crypto Regulation',
+        id: 'impact',
+        label: 'Impact on Traditional Banking',
         choices: [
-          { id: 'heavy', label: 'Heavy regulation', color: '#f87171', votes: 25 },
-          { id: 'light', label: 'Light-touch regulation', color: '#facc15', votes: 38 },
-          { id: 'none', label: 'No regulation', color: '#4ade80', votes: 24 },
+          { id: 'replace', label: 'Will replace banks', color: '#c084fc', votes: 18 },
+          { id: 'coexist', label: 'Will coexist', color: '#60a5fa', votes: 40 },
+          { id: 'fade', label: 'Crypto will fade', color: '#fb923c', votes: 29 },
         ],
       },
       {
-        id: 'adoption-timeline',
-        label: 'Mass Adoption Timeline',
+        id: 'environment',
+        label: 'Environmental Concern',
         choices: [
-          { id: 'soon', label: 'Within 5 years', color: '#4ade80', votes: 20 },
-          { id: 'medium', label: '5-15 years', color: '#60a5fa', votes: 42 },
-          { id: 'never', label: 'Never mainstream', color: '#f87171', votes: 25 },
+          { id: 'major', label: 'Major concern', color: '#f87171', votes: 35 },
+          { id: 'solvable', label: 'Solvable with PoS', color: '#facc15', votes: 30 },
+          { id: 'minor', label: 'Minor issue', color: '#4ade80', votes: 22 },
         ],
       },
     ],
   },
 
   // ═══════════════════════════════════════
-  // ── Science (3) ────────────────────────
+  // ── Science (3 topics) ──
   // ═══════════════════════════════════════
   {
     id: 'space-exploration',
     title: 'Space Exploration Priorities',
     description: 'Where should humanity focus space exploration resources in the next decade?',
     category: 'Science',
-    createdAt: now - DAY * 1,
+    createdAt: Date.now() - DAY * 1,
     totalVotes: 38,
     metrics: [
       {
@@ -166,7 +166,7 @@ const SEED_TOPICS = [
     title: 'Most Promising Climate Solutions',
     description: 'Which climate change mitigation strategies deserve the most investment?',
     category: 'Science',
-    createdAt: now - DAY * 3,
+    createdAt: Date.now() - DAY * 3,
     totalVotes: 55,
     metrics: [
       {
@@ -192,51 +192,51 @@ const SEED_TOPICS = [
   {
     id: 'gene-editing-ethics',
     title: 'Gene Editing Ethics (CRISPR)',
-    description: 'How far should humanity go with CRISPR gene editing technology?',
+    description: 'How far should gene editing technology go? Should we edit human embryos to eliminate disease?',
     category: 'Science',
-    createdAt: now - DAY * 12,
-    totalVotes: 73,
+    createdAt: Date.now() - DAY * 12,
+    totalVotes: 93,
     metrics: [
       {
-        id: 'acceptable-use',
-        label: 'Acceptable Use Cases',
+        id: 'scope',
+        label: 'Acceptable Scope',
         choices: [
-          { id: 'disease', label: 'Curing genetic diseases only', color: '#4ade80', votes: 32 },
-          { id: 'enhancement', label: 'Disease + human enhancement', color: '#60a5fa', votes: 22 },
-          { id: 'unrestricted', label: 'Unrestricted research', color: '#c084fc', votes: 11 },
-          { id: 'ban', label: 'Ban human gene editing', color: '#f87171', votes: 8 },
+          { id: 'disease-only', label: 'Disease prevention only', color: '#60a5fa', votes: 38 },
+          { id: 'broad-medical', label: 'Broad medical uses', color: '#4ade80', votes: 28 },
+          { id: 'enhancement', label: 'Include enhancements', color: '#c084fc', votes: 15 },
+          { id: 'ban', label: 'Ban human editing', color: '#f87171', votes: 12 },
         ],
       },
       {
-        id: 'oversight',
-        label: 'Who Should Oversee?',
+        id: 'regulation',
+        label: 'Who Should Regulate?',
         choices: [
-          { id: 'international', label: 'International body (WHO/UN)', color: '#60a5fa', votes: 35 },
-          { id: 'national', label: 'National governments', color: '#fb923c', votes: 22 },
-          { id: 'scientists', label: 'Scientific community self-governance', color: '#facc15', votes: 16 },
+          { id: 'international', label: 'International body', color: '#60a5fa', votes: 40 },
+          { id: 'national', label: 'National governments', color: '#fb923c', votes: 30 },
+          { id: 'scientific', label: 'Scientific community', color: '#4ade80', votes: 23 },
         ],
       },
       {
-        id: 'equity',
+        id: 'access',
         label: 'Access & Equity',
         choices: [
-          { id: 'universal', label: 'Universal access required', color: '#4ade80', votes: 40 },
-          { id: 'market', label: 'Market-driven pricing', color: '#f87171', votes: 15 },
-          { id: 'subsidized', label: 'Subsidized for low-income', color: '#facc15', votes: 18 },
+          { id: 'universal', label: 'Universal access required', color: '#4ade80', votes: 45 },
+          { id: 'subsidized', label: 'Subsidized access', color: '#facc15', votes: 28 },
+          { id: 'market', label: 'Market-driven pricing', color: '#f87171', votes: 20 },
         ],
       },
     ],
   },
 
   // ═══════════════════════════════════════
-  // ── Culture (3) ────────────────────────
+  // ── Culture (3 topics) ──
   // ═══════════════════════════════════════
   {
     id: 'social-media-impact',
     title: 'Social Media Impact on Society',
     description: 'Is social media a net positive or negative for modern society?',
     category: 'Culture',
-    createdAt: now - DAY * 4,
+    createdAt: Date.now() - DAY * 4,
     totalVotes: 48,
     metrics: [
       {
@@ -264,7 +264,7 @@ const SEED_TOPICS = [
     title: 'Education System Reform',
     description: 'What fundamental changes does the education system need?',
     category: 'Culture',
-    createdAt: now - DAY * 6,
+    createdAt: Date.now() - DAY * 6,
     totalVotes: 35,
     metrics: [
       {
@@ -297,73 +297,72 @@ const SEED_TOPICS = [
     ],
   },
   {
-    id: 'ai-generated-art-copyright',
+    id: 'ai-art-copyright',
     title: 'AI-Generated Art & Copyright',
-    description: 'Should AI-generated art be eligible for copyright? Who owns the rights?',
+    description: 'Should AI-generated art be eligible for copyright? Who owns it—the prompter, the developer, or nobody?',
     category: 'Culture',
-    createdAt: now - DAY * 15,
-    totalVotes: 92,
+    createdAt: Date.now() - DAY * 15,
+    totalVotes: 110,
     metrics: [
-      {
-        id: 'copyright-eligible',
-        label: 'Copyright Eligibility',
-        choices: [
-          { id: 'yes', label: 'Yes, fully copyrightable', color: '#4ade80', votes: 22 },
-          { id: 'partial', label: 'Partial / limited rights', color: '#facc15', votes: 35 },
-          { id: 'no', label: 'No, public domain', color: '#f87171', votes: 28 },
-          { id: 'new-framework', label: 'Needs new legal framework', color: '#c084fc', votes: 7 },
-        ],
-      },
       {
         id: 'ownership',
         label: 'Who Owns AI Art?',
         choices: [
-          { id: 'prompter', label: 'The person who prompted', color: '#60a5fa', votes: 30 },
-          { id: 'developer', label: 'AI model developer', color: '#fb923c', votes: 18 },
-          { id: 'training-artists', label: 'Artists in training data', color: '#f87171', votes: 25 },
-          { id: 'nobody', label: 'Nobody / public domain', color: '#d1d5db', votes: 19 },
+          { id: 'prompter', label: 'The person who prompted', color: '#4ade80', votes: 32 },
+          { id: 'developer', label: 'AI model developer', color: '#60a5fa', votes: 18 },
+          { id: 'public', label: 'Public domain', color: '#facc15', votes: 35 },
+          { id: 'no-one', label: 'Not copyrightable', color: '#f87171', votes: 25 },
         ],
       },
       {
-        id: 'artist-impact',
-        label: 'Impact on Human Artists',
+        id: 'training-data',
+        label: 'Training Data Ethics',
         choices: [
-          { id: 'threat', label: 'Major threat to livelihoods', color: '#f87171', votes: 38 },
-          { id: 'tool', label: 'New tool, net positive', color: '#4ade80', votes: 30 },
-          { id: 'coexist', label: 'Will coexist fine', color: '#60a5fa', votes: 24 },
+          { id: 'consent', label: 'Require artist consent', color: '#f87171', votes: 48 },
+          { id: 'compensate', label: 'Compensate artists', color: '#fb923c', votes: 35 },
+          { id: 'fair-use', label: 'Fair use applies', color: '#4ade80', votes: 27 },
+        ],
+      },
+      {
+        id: 'labeling',
+        label: 'Disclosure Requirements',
+        choices: [
+          { id: 'mandatory', label: 'Mandatory AI label', color: '#f87171', votes: 52 },
+          { id: 'optional', label: 'Optional disclosure', color: '#facc15', votes: 30 },
+          { id: 'none', label: 'No labeling needed', color: '#4ade80', votes: 28 },
         ],
       },
     ],
   },
 
   // ═══════════════════════════════════════
-  // ── Politics (3) ───────────────────────
+  // ── Politics (3 topics) ──
   // ═══════════════════════════════════════
   {
     id: 'voting-system-reform',
     title: 'Voting System Reform',
-    description: 'Should countries move away from first-past-the-post to alternative voting systems?',
+    description: 'Should democracies move away from first-past-the-post voting to alternative systems?',
     category: 'Politics',
-    createdAt: now - DAY * 7,
-    totalVotes: 110,
+    createdAt: Date.now() - DAY * 7,
+    totalVotes: 128,
     metrics: [
       {
-        id: 'preferred-system',
+        id: 'system',
         label: 'Preferred Voting System',
         choices: [
-          { id: 'ranked', label: 'Ranked-choice voting', color: '#4ade80', votes: 40 },
-          { id: 'proportional', label: 'Proportional representation', color: '#60a5fa', votes: 32 },
-          { id: 'fptp', label: 'Keep first-past-the-post', color: '#f87171', votes: 20 },
-          { id: 'approval', label: 'Approval voting', color: '#facc15', votes: 18 },
+          { id: 'rcv', label: 'Ranked choice voting', color: '#4ade80', votes: 45 },
+          { id: 'proportional', label: 'Proportional representation', color: '#60a5fa', votes: 38 },
+          { id: 'approval', label: 'Approval voting', color: '#c084fc', votes: 20 },
+          { id: 'fptp', label: 'Keep first-past-the-post', color: '#f87171', votes: 25 },
         ],
       },
       {
-        id: 'urgency',
-        label: 'Reform Urgency',
+        id: 'implementation',
+        label: 'Implementation Approach',
         choices: [
-          { id: 'critical', label: 'Critical – needs immediate change', color: '#f87171', votes: 45 },
-          { id: 'important', label: 'Important but not urgent', color: '#fb923c', votes: 40 },
-          { id: 'unnecessary', label: 'Current system works fine', color: '#d1d5db', votes: 25 },
+          { id: 'federal', label: 'Federal mandate', color: '#60a5fa', votes: 35 },
+          { id: 'state', label: 'State-by-state adoption', color: '#facc15', votes: 50 },
+          { id: 'local', label: 'Start at local level', color: '#4ade80', votes: 43 },
         ],
       },
     ],
@@ -371,39 +370,39 @@ const SEED_TOPICS = [
   {
     id: 'universal-basic-income',
     title: 'Universal Basic Income',
-    description: 'Should governments provide a guaranteed basic income to all citizens?',
+    description: 'Should governments provide a universal basic income to all citizens regardless of employment status?',
     category: 'Politics',
-    createdAt: now - DAY * 10,
-    totalVotes: 135,
+    createdAt: Date.now() - DAY * 10,
+    totalVotes: 145,
     metrics: [
       {
         id: 'support',
-        label: 'UBI Support Level',
+        label: 'Level of Support',
         choices: [
-          { id: 'full', label: 'Full UBI for all adults', color: '#4ade80', votes: 45 },
-          { id: 'targeted', label: 'Targeted / means-tested', color: '#60a5fa', votes: 42 },
-          { id: 'against', label: 'Against UBI entirely', color: '#f87171', votes: 30 },
-          { id: 'pilot', label: 'More pilot programs first', color: '#facc15', votes: 18 },
+          { id: 'full', label: 'Full UBI for all', color: '#4ade80', votes: 42 },
+          { id: 'partial', label: 'Partial / targeted UBI', color: '#60a5fa', votes: 48 },
+          { id: 'against', label: 'Against UBI', color: '#f87171', votes: 30 },
+          { id: 'unsure', label: 'Need more data', color: '#facc15', votes: 25 },
         ],
       },
       {
         id: 'funding',
-        label: 'How to Fund UBI',
+        label: 'Funding Source',
         choices: [
           { id: 'wealth-tax', label: 'Wealth tax', color: '#f87171', votes: 50 },
-          { id: 'vat', label: 'Value-added tax (VAT)', color: '#fb923c', votes: 35 },
-          { id: 'automation-tax', label: 'Automation / robot tax', color: '#c084fc', votes: 30 },
-          { id: 'reallocation', label: 'Reallocate existing welfare', color: '#60a5fa', votes: 20 },
+          { id: 'vat', label: 'Value-added tax', color: '#fb923c', votes: 35 },
+          { id: 'cut-programs', label: 'Replace existing programs', color: '#c084fc', votes: 32 },
+          { id: 'money-creation', label: 'Money creation', color: '#facc15', votes: 28 },
         ],
       },
       {
         id: 'amount',
         label: 'Monthly Amount (USD)',
         choices: [
-          { id: 'low', label: '$500 / month', color: '#d1d5db', votes: 25 },
-          { id: 'medium', label: '$1,000 / month', color: '#facc15', votes: 55 },
-          { id: 'high', label: '$2,000+ / month', color: '#4ade80', votes: 35 },
-          { id: 'variable', label: 'Varies by cost of living', color: '#60a5fa', votes: 20 },
+          { id: '500', label: '$500/month', color: '#d1d5db', votes: 30 },
+          { id: '1000', label: '$1,000/month', color: '#60a5fa', votes: 55 },
+          { id: '2000', label: '$2,000/month', color: '#4ade80', votes: 35 },
+          { id: '3000', label: '$3,000+/month', color: '#c084fc', votes: 25 },
         ],
       },
     ],
@@ -411,61 +410,61 @@ const SEED_TOPICS = [
   {
     id: 'immigration-policy',
     title: 'Immigration Policy',
-    description: 'How should countries approach immigration policy in the modern era?',
+    description: 'How should countries approach immigration policy in an increasingly interconnected world?',
     category: 'Politics',
-    createdAt: now - DAY * 18,
-    totalVotes: 98,
+    createdAt: Date.now() - DAY * 18,
+    totalVotes: 102,
     metrics: [
       {
-        id: 'openness',
-        label: 'Border Policy',
+        id: 'approach',
+        label: 'Overall Approach',
         choices: [
           { id: 'open', label: 'Open borders', color: '#4ade80', votes: 18 },
-          { id: 'skills-based', label: 'Skills-based immigration', color: '#60a5fa', votes: 38 },
-          { id: 'current', label: 'Maintain current levels', color: '#facc15', votes: 22 },
-          { id: 'restrictive', label: 'More restrictive', color: '#f87171', votes: 20 },
+          { id: 'merit', label: 'Merit-based system', color: '#60a5fa', votes: 38 },
+          { id: 'current', label: 'Maintain current levels', color: '#facc15', votes: 25 },
+          { id: 'restrict', label: 'More restrictive', color: '#f87171', votes: 21 },
         ],
       },
       {
-        id: 'integration',
-        label: 'Integration Approach',
+        id: 'priority',
+        label: 'Priority Factor',
         choices: [
-          { id: 'multicultural', label: 'Multicultural coexistence', color: '#c084fc', votes: 35 },
-          { id: 'assimilation', label: 'Cultural assimilation', color: '#fb923c', votes: 30 },
-          { id: 'balanced', label: 'Balanced integration', color: '#60a5fa', votes: 33 },
+          { id: 'skills', label: 'Skills & education', color: '#60a5fa', votes: 40 },
+          { id: 'family', label: 'Family reunification', color: '#fb923c', votes: 28 },
+          { id: 'humanitarian', label: 'Humanitarian need', color: '#f87171', votes: 34 },
         ],
       },
     ],
   },
 
   // ═══════════════════════════════════════
-  // ── Environment (3) ────────────────────
+  // ── Environment (3 topics) ──
   // ═══════════════════════════════════════
   {
-    id: 'urban-transportation-future',
+    id: 'urban-transportation',
     title: 'Urban Transportation Future',
-    description: 'How should cities redesign transportation for the next generation?',
+    description: 'How should cities redesign transportation to be sustainable and efficient?',
     category: 'Environment',
-    createdAt: now - DAY * 9,
-    totalVotes: 78,
+    createdAt: Date.now() - DAY * 9,
+    totalVotes: 76,
     metrics: [
       {
-        id: 'priority-mode',
-        label: 'Priority Transport Mode',
+        id: 'priority',
+        label: 'Top Priority',
         choices: [
-          { id: 'public', label: 'Public transit expansion', color: '#60a5fa', votes: 30 },
-          { id: 'cycling', label: 'Cycling infrastructure', color: '#4ade80', votes: 20 },
-          { id: 'ev', label: 'Electric vehicles', color: '#c084fc', votes: 18 },
-          { id: 'autonomous', label: 'Autonomous vehicles', color: '#fb923c', votes: 10 },
+          { id: 'public-transit', label: 'Expand public transit', color: '#60a5fa', votes: 30 },
+          { id: 'cycling', label: 'Bike infrastructure', color: '#4ade80', votes: 20 },
+          { id: 'ev', label: 'Electric vehicles', color: '#c084fc', votes: 16 },
+          { id: 'walkability', label: 'Walkable cities', color: '#fb923c', votes: 10 },
         ],
       },
       {
-        id: 'car-free',
-        label: 'Car-Free City Centers?',
+        id: 'car-policy',
+        label: 'Car Restriction Policy',
         choices: [
-          { id: 'yes', label: 'Yes, fully car-free', color: '#4ade80', votes: 28 },
-          { id: 'partial', label: 'Partial restrictions', color: '#facc15', votes: 32 },
-          { id: 'no', label: 'No, keep car access', color: '#f87171', votes: 18 },
+          { id: 'ban', label: 'Ban cars in city centers', color: '#f87171', votes: 22 },
+          { id: 'congestion', label: 'Congestion pricing', color: '#facc15', votes: 28 },
+          { id: 'no-change', label: 'No restrictions needed', color: '#d1d5db', votes: 26 },
         ],
       },
     ],
@@ -473,28 +472,37 @@ const SEED_TOPICS = [
   {
     id: 'ocean-conservation',
     title: 'Ocean Conservation',
-    description: 'What are the most critical ocean conservation priorities?',
+    description: 'What is the most urgent action needed to protect our oceans from pollution and overfishing?',
     category: 'Environment',
-    createdAt: now - DAY * 14,
-    totalVotes: 62,
+    createdAt: Date.now() - DAY * 14,
+    totalVotes: 68,
     metrics: [
       {
-        id: 'top-threat',
-        label: 'Biggest Threat to Oceans',
+        id: 'threat',
+        label: 'Biggest Threat',
         choices: [
-          { id: 'plastic', label: 'Plastic pollution', color: '#f87171', votes: 25 },
-          { id: 'overfishing', label: 'Overfishing', color: '#fb923c', votes: 15 },
-          { id: 'acidification', label: 'Ocean acidification', color: '#c084fc', votes: 12 },
+          { id: 'plastic', label: 'Plastic pollution', color: '#fb923c', votes: 25 },
+          { id: 'overfishing', label: 'Overfishing', color: '#f87171', votes: 20 },
+          { id: 'acidification', label: 'Ocean acidification', color: '#c084fc', votes: 13 },
           { id: 'warming', label: 'Ocean warming', color: '#facc15', votes: 10 },
         ],
       },
       {
-        id: 'solution',
-        label: 'Most Effective Solution',
+        id: 'action',
+        label: 'Priority Action',
         choices: [
-          { id: 'protected-areas', label: 'Marine protected areas', color: '#4ade80', votes: 22 },
-          { id: 'regulation', label: 'Stricter fishing regulations', color: '#60a5fa', votes: 20 },
-          { id: 'cleanup', label: 'Ocean cleanup technology', color: '#c084fc', votes: 20 },
+          { id: 'mpas', label: 'Marine protected areas', color: '#60a5fa', votes: 28 },
+          { id: 'ban-plastics', label: 'Ban single-use plastics', color: '#4ade80', votes: 22 },
+          { id: 'fishing-quotas', label: 'Stricter fishing quotas', color: '#fb923c', votes: 18 },
+        ],
+      },
+      {
+        id: 'responsibility',
+        label: 'Primary Responsibility',
+        choices: [
+          { id: 'governments', label: 'Governments', color: '#60a5fa', votes: 30 },
+          { id: 'corporations', label: 'Corporations', color: '#f87171', votes: 25 },
+          { id: 'individuals', label: 'Individuals', color: '#4ade80', votes: 13 },
         ],
       },
     ],
@@ -502,72 +510,71 @@ const SEED_TOPICS = [
   {
     id: 'sustainable-agriculture',
     title: 'Sustainable Agriculture',
-    description: 'How should we transform food production for a sustainable future?',
+    description: 'How should we transform food production to feed a growing population sustainably?',
     category: 'Environment',
-    createdAt: now - DAY * 20,
+    createdAt: Date.now() - DAY * 20,
     totalVotes: 85,
     metrics: [
       {
-        id: 'farming-method',
-        label: 'Best Farming Approach',
+        id: 'method',
+        label: 'Most Promising Method',
         choices: [
-          { id: 'organic', label: 'Organic farming', color: '#4ade80', votes: 28 },
-          { id: 'precision', label: 'Precision agriculture (AI/drones)', color: '#60a5fa', votes: 25 },
-          { id: 'vertical', label: 'Vertical / indoor farming', color: '#c084fc', votes: 18 },
-          { id: 'regenerative', label: 'Regenerative agriculture', color: '#fb923c', votes: 14 },
+          { id: 'organic', label: 'Organic farming', color: '#4ade80', votes: 22 },
+          { id: 'vertical', label: 'Vertical farming', color: '#c084fc', votes: 25 },
+          { id: 'precision', label: 'Precision agriculture', color: '#60a5fa', votes: 20 },
+          { id: 'lab-meat', label: 'Lab-grown meat', color: '#fb923c', votes: 18 },
         ],
       },
       {
-        id: 'protein-future',
-        label: 'Future of Protein',
+        id: 'diet',
+        label: 'Diet Shift Needed?',
         choices: [
-          { id: 'plant', label: 'Plant-based alternatives', color: '#4ade80', votes: 30 },
-          { id: 'lab-meat', label: 'Lab-grown meat', color: '#c084fc', votes: 25 },
-          { id: 'insects', label: 'Insect protein', color: '#facc15', votes: 10 },
-          { id: 'traditional', label: 'Traditional livestock', color: '#f87171', votes: 20 },
-        ],
-      },
-      {
-        id: 'subsidy-reform',
-        label: 'Agricultural Subsidies',
-        choices: [
-          { id: 'redirect', label: 'Redirect to sustainable farms', color: '#4ade80', votes: 40 },
-          { id: 'eliminate', label: 'Eliminate all subsidies', color: '#f87171', votes: 15 },
-          { id: 'keep', label: 'Keep current system', color: '#d1d5db', votes: 30 },
+          { id: 'plant-based', label: 'Mostly plant-based', color: '#4ade80', votes: 35 },
+          { id: 'reduce-meat', label: 'Reduce meat consumption', color: '#facc15', votes: 30 },
+          { id: 'no-change', label: 'No diet change needed', color: '#f87171', votes: 20 },
         ],
       },
     ],
   },
 
   // ═══════════════════════════════════════
-  // ── Health (3) ─────────────────────────
+  // ── Health (3 topics) ──
   // ═══════════════════════════════════════
   {
     id: 'mental-health-digital-age',
     title: 'Mental Health in the Digital Age',
-    description: 'How should society address the mental health crisis driven by digital technology?',
+    description: 'How is technology affecting mental health, and what should be done about it?',
     category: 'Health',
-    createdAt: now - DAY * 11,
-    totalVotes: 105,
+    createdAt: Date.now() - DAY * 11,
+    totalVotes: 95,
     metrics: [
       {
-        id: 'biggest-factor',
-        label: 'Biggest Digital Mental Health Factor',
+        id: 'impact',
+        label: 'Technology Impact on Mental Health',
         choices: [
-          { id: 'social-media', label: 'Social media comparison', color: '#f87171', votes: 40 },
-          { id: 'screen-time', label: 'Excessive screen time', color: '#fb923c', votes: 30 },
-          { id: 'isolation', label: 'Digital isolation', color: '#c084fc', votes: 20 },
-          { id: 'information', label: 'Information overload', color: '#facc15', votes: 15 },
+          { id: 'very-negative', label: 'Very negative', color: '#f87171', votes: 30 },
+          { id: 'somewhat-negative', label: 'Somewhat negative', color: '#fb923c', votes: 35 },
+          { id: 'neutral', label: 'Neutral', color: '#facc15', votes: 15 },
+          { id: 'positive', label: 'Can be positive', color: '#4ade80', votes: 15 },
         ],
       },
       {
-        id: 'solution',
+        id: 'intervention',
         label: 'Best Intervention',
         choices: [
-          { id: 'education', label: 'Digital literacy education', color: '#60a5fa', votes: 35 },
-          { id: 'regulation', label: 'Platform regulation', color: '#f87171', votes: 28 },
-          { id: 'tools', label: 'Better wellbeing tools in apps', color: '#4ade80', votes: 25 },
-          { id: 'individual', label: 'Individual responsibility', color: '#d1d5db', votes: 17 },
+          { id: 'screen-limits', label: 'Screen time limits', color: '#60a5fa', votes: 28 },
+          { id: 'education', label: 'Digital literacy education', color: '#4ade80', votes: 32 },
+          { id: 'platform-design', label: 'Regulate platform design', color: '#f87171', votes: 35 },
+        ],
+      },
+      {
+        id: 'age-restriction',
+        label: 'Minimum Social Media Age',
+        choices: [
+          { id: '13', label: 'Keep at 13', color: '#d1d5db', votes: 15 },
+          { id: '16', label: 'Raise to 16', color: '#facc15', votes: 40 },
+          { id: '18', label: 'Raise to 18', color: '#f87171', votes: 25 },
+          { id: 'none', label: 'No age restriction', color: '#4ade80', votes: 15 },
         ],
       },
     ],
@@ -575,39 +582,28 @@ const SEED_TOPICS = [
   {
     id: 'healthcare-system-design',
     title: 'Healthcare System Design',
-    description: 'What is the ideal healthcare system structure for a modern nation?',
+    description: 'What is the ideal healthcare system? Single-payer, multi-payer, or market-based?',
     category: 'Health',
-    createdAt: now - DAY * 16,
-    totalVotes: 142,
+    createdAt: Date.now() - DAY * 16,
+    totalVotes: 132,
     metrics: [
       {
-        id: 'system-type',
-        label: 'Healthcare System Model',
+        id: 'system',
+        label: 'Preferred System',
         choices: [
-          { id: 'single-payer', label: 'Single-payer (government)', color: '#60a5fa', votes: 52 },
-          { id: 'multi-payer', label: 'Multi-payer universal', color: '#4ade80', votes: 38 },
-          { id: 'private', label: 'Private market-based', color: '#fb923c', votes: 28 },
-          { id: 'hybrid', label: 'Public-private hybrid', color: '#c084fc', votes: 24 },
+          { id: 'single-payer', label: 'Single-payer (Medicare for All)', color: '#60a5fa', votes: 45 },
+          { id: 'multi-payer', label: 'Multi-payer universal', color: '#4ade80', votes: 35 },
+          { id: 'public-option', label: 'Public option + private', color: '#facc15', votes: 30 },
+          { id: 'market', label: 'Free market', color: '#f87171', votes: 22 },
         ],
       },
       {
         id: 'priority',
-        label: 'Top Healthcare Priority',
+        label: 'Top Priority',
         choices: [
-          { id: 'access', label: 'Universal access', color: '#4ade80', votes: 50 },
-          { id: 'cost', label: 'Cost reduction', color: '#facc15', votes: 40 },
-          { id: 'quality', label: 'Quality of care', color: '#60a5fa', votes: 35 },
-          { id: 'prevention', label: 'Preventive care focus', color: '#c084fc', votes: 17 },
-        ],
-      },
-      {
-        id: 'pharma',
-        label: 'Pharmaceutical Pricing',
-        choices: [
-          { id: 'negotiation', label: 'Government price negotiation', color: '#60a5fa', votes: 55 },
-          { id: 'caps', label: 'Hard price caps', color: '#f87171', votes: 40 },
-          { id: 'market', label: 'Free market pricing', color: '#fb923c', votes: 25 },
-          { id: 'generic', label: 'Accelerate generics', color: '#4ade80', votes: 22 },
+          { id: 'cost', label: 'Lower costs', color: '#4ade80', votes: 50 },
+          { id: 'access', label: 'Universal access', color: '#60a5fa', votes: 45 },
+          { id: 'quality', label: 'Quality of care', color: '#c084fc', votes: 37 },
         ],
       },
     ],
@@ -615,61 +611,69 @@ const SEED_TOPICS = [
   {
     id: 'pandemic-preparedness',
     title: 'Pandemic Preparedness',
-    description: 'How should the world prepare for the next pandemic?',
+    description: 'How should the world prepare for future pandemics after COVID-19?',
     category: 'Health',
-    createdAt: now - DAY * 22,
-    totalVotes: 88,
+    createdAt: Date.now() - DAY * 22,
+    totalVotes: 78,
     metrics: [
       {
-        id: 'top-priority',
+        id: 'priority',
         label: 'Top Preparedness Priority',
         choices: [
-          { id: 'early-warning', label: 'Early warning systems', color: '#4ade80', votes: 30 },
-          { id: 'vaccine-infra', label: 'Vaccine manufacturing capacity', color: '#60a5fa', votes: 28 },
-          { id: 'stockpiles', label: 'Medical supply stockpiles', color: '#fb923c', votes: 18 },
-          { id: 'research', label: 'Basic research funding', color: '#c084fc', votes: 12 },
+          { id: 'surveillance', label: 'Global disease surveillance', color: '#60a5fa', votes: 28 },
+          { id: 'vaccine', label: 'Rapid vaccine development', color: '#4ade80', votes: 25 },
+          { id: 'stockpiles', label: 'Medical supply stockpiles', color: '#fb923c', votes: 15 },
+          { id: 'coordination', label: 'International coordination', color: '#c084fc', votes: 10 },
         ],
       },
       {
-        id: 'coordination',
-        label: 'Coordination Level',
+        id: 'governance',
+        label: 'Who Should Lead?',
         choices: [
-          { id: 'global', label: 'Global treaty / WHO reform', color: '#60a5fa', votes: 38 },
-          { id: 'regional', label: 'Regional alliances', color: '#facc15', votes: 25 },
-          { id: 'national', label: 'Each nation independently', color: '#f87171', votes: 25 },
+          { id: 'who', label: 'Strengthened WHO', color: '#60a5fa', votes: 30 },
+          { id: 'new-body', label: 'New global health body', color: '#c084fc', votes: 20 },
+          { id: 'national', label: 'National agencies', color: '#facc15', votes: 28 },
+        ],
+      },
+      {
+        id: 'funding',
+        label: 'Funding Approach',
+        choices: [
+          { id: 'global-tax', label: 'Global health tax', color: '#f87171', votes: 22 },
+          { id: 'gdp-pledge', label: 'GDP percentage pledge', color: '#60a5fa', votes: 30 },
+          { id: 'voluntary', label: 'Voluntary contributions', color: '#4ade80', votes: 26 },
         ],
       },
     ],
   },
 
   // ═══════════════════════════════════════
-  // ── Sports (3) ─────────────────────────
+  // ── Sports (3 topics) ──
   // ═══════════════════════════════════════
   {
     id: 'esports-recognition',
     title: 'Esports Recognition',
-    description: 'Should esports be officially recognized as sports and included in the Olympics?',
+    description: 'Should esports be recognized as official sports and included in events like the Olympics?',
     category: 'Sports',
-    createdAt: now - DAY * 13,
-    totalVotes: 75,
+    createdAt: Date.now() - DAY * 13,
+    totalVotes: 88,
     metrics: [
       {
-        id: 'olympic-inclusion',
+        id: 'olympic',
         label: 'Olympics Inclusion',
         choices: [
-          { id: 'full', label: 'Full Olympic sport', color: '#4ade80', votes: 28 },
-          { id: 'demo', label: 'Demonstration event first', color: '#60a5fa', votes: 22 },
-          { id: 'separate', label: 'Separate Esports Olympics', color: '#facc15', votes: 15 },
-          { id: 'no', label: 'Not a sport', color: '#f87171', votes: 10 },
+          { id: 'yes', label: 'Yes, include in Olympics', color: '#4ade80', votes: 35 },
+          { id: 'separate', label: 'Separate esports Olympics', color: '#60a5fa', votes: 25 },
+          { id: 'no', label: 'Not a real sport', color: '#f87171', votes: 28 },
         ],
       },
       {
-        id: 'legitimacy',
-        label: 'Esports as "Real" Sport',
+        id: 'scholarship',
+        label: 'College Esports Scholarships',
         choices: [
-          { id: 'yes', label: 'Absolutely a real sport', color: '#4ade80', votes: 35 },
-          { id: 'competition', label: 'Competition, not sport', color: '#facc15', votes: 25 },
-          { id: 'no', label: 'Not a sport at all', color: '#f87171', votes: 15 },
+          { id: 'full', label: 'Full athletic scholarships', color: '#4ade80', votes: 30 },
+          { id: 'partial', label: 'Partial scholarships', color: '#facc15', votes: 32 },
+          { id: 'none', label: 'No sports scholarships', color: '#f87171', votes: 26 },
         ],
       },
     ],
@@ -677,37 +681,29 @@ const SEED_TOPICS = [
   {
     id: 'college-athlete-compensation',
     title: 'College Athlete Compensation',
-    description: 'How should college athletes be compensated for their contributions?',
+    description: 'Should college athletes be paid beyond scholarships? How should NIL deals be regulated?',
     category: 'Sports',
-    createdAt: now - DAY * 19,
-    totalVotes: 95,
+    createdAt: Date.now() - DAY * 19,
+    totalVotes: 105,
     metrics: [
       {
-        id: 'compensation-model',
+        id: 'compensation',
         label: 'Compensation Model',
         choices: [
-          { id: 'salary', label: 'Direct salary from school', color: '#4ade80', votes: 30 },
-          { id: 'nil', label: 'NIL deals (name/image/likeness)', color: '#60a5fa', votes: 35 },
-          { id: 'scholarship', label: 'Scholarship only', color: '#facc15', votes: 18 },
-          { id: 'revenue-share', label: 'Revenue sharing', color: '#c084fc', votes: 12 },
+          { id: 'salary', label: 'Direct salary from school', color: '#4ade80', votes: 28 },
+          { id: 'nil', label: 'NIL deals only', color: '#60a5fa', votes: 35 },
+          { id: 'revenue-share', label: 'Revenue sharing', color: '#c084fc', votes: 22 },
+          { id: 'scholarship-only', label: 'Scholarship is enough', color: '#f87171', votes: 20 },
         ],
       },
       {
-        id: 'fairness',
-        label: 'Pay Equity Across Sports',
+        id: 'regulation',
+        label: 'NIL Regulation',
         choices: [
-          { id: 'equal', label: 'Equal pay all sports', color: '#4ade80', votes: 25 },
-          { id: 'revenue-based', label: 'Based on revenue generated', color: '#60a5fa', votes: 42 },
-          { id: 'tiered', label: 'Tiered by division', color: '#fb923c', votes: 28 },
-        ],
-      },
-      {
-        id: 'impact',
-        label: 'Impact on College Sports',
-        choices: [
-          { id: 'positive', label: 'Mostly positive', color: '#4ade80', votes: 35 },
-          { id: 'mixed', label: 'Mixed effects', color: '#facc15', votes: 30 },
-          { id: 'negative', label: 'Damaging to traditions', color: '#f87171', votes: 30 },
+          { id: 'ncaa', label: 'NCAA should regulate', color: '#60a5fa', votes: 30 },
+          { id: 'federal', label: 'Federal legislation', color: '#fb923c', votes: 35 },
+          { id: 'free-market', label: 'Free market', color: '#4ade80', votes: 25 },
+          { id: 'school', label: 'School-by-school rules', color: '#facc15', votes: 15 },
         ],
       },
     ],
@@ -715,71 +711,70 @@ const SEED_TOPICS = [
   {
     id: 'performance-enhancing-tech',
     title: 'Performance-Enhancing Technology',
-    description: 'Where should the line be drawn on technology in sports performance?',
+    description: 'Where is the line between acceptable training technology and unfair advantage in sports?',
     category: 'Sports',
-    createdAt: now - DAY * 25,
-    totalVotes: 68,
+    createdAt: Date.now() - DAY * 25,
+    totalVotes: 72,
     metrics: [
       {
-        id: 'tech-limits',
-        label: 'Acceptable Technology',
+        id: 'acceptable',
+        label: 'What Should Be Allowed?',
         choices: [
-          { id: 'unlimited', label: 'Allow all technology', color: '#4ade80', votes: 12 },
-          { id: 'wearables', label: 'Wearables & analytics OK', color: '#60a5fa', votes: 28 },
-          { id: 'traditional', label: 'Minimal tech, keep it pure', color: '#f87171', votes: 18 },
-          { id: 'case-by-case', label: 'Case-by-case evaluation', color: '#facc15', votes: 10 },
+          { id: 'all-tech', label: 'All technology welcome', color: '#4ade80', votes: 15 },
+          { id: 'training-only', label: 'Training tech only', color: '#60a5fa', votes: 28 },
+          { id: 'strict-limits', label: 'Strict equipment limits', color: '#facc15', votes: 18 },
+          { id: 'traditional', label: 'Keep sports traditional', color: '#f87171', votes: 11 },
         ],
       },
       {
         id: 'super-shoes',
-        label: 'Advanced Equipment (e.g. super shoes)',
+        label: 'Super Shoes in Running',
         choices: [
-          { id: 'allow', label: 'Allow if commercially available', color: '#4ade80', votes: 25 },
-          { id: 'standardize', label: 'Standardize equipment', color: '#60a5fa', votes: 22 },
-          { id: 'ban', label: 'Ban performance-enhancing gear', color: '#f87171', votes: 21 },
+          { id: 'allow', label: 'Allow all shoe tech', color: '#4ade80', votes: 25 },
+          { id: 'standardize', label: 'Standardize shoes', color: '#60a5fa', votes: 27 },
+          { id: 'ban-advanced', label: 'Ban carbon plates', color: '#f87171', votes: 20 },
+        ],
+      },
+      {
+        id: 'ai-coaching',
+        label: 'AI-Assisted Coaching',
+        choices: [
+          { id: 'embrace', label: 'Fully embrace AI coaching', color: '#4ade80', votes: 30 },
+          { id: 'limit', label: 'Allow with limits', color: '#facc15', votes: 25 },
+          { id: 'ban-competition', label: 'Ban during competition', color: '#f87171', votes: 17 },
         ],
       },
     ],
   },
 
   // ═══════════════════════════════════════
-  // ── Other (3) ──────────────────────────
+  // ── Other (3 topics) ──
   // ═══════════════════════════════════════
   {
     id: 'four-day-work-week',
     title: 'Four-Day Work Week',
-    description: 'Should the four-day work week become the new standard?',
+    description: 'Should the standard work week be reduced to four days? What would the impact be?',
     category: 'Other',
-    createdAt: now - DAY * 17,
-    totalVotes: 120,
+    createdAt: Date.now() - DAY * 17,
+    totalVotes: 140,
     metrics: [
       {
         id: 'support',
         label: 'Support Level',
         choices: [
-          { id: 'strongly-for', label: 'Strongly support', color: '#4ade80', votes: 55 },
-          { id: 'conditional', label: 'Support with conditions', color: '#60a5fa', votes: 35 },
-          { id: 'against', label: 'Against – 5 days needed', color: '#f87171', votes: 20 },
-          { id: 'flexible', label: 'Prefer flexible hours instead', color: '#facc15', votes: 10 },
+          { id: 'strongly-for', label: 'Strongly support', color: '#4ade80', votes: 60 },
+          { id: 'conditional', label: 'Support if same pay', color: '#60a5fa', votes: 40 },
+          { id: 'against', label: 'Against it', color: '#f87171', votes: 25 },
+          { id: 'depends', label: 'Depends on industry', color: '#facc15', votes: 15 },
         ],
       },
       {
         id: 'implementation',
-        label: 'Implementation Approach',
+        label: 'Implementation',
         choices: [
-          { id: 'mandate', label: 'Government mandate', color: '#f87171', votes: 30 },
-          { id: 'incentive', label: 'Tax incentives for companies', color: '#60a5fa', votes: 45 },
-          { id: 'voluntary', label: 'Voluntary by employer', color: '#4ade80', votes: 35 },
-          { id: 'trial', label: 'National trial period first', color: '#facc15', votes: 10 },
-        ],
-      },
-      {
-        id: 'pay',
-        label: 'Pay Adjustment',
-        choices: [
-          { id: 'same', label: 'Same pay, fewer hours', color: '#4ade80', votes: 70 },
-          { id: 'prorated', label: 'Pro-rated (80% pay)', color: '#f87171', votes: 25 },
-          { id: 'performance', label: 'Performance-based', color: '#60a5fa', votes: 25 },
+          { id: 'mandate', label: 'Government mandate', color: '#60a5fa', votes: 35 },
+          { id: 'incentive', label: 'Tax incentives for companies', color: '#4ade80', votes: 50 },
+          { id: 'voluntary', label: 'Company choice', color: '#facc15', votes: 55 },
         ],
       },
     ],
@@ -787,28 +782,36 @@ const SEED_TOPICS = [
   {
     id: 'space-tourism-ethics',
     title: 'Space Tourism Ethics',
-    description: 'Is space tourism an exciting frontier or an irresponsible use of resources?',
+    description: 'Is billionaire-funded space tourism a waste of resources or a stepping stone for humanity?',
     category: 'Other',
-    createdAt: now - DAY * 23,
-    totalVotes: 58,
+    createdAt: Date.now() - DAY * 23,
+    totalVotes: 65,
     metrics: [
       {
-        id: 'stance',
-        label: 'Overall Stance',
+        id: 'value',
+        label: 'Overall Value',
         choices: [
-          { id: 'exciting', label: 'Exciting and worthwhile', color: '#4ade80', votes: 18 },
-          { id: 'acceptable', label: 'Acceptable if regulated', color: '#60a5fa', votes: 20 },
-          { id: 'wasteful', label: 'Wasteful and irresponsible', color: '#f87171', votes: 15 },
-          { id: 'premature', label: 'Premature – solve Earth first', color: '#facc15', votes: 5 },
+          { id: 'positive', label: 'Drives innovation', color: '#4ade80', votes: 20 },
+          { id: 'mixed', label: 'Mixed feelings', color: '#facc15', votes: 18 },
+          { id: 'waste', label: 'Waste of resources', color: '#f87171', votes: 27 },
         ],
       },
       {
-        id: 'environment',
-        label: 'Environmental Concern',
+        id: 'taxation',
+        label: 'Should It Be Taxed?',
         choices: [
-          { id: 'major', label: 'Major concern – limit launches', color: '#f87171', votes: 22 },
-          { id: 'moderate', label: 'Moderate – offset emissions', color: '#facc15', votes: 20 },
-          { id: 'minor', label: 'Minor impact, not worried', color: '#4ade80', votes: 16 },
+          { id: 'heavy-tax', label: 'Heavy carbon/luxury tax', color: '#f87171', votes: 30 },
+          { id: 'moderate-tax', label: 'Moderate tax', color: '#facc15', votes: 20 },
+          { id: 'no-tax', label: 'No special tax', color: '#4ade80', votes: 15 },
+        ],
+      },
+      {
+        id: 'access',
+        label: 'Future Access',
+        choices: [
+          { id: 'affordable', label: 'Will become affordable', color: '#4ade80', votes: 25 },
+          { id: 'elite', label: 'Always for the rich', color: '#f87171', votes: 22 },
+          { id: 'government', label: 'Government should fund public access', color: '#60a5fa', votes: 18 },
         ],
       },
     ],
@@ -816,38 +819,39 @@ const SEED_TOPICS = [
   {
     id: 'digital-privacy-vs-security',
     title: 'Digital Privacy vs Security',
-    description: 'How should society balance individual privacy with collective security?',
+    description: 'How should society balance individual digital privacy with national security and law enforcement needs?',
     category: 'Other',
-    createdAt: now - DAY * 28,
-    totalVotes: 130,
+    createdAt: Date.now() - DAY * 28,
+    totalVotes: 118,
     metrics: [
       {
         id: 'balance',
         label: 'Privacy vs Security Balance',
         choices: [
-          { id: 'privacy-first', label: 'Privacy is paramount', color: '#4ade80', votes: 45 },
-          { id: 'balanced', label: 'Case-by-case balance', color: '#60a5fa', votes: 40 },
-          { id: 'security-first', label: 'Security takes priority', color: '#f87171', votes: 25 },
-          { id: 'transparency', label: 'Full government transparency', color: '#facc15', votes: 20 },
+          { id: 'privacy-first', label: 'Privacy is paramount', color: '#4ade80', votes: 40 },
+          { id: 'balanced', label: 'Need careful balance', color: '#60a5fa', votes: 38 },
+          { id: 'security-first', label: 'Security takes priority', color: '#f87171', votes: 22 },
+          { id: 'case-by-case', label: 'Case-by-case basis', color: '#facc15', votes: 18 },
         ],
       },
       {
         id: 'encryption',
         label: 'Encryption Backdoors',
         choices: [
-          { id: 'never', label: 'Never – strong encryption always', color: '#4ade80', votes: 55 },
-          { id: 'court-order', label: 'Only with court order', color: '#60a5fa', votes: 40 },
-          { id: 'law-enforcement', label: 'Law enforcement should have access', color: '#f87171', votes: 35 },
+          { id: 'never', label: 'Never allow backdoors', color: '#4ade80', votes: 50 },
+          { id: 'warrant', label: 'Only with warrant', color: '#60a5fa', votes: 38 },
+          { id: 'national-security', label: 'For national security', color: '#fb923c', votes: 18 },
+          { id: 'all-access', label: 'Government should have access', color: '#f87171', votes: 12 },
         ],
       },
       {
         id: 'surveillance',
-        label: 'Government Surveillance',
+        label: 'Public Surveillance',
         choices: [
-          { id: 'minimal', label: 'Minimal – strict oversight', color: '#4ade80', votes: 48 },
-          { id: 'targeted', label: 'Targeted surveillance OK', color: '#60a5fa', votes: 42 },
-          { id: 'broad', label: 'Broad surveillance for safety', color: '#f87171', votes: 20 },
-          { id: 'none', label: 'No government surveillance', color: '#facc15', votes: 20 },
+          { id: 'ban', label: 'Ban facial recognition', color: '#f87171', votes: 35 },
+          { id: 'regulate', label: 'Strict regulation', color: '#60a5fa', votes: 42 },
+          { id: 'allow', label: 'Allow with oversight', color: '#facc15', votes: 28 },
+          { id: 'expand', label: 'Expand for safety', color: '#4ade80', votes: 13 },
         ],
       },
     ],
@@ -859,9 +863,9 @@ async function seed() {
   for (const topic of SEED_TOPICS) {
     const { id, ...data } = topic;
     await setDoc(doc(collection(db, 'topics'), id), data);
-    console.log(`  ✓ ${topic.category} → ${topic.title}`);
+    console.log(`  ✓ ${topic.title} [${topic.category}]`);
   }
-  console.log(`\nDone! ${SEED_TOPICS.length} topics seeded.`);
+  console.log(`Done! ${SEED_TOPICS.length} topics seeded.`);
   process.exit(0);
 }
 
