@@ -26,7 +26,11 @@ export default function RequestModal({ open, onClose, topicId, topicTitle }: Pro
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!description.trim() || !user) return;
+    if (!description.trim()) return;
+    if (!user) {
+      addToast('You must be signed in to submit a request.', 'error');
+      return;
+    }
     setSubmitting(true);
     try {
       await addDoc(collection(db, 'requests'), {

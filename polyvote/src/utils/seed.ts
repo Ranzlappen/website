@@ -7,6 +7,7 @@
  */
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, setDoc } from 'firebase/firestore';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
 const app = initializeApp({
   apiKey: 'AIzaSyByEwHUnausbBmyRT928uGTRw5ZvszjjiM',
@@ -17,6 +18,7 @@ const app = initializeApp({
   appId: '1:420991269376:web:8b2d0bcac98ffd92abb6e5',
 });
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 const DAY = 86400000;
 
@@ -859,6 +861,9 @@ const SEED_TOPICS = [
 ];
 
 async function seed() {
+  console.log('Authenticating anonymously…');
+  await signInAnonymously(auth);
+  console.log('Authenticated. Seeding PolyVote topics…');
   console.log(`Seeding PolyVote topics… (${SEED_TOPICS.length} topics across 8 categories)`);
   for (const topic of SEED_TOPICS) {
     const { id, ...data } = topic;
