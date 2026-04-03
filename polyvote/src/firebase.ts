@@ -5,7 +5,7 @@
  */
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
 /**
  * Firebase config – same project as the parent Jekyll site.
@@ -28,3 +28,5 @@ export const db = getFirestore(app);
 
 /** Firebase Auth instance – supports anonymous + signed-in users */
 export const auth = getAuth(app);
+
+signInAnonymously(auth).catch(console.error);
