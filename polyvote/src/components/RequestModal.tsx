@@ -45,9 +45,16 @@ export default function RequestModal({ open, onClose, topicId, topicTitle }: Pro
       addToast('Request submitted!', 'success');
       setDescription('');
       onClose();
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      addToast('Failed to submit request.', 'error');
+      const code = err instanceof Error && 'code' in err ? (err as { code: string }).code : '';
+      if (code === 'permission-denied') {
+        addToast('Permission denied. Please refresh and try again.', 'error');
+      } else if (code === 'unavailable' || code === 'deadline-exceeded') {
+        addToast('Network error. Please check your connection.', 'error');
+      } else {
+        addToast(`Failed to submit request.${code ? ` (${code})` : ''}`, 'error');
+      }
     } finally {
       setSubmitting(false);
     }

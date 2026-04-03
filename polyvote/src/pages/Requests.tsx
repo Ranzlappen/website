@@ -157,9 +157,16 @@ export default function Requests() {
       } else {
         addToast('Endorsement recorded!', 'success');
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      addToast('Failed to endorse.', 'error');
+      const code = err instanceof Error && 'code' in err ? (err as { code: string }).code : '';
+      if (code === 'permission-denied') {
+        addToast('Permission denied. Please refresh and try again.', 'error');
+      } else if (code === 'unavailable' || code === 'deadline-exceeded') {
+        addToast('Network error. Please check your connection.', 'error');
+      } else {
+        addToast(`Failed to endorse.${code ? ` (${code})` : ''}`, 'error');
+      }
     }
   };
 

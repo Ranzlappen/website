@@ -159,9 +159,16 @@ export default function TopicRequestForm() {
       });
       addToast('Topic proposal submitted!', 'success');
       navigate('/requests');
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
-      addToast('Failed to submit proposal.', 'error');
+      const code = e instanceof Error && 'code' in e ? (e as { code: string }).code : '';
+      if (code === 'permission-denied') {
+        addToast('Permission denied. Please refresh and try again.', 'error');
+      } else if (code === 'unavailable' || code === 'deadline-exceeded') {
+        addToast('Network error. Please check your connection.', 'error');
+      } else {
+        addToast(`Failed to submit proposal.${code ? ` (${code})` : ''}`, 'error');
+      }
     } finally {
       setSubmitting(false);
     }
