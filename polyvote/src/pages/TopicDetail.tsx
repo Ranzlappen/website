@@ -105,7 +105,7 @@ export default function TopicDetail() {
         <h1 className="text-2xl font-bold text-gray-100 sm:text-3xl mb-2">{topic.title}</h1>
         <p className="text-gray-400 mb-4">{topic.description}</p>
 
-        <div className="flex items-center gap-4 text-sm text-gray-500">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
           <span className="flex items-center gap-1">
             <Users size={14} />
             ~{participants} participant{participants !== 1 ? 's' : ''}

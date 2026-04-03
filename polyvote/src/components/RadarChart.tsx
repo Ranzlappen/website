@@ -30,7 +30,7 @@ export default function RadarChart({ metric }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-xs">
+    <div className="mx-auto max-w-[16rem] sm:max-w-xs">
       <Radar
         data={{
           labels,

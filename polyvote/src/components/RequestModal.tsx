@@ -78,7 +78,7 @@ export default function RequestModal({ open, onClose, topicId, topicTitle }: Pro
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-x-4 top-[20%] z-50 mx-auto max-w-lg rounded-xl border border-surface-200 bg-surface-100 p-6 shadow-xl sm:inset-x-auto"
+            className="fixed inset-x-4 top-[10%] sm:top-[20%] z-50 mx-auto max-w-lg max-h-[80vh] overflow-y-auto rounded-xl border border-surface-200 bg-surface-100 p-6 shadow-xl sm:inset-x-auto"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-100">Request Changes</h2>
