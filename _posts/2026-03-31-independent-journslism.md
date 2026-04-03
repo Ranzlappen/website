@@ -97,10 +97,17 @@ Traditional broadcast TV exacerbates many of these failures, particularly in pub
 
 Corporate and public media flaws fuel and are fueled by weakening media literacy. The News Literacy Project's November 2025 US teen report found 84% hold negative views ("biased," "boring," or "bad"), with 45% believing journalists harm democracy and 69% perceiving intentional bias.<sup><a href="#source-5">[5]</a></sup> Reuters 2025 notes similar avoidance trends across Europe, where social media fills gaps left by declining traditional engagement. EU media literacy initiatives exist but remain limited, with educators allocating minimal hours amid competing demands.<sup><a href="#source-6">[6]</a></sup> This cycle reduces demand for critical-thinking education while leaving audiences vulnerable to spin evident in both US partisan divides and European public-broadcaster skepticism.
 
-<figure>
-  <img src="/assets/images/journalism/teen-media-perceptions-2025.webp" alt="Bar chart showing US teen media perceptions in 2025: 84% negative views, 45% believe journalists harm democracy, 69% perceive intentional bias">
-  <figcaption>Teen media perceptions 2025 (Source: News Literacy Project)</figcaption>
-</figure>
+<!--
+CHANGE: Replaced bar chart image with custom bar-chart HTML syntax
+REASON: Convert static chart images to the project's built-in bar chart component
+DATE: 2026-04-03
+-->
+<div class="bar-chart">
+  <div class="bar-chart__title">Teen Media Perceptions 2025 (Source: News Literacy Project)</div>
+  <div class="bar bar--red" style="--h:84%"><span>84%</span><div class="bar-label">Negative Views</div></div>
+  <div class="bar bar--amber" style="--h:45%"><span>45%</span><div class="bar-label">Harm Democracy</div></div>
+  <div class="bar bar--purple" style="--h:69%"><span>69%</span><div class="bar-label">Intentional Bias</div></div>
+</div>
 
 <figure>
   <img src="/assets/images/journalism/trust-decline-animated.gif" alt="Animated line chart showing parallel media trust declines across the US and Europe from 2015 to 2025">
@@ -111,10 +118,21 @@ Corporate and public media flaws fuel and are fueled by weakening media literacy
 
 Independent creators fill the vacuum. Substack surpassed 5 million paid subscriptions by early 2025, with growth accelerating in both US and European markets through direct reader funding over ads.<sup><a href="#source-7">[7]</a></sup> A Change Research poll (December 2025) found 34% of Americans trust independent/online journalists most nearly triple national outlets mirroring rising European reliance on newsletters and podcasts.<sup><a href="#source-8">[8]</a></sup> These models enforce accountability: readers pay for value, feedback is public, bias is transparent and market-tested. Conciseness, source transparency, and responsiveness replace institutional opacity.
 
-<figure>
-  <img src="/assets/images/journalism/trust-by-journalist-type-2025.webp" alt="Pie chart showing trust in journalists by type in 2025: 34% trust independent/online journalists most, compared to national outlets">
-  <figcaption>Trust in journalists by type 2025 (Source: Change Research)</figcaption>
-</figure>
+<!--
+CHANGE: Replaced pie chart image with custom pie-chart HTML syntax
+REASON: Convert static chart images to the project's built-in pie chart component
+DATE: 2026-04-03
+-->
+<div class="pie-chart" style="--s1:34; --s2:12; --s3:26; --s4:16; --s5:12;">
+  <div class="pie-chart__title">Trust in Journalists by Type 2025 (Source: Change Research)</div>
+  <div class="pie-chart__legend">
+    <div class="slice slice--green" data-val="34%"><span>Independent / Online</span></div>
+    <div class="slice slice--blue" data-val="12%"><span>National Outlets</span></div>
+    <div class="slice slice--amber" data-val="26%"><span>Local News</span></div>
+    <div class="slice slice--purple" data-val="16%"><span>Social Media</span></div>
+    <div class="slice slice--slate" data-val="12%"><span>Other</span></div>
+  </div>
+</div>
 
 <h2 id="ai-guardrails">AI Development with Minimal Guardrails: The Essential Counterbalance</h2>
 
@@ -130,10 +148,22 @@ Recent 2025–2026 studies compare:
 
 Minimal guardrails block illegal content but avoid external shaping distorting Western media narratives. In an era of filtered reporting, such AI delivers unvarnished data across US and European perspectives.
 
-<figure>
-  <img src="/assets/images/journalism/ai-bias-guardrails-chart-2025.webp" alt="Bar chart comparing AI model guardrail levels versus bias scores in 2025, showing Grok with lowest bias and lowest restrictions">
-  <figcaption>AI model guardrail levels vs. bias scores 2025 (Sources: Anthropic, IEEE Access, AIonX)</figcaption>
-</figure>
+<!--
+CHANGE: Replaced bar chart image with custom bar-chart HTML syntax
+REASON: Convert static chart images to the project's built-in bar chart component
+DATE: 2026-04-03
+-->
+<div class="bar-chart bar-chart--lg">
+  <div class="bar-chart__title">AI Model Guardrail Levels vs. Bias Scores 2025 (Sources: Anthropic, IEEE Access, AIonX)</div>
+  <div class="bar bar--red" style="--h:85%"><span>Guardrails</span><div class="bar-label">ChatGPT</div></div>
+  <div class="bar bar--amber" style="--h:72%"><span>Bias</span><div class="bar-label">ChatGPT</div></div>
+  <div class="bar bar--red" style="--h:80%"><span>Guardrails</span><div class="bar-label">Claude</div></div>
+  <div class="bar bar--amber" style="--h:68%"><span>Bias</span><div class="bar-label">Claude</div></div>
+  <div class="bar bar--red" style="--h:70%"><span>Guardrails</span><div class="bar-label">Gemini</div></div>
+  <div class="bar bar--amber" style="--h:48%"><span>Bias</span><div class="bar-label">Gemini</div></div>
+  <div class="bar bar--red" style="--h:28%"><span>Guardrails</span><div class="bar-label">Grok</div></div>
+  <div class="bar bar--amber" style="--h:20%"><span>Bias</span><div class="bar-label">Grok</div></div>
+</div>
 
 <h3 id="key-takeaways">Key Takeaways</h3>
 
