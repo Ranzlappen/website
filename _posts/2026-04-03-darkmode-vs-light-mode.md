@@ -78,18 +78,16 @@ The eye-strain argument is context-dependent, not universal.
 </div>
 
 <!--
-CHANGE: Overhauled bar chart with ARIA roles for accessibility
-REASON: Chart system overhaul — WCAG 2.1 AA compliance
+CHANGE: Chart.js bar chart replacing pure CSS bars
+REASON: Chart system overhaul — professional rendering via Chart.js
 DATE: 2026-04-03
 -->
-<div class="bar-chart bar-chart--lg" role="figure" aria-label="Cognitive Load by Mode and Ambient Light (Sources: Sethi &amp; Ziat 2023, Gazit et al. 2025)">
-  <div class="bar-chart__title">Cognitive Load by Mode and Ambient Light (Sources: Sethi &amp; Ziat 2023, Gazit et al. 2025)</div>
-  <div class="bar bar--cyan" style="--h:58%" role="meter" aria-valuenow="58" aria-valuemin="0" aria-valuemax="100" aria-label="Search Time (Light): 58" tabindex="0"><span>58</span><div class="bar-label">Search Time (Light)</div></div>
-  <div class="bar bar--slate" style="--h:74%" role="meter" aria-valuenow="74" aria-valuemin="0" aria-valuemax="100" aria-label="Search Time (Dark): 74" tabindex="0"><span>74</span><div class="bar-label">Search Time (Dark)</div></div>
-  <div class="bar bar--cyan" style="--h:52%" role="meter" aria-valuenow="52" aria-valuemin="0" aria-valuemax="100" aria-label="Pupil Diam. (Light): 52" tabindex="0"><span>52</span><div class="bar-label">Pupil Diam. (Light)</div></div>
-  <div class="bar bar--slate" style="--h:68%" role="meter" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" aria-label="Pupil Diam. (Dark): 68" tabindex="0"><span>68</span><div class="bar-label">Pupil Diam. (Dark)</div></div>
-  <div class="bar bar--cyan" style="--h:45%" role="meter" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" aria-label="NASA-TLX (Light): 45" tabindex="0"><span>45</span><div class="bar-label">NASA-TLX (Light)</div></div>
-  <div class="bar bar--slate" style="--h:61%" role="meter" aria-valuenow="61" aria-valuemin="0" aria-valuemax="100" aria-label="NASA-TLX (Dark): 61" tabindex="0"><span>61</span><div class="bar-label">NASA-TLX (Dark)</div></div>
+<div class="chart-container" role="figure" aria-label="Cognitive Load by Mode and Ambient Light (Sources: Sethi & Ziat 2023, Gazit et al. 2025)">
+  <canvas data-chart="bar"
+    data-title="Cognitive Load by Mode & Ambient Light (Sethi & Ziat 2023, Gazit et al. 2025)"
+    data-labels='["Search Time (Light)","Search Time (Dark)","Pupil Diam. (Light)","Pupil Diam. (Dark)","NASA-TLX (Light)","NASA-TLX (Dark)"]'
+    data-datasets='[{"label":"Score","data":[58,74,52,68,45,61],"colors":["#06b6d4","#64748b","#06b6d4","#64748b","#06b6d4","#64748b"]}]'>
+  </canvas>
 </div>
 
 Eye-tracking and cognitive-performance studies confirm that light mode often delivers faster information processing and lower objective cognitive load for typical office conditions. Dark mode shines in low-light or for subjective comfort during extended sessions, but it is not universally superior.

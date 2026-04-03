@@ -50,6 +50,12 @@ DATE: 2026-04-02
   <script src="{{ '/assets/js/carousel.js' | relative_url }}"></script>
   {% endif %}
 
+  <!-- Chart.js (CDN) + declarative initializer -->
+  {% if page.layout == 'post' %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="{{ '/assets/js/charts.js' | relative_url }}"></script>
+  {% endif %}
+
   <!-- Search (lunr.js) -->
   <script src="{{ '/assets/js/search.js' | relative_url }}"></script>
 </body>
