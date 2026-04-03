@@ -120,17 +120,7 @@ export default function TopicDetail() {
         </div>
       </motion.div>
 
-      {/* Radar chart */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="mb-10"
-      >
-        <RadarChart metrics={topic.metrics} />
-      </motion.section>
-
-      {/* Metrics + voting cards */}
+      {/* Metrics: per-metric radar chart + voting cards */}
       <div className="space-y-8">
         {topic.metrics.map((metric, mi) => {
           const totalMetricVotes = metric.choices.reduce((s, c) => s + c.votes, 0);
@@ -144,6 +134,9 @@ export default function TopicDetail() {
               transition={{ delay: 0.15 + mi * 0.05 }}
             >
               <h2 className="mb-3 text-lg font-semibold text-gray-200">{metric.label}</h2>
+              <div className="mb-4">
+                <RadarChart metric={metric} />
+              </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {metric.choices.map((choice) => (
                   <VotingCard
