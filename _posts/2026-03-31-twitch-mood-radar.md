@@ -5,7 +5,7 @@ keywords: ["moodradar", "twitch chat mood tracker", "twitch sentiment analyzer",
 date: 2026-04-03
 category: "Projects"
 tags: [twitch, tools, visualization, early-stage]
-image:
+image: /assets/images/moodradar/moodradar-hero.webp
 status: placeholder
 comments: true
 ---
@@ -44,9 +44,15 @@ Enter any Twitch channel name and connect. MoodRadar joins the chat passively on
 - **Dashboard Metrics** — Total messages, rate (msg/s), queue, dropped, bot activity, and user count.  
 - **Customizable Settings** — Max timeline points, interval, label sizes, and quick presets.
 
-[Insert Screenshot: Full MoodRadar dashboard with mood distribution, consensus bubbles, and timelines]
+<figure>
+  <img src="/assets/images/moodradar/moodradar-dashboard-full.webp" alt="Full MoodRadar dashboard showing mood distribution, consensus bubbles, and timelines during a live Twitch stream">
+  <figcaption>MoodRadar dashboard: mood distribution, consensus bubbles, and timelines</figcaption>
+</figure>
 
-[Insert Screenshot: Approval meter, keyword web, and standout messages in action]
+<figure>
+  <img src="/assets/images/moodradar/moodradar-approval-keywords.webp" alt="MoodRadar approval meter, keyword web, and standout messages panel during a live stream">
+  <figcaption>Approval meter, keyword web, and standout messages in action</figcaption>
+</figure>
 
 <h2 id="high-throughput-use-cases">High-Throughput Use Cases</h2>
 
