@@ -98,15 +98,16 @@ Traditional broadcast TV exacerbates many of these failures, particularly in pub
 Corporate and public media flaws fuel and are fueled by weakening media literacy. The News Literacy Project's November 2025 US teen report found 84% hold negative views ("biased," "boring," or "bad"), with 45% believing journalists harm democracy and 69% perceiving intentional bias.<sup><a href="#source-5">[5]</a></sup> Reuters 2025 notes similar avoidance trends across Europe, where social media fills gaps left by declining traditional engagement. EU media literacy initiatives exist but remain limited, with educators allocating minimal hours amid competing demands.<sup><a href="#source-6">[6]</a></sup> This cycle reduces demand for critical-thinking education while leaving audiences vulnerable to spin evident in both US partisan divides and European public-broadcaster skepticism.
 
 <!--
-CHANGE: Overhauled bar chart with ARIA roles for accessibility
-REASON: Chart system overhaul — WCAG 2.1 AA compliance
+CHANGE: Chart.js bar chart replacing pure CSS bars
+REASON: Chart system overhaul — professional rendering via Chart.js
 DATE: 2026-04-03
 -->
-<div class="bar-chart" role="figure" aria-label="Teen Media Perceptions 2025 (Source: News Literacy Project)">
-  <div class="bar-chart__title">Teen Media Perceptions 2025 (Source: News Literacy Project)</div>
-  <div class="bar bar--red" style="--h:84%" role="meter" aria-valuenow="84" aria-valuemin="0" aria-valuemax="100" aria-label="Negative Views: 84%" tabindex="0"><span>84%</span><div class="bar-label">Negative Views</div></div>
-  <div class="bar bar--amber" style="--h:45%" role="meter" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" aria-label="Harm Democracy: 45%" tabindex="0"><span>45%</span><div class="bar-label">Harm Democracy</div></div>
-  <div class="bar bar--purple" style="--h:69%" role="meter" aria-valuenow="69" aria-valuemin="0" aria-valuemax="100" aria-label="Intentional Bias: 69%" tabindex="0"><span>69%</span><div class="bar-label">Intentional Bias</div></div>
+<div class="chart-container" role="figure" aria-label="Teen Media Perceptions 2025 (Source: News Literacy Project)">
+  <canvas data-chart="bar"
+    data-title="Teen Media Perceptions 2025 (Source: News Literacy Project)"
+    data-labels='["Negative Views","Harm Democracy","Intentional Bias"]'
+    data-datasets='[{"label":"Percentage","data":[84,45,69],"colors":["#ef4444","#f59e0b","#8b5cf6"]}]'>
+  </canvas>
 </div>
 
 <figure>
@@ -119,19 +120,17 @@ DATE: 2026-04-03
 Independent creators fill the vacuum. Substack surpassed 5 million paid subscriptions by early 2025, with growth accelerating in both US and European markets through direct reader funding over ads.<sup><a href="#source-7">[7]</a></sup> A Change Research poll (December 2025) found 34% of Americans trust independent/online journalists most nearly triple national outlets mirroring rising European reliance on newsletters and podcasts.<sup><a href="#source-8">[8]</a></sup> These models enforce accountability: readers pay for value, feedback is public, bias is transparent and market-tested. Conciseness, source transparency, and responsiveness replace institutional opacity.
 
 <!--
-CHANGE: Overhauled pie chart with ARIA roles for accessibility
-REASON: Chart system overhaul — WCAG 2.1 AA compliance
+CHANGE: Chart.js pie chart replacing pure CSS conic-gradient
+REASON: Chart system overhaul — professional rendering via Chart.js
 DATE: 2026-04-03
 -->
-<div class="pie-chart" style="--s1:34; --s2:12; --s3:26; --s4:16; --s5:12;" role="figure" aria-label="Trust in Journalists by Type 2025 (Source: Change Research)">
-  <div class="pie-chart__title">Trust in Journalists by Type 2025 (Source: Change Research)</div>
-  <div class="pie-chart__legend" role="list">
-    <div class="slice slice--green" data-val="34%" role="listitem" aria-label="Independent / Online: 34%" tabindex="0"><span>Independent / Online</span></div>
-    <div class="slice slice--blue" data-val="12%" role="listitem" aria-label="National Outlets: 12%" tabindex="0"><span>National Outlets</span></div>
-    <div class="slice slice--amber" data-val="26%" role="listitem" aria-label="Local News: 26%" tabindex="0"><span>Local News</span></div>
-    <div class="slice slice--purple" data-val="16%" role="listitem" aria-label="Social Media: 16%" tabindex="0"><span>Social Media</span></div>
-    <div class="slice slice--slate" data-val="12%" role="listitem" aria-label="Other: 12%" tabindex="0"><span>Other</span></div>
-  </div>
+<div class="chart-container" role="figure" aria-label="Trust in Journalists by Type 2025 (Source: Change Research)">
+  <canvas data-chart="pie"
+    data-title="Trust in Journalists by Type 2025 (Source: Change Research)"
+    data-labels='["Independent / Online","National Outlets","Local News","Social Media","Other"]'
+    data-values='[34,12,26,16,12]'
+    data-colors='["#4ade80","#3b82f6","#f59e0b","#8b5cf6","#64748b"]'>
+  </canvas>
 </div>
 
 <h2 id="ai-guardrails">AI Development with Minimal Guardrails: The Essential Counterbalance</h2>
@@ -149,20 +148,16 @@ Recent 2025–2026 studies compare:
 Minimal guardrails block illegal content but avoid external shaping distorting Western media narratives. In an era of filtered reporting, such AI delivers unvarnished data across US and European perspectives.
 
 <!--
-CHANGE: Overhauled bar chart with ARIA roles for accessibility
-REASON: Chart system overhaul — WCAG 2.1 AA compliance
+CHANGE: Chart.js grouped bar chart replacing pure CSS bars
+REASON: Chart system overhaul — professional rendering via Chart.js
 DATE: 2026-04-03
 -->
-<div class="bar-chart bar-chart--lg" role="figure" aria-label="AI Model Guardrail Levels vs. Bias Scores 2025 (Sources: Anthropic, IEEE Access, AIonX)">
-  <div class="bar-chart__title">AI Model Guardrail Levels vs. Bias Scores 2025 (Sources: Anthropic, IEEE Access, AIonX)</div>
-  <div class="bar bar--red" style="--h:85%" role="meter" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100" aria-label="ChatGPT Guardrails: 85" tabindex="0"><span>Guardrails</span><div class="bar-label">ChatGPT</div></div>
-  <div class="bar bar--amber" style="--h:72%" role="meter" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="ChatGPT Bias: 72" tabindex="0"><span>Bias</span><div class="bar-label">ChatGPT</div></div>
-  <div class="bar bar--red" style="--h:80%" role="meter" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" aria-label="Claude Guardrails: 80" tabindex="0"><span>Guardrails</span><div class="bar-label">Claude</div></div>
-  <div class="bar bar--amber" style="--h:68%" role="meter" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" aria-label="Claude Bias: 68" tabindex="0"><span>Bias</span><div class="bar-label">Claude</div></div>
-  <div class="bar bar--red" style="--h:70%" role="meter" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" aria-label="Gemini Guardrails: 70" tabindex="0"><span>Guardrails</span><div class="bar-label">Gemini</div></div>
-  <div class="bar bar--amber" style="--h:48%" role="meter" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100" aria-label="Gemini Bias: 48" tabindex="0"><span>Bias</span><div class="bar-label">Gemini</div></div>
-  <div class="bar bar--red" style="--h:28%" role="meter" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100" aria-label="Grok Guardrails: 28" tabindex="0"><span>Guardrails</span><div class="bar-label">Grok</div></div>
-  <div class="bar bar--amber" style="--h:20%" role="meter" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" aria-label="Grok Bias: 20" tabindex="0"><span>Bias</span><div class="bar-label">Grok</div></div>
+<div class="chart-container" role="figure" aria-label="AI Model Guardrail Levels vs. Bias Scores 2025 (Sources: Anthropic, IEEE Access, AIonX)">
+  <canvas data-chart="bar"
+    data-title="AI Model Guardrail Levels vs. Bias Scores 2025"
+    data-labels='["ChatGPT","Claude","Gemini","Grok"]'
+    data-datasets='[{"label":"Guardrails","data":[85,80,70,28],"color":"#ef4444"},{"label":"Bias","data":[72,68,48,20],"color":"#f59e0b"}]'>
+  </canvas>
 </div>
 
 <h3 id="key-takeaways">Key Takeaways</h3>
