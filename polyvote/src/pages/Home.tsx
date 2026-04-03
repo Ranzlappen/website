@@ -14,7 +14,7 @@ import { TopicCardSkeleton } from '../components/LoadingSkeleton';
 import type { Category, Topic } from '../types';
 
 export default function Home() {
-  const { topics, loading, error } = useTopics();
+  const { topics, loading } = useTopics();
   const [category, setCategory] = useState<Category | 'All'>('All');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortOption>('newest');
@@ -83,12 +83,7 @@ export default function Home() {
       </div>
 
       {/* ── Topics Grid ── */}
-      {error ? (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center">
-          <p className="text-red-400 font-medium mb-1">Failed to load topics</p>
-          <p className="text-sm text-red-400/70">{error}</p>
-        </div>
-      ) : loading ? (
+      {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <TopicCardSkeleton key={i} />

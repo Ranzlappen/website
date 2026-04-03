@@ -1,12 +1,12 @@
 /*
- * CHANGE: Updated – Top navigation bar with main site links
- * REASON: Brand link navigates back to Jekyll site root; includes main site nav + app nav
+ * CHANGE: New file – Top navigation bar
+ * REASON: Provides site-wide navigation with links to Home and Requests
  * DATE: 2026-04-02
  */
 import { Link, useLocation } from 'react-router-dom';
 import { BarChart3, FileText, Home, ArrowLeft } from 'lucide-react';
 
-const appLinks = [
+const links = [
   { to: '/', label: 'Home', icon: Home },
   { to: '/requests', label: 'Requests', icon: FileText },
 ];

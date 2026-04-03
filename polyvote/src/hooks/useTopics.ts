@@ -1,8 +1,7 @@
 /*
- * CHANGE: Updated – Hook for real-time topics list with error handling
- * REASON: Subscribes to the Firestore `topics` collection with onSnapshot;
- *         surfaces errors (missing indexes, permission denials) to the UI
- * DATE: 2026-04-03
+ * CHANGE: New file – Hook for real-time topics list
+ * REASON: Subscribes to the Firestore `topics` collection with onSnapshot
+ * DATE: 2026-04-02
  */
 import { useEffect, useState } from 'react';
 import {
@@ -18,29 +17,19 @@ import type { Topic } from '../types';
 export function useTopics() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, 'topics'), orderBy('createdAt', 'desc'));
-    const unsub = onSnapshot(
-      q,
-      (snap) => {
-        const data = snap.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Topic[];
-        setTopics(data);
-        setError(null);
-        setLoading(false);
-      },
-      (err) => {
-        console.error('useTopics snapshot error:', err);
-        setError(err.message);
-        setLoading(false);
-      },
-    );
+    const unsub = onSnapshot(q, (snap) => {
+      const data = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Topic[];
+      setTopics(data);
+      setLoading(false);
+    });
     return unsub;
   }, []);
 
-  return { topics, loading, error };
+  return { topics, loading };
 }

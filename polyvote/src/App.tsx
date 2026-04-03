@@ -13,7 +13,6 @@ import Toast from './components/Toast';
 import Home from './pages/Home';
 import TopicDetail from './pages/TopicDetail';
 import Requests from './pages/Requests';
-import TopicRequestForm from './components/TopicRequestForm';
 
 export default function App() {
   const setUser = useStore((s) => s.setUser);
@@ -38,7 +37,6 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/topic/:topicId" element={<TopicDetail />} />
           <Route path="/requests" element={<Requests />} />
-          <Route path="/requests/new" element={<TopicRequestForm />} />
         </Routes>
       </main>
       <footer className="border-t border-surface-200 py-6 text-center text-sm text-gray-500">
