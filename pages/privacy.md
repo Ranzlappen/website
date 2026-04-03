@@ -19,7 +19,16 @@ Comments are powered by **Giscus**, which uses GitHub Discussions. To leave a co
 
 ## Voting System (Firebase)
 
-The per-section voting feature uses **Google Firebase Realtime Database** to store anonymous votes. Your IP address is fetched via a third-party service (ipify) and hashed — the raw IP is never stored. A hashed identifier is used solely to prevent duplicate voting. No personal information is stored alongside votes. Firebase may set cookies or use browser storage for App Check and session management as part of its normal operation.
+The per-section voting feature on blog posts uses **Google Firebase Realtime Database** to store anonymous votes. Your IP address is fetched via a third-party service (ipify) and hashed — the raw IP is never stored. A hashed identifier is used solely to prevent duplicate voting. No personal information is stored alongside votes. Firebase may set cookies or use browser storage for App Check and session management as part of its normal operation.
+
+## PolyVote (Firebase)
+
+The **PolyVote** app is a community voting tool that uses **Google Firebase** for its backend. The following Firebase services are used:
+
+- **Firebase Authentication**: You are signed in anonymously. Firebase assigns a temporary anonymous user ID — no email, name, or other personal information is required or collected.
+- **Cloud Firestore**: Stores topics, votes, change requests, and topic requests. Your anonymous user ID is associated with your votes and submissions to prevent abuse, but it is not linked to any personally identifiable information.
+
+All data is stored on Google's Firebase infrastructure. See [Google's privacy policy](https://policies.google.com/privacy) and [Firebase's data processing terms](https://firebase.google.com/terms/data-processing-terms) for details on how Google handles data. Security is enforced via Firestore security rules — only authenticated users (including anonymous ones) can create or update data, and all data is publicly readable.
 
 ## Contact Form (hCaptcha)
 
@@ -43,7 +52,7 @@ This site includes a transparency tool (accessible via the 🍪 icon in the foot
 
 ## Cookies & Local Storage
 
-This site does not set any first-party cookies. It uses `localStorage` (not cookies) to remember your theme preference (dark/light), view mode (grid/list), voting state, and a fallback visitor identifier for vote deduplication. This data never leaves your browser.
+This site does not set any first-party cookies. It uses `localStorage` (not cookies) to remember your theme preference (dark/light), view mode (grid/list), voting state, and a fallback visitor identifier for vote deduplication. PolyVote may use browser storage (localStorage, IndexedDB) for Firebase SDK state such as anonymous authentication tokens. This data never leaves your browser except as required by Firebase for authentication.
 
 Third-party services loaded on this site — specifically **Firebase** (on pages with voting) and **hCaptcha** (on the contact form) — may set their own cookies for functionality such as bot detection and session management. These are not used for tracking or advertising.
 
@@ -53,7 +62,9 @@ Third-party services loaded on this site — specifically **Firebase** (on pages
 |---------|---------|----------------|---------------|
 | GitHub Pages | Hosting | Server logs | No |
 | Giscus | Comments | GitHub account (login required) | No |
-| Firebase | Voting | Hashed IP (anonymous) | May set functional cookies |
+| Firebase Realtime DB | Blog post voting | Hashed IP (anonymous) | May set functional cookies |
+| Firebase Auth | PolyVote authentication | Anonymous user ID (no personal info) | May set functional cookies |
+| Firebase Firestore | PolyVote data storage | Topics, votes, requests (linked to anonymous ID) | May set functional cookies |
 | hCaptcha | Spam protection | See hCaptcha privacy policy | Yes (bot detection) |
 | ipify | IP detection for voting | IP address (hashed, not stored raw) | No |
 | unpkg CDN | Search library delivery | IP address, browser info (standard HTTP request) | No |

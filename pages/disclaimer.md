@@ -21,6 +21,10 @@ This blog may contain links to external websites. I have no control over the con
 
 I do my best to keep things accurate, but mistakes happen. If you spot something wrong, please let me know through the [contact page](/contact/) and I'll correct it as soon as possible.
 
+## PolyVote & Community-Submitted Content
+
+The **PolyVote** section of this site allows users to submit, vote on, and propose changes to topics. All community-submitted content — including topics, topic requests, and change requests — is provided by anonymous users and does not represent the views or opinions of the site owner. I do not verify, endorse, or guarantee the accuracy of any user-submitted content. Vote counts reflect anonymous community input and should not be interpreted as statistically meaningful or representative of any population. Topics and their associated data may be modified or removed at any time without notice.
+
 ## Fair Use
 
 Any copyrighted material used on this blog is used under fair use guidelines for commentary, criticism, or educational purposes. If you believe your work has been used in a way that constitutes infringement, please contact me and I will address it promptly.
