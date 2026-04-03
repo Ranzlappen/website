@@ -352,6 +352,151 @@ The chart automatically adapts to the screen:
 ---
 
 <details>
+<summary><h2>Add a Pie Chart</h2></summary>
+
+You can embed responsive pie charts directly in any post — no JavaScript, no `<style>` tags, just HTML. The chart automatically adapts to dark/light theme, screen size, and supports up to 8 slices.
+
+### Basic usage
+
+```html
+<div class="pie-chart" style="--s1:42; --s2:28; --s3:18; --s4:12;">
+  <div class="pie-chart__legend">
+    <div class="slice slice--green"  data-val="42%"><span>Chrome</span></div>
+    <div class="slice slice--blue"   data-val="28%"><span>Firefox</span></div>
+    <div class="slice slice--amber"  data-val="18%"><span>Safari</span></div>
+    <div class="slice slice--purple" data-val="12%"><span>Edge</span></div>
+  </div>
+</div>
+```
+
+Each slice needs:
+- `--s1`, `--s2`, … `--s8` on the container — the slice sizes as unitless numbers (0–100, representing percentages)
+- A `.slice` element inside `.pie-chart__legend` with:
+  - A color class (e.g. `slice--blue`) — sets the legend swatch color
+  - `data-val="..."` — the value shown in the legend (e.g. `"42%"`, `"$650"`)
+  - `<span>` — the label text
+
+### Add a title
+
+```html
+<div class="pie-chart" style="--s1:55; --s2:30; --s3:15;">
+  <div class="pie-chart__title">Market Share</div>
+  <div class="pie-chart__legend">
+    <div class="slice slice--green" data-val="55%"><span>Product A</span></div>
+    <div class="slice slice--blue"  data-val="30%"><span>Product B</span></div>
+    <div class="slice slice--amber" data-val="15%"><span>Product C</span></div>
+  </div>
+</div>
+```
+
+### Color each slice
+
+The pie uses a built-in 8-color palette by default (`--c1` through `--c8`). The legend swatch color is set via a class on each `.slice`:
+
+| Class | Color |
+|-------|-------|
+| *(default)* | Green (site accent) |
+| `slice--blue` | Blue |
+| `slice--red` | Red |
+| `slice--amber` | Amber / Yellow |
+| `slice--purple` | Purple |
+| `slice--pink` | Pink |
+| `slice--cyan` | Cyan |
+| `slice--slate` | Grey |
+| `slice--green` | Green (explicit) |
+
+To use custom colors, override `--c1`, `--c2`, etc. on the container and use inline `--slice-color` on each legend entry:
+
+```html
+<div class="pie-chart" style="--s1:60; --s2:40; --c1:#ff6600; --c2:#0066ff;">
+  <div class="pie-chart__legend">
+    <div class="slice" style="--slice-color:#ff6600" data-val="60%"><span>Orange</span></div>
+    <div class="slice" style="--slice-color:#0066ff" data-val="40%"><span>Blue</span></div>
+  </div>
+</div>
+```
+
+### Donut variant
+
+Add `pie-chart--donut` to create a donut chart with a hollow center:
+
+```html
+<div class="pie-chart pie-chart--donut" style="--s1:50; --s2:30; --s3:20;">
+  <div class="pie-chart__legend">
+    <div class="slice slice--green" data-val="50%"><span>Complete</span></div>
+    <div class="slice slice--amber" data-val="30%"><span>In Progress</span></div>
+    <div class="slice slice--slate" data-val="20%"><span>Remaining</span></div>
+  </div>
+</div>
+```
+
+Or set a custom donut thickness inline:
+
+```html
+<div class="pie-chart" style="--pie-donut:60%; --s1:70; --s2:30;">
+```
+
+### Change the chart size
+
+Add a size class to the container:
+
+```html
+<div class="pie-chart pie-chart--sm">  <!-- smaller pie (7–10rem) -->
+<div class="pie-chart pie-chart--lg">  <!-- larger pie (14–22rem) -->
+<div class="pie-chart pie-chart--xl">  <!-- largest pie (18–28rem) -->
+```
+
+Or set an exact size inline:
+
+```html
+<div class="pie-chart" style="--pie-size: 20rem;">
+```
+
+### Customize everything
+
+All visual properties can be overridden with CSS variables on the `.pie-chart` container:
+
+| Variable | What it controls | Default |
+|----------|-----------------|---------|
+| `--pie-size` | Diameter of the pie circle | Fluid `10–18rem` |
+| `--pie-bg` | Chart background color | Theme surface color |
+| `--pie-border` | Chart border color | Theme border color |
+| `--pie-donut` | Donut hole size (`0%` = full pie) | `0%` |
+| `--c1` – `--c8` | Slice colors in the pie | Built-in 8-color palette |
+| `--s1` – `--s8` | Slice sizes (unitless, 0–100) | `0` |
+| `--legend-label-color` | Legend label text color | Theme text color |
+| `--legend-label-size` | Legend label font size | Fluid `0.65–0.82rem` |
+| `--legend-val-color` | Legend value text color | Theme muted text |
+| `--legend-val-size` | Legend value font size | Fluid `0.6–0.78rem` |
+
+Example with multiple overrides:
+
+```html
+<div class="pie-chart pie-chart--donut" style="--pie-size:14rem; --pie-bg:transparent; --pie-border:transparent; --s1:40; --s2:35; --s3:25;">
+  <div class="pie-chart__title">Custom Styled Chart</div>
+  <div class="pie-chart__legend">
+    <div class="slice slice--cyan"   data-val="40%"><span>Alpha</span></div>
+    <div class="slice slice--pink"   data-val="35%"><span>Beta</span></div>
+    <div class="slice slice--purple" data-val="25%"><span>Gamma</span></div>
+  </div>
+</div>
+```
+
+### Responsive behavior
+
+The chart automatically adapts to the screen:
+
+- On **mobile** (<600px): pie and legend stack vertically, smaller pie, tighter spacing
+- On **tablet** (600–900px): medium pie size, side-by-side layout
+- On **desktop** (900px+): full size with side-by-side layout
+- All spacing and font sizes use fluid scaling (they grow/shrink smoothly)
+- If slices don't add up to 100, the remaining arc is left transparent
+
+</details>
+
+---
+
+<details>
 <summary><h2>Built-in Features</h2></summary>
 
 These features work automatically on every post — no setup needed:
