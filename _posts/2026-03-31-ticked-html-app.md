@@ -5,7 +5,7 @@ keywords: ["ticked app", "offline workflow tracker", "process checkpoint tracker
 date: 2026-03-31
 category: "Projects"
 tags: [productivity, html, offline, tools]
-image:
+image: /assets/images/ticked/ticked-hero.webp
 status: placeholder
 comments: true
 ---

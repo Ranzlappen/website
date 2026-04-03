@@ -5,7 +5,7 @@ keywords: dark mode web design, light mode frontend, backend ui defaults, dark m
 date: 2026-04-03
 category: UX Design
 tags: [dark-mode, light-mode, web-design, ux-psychology, frontend-backend]
-image: 
+image: /assets/images/darkmode/darkmode-lightmode-hero.webp
 status: placeholder
 comments: true
 ---
@@ -77,7 +77,10 @@ The eye-strain argument is context-dependent, not universal.
 </table>
 </div>
 
-<!-- [Insert Chart: Cognitive Load by Mode and Ambient Light – Bar chart comparing search time, pupil diameter, and NASA-TLX scores from Sethi & Ziat 2023 and Gazit 2025 studies] -->
+<figure>
+  <img src="/assets/images/darkmode/cognitive-load-by-mode-chart.webp" alt="Bar chart comparing cognitive load metrics (search time, pupil diameter, NASA-TLX scores) between dark mode and light mode under different ambient lighting conditions">
+  <figcaption>Cognitive load by mode and ambient light (Sources: Sethi & Ziat 2023, Gazit et al. 2025)</figcaption>
+</figure>
 
 Eye-tracking and cognitive-performance studies confirm that light mode often delivers faster information processing and lower objective cognitive load for typical office conditions. Dark mode shines in low-light or for subjective comfort during extended sessions, but it is not universally superior.
 

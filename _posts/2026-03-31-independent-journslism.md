@@ -5,7 +5,7 @@ keywords: ["western media trust crisis 2025", "independent journalism Europe US"
 date: 2026-03-31
 category: "Media"
 tags: [journalism, media-trust, ai]
-image:
+image: /assets/images/journalism/media-trust-crisis-hero.webp
 status: placeholder
 comments: true
 ---
@@ -84,7 +84,10 @@ Publicly or partially government-funded outlets face additional, distinct proble
 
 Editorial flaws are consistent. Outlets embed utopian ideological frames climate, social policy, economics over raw evidence. Reporting lacks conciseness, padded with opinion. Statistics are selectively framed. Transparency falters: corrections bury deep, criticism faces algorithmic demotion or moderated comments.
 
-<!-- [Insert Chart: Western Media Trust 2015–2025 – High-res line graph comparing US, Germany, UK from Reuters 2025; embed via https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2025] -->
+<figure>
+  <img src="/assets/images/journalism/trust-decline-chart-2015-2025.webp" alt="Line chart comparing media trust decline in the US, Germany, and UK from 2015 to 2025 based on Reuters Digital News Report data">
+  <figcaption>Western media trust 2015–2025: US, Germany, UK (Source: Reuters Institute 2025)</figcaption>
+</figure>
 
 <h2 id="legacy-tv">Legacy TV's Structural Limitations in Western Media</h2>
 
@@ -94,15 +97,24 @@ Traditional broadcast TV exacerbates many of these failures, particularly in pub
 
 Corporate and public media flaws fuel and are fueled by weakening media literacy. The News Literacy Project's November 2025 US teen report found 84% hold negative views ("biased," "boring," or "bad"), with 45% believing journalists harm democracy and 69% perceiving intentional bias.<sup><a href="#source-5">[5]</a></sup> Reuters 2025 notes similar avoidance trends across Europe, where social media fills gaps left by declining traditional engagement. EU media literacy initiatives exist but remain limited, with educators allocating minimal hours amid competing demands.<sup><a href="#source-6">[6]</a></sup> This cycle reduces demand for critical-thinking education while leaving audiences vulnerable to spin evident in both US partisan divides and European public-broadcaster skepticism.
 
-<!-- [Insert Infographic: Teen Media Perceptions 2025 – Bar chart from News Literacy Project (US data with Western parallels noted); embed via https://newslit.org/wp-content/uploads/2025/10/NLP-Teens-and-News-Media-Report-2025.pdf] -->
+<figure>
+  <img src="/assets/images/journalism/teen-media-perceptions-2025.webp" alt="Bar chart showing US teen media perceptions in 2025: 84% negative views, 45% believe journalists harm democracy, 69% perceive intentional bias">
+  <figcaption>Teen media perceptions 2025 (Source: News Literacy Project)</figcaption>
+</figure>
 
-<!-- [Insert Animated GIF: Western Media Trust Decline 2015–2025 (US/Europe overlay) – Animated line chart showing parallel drops; source high-res Reuters data for social previews] -->
+<figure>
+  <img src="/assets/images/journalism/trust-decline-animated.gif" alt="Animated line chart showing parallel media trust declines across the US and Europe from 2015 to 2025">
+  <figcaption>Western media trust decline 2015–2025, US and Europe overlay (Source: Reuters Institute 2025)</figcaption>
+</figure>
 
 <h2 id="independent-journalism">Independent Journalism's Rapid Ascent and Accountability Model</h2>
 
 Independent creators fill the vacuum. Substack surpassed 5 million paid subscriptions by early 2025, with growth accelerating in both US and European markets through direct reader funding over ads.<sup><a href="#source-7">[7]</a></sup> A Change Research poll (December 2025) found 34% of Americans trust independent/online journalists most nearly triple national outlets mirroring rising European reliance on newsletters and podcasts.<sup><a href="#source-8">[8]</a></sup> These models enforce accountability: readers pay for value, feedback is public, bias is transparent and market-tested. Conciseness, source transparency, and responsiveness replace institutional opacity.
 
-<!-- [Insert Chart: Trust in Journalists by Type 2025 – Pie chart from Change Research (US data) with European parallels; embed via https://changeresearch.com/americans-turn-to-independent-voices-as-traditional-media-loses-ground/] -->
+<figure>
+  <img src="/assets/images/journalism/trust-by-journalist-type-2025.webp" alt="Pie chart showing trust in journalists by type in 2025: 34% trust independent/online journalists most, compared to national outlets">
+  <figcaption>Trust in journalists by type 2025 (Source: Change Research)</figcaption>
+</figure>
 
 <h2 id="ai-guardrails">AI Development with Minimal Guardrails: The Essential Counterbalance</h2>
 
@@ -118,7 +130,10 @@ Recent 2025–2026 studies compare:
 
 Minimal guardrails block illegal content but avoid external shaping distorting Western media narratives. In an era of filtered reporting, such AI delivers unvarnished data across US and European perspectives.
 
-<!-- [Insert Diagram: AI Model Guardrail Levels vs. Bias Scores 2025 – Bar chart (Grok lowest bias/lowest restrictions) based on Anthropic Nov 2025 and IEEE; embed via https://www.anthropic.com/news/political-even-handedness or https://aionx.co/ai-comparisons/ai-chatbot-bias-comparison-study/] -->
+<figure>
+  <img src="/assets/images/journalism/ai-bias-guardrails-chart-2025.webp" alt="Bar chart comparing AI model guardrail levels versus bias scores in 2025, showing Grok with lowest bias and lowest restrictions">
+  <figcaption>AI model guardrail levels vs. bias scores 2025 (Sources: Anthropic, IEEE Access, AIonX)</figcaption>
+</figure>
 
 <h3 id="key-takeaways">Key Takeaways</h3>
 
