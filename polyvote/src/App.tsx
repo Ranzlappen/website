@@ -17,6 +17,7 @@ import TopicRequestForm from './components/TopicRequestForm';
 
 export default function App() {
   const setUser = useStore((s) => s.setUser);
+  const addToast = useStore((s) => s.addToast);
 
   // Sign in anonymously on mount so every visitor can vote immediately
   useEffect(() => {
@@ -24,11 +25,14 @@ export default function App() {
       if (user) {
         setUser(user);
       } else {
-        signInAnonymously(auth);
+        signInAnonymously(auth).catch((err) => {
+          console.error('Anonymous sign-in failed:', err);
+          addToast('Authentication failed. Some features may not work.', 'error');
+        });
       }
     });
     return unsub;
-  }, [setUser]);
+  }, [setUser, addToast]);
 
   return (
     <div className="flex flex-col min-h-screen">
