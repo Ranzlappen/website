@@ -18,7 +18,7 @@ export default function Toast() {
   const removeToast = useStore((s) => s.removeToast);
 
   return (
-    <div className="pointer-events-none fixed bottom-4 right-4 z-[100] flex flex-col gap-2">
+    <div className="pointer-events-none fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-[100] flex flex-col gap-2">
       <AnimatePresence>
         {toasts.map((t) => (
           <motion.div
@@ -26,7 +26,7 @@ export default function Toast() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="pointer-events-auto flex items-center gap-2 rounded-lg border border-surface-200 bg-surface-100 px-4 py-3 shadow-lg"
+            className="pointer-events-auto flex items-center gap-2 rounded-lg border border-surface-200 bg-surface-100 px-4 py-3 shadow-lg sm:max-w-sm"
           >
             {iconMap[t.type]}
             <span className="text-sm text-gray-200">{t.text}</span>

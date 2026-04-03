@@ -49,14 +49,14 @@ export default function VotingCard({
         }}
       />
 
-      <div className="relative flex items-center justify-between">
+      <div className="relative flex flex-wrap items-center justify-between gap-y-1">
         <div className="flex items-center gap-2">
           {/* Color dot */}
           <span
             className="h-3 w-3 rounded-full ring-2 ring-white/10"
             style={{ backgroundColor: color }}
           />
-          <span className="text-sm font-medium text-gray-200">{label}</span>
+          <span className="text-sm font-medium text-gray-200 truncate">{label}</span>
           {selected && <Check size={14} className="text-brand-400" />}
         </div>
 

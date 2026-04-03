@@ -194,14 +194,14 @@ export default function Requests() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-100">
           <FileText size={24} className="text-brand-400" />
           Requests
         </h1>
         <Link
           to="/requests/new"
-          className="flex items-center gap-1 rounded-lg bg-brand-400 px-4 py-2 text-sm font-medium text-surface hover:bg-brand-500 transition-colors"
+          className="flex items-center justify-center gap-1 rounded-lg bg-brand-400 px-4 py-2 text-sm font-medium text-surface hover:bg-brand-500 transition-colors w-full sm:w-auto"
         >
           <Plus size={16} /> Propose New Topic
         </Link>

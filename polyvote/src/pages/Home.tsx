@@ -67,7 +67,7 @@ export default function Home() {
           Multi-Metric Community Voting
         </div>
         <h1 className="text-3xl font-bold text-gray-100 sm:text-4xl mb-3">
-          <BarChart3 className="inline mr-2 text-brand-400" size={32} />
+          <BarChart3 className="inline mr-2 text-brand-400 h-6 w-6 sm:h-8 sm:w-8" />
           PolyVote
         </h1>
         <p className="mx-auto max-w-xl text-gray-400">
@@ -92,7 +92,7 @@ export default function Home() {
 
       {/* ── Topics Grid ── */}
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <TopicCardSkeleton key={i} />
           ))}
@@ -102,7 +102,7 @@ export default function Home() {
           No topics found. {query && 'Try a different search term.'}
         </p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((topic, i) => (
             <TopicCard key={topic.id} topic={topic} index={i} />
           ))}

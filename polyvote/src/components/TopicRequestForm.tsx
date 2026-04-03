@@ -267,7 +267,7 @@ export default function TopicRequestForm() {
                         type="color"
                         value={choice.color}
                         onChange={(e) => updateChoiceColor(mi, ci, e.target.value)}
-                        className="h-7 w-7 cursor-pointer rounded border-0 bg-transparent"
+                        className="h-7 w-7 shrink-0 cursor-pointer rounded border-0 bg-transparent"
                       />
                       <input
                         type="text"

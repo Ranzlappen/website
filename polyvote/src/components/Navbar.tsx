@@ -32,13 +32,13 @@ export default function Navbar() {
         </a>
 
         {/* Nav links */}
-        <nav className="flex items-center gap-1">
+        <nav className="flex items-center gap-0.5 sm:gap-1">
           <a
             href="/"
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors"
+            className="flex items-center gap-1.5 rounded-lg px-2 sm:px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors"
           >
             <ArrowLeft size={16} />
-            Back to site
+            <span className="hidden sm:inline">Back to site</span>
           </a>
           <span className="mx-1 h-4 w-px bg-surface-200" />
           {links.map(({ to, label, icon: Icon }) => {
@@ -47,14 +47,14 @@ export default function Navbar() {
               <Link
                 key={to}
                 to={to}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                className={`flex items-center gap-1.5 rounded-lg px-2 sm:px-3 py-1.5 text-sm transition-colors ${
                   active
                     ? 'bg-brand-400/10 text-brand-400'
                     : 'text-gray-400 hover:text-gray-200'
                 }`}
               >
                 <Icon size={16} />
-                {label}
+                <span className="hidden sm:inline">{label}</span>
               </Link>
             );
           })}
