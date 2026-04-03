@@ -21,7 +21,8 @@ A clean, dark-themed personal blog. No coding required to set up or maintain —
 
 ---
 
-## Get Your Blog Online
+<details>
+<summary><h2>Get Your Blog Online</h2></summary>
 
 You already have the repo at [github.com/Ranzlappen/website](https://github.com/Ranzlappen/website). If the files from the zip aren't uploaded yet:
 
@@ -44,9 +45,12 @@ You already have the repo at [github.com/Ranzlappen/website](https://github.com/
 
 That's it — your blog is live.
 
+</details>
+
 ---
 
-## How to Write a New Post
+<details>
+<summary><h2>How to Write a New Post</h2></summary>
 
 Every blog post is just a single text file. Here's how to create one:
 
@@ -140,9 +144,12 @@ You can embed a swipeable image carousel anywhere in your post. Wrap your images
 
 Upload your images to `assets/images/` first, then reference them in the `src` attribute. The `alt` text is used as captions. The carousel auto-initializes with arrow buttons, dot indicators, swipe gestures, keyboard navigation, auto-play, and a slide counter. See [Add an Image Carousel](#add-an-image-carousel) for full details.
 
+</details>
+
 ---
 
-## Article Status
+<details>
+<summary><h2>Article Status</h2></summary>
 
 You can control the visibility of any post by adding a `status` field to its frontmatter. This is useful for work-in-progress drafts, placeholder articles, or posts you want to take down without deleting.
 
@@ -188,9 +195,12 @@ The post itself **remains fully accessible** if someone visits its URL directly 
 
 **Note:** `placeholder` articles are **not** hidden. They appear in all listings with a yellow "Placeholder" badge, making them useful for reserving spots on the site while the content is still being written.
 
+</details>
+
 ---
 
-## Add an Image Carousel
+<details>
+<summary><h2>Add an Image Carousel</h2></summary>
 
 You can add a swipeable image carousel (gallery/slideshow) to any post. Wrap your images in a `<div class="carousel">` block:
 
@@ -213,9 +223,12 @@ That's it — the carousel auto-initializes with:
 
 Upload your images to `assets/images/` and reference them in the `src` attribute. You can add as many images as you want.
 
+</details>
+
 ---
 
-## Add a Bar Chart
+<details>
+<summary><h2>Add a Bar Chart</h2></summary>
 
 You can embed responsive bar charts directly in any post — no JavaScript, no `<style>` tags, just HTML. The chart automatically adapts to dark/light theme, screen size, and any number of bars.
 
@@ -334,9 +347,12 @@ The chart automatically adapts to the screen:
 - All spacing and font sizes use fluid scaling (they grow/shrink smoothly)
 - If you add many bars, the chart scrolls horizontally on small screens instead of squishing
 
+</details>
+
 ---
 
-## Built-in Features
+<details>
+<summary><h2>Built-in Features</h2></summary>
 
 These features work automatically on every post — no setup needed:
 
@@ -348,9 +364,12 @@ These features work automatically on every post — no setup needed:
 | **Dark / Light Theme** | Toggle between dark and light mode — preference is saved |
 | **Grid / List View** | Readers can switch between grid cards and a compact list on the blog page |
 
+</details>
+
 ---
 
-## Enable Comments (Giscus)
+<details>
+<summary><h2>Enable Comments (Giscus)</h2></summary>
 
 Giscus lets visitors comment on your posts using their GitHub account. Comments are stored in your repo's Discussions tab — you have full control.
 
@@ -394,9 +413,12 @@ Giscus lets visitors comment on your posts using their GitHub account. Comments 
 3. Tap **Commit changes**.
 4. Wait 1-2 minutes — comments will now appear on every post.
 
+</details>
+
 ---
 
-## Enable Voting Sidebar (Firebase)
+<details>
+<summary><h2>Enable Voting Sidebar (Firebase)</h2></summary>
 
 The voting sidebar lets readers vote 👍/👎 on each section of your articles. Votes are stored in Firebase (Google's free database).
 
@@ -478,9 +500,12 @@ The voting sidebar lets readers vote 👍/👎 on each section of your articles.
 
 The voting sidebar will now work on every post.
 
+</details>
+
 ---
 
-## Enable Contact Form CAPTCHA (hCaptcha)
+<details>
+<summary><h2>Enable Contact Form CAPTCHA (hCaptcha)</h2></summary>
 
 The contact form uses hCaptcha to block spam bots. Without this step, the form still works (it opens a GitHub Issue page) but won't have CAPTCHA protection.
 
@@ -509,9 +534,12 @@ The contact form uses hCaptcha to block spam bots. Without this step, the form s
 
 When someone fills out the contact form, it opens a pre-filled GitHub Issue in your repo. You'll get a notification on GitHub whenever someone contacts you. You can respond directly from the Issues tab.
 
+</details>
+
 ---
 
-## Connect Your Own Domain
+<details>
+<summary><h2>Connect Your Own Domain</h2></summary>
 
 If you have a domain (from Squarespace, Namecheap, or any registrar):
 
@@ -557,9 +585,12 @@ Add these records:
 
 DNS can take up to 48 hours to fully work, but usually it's done within an hour.
 
+</details>
+
 ---
 
-## Change Colors or Fonts
+<details>
+<summary><h2>Change Colors or Fonts</h2></summary>
 
 All design settings are in one file: `assets/css/style.css`. Edit it on GitHub by tapping the pencil icon.
 
@@ -600,9 +631,12 @@ Then change the variable:
 --f-body: 'Inter', sans-serif;
 ```
 
+</details>
+
 ---
 
-## Moderate Comments and Votes
+<details>
+<summary><h2>Moderate Comments and Votes</h2></summary>
 
 ### Comments
 
@@ -623,9 +657,12 @@ Vote data lives in your Firebase console:
 4. To **reset votes** for a post: hover over the post name and tap the **X** to delete it.
 5. To **wipe everything**: delete the entire `votes` node.
 
+</details>
+
 ---
 
-## Quick Reference
+<details>
+<summary><h2>Quick Reference</h2></summary>
 
 | I want to...               | Do this                                                        |
 |-----------------------------|----------------------------------------------------------------|
@@ -644,9 +681,12 @@ Vote data lives in your Firebase console:
 | Add a bar chart             | Use `<div class="bar-chart">` with `.bar` divs in your post    |
 | Upload an image for a post  | Upload to `assets/images/` on GitHub, reference in your post   |
 
+</details>
+
 ---
 
-## Project Structure
+<details>
+<summary><h2>Project Structure</h2></summary>
 
 ```
 your-repo/
@@ -674,3 +714,5 @@ your-repo/
 - `pages/` — to edit About, Contact, etc.
 
 Everything else runs automatically.
+
+</details>
