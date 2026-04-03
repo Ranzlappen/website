@@ -40,7 +40,13 @@ Income and wealth statistics offer the clearest illustration. The mean (arithmet
 
 Media reports on “average income” or “average wage growth” often cite the mean, making conditions appear better for typical households than they are. Politicians similarly highlight whichever figure supports their narrative on inequality or economic success. The mode — the most frequent value — rarely appears in such debates because it adds little drama.
 
-<!-- [Insert Chart: Mean vs Median Household Income (skewed distribution example with billionaires pulling mean upward)] -->
+<div class="chart-container" role="figure" aria-label="Mean vs Median Household Income 2000–2024">
+  <canvas data-chart="line"
+    data-title="Mean vs Median U.S. Household Income 2000–2024 (Illustrative)"
+    data-labels='["2000","2004","2008","2012","2016","2020","2024"]'
+    data-datasets='[{"label":"Mean Income","data":[57135,60528,68424,72641,83143,97026,114000],"color":"#ef4444"},{"label":"Median Income","data":[42148,44334,50303,51017,59039,67521,74580],"color":"#3b82f6"}]'>
+  </canvas>
+</div>
 
 <h2 id="case-studies">Classic and Recent Case Studies</h2>
 
@@ -52,7 +58,14 @@ Economic and crime data frequently face scrutiny. Claims of record-low unemploym
 
 Graphs amplify deception when y-axes are truncated or do not start at zero, exaggerating small changes. Time periods are cherry-picked to hide reversals. Dual-axis charts compare unrelated scales to manufacture correlations. These visual sleights appear in campaign ads, cable news segments, and official briefings alike.
 
-<!-- [Insert Chart: Truncated Y-Axis Example (unemployment or crime rate graph showing exaggerated decline)] -->
+<div class="chart-container" role="figure" aria-label="Truncated Y-Axis Example: Unemployment Rate">
+  <canvas data-chart="line"
+    data-zero="false"
+    data-title="Unemployment Rate 2020–2024 — Truncated Y-Axis (Illustrative)"
+    data-labels='["2020","2021","2022","2023","2024"]'
+    data-datasets='[{"label":"Unemployment Rate (%)","data":[8.1,5.4,3.6,3.5,3.4],"color":"#8b5cf6","fill":true}]'>
+  </canvas>
+</div>
 
 <h2 id="impacts">Impacts on Public Opinion and Democracy</h2>
 
