@@ -3,7 +3,7 @@ title: "Statistics Misuse How Media and Politics Skew Data to Deceive"
 description: "Media and politicians often twist mean vs. median, cherry-pick data, and manipulate graphs to push agendas. Learn common tricks, real examples, and how to spot statistical deception in news and politics."
 date: 2026-04-04
 category: "Media"
-tags: ["statistics-misuse", "media-bias politics-data", "manipulation", "mean-median", "cherry-picking"]
+tags: ["statistics-misuse", "media-bias", "politics-data", "manipulation", "mean-median", "cherry-picking"]
 image: 
 status: placeholder
 comments: true
