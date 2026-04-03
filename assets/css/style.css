@@ -2177,6 +2177,10 @@ img {
   font-weight: 600;
   color: var(--c-text);
   pointer-events: none;
+  padding: 0 var(--chart-pad-x);
+  box-sizing: border-box;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Individual bar */
@@ -2198,13 +2202,14 @@ img {
 /* Value label above bar */
 .bar > span {
   position: absolute;
-  top: -1.4em;
+  top: -1.5em;
   white-space: nowrap;
   font-size: var(--val-size);
   font-weight: 600;
   color: var(--val-color);
   font-family: var(--f-mono);
   pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 /* Category label below bar */
@@ -2213,8 +2218,12 @@ img {
   font-size: var(--label-size);
   font-weight: 500;
   color: var(--label-color);
-  white-space: nowrap;
   text-align: center;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  max-width: 100%;
 }
 
 /* Hover feedback */
@@ -2243,20 +2252,26 @@ img {
 /* ---- Responsive scaling ---- */
 @media (max-width: 600px) {
   .bar-chart {
-    --chart-height: 12rem;
-    --chart-gap: 4px;
-    --chart-pad-x: 8px;
-    --chart-pad-top: 24px;
-    --bar-min-width: 18px;
+    --chart-height: 13rem;
+    --chart-gap: 3px;
+    --chart-pad-x: 6px;
+    --chart-pad-top: 28px;
+    --bar-min-width: 20px;
     margin: var(--space-lg) auto;
   }
-  .bar > span { font-size: 0.6rem; }
-  .bar-label  { font-size: 0.6rem; }
+  .bar > span { font-size: 0.58rem; }
+  .bar-label  {
+    font-size: 0.55rem;
+    max-width: clamp(36px, 12vw, 64px);
+  }
 }
 
 @media (min-width: 601px) and (max-width: 900px) {
   .bar-chart {
     --chart-height: 14rem;
+  }
+  .bar-label {
+    max-width: clamp(48px, 10vw, 80px);
   }
 }
 
@@ -2352,6 +2367,10 @@ img {
   font-weight: 600;
   color: var(--c-text);
   pointer-events: none;
+  padding: 0 clamp(12px, 3vw, 28px);
+  box-sizing: border-box;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Legend wrapper (sits beside the pie) */
@@ -2369,6 +2388,7 @@ img {
   gap: var(--space-sm);
   cursor: default;
   transition: opacity var(--transition-fast);
+  min-width: 0;
 }
 
 /* Legend color swatch */
@@ -2386,7 +2406,8 @@ img {
   font-size: var(--legend-label-size);
   font-weight: 500;
   color: var(--legend-label-color);
-  white-space: nowrap;
+  line-height: 1.3;
+  min-width: 0;
 }
 
 /* Legend value (from data-val attribute) */
@@ -2397,6 +2418,8 @@ img {
   color: var(--legend-val-color);
   font-family: var(--f-mono);
   margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Hover feedback */
@@ -2429,7 +2452,11 @@ img {
     align-items: center;
     --pie-size: clamp(8rem, 50vw, 12rem);
     padding: clamp(12px, 3vw, 20px);
+    padding-top: clamp(28px, 6vw, 40px);
     margin: var(--space-lg) auto;
+  }
+  .pie-chart__title {
+    font-size: clamp(0.6rem, 3vw, 0.78rem);
   }
   .pie-chart__legend { width: 100%; }
   .slice > span  { font-size: 0.65rem; }
@@ -2439,11 +2466,223 @@ img {
 @media (min-width: 601px) and (max-width: 900px) {
   .pie-chart {
     --pie-size: clamp(10rem, 25vw, 14rem);
+    padding-top: clamp(28px, 4vw, 36px);
   }
 }
 
 @media (min-width: 901px) {
   .pie-chart {
     --pie-size: clamp(10rem, 28vw, 18rem);
+  }
+}
+
+/* ============================================================
+   Line Chart Component — CSS-only line charts via SVG polyline
+   Usage: wrap an inline SVG inside .line-chart, use .line-chart__legend
+   ============================================================ */
+.line-chart {
+  /* — Customisable defaults (override per instance) — */
+  --chart-height:     16rem;
+  --chart-max-width:  100%;
+  --chart-bg:         var(--c-surface);
+  --chart-border:     var(--c-border);
+  --chart-radius:     var(--border-radius-lg);
+  --chart-pad-x:      clamp(10px, 3vw, 24px);
+  --chart-pad-top:    clamp(32px, 5vw, 44px);
+  --chart-pad-bottom: clamp(8px, 2vw, 16px);
+
+  --grid-color:       var(--c-border-light);
+  --axis-color:       var(--c-text-faint);
+  --axis-size:        clamp(0.5rem, 1.4vw, 0.7rem);
+
+  --line-width:       2.5;
+
+  --legend-label-color: var(--c-text);
+  --legend-label-size:  clamp(0.65rem, 1.8vw, 0.82rem);
+
+  display: flex;
+  flex-direction: column;
+  max-width: var(--chart-max-width);
+  margin: var(--space-xl) auto;
+  padding: var(--chart-pad-top) var(--chart-pad-x) var(--chart-pad-bottom);
+  background: var(--chart-bg);
+  border: 1px solid var(--chart-border);
+  border-radius: var(--chart-radius);
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Optional chart title */
+.line-chart__title {
+  position: absolute;
+  top: clamp(6px, 1.5vw, 14px);
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: clamp(0.7rem, 2vw, 0.88rem);
+  font-weight: 600;
+  color: var(--c-text);
+  pointer-events: none;
+  padding: 0 var(--chart-pad-x);
+  box-sizing: border-box;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* SVG canvas area */
+.line-chart svg {
+  width: 100%;
+  height: var(--chart-height);
+  display: block;
+  overflow: visible;
+}
+
+/* Grid lines */
+.line-chart__grid line {
+  stroke: var(--grid-color);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+/* Axis labels (Y-axis on left, X-axis on bottom) */
+.line-chart__y-label {
+  font-size: var(--axis-size);
+  fill: var(--axis-color);
+  font-family: var(--f-mono);
+  text-anchor: end;
+  dominant-baseline: middle;
+}
+
+.line-chart__x-label {
+  font-size: var(--axis-size);
+  fill: var(--axis-color);
+  font-family: var(--f-mono);
+  text-anchor: middle;
+  dominant-baseline: hanging;
+}
+
+/* Data lines */
+.line-chart__line {
+  fill: none;
+  stroke-width: var(--line-width);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Data points */
+.line-chart__dot {
+  r: 3.5;
+  stroke-width: 2;
+  stroke: var(--chart-bg);
+  transition: r 0.15s ease;
+}
+.line-chart__dot:hover {
+  r: 5.5;
+}
+
+/* Value tooltip on hover (via <title> in SVG or CSS) */
+.line-chart__dot-label {
+  font-size: clamp(0.55rem, 1.4vw, 0.72rem);
+  font-family: var(--f-mono);
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: auto;
+  fill: var(--c-text);
+  pointer-events: none;
+}
+
+/* Line color presets (set via class on <polyline> / <circle>) */
+.line--green  { stroke: #22c55e; fill: #22c55e; }
+.line--red    { stroke: #ef4444; fill: #ef4444; }
+.line--amber  { stroke: #f59e0b; fill: #f59e0b; }
+.line--blue   { stroke: #3b82f6; fill: #3b82f6; }
+.line--purple { stroke: #8b5cf6; fill: #8b5cf6; }
+.line--pink   { stroke: #ec4899; fill: #ec4899; }
+.line--cyan   { stroke: #06b6d4; fill: #06b6d4; }
+.line--slate  { stroke: #64748b; fill: #64748b; }
+
+/* Legend below chart */
+.line-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 16px);
+  margin-top: clamp(8px, 1.5vw, 14px);
+}
+
+/* Individual legend entry */
+.line-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  cursor: default;
+  transition: opacity var(--transition-fast);
+}
+.line-legend:hover { opacity: 0.7; }
+
+/* Legend color swatch (small line segment) */
+.line-legend::before {
+  content: "";
+  width: 1.2em;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--swatch-color, var(--c-accent));
+  flex-shrink: 0;
+}
+
+/* Legend label text */
+.line-legend > span {
+  font-size: var(--legend-label-size);
+  font-weight: 500;
+  color: var(--legend-label-color);
+  line-height: 1.3;
+}
+
+/* Swatch color presets for legend */
+.line-legend--green  { --swatch-color: #22c55e; }
+.line-legend--red    { --swatch-color: #ef4444; }
+.line-legend--amber  { --swatch-color: #f59e0b; }
+.line-legend--blue   { --swatch-color: #3b82f6; }
+.line-legend--purple { --swatch-color: #8b5cf6; }
+.line-legend--pink   { --swatch-color: #ec4899; }
+.line-legend--cyan   { --swatch-color: #06b6d4; }
+.line-legend--slate  { --swatch-color: #64748b; }
+
+/* ---- Size presets (add class to .line-chart) ---- */
+.line-chart--sm   { --chart-height: 10rem; }
+.line-chart--lg   { --chart-height: 22rem; }
+.line-chart--xl   { --chart-height: 30rem; }
+.line-chart--full { --chart-max-width: 100%; }
+
+/* ---- Responsive scaling ---- */
+@media (max-width: 600px) {
+  .line-chart {
+    --chart-height: 11rem;
+    --chart-pad-x: 6px;
+    --chart-pad-top: 28px;
+    margin: var(--space-lg) auto;
+  }
+  .line-chart__title {
+    font-size: clamp(0.6rem, 3vw, 0.78rem);
+  }
+  .line-chart__legend {
+    gap: clamp(6px, 2vw, 10px);
+  }
+  .line-legend > span { font-size: 0.62rem; }
+  .line-chart__dot { r: 2.5; stroke-width: 1.5; }
+  .line-chart__dot:hover { r: 4; }
+  .line-chart__dot-label { font-size: 0.5rem; }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .line-chart {
+    --chart-height: 14rem;
+  }
+}
+
+@media (min-width: 901px) {
+  .line-chart {
+    --chart-height: 16rem;
   }
 }

@@ -497,6 +497,197 @@ The chart automatically adapts to the screen:
 ---
 
 <details>
+<summary><h2>Add a Line Chart</h2></summary>
+
+You can embed responsive line charts directly in any post using inline SVG — no JavaScript required. The chart adapts to dark/light theme, screen size, and supports multiple data series.
+
+### Basic usage
+
+```html
+<div class="line-chart">
+  <div class="line-chart__title">Monthly Visitors</div>
+  <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet">
+    <!-- Grid lines (horizontal) -->
+    <g class="line-chart__grid">
+      <line x1="40" y1="20"  x2="290" y2="20" />
+      <line x1="40" y1="65"  x2="290" y2="65" />
+      <line x1="40" y1="110" x2="290" y2="110" />
+      <line x1="40" y1="155" x2="290" y2="155" />
+    </g>
+    <!-- Y-axis labels -->
+    <text class="line-chart__y-label" x="36" y="20">100</text>
+    <text class="line-chart__y-label" x="36" y="65">75</text>
+    <text class="line-chart__y-label" x="36" y="110">50</text>
+    <text class="line-chart__y-label" x="36" y="155">25</text>
+    <!-- X-axis labels -->
+    <text class="line-chart__x-label" x="65"  y="175">Jan</text>
+    <text class="line-chart__x-label" x="140" y="175">Feb</text>
+    <text class="line-chart__x-label" x="215" y="175">Mar</text>
+    <text class="line-chart__x-label" x="290" y="175">Apr</text>
+    <!-- Data line -->
+    <polyline class="line-chart__line line--green" points="65,110 140,65 215,88 290,30" />
+    <!-- Data points -->
+    <circle class="line-chart__dot line--green" cx="65"  cy="110" />
+    <circle class="line-chart__dot line--green" cx="140" cy="65" />
+    <circle class="line-chart__dot line--green" cx="215" cy="88" />
+    <circle class="line-chart__dot line--green" cx="290" cy="30" />
+  </svg>
+  <div class="line-chart__legend">
+    <div class="line-legend line-legend--green"><span>Visitors</span></div>
+  </div>
+</div>
+```
+
+Each line chart needs:
+- An `<svg>` with a `viewBox` — the chart scales proportionally to the container
+- `<polyline class="line-chart__line">` — the data line, with `points` as `x,y` pairs
+- `<circle class="line-chart__dot">` — data point markers at each vertex
+- Optional `<text>` elements for axis labels
+- Optional `.line-chart__legend` below the SVG
+
+### How to map data to SVG coordinates
+
+The SVG uses a coordinate system where `(0,0)` is the **top-left**. A typical setup:
+
+| Area | X range | Y range |
+|------|---------|---------|
+| Y-axis labels | `0–40` | — |
+| Plot area | `40–290` | `20–155` |
+| X-axis labels | — | `175+` |
+
+To convert a data value to a Y coordinate:
+```
+y = plotBottom - ((value - minValue) / (maxValue - minValue)) * plotHeight
+```
+
+For example, with `plotBottom=155`, `plotTop=20`, value 50 out of 0–100:
+```
+y = 155 - (50 / 100) * 135 = 155 - 67.5 = 87.5
+```
+
+### Multiple data series
+
+Add multiple `<polyline>` and circle groups with different color classes:
+
+```html
+<div class="line-chart">
+  <div class="line-chart__title">US vs Europe Trust (%)</div>
+  <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet">
+    <g class="line-chart__grid">
+      <line x1="40" y1="20" x2="290" y2="20" />
+      <line x1="40" y1="65" x2="290" y2="65" />
+      <line x1="40" y1="110" x2="290" y2="110" />
+      <line x1="40" y1="155" x2="290" y2="155" />
+    </g>
+    <text class="line-chart__y-label" x="36" y="20">60</text>
+    <text class="line-chart__y-label" x="36" y="65">50</text>
+    <text class="line-chart__y-label" x="36" y="110">40</text>
+    <text class="line-chart__y-label" x="36" y="155">30</text>
+    <text class="line-chart__x-label" x="65"  y="175">2015</text>
+    <text class="line-chart__x-label" x="140" y="175">2018</text>
+    <text class="line-chart__x-label" x="215" y="175">2021</text>
+    <text class="line-chart__x-label" x="290" y="175">2025</text>
+    <!-- Line 1: US -->
+    <polyline class="line-chart__line line--blue" points="65,65 140,88 215,110 290,155" />
+    <circle class="line-chart__dot line--blue" cx="65"  cy="65" />
+    <circle class="line-chart__dot line--blue" cx="140" cy="88" />
+    <circle class="line-chart__dot line--blue" cx="215" cy="110" />
+    <circle class="line-chart__dot line--blue" cx="290" cy="155" />
+    <!-- Line 2: Europe -->
+    <polyline class="line-chart__line line--amber" points="65,20 140,55 215,88 290,110" />
+    <circle class="line-chart__dot line--amber" cx="65"  cy="20" />
+    <circle class="line-chart__dot line--amber" cx="140" cy="55" />
+    <circle class="line-chart__dot line--amber" cx="215" cy="88" />
+    <circle class="line-chart__dot line--amber" cx="290" cy="110" />
+  </svg>
+  <div class="line-chart__legend">
+    <div class="line-legend line-legend--blue"><span>United States</span></div>
+    <div class="line-legend line-legend--amber"><span>Europe</span></div>
+  </div>
+</div>
+```
+
+### Color each line
+
+Add a color class to `<polyline>`, `<circle>`, and the matching `.line-legend`:
+
+| Class (line) | Class (legend) | Color |
+|------|------|-------|
+| *(default)* | *(default)* | Green (site accent) |
+| `line--blue` | `line-legend--blue` | Blue |
+| `line--red` | `line-legend--red` | Red |
+| `line--amber` | `line-legend--amber` | Amber / Yellow |
+| `line--purple` | `line-legend--purple` | Purple |
+| `line--cyan` | `line-legend--cyan` | Cyan |
+| `line--pink` | `line-legend--pink` | Pink |
+| `line--slate` | `line-legend--slate` | Grey |
+| `line--green` | `line-legend--green` | Green (explicit) |
+
+Or use any custom color inline:
+
+```html
+<polyline class="line-chart__line" style="stroke:#ff6600" points="..." />
+<circle class="line-chart__dot" style="fill:#ff6600; stroke:var(--chart-bg)" cx="..." cy="..." />
+```
+
+### Add data-point labels
+
+Place `<text>` elements above each point to show values:
+
+```html
+<text class="line-chart__dot-label" x="65" y="100">50</text>
+```
+
+### Change the chart size
+
+Add a size class to the container:
+
+```html
+<div class="line-chart line-chart--sm">  <!-- shorter chart (10rem) -->
+<div class="line-chart line-chart--lg">  <!-- taller chart (22rem) -->
+<div class="line-chart line-chart--xl">  <!-- tallest chart (30rem) -->
+```
+
+Or set an exact height inline:
+
+```html
+<div class="line-chart" style="--chart-height: 20rem;">
+```
+
+### Customize everything
+
+All visual properties can be overridden with CSS variables on the `.line-chart` container:
+
+| Variable | What it controls | Default |
+|----------|-----------------|---------|
+| `--chart-height` | Total chart height | `16rem` (responsive) |
+| `--chart-max-width` | Maximum chart width | `100%` |
+| `--chart-bg` | Chart background color | Theme surface color |
+| `--chart-border` | Chart border color | Theme border color |
+| `--chart-pad-x` | Left/right padding | Fluid `10px–24px` |
+| `--chart-pad-top` | Top padding (space for title) | Fluid `32px–44px` |
+| `--grid-color` | Horizontal grid line color | Theme border-light color |
+| `--axis-color` | Axis label text color | Theme faint text |
+| `--axis-size` | Axis label font size | Fluid `0.5–0.7rem` |
+| `--line-width` | Data line stroke width | `2.5` |
+| `--legend-label-color` | Legend label text color | Theme text color |
+| `--legend-label-size` | Legend label font size | Fluid `0.65–0.82rem` |
+
+### Responsive behavior
+
+The chart automatically adapts to the screen:
+
+- On **mobile** (<600px): shorter height, tighter padding, smaller dots and labels
+- On **tablet** (600–900px): medium height
+- On **desktop** (900px+): full height
+- The SVG scales proportionally via `viewBox` — no horizontal scrolling needed
+- All spacing and font sizes use fluid scaling
+
+</details>
+
+---
+
+<details>
 <summary><h2>Built-in Features</h2></summary>
 
 These features work automatically on every post — no setup needed:
