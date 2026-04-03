@@ -84,10 +84,13 @@ Publicly or partially government-funded outlets face additional, distinct proble
 
 Editorial flaws are consistent. Outlets embed utopian ideological frames climate, social policy, economics over raw evidence. Reporting lacks conciseness, padded with opinion. Statistics are selectively framed. Transparency falters: corrections bury deep, criticism faces algorithmic demotion or moderated comments.
 
-<figure>
-  <img src="/assets/images/journalism/trust-decline-chart-2015-2025.webp" alt="Line chart comparing media trust decline in the US, Germany, and UK from 2015 to 2025 based on Reuters Digital News Report data">
-  <figcaption>Western media trust 2015–2025: US, Germany, UK (Source: Reuters Institute 2025)</figcaption>
-</figure>
+<div class="chart-container" role="figure" aria-label="Western Media Trust Decline 2015–2025 (Source: Reuters Institute)">
+  <canvas data-chart="line"
+    data-title="Media Trust Decline 2015–2025 (%) (Source: Reuters Institute)"
+    data-labels='["2015","2017","2019","2021","2023","2025"]'
+    data-datasets='[{"label":"United States","data":[33,32,29,29,32,30],"color":"#3b82f6"},{"label":"Germany","data":[60,50,47,53,43,45],"color":"#f59e0b"},{"label":"United Kingdom","data":[51,43,40,36,34,35],"color":"#ef4444"}]'>
+  </canvas>
+</div>
 
 <h2 id="legacy-tv">Legacy TV's Structural Limitations in Western Media</h2>
 
@@ -110,10 +113,13 @@ DATE: 2026-04-03
   </canvas>
 </div>
 
-<figure>
-  <img src="/assets/images/journalism/trust-decline-animated.gif" alt="Animated line chart showing parallel media trust declines across the US and Europe from 2015 to 2025">
-  <figcaption>Western media trust decline 2015–2025, US and Europe overlay (Source: Reuters Institute 2025)</figcaption>
-</figure>
+<div class="chart-container" role="figure" aria-label="US vs Western Europe Media Trust 2015–2025 (Source: Reuters Institute)">
+  <canvas data-chart="line"
+    data-title="US vs Western Europe Media Trust 2015–2025 (%) (Source: Reuters Institute)"
+    data-labels='["2015","2017","2019","2021","2023","2025"]'
+    data-datasets='[{"label":"United States","data":[33,32,29,29,32,30],"color":"#3b82f6","fill":true},{"label":"Western Europe (avg)","data":[52,46,43,42,40,40],"color":"#4ade80","fill":true}]'>
+  </canvas>
+</div>
 
 <h2 id="independent-journalism">Independent Journalism's Rapid Ascent and Accountability Model</h2>
 
