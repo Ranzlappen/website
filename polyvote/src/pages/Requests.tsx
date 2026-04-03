@@ -1,10 +1,11 @@
 /*
- * CHANGE: New file – Requests listing page with approve/reject controls
- * REASON: Displays all pending change requests; owner can approve or reject
- * DATE: 2026-04-02
+ * CHANGE: Major rewrite – Topic proposals with endorsement system + existing change requests
+ * REASON: Shows active topic proposals, endorsement/promotion flow, archived requests, and change requests
+ * DATE: 2026-04-03
  */
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   collection,
   onSnapshot,
@@ -12,21 +13,40 @@ import {
   query,
   doc,
   updateDoc,
+  addDoc,
+  arrayUnion,
+  increment,
+  getDocs,
+  where,
+  writeBatch,
 } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
-import { CheckCircle2, XCircle, Clock, FileText } from 'lucide-react';
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  FileText,
+  Plus,
+  ThumbsUp,
+  ChevronDown,
+  Archive,
+  Sparkles,
+} from 'lucide-react';
 import { db } from '../firebase';
 import { useStore } from '../hooks/useStore';
-import type { ChangeRequest } from '../types';
+import { useTopicRequests } from '../hooks/useTopicRequests';
+import { categoryColor } from '../components/CategoryFilter';
+import type { ChangeRequest, TopicRequest } from '../types';
+import { REQUEST_ENDORSEMENTS_NEEDED } from '../types';
 
-/** Badge styles by request status */
+/** Badge styles by change-request status */
 const statusBadge: Record<string, string> = {
   pending: 'bg-yellow-500/20 text-yellow-400',
   approved: 'bg-brand-500/20 text-brand-400',
   rejected: 'bg-red-500/20 text-red-400',
 };
 
-/** Badge styles by request type */
+/** Badge styles by change-request type */
 const typeBadge: Record<string, string> = {
   edit: 'bg-blue-500/20 text-blue-400',
   add: 'bg-brand-500/20 text-brand-400',
@@ -34,22 +54,117 @@ const typeBadge: Record<string, string> = {
 };
 
 export default function Requests() {
-  const [requests, setRequests] = useState<ChangeRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  // ── Change requests (existing system) ──
+  const [changeRequests, setChangeRequests] = useState<ChangeRequest[]>([]);
+  const [crLoading, setCrLoading] = useState(true);
   const addToast = useStore((s) => s.addToast);
+  const user = useStore((s) => s.user);
 
+  // ── Topic requests (new system) ──
+  const { requests: topicRequests, loading: trLoading } = useTopicRequests();
+  const [showArchived, setShowArchived] = useState(false);
+
+  // Subscribe to change requests
   useEffect(() => {
     const q = query(collection(db, 'requests'), orderBy('createdAt', 'desc'));
-    const unsub = onSnapshot(q, (snap) => {
-      setRequests(
-        snap.docs.map((d) => ({ id: d.id, ...d.data() })) as ChangeRequest[],
-      );
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setChangeRequests(
+          snap.docs.map((d) => ({ id: d.id, ...d.data() })) as ChangeRequest[],
+        );
+        setCrLoading(false);
+      },
+      (err) => {
+        console.error('Requests onSnapshot error:', err);
+        setCrLoading(false);
+      },
+    );
     return unsub;
   }, []);
 
-  const updateStatus = async (id: string, status: 'approved' | 'rejected') => {
+  // On-load sweep: archive expired pending topic requests
+  useEffect(() => {
+    const archiveExpired = async () => {
+      try {
+        const q = query(
+          collection(db, 'topicRequests'),
+          where('status', '==', 'pending'),
+        );
+        const snap = await getDocs(q);
+        const now = Date.now();
+        const batch = writeBatch(db);
+        let count = 0;
+        snap.docs.forEach((d) => {
+          const data = d.data();
+          if (data.expiresAt && data.expiresAt < now) {
+            batch.update(d.ref, { status: 'archived' });
+            count++;
+          }
+        });
+        if (count > 0) await batch.commit();
+      } catch (err) {
+        console.error('Failed to archive expired requests:', err);
+      }
+    };
+    archiveExpired();
+  }, []);
+
+  const now = Date.now();
+
+  // Split topic requests into active vs archived
+  const activeProposals = topicRequests.filter(
+    (r) => r.status === 'pending' && r.expiresAt > now,
+  );
+  const archivedProposals = topicRequests.filter(
+    (r) => r.status === 'archived' || r.status === 'promoted' || (r.status === 'pending' && r.expiresAt <= now),
+  );
+
+  // ── Endorse a topic request ──
+  const handleEndorse = async (req: TopicRequest) => {
+    if (!user) {
+      addToast('You must be signed in to endorse.', 'error');
+      return;
+    }
+    if (req.endorsers.includes(user.uid)) {
+      addToast('You already endorsed this proposal.', 'info');
+      return;
+    }
+
+    try {
+      const reqRef = doc(db, 'topicRequests', req.id);
+      await updateDoc(reqRef, {
+        endorsers: arrayUnion(user.uid),
+        endorsementCount: increment(1),
+      });
+
+      const newCount = req.endorsementCount + 1;
+
+      // Check if promotion threshold reached
+      if (newCount >= REQUEST_ENDORSEMENTS_NEEDED) {
+        // Promote: create topic in topics collection
+        await addDoc(collection(db, 'topics'), {
+          title: req.title,
+          description: req.description,
+          category: req.category,
+          metrics: req.metrics,
+          totalVotes: 0,
+          createdAt: Date.now(),
+        });
+        // Mark request as promoted
+        await updateDoc(reqRef, { status: 'promoted' });
+        addToast('Topic promoted to main voting!', 'success');
+      } else {
+        addToast('Endorsement recorded!', 'success');
+      }
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to endorse.', 'error');
+    }
+  };
+
+  // ── Update change request status ──
+  const updateCrStatus = async (id: string, status: 'approved' | 'rejected') => {
     try {
       await updateDoc(doc(db, 'requests', id), { status });
       addToast(`Request ${status}.`, 'success');
@@ -59,12 +174,31 @@ export default function Requests() {
     }
   };
 
+  // Client-side expiry check helper
+  const archiveIfExpired = async (req: TopicRequest) => {
+    if (req.status === 'pending' && req.expiresAt <= now) {
+      try {
+        await updateDoc(doc(db, 'topicRequests', req.id), { status: 'archived' });
+      } catch { /* ignore */ }
+    }
+  };
+
+  const loading = trLoading && crLoading;
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-100">
-        <FileText size={24} className="text-brand-400" />
-        Change Requests
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-100">
+          <FileText size={24} className="text-brand-400" />
+          Requests
+        </h1>
+        <Link
+          to="/requests/new"
+          className="flex items-center gap-1 rounded-lg bg-brand-400 px-4 py-2 text-sm font-medium text-surface hover:bg-brand-500 transition-colors"
+        >
+          <Plus size={16} /> Propose New Topic
+        </Link>
+      </div>
 
       {loading ? (
         <div className="space-y-4">
@@ -72,57 +206,223 @@ export default function Requests() {
             <div key={i} className="skeleton h-28 rounded-xl" />
           ))}
         </div>
-      ) : requests.length === 0 ? (
-        <p className="py-20 text-center text-gray-500">No requests yet.</p>
       ) : (
-        <div className="space-y-4">
-          {requests.map((req, i) => (
-            <motion.div
-              key={req.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
-              className="rounded-xl border border-surface-200 bg-surface-50 p-5"
-            >
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                {/* Type badge */}
-                <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${typeBadge[req.type]}`}>
-                  {req.type}
-                </span>
-                {/* Status badge */}
-                <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${statusBadge[req.status]}`}>
-                  {req.status}
-                </span>
-                <span className="ml-auto flex items-center gap-1 text-xs text-gray-500">
-                  <Clock size={12} />
-                  {formatDistanceToNow(new Date(req.createdAt), { addSuffix: true })}
-                </span>
-              </div>
+        <div className="space-y-8">
+          {/* ══════════ Section 1: Active Topic Proposals ══════════ */}
+          <section>
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-200 mb-4">
+              <Sparkles size={18} className="text-brand-400" />
+              Active Topic Proposals
+            </h2>
 
-              <p className="text-xs text-gray-500 mb-1">
-                Topic: <span className="text-gray-300">{req.topicTitle}</span>
+            {activeProposals.length === 0 ? (
+              <p className="py-8 text-center text-gray-500 rounded-xl border border-surface-200 bg-surface-50">
+                No active proposals.{' '}
+                <Link to="/requests/new" className="text-brand-400 hover:underline">
+                  Be the first to propose a topic!
+                </Link>
               </p>
-              <p className="text-sm text-gray-300">{req.description}</p>
+            ) : (
+              <div className="space-y-4">
+                {activeProposals.map((req, i) => {
+                  // Client-side expiry check
+                  archiveIfExpired(req);
 
-              {/* Approve / Reject controls (visible for pending requests) */}
-              {req.status === 'pending' && (
-                <div className="mt-3 flex gap-2">
-                  <button
-                    onClick={() => updateStatus(req.id, 'approved')}
-                    className="flex items-center gap-1 rounded-lg bg-brand-400/10 px-3 py-1.5 text-xs font-medium text-brand-400 hover:bg-brand-400/20"
+                  const timeLeft = req.expiresAt - now;
+                  const minsLeft = Math.max(0, Math.ceil(timeLeft / 60000));
+                  const alreadyEndorsed = user ? req.endorsers.includes(user.uid) : false;
+
+                  return (
+                    <motion.div
+                      key={req.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="rounded-xl border border-surface-200 bg-surface-50 p-5"
+                    >
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${categoryColor[req.category] || categoryColor.Other}`}>
+                          {req.category}
+                        </span>
+                        <span className="rounded-full px-2 py-0.5 text-[11px] font-medium bg-yellow-500/20 text-yellow-400">
+                          pending
+                        </span>
+                        <span className="ml-auto flex items-center gap-1 text-xs text-gray-500">
+                          <Clock size={12} />
+                          {minsLeft}m remaining
+                        </span>
+                      </div>
+
+                      <h3 className="text-base font-semibold text-gray-100 mb-1">{req.title}</h3>
+                      <p className="text-sm text-gray-400 mb-3">{req.description}</p>
+
+                      {/* Metrics preview */}
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {req.metrics.map((m) => (
+                          <div key={m.id} className="flex items-center gap-1 text-xs text-gray-500">
+                            <span className="text-gray-400">{m.label}:</span>
+                            {m.choices.map((c) => (
+                              <span
+                                key={c.id}
+                                className="inline-block h-2.5 w-2.5 rounded-full"
+                                style={{ backgroundColor: c.color }}
+                                title={c.label}
+                              />
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Endorsement */}
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-500">
+                          {req.endorsementCount}/{REQUEST_ENDORSEMENTS_NEEDED} endorsements
+                        </span>
+                        {!alreadyEndorsed ? (
+                          <button
+                            onClick={() => handleEndorse(req)}
+                            className="flex items-center gap-1 rounded-lg bg-brand-400/10 px-3 py-1.5 text-xs font-medium text-brand-400 hover:bg-brand-400/20"
+                          >
+                            <ThumbsUp size={14} /> Endorse
+                          </button>
+                        ) : (
+                          <span className="flex items-center gap-1 text-xs text-brand-400/60">
+                            <CheckCircle2 size={14} /> Endorsed
+                          </span>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* ══════════ Section 2: Change Requests ══════════ */}
+          <section>
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-200 mb-4">
+              <FileText size={18} className="text-gray-400" />
+              Change Requests
+            </h2>
+
+            {crLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="skeleton h-28 rounded-xl" />
+                ))}
+              </div>
+            ) : changeRequests.length === 0 ? (
+              <p className="py-8 text-center text-gray-500 rounded-xl border border-surface-200 bg-surface-50">
+                No change requests yet.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {changeRequests.map((req, i) => (
+                  <motion.div
+                    key={req.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="rounded-xl border border-surface-200 bg-surface-50 p-5"
                   >
-                    <CheckCircle2 size={14} /> Approve
-                  </button>
-                  <button
-                    onClick={() => updateStatus(req.id, 'rejected')}
-                    className="flex items-center gap-1 rounded-lg bg-red-400/10 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-400/20"
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${typeBadge[req.type]}`}>
+                        {req.type}
+                      </span>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${statusBadge[req.status]}`}>
+                        {req.status}
+                      </span>
+                      <span className="ml-auto flex items-center gap-1 text-xs text-gray-500">
+                        <Clock size={12} />
+                        {formatDistanceToNow(new Date(req.createdAt), { addSuffix: true })}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-gray-500 mb-1">
+                      Topic: <span className="text-gray-300">{req.topicTitle}</span>
+                    </p>
+                    <p className="text-sm text-gray-300">{req.description}</p>
+
+                    {req.status === 'pending' && (
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          onClick={() => updateCrStatus(req.id, 'approved')}
+                          className="flex items-center gap-1 rounded-lg bg-brand-400/10 px-3 py-1.5 text-xs font-medium text-brand-400 hover:bg-brand-400/20"
+                        >
+                          <CheckCircle2 size={14} /> Approve
+                        </button>
+                        <button
+                          onClick={() => updateCrStatus(req.id, 'rejected')}
+                          className="flex items-center gap-1 rounded-lg bg-red-400/10 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-400/20"
+                        >
+                          <XCircle size={14} /> Reject
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* ══════════ Section 3: Archived / Expired ══════════ */}
+          {archivedProposals.length > 0 && (
+            <section>
+              <button
+                onClick={() => setShowArchived(!showArchived)}
+                className="flex items-center gap-2 text-lg font-semibold text-gray-400 mb-4 hover:text-gray-300"
+              >
+                <Archive size={18} />
+                Archived / Expired ({archivedProposals.length})
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform ${showArchived ? 'rotate-180' : ''}`}
+                />
+              </button>
+
+              <AnimatePresence initial={false}>
+                {showArchived && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden space-y-4"
                   >
-                    <XCircle size={14} /> Reject
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          ))}
+                    {archivedProposals.map((req, i) => (
+                      <motion.div
+                        key={req.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: i * 0.03 }}
+                        className="rounded-xl border border-surface-200 bg-surface-50 p-5 opacity-50"
+                      >
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${categoryColor[req.category] || categoryColor.Other}`}>
+                            {req.category}
+                          </span>
+                          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                            req.status === 'promoted'
+                              ? 'bg-brand-500/20 text-brand-400'
+                              : 'bg-gray-500/20 text-gray-400'
+                          }`}>
+                            {req.status === 'promoted' ? 'promoted' : 'expired'}
+                          </span>
+                          <span className="ml-auto text-xs text-gray-600">
+                            {formatDistanceToNow(new Date(req.createdAt), { addSuffix: true })}
+                          </span>
+                        </div>
+                        <h3 className="text-sm font-medium text-gray-400 mb-1">{req.title}</h3>
+                        <p className="text-xs text-gray-500">{req.description}</p>
+                        <p className="text-xs text-gray-600 mt-2">
+                          {req.endorsementCount}/{REQUEST_ENDORSEMENTS_NEEDED} endorsements
+                        </p>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </section>
+          )}
         </div>
       )}
     </div>

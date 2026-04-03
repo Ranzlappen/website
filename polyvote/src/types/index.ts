@@ -55,6 +55,27 @@ export interface ChangeRequest {
   authorId: string;
 }
 
+/** A structured proposal for an entirely new topic */
+export interface TopicRequest {
+  id: string;
+  title: string;
+  description: string;
+  category: Category;
+  metrics: Metric[];
+  status: 'pending' | 'promoted' | 'archived';
+  createdAt: number;   // epoch ms
+  expiresAt: number;   // createdAt + REQUEST_TIMEOUT_MS
+  authorId: string;
+  endorsers: string[]; // UIDs who endorsed (includes author)
+  endorsementCount: number;
+}
+
+/** Number of unique endorsements needed to promote a topic request */
+export const REQUEST_ENDORSEMENTS_NEEDED = 2;
+
+/** Time window for a topic request to gather endorsements (10 minutes) */
+export const REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
+
 /** Tracks which metrics a user has already voted on (keyed by metricId) */
 export interface UserVotes {
   [metricId: string]: string; // choiceId

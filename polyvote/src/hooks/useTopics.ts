@@ -17,19 +17,29 @@ import type { Topic } from '../types';
 export function useTopics() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, 'topics'), orderBy('createdAt', 'desc'));
-    const unsub = onSnapshot(q, (snap) => {
-      const data = snap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Topic[];
-      setTopics(data);
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const data = snap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Topic[];
+        setTopics(data);
+        setLoading(false);
+        setError(null);
+      },
+      (err) => {
+        console.error('useTopics onSnapshot error:', err);
+        setError(err.message);
+        setLoading(false);
+      },
+    );
     return unsub;
   }, []);
 
-  return { topics, loading };
+  return { topics, loading, error };
 }

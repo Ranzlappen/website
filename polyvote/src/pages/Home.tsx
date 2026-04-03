@@ -14,7 +14,7 @@ import { TopicCardSkeleton } from '../components/LoadingSkeleton';
 import type { Category, Topic } from '../types';
 
 export default function Home() {
-  const { topics, loading } = useTopics();
+  const { topics, loading, error } = useTopics();
   const [category, setCategory] = useState<Category | 'All'>('All');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortOption>('newest');
@@ -81,6 +81,14 @@ export default function Home() {
         <CategoryFilter active={category} onChange={setCategory} />
         <SearchBar query={query} onQueryChange={setQuery} sort={sort} onSortChange={setSort} />
       </div>
+
+      {/* ── Error Banner ── */}
+      {error && (
+        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">
+          <p className="font-medium mb-1">Failed to load topics</p>
+          <p className="text-red-400/80">{error}</p>
+        </div>
+      )}
 
       {/* ── Topics Grid ── */}
       {loading ? (
