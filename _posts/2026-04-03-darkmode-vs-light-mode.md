@@ -1,6 +1,6 @@
 ---
 title: Dark Mode for Pros, Light Mode for Everyone: The Web's Subtle Status Signal
-description: Backends and developer tools default to dark mode assuming long sessions and expert users. Consumer frontends stay light. This design convention quietly tells users whether they are seen as "serious" or average — and it can affect how smart or capable they feel.
+description: Backends and developer tools default to dark mode assuming long sessions and expert users. Consumer frontends stay light. This design convention quietly tells users whether they are seen as serious or average, and it can affect how smart or capable they feel.
 keywords: dark mode web design, light mode frontend, backend ui defaults, dark mode psychology, cognitive load ui, eye strain dark mode, web design status signal, frontend backend contrast
 date: 2026-04-03
 category: UX Design
