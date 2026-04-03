@@ -10,13 +10,14 @@ A clean, dark-themed personal blog. No coding required to set up or maintain —
 2. [How to Write a New Post](#how-to-write-a-new-post)
 3. [Article Status (Draft / Unpublished)](#article-status)
 4. [Add an Image Carousel](#add-an-image-carousel)
-5. [Built-in Features](#built-in-features)
-6. [Enable Comments (Giscus)](#enable-comments-giscus)
-7. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
-8. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
-9. [Connect Your Own Domain](#connect-your-own-domain)
-10. [Change Colors or Fonts](#change-colors-or-fonts)
-11. [Moderate Comments and Votes](#moderate-comments-and-votes)
+5. [Add a Bar Chart](#add-a-bar-chart)
+6. [Built-in Features](#built-in-features)
+7. [Enable Comments (Giscus)](#enable-comments-giscus)
+8. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
+9. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
+10. [Connect Your Own Domain](#connect-your-own-domain)
+11. [Change Colors or Fonts](#change-colors-or-fonts)
+12. [Moderate Comments and Votes](#moderate-comments-and-votes)
 
 ---
 
@@ -211,6 +212,127 @@ That's it — the carousel auto-initializes with:
 - **Slide counter** (e.g., "1 / 3")
 
 Upload your images to `assets/images/` and reference them in the `src` attribute. You can add as many images as you want.
+
+---
+
+## Add a Bar Chart
+
+You can embed responsive bar charts directly in any post — no JavaScript, no `<style>` tags, just HTML. The chart automatically adapts to dark/light theme, screen size, and any number of bars.
+
+### Basic usage
+
+```html
+<div class="bar-chart">
+  <div class="bar" style="--h:42%"><span>42</span><div class="bar-label">Jan</div></div>
+  <div class="bar" style="--h:68%"><span>68</span><div class="bar-label">Feb</div></div>
+  <div class="bar" style="--h:55%"><span>55</span><div class="bar-label">Mar</div></div>
+  <div class="bar" style="--h:89%"><span>89</span><div class="bar-label">Apr</div></div>
+  <div class="bar" style="--h:73%"><span>73</span><div class="bar-label">May</div></div>
+</div>
+```
+
+Each bar needs:
+- `style="--h:XX%"` — the bar height as a percentage (0–100%)
+- `<span>` — the value label shown above the bar
+- `<div class="bar-label">` — the category label shown below the bar
+
+### Add a title
+
+```html
+<div class="bar-chart">
+  <div class="bar-chart__title">Monthly Revenue</div>
+  <div class="bar" style="--h:65%"><span>$650</span><div class="bar-label">Q1</div></div>
+  <div class="bar" style="--h:82%"><span>$820</span><div class="bar-label">Q2</div></div>
+  <div class="bar" style="--h:91%"><span>$910</span><div class="bar-label">Q3</div></div>
+</div>
+```
+
+### Color each bar individually
+
+Add a color class to any bar:
+
+```html
+<div class="bar bar--blue" style="--h:60%"><span>60</span><div class="bar-label">A</div></div>
+<div class="bar bar--red" style="--h:35%"><span>35</span><div class="bar-label">B</div></div>
+<div class="bar bar--amber" style="--h:80%"><span>80</span><div class="bar-label">C</div></div>
+```
+
+Available color classes:
+
+| Class | Color |
+|-------|-------|
+| *(default)* | Green (site accent) |
+| `bar--blue` | Blue |
+| `bar--red` | Red |
+| `bar--amber` | Amber / Yellow |
+| `bar--purple` | Purple |
+| `bar--pink` | Pink |
+| `bar--cyan` | Cyan |
+| `bar--slate` | Grey |
+| `bar--green` | Green (explicit) |
+
+Or use any custom color inline:
+
+```html
+<div class="bar" style="--h:70%; --bar-bg:#ff6600"><span>70</span><div class="bar-label">Custom</div></div>
+```
+
+### Change the chart size
+
+Add a size class to the container:
+
+```html
+<div class="bar-chart bar-chart--sm">  <!-- shorter chart (10rem) -->
+<div class="bar-chart bar-chart--lg">  <!-- taller chart (22rem) -->
+<div class="bar-chart bar-chart--xl">  <!-- tallest chart (30rem) -->
+```
+
+Or set an exact height inline:
+
+```html
+<div class="bar-chart" style="--chart-height: 20rem;">
+```
+
+### Customize everything
+
+All visual properties can be overridden with CSS variables on the `.bar-chart` container:
+
+| Variable | What it controls | Default |
+|----------|-----------------|---------|
+| `--chart-height` | Total chart height | `16rem` (responsive) |
+| `--chart-max-width` | Maximum chart width | `100%` |
+| `--chart-bg` | Chart background color | Theme surface color |
+| `--chart-border` | Chart border color | Theme border color |
+| `--chart-gap` | Space between bars | Fluid `4px–14px` |
+| `--chart-pad-x` | Left/right padding | Fluid `10px–24px` |
+| `--chart-pad-top` | Top padding | Fluid `28px–40px` |
+| `--bar-color` | Default bar color | Theme accent color |
+| `--bar-radius` | Bar corner rounding | Small radius |
+| `--val-color` | Value label color | Theme text color |
+| `--val-size` | Value label font size | Fluid `0.6–0.8rem` |
+| `--label-color` | Category label color | Theme muted text |
+| `--label-size` | Category label font size | Fluid `0.6–0.78rem` |
+
+Example with multiple overrides:
+
+```html
+<div class="bar-chart" style="--chart-height:22rem; --bar-color:#3b82f6; --chart-bg:transparent; --chart-border:transparent;">
+  <div class="bar-chart__title">Custom Styled Chart</div>
+  <div class="bar" style="--h:45%"><span>45</span><div class="bar-label">A</div></div>
+  <div class="bar" style="--h:90%"><span>90</span><div class="bar-label">B</div></div>
+  <div class="bar" style="--h:60%"><span>60</span><div class="bar-label">C</div></div>
+</div>
+```
+
+### Responsive behavior
+
+The chart automatically adapts to the screen:
+
+- On **mobile** (<600px): shorter height, tighter spacing, smaller text
+- On **tablet** (600–900px): medium height
+- On **desktop** (900px+): full height
+- All spacing and font sizes use fluid scaling (they grow/shrink smoothly)
+- If you add many bars, the chart scrolls horizontally on small screens instead of squishing
 
 ---
 
@@ -519,6 +641,7 @@ Vote data lives in your Firebase console:
 | Moderate a comment          | Go to repo → Discussions tab → find and manage it              |
 | Check contact messages      | Go to repo → Issues tab → look for `[Contact]` labels         |
 | Add an image carousel       | Wrap `<img>` tags in `<div class="carousel">` in your post     |
+| Add a bar chart             | Use `<div class="bar-chart">` with `.bar` divs in your post    |
 | Upload an image for a post  | Upload to `assets/images/` on GitHub, reference in your post   |
 
 ---
