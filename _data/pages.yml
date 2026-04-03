@@ -27,7 +27,7 @@
   menu: [main]
   order: 3
 
-- title: "PolyVote"
+- title: "PolyVote (alpha)"
   url: "/polyvote/"
   menu: [main]
   order: 4
