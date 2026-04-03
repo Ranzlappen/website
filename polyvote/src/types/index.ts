@@ -55,6 +55,27 @@ export interface ChangeRequest {
   authorId: string;
 }
 
+/** A structured topic proposal submitted by a user for community endorsement */
+export interface TopicRequest {
+  id: string;
+  title: string;
+  description: string;
+  category: Category;
+  metrics: Metric[];
+  status: 'pending' | 'promoted' | 'archived';
+  createdAt: number;
+  expiresAt: number;
+  authorId: string;
+  endorsers: string[];
+  endorsementCount: number;
+}
+
+/** Number of endorsements needed to promote a topic request */
+export const REQUEST_ENDORSEMENTS_NEEDED = 2;
+
+/** Time in ms before an unendorsed request expires (10 minutes) */
+export const REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
+
 /** Tracks which metrics a user has already voted on (keyed by metricId) */
 export interface UserVotes {
   [metricId: string]: string; // choiceId
