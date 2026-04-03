@@ -2265,3 +2265,185 @@ img {
     --chart-height: 16rem;
   }
 }
+
+/* ============================================================
+   Pie Chart Component — Inline pie/donut charts for markdown articles
+   Usage: set CSS variables on .pie-chart container
+   ============================================================ */
+.pie-chart {
+  /* — Customisable defaults (override per instance) — */
+  --pie-size:        clamp(10rem, 28vw, 18rem);
+  --pie-bg:          var(--c-surface);
+  --pie-border:      var(--c-border);
+  --pie-radius:      var(--border-radius-lg);
+  --pie-donut:       0%;
+
+  /* Slice percentages (set per-instance, unitless 0–100) */
+  --s1: 0; --s2: 0; --s3: 0; --s4: 0;
+  --s5: 0; --s6: 0; --s7: 0; --s8: 0;
+
+  /* Default slice palette */
+  --c1: var(--c-accent);
+  --c2: #3b82f6;
+  --c3: #f59e0b;
+  --c4: #8b5cf6;
+  --c5: #ec4899;
+  --c6: #06b6d4;
+  --c7: #ef4444;
+  --c8: #64748b;
+
+  /* Legend styling */
+  --legend-label-color: var(--c-text);
+  --legend-label-size:  clamp(0.65rem, 1.8vw, 0.82rem);
+  --legend-val-color:   var(--c-text-muted);
+  --legend-val-size:    clamp(0.6rem, 1.6vw, 0.78rem);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  max-width: 100%;
+  margin: var(--space-xl) auto;
+  padding: clamp(16px, 3vw, 28px);
+  background: var(--pie-bg);
+  border: 1px solid var(--pie-border);
+  border-radius: var(--pie-radius);
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* The pie circle (rendered via conic-gradient) */
+.pie-chart::before {
+  content: "";
+  flex-shrink: 0;
+  width: var(--pie-size);
+  height: var(--pie-size);
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--c1) 0%
+      calc(var(--s1) * 1%),
+    var(--c2) calc(var(--s1) * 1%)
+      calc((var(--s1) + var(--s2)) * 1%),
+    var(--c3) calc((var(--s1) + var(--s2)) * 1%)
+      calc((var(--s1) + var(--s2) + var(--s3)) * 1%),
+    var(--c4) calc((var(--s1) + var(--s2) + var(--s3)) * 1%)
+      calc((var(--s1) + var(--s2) + var(--s3) + var(--s4)) * 1%),
+    var(--c5) calc((var(--s1) + var(--s2) + var(--s3) + var(--s4)) * 1%)
+      calc((var(--s1) + var(--s2) + var(--s3) + var(--s4) + var(--s5)) * 1%),
+    var(--c6) calc((var(--s1) + var(--s2) + var(--s3) + var(--s4) + var(--s5)) * 1%)
+      calc((var(--s1) + var(--s2) + var(--s3) + var(--s4) + var(--s5) + var(--s6)) * 1%),
+    var(--c7) calc((var(--s1) + var(--s2) + var(--s3) + var(--s4) + var(--s5) + var(--s6)) * 1%)
+      calc((var(--s1) + var(--s2) + var(--s3) + var(--s4) + var(--s5) + var(--s6) + var(--s7)) * 1%),
+    var(--c8) calc((var(--s1) + var(--s2) + var(--s3) + var(--s4) + var(--s5) + var(--s6) + var(--s7)) * 1%)
+      calc((var(--s1) + var(--s2) + var(--s3) + var(--s4) + var(--s5) + var(--s6) + var(--s7) + var(--s8)) * 1%),
+    transparent calc((var(--s1) + var(--s2) + var(--s3) + var(--s4) + var(--s5) + var(--s6) + var(--s7) + var(--s8)) * 1%) 100%
+  );
+  -webkit-mask: radial-gradient(circle, transparent var(--pie-donut), black calc(var(--pie-donut) + 0.5px));
+  mask: radial-gradient(circle, transparent var(--pie-donut), black calc(var(--pie-donut) + 0.5px));
+}
+
+/* Optional chart title */
+.pie-chart__title {
+  position: absolute;
+  top: clamp(6px, 1.5vw, 14px);
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: clamp(0.7rem, 2vw, 0.88rem);
+  font-weight: 600;
+  color: var(--c-text);
+  pointer-events: none;
+}
+
+/* Legend wrapper (sits beside the pie) */
+.pie-chart__legend {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 1.2vw, 10px);
+  min-width: 0;
+}
+
+/* Individual legend entry */
+.slice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: default;
+  transition: opacity var(--transition-fast);
+}
+
+/* Legend color swatch */
+.slice::before {
+  content: "";
+  width: 0.75em;
+  height: 0.75em;
+  border-radius: var(--border-radius-sm);
+  background: var(--slice-color, var(--c-accent));
+  flex-shrink: 0;
+}
+
+/* Legend label text */
+.slice > span {
+  font-size: var(--legend-label-size);
+  font-weight: 500;
+  color: var(--legend-label-color);
+  white-space: nowrap;
+}
+
+/* Legend value (from data-val attribute) */
+.slice::after {
+  content: attr(data-val);
+  font-size: var(--legend-val-size);
+  font-weight: 600;
+  color: var(--legend-val-color);
+  font-family: var(--f-mono);
+  margin-left: auto;
+}
+
+/* Hover feedback */
+.slice:hover { opacity: 0.7; }
+.slice:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Colour presets (add class to .slice) ---- */
+.slice--green  { --slice-color: #22c55e; }
+.slice--red    { --slice-color: #ef4444; }
+.slice--amber  { --slice-color: #f59e0b; }
+.slice--blue   { --slice-color: #3b82f6; }
+.slice--purple { --slice-color: #8b5cf6; }
+.slice--pink   { --slice-color: #ec4899; }
+.slice--cyan   { --slice-color: #06b6d4; }
+.slice--slate  { --slice-color: #64748b; }
+
+/* ---- Size presets (add class to .pie-chart) ---- */
+.pie-chart--sm    { --pie-size: clamp(7rem, 20vw, 10rem); }
+.pie-chart--lg    { --pie-size: clamp(14rem, 35vw, 22rem); }
+.pie-chart--xl    { --pie-size: clamp(18rem, 40vw, 28rem); }
+.pie-chart--donut { --pie-donut: 45%; }
+
+/* ---- Responsive scaling ---- */
+@media (max-width: 600px) {
+  .pie-chart {
+    flex-direction: column;
+    align-items: center;
+    --pie-size: clamp(8rem, 50vw, 12rem);
+    padding: clamp(12px, 3vw, 20px);
+    margin: var(--space-lg) auto;
+  }
+  .pie-chart__legend { width: 100%; }
+  .slice > span  { font-size: 0.65rem; }
+  .slice::after  { font-size: 0.6rem; }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .pie-chart {
+    --pie-size: clamp(10rem, 25vw, 14rem);
+  }
+}
+
+@media (min-width: 901px) {
+  .pie-chart {
+    --pie-size: clamp(10rem, 28vw, 18rem);
+  }
+}
