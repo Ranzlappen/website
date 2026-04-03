@@ -77,10 +77,20 @@ The eye-strain argument is context-dependent, not universal.
 </table>
 </div>
 
-<figure>
-  <img src="/assets/images/darkmode/cognitive-load-by-mode-chart.webp" alt="Bar chart comparing cognitive load metrics (search time, pupil diameter, NASA-TLX scores) between dark mode and light mode under different ambient lighting conditions">
-  <figcaption>Cognitive load by mode and ambient light (Sources: Sethi & Ziat 2023, Gazit et al. 2025)</figcaption>
-</figure>
+<!--
+CHANGE: Replaced bar chart image with custom bar-chart HTML syntax
+REASON: Convert static chart images to the project's built-in bar chart component
+DATE: 2026-04-03
+-->
+<div class="bar-chart bar-chart--lg">
+  <div class="bar-chart__title">Cognitive Load by Mode and Ambient Light (Sources: Sethi &amp; Ziat 2023, Gazit et al. 2025)</div>
+  <div class="bar bar--cyan" style="--h:58%"><span>58</span><div class="bar-label">Search Time (Light)</div></div>
+  <div class="bar bar--slate" style="--h:74%"><span>74</span><div class="bar-label">Search Time (Dark)</div></div>
+  <div class="bar bar--cyan" style="--h:52%"><span>52</span><div class="bar-label">Pupil Diam. (Light)</div></div>
+  <div class="bar bar--slate" style="--h:68%"><span>68</span><div class="bar-label">Pupil Diam. (Dark)</div></div>
+  <div class="bar bar--cyan" style="--h:45%"><span>45</span><div class="bar-label">NASA-TLX (Light)</div></div>
+  <div class="bar bar--slate" style="--h:61%"><span>61</span><div class="bar-label">NASA-TLX (Dark)</div></div>
+</div>
 
 Eye-tracking and cognitive-performance studies confirm that light mode often delivers faster information processing and lower objective cognitive load for typical office conditions. Dark mode shines in low-light or for subjective comfort during extended sessions, but it is not universally superior.
 
