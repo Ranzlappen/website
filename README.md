@@ -11,13 +11,15 @@ A clean, dark-themed personal blog. No coding required to set up or maintain —
 3. [Article Status (Draft / Unpublished)](#article-status)
 4. [Add an Image Carousel](#add-an-image-carousel)
 5. [Add a Bar Chart](#add-a-bar-chart)
-6. [Built-in Features](#built-in-features)
-7. [Enable Comments (Giscus)](#enable-comments-giscus)
-8. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
-9. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
-10. [Connect Your Own Domain](#connect-your-own-domain)
-11. [Change Colors or Fonts](#change-colors-or-fonts)
-12. [Moderate Comments and Votes](#moderate-comments-and-votes)
+6. [Add a Pie Chart](#add-a-pie-chart)
+7. [Add a Line Chart](#add-a-line-chart)
+8. [Built-in Features](#built-in-features)
+9. [Enable Comments (Giscus)](#enable-comments-giscus)
+10. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
+11. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
+12. [Connect Your Own Domain](#connect-your-own-domain)
+13. [Change Colors or Fonts](#change-colors-or-fonts)
+14. [Moderate Comments and Votes](#moderate-comments-and-votes)
 
 ---
 
@@ -227,50 +229,50 @@ Upload your images to `assets/images/` and reference them in the `src` attribute
 
 ---
 
+<!--
+CHANGE: Complete rewrite of chart documentation with accessibility, all three chart types, and real-world examples
+REASON: Chart system overhaul — new WCAG 2.1 AA accessible chart presets
+DATE: 2026-04-03
+-->
+
 <details>
 <summary><h2>Add a Bar Chart</h2></summary>
 
-You can embed responsive bar charts directly in any post — no JavaScript, no `<style>` tags, just HTML. The chart automatically adapts to dark/light theme, screen size, and any number of bars.
+Embed responsive, accessible bar charts directly in any post — no JavaScript, no external libraries, just HTML + CSS. Charts adapt to dark/light theme, respect `prefers-reduced-motion`, and support screen readers via ARIA attributes.
 
-### Basic usage
+### Minimal example
 
 ```html
-<div class="bar-chart">
-  <div class="bar" style="--h:42%"><span>42</span><div class="bar-label">Jan</div></div>
-  <div class="bar" style="--h:68%"><span>68</span><div class="bar-label">Feb</div></div>
-  <div class="bar" style="--h:55%"><span>55</span><div class="bar-label">Mar</div></div>
-  <div class="bar" style="--h:89%"><span>89</span><div class="bar-label">Apr</div></div>
-  <div class="bar" style="--h:73%"><span>73</span><div class="bar-label">May</div></div>
+<div class="bar-chart" role="figure" aria-label="Monthly sales">
+  <div class="bar" style="--h:42%" role="meter" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100" aria-label="Jan: 42" tabindex="0"><span>42</span><div class="bar-label">Jan</div></div>
+  <div class="bar" style="--h:68%" role="meter" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" aria-label="Feb: 68" tabindex="0"><span>68</span><div class="bar-label">Feb</div></div>
+  <div class="bar" style="--h:89%" role="meter" aria-valuenow="89" aria-valuemin="0" aria-valuemax="100" aria-label="Apr: 89" tabindex="0"><span>89</span><div class="bar-label">Apr</div></div>
 </div>
 ```
 
 Each bar needs:
-- `style="--h:XX%"` — the bar height as a percentage (0–100%)
-- `<span>` — the value label shown above the bar
-- `<div class="bar-label">` — the category label shown below the bar
+- `style="--h:XX%"` — bar height as a percentage (0–100%)
+- `<span>` — value label shown above the bar
+- `<div class="bar-label">` — category label shown below
+- **Accessibility:** `role="meter"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-label`, and `tabindex="0"`
+
+The container should have:
+- `role="figure"` and `aria-label="Chart description"` — provides a text alternative for screen readers
 
 ### Add a title
 
 ```html
-<div class="bar-chart">
+<div class="bar-chart" role="figure" aria-label="Monthly Revenue">
   <div class="bar-chart__title">Monthly Revenue</div>
-  <div class="bar" style="--h:65%"><span>$650</span><div class="bar-label">Q1</div></div>
-  <div class="bar" style="--h:82%"><span>$820</span><div class="bar-label">Q2</div></div>
-  <div class="bar" style="--h:91%"><span>$910</span><div class="bar-label">Q3</div></div>
+  <div class="bar" style="--h:65%" role="meter" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Q1: $650" tabindex="0"><span>$650</span><div class="bar-label">Q1</div></div>
+  <div class="bar" style="--h:82%" role="meter" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100" aria-label="Q2: $820" tabindex="0"><span>$820</span><div class="bar-label">Q2</div></div>
+  <div class="bar" style="--h:91%" role="meter" aria-valuenow="91" aria-valuemin="0" aria-valuemax="100" aria-label="Q3: $910" tabindex="0"><span>$910</span><div class="bar-label">Q3</div></div>
 </div>
 ```
 
 ### Color each bar individually
 
 Add a color class to any bar:
-
-```html
-<div class="bar bar--blue" style="--h:60%"><span>60</span><div class="bar-label">A</div></div>
-<div class="bar bar--red" style="--h:35%"><span>35</span><div class="bar-label">B</div></div>
-<div class="bar bar--amber" style="--h:80%"><span>80</span><div class="bar-label">C</div></div>
-```
-
-Available color classes:
 
 | Class | Color |
 |-------|-------|
@@ -284,27 +286,18 @@ Available color classes:
 | `bar--slate` | Grey |
 | `bar--green` | Green (explicit) |
 
-Or use any custom color inline:
-
-```html
-<div class="bar" style="--h:70%; --bar-bg:#ff6600"><span>70</span><div class="bar-label">Custom</div></div>
-```
+Or use any custom color inline: `style="--h:70%; --bar-bg:#ff6600"`
 
 ### Change the chart size
 
-Add a size class to the container:
+| Class | Height |
+|-------|--------|
+| `bar-chart--sm` | `10rem` |
+| *(default)* | `16rem` |
+| `bar-chart--lg` | `22rem` |
+| `bar-chart--xl` | `30rem` |
 
-```html
-<div class="bar-chart bar-chart--sm">  <!-- shorter chart (10rem) -->
-<div class="bar-chart bar-chart--lg">  <!-- taller chart (22rem) -->
-<div class="bar-chart bar-chart--xl">  <!-- tallest chart (30rem) -->
-```
-
-Or set an exact height inline:
-
-```html
-<div class="bar-chart" style="--chart-height: 20rem;">
-```
+Or set an exact height inline: `style="--chart-height: 20rem;"`
 
 ### Customize everything
 
@@ -326,26 +319,26 @@ All visual properties can be overridden with CSS variables on the `.bar-chart` c
 | `--label-color` | Category label color | Theme muted text |
 | `--label-size` | Category label font size | Fluid `0.6–0.78rem` |
 
-Example with multiple overrides:
+### Real-world example (from a post)
 
 ```html
-<div class="bar-chart" style="--chart-height:22rem; --bar-color:#3b82f6; --chart-bg:transparent; --chart-border:transparent;">
-  <div class="bar-chart__title">Custom Styled Chart</div>
-  <div class="bar" style="--h:45%"><span>45</span><div class="bar-label">A</div></div>
-  <div class="bar" style="--h:90%"><span>90</span><div class="bar-label">B</div></div>
-  <div class="bar" style="--h:60%"><span>60</span><div class="bar-label">C</div></div>
+<div class="bar-chart bar-chart--lg" role="figure" aria-label="Cognitive Load by Mode and Ambient Light">
+  <div class="bar-chart__title">Cognitive Load by Mode and Ambient Light</div>
+  <div class="bar bar--cyan" style="--h:58%" role="meter" aria-valuenow="58" aria-valuemin="0" aria-valuemax="100" aria-label="Search Time (Light): 58" tabindex="0"><span>58</span><div class="bar-label">Search Time (Light)</div></div>
+  <div class="bar bar--slate" style="--h:74%" role="meter" aria-valuenow="74" aria-valuemin="0" aria-valuemax="100" aria-label="Search Time (Dark): 74" tabindex="0"><span>74</span><div class="bar-label">Search Time (Dark)</div></div>
 </div>
 ```
 
-### Responsive behavior
+### Accessibility and responsive behavior
 
-The chart automatically adapts to the screen:
-
-- On **mobile** (<600px): shorter height, tighter spacing, smaller text
-- On **tablet** (600–900px): medium height
-- On **desktop** (900px+): full height
-- All spacing and font sizes use fluid scaling (they grow/shrink smoothly)
-- If you add many bars, the chart scrolls horizontally on small screens instead of squishing
+- **Screen readers:** `role="figure"` + `aria-label` on the container; `role="meter"` + `aria-valuenow/min/max` + `aria-label` on each bar
+- **Keyboard:** All bars are focusable via `tabindex="0"` with a visible focus ring (3px accent outline)
+- **Reduced motion:** Transitions are automatically disabled when `prefers-reduced-motion: reduce` is active
+- **High contrast:** Windows High Contrast Mode is fully supported via `forced-colors: active`
+- **Print:** Charts render correctly when printed with `print-color-adjust: exact`
+- **Mobile** (<600px): shorter height, tighter spacing, smaller text, horizontal scroll for many bars
+- **Tablet** (600–900px): medium height
+- **Desktop** (900px+): full height, fluid scaling
 
 </details>
 
@@ -354,44 +347,43 @@ The chart automatically adapts to the screen:
 <details>
 <summary><h2>Add a Pie Chart</h2></summary>
 
-You can embed responsive pie charts directly in any post — no JavaScript, no `<style>` tags, just HTML. The chart automatically adapts to dark/light theme, screen size, and supports up to 8 slices.
+Embed responsive, accessible pie charts directly in any post — pure CSS `conic-gradient`, no JavaScript, supports up to 8 slices, with donut variant.
 
-### Basic usage
+### Minimal example
 
 ```html
-<div class="pie-chart" style="--s1:42; --s2:28; --s3:18; --s4:12;">
-  <div class="pie-chart__legend">
-    <div class="slice slice--green"  data-val="42%"><span>Chrome</span></div>
-    <div class="slice slice--blue"   data-val="28%"><span>Firefox</span></div>
-    <div class="slice slice--amber"  data-val="18%"><span>Safari</span></div>
-    <div class="slice slice--purple" data-val="12%"><span>Edge</span></div>
+<div class="pie-chart" style="--s1:42; --s2:28; --s3:18; --s4:12;" role="figure" aria-label="Browser market share">
+  <div class="pie-chart__legend" role="list">
+    <div class="slice slice--green" data-val="42%" role="listitem" aria-label="Chrome: 42%" tabindex="0"><span>Chrome</span></div>
+    <div class="slice slice--blue" data-val="28%" role="listitem" aria-label="Firefox: 28%" tabindex="0"><span>Firefox</span></div>
+    <div class="slice slice--amber" data-val="18%" role="listitem" aria-label="Safari: 18%" tabindex="0"><span>Safari</span></div>
+    <div class="slice slice--purple" data-val="12%" role="listitem" aria-label="Edge: 12%" tabindex="0"><span>Edge</span></div>
   </div>
 </div>
 ```
 
-Each slice needs:
-- `--s1`, `--s2`, … `--s8` on the container — the slice sizes as unitless numbers (0–100, representing percentages)
-- A `.slice` element inside `.pie-chart__legend` with:
-  - A color class (e.g. `slice--blue`) — sets the legend swatch color
-  - `data-val="..."` — the value shown in the legend (e.g. `"42%"`, `"$650"`)
+Each pie chart needs:
+- `--s1`, `--s2`, … `--s8` on the container — slice sizes as unitless numbers (0–100)
+- `.slice` elements inside `.pie-chart__legend` with:
+  - A color class (e.g. `slice--blue`) — sets the legend swatch
+  - `data-val="..."` — displayed value (e.g. `"42%"`)
   - `<span>` — the label text
+- **Accessibility:** `role="figure"` + `aria-label` on container; `role="list"` on legend; `role="listitem"` + `aria-label` + `tabindex="0"` on each slice
 
 ### Add a title
 
 ```html
-<div class="pie-chart" style="--s1:55; --s2:30; --s3:15;">
+<div class="pie-chart" style="--s1:55; --s2:30; --s3:15;" role="figure" aria-label="Market Share">
   <div class="pie-chart__title">Market Share</div>
-  <div class="pie-chart__legend">
-    <div class="slice slice--green" data-val="55%"><span>Product A</span></div>
-    <div class="slice slice--blue"  data-val="30%"><span>Product B</span></div>
-    <div class="slice slice--amber" data-val="15%"><span>Product C</span></div>
+  <div class="pie-chart__legend" role="list">
+    <div class="slice slice--green" data-val="55%" role="listitem" aria-label="Product A: 55%" tabindex="0"><span>Product A</span></div>
+    <div class="slice slice--blue" data-val="30%" role="listitem" aria-label="Product B: 30%" tabindex="0"><span>Product B</span></div>
+    <div class="slice slice--amber" data-val="15%" role="listitem" aria-label="Product C: 15%" tabindex="0"><span>Product C</span></div>
   </div>
 </div>
 ```
 
 ### Color each slice
-
-The pie uses a built-in 8-color palette by default (`--c1` through `--c8`). The legend swatch color is set via a class on each `.slice`:
 
 | Class | Color |
 |-------|-------|
@@ -405,56 +397,34 @@ The pie uses a built-in 8-color palette by default (`--c1` through `--c8`). The 
 | `slice--slate` | Grey |
 | `slice--green` | Green (explicit) |
 
-To use custom colors, override `--c1`, `--c2`, etc. on the container and use inline `--slice-color` on each legend entry:
-
-```html
-<div class="pie-chart" style="--s1:60; --s2:40; --c1:#ff6600; --c2:#0066ff;">
-  <div class="pie-chart__legend">
-    <div class="slice" style="--slice-color:#ff6600" data-val="60%"><span>Orange</span></div>
-    <div class="slice" style="--slice-color:#0066ff" data-val="40%"><span>Blue</span></div>
-  </div>
-</div>
-```
+Custom colors: override `--c1`–`--c8` on the container and `--slice-color` on each legend entry.
 
 ### Donut variant
 
-Add `pie-chart--donut` to create a donut chart with a hollow center:
-
 ```html
-<div class="pie-chart pie-chart--donut" style="--s1:50; --s2:30; --s3:20;">
-  <div class="pie-chart__legend">
-    <div class="slice slice--green" data-val="50%"><span>Complete</span></div>
-    <div class="slice slice--amber" data-val="30%"><span>In Progress</span></div>
-    <div class="slice slice--slate" data-val="20%"><span>Remaining</span></div>
+<div class="pie-chart pie-chart--donut" style="--s1:50; --s2:30; --s3:20;" role="figure" aria-label="Project progress">
+  <div class="pie-chart__legend" role="list">
+    <div class="slice slice--green" data-val="50%" role="listitem" aria-label="Complete: 50%" tabindex="0"><span>Complete</span></div>
+    <div class="slice slice--amber" data-val="30%" role="listitem" aria-label="In Progress: 30%" tabindex="0"><span>In Progress</span></div>
+    <div class="slice slice--slate" data-val="20%" role="listitem" aria-label="Remaining: 20%" tabindex="0"><span>Remaining</span></div>
   </div>
 </div>
 ```
 
-Or set a custom donut thickness inline:
-
-```html
-<div class="pie-chart" style="--pie-donut:60%; --s1:70; --s2:30;">
-```
+Custom donut thickness: `style="--pie-donut:60%;"`
 
 ### Change the chart size
 
-Add a size class to the container:
+| Class | Pie diameter |
+|-------|-------------|
+| `pie-chart--sm` | `7–10rem` |
+| *(default)* | `10–18rem` |
+| `pie-chart--lg` | `14–22rem` |
+| `pie-chart--xl` | `18–28rem` |
 
-```html
-<div class="pie-chart pie-chart--sm">  <!-- smaller pie (7–10rem) -->
-<div class="pie-chart pie-chart--lg">  <!-- larger pie (14–22rem) -->
-<div class="pie-chart pie-chart--xl">  <!-- largest pie (18–28rem) -->
-```
-
-Or set an exact size inline:
-
-```html
-<div class="pie-chart" style="--pie-size: 20rem;">
-```
+Or set an exact size inline: `style="--pie-size: 20rem;"`
 
 ### Customize everything
-
-All visual properties can be overridden with CSS variables on the `.pie-chart` container:
 
 | Variable | What it controls | Default |
 |----------|-----------------|---------|
@@ -469,27 +439,31 @@ All visual properties can be overridden with CSS variables on the `.pie-chart` c
 | `--legend-val-color` | Legend value text color | Theme muted text |
 | `--legend-val-size` | Legend value font size | Fluid `0.6–0.78rem` |
 
-Example with multiple overrides:
+### Real-world example (from a post)
 
 ```html
-<div class="pie-chart pie-chart--donut" style="--pie-size:14rem; --pie-bg:transparent; --pie-border:transparent; --s1:40; --s2:35; --s3:25;">
-  <div class="pie-chart__title">Custom Styled Chart</div>
-  <div class="pie-chart__legend">
-    <div class="slice slice--cyan"   data-val="40%"><span>Alpha</span></div>
-    <div class="slice slice--pink"   data-val="35%"><span>Beta</span></div>
-    <div class="slice slice--purple" data-val="25%"><span>Gamma</span></div>
+<div class="pie-chart" style="--s1:34; --s2:12; --s3:26; --s4:16; --s5:12;" role="figure" aria-label="Trust in Journalists by Type 2025">
+  <div class="pie-chart__title">Trust in Journalists by Type 2025</div>
+  <div class="pie-chart__legend" role="list">
+    <div class="slice slice--green" data-val="34%" role="listitem" aria-label="Independent / Online: 34%" tabindex="0"><span>Independent / Online</span></div>
+    <div class="slice slice--blue" data-val="12%" role="listitem" aria-label="National Outlets: 12%" tabindex="0"><span>National Outlets</span></div>
+    <div class="slice slice--amber" data-val="26%" role="listitem" aria-label="Local News: 26%" tabindex="0"><span>Local News</span></div>
+    <div class="slice slice--purple" data-val="16%" role="listitem" aria-label="Social Media: 16%" tabindex="0"><span>Social Media</span></div>
+    <div class="slice slice--slate" data-val="12%" role="listitem" aria-label="Other: 12%" tabindex="0"><span>Other</span></div>
   </div>
 </div>
 ```
 
-### Responsive behavior
+### Accessibility and responsive behavior
 
-The chart automatically adapts to the screen:
-
-- On **mobile** (<600px): pie and legend stack vertically, smaller pie, tighter spacing
-- On **tablet** (600–900px): medium pie size, side-by-side layout
-- On **desktop** (900px+): full size with side-by-side layout
-- All spacing and font sizes use fluid scaling (they grow/shrink smoothly)
+- **Screen readers:** `role="figure"` + `aria-label` on container; `role="list"` / `role="listitem"` with `aria-label` on legend entries
+- **Keyboard:** All legend entries are focusable (`tabindex="0"`) with 3px accent focus ring
+- **Reduced motion:** Hover transitions disabled for `prefers-reduced-motion: reduce`
+- **High contrast:** Pie gradient preserved with `forced-color-adjust: none` in Windows High Contrast
+- **Print:** Pie renders with preserved colours via `print-color-adjust: exact`
+- **Mobile** (<600px): pie and legend stack vertically, smaller pie, tighter spacing
+- **Tablet** (600–900px): medium pie, side-by-side layout
+- **Desktop** (900px+): full size, side-by-side layout
 - If slices don't add up to 100, the remaining arc is left transparent
 
 </details>
@@ -499,38 +473,33 @@ The chart automatically adapts to the screen:
 <details>
 <summary><h2>Add a Line Chart</h2></summary>
 
-You can embed responsive line charts directly in any post using inline SVG — no JavaScript required. The chart adapts to dark/light theme, screen size, and supports multiple data series.
+Embed responsive, accessible line charts using inline SVG — no JavaScript. Supports multiple data series, grid lines, axis labels, and interactive data points.
 
-### Basic usage
+### Minimal example
 
 ```html
-<div class="line-chart">
+<div class="line-chart" role="figure" aria-label="Monthly Visitors">
   <div class="line-chart__title">Monthly Visitors</div>
-  <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet">
-    <!-- Grid lines (horizontal) -->
+  <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Line chart showing monthly visitors from Jan to Apr">
     <g class="line-chart__grid">
-      <line x1="40" y1="20"  x2="290" y2="20" />
-      <line x1="40" y1="65"  x2="290" y2="65" />
+      <line x1="40" y1="20" x2="290" y2="20" />
+      <line x1="40" y1="65" x2="290" y2="65" />
       <line x1="40" y1="110" x2="290" y2="110" />
       <line x1="40" y1="155" x2="290" y2="155" />
     </g>
-    <!-- Y-axis labels -->
     <text class="line-chart__y-label" x="36" y="20">100</text>
     <text class="line-chart__y-label" x="36" y="65">75</text>
     <text class="line-chart__y-label" x="36" y="110">50</text>
     <text class="line-chart__y-label" x="36" y="155">25</text>
-    <!-- X-axis labels -->
-    <text class="line-chart__x-label" x="65"  y="175">Jan</text>
+    <text class="line-chart__x-label" x="65" y="175">Jan</text>
     <text class="line-chart__x-label" x="140" y="175">Feb</text>
     <text class="line-chart__x-label" x="215" y="175">Mar</text>
     <text class="line-chart__x-label" x="290" y="175">Apr</text>
-    <!-- Data line -->
     <polyline class="line-chart__line line--green" points="65,110 140,65 215,88 290,30" />
-    <!-- Data points -->
-    <circle class="line-chart__dot line--green" cx="65"  cy="110" />
-    <circle class="line-chart__dot line--green" cx="140" cy="65" />
-    <circle class="line-chart__dot line--green" cx="215" cy="88" />
-    <circle class="line-chart__dot line--green" cx="290" cy="30" />
+    <circle class="line-chart__dot line--green" cx="65" cy="110" tabindex="0"><title>Jan: 50</title></circle>
+    <circle class="line-chart__dot line--green" cx="140" cy="65" tabindex="0"><title>Feb: 75</title></circle>
+    <circle class="line-chart__dot line--green" cx="215" cy="88" tabindex="0"><title>Mar: 60</title></circle>
+    <circle class="line-chart__dot line--green" cx="290" cy="30" tabindex="0"><title>Apr: 95</title></circle>
   </svg>
   <div class="line-chart__legend">
     <div class="line-legend line-legend--green"><span>Visitors</span></div>
@@ -539,15 +508,14 @@ You can embed responsive line charts directly in any post using inline SVG — n
 ```
 
 Each line chart needs:
-- An `<svg>` with a `viewBox` — the chart scales proportionally to the container
-- `<polyline class="line-chart__line">` — the data line, with `points` as `x,y` pairs
-- `<circle class="line-chart__dot">` — data point markers at each vertex
-- Optional `<text>` elements for axis labels
-- Optional `.line-chart__legend` below the SVG
+- `<svg>` with `viewBox` — scales proportionally
+- `<polyline class="line-chart__line">` — data line via `points="x,y"` pairs
+- `<circle class="line-chart__dot">` — data point markers
+- **Accessibility:** `role="figure"` + `aria-label` on container; `role="img"` + `aria-label` on SVG; `tabindex="0"` + `<title>` on dots
 
 ### How to map data to SVG coordinates
 
-The SVG uses a coordinate system where `(0,0)` is the **top-left**. A typical setup:
+SVG `(0,0)` is top-left. Typical layout:
 
 | Area | X range | Y range |
 |------|---------|---------|
@@ -555,24 +523,18 @@ The SVG uses a coordinate system where `(0,0)` is the **top-left**. A typical se
 | Plot area | `40–290` | `20–155` |
 | X-axis labels | — | `175+` |
 
-To convert a data value to a Y coordinate:
-```
-y = plotBottom - ((value - minValue) / (maxValue - minValue)) * plotHeight
-```
+Formula: `y = plotBottom - ((value - minValue) / (maxValue - minValue)) * plotHeight`
 
-For example, with `plotBottom=155`, `plotTop=20`, value 50 out of 0–100:
-```
-y = 155 - (50 / 100) * 135 = 155 - 67.5 = 87.5
-```
+Example (value 50 in range 0–100): `y = 155 - (50/100) * 135 = 87.5`
 
 ### Multiple data series
 
-Add multiple `<polyline>` and circle groups with different color classes:
+Add multiple `<polyline>` + `<circle>` groups with different color classes:
 
 ```html
-<div class="line-chart">
+<div class="line-chart" role="figure" aria-label="US vs Europe Trust">
   <div class="line-chart__title">US vs Europe Trust (%)</div>
-  <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Two-line chart comparing US and Europe trust from 2015 to 2025">
     <g class="line-chart__grid">
       <line x1="40" y1="20" x2="290" y2="20" />
       <line x1="40" y1="65" x2="290" y2="65" />
@@ -583,22 +545,20 @@ Add multiple `<polyline>` and circle groups with different color classes:
     <text class="line-chart__y-label" x="36" y="65">50</text>
     <text class="line-chart__y-label" x="36" y="110">40</text>
     <text class="line-chart__y-label" x="36" y="155">30</text>
-    <text class="line-chart__x-label" x="65"  y="175">2015</text>
+    <text class="line-chart__x-label" x="65" y="175">2015</text>
     <text class="line-chart__x-label" x="140" y="175">2018</text>
     <text class="line-chart__x-label" x="215" y="175">2021</text>
     <text class="line-chart__x-label" x="290" y="175">2025</text>
-    <!-- Line 1: US -->
     <polyline class="line-chart__line line--blue" points="65,65 140,88 215,110 290,155" />
-    <circle class="line-chart__dot line--blue" cx="65"  cy="65" />
-    <circle class="line-chart__dot line--blue" cx="140" cy="88" />
-    <circle class="line-chart__dot line--blue" cx="215" cy="110" />
-    <circle class="line-chart__dot line--blue" cx="290" cy="155" />
-    <!-- Line 2: Europe -->
+    <circle class="line-chart__dot line--blue" cx="65" cy="65" tabindex="0"><title>US 2015: 50%</title></circle>
+    <circle class="line-chart__dot line--blue" cx="140" cy="88" tabindex="0"><title>US 2018: 43%</title></circle>
+    <circle class="line-chart__dot line--blue" cx="215" cy="110" tabindex="0"><title>US 2021: 37%</title></circle>
+    <circle class="line-chart__dot line--blue" cx="290" cy="155" tabindex="0"><title>US 2025: 30%</title></circle>
     <polyline class="line-chart__line line--amber" points="65,20 140,55 215,88 290,110" />
-    <circle class="line-chart__dot line--amber" cx="65"  cy="20" />
-    <circle class="line-chart__dot line--amber" cx="140" cy="55" />
-    <circle class="line-chart__dot line--amber" cx="215" cy="88" />
-    <circle class="line-chart__dot line--amber" cx="290" cy="110" />
+    <circle class="line-chart__dot line--amber" cx="65" cy="20" tabindex="0"><title>Europe 2015: 60%</title></circle>
+    <circle class="line-chart__dot line--amber" cx="140" cy="55" tabindex="0"><title>Europe 2018: 48%</title></circle>
+    <circle class="line-chart__dot line--amber" cx="215" cy="88" tabindex="0"><title>Europe 2021: 40%</title></circle>
+    <circle class="line-chart__dot line--amber" cx="290" cy="110" tabindex="0"><title>Europe 2025: 37%</title></circle>
   </svg>
   <div class="line-chart__legend">
     <div class="line-legend line-legend--blue"><span>United States</span></div>
@@ -607,12 +567,10 @@ Add multiple `<polyline>` and circle groups with different color classes:
 </div>
 ```
 
-### Color each line
+### Color classes
 
-Add a color class to `<polyline>`, `<circle>`, and the matching `.line-legend`:
-
-| Class (line) | Class (legend) | Color |
-|------|------|-------|
+| Line class | Legend class | Color |
+|------------|-------------|-------|
 | *(default)* | *(default)* | Green (site accent) |
 | `line--blue` | `line-legend--blue` | Blue |
 | `line--red` | `line-legend--red` | Red |
@@ -623,16 +581,9 @@ Add a color class to `<polyline>`, `<circle>`, and the matching `.line-legend`:
 | `line--slate` | `line-legend--slate` | Grey |
 | `line--green` | `line-legend--green` | Green (explicit) |
 
-Or use any custom color inline:
+Custom: `style="stroke:#ff6600"` on polyline, `style="fill:#ff6600; stroke:var(--chart-bg)"` on circles.
 
-```html
-<polyline class="line-chart__line" style="stroke:#ff6600" points="..." />
-<circle class="line-chart__dot" style="fill:#ff6600; stroke:var(--chart-bg)" cx="..." cy="..." />
-```
-
-### Add data-point labels
-
-Place `<text>` elements above each point to show values:
+### Data-point labels
 
 ```html
 <text class="line-chart__dot-label" x="65" y="100">50</text>
@@ -640,23 +591,16 @@ Place `<text>` elements above each point to show values:
 
 ### Change the chart size
 
-Add a size class to the container:
+| Class | Height |
+|-------|--------|
+| `line-chart--sm` | `10rem` |
+| *(default)* | `16rem` |
+| `line-chart--lg` | `22rem` |
+| `line-chart--xl` | `30rem` |
 
-```html
-<div class="line-chart line-chart--sm">  <!-- shorter chart (10rem) -->
-<div class="line-chart line-chart--lg">  <!-- taller chart (22rem) -->
-<div class="line-chart line-chart--xl">  <!-- tallest chart (30rem) -->
-```
-
-Or set an exact height inline:
-
-```html
-<div class="line-chart" style="--chart-height: 20rem;">
-```
+Or set an exact height inline: `style="--chart-height: 20rem;"`
 
 ### Customize everything
-
-All visual properties can be overridden with CSS variables on the `.line-chart` container:
 
 | Variable | What it controls | Default |
 |----------|-----------------|---------|
@@ -673,15 +617,16 @@ All visual properties can be overridden with CSS variables on the `.line-chart` 
 | `--legend-label-color` | Legend label text color | Theme text color |
 | `--legend-label-size` | Legend label font size | Fluid `0.65–0.82rem` |
 
-### Responsive behavior
+### Accessibility and responsive behavior
 
-The chart automatically adapts to the screen:
-
-- On **mobile** (<600px): shorter height, tighter padding, smaller dots and labels
-- On **tablet** (600–900px): medium height
-- On **desktop** (900px+): full height
-- The SVG scales proportionally via `viewBox` — no horizontal scrolling needed
-- All spacing and font sizes use fluid scaling
+- **Screen readers:** `role="figure"` + `aria-label` on container; `role="img"` + `aria-label` on SVG; `<title>` inside each dot for value announcements
+- **Keyboard:** All data points focusable (`tabindex="0"`) with enlarged focus ring
+- **Reduced motion:** Dot hover transitions disabled for `prefers-reduced-motion: reduce`
+- **High contrast:** Lines and dots use `LinkText`/`Canvas` in Windows High Contrast Mode
+- **Print:** Charts render with preserved colours
+- **Mobile** (<600px): shorter height, tighter padding, smaller dots and labels
+- **Tablet** (600–900px): medium height
+- **Desktop** (900px+): full height, SVG scales via `viewBox`
 
 </details>
 
