@@ -10,7 +10,8 @@
 
     <!-- Desktop Nav -->
     <nav class="nav-desktop" aria-label="Main navigation">
-      {% for link in site.data.navigation.main %}
+      {% assign main_pages = site.data.pages | where_exp: "p", "p.menu contains 'main'" | sort: "order" %}
+      {% for link in main_pages %}
         <a href="{{ link.url | relative_url }}"
            {% if page.url == link.url %}class="active" aria-current="page"{% endif %}>
           {{ link.title }}
@@ -52,7 +53,8 @@
 
   <!-- Mobile Nav -->
   <nav class="nav-mobile" id="mobile-nav" aria-label="Mobile navigation">
-    {% for link in site.data.navigation.main %}
+    {% assign main_pages = site.data.pages | where_exp: "p", "p.menu contains 'main'" | sort: "order" %}
+    {% for link in main_pages %}
       <a href="{{ link.url | relative_url }}"
          {% if page.url == link.url %}class="active" aria-current="page"{% endif %}>
         {{ link.title }}
