@@ -28,33 +28,23 @@ npm run seed
 
 This creates **6 topics** across 3 categories (Technology, Science, Culture) with 2–3 metrics each.
 
-## Firestore Security Rules
+## Firestore Security Rules & Indexes
 
-Add these rules to your Firebase console (**Firestore Database → Rules**) so the app can read and write:
+Firestore security rules and index definitions are managed as files in this directory:
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
+- **`firestore.rules`** – Security rules for `topics`, `requests`, and `topicRequests` collections
+- **`firestore.indexes.json`** – Composite index definitions
+- **`firebase.json`** – Firebase CLI config pointing to the above files
+- **`.firebaserc`** – Firebase project mapping
 
-    // Topics: anyone can read, authenticated users can update (vote)
-    match /topics/{topicId} {
-      allow read: if true;
-      allow update: if request.auth != null;
-    }
+To deploy rules and indexes:
 
-    // Requests: anyone can read, authenticated users can create,
-    // only the original author or an admin can update status
-    match /requests/{requestId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
-    }
-  }
-}
+```bash
+cd polyvote
+npx firebase-tools deploy --only firestore
 ```
 
-> **Note:** For a production app you'd add tighter validation (e.g. only increment vote counts, validate field types). The rules above are intentionally permissive for prototyping.
+> **Note:** For a production app you'd add tighter validation (e.g. only increment vote counts, validate field types). The rules are intentionally permissive for prototyping.
 
 ## Build for Production
 
@@ -112,7 +102,8 @@ polyvote/
 
 - **Homepage** – Hero section, collapsible category tabs, search/filter/sort, responsive topic grid with mini radar previews
 - **Topic Detail** – Per-metric single-select voting cards, live-updating radar chart, participant count, request-changes modal
-- **Requests Page** – Pending/approved/rejected change requests with approve/reject controls
+- **Requests Page** – Topic proposals with endorsement/promotion system, change requests with approve/reject controls
+- **Topic Proposals** – Structured form to propose new topics with metrics and choices; community endorsement promotes to main voting
 - **Real-time** – All data updates via Firestore `onSnapshot` listeners
 - **Anonymous Voting** – Firebase anonymous auth; duplicate vote prevention via localStorage
 - **Dark Mode** – Dark-first design with green accent palette matching the parent site

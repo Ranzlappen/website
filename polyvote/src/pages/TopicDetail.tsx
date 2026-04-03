@@ -19,11 +19,24 @@ import { categoryColor } from '../components/CategoryFilter';
 
 export default function TopicDetail() {
   const { topicId } = useParams<{ topicId: string }>();
-  const { topic, loading } = useTopic(topicId);
+  const { topic, loading, error } = useTopic(topicId);
   const { hasVoted, recordVote, addToast, user } = useStore();
   const [modalOpen, setModalOpen] = useState(false);
 
   if (loading) return <TopicDetailSkeleton />;
+  if (error) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        <Link to="/" className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-brand-400">
+          <ArrowLeft size={14} /> Back to topics
+        </Link>
+        <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">
+          <p className="font-medium mb-1">Failed to load topic</p>
+          <p className="text-red-400/80">{error}</p>
+        </div>
+      </div>
+    );
+  }
   if (!topic) {
     return (
       <div className="py-20 text-center text-gray-500">
