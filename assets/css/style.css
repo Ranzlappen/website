@@ -646,6 +646,34 @@ img {
    DATE: 2026-04-04
    ============================================================ */
 
+/* Registered custom properties — required for CSS scroll-driven animation
+   interpolation of transform sub-values (progressive enhancement) */
+@property --r-ty {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --r-tz {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --r-rx {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --r-sc {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --r-shadow {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.3;
+}
+
 /* Subtle scrollbar when rolodex is active */
 .rolodex-active { scrollbar-width: thin; }
 .rolodex-active::-webkit-scrollbar { width: 6px; }
@@ -664,6 +692,8 @@ img {
   gap: 6rem;
   max-width: 46rem;
   margin: 0 auto;
+  perspective: 2200px;
+  perspective-origin: 50% 40%;
 }
 
 .rolodex-card {
@@ -852,6 +882,68 @@ img {
   font-weight: 600;
   color: var(--c-accent);
   font-size: 0.95rem;
+}
+
+/* CSS scroll-driven card-stack animation (progressive enhancement).
+   Browsers that support animation-timeline: view() get pure-CSS parallax;
+   older browsers fall back to the JS scroll handler seamlessly. */
+@keyframes rolodex-card-peel {
+  0% {
+    --r-ty: 55px;
+    --r-tz: -380px;
+    --r-rx: 35deg;
+    --r-sc: 0.62;
+    --r-shadow: 0;
+    opacity: 0;
+  }
+  25% {
+    --r-ty: 30px;
+    --r-tz: -200px;
+    --r-rx: 18deg;
+    --r-sc: 0.82;
+    --r-shadow: 0.5;
+    opacity: 0.7;
+  }
+  40% {
+    --r-ty: 0px;
+    --r-tz: 0px;
+    --r-rx: 0deg;
+    --r-sc: 1;
+    --r-shadow: 1;
+    opacity: 1;
+  }
+  60% {
+    --r-ty: 0px;
+    --r-tz: 0px;
+    --r-rx: 0deg;
+    --r-sc: 1;
+    --r-shadow: 1;
+    opacity: 1;
+  }
+  80% {
+    --r-ty: -30px;
+    --r-tz: -250px;
+    --r-rx: -50deg;
+    --r-sc: 0.72;
+    --r-shadow: 0.3;
+    opacity: 0.5;
+  }
+  100% {
+    --r-ty: -50px;
+    --r-tz: -400px;
+    --r-rx: -78deg;
+    --r-sc: 0.55;
+    --r-shadow: 0;
+    opacity: 0;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .rolodex-card {
+    animation: rolodex-card-peel linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
 }
 
 @media (max-width: 640px) {
