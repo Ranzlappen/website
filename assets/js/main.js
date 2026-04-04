@@ -96,12 +96,17 @@ DATE: 2026-04-02
   }
 
   // -------------------------------------------------------
-  // View Toggle (Grid / List)
+  // View Toggle (Grid / List / Rolodex)
   // -------------------------------------------------------
+  // CHANGE: Extended view toggle to support Rolodex 3D parallax mode
+  // REASON: Implement visually impressive card-stack scroll effect on /blog/
+  // DATE: 2026-04-04
   var viewGrid = document.getElementById('view-grid');
   var viewList = document.getElementById('view-list');
+  var viewRolodex = document.getElementById('view-rolodex');
   var postsGrid = document.getElementById('posts-grid');
   var postsList = document.getElementById('posts-list');
+  var postsRolodex = document.getElementById('posts-rolodex');
 
   if (viewGrid && viewList) {
     var saved = localStorage.getItem('viewMode') || 'grid';
@@ -109,22 +114,67 @@ DATE: 2026-04-02
 
     viewGrid.addEventListener('click', function () { applyView('grid'); });
     viewList.addEventListener('click', function () { applyView('list'); });
+    if (viewRolodex) {
+      viewRolodex.addEventListener('click', function () { applyView('rolodex'); });
+    }
   }
 
   function applyView(mode) {
     if (!postsGrid || !postsList) return;
+    var containers = [postsGrid, postsList];
+    var buttons = [viewGrid, viewList];
+    if (postsRolodex) containers.push(postsRolodex);
+    if (viewRolodex) buttons.push(viewRolodex);
+
+    containers.forEach(function (c) { c.hidden = true; });
+    buttons.forEach(function (b) { b.classList.remove('active'); });
+
     if (mode === 'list') {
-      postsGrid.hidden = true;
       postsList.hidden = false;
-      viewGrid.classList.remove('active');
       viewList.classList.add('active');
+    } else if (mode === 'rolodex' && postsRolodex) {
+      postsRolodex.hidden = false;
+      if (viewRolodex) viewRolodex.classList.add('active');
+      initRolodexObserver();
     } else {
+      mode = 'grid';
       postsGrid.hidden = false;
-      postsList.hidden = true;
       viewGrid.classList.add('active');
-      viewList.classList.remove('active');
     }
     localStorage.setItem('viewMode', mode);
+  }
+
+  // -------------------------------------------------------
+  // Rolodex Intersection Observer (3D scroll parallax)
+  // -------------------------------------------------------
+  var rolodexObserver = null;
+  function initRolodexObserver() {
+    if (rolodexObserver || !postsRolodex) return;
+    var cards = postsRolodex.querySelectorAll('.rolodex-card');
+    if (!cards.length) return;
+
+    rolodexObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var card = entry.target;
+        if (entry.isIntersecting) {
+          card.classList.add('rolodex-visible');
+          card.classList.remove('rolodex-above');
+        } else if (entry.boundingClientRect.top < 0) {
+          card.classList.remove('rolodex-visible');
+          card.classList.add('rolodex-above');
+        } else {
+          card.classList.remove('rolodex-visible');
+          card.classList.remove('rolodex-above');
+        }
+      });
+    }, {
+      rootMargin: '-5% 0px -10% 0px',
+      threshold: [0.1, 0.5]
+    });
+
+    cards.forEach(function (card) {
+      rolodexObserver.observe(card);
+    });
   }
 
   // -------------------------------------------------------
