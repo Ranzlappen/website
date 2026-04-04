@@ -14,6 +14,7 @@ comments: true
   <ol>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#common-techniques">Common Techniques of Statistical Manipulation</a></li>
+<li><a href="#selection-bias">Selection Bias: When the Sample Itself Is the Deception</a></li>
 <li><a href="#mean-vs-median">Mean vs. Median: A Favorite Trick in Economic Reporting</a></li>
 <li><a href="#case-studies">Classic and Recent Case Studies</a></li>
 <li><a href="#visual-tricks">The Role of Visuals and Graphs</a></li>
@@ -40,6 +41,22 @@ Statistics should inform public debate. Instead, media outlets and politicians f
 Several recurring methods distort data while remaining technically accurate. Cherry-picking selects favorable subsets while ignoring contradictory evidence. Changing the base period or comparison group alters apparent trends. Loaded polling questions or small, unrepresentative samples produce misleading results. Omitting key context — such as sample size, margins of error, or alternative explanations — leaves audiences with incomplete pictures.
 
 These tactics appear across outlets and administrations. They exploit the public’s limited statistical literacy without fabricating numbers outright.
+
+<h2 id="selection-bias">Selection Bias: When the Sample Itself Is the Deception</h2>
+
+Selection bias occurs when the method of collecting data systematically favors certain outcomes or groups, making the sample unrepresentative of the larger population. The numbers may be accurate for the group that was actually measured, yet they are presented as if they describe everyone.
+
+Media and politicians exploit this constantly. Online polls suffer from self-selection bias — only people motivated enough to click participate, often those with strong opinions. Telephone surveys may over-sample landline owners or older demographics. “Man-on-the-street” interviews or social-media comment sections capture only the loudest voices. Crime or health studies that rely on volunteers attract people who are more engaged than average.
+
+The result is a chart or headline that looks authoritative but rests on a skewed foundation. A poll showing “80 % support” may actually reflect only the 12 % of the population that bothered to answer. Always ask: Who was included? Who was left out? Would the results hold for a truly random, representative sample?
+
+<div class="chart-container" role="figure" aria-label="Selection Bias Example: Online Poll vs Representative Sample">
+  <canvas data-chart="bar"
+    data-title="Selection Bias Example: Online Poll vs Representative Sample (Illustrative)"
+    data-labels='["Online Poll (Self-Selected)","Representative Sample"]'
+    data-datasets='[{"label":"Support for Policy (%)","data":[82,51],"color":"#ef4444"}]'>
+  </canvas>
+</div>
 
 <h2 id="mean-vs-median">Mean vs. Median: A Favorite Trick in Economic Reporting</h2>
 
@@ -130,6 +147,7 @@ Repeated exposure to skewed statistics erodes trust in institutions and data its
 - Both legacy media and partisan outlets employ these methods; skepticism should be non-partisan.
 - Critical consumers should always ask: Which measure of “average”? What is the full time frame? What data was excluded?
 - Visuals can lie through inappropriate chart types, truncated scales, clutter, omitted uncertainty, cherry-picked periods, and by ignoring the *Dunkelziffer*—always verify the raw data and chart construction behind the pretty picture.
+- Selection bias hides in the sampling method itself; always check who was actually measured and who was left out.
 
 <h2 id="conclusion">Conclusion</h2>
 
@@ -148,4 +166,4 @@ Statistics remain essential tools for understanding society. When media outlets 
 
 **Further reading**  
 Darrell Huff, *How to Lie with Statistics* (1954)  
-Edward Tufte, *The Visual Display of Quantitative Information* (2001)
+Edward Tufte, *The Visual Display of Quantitative Information* (2001) 
