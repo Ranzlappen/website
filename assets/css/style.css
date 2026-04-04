@@ -640,6 +640,228 @@ img {
 }
 
 /* ============================================================
+   Rolodex 3D Parallax View
+   CHANGE: Added 3D rolodex card-stack scroll effect for blog listing
+   REASON: Implement visually impressive parallax rolodex on /blog/
+   DATE: 2026-04-04
+   ============================================================ */
+.posts-rolodex {
+  perspective: 1200px;
+  padding: var(--space-xl) 0;
+}
+.posts-rolodex[hidden] { display: none; }
+
+.rolodex-scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2xl);
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+.rolodex-card {
+  width: 100%;
+  min-height: 20rem;
+  perspective: 1200px;
+  opacity: 0;
+  transform: translateY(80px) rotateX(45deg) scale(0.85);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+.rolodex-card.rolodex-visible {
+  opacity: 1;
+  transform: translateY(0) rotateX(0deg) scale(1);
+}
+.rolodex-card.rolodex-above {
+  opacity: 0.6;
+  transform: translateY(-40px) rotateX(-15deg) scale(0.92);
+}
+
+.rolodex-card__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+.rolodex-card__inner {
+  position: relative;
+  width: 100%;
+  min-height: 20rem;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+.rolodex-card:hover .rolodex-card__inner {
+  transform: rotateY(180deg);
+}
+
+.rolodex-card__face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  box-shadow: 0 12px 40px -8px var(--c-card-shadow),
+              0 4px 12px -4px rgba(0,0,0,0.08);
+}
+
+.rolodex-card__front {
+  display: flex;
+  flex-direction: row;
+}
+.rolodex-card__back {
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--c-surface) 0%, var(--c-bg-alt) 100%);
+}
+.rolodex-card__back .rolodex-card__body {
+  padding: var(--space-xl);
+  text-align: center;
+}
+
+.rolodex-card__image {
+  width: 40%;
+  min-height: 100%;
+  overflow: hidden;
+  background: var(--c-bg-alt);
+  flex-shrink: 0;
+}
+.rolodex-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+.rolodex-card:hover .rolodex-card__front .rolodex-card__image img {
+  transform: scale(1.05);
+}
+.rolodex-card__image--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-text-faint);
+  font-size: 2.5rem;
+}
+
+.rolodex-card__front .rolodex-card__body {
+  padding: var(--space-lg) var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.rolodex-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.rolodex-card__title {
+  font-family: var(--f-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-sm);
+  color: var(--c-text);
+}
+
+.rolodex-card__excerpt {
+  font-size: 0.9rem;
+  color: var(--c-text-muted);
+  line-height: 1.6;
+}
+
+.rolodex-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  font-size: 0.8rem;
+  color: var(--c-text-faint);
+}
+
+.rolodex-card__cta {
+  display: inline-block;
+  margin-top: var(--space-lg);
+  font-weight: 600;
+  color: var(--c-accent);
+  font-size: 0.95rem;
+}
+
+/* Staggered entrance delay per card */
+.rolodex-card:nth-child(1) { transition-delay: 0s; }
+.rolodex-card:nth-child(2) { transition-delay: 0.05s; }
+.rolodex-card:nth-child(3) { transition-delay: 0.1s; }
+.rolodex-card:nth-child(4) { transition-delay: 0.15s; }
+
+/* Shadow intensifies as cards stack */
+.rolodex-card.rolodex-visible {
+  box-shadow: none;
+}
+.rolodex-card.rolodex-visible .rolodex-card__face {
+  box-shadow: 0 20px 60px -12px var(--c-card-shadow),
+              0 8px 20px -8px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 640px) {
+  .rolodex-card__front {
+    flex-direction: column;
+  }
+  .rolodex-card__image {
+    width: 100%;
+    min-height: auto;
+    aspect-ratio: 16 / 9;
+  }
+  .rolodex-card {
+    min-height: auto;
+  }
+  .rolodex-card__inner {
+    min-height: auto;
+  }
+  /* Disable flip on touch devices for usability */
+  .rolodex-card:hover .rolodex-card__inner {
+    transform: none;
+  }
+  .rolodex-card__back {
+    display: none;
+  }
+  .rolodex-card__front {
+    position: relative;
+  }
+  .rolodex-card__face {
+    position: relative;
+  }
+}
+
+/* Reduced motion: disable all parallax transforms */
+@media (prefers-reduced-motion: reduce) {
+  .rolodex-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .rolodex-card__inner {
+    transition: none;
+  }
+  .rolodex-card:hover .rolodex-card__inner {
+    transform: none;
+  }
+}
+
+/* ============================================================
    Single Post
    ============================================================ */
 .post-header {
