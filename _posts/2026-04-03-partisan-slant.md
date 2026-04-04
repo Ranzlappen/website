@@ -5,7 +5,7 @@ keywords: ["statistics misuse", "media bias", "politics data manipulation", "mea
 date: 2026-04-03
 category: "Media"
 tags: ["statistics-misuse", "media-bias", "politics-data", "manipulation", "mean-median", "cherry-picking"]
-image: /assets/images/paetisan-slant/partiasn-slant-hero.webp
+image: /assets/images/partisan-slant/partisan-slant-hero.webp
 status: placeholder
 comments: true
 ---
