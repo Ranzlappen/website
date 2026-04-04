@@ -176,10 +176,11 @@ DATE: 2026-04-02
           if (rect.bottom < -100 || rect.top > vh + 100) {
             card.style.opacity = '0';
             card.style.transform = 'translateZ(-200px) rotateX(60deg) scale(0.7)';
+            card.style.zIndex = 1;
             continue;
           }
 
-          var opacity, tx, tz, rx, sc;
+          var opacity, tx, tz, rx, sc, zBase;
 
           if (dist < -0.4) {
             // well above viewport center — flipped away
@@ -188,6 +189,7 @@ DATE: 2026-04-02
             rx = -45;
             sc = 0.8;
             tx = -30;
+            zBase = 1;
           } else if (dist < 0) {
             // scrolling up past center — card flips up and stacks behind
             var t = Math.abs(dist) / 0.4; // 0..1
@@ -196,6 +198,7 @@ DATE: 2026-04-02
             rx = -40 * t;
             sc = 1 - 0.15 * t;
             tx = -25 * t;
+            zBase = Math.round(100 * (1 - t));
           } else if (dist < 0.15) {
             // in the sweet spot — fully visible, centered
             opacity = 1;
@@ -203,6 +206,7 @@ DATE: 2026-04-02
             rx = 0;
             sc = 1;
             tx = 0;
+            zBase = 100;
           } else if (dist < 0.8) {
             // approaching from below — dramatic entrance
             var t = (dist - 0.15) / 0.65; // 0..1
@@ -211,14 +215,19 @@ DATE: 2026-04-02
             rx = 35 * t;
             sc = 1 - 0.12 * t;
             tx = 50 * t;
+            zBase = Math.round(90 - 40 * t);
           } else {
             opacity = 0.1;
             tz = -200;
             rx = 50;
             sc = 0.75;
             tx = 60;
+            zBase = 10;
           }
 
+          // Tie-break: multiply by card count so cards at equal distances
+          // don't flicker; cards closer to sweet spot always win.
+          card.style.zIndex = zBase * cards.length + (cards.length - i);
           card.style.opacity = opacity;
           card.style.transform =
             'translateY(' + tx + 'px) translateZ(' + tz + 'px) rotateX(' + rx + 'deg) scale(' + sc + ')';

@@ -677,7 +677,7 @@ img {
   transform: translateZ(-200px) rotateX(60deg) scale(0.7);
   transition: box-shadow 0.3s ease;
   will-change: transform, opacity;
-  z-index: calc(100 - var(--card-index, 0));
+  z-index: 1;
 }
 
 .rolodex-card__link {
