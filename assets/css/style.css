@@ -664,6 +664,7 @@ img {
   gap: 7rem;
   max-width: 46rem;
   margin: 0 auto;
+  isolation: isolate;
 }
 
 .rolodex-card {
@@ -673,7 +674,6 @@ img {
   min-height: 20rem;
   opacity: 0;
   z-index: 1;
-  perspective: 1800px;
 }
 
 .rolodex-card__link {
@@ -681,6 +681,7 @@ img {
   text-decoration: none;
   color: inherit;
   height: 100%;
+  perspective: 1800px;
 }
 
 .rolodex-card__inner {
@@ -693,7 +694,6 @@ img {
     rotateX(var(--r-rx, 60deg))
     scale(var(--r-sc, 0.7));
   transform-style: preserve-3d;
-  filter: blur(var(--r-blur, 0px));
 }
 
 /* Hover flip — only on focused (centered) cards, with smooth transition */
@@ -703,7 +703,6 @@ img {
 }
 .rolodex-card.is-focused:hover .rolodex-card__inner {
   transform: rotateY(180deg);
-  filter: blur(0px);
 }
 
 .rolodex-card__face {
@@ -889,11 +888,11 @@ img {
   .rolodex-card {
     opacity: 1 !important;
     position: relative;
+    filter: none !important;
   }
   .rolodex-card__inner {
     transform: none !important;
     transition: none;
-    filter: none !important;
   }
   .rolodex-card.is-focused:hover .rolodex-card__inner {
     transform: none !important;

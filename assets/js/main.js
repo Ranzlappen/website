@@ -246,6 +246,12 @@ DATE: 2026-04-02
           card.style.opacity = opacity;
           card.style.zIndex = zi;
 
+          // Apply blur directly on the card element so it does not
+          // flatten transform-style: preserve-3d on the inner element.
+          // Clear filter entirely when blur is 0 to avoid creating a
+          // stacking context that would break backface-visibility.
+          card.style.filter = blur > 0 ? 'blur(' + blur + 'px)' : '';
+
           // Toggle focus class for CSS accent glow, shine, and hover flip
           if (i === focusIdx && Math.abs(dist) < 0.2) {
             card.classList.add('is-focused');
@@ -259,7 +265,6 @@ DATE: 2026-04-02
             card.style.setProperty('--r-tz', tz + 'px');
             card.style.setProperty('--r-rx', rx + 'deg');
             card.style.setProperty('--r-sc', sc);
-            card.style.setProperty('--r-blur', blur + 'px');
             card.style.setProperty('--r-shadow', shadow);
           }
         }
