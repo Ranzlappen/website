@@ -91,7 +91,7 @@ Graphs amplify deception when y-axes are truncated or do not start at zero, exag
   </canvas>
 </div>
 
-### The Continuity Illusion: Journalists’ Delirious Love of the Connecting Line
+<h3 id="continuity-illusion">The Continuity Illusion: Journalists’ Delirious Love of the Connecting Line</h3>
 
 One of the most seductive (and deceptive) tricks in modern data visualization is the humble line chart—especially when applied to *discrete, annual, or categorical data*. Journalists and YouTubers are absolutely delirious about them. A glowing, continuous line gliding across the screen creates instant drama: rising crime waves, plummeting safety, economic booms and busts. It feels like a story unfolding in real time.
 
@@ -109,27 +109,27 @@ Take a recent YouTube video using a line chart of U.S. motor vehicle deaths by y
 
 Always ask: Is the x-axis truly continuous and densely sampled? Or are we being sold a smooth story between unrelated yearly dots?
 
-### The Truncated or Non-Zero Baseline Deception
+<h3 id="truncated-baseline">The Truncated or Non-Zero Baseline Deception</h3>
 
 Even when the right chart type is chosen, the scale can still lie. Starting the y-axis at an arbitrary number (e.g., 40,000 instead of zero) makes modest 5–10 % changes look like explosive 50 % spikes. This is especially common in crime, unemployment, and economic charts on both sides of the political aisle. The numbers themselves remain accurate, but the visual impact is massively distorted.
 
-### Choosing the Wrong Chart Type
+<h3 id="wrong-chart-type">Choosing the Wrong Chart Type</h3>
 
 Beyond line charts, journalists frequently misuse pie charts with too many slices, 3D effects that distort proportions, or area charts where both height *and* width grow (doubling the perceived change). These choices prioritize drama over clarity and turn neutral data into persuasive theater.
 
-### Cherry-Picked Time Windows
+<h3 id="cherry-picked-windows">Cherry-Picked Time Windows</h3>
 
 A chart may show only the last five years to claim “record crime under X administration” while conveniently omitting the previous decade’s context. The data points are real, but the selected window hides the bigger picture. Always check: What happened before and after the highlighted period?
 
-### Chart Clutter and Information Overload
+<h3 id="chart-clutter">Chart Clutter and Information Overload</h3>
 
 Too many lines, rainbow color palettes, tiny fonts, or overlapping series make a graph nearly impossible to read. Viewers quickly give up and accept the presenter’s spoken narrative. Clutter is often unintentional, but the effect is the same: the audience cannot verify the claim for themselves.
 
-### Ignoring Uncertainty: Missing Error Bars and Confidence Intervals
+<h3 id="missing-uncertainty">Ignoring Uncertainty: Missing Error Bars and Confidence Intervals</h3>
 
 Polls, surveys, and small-sample studies almost never display margins of error or confidence intervals. A 3 % difference in a poll with a ±4 % margin looks decisive on screen but is statistically meaningless. Without visual indicators of uncertainty, noisy or preliminary data is presented as rock-solid fact.
 
-### The Dark Figure: Ignoring the Dunkelziffer (Unreported Cases)
+<h3 id="dunkelziffer">The Dark Figure: Ignoring the Dunkelziffer (Unreported Cases)</h3>
 
 One of the most overlooked deceptions is pretending official statistics capture reality in full. The German term *Dunkelziffer* (literally “dark figure”) describes the vast number of crimes, incidents, or events that go unreported or unrecorded. For violent crime in the U.S., studies show only about 40 % of incidents are reported to police; for property crime the figure is even lower. Charts of “official crime rates” therefore show only the visible tip of the iceberg.
 
