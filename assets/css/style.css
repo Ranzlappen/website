@@ -692,8 +692,6 @@ img {
   gap: 6rem;
   max-width: 46rem;
   margin: 0 auto;
-  perspective: 2200px;
-  perspective-origin: 50% 40%;
 }
 
 .rolodex-card {
@@ -854,10 +852,6 @@ img {
   letter-spacing: -0.02em;
   margin-bottom: var(--space-sm);
   color: var(--c-text);
-  transition: color 0.3s ease;
-}
-.rolodex-card.is-focused .rolodex-card__title {
-  color: var(--c-accent);
 }
 
 .rolodex-card__excerpt {
