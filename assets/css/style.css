@@ -646,15 +646,14 @@ img {
    DATE: 2026-04-04
    ============================================================ */
 
-/* Hide scrollbar when rolodex is active */
-.rolodex-active { scrollbar-width: none; }
-.rolodex-active::-webkit-scrollbar { display: none; }
+/* Subtle scrollbar when rolodex is active */
+.rolodex-active { scrollbar-width: thin; }
+.rolodex-active::-webkit-scrollbar { width: 6px; }
+.rolodex-active::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
+.rolodex-active::-webkit-scrollbar-track { background: transparent; }
 
 .posts-rolodex {
-  perspective: 1400px;
-  perspective-origin: 50% 40%;
   padding: var(--space-lg) 0 40vh;
-  transform-style: preserve-3d;
 }
 .posts-rolodex[hidden] { display: none; }
 
@@ -665,19 +664,16 @@ img {
   gap: 6rem;
   max-width: 46rem;
   margin: 0 auto;
-  transform-style: preserve-3d;
 }
 
 .rolodex-card {
   position: sticky;
-  top: calc(var(--header-height, 3.5rem) + 2rem + var(--card-index, 0) * 4px);
+  top: calc(var(--header-height, 3.5rem) + 2rem + var(--card-index, 0) * 10px);
   width: 100%;
   min-height: 20rem;
   opacity: 0;
-  transform: translateZ(-200px) rotateX(60deg) scale(0.7);
-  transition: box-shadow 0.3s ease;
-  will-change: transform, opacity;
   z-index: 1;
+  perspective: 1400px;
 }
 
 .rolodex-card__link {
@@ -691,8 +687,9 @@ img {
   position: relative;
   width: 100%;
   min-height: 20rem;
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateZ(-200px) rotateX(60deg) scale(0.7);
   transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .rolodex-card:hover .rolodex-card__inner {
   transform: rotateY(180deg);
@@ -837,14 +834,14 @@ img {
 @media (prefers-reduced-motion: reduce) {
   .rolodex-card {
     opacity: 1 !important;
-    transform: none !important;
     position: relative;
   }
   .rolodex-card__inner {
+    transform: none !important;
     transition: none;
   }
   .rolodex-card:hover .rolodex-card__inner {
-    transform: none;
+    transform: none !important;
   }
 }
 

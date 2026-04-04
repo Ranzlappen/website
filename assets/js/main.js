@@ -130,6 +130,7 @@ DATE: 2026-04-02
     buttons.forEach(function (b) { b.classList.remove('active'); });
 
     document.documentElement.classList.remove('rolodex-active');
+    destroyRolodexObserver();
 
     if (mode === 'list') {
       postsList.hidden = false;
@@ -150,14 +151,19 @@ DATE: 2026-04-02
   // -------------------------------------------------------
   // Rolodex scroll-driven sticky card stack engine
   // -------------------------------------------------------
-  var rolodexInited = false;
   var rolodexRAF = null;
+  var rolodexScrollHandler = null;
 
   function initRolodexObserver() {
-    if (rolodexInited || !postsRolodex) return;
-    rolodexInited = true;
+    if (rolodexScrollHandler || !postsRolodex) return;
     var cards = postsRolodex.querySelectorAll('.rolodex-card');
     if (!cards.length) return;
+
+    // Cache inner elements for transform separation
+    var inners = [];
+    for (var j = 0; j < cards.length; j++) {
+      inners.push(cards[j].querySelector('.rolodex-card__inner'));
+    }
 
     function onScroll() {
       if (rolodexRAF) return;
@@ -168,75 +174,89 @@ DATE: 2026-04-02
 
         for (var i = 0; i < cards.length; i++) {
           var card = cards[i];
+          var inner = inners[i];
           var rect = card.getBoundingClientRect();
           var cardCenter = rect.top + rect.height / 2;
-          // progress: 0 = at center, negative = above, positive = below
           var dist = (cardCenter - centerY) / vh;
 
           if (rect.bottom < -100 || rect.top > vh + 100) {
             card.style.opacity = '0';
-            card.style.transform = 'translateZ(-200px) rotateX(60deg) scale(0.7)';
             card.style.zIndex = 1;
+            card.style.willChange = 'auto';
+            if (inner) inner.style.transform = 'translateZ(-200px) rotateX(60deg) scale(0.7)';
             continue;
           }
 
-          var opacity, tx, tz, rx, sc, zBase;
+          var opacity, ty, tz, rx, sc, zBase;
 
           if (dist < -0.4) {
-            // well above viewport center — flipped away
             opacity = 0;
             tz = -180;
             rx = -45;
             sc = 0.8;
-            tx = -30;
+            ty = -30;
             zBase = 1;
           } else if (dist < 0) {
-            // scrolling up past center — card flips up and stacks behind
-            var t = Math.abs(dist) / 0.4; // 0..1
+            var t = Math.abs(dist) / 0.4;
             opacity = 1 - t * 0.8;
             tz = -160 * t;
             rx = -40 * t;
             sc = 1 - 0.15 * t;
-            tx = -25 * t;
+            ty = -25 * t;
             zBase = Math.round(100 * (1 - t));
           } else if (dist < 0.15) {
-            // in the sweet spot — fully visible, centered
             opacity = 1;
             tz = 0;
             rx = 0;
             sc = 1;
-            tx = 0;
+            ty = 0;
             zBase = 100;
           } else if (dist < 0.8) {
-            // approaching from below — dramatic entrance
-            var t = (dist - 0.15) / 0.65; // 0..1
+            var t = (dist - 0.15) / 0.65;
             opacity = 1 - t * 0.7;
             tz = -120 * t;
             rx = 35 * t;
             sc = 1 - 0.12 * t;
-            tx = 50 * t;
+            ty = 50 * t;
             zBase = Math.round(90 - 40 * t);
           } else {
             opacity = 0.1;
             tz = -200;
             rx = 50;
             sc = 0.75;
-            tx = 60;
+            ty = 60;
             zBase = 10;
           }
 
-          // Tie-break: multiply by card count so cards at equal distances
-          // don't flicker; cards closer to sweet spot always win.
-          card.style.zIndex = zBase * cards.length + (cards.length - i);
+          // Later cards (higher index) win ties so new cards stack on top
+          card.style.zIndex = zBase * cards.length + (i + 1);
           card.style.opacity = opacity;
-          card.style.transform =
-            'translateY(' + tx + 'px) translateZ(' + tz + 'px) rotateX(' + rx + 'deg) scale(' + sc + ')';
+          card.style.willChange = (opacity > 0) ? 'opacity' : 'auto';
+
+          // 3D transforms on inner element — keeps sticky stacking clean
+          if (inner) {
+            inner.style.willChange = (opacity > 0) ? 'transform' : 'auto';
+            inner.style.transform =
+              'translateY(' + ty + 'px) translateZ(' + tz + 'px) rotateX(' + rx + 'deg) scale(' + sc + ')';
+          }
         }
       });
     }
 
+    rolodexScrollHandler = onScroll;
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+  }
+
+  function destroyRolodexObserver() {
+    if (rolodexScrollHandler) {
+      window.removeEventListener('scroll', rolodexScrollHandler);
+      rolodexScrollHandler = null;
+    }
+    if (rolodexRAF) {
+      cancelAnimationFrame(rolodexRAF);
+      rolodexRAF = null;
+    }
   }
 
   // -------------------------------------------------------
