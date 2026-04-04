@@ -640,14 +640,21 @@ img {
 }
 
 /* ============================================================
-   Rolodex 3D Parallax View
-   CHANGE: Added 3D rolodex card-stack scroll effect for blog listing
-   REASON: Implement visually impressive parallax rolodex on /blog/
+   Rolodex 3D Parallax View — Immersive Sticky Card Stack
+   CHANGE: Enhanced to true sticky flashcard-style parallax with depth
+   REASON: Dramatic scroll-driven 3D card stacking with overlap
    DATE: 2026-04-04
    ============================================================ */
+
+/* Hide scrollbar when rolodex is active */
+.rolodex-active { scrollbar-width: none; }
+.rolodex-active::-webkit-scrollbar { display: none; }
+
 .posts-rolodex {
-  perspective: 1200px;
-  padding: var(--space-xl) 0;
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+  padding: var(--space-lg) 0 40vh;
+  transform-style: preserve-3d;
 }
 .posts-rolodex[hidden] { display: none; }
 
@@ -655,28 +662,22 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2xl);
-  max-width: 44rem;
+  gap: 6rem;
+  max-width: 46rem;
   margin: 0 auto;
+  transform-style: preserve-3d;
 }
 
 .rolodex-card {
+  position: sticky;
+  top: calc(var(--header-height, 3.5rem) + 2rem + var(--card-index, 0) * 4px);
   width: 100%;
   min-height: 20rem;
-  perspective: 1200px;
   opacity: 0;
-  transform: translateY(80px) rotateX(45deg) scale(0.85);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateZ(-200px) rotateX(60deg) scale(0.7);
+  transition: box-shadow 0.3s ease;
   will-change: transform, opacity;
-}
-.rolodex-card.rolodex-visible {
-  opacity: 1;
-  transform: translateY(0) rotateX(0deg) scale(1);
-}
-.rolodex-card.rolodex-above {
-  opacity: 0.6;
-  transform: translateY(-40px) rotateX(-15deg) scale(0.92);
+  z-index: calc(100 - var(--card-index, 0));
 }
 
 .rolodex-card__link {
@@ -706,8 +707,9 @@ img {
   overflow: hidden;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
-  box-shadow: 0 12px 40px -8px var(--c-card-shadow),
-              0 4px 12px -4px rgba(0,0,0,0.08);
+  box-shadow: 0 25px 60px -12px var(--c-card-shadow),
+              0 8px 24px -4px rgba(0,0,0,0.12),
+              0 0 0 1px rgba(0,0,0,0.03);
 }
 
 .rolodex-card__front {
@@ -801,22 +803,8 @@ img {
   font-size: 0.95rem;
 }
 
-/* Staggered entrance delay per card */
-.rolodex-card:nth-child(1) { transition-delay: 0s; }
-.rolodex-card:nth-child(2) { transition-delay: 0.05s; }
-.rolodex-card:nth-child(3) { transition-delay: 0.1s; }
-.rolodex-card:nth-child(4) { transition-delay: 0.15s; }
-
-/* Shadow intensifies as cards stack */
-.rolodex-card.rolodex-visible {
-  box-shadow: none;
-}
-.rolodex-card.rolodex-visible .rolodex-card__face {
-  box-shadow: 0 20px 60px -12px var(--c-card-shadow),
-              0 8px 20px -8px rgba(0,0,0,0.1);
-}
-
 @media (max-width: 640px) {
+  .rolodex-scene { gap: 4rem; }
   .rolodex-card__front {
     flex-direction: column;
   }
@@ -831,7 +819,6 @@ img {
   .rolodex-card__inner {
     min-height: auto;
   }
-  /* Disable flip on touch devices for usability */
   .rolodex-card:hover .rolodex-card__inner {
     transform: none;
   }
@@ -849,9 +836,9 @@ img {
 /* Reduced motion: disable all parallax transforms */
 @media (prefers-reduced-motion: reduce) {
   .rolodex-card {
-    opacity: 1;
-    transform: none;
-    transition: none;
+    opacity: 1 !important;
+    transform: none !important;
+    position: relative;
   }
   .rolodex-card__inner {
     transition: none;

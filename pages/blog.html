@@ -11,7 +11,7 @@ permalink: /blog/
       <h1 class="section-title">All Posts</h1>
 
       <div class="view-toggle" role="group" aria-label="View mode">
-        <button id="view-grid" class="active" aria-label="Grid view" type="button">
+        <button id="view-grid" aria-label="Grid view" type="button">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
             <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
@@ -22,7 +22,7 @@ permalink: /blog/
             <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
           </svg>
         </button>
-        <button id="view-rolodex" aria-label="Rolodex view" type="button">
+        <button id="view-rolodex" class="active" aria-label="Rolodex view" type="button">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <rect x="4" y="4" width="16" height="16" rx="2"/>
             <path d="M4 8h16M4 16h16"/>
@@ -31,7 +31,7 @@ permalink: /blog/
       </div>
     </div>
 
-    <div class="posts-grid" id="posts-grid">
+    <div class="posts-grid" id="posts-grid" hidden>
       {% for post in site.posts %}
         {% if post.status == "published" or post.status == "placeholder" %}
           {% include post-card.html post=post %}
@@ -47,7 +47,7 @@ permalink: /blog/
       {% endfor %}
     </div>
 
-    <div class="posts-rolodex" id="posts-rolodex" hidden>
+    <div class="posts-rolodex" id="posts-rolodex">
       <div class="rolodex-scene">
         {% assign index = 0 %}
         {% for post in site.posts %}

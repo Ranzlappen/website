@@ -109,7 +109,7 @@ DATE: 2026-04-02
   var postsRolodex = document.getElementById('posts-rolodex');
 
   if (viewGrid && viewList) {
-    var saved = localStorage.getItem('viewMode') || 'grid';
+    var saved = localStorage.getItem('viewMode') || 'rolodex';
     applyView(saved);
 
     viewGrid.addEventListener('click', function () { applyView('grid'); });
@@ -129,12 +129,15 @@ DATE: 2026-04-02
     containers.forEach(function (c) { c.hidden = true; });
     buttons.forEach(function (b) { b.classList.remove('active'); });
 
+    document.documentElement.classList.remove('rolodex-active');
+
     if (mode === 'list') {
       postsList.hidden = false;
       viewList.classList.add('active');
     } else if (mode === 'rolodex' && postsRolodex) {
       postsRolodex.hidden = false;
       if (viewRolodex) viewRolodex.classList.add('active');
+      document.documentElement.classList.add('rolodex-active');
       initRolodexObserver();
     } else {
       mode = 'grid';
@@ -145,36 +148,86 @@ DATE: 2026-04-02
   }
 
   // -------------------------------------------------------
-  // Rolodex Intersection Observer (3D scroll parallax)
+  // Rolodex scroll-driven sticky card stack engine
   // -------------------------------------------------------
-  var rolodexObserver = null;
+  var rolodexInited = false;
+  var rolodexRAF = null;
+
   function initRolodexObserver() {
-    if (rolodexObserver || !postsRolodex) return;
+    if (rolodexInited || !postsRolodex) return;
+    rolodexInited = true;
     var cards = postsRolodex.querySelectorAll('.rolodex-card');
     if (!cards.length) return;
 
-    rolodexObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        var card = entry.target;
-        if (entry.isIntersecting) {
-          card.classList.add('rolodex-visible');
-          card.classList.remove('rolodex-above');
-        } else if (entry.boundingClientRect.top < 0) {
-          card.classList.remove('rolodex-visible');
-          card.classList.add('rolodex-above');
-        } else {
-          card.classList.remove('rolodex-visible');
-          card.classList.remove('rolodex-above');
+    function onScroll() {
+      if (rolodexRAF) return;
+      rolodexRAF = requestAnimationFrame(function () {
+        rolodexRAF = null;
+        var vh = window.innerHeight;
+        var centerY = vh * 0.45;
+
+        for (var i = 0; i < cards.length; i++) {
+          var card = cards[i];
+          var rect = card.getBoundingClientRect();
+          var cardCenter = rect.top + rect.height / 2;
+          // progress: 0 = at center, negative = above, positive = below
+          var dist = (cardCenter - centerY) / vh;
+
+          if (rect.bottom < -100 || rect.top > vh + 100) {
+            card.style.opacity = '0';
+            card.style.transform = 'translateZ(-200px) rotateX(60deg) scale(0.7)';
+            continue;
+          }
+
+          var opacity, tx, tz, rx, sc;
+
+          if (dist < -0.4) {
+            // well above viewport center — flipped away
+            opacity = 0;
+            tz = -180;
+            rx = -45;
+            sc = 0.8;
+            tx = -30;
+          } else if (dist < 0) {
+            // scrolling up past center — card flips up and stacks behind
+            var t = Math.abs(dist) / 0.4; // 0..1
+            opacity = 1 - t * 0.8;
+            tz = -160 * t;
+            rx = -40 * t;
+            sc = 1 - 0.15 * t;
+            tx = -25 * t;
+          } else if (dist < 0.15) {
+            // in the sweet spot — fully visible, centered
+            opacity = 1;
+            tz = 0;
+            rx = 0;
+            sc = 1;
+            tx = 0;
+          } else if (dist < 0.8) {
+            // approaching from below — dramatic entrance
+            var t = (dist - 0.15) / 0.65; // 0..1
+            opacity = 1 - t * 0.7;
+            tz = -120 * t;
+            rx = 35 * t;
+            sc = 1 - 0.12 * t;
+            tx = 50 * t;
+          } else {
+            opacity = 0.1;
+            tz = -200;
+            rx = 50;
+            sc = 0.75;
+            tx = 60;
+          }
+
+          card.style.opacity = opacity;
+          card.style.transform =
+            'translateY(' + tx + 'px) translateZ(' + tz + 'px) rotateX(' + rx + 'deg) scale(' + sc + ')';
         }
       });
-    }, {
-      rootMargin: '-5% 0px -10% 0px',
-      threshold: [0.1, 0.5]
-    });
+    }
 
-    cards.forEach(function (card) {
-      rolodexObserver.observe(card);
-    });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
   // -------------------------------------------------------
