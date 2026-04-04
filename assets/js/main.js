@@ -158,115 +158,110 @@ DATE: 2026-04-02
     if (rolodexScrollHandler || !postsRolodex) return;
     var cards = postsRolodex.querySelectorAll('.rolodex-card');
     if (!cards.length) return;
+    var n = cards.length;
 
-    // Cache inner elements for CSS custom-property driven transforms
-    var inners = [];
-    for (var j = 0; j < cards.length; j++) {
-      inners.push(cards[j].querySelector('.rolodex-card__inner'));
+    // Smooth easing: easeInOutCubic for natural acceleration/deceleration
+    function ease(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
-
-    // Smooth easing: easeOutCubic for natural deceleration
-    function ease(t) { return 1 - Math.pow(1 - t, 3); }
+    function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
 
     function onScroll() {
       if (rolodexRAF) return;
       rolodexRAF = requestAnimationFrame(function () {
         rolodexRAF = null;
         var vh = window.innerHeight;
-        var centerY = vh * 0.42;
+        var anchorY = vh * 0.40;
         var focusIdx = -1;
         var minDist = Infinity;
 
-        // First pass: find which card is closest to center
-        for (var i = 0; i < cards.length; i++) {
-          var rect = cards[i].getBoundingClientRect();
-          var d = Math.abs(rect.top + rect.height / 2 - centerY);
+        // Single rect-read pass: cache rects and find focused card
+        var rects = new Array(n);
+        for (var i = 0; i < n; i++) {
+          rects[i] = cards[i].getBoundingClientRect();
+          var mid = rects[i].top + rects[i].height * 0.5;
+          var d = Math.abs(mid - anchorY);
           if (d < minDist) { minDist = d; focusIdx = i; }
         }
 
-        // Second pass: apply transforms via CSS custom properties
-        for (var i = 0; i < cards.length; i++) {
+        // Apply transforms via CSS custom properties — no filter/blur
+        for (var i = 0; i < n; i++) {
           var card = cards[i];
-          var inner = inners[i];
-          var rect = card.getBoundingClientRect();
-          var cardCenter = rect.top + rect.height / 2;
-          var dist = (cardCenter - centerY) / vh;
+          var rect = rects[i];
+          var mid = rect.top + rect.height * 0.5;
+          var dist = (mid - anchorY) / vh;
 
           // Off-screen culling
-          if (rect.bottom < -150 || rect.top > vh + 150) {
+          if (rect.bottom < -100 || rect.top > vh + 250) {
             card.style.opacity = '0';
             card.style.zIndex = '1';
             card.classList.remove('is-focused');
             continue;
           }
 
-          var opacity, ty, tz, rx, sc, blur, shadow;
+          var opacity, ty, tz, rx, sc, shadow;
 
-          if (dist < -0.5) {
-            // Far above — fully folded back
+          if (dist < -0.55) {
+            // Gone above — fully peeled backward off the stack
             opacity = 0;
-            tz = -280; rx = -65; sc = 0.65; ty = -40;
-            blur = 6; shadow = 0.1;
-          } else if (dist < -0.05) {
-            // Scrolling past — dramatic backward tilt
-            var t = ease(Math.abs(dist + 0.05) / 0.45);
-            opacity = 1 - t * 0.9;
-            tz = -280 * t; rx = -65 * t; sc = 1 - 0.35 * t; ty = -40 * t;
-            blur = 6 * t; shadow = 1 - t * 0.9;
-          } else if (dist < 0.18) {
-            // Sweet spot — fully presented with subtle micro-animation
-            var center = (dist + 0.05) / 0.23;
-            var micro = Math.abs(center - 0.5) * 2;
+            ty = -50; tz = -400; rx = -78; sc = 0.55; shadow = 0;
+          } else if (dist < -0.08) {
+            // Peeling away — dramatic backward rotation like a rolodex flip
+            var t = ease(clamp((Math.abs(dist) - 0.08) / 0.47, 0, 1));
+            opacity = 1 - t;
+            ty = -50 * t;
+            tz = -400 * t;
+            rx = -78 * t;
+            sc = 1 - 0.45 * t;
+            shadow = 1 - t;
+          } else if (dist < 0.12) {
+            // Active zone — flat, fully presented, dramatic presence
+            var c = clamp((dist + 0.08) / 0.20, 0, 1);
+            var edge = Math.abs(c - 0.5) * 2;
             opacity = 1;
-            tz = -8 * micro; rx = 0; sc = 1 - 0.015 * micro; ty = 0;
-            blur = 0; shadow = 1;
-          } else if (dist < 1.0) {
-            // Approaching from below — rising with forward tilt
-            var t = ease((dist - 0.18) / 0.82);
-            opacity = 1 - t * 0.85;
-            tz = -250 * t; rx = 45 * t; sc = 1 - 0.3 * t; ty = 70 * t;
-            blur = 5 * t; shadow = 1 - t * 0.8;
+            ty = 0; tz = -4 * edge; rx = 0;
+            sc = 1 - 0.008 * edge; shadow = 1;
+          } else if (dist < 0.70) {
+            // Deck below — stacked in perspective with subtle forward lean
+            var t = ease(clamp((dist - 0.12) / 0.58, 0, 1));
+            opacity = 1 - t * 0.80;
+            ty = 45 * t;
+            tz = -320 * t;
+            rx = 28 * t;
+            sc = 1 - 0.32 * t;
+            shadow = 1 - t * 0.80;
           } else {
-            // Far below — not visible yet
+            // Hidden below — queued off-screen
             opacity = 0;
-            tz = -300; rx = 50; sc = 0.6; ty = 80;
-            blur = 6; shadow = 0.1;
+            ty = 55; tz = -380; rx = 35; sc = 0.62; shadow = 0;
           }
 
-          // Z-index: focused card always highest, distance-based falloff for rest
+          // Z-index: focused card highest, others fall off by distance
           var zi;
           if (i === focusIdx) {
-            zi = 1000;
-          } else if (dist < 0) {
-            zi = 500 - Math.round(Math.abs(dist) * 100);
+            zi = n + 10;
+          } else if (i < focusIdx) {
+            zi = Math.max(1, n - (focusIdx - i));
           } else {
-            zi = 500 - Math.round(dist * 100);
+            zi = Math.max(1, n - (i - focusIdx));
           }
 
           card.style.opacity = opacity;
           card.style.zIndex = zi;
 
-          // Apply blur directly on the card element so it does not
-          // flatten transform-style: preserve-3d on the inner element.
-          // Clear filter entirely when blur is 0 to avoid creating a
-          // stacking context that would break backface-visibility.
-          card.style.filter = blur > 0 ? 'blur(' + blur + 'px)' : '';
-
-          // Toggle focus class for CSS accent glow, shine, and hover flip
-          if (i === focusIdx && Math.abs(dist) < 0.2) {
+          // Focus class for accent glow, shine, and hover flip
+          if (i === focusIdx && Math.abs(dist) < 0.18) {
             card.classList.add('is-focused');
           } else {
             card.classList.remove('is-focused');
           }
 
           // Set CSS custom properties — CSS composes the final transform
-          if (inner) {
-            card.style.setProperty('--r-ty', ty + 'px');
-            card.style.setProperty('--r-tz', tz + 'px');
-            card.style.setProperty('--r-rx', rx + 'deg');
-            card.style.setProperty('--r-sc', sc);
-            card.style.setProperty('--r-shadow', shadow);
-          }
+          card.style.setProperty('--r-ty', ty + 'px');
+          card.style.setProperty('--r-tz', tz + 'px');
+          card.style.setProperty('--r-rx', rx + 'deg');
+          card.style.setProperty('--r-sc', sc);
+          card.style.setProperty('--r-shadow', shadow);
         }
       });
     }
