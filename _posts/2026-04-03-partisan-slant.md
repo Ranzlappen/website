@@ -17,6 +17,13 @@ comments: true
 <li><a href="#mean-vs-median">Mean vs. Median: A Favorite Trick in Economic Reporting</a></li>
 <li><a href="#case-studies">Classic and Recent Case Studies</a></li>
 <li><a href="#visual-tricks">The Role of Visuals and Graphs</a></li>
+<li><a href="#continuity-illusion">The Continuity Illusion: Journalists’ Delirious Love of the Connecting Line</a></li>
+<li><a href="#truncated-baseline">The Truncated or Non-Zero Baseline Deception</a></li>
+<li><a href="#wrong-chart-type">Choosing the Wrong Chart Type</a></li>
+<li><a href="#cherry-picked-windows">Cherry-Picked Time Windows</a></li>
+<li><a href="#chart-clutter">Chart Clutter and Information Overload</a></li>
+<li><a href="#missing-uncertainty">Ignoring Uncertainty: Missing Error Bars and Confidence Intervals</a></li>
+<li><a href="#dunkelziffer">The Dark Figure: Ignoring the Dunkelziffer (Unreported Cases)</a></li>
 <li><a href="#impacts">Impacts on Public Opinion and Democracy</a></li>
 <li><a href="#key-takeaways">Key Takeaways</a></li>
 <li><a href="#conclusion">Conclusion</a></li>
@@ -67,6 +74,50 @@ Graphs amplify deception when y-axes are truncated or do not start at zero, exag
   </canvas>
 </div>
 
+### The Continuity Illusion: Journalists’ Delirious Love of the Connecting Line
+
+One of the most seductive (and deceptive) tricks in modern data visualization is the humble line chart—especially when applied to *discrete, annual, or categorical data*. Journalists and YouTubers are absolutely delirious about them. A glowing, continuous line gliding across the screen creates instant drama: rising crime waves, plummeting safety, economic booms and busts. It feels like a story unfolding in real time.
+
+But here’s the problem: **a line chart strongly implies that the space between the data points is meaningful and continuous**. It suggests smooth, gradual change even when none exists.
+
+Take a recent YouTube video using a line chart of U.S. motor vehicle deaths by year (1999–2023). The x-axis shows sparse year labels, and a bright white line connects the annual totals with dramatic peaks and valleys. Viewers see a “story” of steady decline, then a sudden crash and explosive recovery. In reality, each data point is a complete yearly *total*. There is no “mid-2007” death count, no linear slide from December 31 to January 1. The line fabricates continuity where the data is discrete. The same information would be far more honest as a bar chart (each year stands alone) or a step chart (the level stays flat for the full year, then jumps).
+
+<div class="chart-container" role="figure" aria-label="U.S. Motor Vehicle Deaths by Year — Line vs Bar (Recommended)">
+  <canvas data-chart="bar"
+    data-title="U.S. Motor Vehicle Deaths by Year (1999–2023) — Bar Chart (Recommended)"
+    data-labels='["1999","2005","2011","2017","2023"]'
+    data-datasets='[{"label":"Deaths","data":[41700,43500,32500,37000,44762],"color":"#ef4444"}]'>
+  </canvas>
+</div>
+
+Always ask: Is the x-axis truly continuous and densely sampled? Or are we being sold a smooth story between unrelated yearly dots?
+
+### The Truncated or Non-Zero Baseline Deception
+
+Even when the right chart type is chosen, the scale can still lie. Starting the y-axis at an arbitrary number (e.g., 40,000 instead of zero) makes modest 5–10 % changes look like explosive 50 % spikes. This is especially common in crime, unemployment, and economic charts on both sides of the political aisle. The numbers themselves remain accurate, but the visual impact is massively distorted.
+
+### Choosing the Wrong Chart Type
+
+Beyond line charts, journalists frequently misuse pie charts with too many slices, 3D effects that distort proportions, or area charts where both height *and* width grow (doubling the perceived change). These choices prioritize drama over clarity and turn neutral data into persuasive theater.
+
+### Cherry-Picked Time Windows
+
+A chart may show only the last five years to claim “record crime under X administration” while conveniently omitting the previous decade’s context. The data points are real, but the selected window hides the bigger picture. Always check: What happened before and after the highlighted period?
+
+### Chart Clutter and Information Overload
+
+Too many lines, rainbow color palettes, tiny fonts, or overlapping series make a graph nearly impossible to read. Viewers quickly give up and accept the presenter’s spoken narrative. Clutter is often unintentional, but the effect is the same: the audience cannot verify the claim for themselves.
+
+### Ignoring Uncertainty: Missing Error Bars and Confidence Intervals
+
+Polls, surveys, and small-sample studies almost never display margins of error or confidence intervals. A 3 % difference in a poll with a ±4 % margin looks decisive on screen but is statistically meaningless. Without visual indicators of uncertainty, noisy or preliminary data is presented as rock-solid fact.
+
+### The Dark Figure: Ignoring the Dunkelziffer (Unreported Cases)
+
+One of the most overlooked deceptions is pretending official statistics capture reality in full. The German term *Dunkelziffer* (literally “dark figure”) describes the vast number of crimes, incidents, or events that go unreported or unrecorded. For violent crime in the U.S., studies show only about 40 % of incidents are reported to police; for property crime the figure is even lower. Charts of “official crime rates” therefore show only the visible tip of the iceberg.
+
+Media outlets on every side routinely cite FBI or police statistics as definitive proof that “crime is down” or “crime is exploding”—without ever mentioning the hidden portion. When reporting rates change (due to distrust, fear, or policy shifts), the official numbers can move dramatically even if actual crime stays stable. Honest reporting would acknowledge this uncertainty instead of treating the charted line as the complete story.
+
 <h2 id="impacts">Impacts on Public Opinion and Democracy</h2>
 
 Repeated exposure to skewed statistics erodes trust in institutions and data itself. Voters make decisions based on distorted pictures of inequality, crime, economic health, or policy effectiveness. Policy debates become polarized around competing narratives rather than shared facts. Over time, this weakens democratic accountability.
@@ -78,6 +129,7 @@ Repeated exposure to skewed statistics erodes trust in institutions and data its
 - Truncated graphs and dual-axis charts visually exaggerate trends without falsifying numbers.
 - Both legacy media and partisan outlets employ these methods; skepticism should be non-partisan.
 - Critical consumers should always ask: Which measure of “average”? What is the full time frame? What data was excluded?
+- Visuals can lie through inappropriate chart types, truncated scales, clutter, omitted uncertainty, cherry-picked periods, and by ignoring the *Dunkelziffer*—always verify the raw data and chart construction behind the pretty picture.
 
 <h2 id="conclusion">Conclusion</h2>
 
@@ -90,5 +142,10 @@ Statistics remain essential tools for understanding society. When media outlets 
 <a href="https://researchbriefings.files.parliament.uk/documents/SN04446/SN04446.pdf" target="_blank" rel="noopener">How to Spot Spin and Inappropriate Use of Statistics (UK Parliament Briefing, 2023)</a><br>
 <a href="https://yipinstitute.org/article/misuse-of-statistics-abortion" target="_blank" rel="noopener">The Misuse of Statistics in Politics: Abortion (YIP Institute)</a><br>
 <a href="https://www.forbes.com/sites/jeffreydorfman/2017/08/17/how-to-spot-a-lie-with-economic-statistics/" target="_blank" rel="noopener">How To (Spot A) Lie With Economic Statistics (Forbes, 2017)</a><br>
-<a href="https://www.brookings.edu/articles/around-the-halls-the-cost-of-compromising-federal-data/" target="_blank" rel="noopener">The Cost of Compromising Federal Data (Brookings, 2025)</a><br>
-Huff, Darrell. *How to Lie with Statistics* (1954 classic reference, still foundational).
+<a href="https://www.brookings.edu/articles/around-the-halls-the-cost-of-compromising-federal-data/" target="_blank" rel="noopener">The Cost of Compromising Federal Data (Brookings, 2023)</a><br>
+<a href="https://www.pewresearch.org/short-reads/2023/10/18/how-americans-view-data-privacy/" target="_blank" rel="noopener">How Americans View Data Privacy (Pew Research Center, 2023)</a><br>
+<a href="https://www.nsc.org/road-safety/safety-topics/fatality-estimates" target="_blank" rel="noopener">National Safety Council Motor Vehicle Fatality Data (2024)</a>
+
+**Further reading**  
+Darrell Huff, *How to Lie with Statistics* (1954)  
+Edward Tufte, *The Visual Display of Quantitative Information* (2001)
