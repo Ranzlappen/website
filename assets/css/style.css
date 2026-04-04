@@ -653,7 +653,7 @@ img {
 .rolodex-active::-webkit-scrollbar-track { background: transparent; }
 
 .posts-rolodex {
-  padding: var(--space-lg) 0 40vh;
+  padding: var(--space-lg) 0 50vh;
 }
 .posts-rolodex[hidden] { display: none; }
 
@@ -661,19 +661,19 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6rem;
+  gap: 7rem;
   max-width: 46rem;
   margin: 0 auto;
 }
 
 .rolodex-card {
   position: sticky;
-  top: calc(var(--header-height, 3.5rem) + 2rem + var(--card-index, 0) * 10px);
+  top: calc(var(--header-height, 3.5rem) + 2rem + var(--card-index, 0) * 8px);
   width: 100%;
   min-height: 20rem;
   opacity: 0;
   z-index: 1;
-  perspective: 1400px;
+  perspective: 1800px;
 }
 
 .rolodex-card__link {
@@ -687,12 +687,23 @@ img {
   position: relative;
   width: 100%;
   min-height: 20rem;
-  transform: translateZ(-200px) rotateX(60deg) scale(0.7);
+  transform:
+    translateY(var(--r-ty, 0px))
+    translateZ(var(--r-tz, -200px))
+    rotateX(var(--r-rx, 60deg))
+    scale(var(--r-sc, 0.7));
   transform-style: preserve-3d;
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: blur(var(--r-blur, 0px));
 }
-.rolodex-card:hover .rolodex-card__inner {
+
+/* Hover flip — only on focused (centered) cards, with smooth transition */
+.rolodex-card.is-focused .rolodex-card__inner {
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.3s ease;
+}
+.rolodex-card.is-focused:hover .rolodex-card__inner {
   transform: rotateY(180deg);
+  filter: blur(0px);
 }
 
 .rolodex-card__face {
@@ -704,9 +715,43 @@ img {
   overflow: hidden;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
-  box-shadow: 0 25px 60px -12px var(--c-card-shadow),
-              0 8px 24px -4px rgba(0,0,0,0.12),
-              0 0 0 1px rgba(0,0,0,0.03);
+  box-shadow:
+    0 calc(var(--r-shadow, 0.3) * 30px) calc(var(--r-shadow, 0.3) * 80px) calc(var(--r-shadow, 0.3) * -15px) var(--c-card-shadow),
+    0 calc(var(--r-shadow, 0.3) * 10px) calc(var(--r-shadow, 0.3) * 30px) -5px rgba(0,0,0,0.15),
+    0 0 0 1px rgba(0,0,0,0.03);
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+/* Accent glow on focused card */
+.rolodex-card.is-focused .rolodex-card__face {
+  border-color: var(--c-accent-border);
+  box-shadow:
+    0 30px 80px -15px var(--c-card-shadow),
+    0 10px 30px -5px rgba(0,0,0,0.15),
+    0 0 0 1px rgba(74, 222, 128, 0.08),
+    0 0 40px -10px rgba(74, 222, 128, 0.06);
+}
+
+/* Shine highlight on focused card front */
+.rolodex-card__front::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255,255,255,0.02) 42%,
+    rgba(255,255,255,0.06) 48%,
+    rgba(255,255,255,0.02) 54%,
+    transparent 61%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 2;
+}
+.rolodex-card.is-focused .rolodex-card__front::after {
+  opacity: 1;
 }
 
 .rolodex-card__front {
@@ -736,10 +781,10 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-slow);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.rolodex-card:hover .rolodex-card__front .rolodex-card__image img {
-  transform: scale(1.05);
+.rolodex-card.is-focused:hover .rolodex-card__front .rolodex-card__image img {
+  transform: scale(1.08);
 }
 .rolodex-card__image--placeholder {
   display: flex;
@@ -774,6 +819,10 @@ img {
   letter-spacing: -0.02em;
   margin-bottom: var(--space-sm);
   color: var(--c-text);
+  transition: color 0.3s ease;
+}
+.rolodex-card.is-focused .rolodex-card__title {
+  color: var(--c-accent);
 }
 
 .rolodex-card__excerpt {
@@ -801,7 +850,7 @@ img {
 }
 
 @media (max-width: 640px) {
-  .rolodex-scene { gap: 4rem; }
+  .rolodex-scene { gap: 5rem; }
   .rolodex-card__front {
     flex-direction: column;
   }
@@ -816,8 +865,13 @@ img {
   .rolodex-card__inner {
     min-height: auto;
   }
-  .rolodex-card:hover .rolodex-card__inner {
-    transform: none;
+  /* No flip on mobile — show front with scroll-driven transforms */
+  .rolodex-card.is-focused:hover .rolodex-card__inner {
+    transform:
+      translateY(var(--r-ty, 0px))
+      translateZ(var(--r-tz, 0px))
+      rotateX(var(--r-rx, 0deg))
+      scale(var(--r-sc, 1));
   }
   .rolodex-card__back {
     display: none;
@@ -839,8 +893,9 @@ img {
   .rolodex-card__inner {
     transform: none !important;
     transition: none;
+    filter: none !important;
   }
-  .rolodex-card:hover .rolodex-card__inner {
+  .rolodex-card.is-focused:hover .rolodex-card__inner {
     transform: none !important;
   }
 }

@@ -159,19 +159,32 @@ DATE: 2026-04-02
     var cards = postsRolodex.querySelectorAll('.rolodex-card');
     if (!cards.length) return;
 
-    // Cache inner elements for transform separation
+    // Cache inner elements for CSS custom-property driven transforms
     var inners = [];
     for (var j = 0; j < cards.length; j++) {
       inners.push(cards[j].querySelector('.rolodex-card__inner'));
     }
+
+    // Smooth easing: easeOutCubic for natural deceleration
+    function ease(t) { return 1 - Math.pow(1 - t, 3); }
 
     function onScroll() {
       if (rolodexRAF) return;
       rolodexRAF = requestAnimationFrame(function () {
         rolodexRAF = null;
         var vh = window.innerHeight;
-        var centerY = vh * 0.45;
+        var centerY = vh * 0.42;
+        var focusIdx = -1;
+        var minDist = Infinity;
 
+        // First pass: find which card is closest to center
+        for (var i = 0; i < cards.length; i++) {
+          var rect = cards[i].getBoundingClientRect();
+          var d = Math.abs(rect.top + rect.height / 2 - centerY);
+          if (d < minDist) { minDist = d; focusIdx = i; }
+        }
+
+        // Second pass: apply transforms via CSS custom properties
         for (var i = 0; i < cards.length; i++) {
           var card = cards[i];
           var inner = inners[i];
@@ -179,65 +192,75 @@ DATE: 2026-04-02
           var cardCenter = rect.top + rect.height / 2;
           var dist = (cardCenter - centerY) / vh;
 
-          if (rect.bottom < -100 || rect.top > vh + 100) {
+          // Off-screen culling
+          if (rect.bottom < -150 || rect.top > vh + 150) {
             card.style.opacity = '0';
-            card.style.zIndex = 1;
-            card.style.willChange = 'auto';
-            if (inner) inner.style.transform = 'translateZ(-200px) rotateX(60deg) scale(0.7)';
+            card.style.zIndex = '1';
+            card.classList.remove('is-focused');
             continue;
           }
 
-          var opacity, ty, tz, rx, sc, zBase;
+          var opacity, ty, tz, rx, sc, blur, shadow;
 
-          if (dist < -0.4) {
+          if (dist < -0.5) {
+            // Far above — fully folded back
             opacity = 0;
-            tz = -180;
-            rx = -45;
-            sc = 0.8;
-            ty = -30;
-            zBase = 1;
-          } else if (dist < 0) {
-            var t = Math.abs(dist) / 0.4;
-            opacity = 1 - t * 0.8;
-            tz = -160 * t;
-            rx = -40 * t;
-            sc = 1 - 0.15 * t;
-            ty = -25 * t;
-            zBase = Math.round(100 * (1 - t));
-          } else if (dist < 0.15) {
+            tz = -280; rx = -65; sc = 0.65; ty = -40;
+            blur = 6; shadow = 0.1;
+          } else if (dist < -0.05) {
+            // Scrolling past — dramatic backward tilt
+            var t = ease(Math.abs(dist + 0.05) / 0.45);
+            opacity = 1 - t * 0.9;
+            tz = -280 * t; rx = -65 * t; sc = 1 - 0.35 * t; ty = -40 * t;
+            blur = 6 * t; shadow = 1 - t * 0.9;
+          } else if (dist < 0.18) {
+            // Sweet spot — fully presented with subtle micro-animation
+            var center = (dist + 0.05) / 0.23;
+            var micro = Math.abs(center - 0.5) * 2;
             opacity = 1;
-            tz = 0;
-            rx = 0;
-            sc = 1;
-            ty = 0;
-            zBase = 100;
-          } else if (dist < 0.8) {
-            var t = (dist - 0.15) / 0.65;
-            opacity = 1 - t * 0.7;
-            tz = -120 * t;
-            rx = 35 * t;
-            sc = 1 - 0.12 * t;
-            ty = 50 * t;
-            zBase = Math.round(90 - 40 * t);
+            tz = -8 * micro; rx = 0; sc = 1 - 0.015 * micro; ty = 0;
+            blur = 0; shadow = 1;
+          } else if (dist < 1.0) {
+            // Approaching from below — rising with forward tilt
+            var t = ease((dist - 0.18) / 0.82);
+            opacity = 1 - t * 0.85;
+            tz = -250 * t; rx = 45 * t; sc = 1 - 0.3 * t; ty = 70 * t;
+            blur = 5 * t; shadow = 1 - t * 0.8;
           } else {
-            opacity = 0.1;
-            tz = -200;
-            rx = 50;
-            sc = 0.75;
-            ty = 60;
-            zBase = 10;
+            // Far below — not visible yet
+            opacity = 0;
+            tz = -300; rx = 50; sc = 0.6; ty = 80;
+            blur = 6; shadow = 0.1;
           }
 
-          // Later cards (higher index) win ties so new cards stack on top
-          card.style.zIndex = zBase * cards.length + (i + 1);
-          card.style.opacity = opacity;
-          card.style.willChange = (opacity > 0) ? 'opacity' : 'auto';
+          // Z-index: focused card always highest, distance-based falloff for rest
+          var zi;
+          if (i === focusIdx) {
+            zi = 1000;
+          } else if (dist < 0) {
+            zi = 500 - Math.round(Math.abs(dist) * 100);
+          } else {
+            zi = 500 - Math.round(dist * 100);
+          }
 
-          // 3D transforms on inner element — keeps sticky stacking clean
+          card.style.opacity = opacity;
+          card.style.zIndex = zi;
+
+          // Toggle focus class for CSS accent glow, shine, and hover flip
+          if (i === focusIdx && Math.abs(dist) < 0.2) {
+            card.classList.add('is-focused');
+          } else {
+            card.classList.remove('is-focused');
+          }
+
+          // Set CSS custom properties — CSS composes the final transform
           if (inner) {
-            inner.style.willChange = (opacity > 0) ? 'transform' : 'auto';
-            inner.style.transform =
-              'translateY(' + ty + 'px) translateZ(' + tz + 'px) rotateX(' + rx + 'deg) scale(' + sc + ')';
+            card.style.setProperty('--r-ty', ty + 'px');
+            card.style.setProperty('--r-tz', tz + 'px');
+            card.style.setProperty('--r-rx', rx + 'deg');
+            card.style.setProperty('--r-sc', sc);
+            card.style.setProperty('--r-blur', blur + 'px');
+            card.style.setProperty('--r-shadow', shadow);
           }
         }
       });
@@ -256,6 +279,13 @@ DATE: 2026-04-02
     if (rolodexRAF) {
       cancelAnimationFrame(rolodexRAF);
       rolodexRAF = null;
+    }
+    // Clean up focus classes
+    if (postsRolodex) {
+      var cards = postsRolodex.querySelectorAll('.rolodex-card');
+      for (var i = 0; i < cards.length; i++) {
+        cards[i].classList.remove('is-focused');
+      }
     }
   }
 
