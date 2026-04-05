@@ -188,7 +188,7 @@ DATE: 2026-04-02
           if (d < minDist) { minDist = d; focusIdx = i; }
         }
 
-        // Apply transforms via CSS custom properties — no filter/blur
+        // Apply 3D transforms via CSS custom properties
         for (var i = 0; i < n; i++) {
           var card = cards[i];
           var rect = rects[i];
@@ -203,30 +203,38 @@ DATE: 2026-04-02
             continue;
           }
 
-          var opacity, ty, shadow;
+          var opacity, ty, rx, scale, shadow;
           var absDist = Math.abs(dist);
 
           if (absDist < 0.08) {
-            // Active zone — fully visible
+            // Active zone — fully visible, no tilt, full scale
             opacity = 1;
             ty = 0;
+            rx = 0;
+            scale = 1;
             shadow = 1;
           } else if (dist < -0.08 && dist >= -0.55) {
-            // Fading up — card scrolls past center and rises away
+            // Above center — card tilts away and recedes upward
             var t = ease(clamp((absDist - 0.08) / 0.47, 0, 1));
             opacity = 1 - t;
-            ty = -80 * t;
+            ty = -60 * t;
+            rx = 12 * t;
+            scale = 1 - 0.15 * t;
             shadow = 1 - t;
           } else if (dist > 0.08 && dist <= 0.55) {
-            // Below center — fade in as it approaches
+            // Below center — card tilted forward, scales up as it approaches
             var t = ease(clamp((absDist - 0.08) / 0.47, 0, 1));
             opacity = 1 - t;
-            ty = 0;
+            ty = 30 * t;
+            rx = -6 * t;
+            scale = 1 - 0.12 * t;
             shadow = 1 - t;
           } else {
             // Gone — fully invisible
             opacity = 0;
-            ty = dist < 0 ? -80 : 0;
+            ty = dist < 0 ? -60 : 30;
+            rx = dist < 0 ? 12 : -6;
+            scale = dist < 0 ? 0.85 : 0.88;
             shadow = 0;
           }
 
@@ -242,7 +250,7 @@ DATE: 2026-04-02
 
           card.style.zIndex = zi;
 
-          // Focus class for accent glow, shine, and hover flip
+          // Focus class for accent glow, shimmer, and hover effects
           if (i === focusIdx && Math.abs(dist) < 0.18) {
             card.classList.add('is-focused');
           } else {
@@ -255,6 +263,8 @@ DATE: 2026-04-02
 
           card.style.opacity = opacity;
           card.style.setProperty('--r-ty', ty + 'px');
+          card.style.setProperty('--r-rx', rx + 'deg');
+          card.style.setProperty('--r-scale', scale);
           card.style.setProperty('--r-shadow', shadow);
         }
       });
