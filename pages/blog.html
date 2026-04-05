@@ -49,9 +49,10 @@ permalink: /blog/
 
     <div class="posts-rolodex" id="posts-rolodex">
       <div class="rolodex-scene">
+        {% assign index = 0 %}
         {% for post in site.posts %}
           {% if post.status == "published" or post.status == "placeholder" %}
-            <article class="rolodex-card">
+            <article class="rolodex-card" style="--card-index: {{ index }};">
               <a href="{{ post.url | relative_url }}" class="rolodex-card__link" aria-label="{{ post.title }}">
                 <div class="rolodex-card__inner">
                   <div class="rolodex-card__face rolodex-card__front">
@@ -91,6 +92,7 @@ permalink: /blog/
                 </div>
               </a>
             </article>
+            {% assign index = index | plus: 1 %}
           {% endif %}
         {% endfor %}
       </div>

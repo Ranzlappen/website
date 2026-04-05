@@ -646,7 +646,28 @@ img {
    DATE: 2026-04-04
    ============================================================ */
 
-/* Registered custom property for shadow interpolation (progressive enhancement) */
+/* Registered custom properties — required for CSS scroll-driven animation
+   interpolation of transform sub-values (progressive enhancement) */
+@property --r-ty {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --r-tz {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --r-rx {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --r-sc {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
 @property --r-shadow {
   syntax: '<number>';
   inherits: true;
@@ -675,12 +696,11 @@ img {
 
 .rolodex-card {
   position: sticky;
-  top: calc(var(--header-height, 3.5rem) + 2rem);
+  top: calc(var(--header-height, 3.5rem) + 2rem + var(--card-index, 0) * 6px);
   width: 100%;
   min-height: 20rem;
   opacity: 1;
   z-index: 1;
-  transition: opacity 0.3s ease;
 }
 
 .rolodex-card__link {
@@ -696,8 +716,13 @@ img {
   position: relative;
   width: 100%;
   min-height: 20rem;
+  transform:
+    translateY(var(--r-ty, 0px))
+    translateZ(var(--r-tz, 0px))
+    rotateX(var(--r-rx, 0deg))
+    scale(var(--r-sc, 1));
   transform-style: preserve-3d;
-  will-change: opacity;
+  will-change: transform;
 }
 
 /* Hover flip — only on focused (centered) cards, with smooth transition
@@ -706,7 +731,12 @@ img {
   transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .rolodex-card.is-focused:hover .rolodex-card__inner {
-  transform: rotateY(180deg);
+  transform:
+    translateY(var(--r-ty, 0px))
+    translateZ(var(--r-tz, 0px))
+    rotateX(var(--r-rx, 0deg))
+    scale(var(--r-sc, 1))
+    rotateY(180deg);
 }
 
 .rolodex-card__face {
@@ -853,26 +883,50 @@ img {
    older browsers fall back to the JS scroll handler seamlessly. */
 @keyframes rolodex-card-peel {
   0% {
+    --r-ty: 55px;
+    --r-tz: -380px;
+    --r-rx: 35deg;
+    --r-sc: 0.62;
     --r-shadow: 0;
     opacity: 0;
   }
   25% {
+    --r-ty: 30px;
+    --r-tz: -200px;
+    --r-rx: 18deg;
+    --r-sc: 0.82;
     --r-shadow: 0.5;
-    opacity: 0.6;
+    opacity: 0.7;
   }
   40% {
+    --r-ty: 0px;
+    --r-tz: 0px;
+    --r-rx: 0deg;
+    --r-sc: 1;
     --r-shadow: 1;
     opacity: 1;
   }
   60% {
+    --r-ty: 0px;
+    --r-tz: 0px;
+    --r-rx: 0deg;
+    --r-sc: 1;
     --r-shadow: 1;
     opacity: 1;
   }
   80% {
+    --r-ty: -30px;
+    --r-tz: -250px;
+    --r-rx: -50deg;
+    --r-sc: 0.72;
     --r-shadow: 0.3;
-    opacity: 0.4;
+    opacity: 0.5;
   }
   100% {
+    --r-ty: -50px;
+    --r-tz: -400px;
+    --r-rx: -78deg;
+    --r-sc: 0.55;
     --r-shadow: 0;
     opacity: 0;
   }
@@ -902,9 +956,13 @@ img {
   .rolodex-card__inner {
     min-height: auto;
   }
-  /* No flip on mobile */
+  /* No flip on mobile — preserve scroll-driven transforms only */
   .rolodex-card.is-focused:hover .rolodex-card__inner {
-    transform: none;
+    transform:
+      translateY(var(--r-ty, 0px))
+      translateZ(var(--r-tz, 0px))
+      rotateX(var(--r-rx, 0deg))
+      scale(var(--r-sc, 1));
   }
   .rolodex-card__back {
     display: none;
