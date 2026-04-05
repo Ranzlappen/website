@@ -96,26 +96,26 @@ DATE: 2026-04-02
   }
 
   // -------------------------------------------------------
-  // View Toggle (Grid / List / Rolodex)
+  // View Toggle (Grid / List / Carousel)
   // -------------------------------------------------------
-  // CHANGE: Extended view toggle to support Rolodex 3D parallax mode
+  // CHANGE: Extended view toggle to support Carousel 3D parallax mode
   // REASON: Implement visually impressive card-stack scroll effect on /blog/
   // DATE: 2026-04-04
   var viewGrid = document.getElementById('view-grid');
   var viewList = document.getElementById('view-list');
-  var viewRolodex = document.getElementById('view-rolodex');
+  var viewCarousel = document.getElementById('view-carousel');
   var postsGrid = document.getElementById('posts-grid');
   var postsList = document.getElementById('posts-list');
-  var postsRolodex = document.getElementById('posts-rolodex');
+  var postsCarousel = document.getElementById('posts-carousel');
 
   if (viewGrid && viewList) {
-    var saved = localStorage.getItem('viewMode') || 'rolodex';
+    var saved = localStorage.getItem('viewMode') || 'carousel';
     applyView(saved);
 
     viewGrid.addEventListener('click', function () { applyView('grid'); });
     viewList.addEventListener('click', function () { applyView('list'); });
-    if (viewRolodex) {
-      viewRolodex.addEventListener('click', function () { applyView('rolodex'); });
+    if (viewCarousel) {
+      viewCarousel.addEventListener('click', function () { applyView('carousel'); });
     }
   }
 
@@ -123,23 +123,23 @@ DATE: 2026-04-02
     if (!postsGrid || !postsList) return;
     var containers = [postsGrid, postsList];
     var buttons = [viewGrid, viewList];
-    if (postsRolodex) containers.push(postsRolodex);
-    if (viewRolodex) buttons.push(viewRolodex);
+    if (postsCarousel) containers.push(postsCarousel);
+    if (viewCarousel) buttons.push(viewCarousel);
 
     containers.forEach(function (c) { c.hidden = true; });
     buttons.forEach(function (b) { b.classList.remove('active'); });
 
-    document.documentElement.classList.remove('rolodex-active');
-    destroyRolodexObserver();
+    document.documentElement.classList.remove('carousel-active');
+    destroyCarouselObserver();
 
     if (mode === 'list') {
       postsList.hidden = false;
       viewList.classList.add('active');
-    } else if (mode === 'rolodex' && postsRolodex) {
-      postsRolodex.hidden = false;
-      if (viewRolodex) viewRolodex.classList.add('active');
-      document.documentElement.classList.add('rolodex-active');
-      initRolodexObserver();
+    } else if (mode === 'carousel' && postsCarousel) {
+      postsCarousel.hidden = false;
+      if (viewCarousel) viewCarousel.classList.add('active');
+      document.documentElement.classList.add('carousel-active');
+      initCarouselObserver();
     } else {
       mode = 'grid';
       postsGrid.hidden = false;
@@ -149,27 +149,27 @@ DATE: 2026-04-02
   }
 
   // -------------------------------------------------------
-  // Rolodex Vertical Carousel — Scroll-Driven Focus Engine
+  // Carousel Vertical Carousel — Scroll-Driven Focus Engine
   // CHANGE: Removed position:sticky entirely. Cards in normal document
   //         flow — no overlapping, no z-index issues. JS highlights the
   //         card nearest viewport center; others recede with tilt+scale.
   // DATE: 2026-04-05
   // -------------------------------------------------------
-  var rolodexRAF = null;
-  var rolodexScrollHandler = null;
+  var carouselRAF = null;
+  var carouselScrollHandler = null;
 
-  function initRolodexObserver() {
-    if (rolodexScrollHandler || !postsRolodex) return;
-    var cards = postsRolodex.querySelectorAll('.rolodex-card');
+  function initCarouselObserver() {
+    if (carouselScrollHandler || !postsCarousel) return;
+    var cards = postsCarousel.querySelectorAll('.carousel-card');
     if (!cards.length) return;
     var n = cards.length;
 
     function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
 
     function onScroll() {
-      if (rolodexRAF) return;
-      rolodexRAF = requestAnimationFrame(function () {
-        rolodexRAF = null;
+      if (carouselRAF) return;
+      carouselRAF = requestAnimationFrame(function () {
+        carouselRAF = null;
         var vh = window.innerHeight;
         var anchorY = vh * 0.45;
         var focusIdx = -1;
@@ -223,23 +223,23 @@ DATE: 2026-04-02
       });
     }
 
-    rolodexScrollHandler = onScroll;
+    carouselScrollHandler = onScroll;
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }
 
-  function destroyRolodexObserver() {
-    if (rolodexScrollHandler) {
-      window.removeEventListener('scroll', rolodexScrollHandler);
-      rolodexScrollHandler = null;
+  function destroyCarouselObserver() {
+    if (carouselScrollHandler) {
+      window.removeEventListener('scroll', carouselScrollHandler);
+      carouselScrollHandler = null;
     }
-    if (rolodexRAF) {
-      cancelAnimationFrame(rolodexRAF);
-      rolodexRAF = null;
+    if (carouselRAF) {
+      cancelAnimationFrame(carouselRAF);
+      carouselRAF = null;
     }
     // Clean up focus classes
-    if (postsRolodex) {
-      var cards = postsRolodex.querySelectorAll('.rolodex-card');
+    if (postsCarousel) {
+      var cards = postsCarousel.querySelectorAll('.carousel-card');
       for (var i = 0; i < cards.length; i++) {
         cards[i].classList.remove('is-focused');
       }

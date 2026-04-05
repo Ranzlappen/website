@@ -22,7 +22,7 @@ permalink: /blog/
             <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
           </svg>
         </button>
-        <button id="view-rolodex" class="active" aria-label="Rolodex view" type="button">
+        <button id="view-carousel" class="active" aria-label="Carousel view" type="button">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <rect x="4" y="4" width="16" height="16" rx="2"/>
             <path d="M4 8h16M4 16h16"/>
@@ -47,36 +47,36 @@ permalink: /blog/
       {% endfor %}
     </div>
 
-    <div class="posts-rolodex" id="posts-rolodex">
-      <div class="rolodex-scene">
+    <div class="posts-carousel" id="posts-carousel">
+      <div class="carousel-scene">
         {% for post in site.posts %}
           {% if post.status == "published" or post.status == "placeholder" %}
-            <article class="rolodex-card">
-              <a href="{{ post.url | relative_url }}" class="rolodex-card__link" aria-label="{{ post.title }}">
-                <div class="rolodex-card__inner">
-                  <div class="rolodex-card__face rolodex-card__front">
-                    <div class="rolodex-card__image{% unless post.image %} rolodex-card__image--placeholder{% endunless %}">
+            <article class="carousel-card">
+              <a href="{{ post.url | relative_url }}" class="carousel-card__link" aria-label="{{ post.title }}">
+                <div class="carousel-card__inner">
+                  <div class="carousel-card__face carousel-card__front">
+                    <div class="carousel-card__image{% unless post.image %} carousel-card__image--placeholder{% endunless %}">
                       {% if post.image %}
                         <img src="{{ post.image | relative_url }}" alt="{{ post.title }}" loading="lazy">
                       {% else %}
                         <span aria-hidden="true">&#9998;</span>
                       {% endif %}
                     </div>
-                    <div class="rolodex-card__body">
-                      <div class="rolodex-card__meta">
+                    <div class="carousel-card__body">
+                      <div class="carousel-card__meta">
                         {% if post.category %}
                           <span class="post-card__category">{{ post.category }}</span>
                         {% endif %}
                         <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
                       </div>
-                      <h3 class="rolodex-card__title">{{ post.title }}</h3>
-                      <p class="rolodex-card__excerpt">{{ post.description | default: post.excerpt | strip_html | truncatewords: 20 }}</p>
+                      <h3 class="carousel-card__title">{{ post.title }}</h3>
+                      <p class="carousel-card__excerpt">{{ post.description | default: post.excerpt | strip_html | truncatewords: 20 }}</p>
                     </div>
                   </div>
-                  <div class="rolodex-card__face rolodex-card__back">
-                    <div class="rolodex-card__body">
-                      <p class="rolodex-card__excerpt">{{ post.description | default: post.excerpt | strip_html | truncatewords: 50 }}</p>
-                      <div class="rolodex-card__footer">
+                  <div class="carousel-card__face carousel-card__back">
+                    <div class="carousel-card__body">
+                      <p class="carousel-card__excerpt">{{ post.description | default: post.excerpt | strip_html | truncatewords: 50 }}</p>
+                      <div class="carousel-card__footer">
                         {% assign words = post.content | number_of_words %}
                         {% assign minutes = words | divided_by: 200 %}
                         {% if minutes < 1 %}{% assign minutes = 1 %}{% endif %}
@@ -85,7 +85,7 @@ permalink: /blog/
                           <span>{{ post.tags | first }}</span>
                         {% endif %}
                       </div>
-                      <span class="rolodex-card__cta">Read Article &rarr;</span>
+                      <span class="carousel-card__cta">Read Article &rarr;</span>
                     </div>
                   </div>
                 </div>
