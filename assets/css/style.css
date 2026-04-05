@@ -640,19 +640,14 @@ img {
 }
 
 /* ============================================================
-   Rolodex 3D Parallax View — Flashcard Scroll-Driven Stack
-   CHANGE: Fixed scroll runway (gap 6rem→85vh) so cards present one-at-a-time;
-           simplified transforms to proven translateY+rotateX+scale
-   REASON: Previous tiny gap made cards pile up instantly, killing the effect
+   Rolodex View — Vertical Carousel with Scroll-Driven Focus
+   CHANGE: Removed position:sticky entirely — cards in normal flow,
+           no overlapping, no z-index issues. JS highlights the card
+           nearest viewport center as you scroll.
    DATE: 2026-04-05
    ============================================================ */
 
 /* Registered custom properties for smooth scroll-driven interpolation */
-@property --r-ty {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
 @property --r-rx {
   syntax: '<angle>';
   inherits: true;
@@ -676,7 +671,7 @@ img {
 .rolodex-active::-webkit-scrollbar-track { background: transparent; }
 
 .posts-rolodex {
-  padding: var(--space-lg) 0 50vh;
+  padding: var(--space-lg) 0 30vh;
 }
 .posts-rolodex[hidden] { display: none; }
 
@@ -684,19 +679,15 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 45vh;
+  gap: 3rem;
   max-width: 46rem;
   margin: 0 auto;
 }
 
 .rolodex-card {
-  position: sticky;
-  top: calc(var(--header-height, 3.5rem) + 2rem);
   width: 100%;
   min-height: 20rem;
-  opacity: 1;
-  z-index: 1;
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rolodex-card__link {
@@ -713,7 +704,6 @@ img {
   width: 100%;
   min-height: 20rem;
   transform:
-    translateY(var(--r-ty, 0px))
     rotateX(var(--r-rx, 0deg))
     scale(var(--r-scale, 1));
   transform-style: preserve-3d;
@@ -725,13 +715,11 @@ img {
 @keyframes rolodex-breathe {
   0%, 100% {
     transform:
-      translateY(var(--r-ty, 0px))
       rotateX(var(--r-rx, 0deg))
       scale(var(--r-scale, 1));
   }
   50% {
     transform:
-      translateY(calc(var(--r-ty, 0px) - 5px))
       rotateX(calc(var(--r-rx, 0deg) + 0.4deg))
       scale(calc(var(--r-scale, 1) * 1.003));
   }
@@ -745,7 +733,6 @@ img {
   animation: none;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   transform:
-    translateY(var(--r-ty, 0px))
     rotateX(-2deg)
     rotateY(3deg)
     scale(1.02);
@@ -932,7 +919,7 @@ img {
 
 @media (max-width: 640px) {
   .rolodex-scene {
-    gap: 40vh;
+    gap: 2rem;
   }
   .rolodex-card__front {
     flex-direction: column;
@@ -964,11 +951,10 @@ img {
   }
 }
 
-/* Reduced motion: disable all parallax transforms */
+/* Reduced motion: disable all scroll transforms */
 @media (prefers-reduced-motion: reduce) {
   .rolodex-card {
     opacity: 1 !important;
-    position: relative;
   }
   .rolodex-card__inner {
     transform: none !important;
