@@ -19,7 +19,8 @@ A clean, dark-themed personal blog. No coding required to set up or maintain —
 11. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
 12. [Connect Your Own Domain](#connect-your-own-domain)
 13. [Change Colors or Fonts](#change-colors-or-fonts)
-14. [Moderate Comments and Votes](#moderate-comments-and-votes)
+14. [Tune the Blog Carousel](#tune-the-blog-carousel)
+15. [Moderate Comments and Votes](#moderate-comments-and-votes)
 
 ---
 
@@ -728,6 +729,63 @@ Then change the variable:
 
 ```css
 --f-body: 'Inter', sans-serif;
+```
+
+</details>
+
+---
+
+<details>
+<summary><h2>Tune the Blog Carousel</h2></summary>
+
+The blog page (`/blog/`) has a carousel view where cards snap gently into the viewport center as you scroll. All tuning values live in one place: the CSS variables at the top of `assets/css/style.css`, under `/* Carousel tuning */`.
+
+### Numeric values (CSS custom properties)
+
+| Variable | Default | What it does |
+|----------|---------|--------------|
+| `--carousel-gap` | `3rem` | Space between cards. Increase for more breathing room. |
+| `--carousel-fade-min` | `0.35` | How faded off-center cards get. `0` = fully invisible, `1` = no fading at all. |
+| `--carousel-scale-min` | `0.94` | How small off-center cards shrink. `1` = no shrink, `0.8` = very dramatic. |
+| `--carousel-tilt-up` | `4` | Tilt angle (degrees) for cards scrolled above center. Higher = more dramatic 3D. |
+| `--carousel-tilt-down` | `3` | Tilt angle (degrees) for cards scrolled below center. |
+| `--carousel-focus-range` | `0.55` | How far from center (fraction of viewport height) before maximum fade/scale kicks in. **Lower = snappier transitions, higher = gradual.** |
+| `--carousel-bottom-pad` | `40vh` | Bottom padding so the last card can reach the viewport center for snapping. |
+
+### Snap behavior (keyword properties)
+
+These control how "sticky" the snapping feels. They can't use CSS variables — edit them directly on their rules in `style.css`:
+
+| Property | Where to find it | Default | Options |
+|----------|-----------------|---------|---------|
+| `scroll-snap-type` | `.carousel-active` rule | `y proximity` | `y proximity` (gentle, hybrid) or `y mandatory` (strict, TikTok-like) |
+| `scroll-snap-align` | `.carousel-card` rule | `center` | `start`, `center`, or `end` — where the card lands in the viewport |
+| `scroll-snap-stop` | `.carousel-card` rule | `normal` | `normal` (fast scroll can skip cards) or `always` (must stop at every card) |
+
+### Preset: more like TikTok
+
+```css
+/* In .carousel-active: */
+scroll-snap-type: y mandatory;
+
+/* In .carousel-card: */
+scroll-snap-stop: always;
+
+/* In :root: */
+--carousel-focus-range: 0.35;
+--carousel-fade-min: 0.15;
+--carousel-scale-min: 0.88;
+```
+
+### Preset: more like normal scrolling
+
+```css
+/* In :root: */
+--carousel-focus-range: 0.75;
+--carousel-fade-min: 0.6;
+--carousel-scale-min: 0.98;
+--carousel-tilt-up: 1;
+--carousel-tilt-down: 1;
 ```
 
 </details>

@@ -166,6 +166,12 @@ DATE: 2026-04-02
 
     function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
 
+    // Read tuning values from CSS custom properties (set in :root)
+    var rootStyle = getComputedStyle(document.documentElement);
+    function cssNum(name, fallback) {
+      return parseFloat(rootStyle.getPropertyValue(name)) || fallback;
+    }
+
     function onScroll() {
       if (carouselRAF) return;
       carouselRAF = requestAnimationFrame(function () {
@@ -198,14 +204,20 @@ DATE: 2026-04-02
             continue;
           }
 
+          // Read tuning from CSS vars (cached per computed style)
+          var fadeMin    = cssNum('--carousel-fade-min', 0.35);
+          var scaleMin   = cssNum('--carousel-scale-min', 0.94);
+          var tiltUp     = cssNum('--carousel-tilt-up', 4);
+          var tiltDown   = cssNum('--carousel-tilt-down', 3);
+          var focusRange = cssNum('--carousel-focus-range', 0.55);
+
           // Smooth interpolation: 0 at center → 1 at edges
-          var t = clamp(absDist / 0.55, 0, 1);
-          // Quadratic for snappier transition near edges
+          var t = clamp(absDist / focusRange, 0, 1);
           var tFast = t * t;
 
-          var opacity = 1 - tFast * 0.65;
-          var rx = dist < 0 ? 4 * t : -3 * t;
-          var scale = 1 - 0.06 * t;
+          var opacity = 1 - tFast * (1 - fadeMin);
+          var rx = dist < 0 ? tiltUp * t : -tiltDown * t;
+          var scale = 1 - (1 - scaleMin) * t;
           var shadow = 1 - tFast;
 
           // Focus class for accent glow, shimmer, and hover effects
