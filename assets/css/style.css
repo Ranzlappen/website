@@ -640,7 +640,7 @@ img {
 }
 
 /* ============================================================
-   Rolodex View — Vertical Carousel with Scroll-Driven Focus
+   Carousel View — Vertical Carousel with Scroll-Driven Focus
    CHANGE: Removed position:sticky entirely — cards in normal flow,
            no overlapping, no z-index issues. JS highlights the card
            nearest viewport center as you scroll.
@@ -664,21 +664,21 @@ img {
   initial-value: 0.3;
 }
 
-/* Subtle scrollbar when rolodex is active */
-.rolodex-active {
+/* Subtle scrollbar when carousel is active */
+.carousel-active {
   scrollbar-width: thin;
   scroll-snap-type: y proximity;
 }
-.rolodex-active::-webkit-scrollbar { width: 6px; }
-.rolodex-active::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
-.rolodex-active::-webkit-scrollbar-track { background: transparent; }
+.carousel-active::-webkit-scrollbar { width: 6px; }
+.carousel-active::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
+.carousel-active::-webkit-scrollbar-track { background: transparent; }
 
-.posts-rolodex {
+.posts-carousel {
   padding: var(--space-lg) 0 40vh;
 }
-.posts-rolodex[hidden] { display: none; }
+.posts-carousel[hidden] { display: none; }
 
-.rolodex-scene {
+.carousel-scene {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -687,7 +687,7 @@ img {
   margin: 0 auto;
 }
 
-.rolodex-card {
+.carousel-card {
   width: 100%;
   min-height: 20rem;
   transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -695,7 +695,7 @@ img {
   scroll-snap-stop: normal;
 }
 
-.rolodex-card__link {
+.carousel-card__link {
   display: block;
   text-decoration: none;
   color: inherit;
@@ -704,7 +704,7 @@ img {
   perspective-origin: 50% 50%;
 }
 
-.rolodex-card__inner {
+.carousel-card__inner {
   position: relative;
   width: 100%;
   min-height: 20rem;
@@ -717,7 +717,7 @@ img {
 }
 
 /* Gentle breathe on focused card */
-@keyframes rolodex-breathe {
+@keyframes carousel-breathe {
   0%, 100% {
     transform:
       rotateX(var(--r-rx, 0deg))
@@ -729,12 +729,12 @@ img {
       scale(calc(var(--r-scale, 1) * 1.003));
   }
 }
-.rolodex-card.is-focused .rolodex-card__inner {
-  animation: rolodex-breathe 3.5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+.carousel-card.is-focused .carousel-card__inner {
+  animation: carousel-breathe 3.5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
 /* Hover 3D tilt — only on focused (centered) cards */
-.rolodex-card.is-focused:hover .rolodex-card__inner {
+.carousel-card.is-focused:hover .carousel-card__inner {
   animation: none;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   transform:
@@ -743,7 +743,7 @@ img {
     scale(1.02);
 }
 
-.rolodex-card__face {
+.carousel-card__face {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
@@ -760,11 +760,11 @@ img {
 }
 
 /* Multi-layered cinematic glow on focused card */
-@keyframes rolodex-glow-pulse {
+@keyframes carousel-glow-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
-.rolodex-card.is-focused .rolodex-card__face {
+.carousel-card.is-focused .carousel-card__face {
   border-color: var(--c-accent-border);
   box-shadow:
     0 50px 120px -25px var(--c-card-shadow),
@@ -773,15 +773,15 @@ img {
     0 0 80px -15px rgba(74, 222, 128, 0.1),
     0 0 160px -40px rgba(74, 222, 128, 0.05),
     inset 0 1px 0 0 rgba(255,255,255,0.05);
-  animation: rolodex-glow-pulse 4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  animation: carousel-glow-pulse 4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
 /* Prismatic shimmer sweep on focused card front */
-@keyframes rolodex-shimmer {
+@keyframes carousel-shimmer {
   0%   { transform: translateX(-100%) skewX(-8deg); }
   100% { transform: translateX(100%) skewX(-8deg); }
 }
-.rolodex-card__front::after {
+.carousel-card__front::after {
   content: '';
   position: absolute;
   inset: -20% -10%;
@@ -800,13 +800,13 @@ img {
   z-index: 2;
   transition: opacity 0.6s ease;
 }
-.rolodex-card.is-focused .rolodex-card__front::after {
+.carousel-card.is-focused .carousel-card__front::after {
   opacity: 1;
-  animation: rolodex-shimmer 5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  animation: carousel-shimmer 5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
 /* Subtle edge highlight that shifts with perspective */
-.rolodex-card__front::before {
+.carousel-card__front::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -823,47 +823,47 @@ img {
   opacity: 0;
   transition: opacity 0.5s ease;
 }
-.rolodex-card.is-focused .rolodex-card__front::before {
+.carousel-card.is-focused .carousel-card__front::before {
   opacity: 1;
 }
 
-.rolodex-card__front {
+.carousel-card__front {
   display: flex;
   flex-direction: row;
 }
-.rolodex-card__back {
+.carousel-card__back {
   transform: rotateY(180deg);
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--c-surface) 0%, var(--c-bg-alt) 100%);
 }
-.rolodex-card__back .rolodex-card__body {
+.carousel-card__back .carousel-card__body {
   padding: var(--space-xl);
   text-align: center;
 }
 
-.rolodex-card__image {
+.carousel-card__image {
   width: 40%;
   min-height: 100%;
   overflow: hidden;
   background: var(--c-bg-alt);
   flex-shrink: 0;
 }
-.rolodex-card__image img {
+.carousel-card__image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1),
               filter 0.8s ease;
 }
-.rolodex-card.is-focused .rolodex-card__front .rolodex-card__image img {
+.carousel-card.is-focused .carousel-card__front .carousel-card__image img {
   filter: brightness(1.05) saturate(1.1);
 }
-.rolodex-card.is-focused:hover .rolodex-card__front .rolodex-card__image img {
+.carousel-card.is-focused:hover .carousel-card__front .carousel-card__image img {
   transform: scale(1.12);
 }
-.rolodex-card__image--placeholder {
+.carousel-card__image--placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -871,7 +871,7 @@ img {
   font-size: 2.5rem;
 }
 
-.rolodex-card__front .rolodex-card__body {
+.carousel-card__front .carousel-card__body {
   padding: var(--space-lg) var(--space-xl);
   display: flex;
   flex-direction: column;
@@ -879,7 +879,7 @@ img {
   flex: 1;
 }
 
-.rolodex-card__meta {
+.carousel-card__meta {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
@@ -888,7 +888,7 @@ img {
   margin-bottom: var(--space-sm);
 }
 
-.rolodex-card__title {
+.carousel-card__title {
   font-family: var(--f-heading);
   font-size: 1.35rem;
   font-weight: 700;
@@ -898,13 +898,13 @@ img {
   color: var(--c-text);
 }
 
-.rolodex-card__excerpt {
+.carousel-card__excerpt {
   font-size: 0.9rem;
   color: var(--c-text-muted);
   line-height: 1.6;
 }
 
-.rolodex-card__footer {
+.carousel-card__footer {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -914,7 +914,7 @@ img {
   color: var(--c-text-faint);
 }
 
-.rolodex-card__cta {
+.carousel-card__cta {
   display: inline-block;
   margin-top: var(--space-lg);
   font-weight: 600;
@@ -923,56 +923,56 @@ img {
 }
 
 @media (max-width: 640px) {
-  .rolodex-scene {
+  .carousel-scene {
     gap: 2rem;
   }
-  .rolodex-card__front {
+  .carousel-card__front {
     flex-direction: column;
   }
-  .rolodex-card__image {
+  .carousel-card__image {
     width: 100%;
     min-height: auto;
     aspect-ratio: 16 / 9;
   }
-  .rolodex-card {
+  .carousel-card {
     min-height: auto;
   }
-  .rolodex-card__inner {
+  .carousel-card__inner {
     min-height: auto;
   }
   /* No 3D hover on mobile */
-  .rolodex-card.is-focused:hover .rolodex-card__inner {
+  .carousel-card.is-focused:hover .carousel-card__inner {
     transform: none;
     animation: none;
   }
-  .rolodex-card__back {
+  .carousel-card__back {
     display: none;
   }
-  .rolodex-card__front {
+  .carousel-card__front {
     position: relative;
   }
-  .rolodex-card__face {
+  .carousel-card__face {
     position: relative;
   }
 }
 
 /* Reduced motion: disable all scroll transforms */
 @media (prefers-reduced-motion: reduce) {
-  .rolodex-card {
+  .carousel-card {
     opacity: 1 !important;
   }
-  .rolodex-card__inner {
+  .carousel-card__inner {
     transform: none !important;
     transition: none;
     animation: none !important;
   }
-  .rolodex-card.is-focused .rolodex-card__inner {
+  .carousel-card.is-focused .carousel-card__inner {
     animation: none !important;
   }
-  .rolodex-card.is-focused:hover .rolodex-card__inner {
+  .carousel-card.is-focused:hover .carousel-card__inner {
     transform: none !important;
   }
-  .rolodex-card.is-focused .rolodex-card__face {
+  .carousel-card.is-focused .carousel-card__face {
     animation: none !important;
   }
 }
