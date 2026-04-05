@@ -640,30 +640,20 @@ img {
 }
 
 /* ============================================================
-   Rolodex 3D Parallax View — Cinematic Depth-Cascade Scroll Engine
-   CHANGE: Full rewrite with immersive depth-of-field, multi-axis 3D
-           perspective shifts, layered parallax motion, and prismatic lighting
-   REASON: Breathtaking cinematic scroll experience with dramatic depth
+   Rolodex 3D Parallax View — Flashcard Scroll-Driven Stack
+   CHANGE: Fixed scroll runway (gap 6rem→85vh) so cards present one-at-a-time;
+           simplified transforms to proven translateY+rotateX+scale
+   REASON: Previous tiny gap made cards pile up instantly, killing the effect
    DATE: 2026-04-05
    ============================================================ */
 
-/* Registered custom properties for buttery-smooth interpolation */
+/* Registered custom properties for smooth scroll-driven interpolation */
 @property --r-ty {
   syntax: '<length>';
   inherits: true;
   initial-value: 0px;
 }
-@property --r-tz {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
-}
 @property --r-rx {
-  syntax: '<angle>';
-  inherits: true;
-  initial-value: 0deg;
-}
-@property --r-ry {
   syntax: '<angle>';
   inherits: true;
   initial-value: 0deg;
@@ -677,11 +667,6 @@ img {
   syntax: '<number>';
   inherits: true;
   initial-value: 0.3;
-}
-@property --r-blur {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 0px;
 }
 
 /* Subtle scrollbar when rolodex is active */
@@ -699,11 +684,9 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6rem;
+  gap: 85vh;
   max-width: 46rem;
   margin: 0 auto;
-  perspective: 1200px;
-  perspective-origin: 50% 40%;
 }
 
 .rolodex-card {
@@ -713,9 +696,7 @@ img {
   min-height: 20rem;
   opacity: 1;
   z-index: 1;
-  filter: blur(var(--r-blur, 0px));
-  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rolodex-card__link {
@@ -723,7 +704,7 @@ img {
   text-decoration: none;
   color: inherit;
   height: 100%;
-  perspective: 1400px;
+  perspective: 1200px;
   perspective-origin: 50% 50%;
 }
 
@@ -733,48 +714,41 @@ img {
   min-height: 20rem;
   transform:
     translateY(var(--r-ty, 0px))
-    translateZ(var(--r-tz, 0px))
     rotateX(var(--r-rx, 0deg))
-    rotateY(var(--r-ry, 0deg))
     scale(var(--r-scale, 1));
   transform-style: preserve-3d;
   transform-origin: 50% 50%;
   will-change: transform, opacity;
 }
 
-/* Cinematic breathe animation on focused card — slow depth pulse */
+/* Gentle breathe on focused card */
 @keyframes rolodex-breathe {
   0%, 100% {
     transform:
       translateY(var(--r-ty, 0px))
-      translateZ(var(--r-tz, 0px))
       rotateX(var(--r-rx, 0deg))
-      rotateY(var(--r-ry, 0deg))
       scale(var(--r-scale, 1));
   }
   50% {
     transform:
-      translateY(calc(var(--r-ty, 0px) - 6px))
-      translateZ(calc(var(--r-tz, 0px) + 8px))
-      rotateX(calc(var(--r-rx, 0deg) + 0.3deg))
-      rotateY(calc(var(--r-ry, 0deg) - 0.2deg))
-      scale(calc(var(--r-scale, 1) * 1.004));
+      translateY(calc(var(--r-ty, 0px) - 5px))
+      rotateX(calc(var(--r-rx, 0deg) + 0.4deg))
+      scale(calc(var(--r-scale, 1) * 1.003));
   }
 }
 .rolodex-card.is-focused .rolodex-card__inner {
-  animation: rolodex-breathe 4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  animation: rolodex-breathe 3.5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
-/* Hover: dramatic 3D tilt with depth shift — only on focused cards */
+/* Hover 3D tilt — only on focused (centered) cards */
 .rolodex-card.is-focused:hover .rolodex-card__inner {
   animation: none;
-  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   transform:
     translateY(var(--r-ty, 0px))
-    translateZ(20px)
-    rotateX(-2.5deg)
-    rotateY(4deg)
-    scale(1.025);
+    rotateX(-2deg)
+    rotateY(3deg)
+    scale(1.02);
 }
 
 .rolodex-card__face {
@@ -958,8 +932,7 @@ img {
 
 @media (max-width: 640px) {
   .rolodex-scene {
-    gap: 4.5rem;
-    perspective: 800px;
+    gap: 70vh;
   }
   .rolodex-card__front {
     flex-direction: column;
@@ -996,7 +969,6 @@ img {
   .rolodex-card {
     opacity: 1 !important;
     position: relative;
-    filter: none !important;
   }
   .rolodex-card__inner {
     transform: none !important;
