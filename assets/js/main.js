@@ -149,8 +149,11 @@ DATE: 2026-04-02
   }
 
   // -------------------------------------------------------
-  // Rolodex 3D parallax scroll engine (JS-only — CSS animation-timeline: view()
-  // is incompatible with position: sticky, so JS drives all transforms)
+  // Rolodex Cinematic Depth-Cascade Scroll Engine
+  // CHANGE: Full rewrite — multi-axis 3D perspective shifts, depth-of-field
+  //         blur, layered parallax, spring-physics easing
+  // REASON: Immersive cinematic scroll experience with dramatic depth
+  // DATE: 2026-04-05
   // -------------------------------------------------------
   var rolodexRAF = null;
   var rolodexScrollHandler = null;
@@ -161,18 +164,25 @@ DATE: 2026-04-02
     if (!cards.length) return;
     var n = cards.length;
 
-    // Smooth easing: easeInOutCubic for natural acceleration/deceleration
+    // Spring-damped easeOutExpo for cinematic deceleration
     function ease(t) {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+    }
+    // Smooth hermite interpolation for organic blending
+    function smoothstep(lo, hi, t) {
+      var x = (t - lo) / (hi - lo);
+      x = x < 0 ? 0 : x > 1 ? 1 : x;
+      return x * x * (3 - 2 * x);
     }
     function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+    function lerp(a, b, t) { return a + (b - a) * t; }
 
     function onScroll() {
       if (rolodexRAF) return;
       rolodexRAF = requestAnimationFrame(function () {
         rolodexRAF = null;
         var vh = window.innerHeight;
-        var anchorY = vh * 0.40;
+        var anchorY = vh * 0.38;
         var focusIdx = -1;
         var minDist = Infinity;
 
@@ -185,7 +195,7 @@ DATE: 2026-04-02
           if (d < minDist) { minDist = d; focusIdx = i; }
         }
 
-        // Apply 3D transforms via CSS custom properties
+        // Apply cinematic 3D transforms via CSS custom properties
         for (var i = 0; i < n; i++) {
           var card = cards[i];
           var rect = rects[i];
@@ -193,52 +203,85 @@ DATE: 2026-04-02
           var dist = (mid - anchorY) / vh;
 
           // Off-screen culling
-          if (rect.bottom < -100 || rect.top > vh + 250) {
+          if (rect.bottom < -150 || rect.top > vh + 300) {
             card.style.opacity = '0';
             card.style.zIndex = '1';
             card.classList.remove('is-focused');
             continue;
           }
 
-          var opacity, ty, rx, scale, shadow;
+          var opacity, ty, tz, rx, ry, scale, shadow, blur;
           var absDist = Math.abs(dist);
 
-          if (absDist < 0.08) {
-            // Active zone — fully visible, no tilt, full scale
+          if (absDist < 0.07) {
+            // ── Hero zone: card is front and center ──
             opacity = 1;
             ty = 0;
+            tz = 0;
             rx = 0;
+            ry = 0;
             scale = 1;
             shadow = 1;
-          } else if (dist < -0.08 && dist >= -0.55) {
-            // Above center — card peels off upward (visible on top)
-            var t = ease(clamp((absDist - 0.08) / 0.47, 0, 1));
-            opacity = 1 - t;
-            ty = -120 * t;
-            rx = 8 * t;
-            scale = 1 - 0.1 * t;
-            shadow = 1 - t;
-          } else if (dist > 0.08 && dist <= 0.55) {
-            // Below center — card tilted forward, scales up as it approaches
-            var t = ease(clamp((absDist - 0.08) / 0.47, 0, 1));
-            opacity = 1 - t;
-            ty = 30 * t;
-            rx = -6 * t;
-            scale = 1 - 0.12 * t;
-            shadow = 1 - t;
+            blur = 0;
+          } else if (dist < -0.07 && dist >= -0.25) {
+            // ── Receding: card begins its dramatic exit upward ──
+            var t = ease(clamp((absDist - 0.07) / 0.18, 0, 1));
+            opacity = 1 - t * 0.6;
+            ty = -80 * t;
+            tz = -60 * t;
+            rx = 12 * t;
+            ry = -3 * t;
+            scale = 1 - 0.06 * t;
+            shadow = 1 - t * 0.7;
+            blur = 1.5 * t;
+          } else if (dist < -0.25 && dist >= -0.6) {
+            // ── Far exit: cinematic peel-off with deep perspective ──
+            var t = ease(clamp((absDist - 0.25) / 0.35, 0, 1));
+            opacity = lerp(0.4, 0, t);
+            ty = lerp(-80, -180, t);
+            tz = lerp(-60, -200, t);
+            rx = lerp(12, 25, t);
+            ry = lerp(-3, -8, t);
+            scale = lerp(0.94, 0.82, t);
+            shadow = lerp(0.3, 0, t);
+            blur = lerp(1.5, 4, t);
+          } else if (dist > 0.07 && dist <= 0.25) {
+            // ── Approaching: rising from depth with forward tilt ──
+            var t = ease(clamp((absDist - 0.07) / 0.18, 0, 1));
+            opacity = 1 - t * 0.5;
+            ty = 40 * t;
+            tz = -80 * t;
+            rx = -8 * t;
+            ry = 2 * t;
+            scale = 1 - 0.08 * t;
+            shadow = 1 - t * 0.6;
+            blur = 2 * t;
+          } else if (dist > 0.25 && dist <= 0.65) {
+            // ── Deep queue: cards wait in deep 3D space ──
+            var t = ease(clamp((absDist - 0.25) / 0.4, 0, 1));
+            opacity = lerp(0.5, 0, t);
+            ty = lerp(40, 80, t);
+            tz = lerp(-80, -300, t);
+            rx = lerp(-8, -15, t);
+            ry = lerp(2, 5, t);
+            scale = lerp(0.92, 0.75, t);
+            shadow = lerp(0.4, 0, t);
+            blur = lerp(2, 6, t);
           } else {
-            // Gone — fully invisible
+            // ── Gone: fully hidden ──
             opacity = 0;
-            ty = dist < 0 ? -120 : 30;
-            rx = dist < 0 ? 8 : -6;
-            scale = dist < 0 ? 0.9 : 0.88;
+            ty = dist < 0 ? -180 : 80;
+            tz = dist < 0 ? -200 : -300;
+            rx = dist < 0 ? 25 : -15;
+            ry = dist < 0 ? -8 : 5;
+            scale = dist < 0 ? 0.82 : 0.75;
             shadow = 0;
+            blur = dist < 0 ? 4 : 6;
           }
 
-          // Z-index: exiting cards on top so upward peel-off is visible,
-          // focused card next, approaching cards in natural DOM order
+          // Z-index layering: dramatic depth ordering
           var zi;
-          if (dist < -0.08 && dist >= -0.4) {
+          if (dist < -0.07 && dist >= -0.45) {
             zi = n + 20;
           } else if (i === focusIdx) {
             zi = n + 10;
@@ -248,8 +291,8 @@ DATE: 2026-04-02
 
           card.style.zIndex = zi;
 
-          // Focus class for accent glow, shimmer, and hover effects
-          if (i === focusIdx && Math.abs(dist) < 0.18) {
+          // Focus class for glow, shimmer, and hover effects
+          if (i === focusIdx && absDist < 0.16) {
             card.classList.add('is-focused');
           } else {
             card.classList.remove('is-focused');
@@ -257,9 +300,12 @@ DATE: 2026-04-02
 
           card.style.opacity = opacity;
           card.style.setProperty('--r-ty', ty + 'px');
+          card.style.setProperty('--r-tz', tz + 'px');
           card.style.setProperty('--r-rx', rx + 'deg');
+          card.style.setProperty('--r-ry', ry + 'deg');
           card.style.setProperty('--r-scale', scale);
           card.style.setProperty('--r-shadow', shadow);
+          card.style.setProperty('--r-blur', blur + 'px');
         }
       });
     }
