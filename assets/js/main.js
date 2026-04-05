@@ -211,12 +211,12 @@ DATE: 2026-04-02
             scale = 1;
             shadow = 1;
           } else if (dist < -0.08 && dist >= -0.55) {
-            // Above center — card tilts away and recedes upward
+            // Above center — card peels off upward (visible on top)
             var t = ease(clamp((absDist - 0.08) / 0.47, 0, 1));
             opacity = 1 - t;
-            ty = -60 * t;
-            rx = 12 * t;
-            scale = 1 - 0.15 * t;
+            ty = -120 * t;
+            rx = 8 * t;
+            scale = 1 - 0.1 * t;
             shadow = 1 - t;
           } else if (dist > 0.08 && dist <= 0.55) {
             // Below center — card tilted forward, scales up as it approaches
@@ -229,20 +229,21 @@ DATE: 2026-04-02
           } else {
             // Gone — fully invisible
             opacity = 0;
-            ty = dist < 0 ? -60 : 30;
-            rx = dist < 0 ? 12 : -6;
-            scale = dist < 0 ? 0.85 : 0.88;
+            ty = dist < 0 ? -120 : 30;
+            rx = dist < 0 ? 8 : -6;
+            scale = dist < 0 ? 0.9 : 0.88;
             shadow = 0;
           }
 
-          // Z-index: focused card highest, others fall off by distance
+          // Z-index: exiting cards on top so upward peel-off is visible,
+          // focused card next, approaching cards in natural DOM order
           var zi;
-          if (i === focusIdx) {
+          if (dist < -0.08 && dist >= -0.4) {
+            zi = n + 20;
+          } else if (i === focusIdx) {
             zi = n + 10;
-          } else if (i < focusIdx) {
-            zi = Math.max(1, n - (focusIdx - i));
           } else {
-            zi = Math.max(1, n - (i - focusIdx));
+            zi = i + 1;
           }
 
           card.style.zIndex = zi;
