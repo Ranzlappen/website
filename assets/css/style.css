@@ -55,6 +55,21 @@ DATE: 2026-04-03
   --border-radius-sm: 0.25rem;
   --border-radius-lg: 0.75rem;
 
+  /* ── Carousel tuning ──
+     Adjust these to change how the blog carousel scrolls and feels.
+     See README § "Tune the Blog Carousel" for full guide. */
+  --carousel-gap:         3rem;   /* space between cards */
+  --carousel-fade-min:    0.35;   /* minimum opacity for off-center cards (0=invisible, 1=no fade) */
+  --carousel-scale-min:   0.94;   /* minimum scale for off-center cards (1=no shrink) */
+  --carousel-tilt-up:     4;      /* rotateX degrees for cards above center */
+  --carousel-tilt-down:   3;      /* rotateX degrees for cards below center */
+  --carousel-focus-range: 0.55;   /* viewport fraction before full effect — lower=snappier */
+  --carousel-bottom-pad:  40vh;   /* bottom space so last card can reach center */
+  /* Snap behavior — keyword props, edit on their rules directly:
+     .carousel-active  → scroll-snap-type: y proximity | mandatory
+     .carousel-card    → scroll-snap-align: center | start | end
+     .carousel-card    → scroll-snap-stop: normal | always              */
+
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-base: 0.25s ease;
@@ -674,7 +689,7 @@ img {
 .carousel-active::-webkit-scrollbar-track { background: transparent; }
 
 .posts-carousel {
-  padding: var(--space-lg) 0 40vh;
+  padding: var(--space-lg) 0 var(--carousel-bottom-pad, 40vh);
 }
 .posts-carousel[hidden] { display: none; }
 
@@ -682,7 +697,7 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3rem;
+  gap: var(--carousel-gap, 3rem);
   max-width: 46rem;
   margin: 0 auto;
 }
@@ -924,7 +939,7 @@ img {
 
 @media (max-width: 640px) {
   .carousel-scene {
-    gap: 2rem;
+    gap: var(--carousel-gap, 2rem);
   }
   .carousel-card__front {
     flex-direction: column;
