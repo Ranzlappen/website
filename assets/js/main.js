@@ -149,11 +149,10 @@ DATE: 2026-04-02
   }
 
   // -------------------------------------------------------
-  // Rolodex Flashcard Scroll Engine
-  // CHANGE: Fixed scroll runway + simplified to 3 reliable zones
-  // REASON: Previous tiny gap (6rem) made cards pile up; 5-zone system was
-  //         overkill and zones overlapped. Now gap=85vh gives each card a
-  //         full viewport of scroll time before the next one arrives.
+  // Rolodex Vertical Carousel — Scroll-Driven Focus Engine
+  // CHANGE: Removed position:sticky entirely. Cards in normal document
+  //         flow — no overlapping, no z-index issues. JS highlights the
+  //         card nearest viewport center; others recede with tilt+scale.
   // DATE: 2026-04-05
   // -------------------------------------------------------
   var rolodexRAF = null;
@@ -165,10 +164,6 @@ DATE: 2026-04-02
     if (!cards.length) return;
     var n = cards.length;
 
-    // easeOutCubic — smooth deceleration
-    function ease(t) {
-      return 1 - Math.pow(1 - t, 3);
-    }
     function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
 
     function onScroll() {
@@ -176,7 +171,7 @@ DATE: 2026-04-02
       rolodexRAF = requestAnimationFrame(function () {
         rolodexRAF = null;
         var vh = window.innerHeight;
-        var anchorY = vh * 0.40;
+        var anchorY = vh * 0.45;
         var focusIdx = -1;
         var minDist = Infinity;
 
@@ -189,77 +184,38 @@ DATE: 2026-04-02
           if (d < minDist) { minDist = d; focusIdx = i; }
         }
 
-        // Apply 3D transforms via CSS custom properties
         for (var i = 0; i < n; i++) {
           var card = cards[i];
           var rect = rects[i];
           var mid = rect.top + rect.height * 0.5;
           var dist = (mid - anchorY) / vh;
+          var absDist = Math.abs(dist);
 
           // Off-screen culling
-          if (rect.bottom < -100 || rect.top > vh + 250) {
+          if (rect.bottom < -50 || rect.top > vh + 50) {
             card.style.opacity = '0';
-            card.style.zIndex = '1';
             card.classList.remove('is-focused');
             continue;
           }
 
-          var opacity, ty, rx, scale, shadow;
-          var absDist = Math.abs(dist);
+          // Smooth interpolation: 0 at center → 1 at edges
+          var t = clamp(absDist / 0.55, 0, 1);
+          // Quadratic for snappier transition near edges
+          var tFast = t * t;
 
-          if (absDist < 0.08) {
-            // Active zone — card is front and center, fully visible
-            opacity = 1;
-            ty = 0;
-            rx = 0;
-            scale = 1;
-            shadow = 1;
-          } else if (dist < -0.08 && dist >= -0.40) {
-            // Exiting above — fast fade, peels off upward
-            var t = ease(clamp((absDist - 0.08) / 0.32, 0, 1));
-            opacity = 1 - Math.pow(t, 1.5);
-            ty = -120 * t;
-            rx = 10 * t;
-            scale = 1 - 0.10 * t;
-            shadow = 1 - t;
-          } else if (dist > 0.08 && dist <= 0.40) {
-            // Approaching from below — fast fade in
-            var t = ease(clamp((absDist - 0.08) / 0.32, 0, 1));
-            opacity = 1 - Math.pow(t, 1.5);
-            ty = 40 * t;
-            rx = -7 * t;
-            scale = 1 - 0.12 * t;
-            shadow = 1 - t;
-          } else {
-            // Gone — fully invisible
-            opacity = 0;
-            ty = dist < 0 ? -120 : 40;
-            rx = dist < 0 ? 10 : -7;
-            scale = dist < 0 ? 0.90 : 0.88;
-            shadow = 0;
-          }
-
-          // Z-index: focused card always on top, exiting cards behind
-          var zi;
-          if (i === focusIdx) {
-            zi = n + 10;
-          } else if (dist < -0.08) {
-            zi = 1;
-          } else {
-            zi = n - i;
-          }
-
-          card.style.zIndex = zi;
+          var opacity = 1 - tFast * 0.65;
+          var rx = dist < 0 ? 4 * t : -3 * t;
+          var scale = 1 - 0.06 * t;
+          var shadow = 1 - tFast;
 
           // Focus class for accent glow, shimmer, and hover effects
-          if (i === focusIdx && absDist < 0.15) {
+          if (i === focusIdx && absDist < 0.30) {
             card.classList.add('is-focused');
           } else {
             card.classList.remove('is-focused');
           }
 
           card.style.opacity = opacity;
-          card.style.setProperty('--r-ty', ty + 'px');
           card.style.setProperty('--r-rx', rx + 'deg');
           card.style.setProperty('--r-scale', scale);
           card.style.setProperty('--r-shadow', shadow);
