@@ -58,17 +58,17 @@ DATE: 2026-04-03
   /* ── Carousel tuning ──
      Adjust these to change how the blog carousel scrolls and feels.
      See README § "Tune the Blog Carousel" for full guide. */
-  --carousel-gap:         2rem;   /* space between cards */
-  --carousel-fade-min:    0.5;   /* minimum opacity for off-center cards (0=invisible, 1=no fade) */
-  --carousel-scale-min:   0.8;   /* minimum scale for off-center cards (1=no shrink) */
-  --carousel-tilt-up:     5;      /* rotateX degrees for cards above center */
+  --carousel-gap:         1.5rem; /* space between cards */
+  --carousel-fade-min:    0.3;    /* minimum opacity for off-center cards (0=invisible, 1=no fade) */
+  --carousel-scale-min:   0.88;   /* minimum scale for off-center cards (1=no shrink) */
+  --carousel-tilt-up:     6;      /* rotateX degrees for cards above center */
   --carousel-tilt-down:   5;      /* rotateX degrees for cards below center */
-  --carousel-focus-range: 0.5;   /* viewport fraction before full effect — lower=snappier */
+  --carousel-focus-range: 0.35;   /* viewport fraction before full effect — lower=snappier */
   --carousel-bottom-pad:  40vh;   /* bottom space so last card can reach center */
   /* Snap behavior — keyword props, edit on their rules directly:
-     .carousel-active  → scroll-snap-type: y proximity | mandatory
+     .carousel-active  → scroll-snap-type: y mandatory | proximity
      .carousel-card    → scroll-snap-align: center | start | end
-     .carousel-card    → scroll-snap-stop: normal | always              */
+     .carousel-card    → scroll-snap-stop: always | normal              */
 
   /* Transitions */
   --transition-fast: 0.15s ease;
@@ -682,11 +682,16 @@ img {
 /* Subtle scrollbar when carousel is active */
 .carousel-active {
   scrollbar-width: thin;
-  scroll-snap-type: y proximity;
+  scroll-snap-type: y mandatory;
 }
 .carousel-active::-webkit-scrollbar { width: 6px; }
 .carousel-active::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
 .carousel-active::-webkit-scrollbar-track { background: transparent; }
+
+/* Snap point at the page top so you can scroll back above the cards */
+.carousel-active .section-header {
+  scroll-snap-align: start;
+}
 
 .posts-carousel {
   padding: var(--space-lg) 0 var(--carousel-bottom-pad, 40vh);
@@ -707,7 +712,7 @@ img {
   min-height: 20rem;
   transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   scroll-snap-align: center;
-  scroll-snap-stop: normal;
+  scroll-snap-stop: always;
 }
 
 .carousel-card__link {
