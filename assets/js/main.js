@@ -203,21 +203,30 @@ DATE: 2026-04-02
             continue;
           }
 
-          var opacity, shadow;
+          var opacity, ty, shadow;
           var absDist = Math.abs(dist);
 
           if (absDist < 0.08) {
             // Active zone — fully visible
             opacity = 1;
+            ty = 0;
             shadow = 1;
-          } else if (absDist < 0.55) {
-            // Fading zone — smooth fade from 1 to 0
+          } else if (dist < -0.08 && dist >= -0.55) {
+            // Fading up — card scrolls past center and rises away
             var t = ease(clamp((absDist - 0.08) / 0.47, 0, 1));
             opacity = 1 - t;
+            ty = -80 * t;
+            shadow = 1 - t;
+          } else if (dist > 0.08 && dist <= 0.55) {
+            // Below center — fade in as it approaches
+            var t = ease(clamp((absDist - 0.08) / 0.47, 0, 1));
+            opacity = 1 - t;
+            ty = 0;
             shadow = 1 - t;
           } else {
             // Gone — fully invisible
             opacity = 0;
+            ty = dist < 0 ? -80 : 0;
             shadow = 0;
           }
 
@@ -245,6 +254,7 @@ DATE: 2026-04-02
           if (cssScrollDriven) continue;
 
           card.style.opacity = opacity;
+          card.style.setProperty('--r-ty', ty + 'px');
           card.style.setProperty('--r-shadow', shadow);
         }
       });
