@@ -203,41 +203,22 @@ DATE: 2026-04-02
             continue;
           }
 
-          var opacity, ty, tz, rx, sc, shadow;
+          var opacity, shadow;
+          var absDist = Math.abs(dist);
 
-          if (dist < -0.55) {
-            // Gone above — fully peeled backward off the stack
-            opacity = 0;
-            ty = -50; tz = -400; rx = -78; sc = 0.55; shadow = 0;
-          } else if (dist < -0.08) {
-            // Peeling away — dramatic backward rotation like a rolodex flip
-            var t = ease(clamp((Math.abs(dist) - 0.08) / 0.47, 0, 1));
-            opacity = 1 - t;
-            ty = -50 * t;
-            tz = -400 * t;
-            rx = -78 * t;
-            sc = 1 - 0.45 * t;
-            shadow = 1 - t;
-          } else if (dist < 0.12) {
-            // Active zone — flat, fully presented, dramatic presence
-            var c = clamp((dist + 0.08) / 0.20, 0, 1);
-            var edge = Math.abs(c - 0.5) * 2;
+          if (absDist < 0.08) {
+            // Active zone — fully visible
             opacity = 1;
-            ty = 0; tz = -4 * edge; rx = 0;
-            sc = 1 - 0.008 * edge; shadow = 1;
-          } else if (dist < 0.70) {
-            // Deck below — stacked in perspective with subtle forward lean
-            var t = ease(clamp((dist - 0.12) / 0.58, 0, 1));
-            opacity = 1 - t * 0.80;
-            ty = 45 * t;
-            tz = -320 * t;
-            rx = 28 * t;
-            sc = 1 - 0.32 * t;
-            shadow = 1 - t * 0.80;
+            shadow = 1;
+          } else if (absDist < 0.55) {
+            // Fading zone — smooth fade from 1 to 0
+            var t = ease(clamp((absDist - 0.08) / 0.47, 0, 1));
+            opacity = 1 - t;
+            shadow = 1 - t;
           } else {
-            // Hidden below — queued off-screen
+            // Gone — fully invisible
             opacity = 0;
-            ty = 55; tz = -380; rx = 35; sc = 0.62; shadow = 0;
+            shadow = 0;
           }
 
           // Z-index: focused card highest, others fall off by distance
@@ -264,11 +245,6 @@ DATE: 2026-04-02
           if (cssScrollDriven) continue;
 
           card.style.opacity = opacity;
-          // Set CSS custom properties — CSS composes the final transform
-          card.style.setProperty('--r-ty', ty + 'px');
-          card.style.setProperty('--r-tz', tz + 'px');
-          card.style.setProperty('--r-rx', rx + 'deg');
-          card.style.setProperty('--r-sc', sc);
           card.style.setProperty('--r-shadow', shadow);
         }
       });
