@@ -207,25 +207,25 @@ DATE: 2026-04-02
           var opacity, ty, rx, scale, shadow;
           var absDist = Math.abs(dist);
 
-          if (absDist < 0.10) {
+          if (absDist < 0.08) {
             // Active zone — card is front and center, fully visible
             opacity = 1;
             ty = 0;
             rx = 0;
             scale = 1;
             shadow = 1;
-          } else if (dist < -0.10 && dist >= -0.60) {
-            // Exiting above — card peels off upward with tilt
-            var t = ease(clamp((absDist - 0.10) / 0.50, 0, 1));
-            opacity = 1 - t;
+          } else if (dist < -0.08 && dist >= -0.40) {
+            // Exiting above — fast fade, peels off upward
+            var t = ease(clamp((absDist - 0.08) / 0.32, 0, 1));
+            opacity = 1 - Math.pow(t, 1.5);
             ty = -120 * t;
             rx = 10 * t;
             scale = 1 - 0.10 * t;
             shadow = 1 - t;
-          } else if (dist > 0.10 && dist <= 0.60) {
-            // Approaching from below — card tilted forward, fading in
-            var t = ease(clamp((absDist - 0.10) / 0.50, 0, 1));
-            opacity = 1 - t;
+          } else if (dist > 0.08 && dist <= 0.40) {
+            // Approaching from below — fast fade in
+            var t = ease(clamp((absDist - 0.08) / 0.32, 0, 1));
+            opacity = 1 - Math.pow(t, 1.5);
             ty = 40 * t;
             rx = -7 * t;
             scale = 1 - 0.12 * t;
@@ -239,21 +239,20 @@ DATE: 2026-04-02
             shadow = 0;
           }
 
-          // Z-index: exiting cards on top so upward peel-off is visible,
-          // focused card next, approaching cards in natural DOM order
+          // Z-index: focused card always on top, exiting cards behind
           var zi;
-          if (dist < -0.10 && dist >= -0.45) {
-            zi = n + 20;
-          } else if (i === focusIdx) {
+          if (i === focusIdx) {
             zi = n + 10;
+          } else if (dist < -0.08) {
+            zi = 1;
           } else {
-            zi = i + 1;
+            zi = n - i;
           }
 
           card.style.zIndex = zi;
 
           // Focus class for accent glow, shimmer, and hover effects
-          if (i === focusIdx && absDist < 0.20) {
+          if (i === focusIdx && absDist < 0.15) {
             card.classList.add('is-focused');
           } else {
             card.classList.remove('is-focused');
