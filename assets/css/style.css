@@ -64,7 +64,7 @@ DATE: 2026-04-03
   --carousel-tilt-up:     6;      /* rotateX degrees for cards above center */
   --carousel-tilt-down:   5;      /* rotateX degrees for cards below center */
   --carousel-focus-range: 0.35;   /* viewport fraction before full effect — lower=snappier */
-  --carousel-bottom-pad:  40vh;   /* bottom space so last card can reach center */
+  --carousel-bottom-pad:  20vh;   /* bottom space below last card */
   /* Snap behavior — keyword props, edit on their rules directly:
      .carousel-active  → scroll-snap-type: y mandatory | proximity
      .carousel-card    → scroll-snap-align: center | start | end
@@ -688,9 +688,12 @@ img {
 .carousel-active::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
 .carousel-active::-webkit-scrollbar-track { background: transparent; }
 
-/* Snap point at the page top so you can scroll back above the cards */
+/* Snap points at page top and bottom so you can scroll past the cards */
 .carousel-active .section-header {
   scroll-snap-align: start;
+}
+.carousel-active .site-footer {
+  scroll-snap-align: end;
 }
 
 .posts-carousel {
