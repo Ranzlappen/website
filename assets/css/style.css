@@ -684,7 +684,7 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 85vh;
+  gap: 45vh;
   max-width: 46rem;
   margin: 0 auto;
 }
@@ -932,7 +932,7 @@ img {
 
 @media (max-width: 640px) {
   .rolodex-scene {
-    gap: 70vh;
+    gap: 40vh;
   }
   .rolodex-card__front {
     flex-direction: column;
