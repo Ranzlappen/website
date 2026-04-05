@@ -640,19 +640,30 @@ img {
 }
 
 /* ============================================================
-   Rolodex 3D Parallax View — Cinematic Scroll-Driven Card Stack
-   CHANGE: Replaced parallax with dramatic 3D perspective-shift animation
-   REASON: Immersive cinematic depth, smooth 3D card movements, layered motion
+   Rolodex 3D Parallax View — Cinematic Depth-Cascade Scroll Engine
+   CHANGE: Full rewrite with immersive depth-of-field, multi-axis 3D
+           perspective shifts, layered parallax motion, and prismatic lighting
+   REASON: Breathtaking cinematic scroll experience with dramatic depth
    DATE: 2026-04-05
    ============================================================ */
 
-/* Registered custom properties for scroll-driven animation (progressive enhancement) */
+/* Registered custom properties for buttery-smooth interpolation */
 @property --r-ty {
   syntax: '<length>';
   inherits: true;
   initial-value: 0px;
 }
+@property --r-tz {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
 @property --r-rx {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --r-ry {
   syntax: '<angle>';
   inherits: true;
   initial-value: 0deg;
@@ -666,6 +677,11 @@ img {
   syntax: '<number>';
   inherits: true;
   initial-value: 0.3;
+}
+@property --r-blur {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
 }
 
 /* Subtle scrollbar when rolodex is active */
@@ -686,6 +702,8 @@ img {
   gap: 6rem;
   max-width: 46rem;
   margin: 0 auto;
+  perspective: 1200px;
+  perspective-origin: 50% 40%;
 }
 
 .rolodex-card {
@@ -695,7 +713,9 @@ img {
   min-height: 20rem;
   opacity: 1;
   z-index: 1;
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: blur(var(--r-blur, 0px));
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rolodex-card__link {
@@ -703,7 +723,7 @@ img {
   text-decoration: none;
   color: inherit;
   height: 100%;
-  perspective: 1000px;
+  perspective: 1400px;
   perspective-origin: 50% 50%;
 }
 
@@ -713,41 +733,48 @@ img {
   min-height: 20rem;
   transform:
     translateY(var(--r-ty, 0px))
+    translateZ(var(--r-tz, 0px))
     rotateX(var(--r-rx, 0deg))
+    rotateY(var(--r-ry, 0deg))
     scale(var(--r-scale, 1));
   transform-style: preserve-3d;
   transform-origin: 50% 50%;
   will-change: transform, opacity;
 }
 
-/* Gentle float on focused card — breathes life into the centered card */
-@keyframes rolodex-float {
+/* Cinematic breathe animation on focused card — slow depth pulse */
+@keyframes rolodex-breathe {
   0%, 100% {
     transform:
       translateY(var(--r-ty, 0px))
+      translateZ(var(--r-tz, 0px))
       rotateX(var(--r-rx, 0deg))
+      rotateY(var(--r-ry, 0deg))
       scale(var(--r-scale, 1));
   }
   50% {
     transform:
-      translateY(calc(var(--r-ty, 0px) - 5px))
-      rotateX(calc(var(--r-rx, 0deg) + 0.4deg))
-      scale(calc(var(--r-scale, 1) * 1.003));
+      translateY(calc(var(--r-ty, 0px) - 6px))
+      translateZ(calc(var(--r-tz, 0px) + 8px))
+      rotateX(calc(var(--r-rx, 0deg) + 0.3deg))
+      rotateY(calc(var(--r-ry, 0deg) - 0.2deg))
+      scale(calc(var(--r-scale, 1) * 1.004));
   }
 }
 .rolodex-card.is-focused .rolodex-card__inner {
-  animation: rolodex-float 3s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  animation: rolodex-breathe 4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
-/* Hover 3D tilt — only on focused (centered) cards */
+/* Hover: dramatic 3D tilt with depth shift — only on focused cards */
 .rolodex-card.is-focused:hover .rolodex-card__inner {
   animation: none;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   transform:
     translateY(var(--r-ty, 0px))
-    rotateX(-2deg)
-    rotateY(3deg)
-    scale(1.02);
+    translateZ(20px)
+    rotateX(-2.5deg)
+    rotateY(4deg)
+    scale(1.025);
 }
 
 .rolodex-card__face {
@@ -760,48 +787,78 @@ img {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   box-shadow:
-    0 calc(var(--r-shadow, 0.3) * 40px) calc(var(--r-shadow, 0.3) * 100px) calc(var(--r-shadow, 0.3) * -20px) var(--c-card-shadow),
-    0 calc(var(--r-shadow, 0.3) * 15px) calc(var(--r-shadow, 0.3) * 40px) -6px rgba(0,0,0,0.15),
+    0 calc(var(--r-shadow, 0.3) * 50px) calc(var(--r-shadow, 0.3) * 120px) calc(var(--r-shadow, 0.3) * -25px) var(--c-card-shadow),
+    0 calc(var(--r-shadow, 0.3) * 18px) calc(var(--r-shadow, 0.3) * 50px) -8px rgba(0,0,0,0.16),
     0 0 0 1px rgba(0,0,0,0.03);
-  transition: box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.5s ease;
+  transition: box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s ease;
 }
 
-/* Accent glow on focused card — multi-layered for depth */
+/* Multi-layered cinematic glow on focused card */
+@keyframes rolodex-glow-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
 .rolodex-card.is-focused .rolodex-card__face {
   border-color: var(--c-accent-border);
   box-shadow:
-    0 40px 100px -20px var(--c-card-shadow),
-    0 15px 40px -6px rgba(0,0,0,0.18),
-    0 0 0 1px rgba(74, 222, 128, 0.1),
-    0 0 60px -12px rgba(74, 222, 128, 0.08),
-    0 0 120px -30px rgba(74, 222, 128, 0.04);
+    0 50px 120px -25px var(--c-card-shadow),
+    0 18px 50px -8px rgba(0,0,0,0.2),
+    0 0 0 1px rgba(74, 222, 128, 0.12),
+    0 0 80px -15px rgba(74, 222, 128, 0.1),
+    0 0 160px -40px rgba(74, 222, 128, 0.05),
+    inset 0 1px 0 0 rgba(255,255,255,0.05);
+  animation: rolodex-glow-pulse 4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
-/* Sweeping shimmer on focused card front */
+/* Prismatic shimmer sweep on focused card front */
 @keyframes rolodex-shimmer {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0%   { transform: translateX(-100%) skewX(-8deg); }
+  100% { transform: translateX(100%) skewX(-8deg); }
 }
 .rolodex-card__front::after {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: -20% -10%;
   background: linear-gradient(
     105deg,
-    transparent 30%,
-    rgba(255,255,255,0.015) 38%,
-    rgba(255,255,255,0.06) 46%,
-    rgba(255,255,255,0.015) 54%,
-    transparent 62%
+    transparent 25%,
+    rgba(255,255,255,0.01) 32%,
+    rgba(255,255,255,0.04) 40%,
+    rgba(255,255,255,0.08) 46%,
+    rgba(255,255,255,0.04) 52%,
+    rgba(255,255,255,0.01) 60%,
+    transparent 67%
   );
   opacity: 0;
   pointer-events: none;
   z-index: 2;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.6s ease;
 }
 .rolodex-card.is-focused .rolodex-card__front::after {
   opacity: 1;
-  animation: rolodex-shimmer 4s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  animation: rolodex-shimmer 5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+/* Subtle edge highlight that shifts with perspective */
+.rolodex-card__front::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    160deg,
+    rgba(255,255,255,0.06) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(0,0,0,0.03) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.rolodex-card.is-focused .rolodex-card__front::before {
+  opacity: 1;
 }
 
 .rolodex-card__front {
@@ -831,10 +888,14 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s ease;
+}
+.rolodex-card.is-focused .rolodex-card__front .rolodex-card__image img {
+  filter: brightness(1.05) saturate(1.1);
 }
 .rolodex-card.is-focused:hover .rolodex-card__front .rolodex-card__image img {
-  transform: scale(1.1);
+  transform: scale(1.12);
 }
 .rolodex-card__image--placeholder {
   display: flex;
@@ -896,7 +957,10 @@ img {
 }
 
 @media (max-width: 640px) {
-  .rolodex-scene { gap: 4.5rem; }
+  .rolodex-scene {
+    gap: 4.5rem;
+    perspective: 800px;
+  }
   .rolodex-card__front {
     flex-direction: column;
   }
@@ -944,6 +1008,9 @@ img {
   }
   .rolodex-card.is-focused:hover .rolodex-card__inner {
     transform: none !important;
+  }
+  .rolodex-card.is-focused .rolodex-card__face {
+    animation: none !important;
   }
 }
 
