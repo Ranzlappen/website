@@ -149,12 +149,9 @@ DATE: 2026-04-02
   }
 
   // -------------------------------------------------------
-  // Rolodex scroll-driven sticky card stack engine
+  // Rolodex 3D parallax scroll engine (JS-only — CSS animation-timeline: view()
+  // is incompatible with position: sticky, so JS drives all transforms)
   // -------------------------------------------------------
-  // When CSS animation-timeline: view() is supported the browser handles
-  // transforms + opacity via @keyframes rolodex-card-peel; JS only manages
-  // z-index and the is-focused class in that case.
-  var cssScrollDriven = CSS && CSS.supports && CSS.supports('animation-timeline', 'view()');
   var rolodexRAF = null;
   var rolodexScrollHandler = null;
 
@@ -197,7 +194,7 @@ DATE: 2026-04-02
 
           // Off-screen culling
           if (rect.bottom < -100 || rect.top > vh + 250) {
-            if (!cssScrollDriven) card.style.opacity = '0';
+            card.style.opacity = '0';
             card.style.zIndex = '1';
             card.classList.remove('is-focused');
             continue;
@@ -256,10 +253,6 @@ DATE: 2026-04-02
           } else {
             card.classList.remove('is-focused');
           }
-
-          // When CSS scroll-driven animations handle transforms + opacity,
-          // skip inline style overrides so the @keyframes values take effect.
-          if (cssScrollDriven) continue;
 
           card.style.opacity = opacity;
           card.style.setProperty('--r-ty', ty + 'px');

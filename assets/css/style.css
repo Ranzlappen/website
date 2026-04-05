@@ -665,7 +665,7 @@ img {
 @property --r-shadow {
   syntax: '<number>';
   inherits: true;
-  initial-value: 0;
+  initial-value: 0.3;
 }
 
 /* Subtle scrollbar when rolodex is active */
@@ -760,8 +760,8 @@ img {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   box-shadow:
-    0 calc(var(--r-shadow, 0) * 40px) calc(var(--r-shadow, 0) * 100px) calc(var(--r-shadow, 0) * -20px) var(--c-card-shadow),
-    0 calc(var(--r-shadow, 0) * 15px) calc(var(--r-shadow, 0) * 40px) -6px rgba(0,0,0,0.15),
+    0 calc(var(--r-shadow, 0.3) * 40px) calc(var(--r-shadow, 0.3) * 100px) calc(var(--r-shadow, 0.3) * -20px) var(--c-card-shadow),
+    0 calc(var(--r-shadow, 0.3) * 15px) calc(var(--r-shadow, 0.3) * 40px) -6px rgba(0,0,0,0.15),
     0 0 0 1px rgba(0,0,0,0.03);
   transition: box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.5s ease;
 }
@@ -893,62 +893,6 @@ img {
   font-weight: 600;
   color: var(--c-accent);
   font-size: 0.95rem;
-}
-
-/* CSS scroll-driven card-stack animation (progressive enhancement).
-   Browsers that support animation-timeline: view() get pure-CSS parallax;
-   older browsers fall back to the JS scroll handler seamlessly. */
-@keyframes rolodex-card-peel {
-  0% {
-    --r-ty: 30px;
-    --r-rx: -6deg;
-    --r-scale: 0.88;
-    --r-shadow: 0;
-    opacity: 0;
-  }
-  20% {
-    --r-ty: 12px;
-    --r-rx: -3deg;
-    --r-scale: 0.94;
-    --r-shadow: 0.4;
-    opacity: 0.5;
-  }
-  40% {
-    --r-ty: 0px;
-    --r-rx: 0deg;
-    --r-scale: 1;
-    --r-shadow: 1;
-    opacity: 1;
-  }
-  60% {
-    --r-ty: 0px;
-    --r-rx: 0deg;
-    --r-scale: 1;
-    --r-shadow: 1;
-    opacity: 1;
-  }
-  80% {
-    --r-ty: -30px;
-    --r-rx: 6deg;
-    --r-scale: 0.92;
-    --r-shadow: 0.3;
-    opacity: 0.3;
-  }
-  100% {
-    --r-ty: -60px;
-    --r-rx: 12deg;
-    --r-scale: 0.85;
-    --r-shadow: 0;
-    opacity: 0;
-  }
-}
-
-@supports (animation-timeline: view()) {
-  .rolodex-card {
-    animation: rolodex-card-peel linear both;
-    animation-timeline: view();
-    animation-range: entry 0% exit 100%;
-  }
 }
 
 @media (max-width: 640px) {
