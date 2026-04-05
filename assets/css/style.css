@@ -665,13 +665,16 @@ img {
 }
 
 /* Subtle scrollbar when rolodex is active */
-.rolodex-active { scrollbar-width: thin; }
+.rolodex-active {
+  scrollbar-width: thin;
+  scroll-snap-type: y proximity;
+}
 .rolodex-active::-webkit-scrollbar { width: 6px; }
 .rolodex-active::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
 .rolodex-active::-webkit-scrollbar-track { background: transparent; }
 
 .posts-rolodex {
-  padding: var(--space-lg) 0 30vh;
+  padding: var(--space-lg) 0 40vh;
 }
 .posts-rolodex[hidden] { display: none; }
 
@@ -688,6 +691,8 @@ img {
   width: 100%;
   min-height: 20rem;
   transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  scroll-snap-align: center;
+  scroll-snap-stop: normal;
 }
 
 .rolodex-card__link {
