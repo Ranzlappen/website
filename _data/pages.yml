@@ -33,31 +33,31 @@
   order: 4
 
 - title: "Ticked"
-  url: "https://ranzlappen.github.io/ticked/"
+  url: "https://ticked.ranzlappen.com"
   menu: [main]
   order: 5
   external: true
 
 - title: "World Map"
-  url: "https://ranzlappen.github.io/ticked/worldmap.html"
+  url: "https://worldmap.ranzlappen.com"
   menu: [main]
   order: 6
   external: true
 
 - title: "Mood Radar"
-  url: "https://github.com/Ranzlappen/ticked/blob/main/moodradar.html"
+  url: "https://twitch-mood-radar.ranzlappen.com"
   menu: [main]
   order: 7
   external: true
 
 - title: "Court"
-  url: "https://ranzlappen.github.io/ticked/court.html"
+  url: "https://court-procedure-guide.ranzlappen.com"
   menu: [main]
   order: 8
   external: true
 
 - title: "Intuino"
-  url: "https://ranzlappen.github.io/ticked/intuino/"
+  url: "https://intuino.ranzlappen.com"
   menu: [main]
   order: 9
   external: true
