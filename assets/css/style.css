@@ -906,16 +906,21 @@ img {
 }
 
 .carousel-card__submeta {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 0.15rem;
+  width: 100%;
   margin-top: var(--space-sm);
   color: var(--c-text-faint);
   font-size: 0.78rem;
   line-height: 1.35;
+  text-align: center;
 }
 
 .carousel-card__submeta-item {
   display: block;
+  max-width: 100%;
   overflow-wrap: anywhere;
 }
 
@@ -926,7 +931,12 @@ img {
   padding-bottom: 0.2rem;
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.carousel-card__tags::-webkit-scrollbar {
+  display: none;
 }
 
 .carousel-card__tag {
