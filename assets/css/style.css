@@ -248,6 +248,12 @@ img {
   background: var(--c-accent-bg);
 }
 
+.external-icon {
+  font-size: 0.7em;
+  margin-left: 0.15em;
+  vertical-align: super;
+}
+
 .nav-actions {
   display: flex;
   align-items: center;

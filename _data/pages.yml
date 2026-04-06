@@ -32,22 +32,52 @@
   menu: [main]
   order: 4
 
+- title: "Ticked"
+  url: "https://ranzlappen.github.io/ticked/"
+  menu: [main]
+  order: 5
+  external: true
+
+- title: "World Map"
+  url: "https://ranzlappen.github.io/ticked/worldmap.html"
+  menu: [main]
+  order: 6
+  external: true
+
+- title: "Mood Radar"
+  url: "https://github.com/Ranzlappen/ticked/blob/main/moodradar.html"
+  menu: [main]
+  order: 7
+  external: true
+
+- title: "Court"
+  url: "https://ranzlappen.github.io/ticked/court.html"
+  menu: [main]
+  order: 8
+  external: true
+
+- title: "Intuino"
+  url: "https://ranzlappen.github.io/ticked/intuino/"
+  menu: [main]
+  order: 9
+  external: true
+
 - title: "About"
   url: "/about/"
   menu: [main, footer]
-  order: 5
+  order: 10
 
 - title: "Contact"
   url: "/contact/"
   menu: [main, footer]
-  order: 6
+  order: 11
 
 - title: "Disclaimer"
   url: "/disclaimer/"
   menu: [footer]
-  order: 7
+  order: 12
 
 - title: "Privacy Policy"
   url: "/privacy/"
   menu: [footer]
-  order: 8
+  order: 13
