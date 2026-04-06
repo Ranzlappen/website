@@ -98,9 +98,6 @@ DATE: 2026-04-02
   // -------------------------------------------------------
   // View Toggle (Grid / List / Carousel)
   // -------------------------------------------------------
-  // CHANGE: Extended view toggle to support Carousel 3D parallax mode
-  // REASON: Implement visually impressive card-stack scroll effect on /blog/
-  // DATE: 2026-04-04
   var viewGrid = document.getElementById('view-grid');
   var viewList = document.getElementById('view-list');
   var viewCarousel = document.getElementById('view-carousel');
@@ -149,11 +146,7 @@ DATE: 2026-04-02
   }
 
   // -------------------------------------------------------
-  // Carousel Vertical Carousel — Scroll-Driven Focus Engine
-  // CHANGE: Removed position:sticky entirely. Cards in normal document
-  //         flow — no overlapping, no z-index issues. JS highlights the
-  //         card nearest viewport center; others recede with tilt+scale.
-  // DATE: 2026-04-05
+  // Carousel — Scroll-Driven Focus Engine
   // -------------------------------------------------------
   var carouselRAF = null;
   var carouselScrollHandler = null;
@@ -228,9 +221,9 @@ DATE: 2026-04-02
           }
 
           card.style.opacity = opacity;
-          card.style.setProperty('--r-rx', rx + 'deg');
-          card.style.setProperty('--r-scale', scale);
-          card.style.setProperty('--r-shadow', shadow);
+          card.style.setProperty('--carousel-tilt-x', rx + 'deg');
+          card.style.setProperty('--carousel-scale', scale);
+          card.style.setProperty('--carousel-shadow-depth', shadow);
         }
       });
     }
