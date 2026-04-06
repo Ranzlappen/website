@@ -2,7 +2,6 @@
 layout: default
 title: Blog
 permalink: /blog/
-# [Status field update] Added status == "published" filter to both grid and list post loops.
 ---
 
 <section class="page-content">
@@ -67,6 +66,16 @@ permalink: /blog/
                         {% if post.category %}
                           <span class="post-card__category">{{ post.category }}</span>
                         {% endif %}
+                        {% if post.status != "published" %}
+                          <span class="post-card__status">{{ post.status | capitalize }}</span>
+                        {% endif %}
+                        {% assign words = post.content | number_of_words %}
+                        {% assign minutes = words | divided_by: 200 %}
+                        {% if minutes < 1 %}{% assign minutes = 1 %}{% endif %}
+                        <span>{{ minutes }} min read</span>
+                        {% if post.tags.size > 0 %}
+                          <span>{{ post.tags | first }}</span>
+                        {% endif %}
                         <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
                       </div>
                       <h3 class="carousel-card__title">{{ post.title }}</h3>
@@ -76,15 +85,6 @@ permalink: /blog/
                   <div class="carousel-card__face carousel-card__back">
                     <div class="carousel-card__body">
                       <p class="carousel-card__excerpt">{{ post.description | default: post.excerpt | strip_html | truncatewords: 50 }}</p>
-                      <div class="carousel-card__footer">
-                        {% assign words = post.content | number_of_words %}
-                        {% assign minutes = words | divided_by: 200 %}
-                        {% if minutes < 1 %}{% assign minutes = 1 %}{% endif %}
-                        <span>{{ minutes }} min read</span>
-                        {% if post.tags.size > 0 %}
-                          <span>{{ post.tags | first }}</span>
-                        {% endif %}
-                      </div>
                       <span class="carousel-card__cta">Read Article &rarr;</span>
                     </div>
                   </div>
