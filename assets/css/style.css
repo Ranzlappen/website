@@ -654,26 +654,18 @@ img {
   color: var(--c-text-faint);
 }
 
-/* ============================================================
-   Carousel View — Vertical Carousel with Scroll-Driven Focus
-   CHANGE: Removed position:sticky entirely — cards in normal flow,
-           no overlapping, no z-index issues. JS highlights the card
-           nearest viewport center as you scroll.
-   DATE: 2026-04-05
-   ============================================================ */
-
-/* Registered custom properties for smooth scroll-driven interpolation */
-@property --r-rx {
+/* Carousel view — scroll-driven focus */
+@property --carousel-tilt-x {
   syntax: '<angle>';
   inherits: true;
   initial-value: 0deg;
 }
-@property --r-scale {
+@property --carousel-scale {
   syntax: '<number>';
   inherits: true;
   initial-value: 1;
 }
-@property --r-shadow {
+@property --carousel-shadow-depth {
   syntax: '<number>';
   inherits: true;
   initial-value: 0.3;
@@ -683,13 +675,14 @@ img {
 .carousel-active {
   scrollbar-width: thin;
   scroll-snap-type: y mandatory;
+  overscroll-behavior-y: auto;
 }
 .carousel-active::-webkit-scrollbar { width: 6px; }
 .carousel-active::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 3px; }
 .carousel-active::-webkit-scrollbar-track { background: transparent; }
 
-/* Snap points at page top and bottom so you can scroll past the cards */
-.carousel-active .section-header {
+/* Snap the top-level content block so scroll can return to true page top */
+.carousel-active .page-content {
   scroll-snap-align: start;
 }
 .carousel-active .site-footer {
@@ -732,8 +725,8 @@ img {
   width: 100%;
   min-height: 20rem;
   transform:
-    rotateX(var(--r-rx, 0deg))
-    scale(var(--r-scale, 1));
+    rotateX(var(--carousel-tilt-x, 0deg))
+    scale(var(--carousel-scale, 1));
   transform-style: preserve-3d;
   transform-origin: 50% 50%;
   will-change: transform, opacity;
@@ -743,13 +736,13 @@ img {
 @keyframes carousel-breathe {
   0%, 100% {
     transform:
-      rotateX(var(--r-rx, 0deg))
-      scale(var(--r-scale, 1));
+      rotateX(var(--carousel-tilt-x, 0deg))
+      scale(var(--carousel-scale, 1));
   }
   50% {
     transform:
-      rotateX(calc(var(--r-rx, 0deg) + 0.4deg))
-      scale(calc(var(--r-scale, 1) * 1.003));
+      rotateX(calc(var(--carousel-tilt-x, 0deg) + 0.4deg))
+      scale(calc(var(--carousel-scale, 1) * 1.003));
   }
 }
 .carousel-card.is-focused .carousel-card__inner {
@@ -776,8 +769,8 @@ img {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   box-shadow:
-    0 calc(var(--r-shadow, 0.3) * 50px) calc(var(--r-shadow, 0.3) * 120px) calc(var(--r-shadow, 0.3) * -25px) var(--c-card-shadow),
-    0 calc(var(--r-shadow, 0.3) * 18px) calc(var(--r-shadow, 0.3) * 50px) -8px rgba(0,0,0,0.16),
+    0 calc(var(--carousel-shadow-depth, 0.3) * 50px) calc(var(--carousel-shadow-depth, 0.3) * 120px) calc(var(--carousel-shadow-depth, 0.3) * -25px) var(--c-card-shadow),
+    0 calc(var(--carousel-shadow-depth, 0.3) * 18px) calc(var(--carousel-shadow-depth, 0.3) * 50px) -8px rgba(0,0,0,0.16),
     0 0 0 1px rgba(0,0,0,0.03);
   transition: box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s ease;
 }
@@ -905,10 +898,57 @@ img {
 .carousel-card__meta {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-sm);
   font-size: 0.8rem;
   color: var(--c-text-muted);
   margin-bottom: var(--space-sm);
+}
+
+.carousel-card__submeta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  width: 100%;
+  margin-top: var(--space-sm);
+  color: var(--c-text-faint);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.carousel-card__submeta-item {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.carousel-card__tags {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: var(--space-sm);
+  padding-bottom: 0.2rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.carousel-card__tags::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-card__tag {
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg-alt);
+  color: var(--c-text-faint);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .carousel-card__title {

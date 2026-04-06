@@ -758,9 +758,13 @@ These control how "sticky" the snapping feels. They can't use CSS variables — 
 
 | Property | Where to find it | Default | Options |
 |----------|-----------------|---------|---------|
-| `scroll-snap-type` | `.carousel-active` rule | `y proximity` | `y proximity` (gentle, hybrid) or `y mandatory` (strict, TikTok-like) |
+| `scroll-snap-type` | `.carousel-active` rule | `y mandatory` | `y proximity` (gentle, hybrid) or `y mandatory` (strict, TikTok-like) |
+| `overscroll-behavior-y` | `.carousel-active` rule | `auto` | `auto` (allows pull-to-refresh) or `contain` (blocks browser pull-to-refresh) |
+| `scroll-snap-align` | `.carousel-active .page-content` rule | `start` | `start`, `center`, or `end` for where top-level page content snaps |
 | `scroll-snap-align` | `.carousel-card` rule | `center` | `start`, `center`, or `end` — where the card lands in the viewport |
-| `scroll-snap-stop` | `.carousel-card` rule | `normal` | `normal` (fast scroll can skip cards) or `always` (must stop at every card) |
+| `scroll-snap-stop` | `.carousel-card` rule | `always` | `normal` (fast scroll can skip cards) or `always` (must stop at every card) |
+
+> Note: use `.carousel-active .page-content { scroll-snap-align: start; }` so the page can still return to the true top position behind the fixed site header.
 
 ### Preset: more like TikTok
 
