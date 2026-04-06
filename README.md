@@ -834,12 +834,12 @@ Vote data lives in your Firebase console:
 | Publish a draft             | Remove the `status` line or change it to `status: published`   |
 | Change site name            | Edit `title` in `_config.yml`                                  |
 | Change colors               | Edit CSS variables at top of `assets/css/style.css`            |
-| Add a nav link              | Edit `_data/navigation.yml`                                    |
+| Add a nav link              | Edit `_data/pages.yml`                                         |
 | Add a new page              | Create a `.md` file in `pages/` with layout/permalink headers  |
 | Moderate a comment          | Go to repo → Discussions tab → find and manage it              |
 | Check contact messages      | Go to repo → Issues tab → look for `[Contact]` labels         |
 | Add an image carousel       | Wrap `<img>` tags in `<div class="carousel">` in your post     |
-| Add a bar chart             | Use `<div class="bar-chart">` with `.bar` divs in your post    |
+| Add a bar chart             | Use `<canvas data-chart="bar">` inside `<div class="chart-container">` |
 | Upload an image for a post  | Upload to `assets/images/` on GitHub, reference in your post   |
 
 </details>
@@ -852,7 +852,7 @@ Vote data lives in your Firebase console:
 ```
 your-repo/
 ├── _config.yml              ← Site settings (name, Giscus, Firebase keys)
-├── _data/navigation.yml     ← Menu links (header and footer)
+├── _data/pages.yml          ← Menu links (header and footer)
 ├── _posts/                  ← Your blog posts go here (one .md file each)
 ├── _includes/               ← Page building blocks (don't need to touch)
 ├── _layouts/                ← Page templates (don't need to touch)

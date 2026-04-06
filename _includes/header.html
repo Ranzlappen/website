@@ -12,10 +12,16 @@
     <nav class="nav-desktop" aria-label="Main navigation">
       {% assign main_pages = site.data.pages | where_exp: "p", "p.menu contains 'main'" | sort: "order" %}
       {% for link in main_pages %}
+        {% if link.external %}
+        <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
+          {{ link.title }}<span class="external-icon" aria-hidden="true">↗</span>
+        </a>
+        {% else %}
         <a href="{{ link.url | relative_url }}"
            {% if page.url == link.url %}class="active" aria-current="page"{% endif %}>
           {{ link.title }}
         </a>
+        {% endif %}
       {% endfor %}
     </nav>
 
@@ -55,10 +61,16 @@
   <nav class="nav-mobile" id="mobile-nav" aria-label="Mobile navigation">
     {% assign main_pages = site.data.pages | where_exp: "p", "p.menu contains 'main'" | sort: "order" %}
     {% for link in main_pages %}
+      {% if link.external %}
+      <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
+        {{ link.title }}<span class="external-icon" aria-hidden="true">↗</span>
+      </a>
+      {% else %}
       <a href="{{ link.url | relative_url }}"
          {% if page.url == link.url %}class="active" aria-current="page"{% endif %}>
         {{ link.title }}
       </a>
+      {% endif %}
     {% endfor %}
   </nav>
 </header>
