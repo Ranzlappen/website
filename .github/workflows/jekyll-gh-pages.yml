@@ -5,6 +5,16 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'polyvote/README.md'
+      - 'polyvote/.gitignore'
+      - 'polyvote/.firebaserc'
+      - 'polyvote/firebase.json'
+      - 'polyvote/firestore.rules'
+      - 'polyvote/firestore.indexes.json'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
