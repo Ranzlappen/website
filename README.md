@@ -21,6 +21,7 @@ A clean, dark-themed personal blog. No coding required to set up or maintain —
 13. [Change Colors or Fonts](#change-colors-or-fonts)
 14. [Tune the Blog Carousel](#tune-the-blog-carousel)
 15. [Moderate Comments and Votes](#moderate-comments-and-votes)
+16. [Fullstack Architecture](#fullstack-architecture)
 
 ---
 
@@ -817,6 +818,71 @@ Vote data lives in your Firebase console:
 3. You'll see the data organized as: `votes` → `post-name` → `section-name` → `up`, `down`, `voters`.
 4. To **reset votes** for a post: hover over the post name and tap the **X** to delete it.
 5. To **wipe everything**: delete the entire `votes` node.
+
+</details>
+
+---
+
+<details>
+<summary><h2>Fullstack Architecture</h2></summary>
+
+This site is a hybrid: a Jekyll static blog and an embedded React single-page app (PolyVote), both deployed as one GitHub Pages site through a single CI/CD pipeline. The table below documents every technology in the stack, its role, and why it was chosen.
+
+### Stack Overview
+
+| Technology | Layer | Role | Dependencies | Why This Choice |
+|---|---|---|---|---|
+| **Jekyll 4.3** | Static Site | Site generator — Liquid templates, Markdown content, auto-built pages | `jekyll ~> 4.3` (Ruby gem) | Native GitHub Pages support, zero-JS content delivery, low maintenance |
+| **jekyll-feed** | Static Site | Auto-generates RSS/Atom feed at `/feed.xml` | Ruby gem | Standards-compliant feed with no manual work |
+| **jekyll-seo-tag** | Static Site | Injects `<meta>` and Open Graph tags into every page | Ruby gem | SEO and social-media link previews out of the box |
+| **jekyll-sitemap** | Static Site | Auto-generates `sitemap.xml` for search engines | Ruby gem | Search engine discoverability |
+| **jekyll-paginate** | Static Site | Splits the blog listing into multiple pages | Ruby gem | Keeps page loads fast as the post count grows |
+| **Custom CSS** | Static Site | Dark-first theme using CSS custom properties | None (vanilla CSS) | Full control, no build step, tiny footprint |
+| **Vanilla JS modules** | Static Site | Dark mode, search, carousel, voting sidebar, read-aloud, charts | Chart.js (CDN) | No bundler needed; each feature is one self-contained file |
+| | | | | |
+| **React 18** | App (PolyVote) | UI framework for the interactive voting app | `react`, `react-dom` | Component model suited for complex, real-time voting UI |
+| **TypeScript 5.6** | App (PolyVote) | Static type checking across the app | `typescript` (dev) | Catches bugs at build time; self-documenting code |
+| **Vite 5.4** | App (PolyVote) | Dev server and production bundler | `vite`, `@vitejs/plugin-react` (dev) | Fast HMR, native ESM, minimal config |
+| **Tailwind CSS 3** | App (PolyVote) | Utility-first CSS framework | `tailwindcss`, `postcss`, `autoprefixer` (dev) | Rapid UI development, class-based dark mode, matches Jekyll theme |
+| **React Router v6** | App (PolyVote) | Client-side routing (Home, Topic Detail, Requests) | `react-router-dom` | SPA navigation without full page reloads |
+| **Zustand 5** | App (PolyVote) | Global state management (auth, toasts, vote history) | `zustand` | Minimal boilerplate compared to Redux; lightweight store |
+| **Chart.js + react-chartjs-2** | App (PolyVote) | Radar chart visualization for multi-metric votes | `chart.js`, `react-chartjs-2` | Vote distribution visible at a glance across dimensions |
+| **Framer Motion 11** | App (PolyVote) | UI animations (enter, exit, hover, stagger) | `framer-motion` | Declarative animation API that integrates naturally with React |
+| **Lucide React** | App (PolyVote) | SVG icon library | `lucide-react` | Tree-shakeable, consistent icon set |
+| **date-fns 3** | App (PolyVote) | Date formatting ("2 hours ago") | `date-fns` | Lightweight, modular alternative to Moment.js |
+| | | | | |
+| **Firebase Firestore** | Backend | NoSQL database for PolyVote topics, requests, and votes | `firebase` SDK | Real-time `onSnapshot` listeners, serverless, free tier |
+| **Firebase Realtime DB** | Backend | Simple vote counters for the Jekyll voting sidebar | `firebase` SDK (Jekyll: CDN) | Low-latency counters; simpler than Firestore for flat key-value data |
+| **Firebase Anonymous Auth** | Backend | User identity without requiring signup | `firebase` SDK | Enables Firestore write-access rules with zero user friction |
+| **Giscus** | Backend | Blog post comments powered by GitHub Discussions | None (embedded `<script>`) | Comments live in your repo — no external database needed |
+| **hCaptcha** | Backend | Contact form spam protection | None (embedded `<script>`) | Free, privacy-respecting CAPTCHA |
+| | | | | |
+| **GitHub Pages** | Hosting | Static site hosting with automatic HTTPS | None | Free hosting, custom domain support, tied to the repo |
+| **GitHub Actions** | CI/CD | Builds Jekyll + PolyVote and deploys to Pages | Workflow YAML (`.github/workflows/`) | Single pipeline produces one unified deployment artifact |
+| **Node.js 20** | CI/CD | Runs the PolyVote build step inside the CI pipeline | npm packages from `polyvote/package.json` | Required by the Vite / TypeScript / Tailwind toolchain |
+
+### How It All Connects
+
+Both halves of the site are built and deployed by a single GitHub Actions workflow:
+
+```
+Push to main
+  └─► GitHub Actions
+        ├─ Jekyll build ──────────► _site/           (blog, pages, assets)
+        ├─ npm ci && npm run build ► polyvote/dist/   (React SPA bundle)
+        ├─ Copy dist/ into _site/polyvote/
+        ├─ Create _site/polyvote/404.html             (SPA route fallback)
+        └─ Deploy _site/ to GitHub Pages
+```
+
+The result is a single static deployment where:
+- `/` serves the Jekyll blog (Markdown → HTML, Liquid templates, vanilla JS)
+- `/polyvote/` serves the React SPA (TypeScript → bundled JS, Tailwind CSS)
+- Both share the same Firebase project for authentication, voting data, and real-time updates
+
+### Shared Design Tokens
+
+Both halves use the same visual identity so the embedded app feels native. Jekyll defines colors via CSS custom properties (e.g. `--c-accent: #4ade80`), and PolyVote mirrors them in its Tailwind config (`colors.brand[400]: '#4ade80'`). Dark mode uses a class-based toggle in both — Jekyll's `[data-theme="dark"]` and Tailwind's `darkMode: 'class'` — ensuring a seamless switch across the entire site.
 
 </details>
 
