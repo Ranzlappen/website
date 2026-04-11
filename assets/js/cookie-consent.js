@@ -69,6 +69,7 @@
 
     banner = document.createElement('div');
     banner.id = 'cc-banner';
+    banner.className = 'cc-banner';
     banner.setAttribute('role', 'dialog');
     banner.setAttribute('aria-label', 'Cookie & Privacy Settings');
     banner.setAttribute('aria-modal', 'true');
