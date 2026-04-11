@@ -8,11 +8,41 @@
   var lunrIndex = null;
   var documents = [];
   var loaded = false;
+  var consentPending = false;
 
-  // Load search index on first focus
+  // Load search index on first focus (consent-gated)
   searchInput.addEventListener('focus', loadIndex, { once: true });
 
   function loadIndex() {
+    if (loaded) return;
+
+    // Gate behind functional consent (Lunr.js is loaded from unpkg CDN)
+    if (!window.__cookieConsent || !window.__cookieConsent.functional) {
+      if (!consentPending) {
+        consentPending = true;
+        searchResults.innerHTML =
+          '<div style="padding:1rem;text-align:center;color:var(--c-text-faint);font-size:0.85rem;">' +
+            'Search requires functional cookies.<br>' +
+            '<button onclick="CookieConsent.show()" style="margin-top:0.5rem;padding:0.3rem 0.7rem;' +
+            'border:1px solid var(--c-border);border-radius:0.375rem;background:var(--c-surface-alt);' +
+            'color:var(--c-text);font-size:0.8rem;cursor:pointer;font-family:inherit;">Cookie Settings</button>' +
+          '</div>';
+        window.addEventListener('consent-updated', function handler(e) {
+          if (e.detail && e.detail.functional) {
+            consentPending = false;
+            searchResults.innerHTML = '';
+            actuallyLoadIndex();
+            window.removeEventListener('consent-updated', handler);
+          }
+        });
+      }
+      return;
+    }
+
+    actuallyLoadIndex();
+  }
+
+  function actuallyLoadIndex() {
     if (loaded) return;
     loaded = true;
 

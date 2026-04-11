@@ -32,12 +32,28 @@
 
 <!-- CSS -->
 <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/css/cookie-consent.css' | relative_url }}">
 
 <!-- Theme: apply saved preference before paint to prevent flash -->
+<!-- Cookie consent: read saved state before any scripts run -->
 <script>
   (function() {
     var t = localStorage.getItem('theme');
     if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+
+    // Bootstrap consent state synchronously so other scripts can check it
+    var CC_KEY = 'cookie_consent', CC_VER = 1, CC_EXP = 365;
+    try {
+      var d = JSON.parse(localStorage.getItem(CC_KEY));
+      if (d && d.version === CC_VER && (Date.now() - d.timestamp) < CC_EXP * 86400000) {
+        window.__cookieConsent = { functional: !!d.functional, resolved: true };
+        if (d.functional) document.documentElement.classList.add('consent-functional');
+      } else {
+        window.__cookieConsent = { functional: false, resolved: false };
+      }
+    } catch(e) {
+      window.__cookieConsent = { functional: false, resolved: false };
+    }
   })();
 </script>
 

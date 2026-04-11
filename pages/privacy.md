@@ -50,11 +50,22 @@ This site does **not** use Google Analytics or any other tracking/analytics serv
 
 This site includes a transparency tool (accessible via the 🍪 icon in the footer) that lets you inspect all cookies, localStorage, sessionStorage, and Cache Storage entries set by this site and its third-party services. This viewer is purely informational — it reads browser storage but does not transmit any data. Everything happens locally in your browser.
 
+## Cookie Consent
+
+This site implements a **cookie consent banner** in compliance with DSGVO (GDPR) and TTDSG regulations. Before any third-party services are loaded, you are asked for explicit consent. You can choose between two categories:
+
+- **Essential** (always active): Stores your theme preference (dark/light), view mode, and consent choice in `localStorage`. No external services are involved.
+- **Functional Services** (opt-in): Firebase (voting), Giscus (comments), hCaptcha (spam protection), Chart.js and Lunr.js via CDN (charts, search).
+
+Third-party scripts are **blocked by default** and only loaded after you explicitly grant consent. You can change your choice at any time via the "Cookie Settings" link in the footer.
+
+Your consent preference is stored in `localStorage` under the key `cookie_consent` and expires after 365 days. No consent data is sent to any server.
+
 ## Cookies & Local Storage
 
-This site does not set any first-party cookies. It uses `localStorage` (not cookies) to remember your theme preference (dark/light), view mode (grid/list), voting state, and a fallback visitor identifier for vote deduplication. PolyVote may use browser storage (localStorage, IndexedDB) for Firebase SDK state such as anonymous authentication tokens. This data never leaves your browser except as required by Firebase for authentication.
+This site does not set any first-party cookies. It uses `localStorage` (not cookies) to remember your theme preference (dark/light), view mode (grid/list), voting state, consent preference, and a fallback visitor identifier for vote deduplication. PolyVote may use browser storage (localStorage, IndexedDB) for Firebase SDK state such as anonymous authentication tokens. This data never leaves your browser except as required by Firebase for authentication.
 
-Third-party services loaded on this site — specifically **Firebase** (on pages with voting) and **hCaptcha** (on the contact form) — may set their own cookies for functionality such as bot detection and session management. These are not used for tracking or advertising.
+Third-party services loaded on this site — specifically **Firebase** (on pages with voting) and **hCaptcha** (on the contact form) — may set their own cookies for functionality such as bot detection and session management. These are only loaded after you grant consent and are not used for tracking or advertising.
 
 ## Third-Party Services Summary
 
