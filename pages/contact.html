@@ -38,10 +38,14 @@ permalink: /contact/
       <textarea id="contact-message" name="message" required placeholder="What's on your mind?"></textarea>
     </div>
 
-    <!-- hCaptcha -->
+    <!-- hCaptcha (consent-gated) -->
     <div class="form-group">
       <div class="h-captcha" data-sitekey="{{ site.hcaptcha.site_key }}" data-theme="dark"></div>
-      <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+      <script type="text/plain" data-consent-category="functional" src="https://js.hcaptcha.com/1/api.js" async defer></script>
+      <div class="cc-notice" id="hcaptcha-consent-notice">
+        <p>Spam protection (hCaptcha) requires functional cookies.</p>
+        <button class="cc-notice__btn" type="button" onclick="CookieConsent.show()">Cookie Settings</button>
+      </div>
     </div>
 
     <button type="button" class="form-submit" id="contact-submit">

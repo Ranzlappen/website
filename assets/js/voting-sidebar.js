@@ -297,24 +297,38 @@
   }
 
   // -------------------------------------------------------
-  // Init
+  // Init (gated behind cookie consent for DSGVO compliance)
   // -------------------------------------------------------
-  loadFirebase().then(function (ok) {
-    if (ok) {
-      if (appCheckReady) {
-        // Wait for App Check token before reading the database
-        firebase.appCheck().getToken(/* forceRefresh */ false).then(function () {
+  function initFirebaseVoting() {
+    loadFirebase().then(function (ok) {
+      if (ok) {
+        if (appCheckReady) {
+          // Wait for App Check token before reading the database
+          firebase.appCheck().getToken(/* forceRefresh */ false).then(function () {
+            loadVotes();
+          }).catch(function (err) {
+            console.warn('Voting sidebar: App Check token fetch failed:', err);
+            // Try loading votes anyway in case enforcement is relaxed
+            loadVotes();
+          });
+        } else {
           loadVotes();
-        }).catch(function (err) {
-          console.warn('Voting sidebar: App Check token fetch failed:', err);
-          // Try loading votes anyway in case enforcement is relaxed
-          loadVotes();
-        });
-      } else {
-        loadVotes();
+        }
       }
-    }
-  });
+    });
+  }
+
+  // Only load Firebase after functional consent is given
+  if (window.__cookieConsent && window.__cookieConsent.functional) {
+    initFirebaseVoting();
+  } else {
+    window.addEventListener('consent-updated', function handler(e) {
+      if (e.detail && e.detail.functional) {
+        initFirebaseVoting();
+        window.removeEventListener('consent-updated', handler);
+      }
+    });
+  }
 
   // Set initial mobile bar content
   if (mobileBar && sections.length > 0) {

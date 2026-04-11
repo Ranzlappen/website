@@ -12,7 +12,16 @@
   </div>
 
   <div id="giscus-container">
+    <!-- Consent notice (hidden when functional consent is given) -->
+    <div class="cc-notice" id="giscus-consent-notice">
+      <p>Comments are powered by Giscus (GitHub Discussions).<br>Enable functional cookies to load comments.</p>
+      <button class="cc-notice__btn" type="button" onclick="CookieConsent.show()">Cookie Settings</button>
+    </div>
+
+    <!-- Giscus script — blocked until functional consent is given -->
     <script
+      type="text/plain"
+      data-consent-category="functional"
       src="https://giscus.app/client.js"
       data-repo="{{ site.giscus.repo }}"
       data-repo-id="{{ site.giscus.repo_id }}"
