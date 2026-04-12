@@ -4,12 +4,6 @@ layout: default
 # Replaced page.previous/page.next with manual iteration to skip non-published posts.
 ---
 
-{% if page.backdrop %}
-<div class="parallax-backdrop" aria-hidden="true">
-  <img src="{{ page.backdrop | relative_url }}" alt="" class="parallax-backdrop__img">
-</div>
-{% endif %}
-
 <article class="post{% if page.backdrop %} post--has-backdrop{% endif %}" itemscope itemtype="http://schema.org/BlogPosting">
   {% if page.status == "draft" or page.status == "placeholder" %}
   <div class="status-banner" id="status-banner" role="status" data-slug="{{ page.url | slugify }}">
