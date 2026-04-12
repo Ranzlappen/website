@@ -37,10 +37,12 @@ Automation's roots trace back over 5,000 years. Around 3500 BCE, Mesopotamians d
 
 Philosophers and inventors imagined more advanced forms. Greek myths described Hephaestus forging metal automata as servants.<sup><a href="#source-5">[5]</a></sup> By 150 BCE, the Hydraulis, a water-powered organ, demonstrated programmable mechanical action. In ancient Egypt, Greece, and Rome, engineers built mechanical statues and devices that moved autonomously through hidden mechanisms, serving religious, entertainment, or practical purposes.<sup><a href="#source-5">[5]</a></sup> These early automata embodied the concept of machines acting of their own will.
 
+<!-- TEMPORARILY COMMENTED OUT: carousel images not yet uploaded
 <div class="carousel">
   <img src="/assets/images/automation-evolution/ancient-water-wheel.webp" alt="Ancient water wheel mechanism used for grain milling and irrigation automation">
   <img src="/assets/images/automation-evolution/greek-automata.webp" alt="Reconstruction of ancient Greek automata and mechanical devices">
 </div>
+-->
 
 <h2 id="medieval-renaissance">Medieval and Renaissance Advances</h2>
 
