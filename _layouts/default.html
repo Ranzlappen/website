@@ -19,6 +19,12 @@ DATE: 2026-04-02
   <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
   {% endif %}
 
+  {% if page.backdrop %}
+  <div class="parallax-backdrop" aria-hidden="true">
+    <img src="{{ page.backdrop | relative_url }}" alt="" class="parallax-backdrop__img">
+  </div>
+  {% endif %}
+
   <main id="main-content" role="main">
     {{ content }}
   </main>
