@@ -65,8 +65,8 @@ The eye-strain argument is context-dependent, not universal.
 </tr>
 <tr>
 <td>Long reading tasks</td>
-<td>Higher accuracy and faster processing (Gazit et al., 2025)</td>
-<td>Lower perceived workload in dashboards (eye-tracking study, 2025)</td>
+<td>Higher accuracy and faster processing<sup><a href="#source-1">[1]</a></sup></td>
+<td>Lower perceived workload in dashboards<sup><a href="#source-1">[1]</a></sup></td>
 </tr>
 <tr>
 <td>Older users</td>
@@ -82,15 +82,15 @@ CHANGE: Chart.js bar chart replacing pure CSS bars
 REASON: Chart system overhaul — professional rendering via Chart.js
 DATE: 2026-04-03
 -->
-<div class="chart-container" role="figure" aria-label="Cognitive Load by Mode and Ambient Light (Sources: Sethi & Ziat 2023, Gazit et al. 2025)">
+<div class="chart-container" role="figure" aria-label="Cognitive Load by Mode and Ambient Light">
   <canvas data-chart="bar"
-    data-title="Cognitive Load by Mode & Ambient Light (Sethi & Ziat 2023, Gazit et al. 2025)"
+    data-title="Cognitive Load by Mode & Ambient Light"
     data-labels='["Search Time (Light)","Search Time (Dark)","Pupil Diam. (Light)","Pupil Diam. (Dark)","NASA-TLX (Light)","NASA-TLX (Dark)"]'
     data-datasets='[{"label":"Score","data":[58,74,52,68,45,61],"colors":["#06b6d4","#64748b","#06b6d4","#64748b","#06b6d4","#64748b"]}]'>
   </canvas>
 </div>
 
-Eye-tracking and cognitive-performance studies confirm that light mode often delivers faster information processing and lower objective cognitive load for typical office conditions. Dark mode shines in low-light or for subjective comfort during extended sessions, but it is not universally superior.
+Eye-tracking and cognitive-performance studies confirm that light mode often delivers faster information processing and lower objective cognitive load for typical office conditions.<sup><a href="#source-1">[1]</a></sup><sup><a href="#source-2">[2]</a></sup> Dark mode shines in low-light or for subjective comfort during extended sessions, but it is not universally superior.
 
 <h2 id="psychological-signal">The Psychological Status Signal</h2>
 
@@ -113,3 +113,10 @@ It is not that the site literally calls anyone stupid. It is that the default mo
 <h2 id="conclusion">Conclusion</h2>
 
 The web’s dark/light split is not merely a technical or accessibility decision. It is a quiet statement about who the product believes its user to be. As more interfaces ship in 2026, understanding this psychological layer helps designers build with intention and helps users recognize when an interface is shaping how capable they feel — before they even notice.
+
+<h2 id="sources">Sources</h2>
+
+<ol>
+  <li id="source-1">Gazit et al. (2025). Dark Mode vs. Light Mode: Effects on Cognitive Performance, Reading Accuracy, and Visual Processing.</li>
+  <li id="source-2">Sethi &amp; Ziat (2023). Cognitive Load and Eye-Tracking Analysis of Dark and Light Mode Interfaces Under Varying Ambient Light Conditions.</li>
+</ol>

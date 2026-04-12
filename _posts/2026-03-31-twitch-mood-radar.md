@@ -94,6 +94,8 @@ As an early-stage project it already provides usable value, and continued develo
 
 <h2 id="sources">Sources</h2>
 
-<a href="https://ranzlappen.github.io/ticked/moodradar.html" target="_blank" rel="noopener">MoodRadar Live Demo</a>  
-<a href="https://youtube.com/shorts/3vtDJurNRf0" target="_blank" rel="noopener">MoodRadar Demo Video (YouTube Short)</a>  
-<a href="https://github.com/Ranzlappen/ticked" target="_blank" rel="noopener">Ticked Project Repository (includes MoodRadar)</a>
+<ol>
+  <li id="source-1"><a href="https://ranzlappen.github.io/ticked/moodradar.html" target="_blank" rel="noopener">MoodRadar Live Demo.</a></li>
+  <li id="source-2"><a href="https://youtube.com/shorts/3vtDJurNRf0" target="_blank" rel="noopener">MoodRadar Demo Video (YouTube Short).</a></li>
+  <li id="source-3"><a href="https://github.com/Ranzlappen/ticked" target="_blank" rel="noopener">Ticked Project Repository (includes MoodRadar).</a></li>
+</ol>

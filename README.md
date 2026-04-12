@@ -14,15 +14,16 @@ A clean, dark-themed personal blog. No coding required to set up or maintain —
 6. [Add a Pie Chart](#add-a-pie-chart)
 7. [Add a Line Chart](#add-a-line-chart)
 8. [Add a Data Table](#add-a-data-table)
-9. [Built-in Features](#built-in-features)
-10. [Enable Comments (Giscus)](#enable-comments-giscus)
-11. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
-12. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
-13. [Connect Your Own Domain](#connect-your-own-domain)
-14. [Change Colors or Fonts](#change-colors-or-fonts)
-15. [Tune the Blog Carousel](#tune-the-blog-carousel)
-16. [Moderate Comments and Votes](#moderate-comments-and-votes)
-17. [Fullstack Architecture](#fullstack-architecture)
+9. [Add Sources & Citations](#add-sources--citations)
+10. [Built-in Features](#built-in-features)
+11. [Enable Comments (Giscus)](#enable-comments-giscus)
+12. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
+13. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
+14. [Connect Your Own Domain](#connect-your-own-domain)
+15. [Change Colors or Fonts](#change-colors-or-fonts)
+16. [Tune the Blog Carousel](#tune-the-blog-carousel)
+17. [Moderate Comments and Votes](#moderate-comments-and-votes)
+18. [Fullstack Architecture](#fullstack-architecture)
 
 ---
 
@@ -510,6 +511,75 @@ Add responsive data tables to any blog post using HTML `<table>` tags with inlin
 ---
 
 <details>
+<summary><h2>Add Sources & Citations</h2></summary>
+
+Every article that references external data, research, or statistics should include numbered source citations. This blog uses a consistent format: inline superscript numbers that link to a numbered sources list at the bottom of the article.
+
+### Inline citations (in the article body)
+
+When a sentence references a source, add a superscript link immediately after the relevant claim:
+
+```html
+Global ad spend surpassed one trillion dollars in 2024.<sup><a href="#source-2">[2]</a></sup>
+```
+
+**Rules:**
+- Place the `<sup>` tag directly after the period or the end of the claim — no space before it
+- The `href` must match the `id` on the corresponding `<li>` in the sources list (`#source-1`, `#source-2`, etc.)
+- Multiple sources on the same claim: use consecutive sups: `<sup><a href="#source-1">[1]</a></sup><sup><a href="#source-2">[2]</a></sup>`
+- Inside HTML tables or list items, sups work the same way
+
+### Sources section (at the bottom of the article)
+
+Add a `Sources` heading and a numbered `<ol>` list at the end of your article, before the closing content. Each source gets a unique `id` that matches the inline citation:
+
+```html
+<h2 id="sources">Sources</h2>
+
+<ol>
+  <li id="source-1"><a href="https://example.com/report-2025" target="_blank" rel="noopener">Author or Publisher (Year). Title of the Source.</a></li>
+  <li id="source-2"><a href="https://example.com/study" target="_blank" rel="noopener">Author (Year). Title of the Study or Article.</a></li>
+  <li id="source-3">Author (Year). <em>Title of a Book or Offline Source.</em></li>
+</ol>
+```
+
+**Rules:**
+- Use `<ol>` (ordered list), not `<ul>`
+- Each `<li>` must have `id="source-N"` matching the inline `href="#source-N"`
+- Linked sources: wrap in `<a href="..." target="_blank" rel="noopener">` — always include `target="_blank"` and `rel="noopener"`
+- Offline sources (books, reports without URLs): use plain text with `<em>` for titles
+- Format: `Publisher or Author (Year). Title.`
+- Number sources in the order they first appear in the article
+- Add "Sources" to the article's Table of Contents nav if one exists
+
+### Complete example
+
+```html
+<!-- In the article body -->
+<p>Studies confirm that 79 percent of respondents feel watched by retargeted ads.<sup><a href="#source-1">[1]</a></sup>
+Cross-national analyses link ad exposure to lower happiness.<sup><a href="#source-2">[2]</a></sup></p>
+
+<!-- At the bottom of the article -->
+<h2 id="sources">Sources</h2>
+
+<ol>
+  <li id="source-1"><a href="https://example.com/ad-fatigue-stats" target="_blank" rel="noopener">HubSpot (2026). 14 Ad Fatigue Statistics.</a></li>
+  <li id="source-2"><a href="https://example.com/advertising-happiness" target="_blank" rel="noopener">Griffith et al., Journal of International Business Studies. "Advertising Spending and Happiness."</a></li>
+</ol>
+```
+
+### Tips
+
+- Always add the sources `<h2>` to your Table of Contents navigation: `<li><a href="#sources">Sources</a></li>`
+- If a source doesn't have a URL (e.g., a book), omit the `<a>` tag and just write the citation text
+- Use `<em>` for book titles: `<em>How to Lie with Statistics</em>`
+- Keep source descriptions concise: Publisher (Year). Title. — no need for full academic citation format
+
+</details>
+
+---
+
+<details>
 <summary><h2>Built-in Features</h2></summary>
 
 These features work automatically on every post — no setup needed:
@@ -964,6 +1034,7 @@ Both halves use the same visual identity so the embedded app feels native. Jekyl
 | Add an image carousel       | Wrap `<img>` tags in `<div class="carousel">` in your post     |
 | Add a bar chart             | Use `<canvas data-chart="bar">` inside `<div class="chart-container">` |
 | Add a data table            | Use `<table>` inside `<div style="overflow-x: auto;">` in your post |
+| Add source citations        | Use `<sup><a href="#source-1">[1]</a></sup>` inline + `<ol>` at bottom |
 | Upload an image for a post  | Upload to `assets/images/` on GitHub, reference in your post   |
 
 </details>
