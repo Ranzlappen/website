@@ -6,6 +6,7 @@ date: 2026-04-04
 category: "Media"
 tags: [advertising, media-dependency, privacy, sociology, cookies, ad-fatigue]
 image: /assets/images/ad-intrusion/ad-intrusion-hero.webp
+backdrop: /assets/images/ad-intrusion/ad-intrusion-hero.webp
 status: placeholder
 comments: true
 ---

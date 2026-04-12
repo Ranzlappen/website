@@ -758,4 +758,21 @@ DATE: 2026-04-02
     });
   }
 
+  // -------------------------------------------------------
+  // Parallax Backdrop
+  // -------------------------------------------------------
+  var backdropImg = document.querySelector('.parallax-backdrop__img');
+  if (backdropImg) {
+    var pTicking = false;
+    window.addEventListener('scroll', function () {
+      if (!pTicking) {
+        requestAnimationFrame(function () {
+          backdropImg.style.transform = 'translateY(' + (window.scrollY * 0.35) + 'px)';
+          pTicking = false;
+        });
+        pTicking = true;
+      }
+    }, { passive: true });
+  }
+
 })();
