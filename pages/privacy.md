@@ -5,7 +5,7 @@ subtitle: How your data is handled
 permalink: /privacy/
 ---
 
-# Privacy Policy , RanzLappen
+# Privacy Policy — RanzLappen
 
 **Last updated: 12 April 2026**
 
@@ -37,10 +37,10 @@ Comments are powered by **Giscus**, which uses GitHub Discussions. To leave a co
 **Legal basis:** Consent.
 
 ## Voting System & PolyVote (Firebase)
-The per-section voting feature on blog posts uses **Google Firebase Realtime Database** to store anonymous votes. Your IP address is fetched via ipify and hashed , the raw IP is never stored. A hashed identifier is used solely to prevent duplicate voting.
+The per-section voting feature on blog posts uses **Google Firebase Realtime Database** to store anonymous votes. Your IP address is fetched via ipify and hashed — the raw IP is never stored. A hashed identifier is used solely to prevent duplicate voting.
 
 **PolyVote** uses:
-- Firebase Authentication (anonymous user ID only , no email, name or other personal information)
+- Firebase Authentication (anonymous user ID only — no email, name or other personal information)
 - Cloud Firestore (topics, votes, change requests, topic requests linked only to the anonymous ID)
 
 Firebase may set cookies or use browser storage for App Check and session management as part of its normal operation. Security is enforced via Firestore security rules.  
@@ -57,7 +57,7 @@ The site's full-text search loads **Lunr.js** from the unpkg CDN. The search its
 **Legal basis:** Consent.
 
 ## Read Aloud
-The read aloud feature uses the browser’s built-in **Web Speech API**. No data is sent to any external service , everything happens locally.
+The read aloud feature uses the browser’s built-in **Web Speech API**. No data is sent to any external service — everything happens locally.
 
 ## Analytics
 This site does **not** use Google Analytics or any other tracking/analytics service. No tracking cookies are set.

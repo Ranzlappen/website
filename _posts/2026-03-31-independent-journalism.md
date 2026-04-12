@@ -102,7 +102,7 @@ Corporate and public media flaws fuel and are fueled by weakening media literacy
 
 <!--
 CHANGE: Chart.js bar chart replacing pure CSS bars
-REASON: Chart system overhaul , professional rendering via Chart.js
+REASON: Chart system overhaul — professional rendering via Chart.js
 DATE: 2026-04-03
 -->
 <div class="chart-container" role="figure" aria-label="Teen Media Perceptions 2025 (Source: News Literacy Project)">
@@ -127,7 +127,7 @@ Independent creators fill the vacuum. Substack surpassed 5 million paid subscrip
 
 <!--
 CHANGE: Chart.js pie chart replacing pure CSS conic-gradient
-REASON: Chart system overhaul , professional rendering via Chart.js
+REASON: Chart system overhaul — professional rendering via Chart.js
 DATE: 2026-04-03
 -->
 <div class="chart-container" role="figure" aria-label="Trust in Journalists by Type 2025 (Source: Change Research)">
@@ -155,7 +155,7 @@ Minimal guardrails block illegal content but avoid external shaping distorting W
 
 <!--
 CHANGE: Chart.js grouped bar chart replacing pure CSS bars
-REASON: Chart system overhaul , professional rendering via Chart.js
+REASON: Chart system overhaul — professional rendering via Chart.js
 DATE: 2026-04-03
 -->
 <div class="chart-container" role="figure" aria-label="AI Model Guardrail Levels vs. Bias Scores 2025 (Sources: Anthropic, IEEE Access, AIonX)">

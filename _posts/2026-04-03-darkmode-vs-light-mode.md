@@ -22,7 +22,7 @@ comments: true
 
 <h2 id="default-divide">The Default Divide</h2>
 
-Most consumer-facing websites , news portals, e-commerce stores, marketing pages, and social platforms , launch with light mode as the default. Dark mode is available only as an optional toggle, usually respecting the browser’s `prefers-color-scheme` media query.
+Most consumer-facing websites — news portals, e-commerce stores, marketing pages, and social platforms — launch with light mode as the default. Dark mode is available only as an optional toggle, usually respecting the browser’s `prefers-color-scheme` media query.
 
 In contrast, backends, admin panels, developer consoles, internal dashboards, and coding tools overwhelmingly ship with dark mode enabled by default. This split is now standard in 2026.
 
@@ -79,7 +79,7 @@ The eye-strain argument is context-dependent, not universal.
 
 <!--
 CHANGE: Chart.js bar chart replacing pure CSS bars
-REASON: Chart system overhaul , professional rendering via Chart.js
+REASON: Chart system overhaul — professional rendering via Chart.js
 DATE: 2026-04-03
 -->
 <div class="chart-container" role="figure" aria-label="Cognitive Load by Mode and Ambient Light">
@@ -98,7 +98,7 @@ This technical choice carries a subtle message.
 
 Dark mode has become cultural shorthand for “power user” and “serious work.” It feels modern, focused, exclusive, and sophisticated. Receiving a dark interface can make users feel respected as experts.
 
-Light mode, while more readable and trustworthy in many contexts, can feel mass-market or “basic.” When a frontend forces light mode (or a backend feels unusually bright), some users internalize the friction , slower reading, higher mental effort, or visual discomfort , as personal failure rather than design intent. The interface quietly suggests: “We built this for average users, not pros like you.”
+Light mode, while more readable and trustworthy in many contexts, can feel mass-market or “basic.” When a frontend forces light mode (or a backend feels unusually bright), some users internalize the friction — slower reading, higher mental effort, or visual discomfort — as personal failure rather than design intent. The interface quietly suggests: “We built this for average users, not pros like you.”
 
 It is not that the site literally calls anyone stupid. It is that the default mode hierarchy creates an unconscious status gradient: dark = capable insider, light = casual outsider. Users notice this on a gut level even if they cannot articulate it.
 
@@ -106,13 +106,13 @@ It is not that the site literally calls anyone stupid. It is that the default mo
 
 - Backend dark defaults signal “we expect expert, long-session use.”
 - Frontend light defaults prioritize broad accessibility and trust.
-- Research shows cognitive performance is highly context-dependent , no mode wins universally.
+- Research shows cognitive performance is highly context-dependent — no mode wins universally.
 - The split reinforces a subtle expertise hierarchy that affects user confidence and self-perception.
 - Designers should choose defaults consciously rather than following industry convention.
 
 <h2 id="conclusion">Conclusion</h2>
 
-The web’s dark/light split is not merely a technical or accessibility decision. It is a quiet statement about who the product believes its user to be. As more interfaces ship in 2026, understanding this psychological layer helps designers build with intention and helps users recognize when an interface is shaping how capable they feel , before they even notice.
+The web’s dark/light split is not merely a technical or accessibility decision. It is a quiet statement about who the product believes its user to be. As more interfaces ship in 2026, understanding this psychological layer helps designers build with intention and helps users recognize when an interface is shaping how capable they feel — before they even notice.
 
 <h2 id="sources">Sources</h2>
 

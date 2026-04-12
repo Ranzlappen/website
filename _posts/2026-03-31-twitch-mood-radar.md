@@ -31,18 +31,18 @@ MoodRadar is an experimental, single-file HTML application that turns high-volum
 
 <h2 id="how-it-works">How It Works</h2>
 
-Enter any Twitch channel name and connect. MoodRadar joins the chat passively on the client side, processes every incoming message with lightweight sentiment analysis, and updates multiple live visualizations. All computation happens in your browser,no servers, no accounts, and no data leaves your device.
+Enter any Twitch channel name and connect. MoodRadar joins the chat passively on the client side, processes every incoming message with lightweight sentiment analysis, and updates multiple live visualizations. All computation happens in your browser—no servers, no accounts, and no data leaves your device.
 
 <h2 id="core-features">Core Features</h2>
 
-- **Mood Distribution** , Real-time breakdown across 11 emotions: Hype, Funny, Love, Toxic, Sad, Calm, Angry, Cringe, Wholesome, Confused, Neutral.  
-- **Consensus Bubbles** , Size shows frequency; color shows dominant mood.  
-- **Keyword Web** , Top terms and phrases currently trending in chat.  
-- **Approval Meter & Dissent** , Instant gauge of positive vs. negative sentiment.  
-- **Mood Timelines** , Linear and log-scale views of how the chat mood evolves over time.  
-- **Live Feed & Standout Messages** , Adjustable live message view with highlights.  
-- **Dashboard Metrics** , Total messages, rate (msg/s), queue, dropped, bot activity, and user count.  
-- **Customizable Settings** , Max timeline points, interval, label sizes, and quick presets.
+- **Mood Distribution** — Real-time breakdown across 11 emotions: Hype, Funny, Love, Toxic, Sad, Calm, Angry, Cringe, Wholesome, Confused, Neutral.  
+- **Consensus Bubbles** — Size shows frequency; color shows dominant mood.  
+- **Keyword Web** — Top terms and phrases currently trending in chat.  
+- **Approval Meter & Dissent** — Instant gauge of positive vs. negative sentiment.  
+- **Mood Timelines** — Linear and log-scale views of how the chat mood evolves over time.  
+- **Live Feed & Standout Messages** — Adjustable live message view with highlights.  
+- **Dashboard Metrics** — Total messages, rate (msg/s), queue, dropped, bot activity, and user count.  
+- **Customizable Settings** — Max timeline points, interval, label sizes, and quick presets.
 
 <figure>
   <img src="/assets/images/moodradar/moodradar-dashboard-full.webp" alt="Full MoodRadar dashboard showing mood distribution, consensus bubbles, and timelines during a live Twitch stream">
@@ -58,7 +58,7 @@ Enter any Twitch channel name and connect. MoodRadar joins the chat passively on
 
 MoodRadar was built specifically for **high-throughput streams** where chat volume makes it impossible to keep up manually. In large gaming broadcasts, major announcements, esports events, or viral moments, messages can arrive at hundreds or thousands per minute.  
 
-The tool captures the general chat demeanor instantly,letting streamers, moderators, and viewers know whether the room is hyped, laughing, getting toxic, feeling wholesome, or confused,without reading every line.  
+The tool captures the general chat demeanor instantly—letting streamers, moderators, and viewers know whether the room is hyped, laughing, getting toxic, feeling wholesome, or confused—without reading every line.  
 
 Practical scenarios include:  
 - Monitoring audience reaction during boss fights, giveaways, or key story moments.  
@@ -82,7 +82,7 @@ MoodRadar is still in an early experimental stage. Core functionality works reli
 
 - Real-time client-side analysis of live Twitch chat sentiment and consensus.  
 - Multiple intuitive visualizations designed for high-volume, fast-moving chats.  
-- Zero accounts, zero servers,fully private and runs entirely in the browser.  
+- Zero accounts, zero servers—fully private and runs entirely in the browser.  
 - Specifically solves the problem of keeping up with overwhelming chat flow.  
 - Early-stage experimental tool with strong potential for streamers and viewers.
 
