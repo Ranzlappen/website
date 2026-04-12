@@ -2296,6 +2296,68 @@ img {
   display: contents;
 }
 
+/* Sticky TTS Toolbar (fixed below header when reading aloud) */
+.tts-sticky-bar {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  pointer-events: none;
+}
+.tts-sticky-bar[hidden] {
+  display: flex;           /* override hidden so transition works */
+  visibility: hidden;
+}
+.tts-sticky-bar.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.tts-sticky-bar__btn {
+  background: none;
+  border: 1px solid var(--c-border);
+  color: var(--c-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+.tts-sticky-bar__btn:hover {
+  color: var(--c-accent);
+  border-color: var(--c-accent-border);
+  background: var(--c-accent-bg);
+}
+.tts-sticky-bar__btn svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.tts-sticky-bar__label {
+  font-size: 0.75rem;
+  color: var(--c-text-faint);
+  letter-spacing: 0.02em;
+}
+
 /* Read Aloud Highlight */
 .read-aloud-highlight {
   background: var(--c-accent-bg);
