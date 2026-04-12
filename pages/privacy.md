@@ -5,90 +5,175 @@ subtitle: How your data is handled
 permalink: /privacy/
 ---
 
-## Overview
+# Privacy Policy — RanzLappen
 
+**Last updated: 12 April 2026**
+
+## Controller
+The controller within the meaning of the General Data Protection Regulation (GDPR) is me as a private individual:
+
+**RanzLappen**  
+Contact: Via the [Contact page](https://www.ranzlappen.com/contact) or by opening a GitHub issue in the repository.
+
+## Scope
+This privacy policy applies to the website https://www.ranzlappen.com/ (including all subpages and the PolyVote feature). The site is purely private and non-commercial.
+
+## Legal bases for processing
+I process personal data exclusively on the following legal bases of the GDPR:
+- **Art. 6(1)(a) GDPR** – Consent (for all “Functional Services” via the cookie consent banner)
+- **Art. 6(1)(f) GDPR** – Legitimate interest (e.g. GitHub Pages hosting logs, abuse prevention in voting)
+- **Art. 6(1)(b) GDPR** – Performance of a contract (where applicable for comments or contact form)
+
+## Overview
 This website respects your privacy. Here's exactly what data is collected and why.
 
-## Static Hosting
-
-This site is hosted on **GitHub Pages**. GitHub may collect basic server logs (IP addresses, browser info) as part of their hosting service. See [GitHub's privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement) for details.
+## Static Hosting (GitHub Pages)
+This site is hosted on **GitHub Pages**. GitHub may collect basic server logs (IP addresses, browser info) as part of their hosting service.  
+**Legal basis:** Legitimate interest (technical provision of the site).  
+Further information: [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).
 
 ## Comments (Giscus)
+Comments are powered by **Giscus**, which uses GitHub Discussions. To leave a comment, you log in with your GitHub account. Giscus does not track you beyond what GitHub itself collects. No additional cookies are set by the comment system.  
+**Legal basis:** Consent.
 
-Comments are powered by **Giscus**, which uses GitHub Discussions. To leave a comment, you log in with your GitHub account. Giscus does not track you beyond what GitHub itself collects. No additional cookies are set by the comment system.
+## Voting System & PolyVote (Firebase)
+The per-section voting feature on blog posts uses **Google Firebase Realtime Database** to store anonymous votes. Your IP address is fetched via ipify and hashed — the raw IP is never stored. A hashed identifier is used solely to prevent duplicate voting.
 
-## Voting System (Firebase)
+**PolyVote** uses:
+- Firebase Authentication (anonymous user ID only — no email, name or other personal information)
+- Cloud Firestore (topics, votes, change requests, topic requests linked only to the anonymous ID)
 
-The per-section voting feature on blog posts uses **Google Firebase Realtime Database** to store anonymous votes. Your IP address is fetched via a third-party service (ipify) and hashed — the raw IP is never stored. A hashed identifier is used solely to prevent duplicate voting. No personal information is stored alongside votes. Firebase may set cookies or use browser storage for App Check and session management as part of its normal operation.
-
-## PolyVote (Firebase)
-
-The **PolyVote** app is a community voting tool that uses **Google Firebase** for its backend. The following Firebase services are used:
-
-- **Firebase Authentication**: You are signed in anonymously. Firebase assigns a temporary anonymous user ID — no email, name, or other personal information is required or collected.
-- **Cloud Firestore**: Stores topics, votes, change requests, and topic requests. Your anonymous user ID is associated with your votes and submissions to prevent abuse, but it is not linked to any personally identifiable information.
-
-All data is stored on Google's Firebase infrastructure. See [Google's privacy policy](https://policies.google.com/privacy) and [Firebase's data processing terms](https://firebase.google.com/terms/data-processing-terms) for details on how Google handles data. Security is enforced via Firestore security rules — only authenticated users (including anonymous ones) can create or update data, and all data is publicly readable.
+Firebase may set cookies or use browser storage for App Check and session management as part of its normal operation. Security is enforced via Firestore security rules.  
+**Legal basis:** Consent (via consent banner).  
+Firebase is certified under the **EU-U.S. Data Privacy Framework**.
 
 ## Contact Form (hCaptcha)
+The contact form uses **hCaptcha** for spam protection. hCaptcha may set cookies and collect data as described in their privacy policy.  
+Contact form submissions are created as **public** GitHub Issues in the site's repository.  
+**Legal basis:** Consent + legitimate interest (abuse prevention).
 
-The contact form uses **hCaptcha** for spam protection. hCaptcha may set cookies and collect data as described in their [privacy policy](https://www.hcaptcha.com/privacy). Contact form submissions are created as **public** GitHub Issues in the site's repository. This means your name (or alias), email address (if provided), and message content will be publicly visible on GitHub. Do not include sensitive personal information in your submission.
-
-## Search (Lunr.js)
-
-The site's full-text search feature loads the **Lunr.js** library from the unpkg CDN (`unpkg.com`). When you use search, your browser makes a request to unpkg's servers, which may receive your IP address and browser information as part of a standard HTTP request. The search itself runs entirely in your browser — no search queries are sent to any server.
+## Search (Lunr.js via unpkg CDN)
+The site's full-text search loads **Lunr.js** from the unpkg CDN. The search itself runs entirely in the browser.  
+**Legal basis:** Consent.
 
 ## Read Aloud
-
-The read aloud feature uses your browser's built-in **Web Speech API** to convert article text to speech. No data is sent to any external service — all processing happens locally on your device.
+The read aloud feature uses the browser’s built-in **Web Speech API**. No data is sent to any external service — everything happens locally.
 
 ## Analytics
-
 This site does **not** use Google Analytics or any other tracking/analytics service. No tracking cookies are set.
 
-## Browser Storage Viewer
+## Cookie Consent Banner & Consent Management
+This site implements a **cookie consent banner** in compliance with GDPR and TTDSG. Before any third-party services are loaded, you are asked for explicit consent. You can choose between two categories:
 
-This site includes a transparency tool (accessible via the 🍪 icon in the footer) that lets you inspect all cookies, localStorage, sessionStorage, and Cache Storage entries set by this site and its third-party services. This viewer is purely informational — it reads browser storage but does not transmit any data. Everything happens locally in your browser.
+- **Essential** (always active): localStorage for theme preference, view mode, and consent choice.
+- **Functional Services** (opt-in): Firebase (voting & PolyVote), Giscus (comments), hCaptcha (spam protection), Lunr.js/unpkg (search).
 
-## Cookie Consent
-
-This site implements a **cookie consent banner** in compliance with DSGVO (GDPR) and TTDSG regulations. Before any third-party services are loaded, you are asked for explicit consent. You can choose between two categories:
-
-- **Essential** (always active): Stores your theme preference (dark/light), view mode, and consent choice in `localStorage`. No external services are involved.
-- **Functional Services** (opt-in): Firebase (voting), Giscus (comments), hCaptcha (spam protection), Chart.js and Lunr.js via CDN (charts, search).
-
-Third-party scripts are **blocked by default** and only loaded after you explicitly grant consent. You can change your choice at any time via the "Cookie Settings" link in the footer.
-
-Your consent preference is stored in `localStorage` under the key `cookie_consent` and expires after 365 days. No consent data is sent to any server.
+Third-party scripts are **blocked by default** and only loaded after your explicit consent. You can change your choice at any time via the “Cookie Settings” link in the footer.  
+Consent is stored in `localStorage` under the key `cookie_consent` for 365 days.
 
 ## Cookies & Local Storage
-
-This site does not set any first-party cookies. It uses `localStorage` (not cookies) to remember your theme preference (dark/light), view mode (grid/list), voting state, consent preference, and a fallback visitor identifier for vote deduplication. PolyVote may use browser storage (localStorage, IndexedDB) for Firebase SDK state such as anonymous authentication tokens. This data never leaves your browser except as required by Firebase for authentication.
-
-Third-party services loaded on this site — specifically **Firebase** (on pages with voting) and **hCaptcha** (on the contact form) — may set their own cookies for functionality such as bot detection and session management. These are only loaded after you grant consent and are not used for tracking or advertising.
+This site does not set any first-party cookies. It only uses `localStorage` for theme, view mode, voting state, consent preference, and vote deduplication.  
+Third-party services (Firebase, hCaptcha) may set their own functional cookies **only after consent**.
 
 ## Third-Party Services Summary
 
-| Service | Purpose | Data collected | Sets cookies? |
-|---------|---------|----------------|---------------|
-| GitHub Pages | Hosting | Server logs | No |
-| Giscus | Comments | GitHub account (login required) | No |
-| Firebase Realtime DB | Blog post voting | Hashed IP (anonymous) | May set functional cookies |
-| Firebase Auth | PolyVote authentication | Anonymous user ID (no personal info) | May set functional cookies |
-| Firebase Firestore | PolyVote data storage | Topics, votes, requests (linked to anonymous ID) | May set functional cookies |
-| hCaptcha | Spam protection | See hCaptcha privacy policy | Yes (bot detection) |
-| ipify | IP detection for voting | IP address (hashed, not stored raw) | No |
-| unpkg CDN | Search library delivery | IP address, browser info (standard HTTP request) | No |
-| Ko-fi | Donation/support (external link) | Only if you click the link and visit Ko-fi | See Ko-fi's policy |
+<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.4; min-width: 640px; table-layout: auto;">
+    <thead>
+      <tr>
+        <th style="text-align: left; padding: 11px 10px; width: 25%;">Service</th>
+        <th style="text-align: left; padding: 11px 8px; width: 25%;">Purpose</th>
+        <th style="text-align: left; padding: 11px 8px; width: 30%;">Data collected</th>
+        <th style="text-align: center; padding: 11px 8px; width: 20%;">Sets cookies?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">GitHub Pages</td>
+        <td style="padding: 11px 8px;">Hosting</td>
+        <td style="padding: 11px 8px;">Server logs</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
+      </tr>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">Giscus</td>
+        <td style="padding: 11px 8px;">Comments</td>
+        <td style="padding: 11px 8px;">GitHub account (login required)</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
+      </tr>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">Firebase Realtime DB</td>
+        <td style="padding: 11px 8px;">Blog post voting</td>
+        <td style="padding: 11px 8px;">Hashed IP (anonymous)</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">May set functional cookies</td>
+      </tr>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">Firebase Auth</td>
+        <td style="padding: 11px 8px;">PolyVote authentication</td>
+        <td style="padding: 11px 8px;">Anonymous user ID</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">May set functional cookies</td>
+      </tr>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">Firebase Firestore</td>
+        <td style="padding: 11px 8px;">PolyVote data storage</td>
+        <td style="padding: 11px 8px;">Topics, votes, requests (anonymous ID)</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">May set functional cookies</td>
+      </tr>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">hCaptcha</td>
+        <td style="padding: 11px 8px;">Spam protection</td>
+        <td style="padding: 11px 8px;">See hCaptcha privacy policy</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">Yes (bot detection)</td>
+      </tr>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">ipify</td>
+        <td style="padding: 11px 8px;">IP detection for voting</td>
+        <td style="padding: 11px 8px;">IP address (hashed only)</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
+      </tr>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">unpkg CDN</td>
+        <td style="padding: 11px 8px;">Search library delivery</td>
+        <td style="padding: 11px 8px;">IP address, browser info</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
+      </tr>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">Ko-fi</td>
+        <td style="padding: 11px 8px;">External donation link</td>
+        <td style="padding: 11px 8px;">Only if you click through</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">See Ko-fi policy</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-The footer contains a link to **Ko-fi** for optional support/donations. Clicking this link takes you to Ko-fi's website, which is governed by their own [privacy policy](https://more.ko-fi.com/privacy). No data is shared with Ko-fi unless you voluntarily visit their site.
+## Transfers to third countries
+Some services (Google Firebase, GitHub, unpkg, hCaptcha) are based in the USA.  
+- Google Firebase is certified under the **EU-U.S. Data Privacy Framework**.  
+- In addition, the European Commission’s Standard Contractual Clauses (SCCs) apply.  
+Further information can be found in the respective privacy policies of the providers.
 
-## Your Rights
+## Your rights (data subject rights)
+You have the following rights at any time:
+- **Access** to your stored data  
+- **Rectification** of inaccurate data  
+- **Erasure** (“right to be forgotten”)  
+- **Restriction** of processing  
+- **Objection** to processing  
+- **Data portability**  
+- **Withdrawal** of consent at any time (via “Cookie Settings” in the footer)
 
-Since no personal data is stored on this site's own infrastructure, there is minimal data to manage. If you want a comment removed, you can delete it yourself on GitHub Discussions or contact me through the [contact page](/contact/).
+Since almost no personal data is permanently stored on my own infrastructure, you can exercise most rights yourself (e.g. delete your own comments). For anything else, simply contact me via the contact page.
 
-## Changes
+## Storage period
+- Consent settings: 365 days (localStorage)  
+- Hashed voting IDs: only for the duration of the voting cooldown  
+- GitHub Issues / Discussions: as long as they are not deleted  
+- GitHub server logs: according to GitHub’s own retention policy
 
-This policy may be updated from time to time. Changes will be reflected on this page.
+## Browser Storage Viewer
+This site includes a transparency tool (accessible via the 🍪 icon in the footer) that lets you inspect all cookies, localStorage, sessionStorage, and Cache Storage entries set by this site and its third-party services. Everything happens locally.
 
-*Last updated: {{ 'now' | date: '%B %Y' }}*
+## Changes to this privacy policy
+This policy may be updated if necessary. The current version is always available on this page. Changes are marked with a new “Last updated” date.
+
+*Last updated: {{ 'now' | date: '%B %Y' }}* 
