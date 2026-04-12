@@ -13,6 +13,14 @@
   var iconPlay = playBtn ? playBtn.querySelector('.read-aloud__icon-play') : null;
   var iconPause = playBtn ? playBtn.querySelector('.read-aloud__icon-pause') : null;
 
+  // Sticky TTS bar elements
+  var stickyBar = document.getElementById('tts-sticky-bar');
+  var stickyPlayBtn = document.getElementById('tts-sticky-play');
+  var stickyStopBtn = document.getElementById('tts-sticky-stop');
+  var stickyIconPlay = stickyPlayBtn ? stickyPlayBtn.querySelector('.tts-sticky-bar__icon-play') : null;
+  var stickyIconPause = stickyPlayBtn ? stickyPlayBtn.querySelector('.tts-sticky-bar__icon-pause') : null;
+  var stickyLabel = document.getElementById('tts-sticky-label');
+
   if (!playBtn) return;
 
   // --- State ---
@@ -101,11 +109,15 @@
     if (el) {
       el.classList.add('read-aloud-highlight');
       highlightedEl = el;
-      // Scroll into view if needed
+      // Scroll into view if needed, accounting for sticky TTS bar
       var rect = el.getBoundingClientRect();
       var mobileBar = document.querySelector('.voting-mobile-bar');
       var bottomOffset = (mobileBar && window.getComputedStyle(mobileBar).display !== 'none') ? 120 : 80;
-      if (rect.top < 60 || rect.bottom > window.innerHeight - bottomOffset) {
+      var topOffset = 60;
+      if (stickyBar && stickyBar.classList.contains('is-visible')) {
+        topOffset += stickyBar.offsetHeight;
+      }
+      if (rect.top < topOffset || rect.bottom > window.innerHeight - bottomOffset) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
@@ -118,12 +130,34 @@
     }
   }
 
+  // --- Sticky bar visibility ---
+  function showStickyBar() {
+    if (!stickyBar) return;
+    stickyBar.removeAttribute('hidden');
+    // Force reflow so the transition triggers
+    void stickyBar.offsetHeight;
+    stickyBar.classList.add('is-visible');
+  }
+
+  function hideStickyBar() {
+    if (!stickyBar) return;
+    stickyBar.classList.remove('is-visible');
+    stickyBar.addEventListener('transitionend', function handler() {
+      stickyBar.removeEventListener('transitionend', handler);
+      stickyBar.setAttribute('hidden', '');
+    });
+  }
+
   // --- Toggle play/pause icons ---
   function showPlayIcon() {
     if (iconPlay) iconPlay.style.display = '';
     if (iconPause) iconPause.style.display = 'none';
     playBtn.setAttribute('aria-label', 'Play');
     playBtn.setAttribute('title', 'Read aloud');
+    // Sync sticky bar
+    if (stickyIconPlay) stickyIconPlay.style.display = '';
+    if (stickyIconPause) stickyIconPause.style.display = 'none';
+    if (stickyLabel) stickyLabel.textContent = 'Paused';
   }
 
   function showPauseIcon() {
@@ -131,6 +165,10 @@
     if (iconPause) iconPause.style.display = '';
     playBtn.setAttribute('aria-label', 'Pause');
     playBtn.setAttribute('title', 'Pause reading');
+    // Sync sticky bar
+    if (stickyIconPlay) stickyIconPlay.style.display = 'none';
+    if (stickyIconPause) stickyIconPause.style.display = '';
+    if (stickyLabel) stickyLabel.textContent = 'Reading aloud…';
   }
 
   // --- Speak a sentence at index ---
@@ -141,6 +179,7 @@
       showPlayIcon();
       clearHighlight();
       stopIosWorkaround();
+      hideStickyBar();
       return;
     }
 
@@ -225,6 +264,7 @@
     if (sentences.length === 0) return;
     isPaused = false;
     showPauseIcon();
+    showStickyBar();
     startIosWorkaround();
     speakAt(0);
   });
@@ -236,6 +276,7 @@
     showPlayIcon();
     clearHighlight();
     stopIosWorkaround();
+    hideStickyBar();
   });
 
   speedInput.addEventListener('input', function () {
@@ -248,6 +289,18 @@
       speakAt(currentIndex);
     }
   });
+
+  // --- Sticky bar controls (delegate to main controls) ---
+  if (stickyPlayBtn) {
+    stickyPlayBtn.addEventListener('click', function () {
+      playBtn.click();
+    });
+  }
+  if (stickyStopBtn) {
+    stickyStopBtn.addEventListener('click', function () {
+      stopBtn.click();
+    });
+  }
 
   // --- Settings panel toggle (mobile) ---
   var settingsToggle = document.getElementById('read-aloud-settings-toggle');
@@ -271,6 +324,7 @@
   window.addEventListener('beforeunload', function () {
     synth.cancel();
     stopIosWorkaround();
+    hideStickyBar();
   });
 
 })();
