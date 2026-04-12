@@ -5,11 +5,11 @@
 #   1. Drop your HTML/Markdown file into the repo (e.g. pages/foo.html)
 #   2. Add one entry below with title, url, menu, and order
 #
-# menu: where the link appears — [main], [footer], or [main, footer]
+# menu: where the link appears , [main], [footer], or [main, footer]
 # order: sort position within each menu (lower = first)
 #
 # Changing the "title" here updates the link text everywhere
-# (header, mobile nav, and footer) — single source of truth.
+# (header, mobile nav, and footer) , single source of truth.
 # ──────────────────────────────────────────────────────────────
 
 - title: "Home"

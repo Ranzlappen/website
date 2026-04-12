@@ -1,11 +1,11 @@
 /*
 CHANGE: New Chart.js auto-initializer for declarative chart rendering
-REASON: Chart system overhaul — replaces pure CSS charts with Chart.js for professional visuals
+REASON: Chart system overhaul , replaces pure CSS charts with Chart.js for professional visuals
 DATE: 2026-04-03
 */
 
 /**
- * charts.js — Auto-initializes Chart.js charts from declarative HTML.
+ * charts.js , Auto-initializes Chart.js charts from declarative HTML.
  *
  * Usage (in any .md post):
  *   <div class="chart-container" role="figure" aria-label="Description">

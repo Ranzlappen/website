@@ -138,7 +138,7 @@
         '<button class="vote-btn" data-vote="up" data-idx="' + i + '" aria-label="Helpful">👍</button>' +
         '<button class="vote-btn" data-vote="down" data-idx="' + i + '" aria-label="Not helpful">👎</button>' +
       '</div>' +
-      '<div class="vote-pct" data-pct-idx="' + i + '">—</div>' +
+      '<div class="vote-pct" data-pct-idx="' + i + '">,</div>' +
       '<div class="vote-comments" data-comments-idx="' + i + '"></div>';
 
     // Click to scroll to section
@@ -225,7 +225,7 @@
     var total = s.up + s.down;
     var pct = total > 0 ? Math.round((s.up / total) * 100) : 0;
     var pctEl = sidebar.querySelector('[data-pct-idx="' + idx + '"]');
-    if (pctEl) pctEl.textContent = total > 0 ? pct + '%' : '—';
+    if (pctEl) pctEl.textContent = total > 0 ? pct + '%' : ',';
   }
 
   function updateMobilePct(idx) {
@@ -233,7 +233,7 @@
     var total = s.up + s.down;
     var pct = total > 0 ? Math.round((s.up / total) * 100) : 0;
     var el = document.getElementById('mobile-vote-pct');
-    if (el) el.textContent = total > 0 ? pct + '% helpful' : '—';
+    if (el) el.textContent = total > 0 ? pct + '% helpful' : ',';
   }
 
   // Event delegation for vote buttons

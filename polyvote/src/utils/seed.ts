@@ -301,7 +301,7 @@ const SEED_TOPICS = [
   {
     id: 'ai-art-copyright',
     title: 'AI-Generated Art & Copyright',
-    description: 'Should AI-generated art be eligible for copyright? Who owns it—the prompter, the developer, or nobody?',
+    description: 'Should AI-generated art be eligible for copyright? Who owns it,the prompter, the developer, or nobody?',
     category: 'Culture',
     createdAt: Date.now() - DAY * 15,
     totalVotes: 110,

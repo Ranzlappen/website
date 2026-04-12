@@ -1,6 +1,6 @@
 ---
 title: "Ticked: Offline Process & Workflow Tracker"
-description: "Ticked is a free single-file HTML app for logging entries and tracking workflows via checkpoints. Fully offline with localStorage, instant auto-save, smart filters, timeline views, and export backups. No accounts, no servers—use instantly online or save locally as index.html for private productivity anywhere."
+description: "Ticked is a free single-file HTML app for logging entries and tracking workflows via checkpoints. Fully offline with localStorage, instant auto-save, smart filters, timeline views, and export backups. No accounts, no servers,use instantly online or save locally as index.html for private productivity anywhere."
 keywords: ["ticked app", "offline workflow tracker", "process checkpoint tracker", "localstorage productivity tool", "single file html app", "privacy focused task logger", "pwa workflow tracker", "backup enabled productivity"]
 date: 2026-03-31
 category: "Projects"
@@ -28,7 +28,7 @@ comments: true
 
 Ticked gives you two seamless tabs: **Log** for quick timestamped entries and **Processes** for multi-stage workflow tracking. Every change auto-saves to your browser’s localStorage. Your data stays on your device, works completely offline, and never leaves your machine.
 
-At its core, the Log tab lets you press a button or hit Enter to instantly log the current timestamp like a traditional logbook. This simple one-action capture is particularly helpful for real-time time tracking, habit logging, event documentation, or quick personal journaling—eliminating friction so you can record exactly when something happens without extra steps or apps.
+At its core, the Log tab lets you press a button or hit Enter to instantly log the current timestamp like a traditional logbook. This simple one-action capture is particularly helpful for real-time time tracking, habit logging, event documentation, or quick personal journaling,eliminating friction so you can record exactly when something happens without extra steps or apps.
 
 <h2 id="core-features">Core Features</h2>
 
@@ -45,7 +45,7 @@ At its core, the Log tab lets you press a button or hit Enter to instantly log t
   Toggle between chronological timeline (with day headers) and classic list. Swipe gestures on mobile integrate well for phones, offering quick delete or actions.
 
 - **Silent Instant Logging**  
-  Type, hit Enter or tap Log—entries save automatically with no buttons or spinners.
+  Type, hit Enter or tap Log,entries save automatically with no buttons or spinners.
 
 - **Color Palette Customization**  
   Edit your app’s color scheme on the fly; changes persist across sessions.
@@ -58,11 +58,11 @@ At its core, the Log tab lets you press a button or hit Enter to instantly log t
 
 <div class="carousel">
 
-<img src="/assets/images/ticked/log-tab.mp4" alt="Log tab — swipe to delete and edit">
+<img src="/assets/images/ticked/log-tab.mp4" alt="Log tab , swipe to delete and edit">
 
-<img src="/assets/images/ticked/log-tab-timeline.mp4" alt="Log tab — timeline view">
+<img src="/assets/images/ticked/log-tab-timeline.mp4" alt="Log tab , timeline view">
 
-<img src="/assets/images/ticked/processes-tab.svg" alt="Processes tab — checkpoint timeline, overdue indicators, and detail sheet">
+<img src="/assets/images/ticked/processes-tab.svg" alt="Processes tab , checkpoint timeline, overdue indicators, and detail sheet">
 
 <img src="/assets/images/ticked/export-panel.svg" alt="Export/backup panel and mobile swipe gesture in action">
 
@@ -70,7 +70,7 @@ At its core, the Log tab lets you press a button or hit Enter to instantly log t
 
 <h2 id="technical-advantages">Technical Advantages</h2>
 
-Ticked is a single HTML file with embedded vanilla CSS and JavaScript—no frameworks, no dependencies. The entire app loads in milliseconds and weighs under 100 KB before caching.
+Ticked is a single HTML file with embedded vanilla CSS and JavaScript,no frameworks, no dependencies. The entire app loads in milliseconds and weighs under 100 KB before caching.
 
 **100 % Local & Offline**  
 Data lives in `localStorage` under the key `ticked_store`. The included service worker (`sw.js`) and manifest enable true offline use and PWA installation. Once saved locally, Ticked runs forever without internet.
@@ -83,12 +83,12 @@ Use it immediately at the live demo or save the page as `index.html` for a porta
 
 <h2 id="potential-use-cases">Potential Use Cases</h2>
 
-- Freelance project logging—track deliverables stage by stage.  
-- Daily personal workflows—log routines, side projects, or learning checkpoints.  
-- Team hand-off notes—export a clean JSON or offline HTML snapshot.  
-- Offline fieldwork—reliable tracking when connectivity is unavailable.  
-- Minimalist productivity—replace bloated apps with a tool you own.  
-- Logbook-style timestamping—freelance billable-hours logging or daily mood/event journaling.
+- Freelance project logging,track deliverables stage by stage.  
+- Daily personal workflows,log routines, side projects, or learning checkpoints.  
+- Team hand-off notes,export a clean JSON or offline HTML snapshot.  
+- Offline fieldwork,reliable tracking when connectivity is unavailable.  
+- Minimalist productivity,replace bloated apps with a tool you own.  
+- Logbook-style timestamping,freelance billable-hours logging or daily mood/event journaling.
 
 The app runs live at https://ranzlappen.github.io/ticked/.
 
@@ -96,7 +96,7 @@ The app runs live at https://ranzlappen.github.io/ticked/.
 
 1. Visit the live version at https://ranzlappen.github.io/ticked/ and start using it instantly.  
 2. Or save the page as `index.html` (File → Save As) for a fully functional local copy.  
-3. Open the file in any browser—no installation required.
+3. Open the file in any browser,no installation required.
 
 [Try It Now](https://ranzlappen.github.io/ticked/) – opens in seconds.
 
@@ -108,12 +108,12 @@ Ticked stores everything in your browser’s localStorage. Clearing cookies or s
 
 <h2 id="key-takeaways">Key Takeaways</h2>
 
-- Single-file HTML app—zero dependencies, instant load, fully offline.  
+- Single-file HTML app,zero dependencies, instant load, fully offline.  
 - Dual Log + Processes tabs with checkpoint timelines and smart filters (All/Edited/Overdue).  
 - Silent auto-save to localStorage with PWA support for app-like experience.  
 - Built-in backup: JSON export/import, Google Drive sync, and offline HTML download.  
 - Fully responsive with swipe gestures and color customization.  
-- 100 % private—no accounts, no servers, data never leaves your device.
+- 100 % private,no accounts, no servers, data never leaves your device.
 
 <h2 id="conclusion">Conclusion</h2>
 

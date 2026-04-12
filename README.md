@@ -1,6 +1,6 @@
-# RanzLappen — Personal Blog
+# RanzLappen , Personal Blog
 
-A clean, dark-themed personal blog. No coding required to set up or maintain — everything is done through GitHub's website (works on your phone).
+A clean, dark-themed personal blog. No coding required to set up or maintain , everything is done through GitHub's website (works on your phone).
 
 ---
 
@@ -37,7 +37,7 @@ You already have the repo at [github.com/Ranzlappen/website](https://github.com/
 1. Go to your repo on GitHub.
 2. Click **Add file → Upload files**.
 3. Unzip the downloaded zip file on your phone/tablet (most file managers can do this).
-4. Drag or select **all files and folders** from inside the `website/` folder and upload them. Important: upload the *contents* of the `website/` folder, not the folder itself — so `_config.yml` should be at the root of your repo, not inside a subfolder.
+4. Drag or select **all files and folders** from inside the `website/` folder and upload them. Important: upload the *contents* of the `website/` folder, not the folder itself , so `_config.yml` should be at the root of your repo, not inside a subfolder.
 5. Scroll down, click **Commit changes**.
 
 ### Turn on GitHub Pages
@@ -49,7 +49,7 @@ You already have the repo at [github.com/Ranzlappen/website](https://github.com/
 5. Tap **Save**.
 6. Wait 2-3 minutes, then visit: **https://ranzlappen.github.io/website/**
 
-That's it — your blog is live.
+That's it , your blog is live.
 
 </details>
 
@@ -81,7 +81,7 @@ Write your post here using normal text.
 
 ## Section Heading
 
-Use ## for section headings — these automatically show up in the
+Use ## for section headings , these automatically show up in the
 voting sidebar and comment section picker.
 
 You can use **bold**, *italic*, [links](https://example.com),
@@ -98,7 +98,7 @@ Use ### for sub-sections within a section.
 ```
 
 6. Scroll down and tap **Commit changes**.
-7. Wait 1-2 minutes — your post is live.
+7. Wait 1-2 minutes , your post is live.
 
 ### Tips
 
@@ -163,7 +163,7 @@ You can control the visibility of any post by adding a `status` field to its fro
 
 | Value | Behavior |
 |-------|----------|
-| `published` | **(Default)** Normal article — visible everywhere. You never need to add this explicitly. |
+| `published` | **(Default)** Normal article , visible everywhere. You never need to add this explicitly. |
 | `placeholder` | **Visible in all listings** (homepage, blog, categories, tags, search, feeds, sitemap) with a status badge. Still shows a banner on the article page: *"This article is a draft and may be incomplete or subject to change."* Use this for articles that are in progress but should already appear on the site. |
 | `draft` | Hidden from all listings, feeds, search, and sitemap. Still accessible via direct URL. Shows a banner: *"This article is a draft and may be incomplete or subject to change."* |
 | `unpublished` | Same hiding behavior as `draft`. Shows a banner: *"This article is unpublished."* |
@@ -197,7 +197,7 @@ When a post's status is `draft` or `unpublished`, it is excluded from:
 - The sitemap (`/sitemap.xml`)
 - Previous/next navigation links on other posts
 
-The post itself **remains fully accessible** if someone visits its URL directly — they'll just see a small disclaimer banner at the top of the article.
+The post itself **remains fully accessible** if someone visits its URL directly , they'll just see a small disclaimer banner at the top of the article.
 
 **Note:** `placeholder` articles are **not** hidden. They appear in all listings with a yellow "Placeholder" badge, making them useful for reserving spots on the site while the content is still being written.
 
@@ -218,7 +218,7 @@ You can add a swipeable image carousel (gallery/slideshow) to any post. Wrap you
 </div>
 ```
 
-That's it — the carousel auto-initializes with:
+That's it , the carousel auto-initializes with:
 
 - **Arrow buttons** and **dot indicators** for navigation
 - **Swipe gestures** on mobile
@@ -235,14 +235,14 @@ Upload your images to `assets/images/` and reference them in the `src` attribute
 
 <!--
 CHANGE: Complete rewrite of chart documentation for Chart.js-based system
-REASON: Chart system overhaul — Chart.js replaces pure CSS charts
+REASON: Chart system overhaul , Chart.js replaces pure CSS charts
 DATE: 2026-04-03
 -->
 
 <details>
 <summary><h2>Add a Bar Chart</h2></summary>
 
-Embed responsive, professional bar charts in any post using [Chart.js](https://www.chartjs.org/) (loaded from CDN). Charts auto-initialize from declarative HTML — no manual JavaScript needed. They adapt to dark/light theme, support `prefers-reduced-motion`, and are fully responsive.
+Embed responsive, professional bar charts in any post using [Chart.js](https://www.chartjs.org/) (loaded from CDN). Charts auto-initialize from declarative HTML , no manual JavaScript needed. They adapt to dark/light theme, support `prefers-reduced-motion`, and are fully responsive.
 
 ### Minimal example
 
@@ -258,14 +258,14 @@ Embed responsive, professional bar charts in any post using [Chart.js](https://w
 
 ### How it works
 
-- `data-chart="bar"` — chart type
-- `data-title` — optional title displayed above the chart
-- `data-labels` — JSON array of category labels (x-axis)
-- `data-datasets` — JSON array of dataset objects, each with:
-  - `"label"` — series name (shown in legend and tooltips)
-  - `"data"` — array of numeric values
-  - `"color"` — (optional) single color for all bars in the series
-  - `"colors"` — (optional) array of colors, one per bar
+- `data-chart="bar"` , chart type
+- `data-title` , optional title displayed above the chart
+- `data-labels` , JSON array of category labels (x-axis)
+- `data-datasets` , JSON array of dataset objects, each with:
+  - `"label"` , series name (shown in legend and tooltips)
+  - `"data"` , array of numeric values
+  - `"color"` , (optional) single color for all bars in the series
+  - `"colors"` , (optional) array of colors, one per bar
 
 The wrapper `<div class="chart-container">` provides the styled card background. Always include `role="figure"` and `aria-label` for accessibility.
 
@@ -339,11 +339,11 @@ Embed responsive pie charts (or doughnut charts) in any post. Uses Chart.js canv
 
 ### How it works
 
-- `data-chart="pie"` — use `"pie"` for a full pie or `"doughnut"` for a doughnut
-- `data-title` — optional title
-- `data-labels` — JSON array of slice labels
-- `data-values` — JSON array of numeric values (one per slice)
-- `data-colors` — (optional) JSON array of hex colors; defaults to the built-in 8-color palette
+- `data-chart="pie"` , use `"pie"` for a full pie or `"doughnut"` for a doughnut
+- `data-title` , optional title
+- `data-labels` , JSON array of slice labels
+- `data-values` , JSON array of numeric values (one per slice)
+- `data-colors` , (optional) JSON array of hex colors; defaults to the built-in 8-color palette
 
 ### Doughnut variant
 
@@ -401,14 +401,14 @@ Embed responsive line charts with multiple data series, grid lines, smooth curve
 
 ### How it works
 
-- `data-chart="line"` — chart type
-- `data-title` — optional title
-- `data-labels` — JSON array of x-axis labels
-- `data-datasets` — JSON array of dataset objects:
-  - `"label"` — series name
-  - `"data"` — array of numeric values
-  - `"color"` — (optional) line and point color
-  - `"fill"` — (optional) set to `true` to fill the area under the line
+- `data-chart="line"` , chart type
+- `data-title` , optional title
+- `data-labels` , JSON array of x-axis labels
+- `data-datasets` , JSON array of dataset objects:
+  - `"label"` , series name
+  - `"data"` , array of numeric values
+  - `"color"` , (optional) line and point color
+  - `"fill"` , (optional) set to `true` to fill the area under the line
 
 ### Multiple data series
 
@@ -493,14 +493,14 @@ Add responsive data tables to any blog post using HTML `<table>` tags with inlin
 ### How it works
 
 - **Scroll wrapper:** `<div style="overflow-x: auto;">` enables horizontal scrolling on small screens instead of breaking the layout
-- **`min-width: 640px`** prevents the table from becoming unreadably narrow on mobile — it scrolls instead
-- **Column widths:** Set via `width: 25%` etc. on `<th>` — percentages keep proportions consistent
+- **`min-width: 640px`** prevents the table from becoming unreadably narrow on mobile , it scrolls instead
+- **Column widths:** Set via `width: 25%` etc. on `<th>` , percentages keep proportions consistent
 - **Alignment:** Use `text-align: left` or `text-align: center` on individual `<th>` and `<td>` elements
 - **Emphasis:** Add `font-weight: 500` to highlight key data cells (typically the first column and numeric values)
 
 ### Tips
 
-- Adjust column widths by changing the `width` percentages on `<th>` elements — they should add up to 100%
+- Adjust column widths by changing the `width` percentages on `<th>` elements , they should add up to 100%
 - To add or remove columns, copy/delete `<th>` and `<td>` elements and adjust the widths
 - Center-align numeric columns with `text-align: center` for better readability
 - The `-webkit-overflow-scrolling: touch` property enables smooth scrolling on iOS Safari
@@ -524,7 +524,7 @@ Global ad spend surpassed one trillion dollars in 2024.<sup><a href="#source-2">
 ```
 
 **Rules:**
-- Place the `<sup>` tag directly after the period or the end of the claim — no space before it
+- Place the `<sup>` tag directly after the period or the end of the claim , no space before it
 - The `href` must match the `id` on the corresponding `<li>` in the sources list (`#source-1`, `#source-2`, etc.)
 - Multiple sources on the same claim: use consecutive sups: `<sup><a href="#source-1">[1]</a></sup><sup><a href="#source-2">[2]</a></sup>`
 - Inside HTML tables or list items, sups work the same way
@@ -546,7 +546,7 @@ Add a `Sources` heading and a numbered `<ol>` list at the end of your article, b
 **Rules:**
 - Use `<ol>` (ordered list), not `<ul>`
 - Each `<li>` must have `id="source-N"` matching the inline `href="#source-N"`
-- Linked sources: wrap in `<a href="..." target="_blank" rel="noopener">` — always include `target="_blank"` and `rel="noopener"`
+- Linked sources: wrap in `<a href="..." target="_blank" rel="noopener">` , always include `target="_blank"` and `rel="noopener"`
 - Offline sources (books, reports without URLs): use plain text with `<em>` for titles
 - Format: `Publisher or Author (Year). Title.`
 - Number sources in the order they first appear in the article
@@ -573,7 +573,7 @@ Cross-national analyses link ad exposure to lower happiness.<sup><a href="#sourc
 - Always add the sources `<h2>` to your Table of Contents navigation: `<li><a href="#sources">Sources</a></li>`
 - If a source doesn't have a URL (e.g., a book), omit the `<a>` tag and just write the citation text
 - Use `<em>` for book titles: `<em>How to Lie with Statistics</em>`
-- Keep source descriptions concise: Publisher (Year). Title. — no need for full academic citation format
+- Keep source descriptions concise: Publisher (Year). Title. , no need for full academic citation format
 
 </details>
 
@@ -582,14 +582,14 @@ Cross-national analyses link ad exposure to lower happiness.<sup><a href="#sourc
 <details>
 <summary><h2>Built-in Features</h2></summary>
 
-These features work automatically on every post — no setup needed:
+These features work automatically on every post , no setup needed:
 
 | Feature | What it does |
 |---------|-------------|
 | **Read Aloud** | Converts your article to speech with play/pause, speed, and volume controls (desktop only) |
-| **Search** | Full-text search across all posts — press `Ctrl+K` (or `Cmd+K` on Mac) to open |
+| **Search** | Full-text search across all posts , press `Ctrl+K` (or `Cmd+K` on Mac) to open |
 | **Reading Progress Bar** | Shows how far down the page the reader has scrolled |
-| **Dark / Light Theme** | Toggle between dark and light mode — preference is saved |
+| **Dark / Light Theme** | Toggle between dark and light mode , preference is saved |
 | **Grid / List View** | Readers can switch between grid cards and a compact list on the blog page |
 
 </details>
@@ -599,7 +599,7 @@ These features work automatically on every post — no setup needed:
 <details>
 <summary><h2>Enable Comments (Giscus)</h2></summary>
 
-Giscus lets visitors comment on your posts using their GitHub account. Comments are stored in your repo's Discussions tab — you have full control.
+Giscus lets visitors comment on your posts using their GitHub account. Comments are stored in your repo's Discussions tab , you have full control.
 
 ### Step 1: Turn on Discussions
 
@@ -639,7 +639,7 @@ Giscus lets visitors comment on your posts using their GitHub account. Comments 
      category_id: "DIC_paste_yours_here"
    ```
 3. Tap **Commit changes**.
-4. Wait 1-2 minutes — comments will now appear on every post.
+4. Wait 1-2 minutes , comments will now appear on every post.
 
 </details>
 
@@ -707,7 +707,7 @@ The voting sidebar lets readers vote 👍/👎 on each section of your articles.
 
 1. In Firebase console, tap the **gear icon** (top left) → **Project settings**.
 2. Scroll down to **Your apps** → tap the **</>** (web) icon.
-3. Give it a nickname (e.g., `blog`) — you do NOT need Firebase Hosting, leave it unchecked.
+3. Give it a nickname (e.g., `blog`) , you do NOT need Firebase Hosting, leave it unchecked.
 4. Tap **Register app**.
 5. You'll see a code block with your config. You need three values:
    - `apiKey` (starts with `AIza...`)
@@ -746,7 +746,7 @@ The contact form uses hCaptcha to block spam bots. Without this step, the form s
 
 1. In the hCaptcha dashboard, go to **Sites → + New Site**.
 2. Add your domain: `ranzlappen.github.io` (and your custom domain if you have one).
-3. Save. You'll get a **Site Key** — copy it.
+3. Save. You'll get a **Site Key** , copy it.
 
 ### Step 3: Paste it into your config
 
@@ -835,7 +835,7 @@ At the very top of the file you'll see CSS variables. The main ones to change:
 
 Change the hex values to any color you want. Use a color picker like [htmlcolorcodes.com](https://htmlcolorcodes.com/) to find hex codes.
 
-There's also a `[data-theme="light"]` section further down — those are the light mode colors.
+There's also a `[data-theme="light"]` section further down , those are the light mode colors.
 
 ### Fonts
 
@@ -882,14 +882,14 @@ The blog page (`/blog/`) has a carousel view where cards snap gently into the vi
 
 ### Snap behavior (keyword properties)
 
-These control how "sticky" the snapping feels. They can't use CSS variables — edit them directly on their rules in `style.css`:
+These control how "sticky" the snapping feels. They can't use CSS variables , edit them directly on their rules in `style.css`:
 
 | Property | Where to find it | Default | Options |
 |----------|-----------------|---------|---------|
 | `scroll-snap-type` | `.carousel-active` rule | `y mandatory` | `y proximity` (gentle, hybrid) or `y mandatory` (strict, TikTok-like) |
 | `overscroll-behavior-y` | `.carousel-active` rule | `auto` | `auto` (allows pull-to-refresh) or `contain` (blocks browser pull-to-refresh) |
 | `scroll-snap-align` | `.carousel-active .page-content` rule | `start` | `start`, `center`, or `end` for where top-level page content snaps |
-| `scroll-snap-align` | `.carousel-card` rule | `center` | `start`, `center`, or `end` — where the card lands in the viewport |
+| `scroll-snap-align` | `.carousel-card` rule | `center` | `start`, `center`, or `end` , where the card lands in the viewport |
 | `scroll-snap-stop` | `.carousel-card` rule | `always` | `normal` (fast scroll can skip cards) or `always` (must stop at every card) |
 
 > Note: use `.carousel-active .page-content { scroll-snap-align: start; }` so the page can still return to the true top position behind the fixed site header.
@@ -959,7 +959,7 @@ This site is a hybrid: a Jekyll static blog and an embedded React single-page ap
 
 | Technology | Layer | Role | Dependencies | Why This Choice |
 |---|---|---|---|---|
-| **Jekyll 4.3** | Static Site | Site generator — Liquid templates, Markdown content, auto-built pages | `jekyll ~> 4.3` (Ruby gem) | Native GitHub Pages support, zero-JS content delivery, low maintenance |
+| **Jekyll 4.3** | Static Site | Site generator , Liquid templates, Markdown content, auto-built pages | `jekyll ~> 4.3` (Ruby gem) | Native GitHub Pages support, zero-JS content delivery, low maintenance |
 | **jekyll-feed** | Static Site | Auto-generates RSS/Atom feed at `/feed.xml` | Ruby gem | Standards-compliant feed with no manual work |
 | **jekyll-seo-tag** | Static Site | Injects `<meta>` and Open Graph tags into every page | Ruby gem | SEO and social-media link previews out of the box |
 | **jekyll-sitemap** | Static Site | Auto-generates `sitemap.xml` for search engines | Ruby gem | Search engine discoverability |
@@ -981,7 +981,7 @@ This site is a hybrid: a Jekyll static blog and an embedded React single-page ap
 | **Firebase Firestore** | Backend | NoSQL database for PolyVote topics, requests, and votes | `firebase` SDK | Real-time `onSnapshot` listeners, serverless, free tier |
 | **Firebase Realtime DB** | Backend | Simple vote counters for the Jekyll voting sidebar | `firebase` SDK (Jekyll: CDN) | Low-latency counters; simpler than Firestore for flat key-value data |
 | **Firebase Anonymous Auth** | Backend | User identity without requiring signup | `firebase` SDK | Enables Firestore write-access rules with zero user friction |
-| **Giscus** | Backend | Blog post comments powered by GitHub Discussions | None (embedded `<script>`) | Comments live in your repo — no external database needed |
+| **Giscus** | Backend | Blog post comments powered by GitHub Discussions | None (embedded `<script>`) | Comments live in your repo , no external database needed |
 | **hCaptcha** | Backend | Contact form spam protection | None (embedded `<script>`) | Free, privacy-respecting CAPTCHA |
 | | | | | |
 | **GitHub Pages** | Hosting | Static site hosting with automatic HTTPS | None | Free hosting, custom domain support, tied to the repo |
@@ -1009,7 +1009,7 @@ The result is a single static deployment where:
 
 ### Shared Design Tokens
 
-Both halves use the same visual identity so the embedded app feels native. Jekyll defines colors via CSS custom properties (e.g. `--c-accent: #4ade80`), and PolyVote mirrors them in its Tailwind config (`colors.brand[400]: '#4ade80'`). Dark mode uses a class-based toggle in both — Jekyll's `[data-theme="dark"]` and Tailwind's `darkMode: 'class'` — ensuring a seamless switch across the entire site.
+Both halves use the same visual identity so the embedded app feels native. Jekyll defines colors via CSS custom properties (e.g. `--c-accent: #4ade80`), and PolyVote mirrors them in its Tailwind config (`colors.brand[400]: '#4ade80'`). Dark mode uses a class-based toggle in both , Jekyll's `[data-theme="dark"]` and Tailwind's `darkMode: 'class'` , ensuring a seamless switch across the entire site.
 
 </details>
 
@@ -1063,11 +1063,11 @@ your-repo/
 ```
 
 **You only ever need to touch these:**
-- `_posts/` — to write articles
-- `_config.yml` — to change settings or add API keys
-- `assets/css/style.css` — to change the look
-- `assets/images/` — to upload images
-- `pages/` — to edit About, Contact, etc.
+- `_posts/` , to write articles
+- `_config.yml` , to change settings or add API keys
+- `assets/css/style.css` , to change the look
+- `assets/images/` , to upload images
+- `pages/` , to edit About, Contact, etc.
 
 Everything else runs automatically.
 
