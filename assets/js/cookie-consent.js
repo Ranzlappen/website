@@ -1,5 +1,5 @@
 /*
-  Cookie Consent Manager — DSGVO/TTDSG compliant
+  Cookie Consent Manager , DSGVO/TTDSG compliant
   Vanilla JS, no external dependencies
   DATE: 2026-04-11
 */
@@ -101,7 +101,7 @@
             '</div>' +
             '<p class="cc-category__desc">' +
               'Theme preference, view mode, core site functionality. ' +
-              'Uses only localStorage — no third-party services.' +
+              'Uses only localStorage , no third-party services.' +
             '</p>' +
           '</div>' +
           '<div class="cc-category">' +

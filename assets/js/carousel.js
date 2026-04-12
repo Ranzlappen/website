@@ -1,5 +1,5 @@
 /**
- * Media Carousel — auto-initialises every .carousel wrapper in the page.
+ * Media Carousel , auto-initialises every .carousel wrapper in the page.
  *
  * Usage in Markdown / HTML:
  *   <div class="carousel">

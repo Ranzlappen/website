@@ -11,7 +11,7 @@ The information provided on **RanzLappen** is for general informational purposes
 
 ## Professional Advice
 
-Nothing on this blog constitutes professional advice of any kind — whether technical, financial, legal, medical, or otherwise. Always consult a qualified professional before making decisions based on content you read here.
+Nothing on this blog constitutes professional advice of any kind , whether technical, financial, legal, medical, or otherwise. Always consult a qualified professional before making decisions based on content you read here.
 
 ## External Links
 
@@ -23,7 +23,7 @@ I do my best to keep things accurate, but mistakes happen. If you spot something
 
 ## PolyVote & Community-Submitted Content
 
-The **PolyVote** section of this site allows users to submit, vote on, and propose changes to topics. All community-submitted content — including topics, topic requests, and change requests — is provided by anonymous users and does not represent the views or opinions of the site owner. I do not verify, endorse, or guarantee the accuracy of any user-submitted content. Vote counts reflect anonymous community input and should not be interpreted as statistically meaningful or representative of any population. Topics and their associated data may be modified or removed at any time without notice.
+The **PolyVote** section of this site allows users to submit, vote on, and propose changes to topics. All community-submitted content , including topics, topic requests, and change requests , is provided by anonymous users and does not represent the views or opinions of the site owner. I do not verify, endorse, or guarantee the accuracy of any user-submitted content. Vote counts reflect anonymous community input and should not be interpreted as statistically meaningful or representative of any population. Topics and their associated data may be modified or removed at any time without notice.
 
 ## Fair Use
 
