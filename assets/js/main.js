@@ -366,6 +366,92 @@ DATE: 2026-04-02
     });
   }
 
+  // CookieStore API (Chrome/Edge) — richer cookie data as progressive enhancement
+  function parseCookiesAsync(callback) {
+    if ('cookieStore' in window) {
+      window.cookieStore.getAll().then(function (cookies) {
+        callback(cookies.map(function (c) {
+          return {
+            name: c.name,
+            value: c.value,
+            domain: c.domain || location.hostname,
+            path: c.path || '/',
+            secure: c.secure,
+            sameSite: c.sameSite || 'N/A',
+            expires: c.expires ? new Date(c.expires).toISOString() : 'Session',
+            source: 'CookieStore API'
+          };
+        }));
+      })['catch'](function () { callback(null); });
+    } else {
+      callback(null);
+    }
+  }
+
+  // Known cookies from the site's third-party services
+  // Keep in sync with /pages/privacy.md third-party services table
+  function getKnownCookies() {
+    var consent = window.__cookieConsent || { functional: false, resolved: false };
+    return [
+      {
+        name: '_gh_sess',
+        service: 'GitHub Pages',
+        purpose: 'Session management for GitHub-hosted pages',
+        type: 'HttpOnly',
+        category: 'Infrastructure',
+        active: true
+      },
+      {
+        name: '_octo',
+        service: 'GitHub Pages',
+        purpose: 'GitHub analytics and tracking token',
+        type: 'HttpOnly',
+        category: 'Infrastructure',
+        active: true
+      },
+      {
+        name: 'logged_in',
+        service: 'GitHub',
+        purpose: 'Indicates GitHub login state',
+        type: 'HttpOnly',
+        category: 'Infrastructure',
+        active: true
+      },
+      {
+        name: '__cf_bm',
+        service: 'hCaptcha (Cloudflare)',
+        purpose: 'Bot management and challenge verification',
+        type: 'Third-party',
+        category: 'Functional',
+        active: consent.functional
+      },
+      {
+        name: 'hc_accessibility',
+        service: 'hCaptcha',
+        purpose: 'Accessibility preferences for CAPTCHA challenges',
+        type: 'Third-party',
+        category: 'Functional',
+        active: consent.functional
+      },
+      {
+        name: 'hmt_id',
+        service: 'hCaptcha',
+        purpose: 'Device fingerprint for bot detection',
+        type: 'Third-party',
+        category: 'Functional',
+        active: consent.functional
+      },
+      {
+        name: 'firebase_auth',
+        service: 'Firebase',
+        purpose: 'Authentication state and session tokens',
+        type: 'Third-party / IndexedDB',
+        category: 'Functional',
+        active: consent.functional
+      }
+    ];
+  }
+
   function parseStorage(storage) {
     var items = [];
     try {
@@ -409,7 +495,7 @@ DATE: 2026-04-02
   function buildSection(id, emoji, title, count, isCollapsed, contentHtml) {
     var expanded = isCollapsed ? 'false' : 'true';
     var collapsedClass = isCollapsed ? ' is-collapsed' : '';
-    var countLabel = count === 0 ? 'empty' : count;
+    var countLabel = (typeof count === 'string') ? count : (count === 0 ? 'empty' : count);
     var html = '';
     html += '<div class="storage-section" id="storage-' + id + '">';
     html += '  <button class="storage-section__toggle" aria-expanded="' + expanded + '" aria-controls="storage-' + id + '-content">';
@@ -429,23 +515,26 @@ DATE: 2026-04-02
 
   function buildCookieCardHtml(cookies) {
     if (!cookies.length) return '<p class="storage-section__empty">No cookies found for this domain.</p>';
-    var domain = location.hostname;
-    var path = '/';
-    var isSecure = location.protocol === 'https:';
+    var defaultDomain = location.hostname;
+    var defaultPath = '/';
+    var defaultSecure = location.protocol === 'https:';
     var html = '';
     cookies.forEach(function (c) {
+      var domain = c.domain || defaultDomain;
+      var path = c.path || defaultPath;
+      var secure = (typeof c.secure === 'boolean') ? c.secure : defaultSecure;
+      var sameSite = c.sameSite || 'N/A';
+      var expires = c.expires || 'Session';
+
       html += '<div class="cookie-card">';
       html += '  <div class="cookie-card__name">' + escapeHtml(truncate(c.name, 40)) + '</div>';
       html += '  <div class="cookie-card__grid">';
       html += '    <div class="cookie-card__field"><span class="cookie-card__label">Value</span><span class="cookie-card__value">' + escapeHtml(truncate(c.value, 60)) + '</span></div>';
       html += '    <div class="cookie-card__field"><span class="cookie-card__label">Domain</span><span class="cookie-card__value">' + escapeHtml(domain) + '</span></div>';
-      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Path</span><span class="cookie-card__value">' + path + '</span></div>';
-      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Secure</span>' + flagHtml(isSecure) + '</div>';
-      html += '    <div class="cookie-card__field"><span class="cookie-card__label">HttpOnly</span><span class="cookie-card__value cookie-card__value--flag cookie-card__value--no">N/A</span></div>';
-      html += '    <div class="cookie-card__field"><span class="cookie-card__label">SameSite</span><span class="cookie-card__value cookie-card__value--flag cookie-card__value--no">N/A</span></div>';
-      html += '  </div>';
-      html += '  <div class="cookie-timeline"><div class="cookie-timeline__row"><span>Session cookie (expiry not visible to client JS)</span></div>';
-      html += '    <div class="cookie-timeline__bar"><div class="cookie-timeline__fill" style="width: 0%"></div></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Path</span><span class="cookie-card__value">' + escapeHtml(path) + '</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Secure</span>' + flagHtml(secure) + '</div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">SameSite</span><span class="cookie-card__value">' + escapeHtml(sameSite) + '</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Expires</span><span class="cookie-card__value">' + escapeHtml(truncate(expires, 30)) + '</span></div>';
       html += '  </div>';
       html += '</div>';
     });
@@ -494,18 +583,70 @@ DATE: 2026-04-02
     return html;
   }
 
+  function buildKnownCookieCards(knownCookies) {
+    if (!knownCookies.length) return '<p class="storage-section__empty">No known service cookies documented.</p>';
+    var html = '';
+    knownCookies.forEach(function (c) {
+      var activeClass = c.active ? 'cookie-card__status--active' : 'cookie-card__status--inactive';
+      var activeLabel = c.active ? 'Active' : 'Inactive';
+      html += '<div class="cookie-card cookie-card--known">';
+      html += '  <div class="cookie-card__name">';
+      html += '    <span class="cookie-card__service">' + escapeHtml(c.service) + '</span>';
+      html += '    ' + escapeHtml(c.name);
+      html += '  </div>';
+      html += '  <div class="cookie-card__grid">';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Purpose</span><span class="cookie-card__value">' + escapeHtml(c.purpose) + '</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Type</span><span class="cookie-card__value">' + escapeHtml(c.type) + '</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Category</span><span class="cookie-card__value">' + escapeHtml(c.category) + '</span></div>';
+      html += '    <div class="cookie-card__field"><span class="cookie-card__label">Status</span><span class="cookie-card__value cookie-card__value--flag ' + activeClass + '">' + activeLabel + '</span></div>';
+      html += '  </div>';
+      html += '</div>';
+    });
+    return html;
+  }
+
+  function buildCookieSectionHtml(cookies, knownCookies) {
+    var html = '';
+
+    // Info note
+    html += '<div class="storage-section__info">';
+    html += '<strong>Note:</strong> JavaScript cannot read HttpOnly or third-party domain cookies. ';
+    html += 'The &ldquo;Known Service Cookies&rdquo; below are documented by this site&rsquo;s integrated services. ';
+    html += '<a href="/pages/privacy/">See Privacy Policy</a>';
+    html += '</div>';
+
+    // Detected cookies subsection
+    html += '<h4 class="storage-subsection__title">Detected Cookies</h4>';
+    html += '<div class="storage-subsection__detected">';
+    if (!cookies.length) {
+      html += '<p class="storage-section__empty">This site uses localStorage for its own data. ';
+      html += 'No first-party cookies were detected via <code>document.cookie</code>.</p>';
+    } else {
+      html += buildCookieCardHtml(cookies);
+    }
+    html += '</div>';
+
+    // Known service cookies subsection
+    html += '<h4 class="storage-subsection__title">Known Service Cookies</h4>';
+    html += buildKnownCookieCards(knownCookies);
+
+    return html;
+  }
+
   // -- Orchestrator --
 
   function buildModalContent() {
     var cookies = parseCookies();
+    var knownCookies = getKnownCookies();
     var localItems = parseStorage(localStorage);
     var sessionItems = parseStorage(sessionStorage);
     var hasCacheApi = 'caches' in window;
 
     var totalSync = cookies.length + (localItems ? localItems.length : 0) + (sessionItems ? sessionItems.length : 0);
+    var cookieCountLabel = cookies.length + ' detected \u00b7 ' + knownCookies.length + ' known';
 
     var html = '';
-    html += buildSection('cookies', '🍪', 'Cookies', cookies.length, false, buildCookieCardHtml(cookies));
+    html += buildSection('cookies', '🍪', 'Cookies', cookieCountLabel, false, buildCookieSectionHtml(cookies, knownCookies));
     html += buildSection('local', '💾', 'localStorage', localItems ? localItems.length : 0, false, buildStorageCards(localItems));
     html += buildSection('session', '📋', 'sessionStorage', sessionItems ? sessionItems.length : 0, true, buildStorageCards(sessionItems));
 
@@ -513,7 +654,7 @@ DATE: 2026-04-02
       html += buildSection('cache', '📦', 'Cache Storage', '…', true, '<p class="storage-section__loading">Loading cache data…</p>');
     }
 
-    if (totalSync === 0 && !hasCacheApi) {
+    if (totalSync === 0 && !hasCacheApi && knownCookies.length === 0) {
       cookieBody.innerHTML = '<p class="cookie-empty">No browser storage data found for this domain.</p>';
       return;
     }
@@ -551,6 +692,25 @@ DATE: 2026-04-02
         cacheContent.innerHTML = buildCacheCards(cacheData);
       });
     }
+
+    // CookieStore API async enhancement (Chrome/Edge)
+    parseCookiesAsync(function (richCookies) {
+      if (!richCookies || !richCookies.length) return;
+      var cookieSection = document.getElementById('storage-cookies');
+      if (!cookieSection) return;
+
+      // Update count badge with actual detected count
+      var badge = cookieSection.querySelector('.storage-section__count');
+      if (badge) badge.textContent = richCookies.length + ' detected \u00b7 ' + getKnownCookies().length + ' known';
+
+      // Rebuild detected cookies with richer data
+      var detectedEl = cookieSection.querySelector('.storage-subsection__detected');
+      if (detectedEl) {
+        detectedEl.innerHTML = buildCookieCardHtml(richCookies.map(function (c) {
+          return { name: c.name, value: c.value, domain: c.domain, path: c.path, secure: c.secure, sameSite: c.sameSite, expires: c.expires };
+        }));
+      }
+    });
   }
 
   // -- Modal Open / Close --

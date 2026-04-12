@@ -51,14 +51,18 @@ DATE: 2026-04-02
       </a>
     </div>
 
-    <!-- Cookie Settings (opens consent banner) -->
-    <button class="footer-consent-link" id="cc-footer-settings" type="button"
-            onclick="CookieConsent.show()" aria-label="Open cookie settings">
-      Cookie Settings
-    </button>
-
-    <!-- Cookie Viewer -->
-    <button class="footer-cookie-btn" id="cookie-toggle" aria-label="View browser storage">🍪</button>
+    <!-- Cookie & Storage Controls -->
+    <div class="footer-cookie-group">
+      <button class="footer-consent-link" id="cc-footer-settings" type="button"
+              onclick="CookieConsent.show()" aria-label="Open cookie settings">
+        🛡️ Cookie Settings
+      </button>
+      <span class="footer-cookie-group__sep" aria-hidden="true">·</span>
+      <button class="footer-consent-link" id="cookie-toggle" type="button"
+              aria-label="View browser storage">
+        🍪 Storage Inspector
+      </button>
+    </div>
 
     <!-- Copyright -->
     <p class="footer-copy">
