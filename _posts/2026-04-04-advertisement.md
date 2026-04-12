@@ -35,11 +35,13 @@ Western media’s structural failures, detailed in the prior pieces on independe
 
 Digital media delivers the most immediate and personalized intrusion. Social feeds, streaming services, news sites, and apps insert repetitive video, banner, and native ads into every scroll or pause. Physical advertising has kept pace and evolved in tandem. Billboards, transit wraps, digital out-of-home screens, and even store interiors now deploy programmatic targeting and contextual relevance. Global ad spend surpassed one trillion dollars in 2024 and continues its upward climb, with digital and out-of-home formats claiming growing shares.<sup><a href="#source-2">[2]</a></sup> The result is an environment where advertising no longer feels like a side element but the dominant layer overlaying content and public space alike.
 
+<!-- TEMPORARILY COMMENTED OUT: carousel images not yet uploaded
 <div class="carousel">
   <img src="/assets/images/ad-intrusion/digital-ad-saturation.webp" alt="Social media feed cluttered with multiple targeted ads interrupting content flow">
   <img src="/assets/images/ad-intrusion/dooh-billboard-city.webp" alt="Urban street dominated by digital billboards and transit advertising">
   <img src="/assets/images/ad-intrusion/streaming-ad-break.webp" alt="Streaming platform interface showing pre-roll, mid-roll, and banner video ads">
 </div>
+-->
 
 <h2 id="trajectories">Trajectories of Intrusion and Escalation</h2>
 
