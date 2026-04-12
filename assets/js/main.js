@@ -146,7 +146,7 @@ DATE: 2026-04-02
   }
 
   // -------------------------------------------------------
-  // Carousel , Scroll-Driven Focus Engine
+  // Carousel — Scroll-Driven Focus Engine
   // -------------------------------------------------------
   var carouselRAF = null;
   var carouselScrollHandler = null;
@@ -322,7 +322,7 @@ DATE: 2026-04-02
   // -- Helpers --
 
   function truncate(str, max) {
-    if (!str) return ',';
+    if (!str) return '—';
     return str.length > max ? str.substring(0, max) + '…' : str;
   }
 
@@ -366,7 +366,7 @@ DATE: 2026-04-02
     });
   }
 
-  // CookieStore API (Chrome/Edge) , richer cookie data as progressive enhancement
+  // CookieStore API (Chrome/Edge) — richer cookie data as progressive enhancement
   function parseCookiesAsync(callback) {
     if ('cookieStore' in window) {
       window.cookieStore.getAll().then(function (cookies) {

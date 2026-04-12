@@ -7,7 +7,7 @@ permalink: /contact/
 
 <header class="page-header">
   <h1>Contact</h1>
-  <p>Messages are submitted as GitHub Issues , no email needed.</p>
+  <p>Messages are submitted as GitHub Issues — no email needed.</p>
 </header>
 
 <div class="page-body">
@@ -92,15 +92,15 @@ permalink: /contact/
     submitBtn.textContent = 'Sending…';
 
     // Build GitHub Issue body
-    var issueTitle = '[Contact] ' + subject + ' , ' + name;
+    var issueTitle = '[Contact] ' + subject + ' — ' + name;
     var issueBody = '**From:** ' + name + '\n' +
       (email ? '**Email:** ' + email + '\n' : '') +
       '**Subject:** ' + subject + '\n\n' +
       '---\n\n' + message + '\n\n' +
       '---\n*Submitted via contact form*';
 
-    // Option A: Direct GitHub API (requires a personal access token , see README)
-    // Option B: Use a serverless proxy (Cloudflare Worker) , recommended
+    // Option A: Direct GitHub API (requires a personal access token — see README)
+    // Option B: Use a serverless proxy (Cloudflare Worker) — recommended
     var endpoint = '{{ site.contact_form.endpoint }}';
 
     if (!endpoint) {

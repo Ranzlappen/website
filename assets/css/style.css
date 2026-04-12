@@ -4,14 +4,14 @@ REASON: Chart system overhaul to Chart.js; overflow-wrap fix for long URLs in po
 DATE: 2026-04-03
 */
 /* ============================================================
-   RanzLappen , Custom CSS
+   RanzLappen — Custom CSS
    Dark-first theme with subtle green accent
    System fonts only · No frameworks
    ============================================================ */
 
 /* --- CSS Custom Properties (Dark Default) --- */
 :root {
-  /* Colors , Dark Theme */
+  /* Colors — Dark Theme */
   --c-bg:          #0b1210;
   --c-bg-alt:      #111b17;
   --c-surface:     #15201b;
@@ -63,9 +63,9 @@ DATE: 2026-04-03
   --carousel-scale-min:   0.88;   /* minimum scale for off-center cards (1=no shrink) */
   --carousel-tilt-up:     6;      /* rotateX degrees for cards above center */
   --carousel-tilt-down:   5;      /* rotateX degrees for cards below center */
-  --carousel-focus-range: 0.35;   /* viewport fraction before full effect , lower=snappier */
+  --carousel-focus-range: 0.35;   /* viewport fraction before full effect — lower=snappier */
   --carousel-bottom-pad:  20vh;   /* bottom space below last card */
-  /* Snap behavior , keyword props, edit on their rules directly:
+  /* Snap behavior — keyword props, edit on their rules directly:
      .carousel-active  → scroll-snap-type: y mandatory | proximity
      .carousel-card    → scroll-snap-align: center | start | end
      .carousel-card    → scroll-snap-stop: always | normal              */
@@ -660,7 +660,7 @@ img {
   color: var(--c-text-faint);
 }
 
-/* Carousel view , scroll-driven focus */
+/* Carousel view — scroll-driven focus */
 @property --carousel-tilt-x {
   syntax: '<angle>';
   inherits: true;
@@ -755,7 +755,7 @@ img {
   animation: carousel-breathe 3.5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
 }
 
-/* Hover 3D tilt , only on focused (centered) cards */
+/* Hover 3D tilt — only on focused (centered) cards */
 .carousel-card.is-focused:hover .carousel-card__inner {
   animation: none;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1943,7 +1943,7 @@ img {
 .cookie-timeline__fill--expired { background: var(--c-danger); }
 .cookie-timeline__fill--warning { background: var(--c-warning); }
 
-/* Storage Section , collapsible category */
+/* Storage Section — collapsible category */
 .storage-section {
   margin-bottom: var(--space-sm);
 }
@@ -2578,7 +2578,7 @@ img {
 }
 
 /* ============================================================
-   Chart System , Chart.js containers and responsive wrappers
+   Chart System — Chart.js containers and responsive wrappers
    Charts rendered by Chart.js (CDN) via assets/js/charts.js
    Declarative: <canvas data-chart="bar|pie|line|doughnut">
    ============================================================ */

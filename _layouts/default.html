@@ -6,7 +6,7 @@ DATE: 2026-04-02
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-  <title>{% if page.title %}{{ page.title }} , {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   {% include head.html %}
 </head>
 <body{% if page.layout == 'post' %} class="has-voting-bar"{% endif %}>
@@ -42,9 +42,9 @@ DATE: 2026-04-02
       recaptchaSiteKey: "{{ site.firebase.recaptcha_site_key }}"
     };
   </script>
-  <!-- Voting sidebar (Firebase , gated by consent in voting-sidebar.js) -->
+  <!-- Voting sidebar (Firebase — gated by consent in voting-sidebar.js) -->
   <script src="{{ '/assets/js/voting-sidebar.js' | relative_url }}"></script>
-  <!-- Read Aloud (Web Speech API , local, no consent needed) -->
+  <!-- Read Aloud (Web Speech API — local, no consent needed) -->
   <script src="{{ '/assets/js/read-aloud.js' | relative_url }}"></script>
   {% endif %}
 
@@ -53,7 +53,7 @@ DATE: 2026-04-02
   <script src="{{ '/assets/js/carousel.js' | relative_url }}"></script>
   {% endif %}
 
-  <!-- Chart.js (CDN , consent-gated) + declarative initializer -->
+  <!-- Chart.js (CDN — consent-gated) + declarative initializer -->
   {% if page.layout == 'post' %}
   <script>
   (function() {
@@ -81,7 +81,7 @@ DATE: 2026-04-02
   </script>
   {% endif %}
 
-  <!-- Search (lunr.js , consent-gated inside search.js) -->
+  <!-- Search (lunr.js — consent-gated inside search.js) -->
   <script src="{{ '/assets/js/search.js' | relative_url }}"></script>
 </body>
 </html>

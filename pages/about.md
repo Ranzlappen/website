@@ -7,7 +7,7 @@ permalink: /about/
 
 ## Hey there
 
-I'm the person behind **RanzLappen** , a personal blog where I write about whatever catches my attention. No single niche, no editorial calendar, just genuine curiosity put into words.
+I'm the person behind **RanzLappen** — a personal blog where I write about whatever catches my attention. No single niche, no editorial calendar, just genuine curiosity put into words.
 
 ## What you'll find here
 
@@ -19,4 +19,4 @@ Every good blog needs a name that makes people pause for a second. This one stuc
 
 ## Get in touch
 
-Have a question, want to collaborate, or just want to say hi? Head over to the [contact page](/contact/) , messages land directly in my GitHub Issues so nothing gets lost.
+Have a question, want to collaborate, or just want to say hi? Head over to the [contact page](/contact/) — messages land directly in my GitHub Issues so nothing gets lost.
