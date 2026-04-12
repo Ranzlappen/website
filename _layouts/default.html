@@ -9,7 +9,7 @@ DATE: 2026-04-02
   <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   {% include head.html %}
 </head>
-<body{% if page.layout == 'post' %} class="has-voting-bar"{% endif %}>
+<body{% if page.layout == 'post' %} class="has-voting-bar{% if page.backdrop %} has-backdrop{% endif %}"{% endif %}>
 
   {% include header.html %}
   {% include search-modal.html %}
