@@ -27,6 +27,7 @@
   var sentences = [];
   var currentIndex = -1;
   var isPaused = false;
+  var isStopping = false;
   var highlightedEl = null;
   var iosResumeInterval = null;
   var isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -184,6 +185,7 @@
     }
 
     currentIndex = index;
+    isStopping = false;
     var sent = sentences[index];
     highlightSentence(sent.el);
 
@@ -197,11 +199,13 @@
     utterance.lang = 'en';
 
     utterance.onend = function () {
-      speakAt(index + 1);
+      if (!isStopping) {
+        speakAt(index + 1);
+      }
     };
 
     utterance.onerror = function (e) {
-      if (e.error !== 'canceled' && e.error !== 'interrupted') {
+      if (!isStopping && e.error !== 'canceled' && e.error !== 'interrupted') {
         speakAt(index + 1);
       }
     };
@@ -244,18 +248,21 @@
   // --- Controls ---
   playBtn.addEventListener('click', function () {
     if (synth.speaking && !isPaused) {
-      // Pause
-      synth.pause();
+      // Pause: cancel current utterance, remember position
+      isStopping = true;
+      synth.cancel();
       isPaused = true;
       showPlayIcon();
+      stopIosWorkaround();
       return;
     }
 
-    if (isPaused) {
-      // Resume
-      synth.resume();
+    if (isPaused && currentIndex >= 0) {
+      // Resume: re-speak current sentence from beginning
       isPaused = false;
       showPauseIcon();
+      startIosWorkaround();
+      speakAt(currentIndex);
       return;
     }
 
@@ -270,6 +277,7 @@
   });
 
   stopBtn.addEventListener('click', function () {
+    isStopping = true;
     synth.cancel();
     isPaused = false;
     currentIndex = -1;
@@ -283,6 +291,7 @@
     speedVal.textContent = parseFloat(this.value).toFixed(1) + 'x';
     // If currently speaking, restart current sentence with new speed
     if (synth.speaking && currentIndex >= 0) {
+      isStopping = true;
       synth.cancel();
       isPaused = false;
       showPauseIcon();
@@ -322,6 +331,7 @@
 
   // Clean up on page leave
   window.addEventListener('beforeunload', function () {
+    isStopping = true;
     synth.cancel();
     stopIosWorkaround();
     hideStickyBar();
