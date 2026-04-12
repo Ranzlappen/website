@@ -13,15 +13,16 @@ A clean, dark-themed personal blog. No coding required to set up or maintain —
 5. [Add a Bar Chart](#add-a-bar-chart)
 6. [Add a Pie Chart](#add-a-pie-chart)
 7. [Add a Line Chart](#add-a-line-chart)
-8. [Built-in Features](#built-in-features)
-9. [Enable Comments (Giscus)](#enable-comments-giscus)
-10. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
-11. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
-12. [Connect Your Own Domain](#connect-your-own-domain)
-13. [Change Colors or Fonts](#change-colors-or-fonts)
-14. [Tune the Blog Carousel](#tune-the-blog-carousel)
-15. [Moderate Comments and Votes](#moderate-comments-and-votes)
-16. [Fullstack Architecture](#fullstack-architecture)
+8. [Add a Data Table](#add-a-data-table)
+9. [Built-in Features](#built-in-features)
+10. [Enable Comments (Giscus)](#enable-comments-giscus)
+11. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
+12. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
+13. [Connect Your Own Domain](#connect-your-own-domain)
+14. [Change Colors or Fonts](#change-colors-or-fonts)
+15. [Tune the Blog Carousel](#tune-the-blog-carousel)
+16. [Moderate Comments and Votes](#moderate-comments-and-votes)
+17. [Fullstack Architecture](#fullstack-architecture)
 
 ---
 
@@ -447,6 +448,62 @@ By default the y-axis starts at zero. To let Chart.js auto-scale, add `data-zero
 - **Smooth curves:** Lines use `tension: 0.3` for gentle curves
 - **Animations:** Smooth draw-in, respects `prefers-reduced-motion`
 - **Theme-aware:** Grid, axis, and tooltip colors match the active dark/light theme
+
+</details>
+
+---
+
+<details>
+<summary><h2>Add a Data Table</h2></summary>
+
+Add responsive data tables to any blog post using HTML `<table>` tags with inline styles. This gives you full control over column widths, alignment, and emphasis while keeping the table scrollable on mobile.
+
+### Paste this template into your post
+
+```html
+<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.4; min-width: 640px; table-layout: auto;">
+    <thead>
+      <tr>
+        <th style="text-align: left; padding: 11px 10px; width: 37%;">Column A</th>
+        <th style="text-align: center; padding: 11px 8px; width: 18%;">Column B</th>
+        <th style="text-align: left; padding: 11px 8px; width: 23%;">Column C</th>
+        <th style="text-align: center; padding: 11px 8px; width: 22%;">Column D</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">Row 1 data</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">42</td>
+        <td style="padding: 11px 8px;">Description text</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">73</td>
+      </tr>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">Row 2 data</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">38</td>
+        <td style="padding: 11px 8px;">Another description</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">56</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+### How it works
+
+- **Scroll wrapper:** `<div style="overflow-x: auto;">` enables horizontal scrolling on small screens instead of breaking the layout
+- **`min-width: 640px`** prevents the table from becoming unreadably narrow on mobile — it scrolls instead
+- **Column widths:** Set via `width: 25%` etc. on `<th>` — percentages keep proportions consistent
+- **Alignment:** Use `text-align: left` or `text-align: center` on individual `<th>` and `<td>` elements
+- **Emphasis:** Add `font-weight: 500` to highlight key data cells (typically the first column and numeric values)
+
+### Tips
+
+- Adjust column widths by changing the `width` percentages on `<th>` elements — they should add up to 100%
+- To add or remove columns, copy/delete `<th>` and `<td>` elements and adjust the widths
+- Center-align numeric columns with `text-align: center` for better readability
+- The `-webkit-overflow-scrolling: touch` property enables smooth scrolling on iOS Safari
+- You can also use simple Markdown tables (`| Col | Col |`) for basic cases, but HTML tables give you more control over styling
 
 </details>
 
@@ -906,6 +963,7 @@ Both halves use the same visual identity so the embedded app feels native. Jekyl
 | Check contact messages      | Go to repo → Issues tab → look for `[Contact]` labels         |
 | Add an image carousel       | Wrap `<img>` tags in `<div class="carousel">` in your post     |
 | Add a bar chart             | Use `<canvas data-chart="bar">` inside `<div class="chart-container">` |
+| Add a data table            | Use `<table>` inside `<div style="overflow-x: auto;">` in your post |
 | Upload an image for a post  | Upload to `assets/images/` on GitHub, reference in your post   |
 
 </details>

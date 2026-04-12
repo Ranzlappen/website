@@ -1780,26 +1780,16 @@ img {
   border-top: 1px solid var(--c-border);
 }
 
-/* Footer Cookie Button */
-.footer-cookie-btn {
-  background: none;
-  border: none;
-  color: var(--c-text-muted);
-  cursor: pointer;
+/* Footer Cookie Group (Cookie Settings + Storage Inspector) */
+.footer-cookie-group {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--border-radius-sm);
-  font-size: 1.1rem;
-  line-height: 1;
-  padding: 0;
-  transition: color var(--transition-fast), background var(--transition-fast);
+  gap: var(--space-sm);
 }
-.footer-cookie-btn:hover {
-  color: var(--c-accent);
-  background: var(--c-accent-bg);
+.footer-cookie-group__sep {
+  color: var(--c-text-faint);
+  font-size: 0.825rem;
+  user-select: none;
 }
 
 /* ============================================================
@@ -2042,6 +2032,60 @@ img {
 .cache-url-list__more {
   color: var(--c-text-faint);
   font-style: italic;
+}
+
+/* Storage section info note */
+.storage-section__info {
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+  line-height: 1.5;
+}
+.storage-section__info a {
+  color: var(--c-accent);
+}
+
+/* Subsection titles within a storage section */
+.storage-subsection__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-text);
+  margin: var(--space-md) 0 var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* Known cookie card variant */
+.cookie-card--known {
+  border-style: dashed;
+  opacity: 0.9;
+}
+
+/* Service badge on known cookie cards */
+.cookie-card__service {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  padding: 0.1em 0.5em;
+  border-radius: var(--border-radius-sm);
+  margin-right: var(--space-xs);
+  vertical-align: middle;
+}
+
+/* Active/inactive status indicators */
+.cookie-card__status--active {
+  color: var(--c-accent) !important;
+}
+.cookie-card__status--inactive {
+  color: var(--c-text-faint) !important;
 }
 
 /* ============================================================
@@ -2326,7 +2370,7 @@ img {
   .footer-links { justify-content: center; }
   .footer-social { justify-content: center; }
   .footer-support { justify-content: center; }
-  .footer-cookie-btn { margin: 0 auto; }
+  .footer-cookie-group { justify-content: center; }
   .cookie-card__grid { grid-template-columns: 1fr 1fr; }
 }
 
