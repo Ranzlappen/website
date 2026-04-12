@@ -33,9 +33,9 @@ The concept of automation has shaped human progress for millennia. It represents
 
 <h2 id="ancient-origins">Ancient Origins: Simple Machines and Automata</h2>
 
-Automation's roots trace back over 5,000 years. Around 3500 BCE, Mesopotamians developed the wheel and axle, enabling carts and pottery wheels that reduced manual effort. Ancient civilizations created early powered mechanisms: Chinese trip-hammers powered by water around 2000 BCE automated grain processing and forging. Water wheels and windmills performed repetitive tasks such as irrigation and milling without constant human input.
+Automation's roots trace back over 5,000 years. Around 3500 BCE, Mesopotamians developed the wheel and axle, enabling carts and pottery wheels that reduced manual effort.<sup><a href="#source-1">[1]</a></sup> Ancient civilizations created early powered mechanisms: Chinese trip-hammers powered by water around 2000 BCE automated grain processing and forging.<sup><a href="#source-2">[2]</a></sup> Water wheels and windmills performed repetitive tasks such as irrigation and milling without constant human input.
 
-Philosophers and inventors imagined more advanced forms. Greek myths described Hephaestus forging metal automata as servants. By 150 BCE, the Hydraulis, a water-powered organ, demonstrated programmable mechanical action. In ancient Egypt, Greece, and Rome, engineers built mechanical statues and devices that moved autonomously through hidden mechanisms, serving religious, entertainment, or practical purposes. These early automata embodied the concept of machines acting of their own will.
+Philosophers and inventors imagined more advanced forms. Greek myths described Hephaestus forging metal automata as servants.<sup><a href="#source-5">[5]</a></sup> By 150 BCE, the Hydraulis, a water-powered organ, demonstrated programmable mechanical action. In ancient Egypt, Greece, and Rome, engineers built mechanical statues and devices that moved autonomously through hidden mechanisms, serving religious, entertainment, or practical purposes.<sup><a href="#source-5">[5]</a></sup> These early automata embodied the concept of machines acting of their own will.
 
 <div class="carousel">
   <img src="/assets/images/automation-evolution/ancient-water-wheel.webp" alt="Ancient water wheel mechanism used for grain milling and irrigation automation">
@@ -44,25 +44,25 @@ Philosophers and inventors imagined more advanced forms. Greek myths described H
 
 <h2 id="medieval-renaissance">Medieval and Renaissance Advances</h2>
 
-The Middle Ages and Islamic Golden Age advanced mechanical ingenuity. Windmills with automatic sail-turning mechanisms spread across Europe and the Middle East. The mechanical clock, developed around 1335 in Europe, used weights and gears for self-regulating timekeeping. Books such as the 9th-century "Book of Ingenious Devices" cataloged sophisticated machines powered by water, steam, or weights.
+The Middle Ages and Islamic Golden Age advanced mechanical ingenuity. Windmills with automatic sail-turning mechanisms spread across Europe and the Middle East. The mechanical clock, developed around 1335 in Europe, used weights and gears for self-regulating timekeeping.<sup><a href="#source-1">[1]</a></sup> Books such as the 9th-century "Book of Ingenious Devices" cataloged sophisticated machines powered by water, steam, or weights.<sup><a href="#source-5">[5]</a></sup>
 
-During the Renaissance, Leonardo da Vinci sketched designs for self-propelled carts and mechanical knights around 1495. These conceptual automata pushed the boundary between tool and independent machine, laying groundwork for programmable systems.
+During the Renaissance, Leonardo da Vinci sketched designs for self-propelled carts and mechanical knights around 1495.<sup><a href="#source-2">[2]</a></sup> These conceptual automata pushed the boundary between tool and independent machine, laying groundwork for programmable systems.
 
 <h2 id="industrial-revolution">The Industrial Revolution: Mechanization Takes Hold</h2>
 
-The late 18th and early 19th centuries marked a pivotal shift. James Watt's improved steam engine in 1765 powered factories and enabled mechanized production. The Jacquard loom (1801) used punched cards to program complex textile patterns, introducing the idea of programmable machines. Oliver Evans created the first fully automated flour mill in 1785, achieving continuous production without human intervention. These developments replaced human and animal power with mechanical force on a massive scale, birthing the factory system and transforming economies.
+The late 18th and early 19th centuries marked a pivotal shift. James Watt's improved steam engine in 1765 powered factories and enabled mechanized production.<sup><a href="#source-2">[2]</a></sup> The Jacquard loom (1801) used punched cards to program complex textile patterns, introducing the idea of programmable machines.<sup><a href="#source-3">[3]</a></sup> Oliver Evans created the first fully automated flour mill in 1785, achieving continuous production without human intervention.<sup><a href="#source-1">[1]</a></sup> These developments replaced human and animal power with mechanical force on a massive scale, birthing the factory system and transforming economies.
 
 <h2 id="early-20th-century">Early 20th Century: Assembly Lines and the Birth of Modern Automation</h2>
 
-Henry Ford's moving assembly line in 1913 revolutionized manufacturing. It reduced Model T production time from 12 hours to 90 minutes through synchronized, repetitive tasks. Electrification and standardization further scaled output. World War II accelerated innovation, with automated production for military equipment. The term "automation" itself emerged in 1946 when Delmar S. Harder at Ford used it to describe the need for more automatic handling in production.
+Henry Ford's moving assembly line in 1913 revolutionized manufacturing. It reduced Model T production time from 12 hours to 90 minutes through synchronized, repetitive tasks.<sup><a href="#source-3">[3]</a></sup><sup><a href="#source-4">[4]</a></sup> Electrification and standardization further scaled output. World War II accelerated innovation, with automated production for military equipment. The term "automation" itself emerged in 1946 when Delmar S. Harder at Ford used it to describe the need for more automatic handling in production.<sup><a href="#source-2">[2]</a></sup>
 
 <h2 id="mid-20th-century">Mid-20th Century: Computers, Robots, and the Term Automation</h2>
 
-The 1950s and 1960s integrated electronics and computing. George Devol's Unimate (patented 1954, installed 1961 at General Motors) became the first industrial robot, performing die-casting and welding with precision. Charles Babbage's earlier analytical engine concepts found realization in electronic computers like ENIAC (1946). Programmable logic controllers (PLCs) in the 1960s enabled reliable industrial control. The Stanford Arm (1969) introduced electrically powered, computer-controlled robotic arms with greater dexterity.
+The 1950s and 1960s integrated electronics and computing. George Devol's Unimate (patented 1954, installed 1961 at General Motors) became the first industrial robot, performing die-casting and welding with precision.<sup><a href="#source-6">[6]</a></sup><sup><a href="#source-7">[7]</a></sup> Charles Babbage's earlier analytical engine concepts found realization in electronic computers like ENIAC (1946).<sup><a href="#source-2">[2]</a></sup> Programmable logic controllers (PLCs) in the 1960s enabled reliable industrial control. The Stanford Arm (1969) introduced electrically powered, computer-controlled robotic arms with greater dexterity.<sup><a href="#source-6">[6]</a></sup>
 
 <h2 id="digital-age">The Digital Age and Rise of Robotics</h2>
 
-From the 1970s onward, microprocessors and integrated circuits miniaturized and accelerated automation. Industrial robots from companies like ABB, KUKA, and FANUC spread globally. The 1980s and 1990s brought computer numerical control (CNC) machines, vision systems, and force sensors. Robotic process automation (RPA) later extended automation to software tasks such as data entry. Automation moved beyond factories into logistics, agriculture, and services.
+From the 1970s onward, microprocessors and integrated circuits miniaturized and accelerated automation.<sup><a href="#source-8">[8]</a></sup> Industrial robots from companies like ABB, KUKA, and FANUC spread globally.<sup><a href="#source-7">[7]</a></sup> The 1980s and 1990s brought computer numerical control (CNC) machines, vision systems, and force sensors. Robotic process automation (RPA) later extended automation to software tasks such as data entry. Automation moved beyond factories into logistics, agriculture, and services.
 
 <h2 id="ai-era">The AI Era: Intelligent Automation Today</h2>
 
@@ -84,13 +84,13 @@ The concept of automation has evolved from humanity's earliest efforts to augmen
 
 <h2 id="sources">Sources</h2>
 
-<ul>
-  <li>Progressive Automations: Timeline History of Automation (2022, updated 2025)</li>
-  <li>Britannica: Automation Technology, Types, Rise, History, and Examples (2026)</li>
-  <li>CubeFabs: A Brief History of Automation in Manufacturing (2024)</li>
-  <li>World Economic Forum: A Short History of Jobs and Automation (2020, with later analyses)</li>
-  <li>MIT Press Reader: The Ancient History of Intelligent Machines (2021)</li>
-  <li>UTI.edu: The Definitive Timeline of Robotics History (2025)</li>
-  <li>Autodesk: History of Industrial Robots (2022)</li>
-  <li>Capow Energy: The Evolution of Automation From the Industrial Age (2024)</li>
-</ul>
+<ol>
+  <li id="source-1">Progressive Automations (2022, updated 2025). Timeline History of Automation.</li>
+  <li id="source-2">Britannica (2026). Automation Technology, Types, Rise, History, and Examples.</li>
+  <li id="source-3">CubeFabs (2024). A Brief History of Automation in Manufacturing.</li>
+  <li id="source-4">World Economic Forum (2020). A Short History of Jobs and Automation.</li>
+  <li id="source-5">MIT Press Reader (2021). The Ancient History of Intelligent Machines.</li>
+  <li id="source-6">UTI.edu (2025). The Definitive Timeline of Robotics History.</li>
+  <li id="source-7">Autodesk (2022). History of Industrial Robots.</li>
+  <li id="source-8">Capow Energy (2024). The Evolution of Automation From the Industrial Age.</li>
+</ol>
