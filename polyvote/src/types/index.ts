@@ -80,3 +80,15 @@ export const REQUEST_TIMEOUT_MS = 10 * 60 * 1000;
 export interface UserVotes {
   [metricId: string]: string; // choiceId
 }
+
+/** A comment on a topic */
+export interface Comment {
+  id: string;
+  text: string;
+  authorId: string;
+  /** Auto-generated display name from UID hash */
+  displayName: string;
+  createdAt: number;
+  /** Optional parent comment ID for threading */
+  parentId?: string;
+}

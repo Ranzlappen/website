@@ -45,7 +45,9 @@ export default function CategoryFilter({ active, onChange }: Props) {
       {/* Header – click to collapse/expand */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-gray-300"
+        aria-expanded={expanded}
+        aria-controls="category-filter-list"
+        className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-400 rounded-xl"
       >
         Categories
         <ChevronDown
@@ -62,14 +64,16 @@ export default function CategoryFilter({ active, onChange }: Props) {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="flex flex-wrap gap-2 px-4 pb-4">
+            <div id="category-filter-list" role="radiogroup" aria-label="Filter by category" className="flex flex-wrap gap-2 px-4 pb-4">
               {CATEGORIES.map((cat) => {
                 const isActive = active === cat;
                 return (
                   <button
                     key={cat}
+                    role="radio"
+                    aria-checked={isActive}
                     onClick={() => onChange(cat)}
-                    className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                    className={`rounded-full px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ${
                       isActive
                         ? 'bg-brand-400 text-surface'
                         : 'bg-surface-200 text-gray-400 hover:bg-surface-300 hover:text-gray-200'

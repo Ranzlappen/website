@@ -1,7 +1,7 @@
 /*
- * CHANGE: New file – Topic card for the homepage grid
- * REASON: Displays topic summary with category badge, vote count, timestamp, and mini radar
- * DATE: 2026-04-02
+ * CHANGE: Added share and bookmark buttons to topic card
+ * REASON: Social engagement features on the homepage grid
+ * DATE: 2026-04-13
  */
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -9,6 +9,8 @@ import { Vote, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { categoryColor } from './CategoryFilter';
 import MiniRadar from './MiniRadar';
+import ShareButton from './ShareButton';
+import BookmarkButton from './BookmarkButton';
 import type { Topic } from '../types';
 
 interface Props {
@@ -51,7 +53,7 @@ export default function TopicCard({ topic, index }: Props) {
           <MiniRadar metrics={topic.metrics} />
         </div>
 
-        {/* Footer: votes + time */}
+        {/* Footer: votes + time + actions */}
         <div className="mt-4 flex items-center gap-4 text-xs text-gray-500">
           <span className="flex items-center gap-1">
             <Vote size={13} />
@@ -60,6 +62,10 @@ export default function TopicCard({ topic, index }: Props) {
           <span className="flex items-center gap-1">
             <Clock size={13} />
             {formatDistanceToNow(new Date(topic.createdAt), { addSuffix: true })}
+          </span>
+          <span className="ml-auto flex items-center gap-2">
+            <ShareButton topicId={topic.id} topicTitle={topic.title} size={13} />
+            <BookmarkButton topicId={topic.id} size={13} />
           </span>
         </div>
       </Link>

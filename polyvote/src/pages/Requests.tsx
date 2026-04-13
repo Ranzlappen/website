@@ -288,9 +288,10 @@ export default function Requests() {
                         {!alreadyEndorsed ? (
                           <button
                             onClick={() => handleEndorse(req)}
-                            className="flex items-center gap-1 rounded-lg bg-brand-400/10 px-3 py-1.5 text-xs font-medium text-brand-400 hover:bg-brand-400/20"
+                            aria-label={`Endorse proposal: ${req.title}`}
+                            className="flex items-center gap-1 rounded-lg bg-brand-400/10 px-3 py-1.5 text-xs font-medium text-brand-400 hover:bg-brand-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                           >
-                            <ThumbsUp size={14} /> Endorse
+                            <ThumbsUp size={14} aria-hidden="true" /> Endorse
                           </button>
                         ) : (
                           <span className="flex items-center gap-1 text-xs text-brand-400/60">
@@ -354,15 +355,17 @@ export default function Requests() {
                       <div className="mt-3 flex gap-2">
                         <button
                           onClick={() => updateCrStatus(req.id, 'approved')}
-                          className="flex items-center gap-1 rounded-lg bg-brand-400/10 px-3 py-1.5 text-xs font-medium text-brand-400 hover:bg-brand-400/20"
+                          aria-label={`Approve change request for ${req.topicTitle}`}
+                          className="flex items-center gap-1 rounded-lg bg-brand-400/10 px-3 py-1.5 text-xs font-medium text-brand-400 hover:bg-brand-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                         >
-                          <CheckCircle2 size={14} /> Approve
+                          <CheckCircle2 size={14} aria-hidden="true" /> Approve
                         </button>
                         <button
                           onClick={() => updateCrStatus(req.id, 'rejected')}
-                          className="flex items-center gap-1 rounded-lg bg-red-400/10 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-400/20"
+                          aria-label={`Reject change request for ${req.topicTitle}`}
+                          className="flex items-center gap-1 rounded-lg bg-red-400/10 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
                         >
-                          <XCircle size={14} /> Reject
+                          <XCircle size={14} aria-hidden="true" /> Reject
                         </button>
                       </div>
                     )}

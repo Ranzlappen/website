@@ -18,7 +18,12 @@ export default function Toast() {
   const removeToast = useStore((s) => s.removeToast);
 
   return (
-    <div className="pointer-events-none fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-[100] flex flex-col gap-2">
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="false"
+      className="pointer-events-none fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-[100] flex flex-col gap-2"
+    >
       <AnimatePresence>
         {toasts.map((t) => (
           <motion.div
@@ -32,7 +37,8 @@ export default function Toast() {
             <span className="text-sm text-gray-200">{t.text}</span>
             <button
               onClick={() => removeToast(t.id)}
-              className="ml-2 text-gray-500 hover:text-gray-300"
+              aria-label={`Dismiss: ${t.text}`}
+              className="ml-2 text-gray-500 hover:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
             >
               <X size={14} />
             </button>

@@ -34,8 +34,13 @@ export default function MiniRadar({ metrics }: Props) {
     return top.votes / maxVotes;
   });
 
+  const topChoices = metrics.map((m) => {
+    const top = m.choices.reduce((a, b) => (a.votes >= b.votes ? a : b));
+    return `${m.label}: ${top.label}`;
+  });
+
   return (
-    <div className="h-16 w-16 sm:h-20 sm:w-20">
+    <div className="h-16 w-16 sm:h-20 sm:w-20" role="img" aria-label={`Vote summary: ${topChoices.join(', ')}`}>
       <Radar
         data={{
           labels,
