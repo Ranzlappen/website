@@ -1,20 +1,92 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ── Topics ──
     match /topics/{topicId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
+
+      // Only authenticated users can create topics with valid structure
+      allow create: if request.auth != null
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.description is string
+        && request.resource.data.category is string
+        && request.resource.data.metrics is list
+        && request.resource.data.totalVotes is int
+        && request.resource.data.createdAt is int;
+
+      // Updates allowed for authenticated users (votes update metrics + totalVotes)
+      allow update: if request.auth != null
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.description == resource.data.description
+        && request.resource.data.category == resource.data.category
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.metrics is list
+        && request.resource.data.totalVotes is int;
+
+      // Comments subcollection
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if request.auth != null
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 2000
+          && request.resource.data.authorId == request.auth.uid
+          && request.resource.data.createdAt is int;
+        allow update, delete: if false;
+      }
     }
+
+    // ── Change Requests ──
     match /requests/{requestId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
+
+      allow create: if request.auth != null
+        && request.resource.data.topicId is string
+        && request.resource.data.topicTitle is string
+        && request.resource.data.type in ['edit', 'add', 'delete']
+        && request.resource.data.description is string
+        && request.resource.data.description.size() > 0
+        && request.resource.data.status == 'pending'
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.createdAt is int;
+
+      // Only allow status transitions (pending → approved/rejected)
+      allow update: if request.auth != null
+        && resource.data.status == 'pending'
+        && request.resource.data.status in ['approved', 'rejected']
+        && request.resource.data.topicId == resource.data.topicId
+        && request.resource.data.description == resource.data.description
+        && request.resource.data.type == resource.data.type;
     }
+
+    // ── Topic Requests (Proposals) ──
     match /topicRequests/{requestId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
+
+      allow create: if request.auth != null
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.description is string
+        && request.resource.data.category is string
+        && request.resource.data.metrics is list
+        && request.resource.data.status == 'pending'
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.createdAt is int
+        && request.resource.data.expiresAt is int
+        && request.resource.data.endorsers is list
+        && request.resource.data.endorsementCount is int;
+
+      // Updates: endorsements (add UID to endorsers, increment count) or status change
+      allow update: if request.auth != null
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.description == resource.data.description
+        && request.resource.data.category == resource.data.category
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.expiresAt == resource.data.expiresAt;
     }
   }
 }

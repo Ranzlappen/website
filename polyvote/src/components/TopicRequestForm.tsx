@@ -187,8 +187,9 @@ export default function TopicRequestForm() {
         <h1 className="text-2xl font-bold text-gray-100 mb-6">Propose a New Topic</h1>
 
         {/* Title */}
-        <label className="block text-sm font-medium text-gray-300 mb-1">Title</label>
+        <label htmlFor="proposal-title" className="block text-sm font-medium text-gray-300 mb-1">Title</label>
         <input
+          id="proposal-title"
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -197,8 +198,9 @@ export default function TopicRequestForm() {
         />
 
         {/* Description */}
-        <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
+        <label htmlFor="proposal-description" className="block text-sm font-medium text-gray-300 mb-1">Description</label>
         <textarea
+          id="proposal-description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Explain what this topic is about…"
@@ -207,13 +209,15 @@ export default function TopicRequestForm() {
         />
 
         {/* Category */}
-        <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
-        <div className="flex flex-wrap gap-2 mb-6">
+        <label id="proposal-category-label" className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+        <div role="radiogroup" aria-labelledby="proposal-category-label" className="flex flex-wrap gap-2 mb-6">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
+              role="radio"
+              aria-checked={category === cat}
               onClick={() => setCategory(cat)}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ${
                 category === cat
                   ? 'bg-brand-400 text-surface'
                   : 'bg-surface-200 text-gray-400 hover:bg-surface-300 hover:text-gray-200'

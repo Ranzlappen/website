@@ -1,7 +1,7 @@
 /*
- * CHANGE: New file – Tailwind CSS config for PolyVote
- * REASON: Dark-mode-first design matching parent repo's green accent palette
- * DATE: 2026-04-02
+ * CHANGE: Updated Tailwind config to use CSS variables for theme switching
+ * REASON: Dark/light mode toggle via CSS variables, no per-component dark: variants needed
+ * DATE: 2026-04-13
  */
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -23,11 +23,11 @@ export default {
           900: '#14532d',
         },
         surface: {
-          DEFAULT: '#0b1210',
-          50: '#111a17',
-          100: '#162220',
-          200: '#1e2d28',
-          300: '#283b34',
+          DEFAULT: 'var(--color-surface)',
+          50: 'var(--color-surface-50)',
+          100: 'var(--color-surface-100)',
+          200: 'var(--color-surface-200)',
+          300: 'var(--color-surface-300)',
         },
       },
     },

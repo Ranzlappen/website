@@ -6,22 +6,33 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MessageSquarePlus, Users } from 'lucide-react';
+import { ArrowLeft, MessageSquarePlus, Users, Radar, BarChart3 } from 'lucide-react';
 import { doc, runTransaction } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTopic } from '../hooks/useTopic';
 import { useStore } from '../hooks/useStore';
 import VotingCard from '../components/VotingCard';
 import RadarChart from '../components/RadarChart';
+import BarChart from '../components/BarChart';
 import RequestModal from '../components/RequestModal';
+import CommentSection from '../components/CommentSection';
+import ShareButton from '../components/ShareButton';
+import BookmarkButton from '../components/BookmarkButton';
+import TopicStats from '../components/TopicStats';
 import { TopicDetailSkeleton } from '../components/LoadingSkeleton';
 import { categoryColor } from '../components/CategoryFilter';
+
+type ChartView = 'radar' | 'bar';
 
 export default function TopicDetail() {
   const { topicId } = useParams<{ topicId: string }>();
   const { topic, loading, error } = useTopic(topicId);
   const { hasVoted, recordVote, addToast, user } = useStore();
   const [modalOpen, setModalOpen] = useState(false);
+  const [chartView, setChartView] = useState<ChartView>(() => {
+    try { return (localStorage.getItem('polyvote_chart_view') as ChartView) || 'radar'; }
+    catch { return 'radar'; }
+  });
 
   if (loading) return <TopicDetailSkeleton />;
   if (error) {
@@ -48,9 +59,14 @@ export default function TopicDetail() {
     );
   }
 
-  /** Cast a vote: Firestore transaction to increment the chosen choice */
+  /** Cast or change a vote: Firestore transaction to adjust choice counts */
   const handleVote = async (metricId: string, choiceId: string) => {
-    if (!topicId || hasVoted(topicId, metricId)) return;
+    if (!topicId) return;
+    const previousChoiceId = useStore.getState().votedMap[topicId]?.[metricId];
+    // If clicking the same choice they already voted for, do nothing
+    if (previousChoiceId === choiceId) return;
+
+    const isChange = !!previousChoiceId;
 
     try {
       const topicRef = doc(db, 'topics', topicId);
@@ -62,18 +78,21 @@ export default function TopicDetail() {
           if (m.id !== metricId) return m;
           return {
             ...m,
-            choices: m.choices.map((c: any) =>
-              c.id === choiceId ? { ...c, votes: (c.votes || 0) + 1 } : c,
-            ),
+            choices: m.choices.map((c: any) => {
+              if (c.id === choiceId) return { ...c, votes: (c.votes || 0) + 1 };
+              if (isChange && c.id === previousChoiceId) return { ...c, votes: Math.max((c.votes || 0) - 1, 0) };
+              return c;
+            }),
           };
         });
         tx.update(topicRef, {
           metrics,
-          totalVotes: (data.totalVotes || 0) + 1,
+          // Only increment totalVotes for new votes, not changes
+          totalVotes: isChange ? (data.totalVotes || 0) : (data.totalVotes || 0) + 1,
         });
       });
       recordVote(topicId, metricId, choiceId);
-      addToast('Vote recorded!', 'success');
+      addToast(isChange ? 'Vote changed!' : 'Vote recorded!', 'success');
     } catch (err) {
       console.error(err);
       addToast('Failed to vote. Try again.', 'error');
@@ -112,11 +131,14 @@ export default function TopicDetail() {
           </span>
           <button
             onClick={() => setModalOpen(true)}
-            className="flex items-center gap-1 text-brand-400 hover:underline"
+            aria-label={`Request changes to ${topic.title}`}
+            className="flex items-center gap-1 text-brand-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
           >
-            <MessageSquarePlus size={14} />
+            <MessageSquarePlus size={14} aria-hidden="true" />
             Request changes
           </button>
+          <ShareButton topicId={topic.id} topicTitle={topic.title} size={16} />
+          <BookmarkButton topicId={topic.id} size={16} />
         </div>
       </motion.div>
 
@@ -133,32 +155,64 @@ export default function TopicDetail() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + mi * 0.05 }}
             >
-              <h2 className="mb-3 text-lg font-semibold text-gray-200">{metric.label}</h2>
-              <div className="mb-4">
-                <RadarChart metric={metric} />
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold text-gray-200">{metric.label}</h2>
+                <div className="flex items-center gap-2">
+                  {voted && (
+                    <span className="text-xs text-gray-500 hidden sm:inline">Click another to change vote</span>
+                  )}
+                  <div className="flex rounded-lg border border-surface-200 overflow-hidden">
+                    <button
+                      onClick={() => { setChartView('radar'); localStorage.setItem('polyvote_chart_view', 'radar'); }}
+                      aria-label="Radar chart view"
+                      aria-pressed={chartView === 'radar'}
+                      className={`p-1.5 transition-colors ${chartView === 'radar' ? 'bg-brand-400/20 text-brand-400' : 'text-gray-500 hover:text-gray-300'}`}
+                    >
+                      <Radar size={14} />
+                    </button>
+                    <button
+                      onClick={() => { setChartView('bar'); localStorage.setItem('polyvote_chart_view', 'bar'); }}
+                      aria-label="Bar chart view"
+                      aria-pressed={chartView === 'bar'}
+                      className={`p-1.5 transition-colors ${chartView === 'bar' ? 'bg-brand-400/20 text-brand-400' : 'text-gray-500 hover:text-gray-300'}`}
+                    >
+                      <BarChart3 size={14} />
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {metric.choices.map((choice) => (
-                  <VotingCard
-                    key={choice.id}
-                    label={choice.label}
-                    color={choice.color}
-                    votes={choice.votes}
-                    totalMetricVotes={totalMetricVotes}
-                    selected={
-                      topicId
-                        ? useStore.getState().votedMap[topicId]?.[metric.id] === choice.id
-                        : false
-                    }
-                    disabled={voted}
-                    onVote={() => handleVote(metric.id, choice.id)}
-                  />
-                ))}
+              <div className="mb-4">
+                {chartView === 'radar' ? <RadarChart metric={metric} /> : <BarChart metric={metric} />}
+              </div>
+              <div role="radiogroup" aria-label={`Vote on ${metric.label}`} className="grid gap-3 sm:grid-cols-2">
+                {metric.choices.map((choice) => {
+                  const isSelected = topicId
+                    ? useStore.getState().votedMap[topicId]?.[metric.id] === choice.id
+                    : false;
+                  return (
+                    <VotingCard
+                      key={choice.id}
+                      label={choice.label}
+                      color={choice.color}
+                      votes={choice.votes}
+                      totalMetricVotes={totalMetricVotes}
+                      selected={isSelected}
+                      disabled={false}
+                      onVote={() => handleVote(metric.id, choice.id)}
+                    />
+                  );
+                })}
               </div>
             </motion.section>
           );
         })}
       </div>
+
+      {/* Statistics */}
+      <TopicStats topic={topic} />
+
+      {/* Comments */}
+      <CommentSection topicId={topic.id} />
 
       {/* Request modal */}
       <RequestModal

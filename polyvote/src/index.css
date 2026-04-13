@@ -1,23 +1,65 @@
 /*
- * CHANGE: New file – Global styles with Tailwind directives
- * REASON: Base styling for PolyVote dark-mode-first UI
- * DATE: 2026-04-02
+ * CHANGE: Added light/dark theme support via CSS variables
+ * REASON: Enable theme toggle without rewriting every component's classNames
+ * DATE: 2026-04-13
  */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  /* Custom scrollbar for dark theme */
+  /* Dark theme (default) */
+  :root {
+    --color-surface: #0b1210;
+    --color-surface-50: #111a17;
+    --color-surface-100: #162220;
+    --color-surface-200: #1e2d28;
+    --color-surface-300: #283b34;
+    --scrollbar-track: #0b1210;
+    --scrollbar-thumb: #283b34;
+  }
+
+  /* Light theme */
+  :root.light {
+    --color-surface: #f8faf9;
+    --color-surface-50: #f0f4f2;
+    --color-surface-100: #e5ebe8;
+    --color-surface-200: #d0dbd6;
+    --color-surface-300: #b8c9c0;
+    --scrollbar-track: #f0f4f2;
+    --scrollbar-thumb: #b8c9c0;
+  }
+
+  /* Override text colors for light mode */
+  :root.light {
+    color-scheme: light;
+  }
+  :root.light .text-gray-100 { color: #111827; }
+  :root.light .text-gray-200 { color: #1f2937; }
+  :root.light .text-gray-300 { color: #374151; }
+  :root.light .text-gray-400 { color: #4b5563; }
+  :root.light .text-gray-500 { color: #6b7280; }
+  :root.light .text-gray-600 { color: #9ca3af; }
+  :root.light .border-white\/30 { border-color: rgba(0, 0, 0, 0.15); }
+  :root.light .border-white\/20 { border-color: rgba(0, 0, 0, 0.1); }
+  :root.light .ring-white\/20 { --tw-ring-color: rgba(0, 0, 0, 0.1); }
+  :root.light .ring-white\/10 { --tw-ring-color: rgba(0, 0, 0, 0.05); }
+  :root.light .text-brand-400 { color: #16a34a; }
+  :root.light .bg-brand-400 { background-color: #16a34a; }
+  :root.light .bg-brand-400\/10 { background-color: rgba(22, 163, 74, 0.1); }
+  :root.light .bg-brand-400\/20 { background-color: rgba(22, 163, 74, 0.2); }
+  :root.light .hover\:bg-brand-500:hover { background-color: #15803d; }
+
+  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: #0b1210;
+    background: var(--scrollbar-track);
   }
   ::-webkit-scrollbar-thumb {
-    background: #283b34;
+    background: var(--scrollbar-thumb);
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {

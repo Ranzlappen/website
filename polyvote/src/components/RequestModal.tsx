@@ -3,7 +3,7 @@
  * REASON: Lets users request edits, additions, or deletions for topics/metrics
  * DATE: 2026-04-02
  */
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { collection, addDoc } from 'firebase/firestore';
@@ -24,6 +24,38 @@ export default function RequestModal({ open, onClose, topicId, topicTitle }: Pro
   const [type, setType] = useState<ChangeRequest['type']>('edit');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Focus trap and Escape key handler
+  useEffect(() => {
+    if (!open) return;
+    const el = modalRef.current;
+    if (el) el.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab' && el) {
+        const focusable = el.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, onClose]);
 
   const handleSubmit = async () => {
     if (!description.trim()) return;
@@ -75,14 +107,19 @@ export default function RequestModal({ open, onClose, topicId, topicTitle }: Pro
 
           {/* Modal */}
           <motion.div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="request-modal-title"
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-x-4 top-[10%] sm:top-[20%] z-50 mx-auto max-w-lg max-h-[80vh] overflow-y-auto rounded-xl border border-surface-200 bg-surface-100 p-6 shadow-xl sm:inset-x-auto"
+            className="fixed inset-x-4 top-[10%] sm:top-[20%] z-50 mx-auto max-w-lg max-h-[80vh] overflow-y-auto rounded-xl border border-surface-200 bg-surface-100 p-6 shadow-xl sm:inset-x-auto focus:outline-none"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-100">Request Changes</h2>
-              <button onClick={onClose} className="text-gray-500 hover:text-gray-300">
+              <h2 id="request-modal-title" className="text-lg font-semibold text-gray-100">Request Changes</h2>
+              <button onClick={onClose} aria-label="Close dialog" className="text-gray-500 hover:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded">
                 <X size={18} />
               </button>
             </div>
@@ -92,24 +129,31 @@ export default function RequestModal({ open, onClose, topicId, topicTitle }: Pro
             </p>
 
             {/* Type selector */}
-            <div className="flex gap-2 mb-4">
-              {(['edit', 'add', 'delete'] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setType(t)}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
-                    type === t
-                      ? 'bg-brand-400 text-surface'
-                      : 'bg-surface-200 text-gray-400 hover:text-gray-200'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
+            <fieldset className="mb-4">
+              <legend className="sr-only">Request type</legend>
+              <div className="flex gap-2" role="radiogroup" aria-label="Request type">
+                {(['edit', 'add', 'delete'] as const).map((t) => (
+                  <button
+                    key={t}
+                    role="radio"
+                    aria-checked={type === t}
+                    onClick={() => setType(t)}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ${
+                      type === t
+                        ? 'bg-brand-400 text-surface'
+                        : 'bg-surface-200 text-gray-400 hover:text-gray-200'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
 
             {/* Description */}
+            <label htmlFor="request-description" className="sr-only">Description</label>
             <textarea
+              id="request-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe what you'd like to change…"

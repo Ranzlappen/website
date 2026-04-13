@@ -5,7 +5,7 @@
  */
 import { Search, ArrowUpDown } from 'lucide-react';
 
-export type SortOption = 'newest' | 'oldest' | 'most-votes';
+export type SortOption = 'newest' | 'oldest' | 'most-votes' | 'trending';
 
 interface Props {
   query: string;
@@ -19,9 +19,11 @@ export default function SearchBar({ query, onQueryChange, sort, onSortChange }: 
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
       {/* Search input */}
       <div className="relative flex-1">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" aria-hidden="true" />
+        <label htmlFor="topic-search" className="sr-only">Search topics</label>
         <input
-          type="text"
+          id="topic-search"
+          type="search"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Search topics…"
@@ -31,8 +33,10 @@ export default function SearchBar({ query, onQueryChange, sort, onSortChange }: 
 
       {/* Sort dropdown */}
       <div className="flex items-center gap-2">
-        <ArrowUpDown size={14} className="text-gray-500" />
+        <ArrowUpDown size={14} className="text-gray-500" aria-hidden="true" />
+        <label htmlFor="topic-sort" className="sr-only">Sort topics</label>
         <select
+          id="topic-sort"
           value={sort}
           onChange={(e) => onSortChange(e.target.value as SortOption)}
           className="rounded-lg border border-surface-200 bg-surface-100 py-2 pl-2 pr-8 text-sm text-gray-300 focus:border-brand-400 focus:outline-none"
@@ -40,6 +44,7 @@ export default function SearchBar({ query, onQueryChange, sort, onSortChange }: 
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
           <option value="most-votes">Most votes</option>
+          <option value="trending">Trending</option>
         </select>
       </div>
     </div>

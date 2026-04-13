@@ -9,4 +9,15 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   base: '/polyvote/',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'chart': ['chart.js', 'react-chartjs-2'],
+          'firebase': ['firebase/app', 'firebase/firestore', 'firebase/auth'],
+          'framer': ['framer-motion'],
+        },
+      },
+    },
+  },
 });

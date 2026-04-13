@@ -29,30 +29,50 @@ export default function RadarChart({ metric }: Props) {
     pointColors.push('transparent');
   }
 
+  // Build accessible summary of vote distribution
+  const totalVotes = metric.choices.reduce((s, c) => s + c.votes, 0);
+  const summary = metric.choices
+    .map((c) => `${c.label}: ${c.votes} vote${c.votes !== 1 ? 's' : ''} (${totalVotes > 0 ? Math.round((c.votes / totalVotes) * 100) : 0}%)`)
+    .join(', ');
+
+  // Truncate long labels for mobile readability
+  const truncatedLabels = labels.map((l) => (l.length > 18 ? l.slice(0, 16) + '…' : l));
+
   return (
-    <div className="mx-auto max-w-[16rem] sm:max-w-xs">
+    <div className="mx-auto max-w-[14rem] sm:max-w-xs" role="img" aria-label={`Radar chart for ${metric.label}: ${summary}`}>
       <Radar
         data={{
-          labels,
+          labels: truncatedLabels,
           datasets: [
             {
               data,
               backgroundColor: 'rgba(255,255,255,0.06)',
               borderColor: 'rgba(255,255,255,0.3)',
               borderWidth: 2,
-              pointRadius: 5,
+              pointRadius: typeof window !== 'undefined' && window.innerWidth < 640 ? 3 : 5,
               pointBackgroundColor: pointColors,
             },
           ],
         }}
         options={{
           responsive: true,
-          plugins: { legend: { display: false } },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                // Show full label in tooltip
+                title: (items) => labels[items[0]?.dataIndex ?? 0] || '',
+              },
+            },
+          },
           scales: {
             r: {
               angleLines: { color: 'rgba(255,255,255,0.06)' },
               grid: { color: 'rgba(255,255,255,0.06)' },
-              pointLabels: { color: '#d1d5db', font: { size: 12 } },
+              pointLabels: {
+                color: '#d1d5db',
+                font: { size: typeof window !== 'undefined' && window.innerWidth < 640 ? 10 : 12 },
+              },
               ticks: { display: false },
               beginAtZero: true,
             },
