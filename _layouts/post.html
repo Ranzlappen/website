@@ -205,9 +205,11 @@ layout: default
   <!-- Related Posts -->
   {% assign related = "" | split: "" %}
   {% for p in site.posts %}
-    {% if p.url != page.url and p.status == "published" or p.status == "placeholder" %}
-      {% if p.category == page.category and page.category %}
-        {% assign related = related | push: p %}
+    {% if p.url != page.url %}
+      {% if p.status == "published" or p.status == "placeholder" %}
+        {% if p.category == page.category and page.category %}
+          {% assign related = related | push: p %}
+        {% endif %}
       {% endif %}
     {% endif %}
   {% endfor %}
