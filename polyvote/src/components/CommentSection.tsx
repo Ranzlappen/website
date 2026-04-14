@@ -53,9 +53,10 @@ export default function CommentSection({ topicId }: Props) {
       setText('');
       setReplyTo(null);
       addToast('Comment posted!', 'success');
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      addToast('Failed to post comment.', 'error');
+      const message = err instanceof Error ? err.message : 'Failed to post comment.';
+      addToast(message, 'error');
     } finally {
       setSubmitting(false);
     }
