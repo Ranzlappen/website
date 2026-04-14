@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 import { requireAuth } from "../utils/adminOnly";
+import { moderateContent } from "../utils/contentFilter";
 
 /**
  * Server-validated change request creation.
@@ -41,6 +42,12 @@ export const createChangeRequest = onCall(async (request) => {
       "invalid-argument",
       "Description must be between 1 and 2000 characters."
     );
+  }
+
+  // Content moderation
+  const modResult = moderateContent(trimDesc);
+  if (modResult.blocked) {
+    throw new HttpsError("invalid-argument", modResult.reason!);
   }
 
   // Check if user is banned

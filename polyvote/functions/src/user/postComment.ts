@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { requireAuth } from "../utils/adminOnly";
+import { moderateContent } from "../utils/contentFilter";
 
 /**
  * Server-validated comment posting.
@@ -33,6 +34,12 @@ export const postComment = onCall(async (request) => {
       "invalid-argument",
       "Comment must be between 1 and 2000 characters."
     );
+  }
+
+  // Content moderation
+  const modResult = moderateContent(trimmed);
+  if (modResult.blocked) {
+    throw new HttpsError("invalid-argument", modResult.reason!);
   }
 
   // Check if user is banned
