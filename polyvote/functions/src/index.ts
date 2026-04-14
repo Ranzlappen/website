@@ -6,6 +6,7 @@ initializeApp();
 // Auth triggers
 export { onUserCreate } from "./auth/onCreate";
 export { setUserRole } from "./auth/claims";
+export { bootstrapAdmin } from "./auth/bootstrapAdmin";
 
 // Voting
 export { castVote } from "./voting/castVote";
