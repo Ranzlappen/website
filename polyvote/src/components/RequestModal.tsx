@@ -6,8 +6,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { createChangeRequestFn } from '../firebase';
 import { useStore } from '../hooks/useStore';
 import type { ChangeRequest } from '../types';
 
@@ -65,14 +64,11 @@ export default function RequestModal({ open, onClose, topicId, topicTitle }: Pro
     }
     setSubmitting(true);
     try {
-      await addDoc(collection(db, 'requests'), {
+      await createChangeRequestFn({
         topicId,
         topicTitle,
         type,
         description: description.trim(),
-        status: 'pending',
-        createdAt: Date.now(),
-        authorId: user.uid,
       });
       addToast('Request submitted!', 'success');
       setDescription('');

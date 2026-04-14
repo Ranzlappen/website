@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dailyAnalyticsAggregation = exports.adminGetVotingTrends = exports.adminGetAnalytics = exports.adminBulkUpdateRequests = exports.adminUpdateRequestStatus = exports.adminListReports = exports.adminReviewReport = exports.adminDeleteComment = exports.reportContent = exports.adminUnbanUser = exports.adminBanUser = exports.adminListUsers = exports.adminDeleteTopic = exports.adminEditTopic = exports.adminCreateTopic = exports.cleanupExpiredRequests = exports.onTopicRequestEndorsed = exports.castVote = exports.setUserRole = exports.onUserCreate = void 0;
+exports.createChangeRequest = exports.endorseTopicRequest = exports.createTopicRequest = exports.postComment = exports.dailyAnalyticsAggregation = exports.adminGetVotingTrends = exports.adminGetAnalytics = exports.adminBulkUpdateRequests = exports.adminUpdateRequestStatus = exports.adminListReports = exports.adminReviewReport = exports.adminDeleteComment = exports.reportContent = exports.adminUnbanUser = exports.adminBanUser = exports.adminListUsers = exports.adminDeleteTopic = exports.adminEditTopic = exports.adminCreateTopic = exports.cleanupExpiredRequests = exports.onTopicRequestEndorsed = exports.castVote = exports.setUserRole = exports.onUserCreate = void 0;
 const app_1 = require("firebase-admin/app");
 // Initialize Firebase Admin SDK
 (0, app_1.initializeApp)();
@@ -43,4 +43,13 @@ var analytics_1 = require("./admin/analytics");
 Object.defineProperty(exports, "adminGetAnalytics", { enumerable: true, get: function () { return analytics_1.adminGetAnalytics; } });
 Object.defineProperty(exports, "adminGetVotingTrends", { enumerable: true, get: function () { return analytics_1.adminGetVotingTrends; } });
 Object.defineProperty(exports, "dailyAnalyticsAggregation", { enumerable: true, get: function () { return analytics_1.dailyAnalyticsAggregation; } });
+// User: server-validated writes
+var postComment_1 = require("./user/postComment");
+Object.defineProperty(exports, "postComment", { enumerable: true, get: function () { return postComment_1.postComment; } });
+var createTopicRequest_1 = require("./user/createTopicRequest");
+Object.defineProperty(exports, "createTopicRequest", { enumerable: true, get: function () { return createTopicRequest_1.createTopicRequest; } });
+var endorseTopicRequest_1 = require("./user/endorseTopicRequest");
+Object.defineProperty(exports, "endorseTopicRequest", { enumerable: true, get: function () { return endorseTopicRequest_1.endorseTopicRequest; } });
+var createChangeRequest_1 = require("./user/createChangeRequest");
+Object.defineProperty(exports, "createChangeRequest", { enumerable: true, get: function () { return createChangeRequest_1.createChangeRequest; } });
 //# sourceMappingURL=index.js.map

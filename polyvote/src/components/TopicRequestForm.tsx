@@ -7,10 +7,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { createTopicRequestFn } from '../firebase';
 import { useStore } from '../hooks/useStore';
-import { REQUEST_TIMEOUT_MS } from '../types';
 import type { Category } from '../types';
 
 const CATEGORIES: Category[] = [
@@ -135,8 +133,7 @@ export default function TopicRequestForm() {
 
     setSubmitting(true);
     try {
-      const now = Date.now();
-      await addDoc(collection(db, 'topicRequests'), {
+      await createTopicRequestFn({
         title: title.trim(),
         description: description.trim(),
         category,
@@ -150,12 +147,6 @@ export default function TopicRequestForm() {
             votes: 0,
           })),
         })),
-        status: 'pending',
-        createdAt: now,
-        expiresAt: now + REQUEST_TIMEOUT_MS,
-        authorId: user.uid,
-        endorsers: [user.uid],
-        endorsementCount: 1,
       });
       addToast('Topic proposal submitted!', 'success');
       navigate('/requests');

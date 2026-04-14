@@ -45,35 +45,20 @@ service cloud.firestore {
       // Only admins can delete topics
       allow delete: if isAdmin();
 
-      // Comments subcollection
+      // Comments subcollection – creation via Cloud Function only
       match /comments/{commentId} {
         allow read: if true;
-        allow create: if isSignedIn() && isNotBanned()
-          && request.resource.data.text is string
-          && request.resource.data.text.size() > 0
-          && request.resource.data.text.size() <= 2000
-          && request.resource.data.authorId == request.auth.uid
-          && request.resource.data.createdAt is int;
+        allow create: if false;
         allow update: if false;
         // Moderators+ can delete comments
         allow delete: if isModerator();
       }
     }
 
-    // ── Change Requests ──
+    // ── Change Requests – creation via Cloud Function only ──
     match /requests/{requestId} {
       allow read: if true;
-
-      allow create: if isSignedIn() && isNotBanned()
-        && request.resource.data.topicId is string
-        && request.resource.data.topicTitle is string
-        && request.resource.data.type in ['edit', 'add', 'delete']
-        && request.resource.data.description is string
-        && request.resource.data.description.size() > 0
-        && request.resource.data.status == 'pending'
-        && request.resource.data.authorId == request.auth.uid
-        && request.resource.data.createdAt is int;
-
+      allow create: if false;
       // Only moderators+ can approve/reject (status transitions)
       allow update: if isModerator()
         && resource.data.status == 'pending'
@@ -83,31 +68,11 @@ service cloud.firestore {
         && request.resource.data.type == resource.data.type;
     }
 
-    // ── Topic Requests (Proposals) ──
+    // ── Topic Requests (Proposals) – creation and updates via Cloud Functions only ──
     match /topicRequests/{requestId} {
       allow read: if true;
-
-      allow create: if isSignedIn() && isNotBanned()
-        && request.resource.data.title is string
-        && request.resource.data.title.size() > 0
-        && request.resource.data.title.size() <= 200
-        && request.resource.data.description is string
-        && request.resource.data.category is string
-        && request.resource.data.metrics is list
-        && request.resource.data.status == 'pending'
-        && request.resource.data.authorId == request.auth.uid
-        && request.resource.data.createdAt is int
-        && request.resource.data.expiresAt is int
-        && request.resource.data.endorsers is list
-        && request.resource.data.endorsementCount is int;
-
-      // Updates: endorsements (add UID to endorsers, increment count) or status change
-      allow update: if isSignedIn() && isNotBanned()
-        && request.resource.data.title == resource.data.title
-        && request.resource.data.description == resource.data.description
-        && request.resource.data.category == resource.data.category
-        && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.expiresAt == resource.data.expiresAt;
+      allow create: if false;
+      allow update: if false;
     }
 
     // ── User Profiles ──

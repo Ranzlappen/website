@@ -6,9 +6,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Send, Reply, ChevronDown, Flag } from 'lucide-react';
-import { collection, addDoc } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
-import { db, reportContentFn } from '../firebase';
+import { postCommentFn, reportContentFn } from '../firebase';
 import { useStore } from '../hooks/useStore';
 import { useComments } from '../hooks/useComments';
 import type { Comment } from '../types';
@@ -46,11 +45,9 @@ export default function CommentSection({ topicId }: Props) {
     if (!text.trim() || !user) return;
     setSubmitting(true);
     try {
-      await addDoc(collection(db, 'topics', topicId, 'comments'), {
+      await postCommentFn({
+        topicId,
         text: text.trim(),
-        authorId: user.uid,
-        displayName: displayNameFromUid(user.uid),
-        createdAt: Date.now(),
         ...(replyTo ? { parentId: replyTo } : {}),
       });
       setText('');

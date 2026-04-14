@@ -11,10 +11,6 @@ import {
   onSnapshot,
   orderBy,
   query,
-  doc,
-  updateDoc,
-  arrayUnion,
-  increment,
 } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
 import {
@@ -28,7 +24,7 @@ import {
   Archive,
   Sparkles,
 } from 'lucide-react';
-import { db, adminUpdateRequestStatusFn } from '../firebase';
+import { db, adminUpdateRequestStatusFn, endorseTopicRequestFn } from '../firebase';
 import { useStore } from '../hooks/useStore';
 import { useTopicRequests } from '../hooks/useTopicRequests';
 import { categoryColor } from '../components/CategoryFilter';
@@ -102,15 +98,9 @@ export default function Requests() {
     }
 
     try {
-      const reqRef = doc(db, 'topicRequests', req.id);
-      await updateDoc(reqRef, {
-        endorsers: arrayUnion(user.uid),
-        endorsementCount: increment(1),
-      });
+      const result = await endorseTopicRequestFn({ requestId: req.id });
+      const newCount = (result.data as { newCount: number }).newCount;
 
-      const newCount = req.endorsementCount + 1;
-
-      // Promotion is handled by a Cloud Function trigger (onTopicRequestEndorsed)
       if (newCount >= REQUEST_ENDORSEMENTS_NEEDED) {
         addToast('Topic promoted to main voting!', 'success');
       } else {
@@ -118,28 +108,15 @@ export default function Requests() {
       }
     } catch (err: unknown) {
       console.error(err);
-      const code = err instanceof Error && 'code' in err ? (err as { code: string }).code : '';
-      if (code === 'permission-denied') {
-        addToast('Permission denied. Please refresh and try again.', 'error');
-      } else if (code === 'unavailable' || code === 'deadline-exceeded') {
-        addToast('Network error. Please check your connection.', 'error');
-      } else {
-        addToast(`Failed to endorse.${code ? ` (${code})` : ''}`, 'error');
-      }
+      const message = err instanceof Error ? err.message : 'Failed to endorse.';
+      addToast(message, 'error');
     }
   };
 
-  const isModerator = useStore((s) => s.isModerator);
-
-  // ── Update change request status (via Cloud Function for moderators) ──
+  // ── Update change request status (via Cloud Function) ──
   const updateCrStatus = async (id: string, status: 'approved' | 'rejected') => {
     try {
-      if (isModerator()) {
-        await adminUpdateRequestStatusFn({ requestId: id, status });
-      } else {
-        // Fallback for backwards compatibility (will be blocked by rules for non-mods)
-        await updateDoc(doc(db, 'requests', id), { status });
-      }
+      await adminUpdateRequestStatusFn({ requestId: id, status });
       addToast(`Request ${status}.`, 'success');
     } catch (err) {
       console.error(err);

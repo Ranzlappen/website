@@ -50,3 +50,9 @@ export {
   adminGetVotingTrends,
   dailyAnalyticsAggregation,
 } from "./admin/analytics";
+
+// User: server-validated writes
+export { postComment } from "./user/postComment";
+export { createTopicRequest } from "./user/createTopicRequest";
+export { endorseTopicRequest } from "./user/endorseTopicRequest";
+export { createChangeRequest } from "./user/createChangeRequest";
