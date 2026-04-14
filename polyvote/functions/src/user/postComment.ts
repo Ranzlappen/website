@@ -54,10 +54,14 @@ export const postComment = onCall(async (request) => {
     throw new HttpsError("not-found", "Topic not found.");
   }
 
-  // Rate limit: max 10 comments per minute
+  // Rate limit: max 10 comments per minute per user
+  // Query the specific topic's comments subcollection to avoid needing a collection group index.
+  // This is per-topic rate limiting which is sufficient for abuse prevention.
   const oneMinuteAgo = Date.now() - 60_000;
   const recentComments = await db
-    .collectionGroup("comments")
+    .collection("topics")
+    .doc(topicId)
+    .collection("comments")
     .where("authorId", "==", uid)
     .where("createdAt", ">", oneMinuteAgo)
     .count()
