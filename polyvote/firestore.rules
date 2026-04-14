@@ -2,12 +2,28 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ── Helper functions ──
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'admin';
+    }
+    function isModerator() {
+      return isSignedIn() && request.auth.token.role in ['admin', 'moderator'];
+    }
+    function isNotBanned() {
+      return isSignedIn() &&
+        (!exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'active');
+    }
+
     // ── Topics ──
     match /topics/{topicId} {
       allow read: if true;
 
-      // Only authenticated users can create topics with valid structure
-      allow create: if request.auth != null
+      // Only admins can create topics directly (regular users go through proposals)
+      allow create: if isAdmin()
         && request.resource.data.title is string
         && request.resource.data.title.size() > 0
         && request.resource.data.title.size() <= 200
@@ -17,8 +33,8 @@ service cloud.firestore {
         && request.resource.data.totalVotes is int
         && request.resource.data.createdAt is int;
 
-      // Updates allowed for authenticated users (votes update metrics + totalVotes)
-      allow update: if request.auth != null
+      // Updates allowed for authenticated non-banned users (votes update metrics + totalVotes)
+      allow update: if isSignedIn() && isNotBanned()
         && request.resource.data.title == resource.data.title
         && request.resource.data.description == resource.data.description
         && request.resource.data.category == resource.data.category
@@ -26,16 +42,21 @@ service cloud.firestore {
         && request.resource.data.metrics is list
         && request.resource.data.totalVotes is int;
 
+      // Only admins can delete topics
+      allow delete: if isAdmin();
+
       // Comments subcollection
       match /comments/{commentId} {
         allow read: if true;
-        allow create: if request.auth != null
+        allow create: if isSignedIn() && isNotBanned()
           && request.resource.data.text is string
           && request.resource.data.text.size() > 0
           && request.resource.data.text.size() <= 2000
           && request.resource.data.authorId == request.auth.uid
           && request.resource.data.createdAt is int;
-        allow update, delete: if false;
+        allow update: if false;
+        // Moderators+ can delete comments
+        allow delete: if isModerator();
       }
     }
 
@@ -43,7 +64,7 @@ service cloud.firestore {
     match /requests/{requestId} {
       allow read: if true;
 
-      allow create: if request.auth != null
+      allow create: if isSignedIn() && isNotBanned()
         && request.resource.data.topicId is string
         && request.resource.data.topicTitle is string
         && request.resource.data.type in ['edit', 'add', 'delete']
@@ -53,8 +74,8 @@ service cloud.firestore {
         && request.resource.data.authorId == request.auth.uid
         && request.resource.data.createdAt is int;
 
-      // Only allow status transitions (pending → approved/rejected)
-      allow update: if request.auth != null
+      // Only moderators+ can approve/reject (status transitions)
+      allow update: if isModerator()
         && resource.data.status == 'pending'
         && request.resource.data.status in ['approved', 'rejected']
         && request.resource.data.topicId == resource.data.topicId
@@ -66,7 +87,7 @@ service cloud.firestore {
     match /topicRequests/{requestId} {
       allow read: if true;
 
-      allow create: if request.auth != null
+      allow create: if isSignedIn() && isNotBanned()
         && request.resource.data.title is string
         && request.resource.data.title.size() > 0
         && request.resource.data.title.size() <= 200
@@ -81,12 +102,59 @@ service cloud.firestore {
         && request.resource.data.endorsementCount is int;
 
       // Updates: endorsements (add UID to endorsers, increment count) or status change
-      allow update: if request.auth != null
+      allow update: if isSignedIn() && isNotBanned()
         && request.resource.data.title == resource.data.title
         && request.resource.data.description == resource.data.description
         && request.resource.data.category == resource.data.category
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.expiresAt == resource.data.expiresAt;
+    }
+
+    // ── User Profiles ──
+    match /users/{userId} {
+      // Authenticated users can read any profile
+      allow read: if isSignedIn();
+      // Only Cloud Functions can create/update user profiles
+      allow create, update: if false;
+      allow delete: if false;
+    }
+
+    // ── Vote Records (server-side deduplication) ──
+    match /votes/{voteId} {
+      // Users can only read their own votes
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      // Only Cloud Functions can write vote records
+      allow create, update, delete: if false;
+    }
+
+    // ── Content Reports ──
+    match /reports/{reportId} {
+      // Only moderators+ can read reports
+      allow read: if isModerator();
+      // Authenticated non-banned users can create reports (via Cloud Function preferred)
+      allow create: if isSignedIn() && isNotBanned()
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt is int;
+      // Only moderators+ can update report status
+      allow update: if isModerator();
+      allow delete: if false;
+    }
+
+    // ── Audit Log ──
+    match /auditLog/{logId} {
+      // Only admins can read audit log
+      allow read: if isAdmin();
+      // Only Cloud Functions can write
+      allow create, update, delete: if false;
+    }
+
+    // ── Analytics ──
+    match /analytics/{dateId} {
+      // Only admins can read analytics
+      allow read: if isAdmin();
+      // Only Cloud Functions can write
+      allow create, update, delete: if false;
     }
   }
 }

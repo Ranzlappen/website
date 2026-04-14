@@ -5,10 +5,10 @@
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Send, Reply, ChevronDown } from 'lucide-react';
+import { MessageCircle, Send, Reply, ChevronDown, Flag } from 'lucide-react';
 import { collection, addDoc } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
-import { db } from '../firebase';
+import { db, reportContentFn } from '../firebase';
 import { useStore } from '../hooks/useStore';
 import { useComments } from '../hooks/useComments';
 import type { Comment } from '../types';
@@ -144,6 +144,7 @@ export default function CommentSection({ topicId }: Props) {
                     index={i}
                     onReply={() => setReplyTo(comment.id)}
                     currentUserId={user?.uid}
+                    topicId={topicId}
                   />
                 ))}
               </div>
@@ -161,12 +162,14 @@ function CommentThread({
   index,
   onReply,
   currentUserId,
+  topicId,
 }: {
   comment: Comment;
   replies: Comment[];
   index: number;
   onReply: () => void;
   currentUserId?: string;
+  topicId: string;
 }) {
   return (
     <motion.div
@@ -174,12 +177,12 @@ function CommentThread({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
     >
-      <CommentBubble comment={comment} onReply={onReply} isOwn={comment.authorId === currentUserId} />
+      <CommentBubble comment={comment} onReply={onReply} isOwn={comment.authorId === currentUserId} topicId={topicId} />
       {/* Replies */}
       {replies.length > 0 && (
         <div className="ml-6 mt-2 space-y-2 border-l-2 border-surface-200 pl-4">
           {replies.map((reply) => (
-            <CommentBubble key={reply.id} comment={reply} isOwn={reply.authorId === currentUserId} />
+            <CommentBubble key={reply.id} comment={reply} isOwn={reply.authorId === currentUserId} topicId={topicId} />
           ))}
         </div>
       )}
@@ -191,11 +194,39 @@ function CommentBubble({
   comment,
   onReply,
   isOwn,
+  topicId,
 }: {
   comment: Comment;
   onReply?: () => void;
   isOwn: boolean;
+  topicId: string;
 }) {
+  const addToast = useStore((s) => s.addToast);
+  const [reporting, setReporting] = useState(false);
+
+  const handleReport = async () => {
+    const reason = prompt('Why are you reporting this comment?\n(spam, harassment, misinformation, inappropriate, other)');
+    if (!reason) return;
+    const validReasons = ['spam', 'harassment', 'misinformation', 'inappropriate', 'other'];
+    const normalizedReason = validReasons.includes(reason.toLowerCase()) ? reason.toLowerCase() : 'other';
+    setReporting(true);
+    try {
+      await reportContentFn({
+        type: 'comment',
+        targetId: comment.id,
+        parentId: topicId,
+        reason: normalizedReason,
+        description: normalizedReason === 'other' ? reason : undefined,
+      });
+      addToast('Report submitted. Thank you!', 'success');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to report.';
+      addToast(message, 'error');
+    } finally {
+      setReporting(false);
+    }
+  };
+
   return (
     <div className="rounded-xl border border-surface-200 bg-surface-50 p-3">
       <div className="flex items-center justify-between mb-1">
@@ -207,14 +238,26 @@ function CommentBubble({
         </span>
       </div>
       <p className="text-sm text-gray-300">{comment.text}</p>
-      {onReply && (
-        <button
-          onClick={onReply}
-          className="mt-1.5 flex items-center gap-1 text-xs text-gray-500 hover:text-brand-400 transition-colors"
-        >
-          <Reply size={12} /> Reply
-        </button>
-      )}
+      <div className="mt-1.5 flex items-center gap-3">
+        {onReply && (
+          <button
+            onClick={onReply}
+            className="flex items-center gap-1 text-xs text-gray-500 hover:text-brand-400 transition-colors"
+          >
+            <Reply size={12} /> Reply
+          </button>
+        )}
+        {!isOwn && (
+          <button
+            onClick={handleReport}
+            disabled={reporting}
+            className="flex items-center gap-1 text-xs text-gray-600 hover:text-red-400 transition-colors disabled:opacity-50"
+            title="Report comment"
+          >
+            <Flag size={12} /> Report
+          </button>
+        )}
+      </div>
     </div>
   );
 }

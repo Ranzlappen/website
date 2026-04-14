@@ -7,8 +7,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, MessageSquarePlus, Users, Radar, BarChart3 } from 'lucide-react';
-import { doc, runTransaction } from 'firebase/firestore';
-import { db } from '../firebase';
+import { castVoteFn } from '../firebase';
 import { useTopic } from '../hooks/useTopic';
 import { useStore } from '../hooks/useStore';
 import VotingCard from '../components/VotingCard';
@@ -59,7 +58,7 @@ export default function TopicDetail() {
     );
   }
 
-  /** Cast or change a vote: Firestore transaction to adjust choice counts */
+  /** Cast or change a vote via Cloud Function (server-validated) */
   const handleVote = async (metricId: string, choiceId: string) => {
     if (!topicId) return;
     const previousChoiceId = useStore.getState().votedMap[topicId]?.[metricId];
@@ -69,33 +68,16 @@ export default function TopicDetail() {
     const isChange = !!previousChoiceId;
 
     try {
-      const topicRef = doc(db, 'topics', topicId);
-      await runTransaction(db, async (tx) => {
-        const snap = await tx.get(topicRef);
-        if (!snap.exists()) return;
-        const data = snap.data();
-        const metrics = (data.metrics ?? []).map((m: any) => {
-          if (m.id !== metricId) return m;
-          return {
-            ...m,
-            choices: m.choices.map((c: any) => {
-              if (c.id === choiceId) return { ...c, votes: (c.votes || 0) + 1 };
-              if (isChange && c.id === previousChoiceId) return { ...c, votes: Math.max((c.votes || 0) - 1, 0) };
-              return c;
-            }),
-          };
-        });
-        tx.update(topicRef, {
-          metrics,
-          // Only increment totalVotes for new votes, not changes
-          totalVotes: isChange ? (data.totalVotes || 0) : (data.totalVotes || 0) + 1,
-        });
-      });
-      recordVote(topicId, metricId, choiceId);
-      addToast(isChange ? 'Vote changed!' : 'Vote recorded!', 'success');
-    } catch (err) {
+      const result = await castVoteFn({ topicId, metricId, choiceId });
+      if (result.data.changed) {
+        // Update local state for optimistic UI
+        recordVote(topicId, metricId, choiceId);
+        addToast(isChange ? 'Vote changed!' : 'Vote recorded!', 'success');
+      }
+    } catch (err: unknown) {
       console.error(err);
-      addToast('Failed to vote. Try again.', 'error');
+      const message = err instanceof Error ? err.message : 'Failed to vote. Try again.';
+      addToast(message, 'error');
     }
   };
 
