@@ -80,9 +80,6 @@ export default function RequestModal({ open, onClose, topic }: Props) {
   const removeChange = (changeId: string) =>
     setChanges((prev) => prev.filter((c) => c.changeId !== changeId));
 
-  const getChangeFor = (metricId: string, choiceId?: string) =>
-    changes.find((c) => c.metricId === metricId && c.choiceId === (choiceId || undefined));
-
   // Edit metric label
   const editMetricLabel = (metric: Metric, newLabel: string) => {
     const existing = changes.find(

@@ -2,7 +2,7 @@
   <a href="{{ post.url | relative_url }}" class="post-card__link" aria-label="{{ post.title }}">
     <div class="post-card__image{% unless post.image %} post-card__image--placeholder{% endunless %}">
       {% if post.image %}
-        <img src="{{ post.image | relative_url }}" alt="{{ post.title }}" loading="lazy">
+        <img src="{{ post.image | relative_url }}" alt="{{ post.title }}" loading="lazy" width="600" height="340" decoding="async">
       {% else %}
         <span aria-hidden="true">&#9998;</span>
       {% endif %}

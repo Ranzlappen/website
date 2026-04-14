@@ -1,0 +1,16 @@
+{
+  "name": "RanzLappen",
+  "short_name": "RanzLappen",
+  "description": "A personal blog about passion projects, random experiments, and whatever catches my attention.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#0f1714",
+  "theme_color": "#4ade80",
+  "icons": [
+    {
+      "src": "/assets/images/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}

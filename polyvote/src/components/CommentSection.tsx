@@ -12,12 +12,6 @@ import { useStore } from '../hooks/useStore';
 import { useComments } from '../hooks/useComments';
 import type { Comment } from '../types';
 
-/** Generate a stable display name from a UID */
-function displayNameFromUid(uid: string): string {
-  const hash = uid.slice(-4).toUpperCase();
-  return `Voter #${hash}`;
-}
-
 interface Props {
   topicId: string;
 }
