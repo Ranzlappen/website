@@ -68,3 +68,29 @@ export const adminUpdateRequestStatusFn = httpsCallable(functions, 'adminUpdateR
 export const adminBulkUpdateRequestsFn = httpsCallable(functions, 'adminBulkUpdateRequests');
 export const adminGetAnalyticsFn = httpsCallable(functions, 'adminGetAnalytics');
 export const adminGetVotingTrendsFn = httpsCallable(functions, 'adminGetVotingTrends');
+
+// ── User callables (server-validated writes) ──
+
+/** Post a comment (server-validated with rate limiting) */
+export const postCommentFn = httpsCallable<
+  { topicId: string; text: string; parentId?: string },
+  { id: string }
+>(functions, 'postComment');
+
+/** Create a topic request/proposal (server-validated) */
+export const createTopicRequestFn = httpsCallable<
+  { title: string; description: string; category: string; metrics: unknown[] },
+  { id: string }
+>(functions, 'createTopicRequest');
+
+/** Endorse a topic request (atomic, dedup-safe) */
+export const endorseTopicRequestFn = httpsCallable<
+  { requestId: string },
+  { newCount: number }
+>(functions, 'endorseTopicRequest');
+
+/** Create a change request (server-validated) */
+export const createChangeRequestFn = httpsCallable<
+  { topicId: string; topicTitle: string; type: string; description: string },
+  { id: string }
+>(functions, 'createChangeRequest');
