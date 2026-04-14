@@ -8,3 +8,7 @@ export { adminListUsers, adminBanUser, adminUnbanUser, } from "./admin/users";
 export { reportContent, adminDeleteComment, adminReviewReport, adminListReports, } from "./admin/moderation";
 export { adminUpdateRequestStatus, adminBulkUpdateRequests, } from "./admin/requests";
 export { adminGetAnalytics, adminGetVotingTrends, dailyAnalyticsAggregation, } from "./admin/analytics";
+export { postComment } from "./user/postComment";
+export { createTopicRequest } from "./user/createTopicRequest";
+export { endorseTopicRequest } from "./user/endorseTopicRequest";
+export { createChangeRequest } from "./user/createChangeRequest";
