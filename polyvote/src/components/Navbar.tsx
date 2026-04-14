@@ -6,8 +6,8 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { BarChart3, FileText, Home, ArrowLeft, Sun, Moon, Vote, GitCompareArrows, Shield, LogIn, LogOut } from 'lucide-react';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { auth, bootstrapAdminFn } from '../firebase';
 import { useStore } from '../hooks/useStore';
 import UserStats from './UserStats';
 
@@ -31,6 +31,7 @@ export default function Navbar() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
+  const [isSignup, setIsSignup] = useState(false);
 
   const isAdminOrMod = isAdmin() || isModerator();
   const isAnonymous = user?.isAnonymous ?? true;
@@ -39,16 +40,31 @@ export default function Navbar() {
     e.preventDefault();
     setLoginLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      if (isSignup) {
+        await createUserWithEmailAndPassword(auth, email, password);
+        addToast('Account created! You can now claim admin if no admin exists.', 'success');
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+        addToast('Signed in successfully!', 'success');
+      }
       setShowLogin(false);
       setEmail('');
       setPassword('');
-      addToast('Signed in successfully!', 'success');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Sign in failed';
       addToast(message, 'error');
     } finally {
       setLoginLoading(false);
+    }
+  };
+
+  const handleBootstrapAdmin = async () => {
+    try {
+      const result = await bootstrapAdminFn({});
+      addToast(result.data.message, 'success');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to claim admin.';
+      addToast(message, 'error');
     }
   };
 
@@ -143,7 +159,9 @@ export default function Navbar() {
               {/* Login dropdown */}
               {showLogin && (
                 <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-surface-200 bg-surface p-4 shadow-xl z-50">
-                  <h3 className="text-sm font-semibold text-gray-200 mb-3">Admin Sign In</h3>
+                  <h3 className="text-sm font-semibold text-gray-200 mb-3">
+                    {isSignup ? 'Create Account' : 'Sign In'}
+                  </h3>
                   <form onSubmit={handleLogin} className="space-y-3">
                     <input
                       type="email"
@@ -159,6 +177,7 @@ export default function Navbar() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      minLength={6}
                       className="w-full rounded-lg border border-surface-200 bg-surface-100 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:border-brand-400 focus:outline-none"
                     />
                     <button
@@ -166,23 +185,38 @@ export default function Navbar() {
                       disabled={loginLoading}
                       className="w-full rounded-lg bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50 transition-colors"
                     >
-                      {loginLoading ? 'Signing in...' : 'Sign In'}
+                      {loginLoading ? 'Please wait...' : isSignup ? 'Create Account' : 'Sign In'}
                     </button>
                   </form>
-                  <p className="mt-2 text-xs text-gray-500">
-                    For admin/moderator accounts only
-                  </p>
+                  <button
+                    onClick={() => setIsSignup(!isSignup)}
+                    className="mt-2 text-xs text-brand-400 hover:underline"
+                  >
+                    {isSignup ? 'Already have an account? Sign in' : 'Need an account? Create one'}
+                  </button>
                 </div>
               )}
             </div>
           ) : (
-            <button
-              onClick={handleLogout}
-              aria-label="Sign out"
-              className="flex items-center gap-1.5 rounded-lg p-1.5 text-gray-400 hover:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-            >
-              <LogOut size={16} />
-            </button>
+            <div className="flex items-center gap-1">
+              {!isAdminOrMod && (
+                <button
+                  onClick={handleBootstrapAdmin}
+                  title="Claim admin (only works if no admin exists)"
+                  className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs text-amber-400/70 hover:text-amber-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                >
+                  <Shield size={14} />
+                  <span className="hidden sm:inline">Claim Admin</span>
+                </button>
+              )}
+              <button
+                onClick={handleLogout}
+                aria-label="Sign out"
+                className="flex items-center gap-1.5 rounded-lg p-1.5 text-gray-400 hover:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
           )}
         </nav>
       </div>

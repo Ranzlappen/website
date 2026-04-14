@@ -52,6 +52,12 @@ export const reportContentFn = httpsCallable<
   { id: string }
 >(functions, 'reportContent');
 
+/** Bootstrap the first admin (only works when no admin exists) */
+export const bootstrapAdminFn = httpsCallable<
+  Record<string, never>,
+  { success: boolean; message: string }
+>(functions, 'bootstrapAdmin');
+
 // ── Admin callables ──
 
 export const adminCreateTopicFn = httpsCallable(functions, 'adminCreateTopic');
