@@ -4,7 +4,62 @@ layout: default
 # Replaced page.previous/page.next with manual iteration to skip non-published posts.
 ---
 
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ page.title | jsonify }},
+  "description": {{ page.description | default: page.excerpt | strip_html | truncatewords: 50 | jsonify }},
+  "datePublished": "{{ page.date | date_to_xmlschema }}",
+  "dateModified": "{{ page.last_modified_at | default: page.date | date_to_xmlschema }}",
+  "url": "{{ page.url | absolute_url }}",
+  {% if page.image %}"image": "{{ page.image | absolute_url }}",{% endif %}
+  "author": {
+    "@type": "Person",
+    "name": "{{ site.author.name | xml_escape }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ site.title | xml_escape }}",
+    "url": "{{ '/' | absolute_url }}"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ page.url | absolute_url }}"
+  }{% if page.category %},
+  "articleSection": {{ page.category | jsonify }}{% endif %}{% if page.tags.size > 0 %},
+  "keywords": {{ page.tags | jsonify }}{% endif %}
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{ '/' | absolute_url }}" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "{{ '/blog/' | absolute_url }}" }{% if page.category %},
+    { "@type": "ListItem", "position": 3, "name": {{ page.category | jsonify }}, "item": "{{ '/categories/' | absolute_url }}#{{ page.category | slugify }}" },
+    { "@type": "ListItem", "position": 4, "name": {{ page.title | jsonify }} }{% else %},
+    { "@type": "ListItem", "position": 3, "name": {{ page.title | jsonify }} }{% endif %}
+  ]
+}
+</script>
+
 <article class="post{% if page.backdrop %} post--has-backdrop{% endif %}" itemscope itemtype="http://schema.org/BlogPosting">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <ol class="breadcrumb__list">
+      <li class="breadcrumb__item"><a href="{{ '/' | relative_url }}">Home</a></li>
+      <li class="breadcrumb__item"><a href="{{ '/blog/' | relative_url }}">Blog</a></li>
+      {% if page.category %}
+      <li class="breadcrumb__item"><a href="{{ '/categories/' | relative_url }}#{{ page.category | slugify }}">{{ page.category }}</a></li>
+      {% endif %}
+      <li class="breadcrumb__item breadcrumb__item--current" aria-current="page">{{ page.title }}</li>
+    </ol>
+  </nav>
+
   {% if page.status == "draft" or page.status == "placeholder" %}
   <div class="status-banner" id="status-banner" role="status" data-slug="{{ page.url | slugify }}">
     <span class="status-banner__text">This article is a draft and may be incomplete or subject to change. It might be a placeholder article without any real journalistic value, used for testing and debugging purposes.</span>
@@ -146,6 +201,45 @@ layout: default
       {% endif %}
     </div>
   </nav>
+
+  <!-- Related Posts -->
+  {% assign related = "" | split: "" %}
+  {% for p in site.posts %}
+    {% if p.url != page.url and p.status == "published" or p.status == "placeholder" %}
+      {% if p.category == page.category and page.category %}
+        {% assign related = related | push: p %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if related.size < 2 %}
+    {% assign related = "" | split: "" %}
+    {% for p in site.posts %}
+      {% if p.url != page.url %}
+        {% assign p_visible = false %}
+        {% if p.status == "published" or p.status == "placeholder" %}{% assign p_visible = true %}{% endif %}
+        {% if p_visible %}
+          {% assign shared_tags = 0 %}
+          {% for tag in p.tags %}
+            {% if page.tags contains tag %}{% assign shared_tags = shared_tags | plus: 1 %}{% endif %}
+          {% endfor %}
+          {% if shared_tags > 0 %}
+            {% assign related = related | push: p %}
+          {% endif %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if related.size > 0 %}
+  <section class="post-body related-posts">
+    <h2 class="related-posts__heading">You might also like</h2>
+    <div class="related-posts__grid">
+      {% for rp in related limit:3 %}
+        {% assign post = rp %}
+        {% include post-card.html %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
   <!-- Comments -->
   {% if page.comments != false %}

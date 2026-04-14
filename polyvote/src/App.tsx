@@ -5,13 +5,17 @@
  */
 import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { MotionConfig } from 'framer-motion';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { useStore } from './hooks/useStore';
 import Navbar from './components/Navbar';
 import Toast from './components/Toast';
+import ErrorBoundary from './components/ErrorBoundary';
+import KeyboardHelp from './components/KeyboardHelp';
 import { TopicDetailSkeleton } from './components/LoadingSkeleton';
+import { useKeyboard } from './hooks/useKeyboard';
 import type { UserProfile, UserRole } from './types';
 
 // Route-level code splitting
@@ -36,6 +40,8 @@ export default function App() {
   const setUserProfile = useStore((s) => s.setUserProfile);
   const setUserRole = useStore((s) => s.setUserRole);
   const addToast = useStore((s) => s.addToast);
+
+  const { showHelp, closeHelp } = useKeyboard();
 
   // Auth listener: sign in anonymously on mount, then sync user profile
   useEffect(() => {
@@ -86,35 +92,45 @@ export default function App() {
   }, [setUser, setUserProfile, setUserRole, addToast]);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-1">
-        <Suspense fallback={<TopicDetailSkeleton />}>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/topic/:topicId" element={<TopicDetail />} />
-            <Route path="/requests" element={<Requests />} />
-            <Route path="/requests/new" element={<TopicRequestForm />} />
-            <Route path="/my-votes" element={<MyVotes />} />
-            <Route path="/compare" element={<Compare />} />
+    <MotionConfig reducedMotion="user">
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-1">
+          <ErrorBoundary>
+            <Suspense fallback={<TopicDetailSkeleton />}>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/topic/:topicId" element={<TopicDetail />} />
+                <Route path="/requests" element={<Requests />} />
+                <Route path="/requests/new" element={<TopicRequestForm />} />
+                <Route path="/my-votes" element={<MyVotes />} />
+                <Route path="/compare" element={<Compare />} />
 
-            {/* Admin routes (guarded) */}
-            <Route path="/admin" element={<AdminRoute />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="topics" element={<AdminTopics />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="requests" element={<AdminRequests />} />
-              <Route path="moderation" element={<AdminModeration />} />
-              <Route path="analytics" element={<AdminAnalytics />} />
-            </Route>
-          </Routes>
-        </Suspense>
-      </main>
-      <footer className="border-t border-surface-200 py-6 text-center text-sm text-gray-500">
-        PolyVote Prototype &middot; Multi-Metric Community Voting
-      </footer>
-      <Toast />
-    </div>
+                {/* Admin routes (guarded) */}
+                <Route path="/admin" element={<AdminRoute />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="topics" element={<AdminTopics />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="requests" element={<AdminRequests />} />
+                  <Route path="moderation" element={<AdminModeration />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                </Route>
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
+        </main>
+        <footer className="border-t border-surface-200 py-6 text-center text-sm text-gray-500">
+          <p>PolyVote Prototype &middot; Multi-Metric Community Voting</p>
+          <nav className="mt-2 flex items-center justify-center gap-4 text-xs text-gray-600">
+            <a href="https://www.ranzlappen.com/" className="hover:text-gray-400 transition-colors">ranzlappen.com</a>
+            <a href="https://www.ranzlappen.com/privacy/" className="hover:text-gray-400 transition-colors">Privacy</a>
+            <a href="https://www.ranzlappen.com/disclaimer/" className="hover:text-gray-400 transition-colors">Disclaimer</a>
+          </nav>
+        </footer>
+        <Toast />
+        <KeyboardHelp open={showHelp} onClose={closeHelp} />
+      </div>
+    </MotionConfig>
   );
 }

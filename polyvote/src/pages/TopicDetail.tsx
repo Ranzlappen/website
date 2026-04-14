@@ -26,7 +26,7 @@ type ChartView = 'radar' | 'bar';
 export default function TopicDetail() {
   const { topicId } = useParams<{ topicId: string }>();
   const { topic, loading, error } = useTopic(topicId);
-  const { hasVoted, recordVote, addToast, user } = useStore();
+  const { hasVoted, recordVote, addToast } = useStore();
   const [modalOpen, setModalOpen] = useState(false);
   const [chartView, setChartView] = useState<ChartView>(() => {
     try { return (localStorage.getItem('polyvote_chart_view') as ChartView) || 'radar'; }

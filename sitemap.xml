@@ -11,12 +11,20 @@ layout: null
   <url>
     <loc>{{ page.url | absolute_url | xml_escape }}</loc>
     {% if page.date %}<lastmod>{{ page.date | date_to_xmlschema }}</lastmod>{% endif %}
+    {% if page.url == "/" %}<changefreq>weekly</changefreq><priority>1.0</priority>
+    {% elsif page.url == "/blog/" %}<changefreq>weekly</changefreq><priority>0.9</priority>
+    {% elsif page.url == "/categories/" or page.url == "/tags/" %}<changefreq>weekly</changefreq><priority>0.6</priority>
+    {% elsif page.url == "/about/" or page.url == "/contact/" %}<changefreq>monthly</changefreq><priority>0.5</priority>
+    {% else %}<changefreq>yearly</changefreq><priority>0.3</priority>
+    {% endif %}
   </url>
   {% endif %}{% endfor %}
   {% for post in site.posts %}{% if post.status == "published" or post.status == "placeholder" %}
   <url>
     <loc>{{ post.url | absolute_url | xml_escape }}</loc>
     <lastmod>{{ post.date | date_to_xmlschema }}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   {% endif %}{% endfor %}
 </urlset>

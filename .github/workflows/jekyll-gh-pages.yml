@@ -51,10 +51,21 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: polyvote/package-lock.json
-      - name: Build PolyVote
+      - name: PolyVote – Install dependencies
         run: |
           cd polyvote
           npm ci
+      - name: PolyVote – Lint
+        run: |
+          cd polyvote
+          npm run lint
+      - name: PolyVote – Test
+        run: |
+          cd polyvote
+          npm test
+      - name: PolyVote – Build
+        run: |
+          cd polyvote
           npm run build
       - name: Copy PolyVote into _site
         run: |

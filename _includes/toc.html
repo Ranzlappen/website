@@ -1,0 +1,25 @@
+{% comment %}
+  Auto-generated table of contents.
+  Reads h2 headings from the post content on the client side.
+  Include in a post with: {% include toc.html %}
+{% endcomment %}
+<nav class="post-toc" aria-label="Table of Contents">
+  <strong class="post-toc__heading">Table of Contents</strong>
+  <ol class="post-toc__list" id="toc-list"></ol>
+</nav>
+<script>
+  (function() {
+    var list = document.getElementById('toc-list');
+    if (!list) return;
+    var headings = document.querySelectorAll('.post-content h2[id]');
+    if (headings.length < 2) { list.parentElement.style.display = 'none'; return; }
+    headings.forEach(function(h) {
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+  })();
+</script>

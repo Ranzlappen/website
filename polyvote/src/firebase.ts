@@ -5,7 +5,7 @@
  */
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth, signInAnonymously, EmailAuthProvider } from 'firebase/auth';
+import { getAuth, EmailAuthProvider } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
 /**
@@ -35,8 +35,6 @@ export const functions = getFunctions(app);
 
 /** Email auth provider for admin sign-in */
 export const emailProvider = new EmailAuthProvider();
-
-signInAnonymously(auth).catch(console.error);
 
 // ── Cloud Function callables ──
 
