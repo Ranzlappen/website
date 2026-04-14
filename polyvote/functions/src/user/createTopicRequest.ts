@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 import { requireAuth } from "../utils/adminOnly";
+import { moderateFields } from "../utils/contentFilter";
 
 const REQUEST_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
@@ -103,6 +104,26 @@ export const createTopicRequest = onCall(async (request) => {
   const userDoc = await db.collection("users").doc(uid).get();
   if (userDoc.exists && userDoc.data()?.status === "banned") {
     throw new HttpsError("permission-denied", "Your account has been banned.");
+  }
+
+  // Content moderation on title, description, and all metric/choice labels
+  const fieldsToCheck = [
+    { name: "title", value: trimTitle },
+    { name: "description", value: description.trim() },
+    ...metrics.flatMap((m) => [
+      { name: `metric "${m.label}"`, value: m.label },
+      ...m.choices.map((c) => ({
+        name: `choice "${c.label}"`,
+        value: c.label,
+      })),
+    ]),
+  ];
+  const modResult = moderateFields(fieldsToCheck);
+  if (modResult.blocked) {
+    throw new HttpsError(
+      "invalid-argument",
+      `${modResult.reason} (in ${modResult.field})`
+    );
   }
 
   const now = Date.now();
