@@ -1,11 +1,11 @@
 /*
- * CHANGE: New file – Zustand global store
- * REASON: Lightweight global state for auth user, toasts, and voted metrics
- * DATE: 2026-04-02
+ * CHANGE: Updated – Zustand global store with admin auth support
+ * REASON: Added user profiles, role-based access, sign-in/sign-out for admin accounts
+ * DATE: 2026-04-14
  */
 import { create } from 'zustand';
 import type { User } from 'firebase/auth';
-import type { UserVotes } from '../types';
+import type { UserVotes, UserProfile, UserRole } from '../types';
 
 export interface ToastMessage {
   id: string;
@@ -19,6 +19,18 @@ interface AppState {
   /** Current Firebase Auth user (anonymous or signed-in) */
   user: User | null;
   setUser: (user: User | null) => void;
+
+  /** User profile from Firestore (includes role, status, etc.) */
+  userProfile: UserProfile | null;
+  setUserProfile: (profile: UserProfile | null) => void;
+
+  /** User's custom claims (includes role) */
+  userRole: UserRole;
+  setUserRole: (role: UserRole) => void;
+
+  /** Convenience role checks */
+  isAdmin: () => boolean;
+  isModerator: () => boolean;
 
   /** Toast notifications stack */
   toasts: ToastMessage[];
@@ -83,6 +95,15 @@ const applyTheme = (theme: Theme) => {
 export const useStore = create<AppState>((set, get) => ({
   user: null,
   setUser: (user) => set({ user }),
+
+  userProfile: null,
+  setUserProfile: (profile) => set({ userProfile: profile }),
+
+  userRole: 'user',
+  setUserRole: (role) => set({ userRole: role }),
+
+  isAdmin: () => get().userRole === 'admin',
+  isModerator: () => get().userRole === 'moderator' || get().userRole === 'admin',
 
   toasts: [],
   addToast: (text, type = 'info') => {

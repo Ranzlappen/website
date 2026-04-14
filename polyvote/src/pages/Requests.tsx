@@ -13,12 +13,8 @@ import {
   query,
   doc,
   updateDoc,
-  addDoc,
   arrayUnion,
   increment,
-  getDocs,
-  where,
-  writeBatch,
 } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
 import {
@@ -32,7 +28,7 @@ import {
   Archive,
   Sparkles,
 } from 'lucide-react';
-import { db } from '../firebase';
+import { db, adminUpdateRequestStatusFn } from '../firebase';
 import { useStore } from '../hooks/useStore';
 import { useTopicRequests } from '../hooks/useTopicRequests';
 import { categoryColor } from '../components/CategoryFilter';
@@ -83,33 +79,7 @@ export default function Requests() {
     return unsub;
   }, []);
 
-  // On-load sweep: archive expired pending topic requests
-  useEffect(() => {
-    const archiveExpired = async () => {
-      try {
-        const q = query(
-          collection(db, 'topicRequests'),
-          where('status', '==', 'pending'),
-        );
-        const snap = await getDocs(q);
-        const now = Date.now();
-        const batch = writeBatch(db);
-        let count = 0;
-        snap.docs.forEach((d) => {
-          const data = d.data();
-          if (data.expiresAt && data.expiresAt < now) {
-            batch.update(d.ref, { status: 'archived' });
-            count++;
-          }
-        });
-        if (count > 0) await batch.commit();
-      } catch (err) {
-        console.error('Failed to archive expired requests:', err);
-      }
-    };
-    archiveExpired();
-  }, []);
-
+  // Expired requests are now archived by a scheduled Cloud Function (every 5 min)
   const now = Date.now();
 
   // Split topic requests into active vs archived
@@ -140,19 +110,8 @@ export default function Requests() {
 
       const newCount = req.endorsementCount + 1;
 
-      // Check if promotion threshold reached
+      // Promotion is handled by a Cloud Function trigger (onTopicRequestEndorsed)
       if (newCount >= REQUEST_ENDORSEMENTS_NEEDED) {
-        // Promote: create topic in topics collection
-        await addDoc(collection(db, 'topics'), {
-          title: req.title,
-          description: req.description,
-          category: req.category,
-          metrics: req.metrics,
-          totalVotes: 0,
-          createdAt: Date.now(),
-        });
-        // Mark request as promoted
-        await updateDoc(reqRef, { status: 'promoted' });
         addToast('Topic promoted to main voting!', 'success');
       } else {
         addToast('Endorsement recorded!', 'success');
@@ -170,23 +129,21 @@ export default function Requests() {
     }
   };
 
-  // ── Update change request status ──
+  const isModerator = useStore((s) => s.isModerator);
+
+  // ── Update change request status (via Cloud Function for moderators) ──
   const updateCrStatus = async (id: string, status: 'approved' | 'rejected') => {
     try {
-      await updateDoc(doc(db, 'requests', id), { status });
+      if (isModerator()) {
+        await adminUpdateRequestStatusFn({ requestId: id, status });
+      } else {
+        // Fallback for backwards compatibility (will be blocked by rules for non-mods)
+        await updateDoc(doc(db, 'requests', id), { status });
+      }
       addToast(`Request ${status}.`, 'success');
     } catch (err) {
       console.error(err);
       addToast('Failed to update request.', 'error');
-    }
-  };
-
-  // Client-side expiry check helper
-  const archiveIfExpired = async (req: TopicRequest) => {
-    if (req.status === 'pending' && req.expiresAt <= now) {
-      try {
-        await updateDoc(doc(db, 'topicRequests', req.id), { status: 'archived' });
-      } catch { /* ignore */ }
     }
   };
 
@@ -232,9 +189,6 @@ export default function Requests() {
             ) : (
               <div className="space-y-4">
                 {activeProposals.map((req, i) => {
-                  // Client-side expiry check
-                  archiveIfExpired(req);
-
                   const timeLeft = req.expiresAt - now;
                   const minsLeft = Math.max(0, Math.ceil(timeLeft / 60000));
                   const alreadyEndorsed = user ? req.endorsers.includes(user.uid) : false;

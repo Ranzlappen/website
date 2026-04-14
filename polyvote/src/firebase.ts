@@ -1,16 +1,17 @@
 /*
- * CHANGE: New file – Firebase initialization for PolyVote
- * REASON: Reuses the same Firebase project (proven-concept-436717-q3) as the parent repo
- * DATE: 2026-04-02
+ * CHANGE: Updated – Firebase initialization with Cloud Functions and admin auth
+ * REASON: Added getFunctions for Cloud Function calls, EmailAuthProvider for admin sign-in
+ * DATE: 2026-04-14
  */
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getAuth, signInAnonymously, EmailAuthProvider } from 'firebase/auth';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 /**
  * Firebase config – same project as the parent Jekyll site.
  * Credentials are public client-side keys (safe to commit).
- * Security is enforced via Firestore rules on the backend.
+ * Security is enforced via Firestore rules + Cloud Functions on the backend.
  */
 const firebaseConfig = {
   apiKey: 'AIzaSyByEwHUnausbBmyRT928uGTRw5ZvszjjiM',
@@ -29,4 +30,41 @@ export const db = getFirestore(app);
 /** Firebase Auth instance – supports anonymous + signed-in users */
 export const auth = getAuth(app);
 
+/** Cloud Functions instance for calling backend functions */
+export const functions = getFunctions(app);
+
+/** Email auth provider for admin sign-in */
+export const emailProvider = new EmailAuthProvider();
+
 signInAnonymously(auth).catch(console.error);
+
+// ── Cloud Function callables ──
+
+/** Cast a vote (server-validated) */
+export const castVoteFn = httpsCallable<
+  { topicId: string; metricId: string; choiceId: string },
+  { changed: boolean; isChange?: boolean }
+>(functions, 'castVote');
+
+/** Report content */
+export const reportContentFn = httpsCallable<
+  { type: string; targetId: string; parentId?: string; reason: string; description?: string },
+  { id: string }
+>(functions, 'reportContent');
+
+// ── Admin callables ──
+
+export const adminCreateTopicFn = httpsCallable(functions, 'adminCreateTopic');
+export const adminEditTopicFn = httpsCallable(functions, 'adminEditTopic');
+export const adminDeleteTopicFn = httpsCallable(functions, 'adminDeleteTopic');
+export const adminListUsersFn = httpsCallable(functions, 'adminListUsers');
+export const adminBanUserFn = httpsCallable(functions, 'adminBanUser');
+export const adminUnbanUserFn = httpsCallable(functions, 'adminUnbanUser');
+export const setUserRoleFn = httpsCallable(functions, 'setUserRole');
+export const adminDeleteCommentFn = httpsCallable(functions, 'adminDeleteComment');
+export const adminReviewReportFn = httpsCallable(functions, 'adminReviewReport');
+export const adminListReportsFn = httpsCallable(functions, 'adminListReports');
+export const adminUpdateRequestStatusFn = httpsCallable(functions, 'adminUpdateRequestStatus');
+export const adminBulkUpdateRequestsFn = httpsCallable(functions, 'adminBulkUpdateRequests');
+export const adminGetAnalyticsFn = httpsCallable(functions, 'adminGetAnalytics');
+export const adminGetVotingTrendsFn = httpsCallable(functions, 'adminGetVotingTrends');

@@ -92,3 +92,79 @@ export interface Comment {
   /** Optional parent comment ID for threading */
   parentId?: string;
 }
+
+// ── Backend types ──
+
+/** User roles for access control */
+export type UserRole = 'user' | 'moderator' | 'admin';
+
+/** User account status */
+export type UserStatus = 'active' | 'suspended' | 'banned';
+
+/** User profile stored in the `users` collection */
+export interface UserProfile {
+  uid: string;
+  displayName: string;
+  email?: string | null;
+  role: UserRole;
+  status: UserStatus;
+  isAnonymous: boolean;
+  createdAt: number;
+  lastActive: number;
+  votesCount: number;
+  commentsCount: number;
+  bannedAt?: number | null;
+  banReason?: string | null;
+}
+
+/** Server-side vote record for deduplication */
+export interface VoteRecord {
+  id: string;
+  userId: string;
+  topicId: string;
+  metricId: string;
+  choiceId: string;
+  previousChoiceId?: string | null;
+  timestamp: number;
+}
+
+/** Content report submitted by users */
+export type ReportReason = 'spam' | 'harassment' | 'misinformation' | 'inappropriate' | 'other';
+export type ReportStatus = 'pending' | 'reviewed' | 'action-taken' | 'dismissed';
+
+export interface ContentReport {
+  id: string;
+  type: 'comment' | 'topic' | 'topicRequest';
+  targetId: string;
+  parentId?: string | null;
+  reporterId: string;
+  reason: ReportReason;
+  description?: string | null;
+  status: ReportStatus;
+  createdAt: number;
+  reviewedBy?: string | null;
+  reviewedAt?: number | null;
+}
+
+/** Audit log entry */
+export interface AuditEvent {
+  id: string;
+  action: string;
+  actorId: string;
+  targetType: string;
+  targetId: string;
+  metadata: Record<string, unknown>;
+  timestamp: number;
+}
+
+/** Daily analytics snapshot */
+export interface DailyAnalytics {
+  date: string;
+  timestamp: number;
+  totalVotes: number;
+  newTopics: number;
+  newUsers: number;
+  activeUsers: number;
+  topTopics: { id: string; title: string; votes: number }[];
+  categoryBreakdown: Record<string, number>;
+}
