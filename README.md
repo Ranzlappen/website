@@ -16,14 +16,15 @@ A clean, dark-themed personal blog. No coding required to set up or maintain —
 8. [Add a Data Table](#add-a-data-table)
 9. [Add Sources & Citations](#add-sources--citations)
 10. [Built-in Features](#built-in-features)
-11. [Enable Comments (Giscus)](#enable-comments-giscus)
-12. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
-13. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
-14. [Connect Your Own Domain](#connect-your-own-domain)
-15. [Change Colors or Fonts](#change-colors-or-fonts)
-16. [Tune the Blog Carousel](#tune-the-blog-carousel)
-17. [Moderate Comments and Votes](#moderate-comments-and-votes)
-18. [Fullstack Architecture](#fullstack-architecture)
+11. [Keyboard Shortcuts](#keyboard-shortcuts)
+12. [Enable Comments (Giscus)](#enable-comments-giscus)
+13. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
+14. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
+15. [Connect Your Own Domain](#connect-your-own-domain)
+16. [Change Colors or Fonts](#change-colors-or-fonts)
+17. [Tune the Blog Carousel](#tune-the-blog-carousel)
+18. [Moderate Comments and Votes](#moderate-comments-and-votes)
+19. [Fullstack Architecture](#fullstack-architecture)
 
 ---
 
@@ -591,6 +592,32 @@ These features work automatically on every post — no setup needed:
 | **Reading Progress Bar** | Shows how far down the page the reader has scrolled |
 | **Dark / Light Theme** | Toggle between dark and light mode — preference is saved |
 | **Grid / List View** | Readers can switch between grid cards and a compact list on the blog page |
+
+</details>
+
+---
+
+<details>
+<summary><h2>Keyboard Shortcuts</h2></summary>
+
+### Blog
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+K` / `Cmd+K` | Open search |
+| `Esc` | Close search |
+| `←` `→` | Navigate image carousels |
+
+### PolyVote (`/polyvote/`)
+
+| Key | Action |
+|-----|--------|
+| `/` | Focus the search bar |
+| `t` | Toggle dark / light theme |
+| `?` | Show keyboard shortcuts help overlay |
+| `Esc` | Close dialogs and overlays |
+
+> Shortcuts are disabled while typing in input fields, textareas, or content-editable elements.
 
 </details>
 
