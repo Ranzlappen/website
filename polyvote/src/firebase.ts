@@ -70,7 +70,10 @@ export const setUserRoleFn = httpsCallable(functions, 'setUserRole');
 export const adminDeleteCommentFn = httpsCallable(functions, 'adminDeleteComment');
 export const adminReviewReportFn = httpsCallable(functions, 'adminReviewReport');
 export const adminListReportsFn = httpsCallable(functions, 'adminListReports');
-export const adminUpdateRequestStatusFn = httpsCallable(functions, 'adminUpdateRequestStatus');
+export const adminUpdateRequestStatusFn = httpsCallable<
+  { requestId: string; changeStatuses: { changeId: string; status: 'approved' | 'rejected' }[] },
+  { success: boolean; status: string }
+>(functions, 'adminUpdateRequestStatus');
 export const adminBulkUpdateRequestsFn = httpsCallable(functions, 'adminBulkUpdateRequests');
 export const adminGetAnalyticsFn = httpsCallable(functions, 'adminGetAnalytics');
 export const adminGetVotingTrendsFn = httpsCallable(functions, 'adminGetVotingTrends');
@@ -95,8 +98,8 @@ export const endorseTopicRequestFn = httpsCallable<
   { newCount: number }
 >(functions, 'endorseTopicRequest');
 
-/** Create a change request (server-validated) */
+/** Create a structured change request (server-validated) */
 export const createChangeRequestFn = httpsCallable<
-  { topicId: string; topicTitle: string; type: string; description: string },
+  { topicId: string; topicTitle: string; description: string; changes: unknown[] },
   { id: string }
 >(functions, 'createChangeRequest');

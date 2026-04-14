@@ -200,8 +200,7 @@ export default function TopicDetail() {
       <RequestModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        topicId={topic.id}
-        topicTitle={topic.title}
+        topic={topic}
       />
     </div>
   );

@@ -43,14 +43,34 @@ export interface Topic {
   metrics: Metric[];
 }
 
+/** A single proposed change within a change request */
+export interface ProposedChange {
+  /** Unique ID for this individual change */
+  changeId: string;
+  /** Type of change */
+  action: 'edit-metric' | 'delete-metric' | 'edit-choice' | 'delete-choice' | 'add-metric' | 'add-choice';
+  /** Target metric ID */
+  metricId: string;
+  /** Target choice ID (for choice-level changes) */
+  choiceId?: string;
+  /** Original value (for display in diff) */
+  oldValue?: { label?: string; color?: string };
+  /** Proposed new value */
+  newValue?: { label?: string; color?: string; choices?: Choice[] };
+  /** Per-change approval status */
+  status: 'pending' | 'approved' | 'rejected';
+}
+
 /** A user-submitted request to edit, add, or delete a topic/metric */
 export interface ChangeRequest {
   id: string;
   topicId: string;
   topicTitle: string;
-  type: 'edit' | 'add' | 'delete';
+  /** Overall description of why the changes are needed */
   description: string;
-  status: 'pending' | 'approved' | 'rejected';
+  /** Structured list of proposed changes */
+  changes: ProposedChange[];
+  status: 'pending' | 'approved' | 'rejected' | 'partial';
   createdAt: number;
   authorId: string;
 }

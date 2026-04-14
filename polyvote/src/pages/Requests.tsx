@@ -15,7 +15,6 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import {
   CheckCircle2,
-  XCircle,
   Clock,
   FileText,
   Plus,
@@ -24,7 +23,7 @@ import {
   Archive,
   Sparkles,
 } from 'lucide-react';
-import { db, adminUpdateRequestStatusFn, endorseTopicRequestFn } from '../firebase';
+import { db, endorseTopicRequestFn } from '../firebase';
 import { useStore } from '../hooks/useStore';
 import { useTopicRequests } from '../hooks/useTopicRequests';
 import { categoryColor } from '../components/CategoryFilter';
@@ -36,13 +35,16 @@ const statusBadge: Record<string, string> = {
   pending: 'bg-yellow-500/20 text-yellow-400',
   approved: 'bg-brand-500/20 text-brand-400',
   rejected: 'bg-red-500/20 text-red-400',
+  partial: 'bg-blue-500/20 text-blue-400',
 };
 
-/** Badge styles by change-request type */
-const typeBadge: Record<string, string> = {
-  edit: 'bg-blue-500/20 text-blue-400',
-  add: 'bg-brand-500/20 text-brand-400',
-  delete: 'bg-red-500/20 text-red-400',
+const actionLabel: Record<string, string> = {
+  'edit-metric': 'Edit metric',
+  'delete-metric': 'Delete metric',
+  'edit-choice': 'Edit choice',
+  'delete-choice': 'Delete choice',
+  'add-metric': 'Add metric',
+  'add-choice': 'Add choice',
 };
 
 export default function Requests() {
@@ -110,17 +112,6 @@ export default function Requests() {
       console.error(err);
       const message = err instanceof Error ? err.message : 'Failed to endorse.';
       addToast(message, 'error');
-    }
-  };
-
-  // ── Update change request status (via Cloud Function) ──
-  const updateCrStatus = async (id: string, status: 'approved' | 'rejected') => {
-    try {
-      await adminUpdateRequestStatusFn({ requestId: id, status });
-      addToast(`Request ${status}.`, 'success');
-    } catch (err) {
-      console.error(err);
-      addToast('Failed to update request.', 'error');
     }
   };
 
@@ -265,12 +256,14 @@ export default function Requests() {
                     className="rounded-xl border border-surface-200 bg-surface-50 p-5"
                   >
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${typeBadge[req.type]}`}>
-                        {req.type}
-                      </span>
                       <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${statusBadge[req.status]}`}>
                         {req.status}
                       </span>
+                      {req.changes && (
+                        <span className="text-[11px] text-gray-500">
+                          {req.changes.length} change(s)
+                        </span>
+                      )}
                       <span className="ml-auto flex items-center gap-1 text-xs text-gray-500">
                         <Clock size={12} />
                         {formatDistanceToNow(new Date(req.createdAt), { addSuffix: true })}
@@ -280,24 +273,34 @@ export default function Requests() {
                     <p className="text-xs text-gray-500 mb-1">
                       Topic: <span className="text-gray-300">{req.topicTitle}</span>
                     </p>
-                    <p className="text-sm text-gray-300">{req.description}</p>
+                    {req.description && <p className="text-sm text-gray-400 mb-2">{req.description}</p>}
 
-                    {req.status === 'pending' && (
-                      <div className="mt-3 flex gap-2">
-                        <button
-                          onClick={() => updateCrStatus(req.id, 'approved')}
-                          aria-label={`Approve change request for ${req.topicTitle}`}
-                          className="flex items-center gap-1 rounded-lg bg-brand-400/10 px-3 py-1.5 text-xs font-medium text-brand-400 hover:bg-brand-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-                        >
-                          <CheckCircle2 size={14} aria-hidden="true" /> Approve
-                        </button>
-                        <button
-                          onClick={() => updateCrStatus(req.id, 'rejected')}
-                          aria-label={`Reject change request for ${req.topicTitle}`}
-                          className="flex items-center gap-1 rounded-lg bg-red-400/10 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-                        >
-                          <XCircle size={14} aria-hidden="true" /> Reject
-                        </button>
+                    {/* Show structured changes */}
+                    {req.changes && req.changes.length > 0 && (
+                      <div className="space-y-1 mt-2">
+                        {req.changes.slice(0, 5).map((c) => (
+                          <div key={c.changeId} className="flex items-center gap-2 text-xs">
+                            <span className="text-gray-500">{actionLabel[c.action] || c.action}:</span>
+                            {c.oldValue?.label && (
+                              <span className="text-red-400/60 line-through">{c.oldValue.label}</span>
+                            )}
+                            {c.newValue?.label && (
+                              <span className="text-green-400/80">{c.newValue.label}</span>
+                            )}
+                            {c.newValue?.color && (
+                              <span
+                                className="inline-block h-2.5 w-2.5 rounded-full"
+                                style={{ backgroundColor: c.newValue.color }}
+                              />
+                            )}
+                            <span className={`ml-auto rounded-full px-1.5 py-0.5 text-[10px] ${statusBadge[c.status]}`}>
+                              {c.status}
+                            </span>
+                          </div>
+                        ))}
+                        {req.changes.length > 5 && (
+                          <p className="text-xs text-gray-500">+{req.changes.length - 5} more</p>
+                        )}
                       </div>
                     )}
                   </motion.div>
