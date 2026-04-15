@@ -50,7 +50,9 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: polyvote/package-lock.json
+          cache-dependency-path: |
+            polyvote/package-lock.json
+            blog-admin/package-lock.json
       - name: PolyVote – Install dependencies
         run: |
           cd polyvote
@@ -83,11 +85,27 @@ jobs:
         run: |
           cd polyvote/functions
           npm test
+      - name: Blog Admin – Install dependencies
+        run: |
+          cd blog-admin
+          npm ci
+      - name: Blog Admin – Lint
+        run: |
+          cd blog-admin
+          npm run lint
+      - name: Blog Admin – Build
+        run: |
+          cd blog-admin
+          npm run build
       - name: Copy PolyVote into _site
         run: |
           sudo chown -R $(whoami) _site
           cp -r polyvote/dist _site/polyvote
           cp _site/polyvote/index.html _site/polyvote/404.html
+      - name: Copy Blog Admin into _site
+        run: |
+          cp -r blog-admin/dist _site/blog-admin
+          cp _site/blog-admin/index.html _site/blog-admin/404.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
 

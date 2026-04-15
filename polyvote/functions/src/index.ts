@@ -56,6 +56,26 @@ export {
 // Public: Insights
 export { getPublicStats } from "./admin/publicStats";
 
+// Blog: drafts
+export {
+  blogSaveDraft,
+  blogListDrafts,
+  blogGetDraft,
+  blogDeleteDraft,
+} from "./blog/drafts";
+
+// Blog: publish to GitHub
+export { blogPublishToGitHub } from "./blog/publish";
+
+// Blog: image upload
+export { blogUploadImage } from "./blog/images";
+
+// Blog: GitHub integration
+export {
+  blogListExistingPosts,
+  blogFetchExistingPost,
+} from "./blog/github";
+
 // User: server-validated writes
 export { postComment } from "./user/postComment";
 export { createTopicRequest } from "./user/createTopicRequest";

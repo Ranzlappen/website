@@ -2,12 +2,13 @@ import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 /** Roles ordered by privilege level */
-export type Role = "user" | "moderator" | "admin";
+export type Role = "user" | "author" | "moderator" | "admin";
 
 const ROLE_LEVELS: Record<Role, number> = {
   user: 0,
-  moderator: 1,
-  admin: 2,
+  author: 1,
+  moderator: 2,
+  admin: 3,
 };
 
 /**
