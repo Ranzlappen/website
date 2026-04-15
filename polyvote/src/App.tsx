@@ -25,6 +25,7 @@ const Requests = lazy(() => import('./pages/Requests'));
 const TopicRequestForm = lazy(() => import('./components/TopicRequestForm'));
 const MyVotes = lazy(() => import('./pages/MyVotes'));
 const Compare = lazy(() => import('./pages/Compare'));
+const Insights = lazy(() => import('./pages/Insights'));
 
 // Admin pages
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
@@ -106,6 +107,7 @@ export default function App() {
                 <Route path="/requests/new" element={<TopicRequestForm />} />
                 <Route path="/my-votes" element={<MyVotes />} />
                 <Route path="/compare" element={<Compare />} />
+                <Route path="/insights" element={<Insights />} />
 
                 {/* Admin routes (guarded) */}
                 <Route path="/admin" element={<AdminRoute />}>

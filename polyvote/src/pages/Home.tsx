@@ -57,6 +57,10 @@ export default function Home() {
         break;
       case 'trending':
         result = [...result].sort((a, b) => {
+          // Use server-computed score when available, client fallback otherwise
+          if (a.trendingScore != null && b.trendingScore != null) {
+            return b.trendingScore - a.trendingScore;
+          }
           const now = Date.now();
           const ageA = Math.max((now - a.createdAt) / 3600000, 1);
           const ageB = Math.max((now - b.createdAt) / 3600000, 1);

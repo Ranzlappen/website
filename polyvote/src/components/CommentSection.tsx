@@ -5,12 +5,14 @@
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Send, Reply, ChevronDown, Flag } from 'lucide-react';
+import { MessageCircle, Send, Reply, ChevronDown, Flag, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { postCommentFn, reportContentFn } from '../firebase';
+import { postCommentFn, reportContentFn, voteOnCommentFn } from '../firebase';
 import { useStore } from '../hooks/useStore';
 import { useComments } from '../hooks/useComments';
 import type { Comment } from '../types';
+
+type CommentSort = 'best' | 'newest' | 'oldest';
 
 interface Props {
   topicId: string;
@@ -24,10 +26,16 @@ export default function CommentSection({ topicId }: Props) {
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [expanded, setExpanded] = useState(true);
+  const [sortBy, setSortBy] = useState<CommentSort>('best');
 
   // Organize comments into threads
-  const topLevel = comments.filter((c) => !c.parentId);
-  const replies = comments.filter((c) => c.parentId);
+  const sortedComments = [...comments].sort((a, b) => {
+    if (sortBy === 'best') return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
+    if (sortBy === 'oldest') return a.createdAt - b.createdAt;
+    return b.createdAt - a.createdAt; // newest
+  });
+  const topLevel = sortedComments.filter((c) => !c.parentId);
+  const replies = sortedComments.filter((c) => c.parentId);
   const repliesMap = new Map<string, Comment[]>();
   for (const r of replies) {
     const existing = repliesMap.get(r.parentId!) || [];
@@ -59,17 +67,31 @@ export default function CommentSection({ topicId }: Props) {
   return (
     <section className="mt-10 border-t border-surface-200 pt-8">
       {/* Header */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-2 text-lg font-semibold text-gray-200 mb-4 hover:text-brand-400 transition-colors"
-      >
-        <MessageCircle size={20} />
-        Discussion ({comments.length})
-        <ChevronDown
-          size={16}
-          className={`transition-transform ${expanded ? 'rotate-180' : ''}`}
-        />
-      </button>
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex items-center gap-2 text-lg font-semibold text-gray-200 hover:text-brand-400 transition-colors"
+        >
+          <MessageCircle size={20} />
+          Discussion ({comments.length})
+          <ChevronDown
+            size={16}
+            className={`transition-transform ${expanded ? 'rotate-180' : ''}`}
+          />
+        </button>
+        {expanded && comments.length > 1 && (
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as CommentSort)}
+            aria-label="Sort comments"
+            className="rounded-lg border border-surface-200 bg-surface-100 px-2 py-1 text-xs text-gray-400 focus:border-brand-400 focus:outline-none"
+          >
+            <option value="best">Best</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+        )}
+      </div>
 
       <AnimatePresence initial={false}>
         {expanded && (
@@ -198,6 +220,7 @@ function CommentBubble({
   const addToast = useStore((s) => s.addToast);
   const [reporting, setReporting] = useState(false);
   const [showReportMenu, setShowReportMenu] = useState(false);
+  const [voting, setVoting] = useState(false);
 
   const handleReport = async (reason: (typeof REPORT_REASONS)[number]) => {
     setShowReportMenu(false);
@@ -218,8 +241,23 @@ function CommentBubble({
     }
   };
 
+  const handleVote = async (direction: 'up' | 'down') => {
+    if (voting) return;
+    setVoting(true);
+    try {
+      await voteOnCommentFn({ topicId, commentId: comment.id, direction });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to vote.';
+      addToast(message, 'error');
+    } finally {
+      setVoting(false);
+    }
+  };
+
+  const netVotes = (comment.upvotes || 0) - (comment.downvotes || 0);
+
   return (
-    <div className="rounded-xl border border-surface-200 bg-surface-50 p-3">
+    <div className={`rounded-xl border bg-surface-50 p-3 ${netVotes >= 3 ? 'border-brand-400/30' : 'border-surface-200'}`}>
       <div className="flex items-center justify-between mb-1">
         <span className={`text-xs font-medium ${isOwn ? 'text-brand-400' : 'text-gray-400'}`}>
           {comment.displayName} {isOwn && '(you)'}
@@ -230,6 +268,28 @@ function CommentBubble({
       </div>
       <p className="text-sm text-gray-300">{comment.text}</p>
       <div className="mt-1.5 flex items-center gap-3">
+        {/* Vote buttons */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => handleVote('up')}
+            disabled={voting}
+            className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-brand-400 transition-colors disabled:opacity-50"
+            title="Upvote"
+          >
+            <ThumbsUp size={12} />
+          </button>
+          <span className={`text-xs font-medium min-w-[1.2em] text-center ${netVotes > 0 ? 'text-brand-400' : netVotes < 0 ? 'text-red-400' : 'text-gray-600'}`}>
+            {netVotes !== 0 ? netVotes : ''}
+          </span>
+          <button
+            onClick={() => handleVote('down')}
+            disabled={voting}
+            className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-red-400 transition-colors disabled:opacity-50"
+            title="Downvote"
+          >
+            <ThumbsDown size={12} />
+          </button>
+        </div>
         {onReply && (
           <button
             onClick={onReply}

@@ -41,6 +41,8 @@ export interface Topic {
   /** Total number of individual votes cast across all metrics */
   totalVotes: number;
   metrics: Metric[];
+  /** Server-computed trending score (updated hourly by Cloud Function) */
+  trendingScore?: number;
 }
 
 /** A single proposed change within a change request */
@@ -111,6 +113,10 @@ export interface Comment {
   createdAt: number;
   /** Optional parent comment ID for threading */
   parentId?: string;
+  /** Upvote count */
+  upvotes: number;
+  /** Downvote count */
+  downvotes: number;
 }
 
 // ── Backend types ──
