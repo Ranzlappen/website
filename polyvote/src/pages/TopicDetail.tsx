@@ -26,7 +26,7 @@ type ChartView = 'radar' | 'bar';
 export default function TopicDetail() {
   const { topicId } = useParams<{ topicId: string }>();
   const { topic, loading, error } = useTopic(topicId);
-  const { hasVoted, recordVote, addToast } = useStore();
+  const { hasVoted, recordVote, addToast, votedMap } = useStore();
   const [modalOpen, setModalOpen] = useState(false);
   const [chartView, setChartView] = useState<ChartView>(() => {
     try { return (localStorage.getItem('polyvote_chart_view') as ChartView) || 'radar'; }
@@ -61,7 +61,7 @@ export default function TopicDetail() {
   /** Cast or change a vote via Cloud Function (server-validated) */
   const handleVote = async (metricId: string, choiceId: string) => {
     if (!topicId) return;
-    const previousChoiceId = useStore.getState().votedMap[topicId]?.[metricId];
+    const previousChoiceId = votedMap[topicId]?.[metricId];
     // If clicking the same choice they already voted for, do nothing
     if (previousChoiceId === choiceId) return;
 
@@ -169,7 +169,7 @@ export default function TopicDetail() {
               <div role="radiogroup" aria-label={`Vote on ${metric.label}`} className="grid gap-3 sm:grid-cols-2">
                 {metric.choices.map((choice) => {
                   const isSelected = topicId
-                    ? useStore.getState().votedMap[topicId]?.[metric.id] === choice.id
+                    ? votedMap[topicId]?.[metric.id] === choice.id
                     : false;
                   return (
                     <VotingCard

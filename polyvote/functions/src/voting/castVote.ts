@@ -1,6 +1,6 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
-import { requireAuth } from "../utils/adminOnly";
+import { requireAuth, requireNotBanned } from "../utils/adminOnly";
 
 /**
  * Server-validated voting.
@@ -26,10 +26,7 @@ export const castVote = onCall(async (request) => {
   }
 
   // Check if user is banned
-  const userDoc = await db.collection("users").doc(uid).get();
-  if (userDoc.exists && userDoc.data()?.status === "banned") {
-    throw new HttpsError("permission-denied", "Your account has been banned.");
-  }
+  await requireNotBanned(uid);
 
   const voteId = `${uid}_${topicId}_${metricId}`;
   const voteRef = db.collection("votes").doc(voteId);

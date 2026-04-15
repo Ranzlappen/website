@@ -94,6 +94,12 @@ export function validateMetrics(value: unknown): MetricInput[] {
             `Metric ${i}, choice ${j} must have id, label, and color strings.`
           );
         }
+        if (!/^#[0-9A-Fa-f]{6}$/.test(c.color as string)) {
+          throw new HttpsError(
+            "invalid-argument",
+            `Metric ${i}, choice ${j} has an invalid color format. Use hex (e.g., #22c55e).`
+          );
+        }
         return {
           id: c.id,
           label: c.label,

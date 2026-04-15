@@ -97,9 +97,42 @@ describe('validation', () => {
       const result = validateMetrics([{
         id: 'm1',
         label: 'Q',
-        choices: [{ id: 'c1', label: 'A', color: '#000' }],
+        choices: [{ id: 'c1', label: 'A', color: '#000000' }],
       }]);
       expect(result[0].choices[0].votes).toBe(0);
+    });
+
+    it('throws on invalid hex color format', () => {
+      const invalid = (color: string) => [{
+        id: 'm1',
+        label: 'Q',
+        choices: [
+          { id: 'c1', label: 'A', color, votes: 0 },
+          { id: 'c2', label: 'B', color: '#00ff00', votes: 0 },
+        ],
+      }];
+
+      expect(() => validateMetrics(invalid('red'))).toThrow('invalid color format');
+      expect(() => validateMetrics(invalid('#fff'))).toThrow('invalid color format');
+      expect(() => validateMetrics(invalid('rgb(0,0,0)'))).toThrow('invalid color format');
+      expect(() => validateMetrics(invalid('<script>'))).toThrow('invalid color format');
+      expect(() => validateMetrics(invalid(''))).toThrow('invalid color format');
+    });
+
+    it('accepts valid 6-digit hex colors', () => {
+      const valid = (color: string) => [{
+        id: 'm1',
+        label: 'Q',
+        choices: [
+          { id: 'c1', label: 'A', color, votes: 0 },
+          { id: 'c2', label: 'B', color: '#00ff00', votes: 0 },
+        ],
+      }];
+
+      expect(() => validateMetrics(valid('#000000'))).not.toThrow();
+      expect(() => validateMetrics(valid('#FFFFFF'))).not.toThrow();
+      expect(() => validateMetrics(valid('#22c55e'))).not.toThrow();
+      expect(() => validateMetrics(valid('#AbCdEf'))).not.toThrow();
     });
   });
 });

@@ -71,6 +71,18 @@ jobs:
         run: |
           cd polyvote
           npm run build
+      - name: Cloud Functions – Install dependencies
+        run: |
+          cd polyvote/functions
+          npm ci
+      - name: Cloud Functions – Lint
+        run: |
+          cd polyvote/functions
+          npm run lint
+      - name: Cloud Functions – Test
+        run: |
+          cd polyvote/functions
+          npm test
       - name: Copy PolyVote into _site
         run: |
           cp -r polyvote/dist _site/polyvote

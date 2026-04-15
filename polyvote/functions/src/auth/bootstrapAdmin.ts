@@ -29,12 +29,18 @@ export const bootstrapAdmin = onCall(async (request) => {
     );
   }
 
-  // Caller must be a non-anonymous user with an email
+  // Caller must be a non-anonymous user with a verified email
   const authUser = await getAuth().getUser(uid);
   if (!authUser.email) {
     throw new HttpsError(
       "failed-precondition",
       "You must sign in with an email account to become admin."
+    );
+  }
+  if (!authUser.emailVerified) {
+    throw new HttpsError(
+      "failed-precondition",
+      "Please verify your email address before claiming admin."
     );
   }
 
