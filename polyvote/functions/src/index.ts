@@ -16,6 +16,7 @@ export { onTopicRequestEndorsed } from "./triggers/onEndorse";
 
 // Scheduled triggers
 export { cleanupExpiredRequests } from "./triggers/onExpire";
+export { computeTrending } from "./triggers/computeTrending";
 
 // Admin: Topics
 export {
@@ -52,8 +53,12 @@ export {
   dailyAnalyticsAggregation,
 } from "./admin/analytics";
 
+// Public: Insights
+export { getPublicStats } from "./admin/publicStats";
+
 // User: server-validated writes
 export { postComment } from "./user/postComment";
 export { createTopicRequest } from "./user/createTopicRequest";
 export { endorseTopicRequest } from "./user/endorseTopicRequest";
 export { createChangeRequest } from "./user/createChangeRequest";
+export { voteOnComment } from "./user/voteOnComment";

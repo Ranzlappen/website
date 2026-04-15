@@ -3,10 +3,12 @@
  * REASON: Core voting experience – shows all metrics with live updates
  * DATE: 2026-04-02
  */
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, MessageSquarePlus, Users, Radar, BarChart3 } from 'lucide-react';
+
+const Markdown = lazy(() => import('react-markdown'));
 import { castVoteFn } from '../firebase';
 import { useTopic } from '../hooks/useTopic';
 import { useStore } from '../hooks/useStore';
@@ -104,7 +106,11 @@ export default function TopicDetail() {
           {topic.category}
         </span>
         <h1 className="text-2xl font-bold text-gray-100 sm:text-3xl mb-2">{topic.title}</h1>
-        <p className="text-gray-400 mb-4">{topic.description}</p>
+        <div className="text-gray-400 mb-4 text-sm leading-relaxed [&_a]:text-brand-400 [&_a:hover]:underline [&_strong]:text-gray-300 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:mt-1 [&_h3]:text-gray-200 [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_p+p]:mt-2 [&_code]:bg-surface-100 [&_code]:px-1 [&_code]:rounded [&_blockquote]:border-l-2 [&_blockquote]:border-brand-400/30 [&_blockquote]:pl-3 [&_blockquote]:italic">
+          <Suspense fallback={<p>{topic.description}</p>}>
+            <Markdown>{topic.description}</Markdown>
+          </Suspense>
+        </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
           <span className="flex items-center gap-1">

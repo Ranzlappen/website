@@ -104,6 +104,8 @@ export const postComment = onCall(async (request) => {
     authorId: uid,
     displayName,
     createdAt: now,
+    upvotes: 0,
+    downvotes: 0,
     ...(parentId ? { parentId } : {}),
   });
 

@@ -49,9 +49,16 @@ service cloud.firestore {
       match /comments/{commentId} {
         allow read: if true;
         allow create: if false;
+        // Updates (vote counts) via Cloud Functions only
         allow update: if false;
         // Moderators+ can delete comments
         allow delete: if isModerator();
+
+        // Comment votes – managed by Cloud Functions
+        match /commentVotes/{voteId} {
+          allow read: if isSignedIn() && voteId == request.auth.uid;
+          allow create, update, delete: if false;
+        }
       }
     }
 

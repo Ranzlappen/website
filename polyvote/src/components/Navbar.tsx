@@ -16,6 +16,7 @@ const links = [
   { to: '/requests', label: 'Requests', icon: FileText },
   { to: '/my-votes', label: 'My Votes', icon: Vote },
   { to: '/compare', label: 'Compare', icon: GitCompareArrows },
+  { to: '/insights', label: 'Insights', icon: BarChart3 },
 ];
 
 export default function Navbar() {
@@ -95,7 +96,7 @@ export default function Navbar() {
             className="flex items-center gap-1.5 rounded-lg px-2 sm:px-3 py-1.5 text-sm text-gray-400 hover:text-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
           >
             <ArrowLeft size={16} aria-hidden="true" />
-            <span className="hidden sm:inline">Back to site</span>
+            <span className="hidden sm:inline">Blog</span>
           </a>
           <span className="mx-1 h-4 w-px bg-surface-200" aria-hidden="true" />
           {links.map(({ to, label, icon: Icon }) => {

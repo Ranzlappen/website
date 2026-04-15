@@ -96,6 +96,24 @@ export const endorseTopicRequestFn = httpsCallable<
   { newCount: number }
 >(functions, 'endorseTopicRequest');
 
+/** Vote on a comment (upvote/downvote, toggle, switch) */
+export const voteOnCommentFn = httpsCallable<
+  { topicId: string; commentId: string; direction: 'up' | 'down' },
+  { action: 'voted' | 'changed' | 'removed' }
+>(functions, 'voteOnComment');
+
+/** Get public platform stats for insights dashboard */
+export const getPublicStatsFn = httpsCallable<
+  Record<string, never>,
+  {
+    totals: { topics: number; participants: number; totalVotes: number };
+    categoryBreakdown: Record<string, number>;
+    topTopics: { id: string; title: string; votes: number; category: string }[];
+    trendingTopics: { id: string; title: string; votes: number; category: string }[];
+    dailyTrends: { date: string; totalVotes: number; newTopics: number; activeUsers: number }[];
+  }
+>(functions, 'getPublicStats');
+
 /** Create a structured change request (server-validated) */
 export const createChangeRequestFn = httpsCallable<
   { topicId: string; topicTitle: string; description: string; changes: unknown[] },
