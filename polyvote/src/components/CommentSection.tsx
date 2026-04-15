@@ -182,6 +182,8 @@ function CommentThread({
   );
 }
 
+const REPORT_REASONS = ['spam', 'harassment', 'misinformation', 'inappropriate', 'other'] as const;
+
 function CommentBubble({
   comment,
   onReply,
@@ -195,20 +197,17 @@ function CommentBubble({
 }) {
   const addToast = useStore((s) => s.addToast);
   const [reporting, setReporting] = useState(false);
+  const [showReportMenu, setShowReportMenu] = useState(false);
 
-  const handleReport = async () => {
-    const reason = prompt('Why are you reporting this comment?\n(spam, harassment, misinformation, inappropriate, other)');
-    if (!reason) return;
-    const validReasons = ['spam', 'harassment', 'misinformation', 'inappropriate', 'other'];
-    const normalizedReason = validReasons.includes(reason.toLowerCase()) ? reason.toLowerCase() : 'other';
+  const handleReport = async (reason: (typeof REPORT_REASONS)[number]) => {
+    setShowReportMenu(false);
     setReporting(true);
     try {
       await reportContentFn({
         type: 'comment',
         targetId: comment.id,
         parentId: topicId,
-        reason: normalizedReason,
-        description: normalizedReason === 'other' ? reason : undefined,
+        reason,
       });
       addToast('Report submitted. Thank you!', 'success');
     } catch (err: unknown) {
@@ -240,14 +239,29 @@ function CommentBubble({
           </button>
         )}
         {!isOwn && (
-          <button
-            onClick={handleReport}
-            disabled={reporting}
-            className="flex items-center gap-1 text-xs text-gray-600 hover:text-red-400 transition-colors disabled:opacity-50"
-            title="Report comment"
-          >
-            <Flag size={12} /> Report
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowReportMenu(!showReportMenu)}
+              disabled={reporting}
+              className="flex items-center gap-1 text-xs text-gray-600 hover:text-red-400 transition-colors disabled:opacity-50"
+              title="Report comment"
+            >
+              <Flag size={12} /> {reporting ? 'Reporting...' : 'Report'}
+            </button>
+            {showReportMenu && (
+              <div className="absolute bottom-full left-0 mb-1 w-40 rounded-lg border border-surface-200 bg-surface py-1 shadow-lg z-10">
+                {REPORT_REASONS.map((reason) => (
+                  <button
+                    key={reason}
+                    onClick={() => handleReport(reason)}
+                    className="block w-full px-3 py-1.5 text-left text-xs text-gray-300 capitalize hover:bg-surface-100 hover:text-gray-100 transition-colors"
+                  >
+                    {reason}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

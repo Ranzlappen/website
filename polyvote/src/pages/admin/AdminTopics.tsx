@@ -174,9 +174,11 @@ export default function AdminTopics() {
 
       {/* Create modal */}
       {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowCreate(false)}>
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+        <div role="dialog" aria-modal="true" aria-labelledby="create-topic-title" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowCreate(false)} onKeyDown={(e) => e.key === 'Escape' && setShowCreate(false)}>
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <div className="w-full max-w-md rounded-xl border border-surface-200 bg-surface p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold text-gray-100 mb-4">Create Topic</h2>
+            <h2 id="create-topic-title" className="text-lg font-semibold text-gray-100 mb-4">Create Topic</h2>
             <form onSubmit={handleCreate} className="space-y-3">
               <input
                 type="text"
@@ -220,9 +222,11 @@ export default function AdminTopics() {
 
       {/* Edit modal */}
       {editTopic && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setEditTopic(null)}>
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+        <div role="dialog" aria-modal="true" aria-labelledby="edit-topic-title" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setEditTopic(null)} onKeyDown={(e) => e.key === 'Escape' && setEditTopic(null)}>
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <div className="w-full max-w-md rounded-xl border border-surface-200 bg-surface p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold text-gray-100 mb-4">Edit Topic</h2>
+            <h2 id="edit-topic-title" className="text-lg font-semibold text-gray-100 mb-4">Edit Topic</h2>
             <form onSubmit={handleEdit} className="space-y-3">
               <input
                 type="text"

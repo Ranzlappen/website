@@ -200,7 +200,7 @@ export default function TopicRequestForm() {
         />
 
         {/* Category */}
-        <label id="proposal-category-label" className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+        <span id="proposal-category-label" className="block text-sm font-medium text-gray-300 mb-2">Category</span>
         <div role="radiogroup" aria-labelledby="proposal-category-label" className="flex flex-wrap gap-2 mb-6">
           {CATEGORIES.map((cat) => (
             <button
@@ -222,7 +222,7 @@ export default function TopicRequestForm() {
         {/* Metrics */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <label className="text-sm font-medium text-gray-300">Metrics</label>
+            <span className="text-sm font-medium text-gray-300">Metrics</span>
             {metrics.length < 6 && (
               <button
                 onClick={addMetric}
