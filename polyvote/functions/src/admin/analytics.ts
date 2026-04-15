@@ -14,16 +14,9 @@ export const adminGetAnalytics = onCall(async (request) => {
   today.setHours(0, 0, 0, 0);
   const todayStart = today.getTime();
 
-  // Parallel queries: counts, top topics (limited), recent activity, new users today
-  const [
-    topicsCount,
-    usersCount,
-    requestsCount,
-    reportsCount,
-    topTopicsSnap,
-    recentActivitySnap,
-    newUsersTodayCount,
-  ] = await Promise.all([
+  // Parallel queries: counts, top topics (limited), recent activity, new users today.
+  // Use allSettled so a single query failure doesn't crash the entire endpoint.
+  const results = await Promise.allSettled([
     db.collection("topics").count().get(),
     db.collection("users").count().get(),
     db.collection("requests").count().get(),
@@ -44,6 +37,18 @@ export const adminGetAnalytics = onCall(async (request) => {
       .count()
       .get(),
   ]);
+
+  const settled = <T>(r: PromiseSettledResult<T>, fallback: T): T =>
+    r.status === "fulfilled" ? r.value : fallback;
+
+  const emptySnap = { docs: [] as never[], data: () => ({ count: 0 }) };
+  const topicsCount = settled(results[0], emptySnap as never);
+  const usersCount = settled(results[1], emptySnap as never);
+  const requestsCount = settled(results[2], emptySnap as never);
+  const reportsCount = settled(results[3], emptySnap as never);
+  const topTopicsSnap = settled(results[4], emptySnap as never);
+  const recentActivitySnap = settled(results[5], emptySnap as never);
+  const newUsersTodayCount = settled(results[6], emptySnap as never);
 
   // Build top topics list and sum their votes
   const topTopics: { id: string; title: string; votes: number }[] = [];

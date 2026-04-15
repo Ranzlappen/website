@@ -1,6 +1,6 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
-import { requireAuth } from "../utils/adminOnly";
+import { requireAuth, requireNotBanned } from "../utils/adminOnly";
 import { moderateFields } from "../utils/contentFilter";
 
 interface ProposedChange {
@@ -92,6 +92,12 @@ export const createChangeRequest = onCall(async (request) => {
             "edit-choice requires a new label or color."
           );
         }
+        if (change.newValue?.color && !/^#[0-9A-Fa-f]{6}$/.test(change.newValue.color)) {
+          throw new HttpsError(
+            "invalid-argument",
+            "edit-choice color must be a valid hex color (e.g., #22c55e)."
+          );
+        }
         break;
       case "delete-metric":
         break;
@@ -105,6 +111,12 @@ export const createChangeRequest = onCall(async (request) => {
           throw new HttpsError(
             "invalid-argument",
             "add-choice requires a label and color."
+          );
+        }
+        if (!/^#[0-9A-Fa-f]{6}$/.test(change.newValue.color)) {
+          throw new HttpsError(
+            "invalid-argument",
+            "add-choice color must be a valid hex color (e.g., #22c55e)."
           );
         }
         break;
@@ -151,10 +163,7 @@ export const createChangeRequest = onCall(async (request) => {
   }
 
   // Check if user is banned
-  const userDoc = await db.collection("users").doc(uid).get();
-  if (userDoc.exists && userDoc.data()?.status === "banned") {
-    throw new HttpsError("permission-denied", "Your account has been banned.");
-  }
+  await requireNotBanned(uid);
 
   // Verify topic exists
   const topicDoc = await db.collection("topics").doc(topicId).get();

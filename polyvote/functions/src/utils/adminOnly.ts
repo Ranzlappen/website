@@ -1,4 +1,5 @@
 import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
+import { getFirestore } from "firebase-admin/firestore";
 
 /** Roles ordered by privilege level */
 export type Role = "user" | "moderator" | "admin";
@@ -35,4 +36,19 @@ export function requireAuth(request: CallableRequest): string {
     throw new HttpsError("unauthenticated", "You must be signed in.");
   }
   return request.auth.uid;
+}
+
+/**
+ * Verify that the authenticated user is not banned.
+ * Throws HttpsError if the user's Firestore status is "banned".
+ * Returns whether the user profile document exists (useful for
+ * callers that need to conditionally update user stats).
+ */
+export async function requireNotBanned(uid: string): Promise<boolean> {
+  const db = getFirestore();
+  const userDoc = await db.collection("users").doc(uid).get();
+  if (userDoc.exists && userDoc.data()?.status === "banned") {
+    throw new HttpsError("permission-denied", "Your account has been banned.");
+  }
+  return userDoc.exists;
 }

@@ -1,6 +1,6 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
-import { requireAuth } from "../utils/adminOnly";
+import { requireAuth, requireNotBanned } from "../utils/adminOnly";
 import { moderateContent } from "../utils/contentFilter";
 
 /**
@@ -42,11 +42,8 @@ export const postComment = onCall(async (request) => {
     throw new HttpsError("invalid-argument", modResult.reason!);
   }
 
-  // Check if user is banned
-  const userDoc = await db.collection("users").doc(uid).get();
-  if (userDoc.exists && userDoc.data()?.status === "banned") {
-    throw new HttpsError("permission-denied", "Your account has been banned.");
-  }
+  // Check if user is banned (also returns whether profile exists)
+  const userExists = await requireNotBanned(uid);
 
   // Check topic exists
   const topicDoc = await db.collection("topics").doc(topicId).get();
@@ -110,8 +107,8 @@ export const postComment = onCall(async (request) => {
     ...(parentId ? { parentId } : {}),
   });
 
-  // Increment user's commentsCount
-  if (userDoc.exists) {
+  // Increment user's commentsCount (only if user profile exists)
+  if (userExists) {
     batch.update(db.collection("users").doc(uid), {
       commentsCount: FieldValue.increment(1),
     });

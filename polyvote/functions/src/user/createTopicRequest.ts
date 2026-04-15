@@ -1,6 +1,6 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
-import { requireAuth } from "../utils/adminOnly";
+import { requireAuth, requireNotBanned } from "../utils/adminOnly";
 import { moderateFields } from "../utils/contentFilter";
 
 const REQUEST_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -97,14 +97,17 @@ export const createTopicRequest = onCall(async (request) => {
           "Each choice must have a color."
         );
       }
+      if (!/^#[0-9A-Fa-f]{6}$/.test(c.color)) {
+        throw new HttpsError(
+          "invalid-argument",
+          "Each choice color must be a valid hex color (e.g., #22c55e)."
+        );
+      }
     }
   }
 
   // Check if user is banned
-  const userDoc = await db.collection("users").doc(uid).get();
-  if (userDoc.exists && userDoc.data()?.status === "banned") {
-    throw new HttpsError("permission-denied", "Your account has been banned.");
-  }
+  await requireNotBanned(uid);
 
   // Content moderation on title, description, and all metric/choice labels
   const fieldsToCheck = [
