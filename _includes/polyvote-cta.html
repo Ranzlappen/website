@@ -1,0 +1,19 @@
+{% if page.polyvote_topic %}
+<div class="polyvote-cta">
+  <div class="polyvote-cta__icon" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="28" height="28">
+      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+      <rect x="9" y="3" width="6" height="4" rx="1"/>
+      <path d="M9 14l2 2 4-4"/>
+    </svg>
+  </div>
+  <div class="polyvote-cta__content">
+    <strong class="polyvote-cta__heading">Have an opinion on this topic?</strong>
+    <p class="polyvote-cta__text">Vote across multiple dimensions and see how the community thinks on PolyVote.</p>
+  </div>
+  <a href="{{ '/polyvote/topic/' | append: page.polyvote_topic | relative_url }}" class="polyvote-cta__button">
+    Vote on PolyVote
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+</div>
+{% endif %}

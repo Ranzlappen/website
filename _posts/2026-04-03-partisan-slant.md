@@ -7,6 +7,8 @@ category: "Media"
 tags: ["statistics-misuse", "media-bias", "politics-data", "manipulation", "mean-median", "cherry-picking"]
 image: /assets/images/partisan-slant/partisan-slant-hero.webp
 status: placeholder
+series: "media-trust"
+series_order: 2
 comments: true
 ---
 

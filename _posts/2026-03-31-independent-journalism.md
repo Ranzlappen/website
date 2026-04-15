@@ -7,6 +7,8 @@ category: "Media"
 tags: [journalism, media-trust, ai]
 image: /assets/images/journalism/media-trust-crisis-hero.webp
 status: placeholder
+series: "media-trust"
+series_order: 1
 comments: true
 ---
 
