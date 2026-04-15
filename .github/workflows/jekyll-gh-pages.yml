@@ -76,7 +76,7 @@ jobs:
           cp -r polyvote/dist _site/polyvote
           cp _site/polyvote/index.html _site/polyvote/404.html
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
 
   # Deployment job
   deploy:
