@@ -1,0 +1,14 @@
+# Blog post series definitions
+# Posts reference a series by its `id` in front matter: series: "media-trust"
+
+- id: "media-trust"
+  title: "Media, Trust & Power"
+  description: "How media institutions, statistics, and advertising shape public perception — and what's broken."
+
+- id: "project-showcases"
+  title: "Project Showcases"
+  description: "Tools and experiments built to solve real problems."
+
+- id: "privacy-and-control"
+  title: "Privacy & User Control"
+  description: "Exploring how digital systems erode user autonomy — and what we can do about it."

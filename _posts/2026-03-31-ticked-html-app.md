@@ -7,6 +7,8 @@ category: "Projects"
 tags: [productivity, html, offline, tools]
 image: /assets/images/ticked/ticked-hero.webp
 status: placeholder
+series: "project-showcases"
+series_order: 1
 comments: true
 ---
 

@@ -60,6 +60,8 @@ layout: default
     </ol>
   </nav>
 
+  {% include series-nav.html %}
+
   {% if page.status == "draft" or page.status == "placeholder" %}
   <div class="status-banner" id="status-banner" role="status" data-slug="{{ page.url | slugify }}">
     <span class="status-banner__text">This article is a draft and may be incomplete or subject to change. It might be a placeholder article without any real journalistic value, used for testing and debugging purposes.</span>
@@ -242,6 +244,9 @@ layout: default
     </div>
   </section>
   {% endif %}
+
+  <!-- PolyVote CTA -->
+  {% include polyvote-cta.html %}
 
   <!-- Comments -->
   {% if page.comments != false %}

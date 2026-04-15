@@ -1,0 +1,31 @@
+{% if page.series %}
+  {% assign series_posts = site.posts | where: "series", page.series | sort: "series_order" %}
+  {% assign series_info = site.data.series | where: "id", page.series | first %}
+  {% if series_info and series_posts.size > 1 %}
+  <nav class="series-nav" aria-label="Series navigation">
+    <div class="series-nav__header">
+      <span class="series-nav__label">Series</span>
+      <strong class="series-nav__title">{{ series_info.title }}</strong>
+      <span class="series-nav__progress">Part {{ page.series_order }} of {{ series_posts.size }}</span>
+    </div>
+    {% if series_info.description %}
+    <p class="series-nav__desc">{{ series_info.description }}</p>
+    {% endif %}
+    <ol class="series-nav__list">
+      {% for p in series_posts %}
+        {% if p.url == page.url %}
+          <li class="series-nav__item series-nav__item--current" aria-current="page">
+            <span class="series-nav__number">{{ p.series_order }}</span>
+            <span>{{ p.title }}</span>
+          </li>
+        {% else %}
+          <li class="series-nav__item">
+            <span class="series-nav__number">{{ p.series_order }}</span>
+            <a href="{{ p.url | relative_url }}">{{ p.title }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ol>
+  </nav>
+  {% endif %}
+{% endif %}

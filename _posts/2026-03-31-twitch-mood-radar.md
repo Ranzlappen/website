@@ -7,6 +7,8 @@ category: "Projects"
 tags: [twitch, tools, visualization, early-stage]
 image: /assets/images/moodradar/moodradar-hero.webp
 status: placeholder
+series: "project-showcases"
+series_order: 2
 comments: true
 ---
 

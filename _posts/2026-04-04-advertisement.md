@@ -8,6 +8,8 @@ tags: [advertising, media-dependency, privacy, sociology, cookies, ad-fatigue]
 image: /assets/images/ad-intrusion/ad-intrusion-hero.webp
 backdrop: /assets/images/ad-intrusion/ad-intrusion-hero.webp
 status: placeholder
+series: "media-trust"
+series_order: 3
 comments: true
 ---
 
