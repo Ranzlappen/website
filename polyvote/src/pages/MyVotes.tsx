@@ -19,6 +19,7 @@ export default function MyVotes() {
   const [loading, setLoading] = useState(true);
 
   const topicIds = Object.keys(votedMap);
+  const topicIdsKey = topicIds.slice().sort().join(',');
 
   // Fetch topic data for all voted topics
   useEffect(() => {
@@ -44,7 +45,7 @@ export default function MyVotes() {
       }
     };
     fetchTopics();
-  }, [topicIds.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [topicIdsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">

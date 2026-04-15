@@ -10,26 +10,45 @@ export const adminGetAnalytics = onCall(async (request) => {
   requireRole(request, "admin");
   const db = getFirestore();
 
-  // Parallel count queries
-  const [topicsCount, usersCount, requestsCount, reportsCount] =
-    await Promise.all([
-      db.collection("topics").count().get(),
-      db.collection("users").count().get(),
-      db.collection("requests").count().get(),
-      db.collection("reports").where("status", "==", "pending").count().get(),
-    ]);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStart = today.getTime();
 
-  // Get total votes across all topics
-  const topicsSnap = await db.collection("topics").get();
-  let totalVotes = 0;
-  const categoryBreakdown: Record<string, number> = {};
+  // Parallel queries: counts, top topics (limited), recent activity, new users today
+  const [
+    topicsCount,
+    usersCount,
+    requestsCount,
+    reportsCount,
+    topTopicsSnap,
+    recentActivitySnap,
+    newUsersTodayCount,
+  ] = await Promise.all([
+    db.collection("topics").count().get(),
+    db.collection("users").count().get(),
+    db.collection("requests").count().get(),
+    db.collection("reports").where("status", "==", "pending").count().get(),
+    db
+      .collection("topics")
+      .orderBy("totalVotes", "desc")
+      .limit(10)
+      .get(),
+    db
+      .collection("auditLog")
+      .orderBy("timestamp", "desc")
+      .limit(20)
+      .get(),
+    db
+      .collection("users")
+      .where("createdAt", ">=", todayStart)
+      .count()
+      .get(),
+  ]);
+
+  // Build top topics list and sum their votes
   const topTopics: { id: string; title: string; votes: number }[] = [];
-
-  topicsSnap.docs.forEach((doc) => {
+  topTopicsSnap.docs.forEach((doc) => {
     const data = doc.data();
-    totalVotes += data.totalVotes || 0;
-    categoryBreakdown[data.category] =
-      (categoryBreakdown[data.category] || 0) + 1;
     topTopics.push({
       id: doc.id,
       title: data.title,
@@ -37,34 +56,25 @@ export const adminGetAnalytics = onCall(async (request) => {
     });
   });
 
-  // Sort by votes descending, take top 10
-  topTopics.sort((a, b) => b.votes - a.votes);
-
-  // Recent activity from audit log
-  const recentActivity = await db
-    .collection("auditLog")
+  // Use the latest daily aggregation for totalVotes and categoryBreakdown
+  const latestAggSnap = await db
+    .collection("analytics")
     .orderBy("timestamp", "desc")
-    .limit(20)
+    .limit(1)
     .get();
 
-  const activity = recentActivity.docs.map((doc) => ({
+  let totalVotes = 0;
+  let categoryBreakdown: Record<string, number> = {};
+  if (!latestAggSnap.empty) {
+    const agg = latestAggSnap.docs[0].data();
+    totalVotes = agg.totalVotes || 0;
+    categoryBreakdown = agg.categoryBreakdown || {};
+  }
+
+  const activity = recentActivitySnap.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
-
-  // Recent users
-  const recentUsers = await db
-    .collection("users")
-    .orderBy("createdAt", "desc")
-    .limit(10)
-    .get();
-
-  const newUsersToday = recentUsers.docs.filter((doc) => {
-    const created = doc.data().createdAt;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return created >= today.getTime();
-  }).length;
 
   return {
     totals: {
@@ -73,9 +83,9 @@ export const adminGetAnalytics = onCall(async (request) => {
       requests: requestsCount.data().count,
       pendingReports: reportsCount.data().count,
       totalVotes,
-      newUsersToday,
+      newUsersToday: newUsersTodayCount.data().count,
     },
-    topTopics: topTopics.slice(0, 10),
+    topTopics,
     categoryBreakdown,
     recentActivity: activity,
   };
@@ -118,58 +128,60 @@ export const dailyAnalyticsAggregation = onSchedule(
     const dayStart = new Date(dateStr).getTime();
     const dayEnd = dayStart + 24 * 60 * 60 * 1000;
 
-    // Count votes cast today
-    const votesSnap = await db
-      .collection("votes")
-      .where("timestamp", ">=", dayStart)
-      .where("timestamp", "<", dayEnd)
-      .count()
-      .get();
+    // Parallel count queries — avoid fetching full documents
+    const [votesCount, usersCount, topicsCount, topTopicsSnap, activeVotersSnap] =
+      await Promise.all([
+        db
+          .collection("votes")
+          .where("timestamp", ">=", dayStart)
+          .where("timestamp", "<", dayEnd)
+          .count()
+          .get(),
+        db
+          .collection("users")
+          .where("createdAt", ">=", dayStart)
+          .where("createdAt", "<", dayEnd)
+          .count()
+          .get(),
+        db
+          .collection("topics")
+          .where("createdAt", ">=", dayStart)
+          .where("createdAt", "<", dayEnd)
+          .count()
+          .get(),
+        db
+          .collection("topics")
+          .orderBy("totalVotes", "desc")
+          .limit(10)
+          .select("title", "totalVotes", "category")
+          .get(),
+        db
+          .collection("votes")
+          .where("timestamp", ">=", dayStart)
+          .where("timestamp", "<", dayEnd)
+          .select("userId")
+          .get(),
+      ]);
 
-    // Count new users today
-    const usersSnap = await db
-      .collection("users")
-      .where("createdAt", ">=", dayStart)
-      .where("createdAt", "<", dayEnd)
-      .count()
-      .get();
-
-    // Count new topics today
-    const topicsSnap = await db
-      .collection("topics")
-      .where("createdAt", ">=", dayStart)
-      .where("createdAt", "<", dayEnd)
-      .count()
-      .get();
-
-    // Active users: distinct voters today
-    const activeVoters = await db
-      .collection("votes")
-      .where("timestamp", ">=", dayStart)
-      .where("timestamp", "<", dayEnd)
-      .get();
-
+    // Distinct voters from today's votes (only userId field fetched)
     const uniqueVoters = new Set(
-      activeVoters.docs.map((doc) => doc.data().userId)
+      activeVotersSnap.docs.map((doc) => doc.data().userId)
     );
 
-    // Get top topics
-    const allTopics = await db
-      .collection("topics")
-      .orderBy("totalVotes", "desc")
-      .limit(10)
-      .get();
-
-    const topTopics = allTopics.docs.map((doc) => ({
+    const topTopics = topTopicsSnap.docs.map((doc) => ({
       id: doc.id,
       title: doc.data().title,
       votes: doc.data().totalVotes || 0,
     }));
 
-    // Category breakdown
-    const allTopicsSnap = await db.collection("topics").get();
+    // Category breakdown from the top-topics query + remaining topics
+    // Use a single select query for just the category field
+    const allCategoriesSnap = await db
+      .collection("topics")
+      .select("category")
+      .get();
     const categoryBreakdown: Record<string, number> = {};
-    allTopicsSnap.docs.forEach((doc) => {
+    allCategoriesSnap.docs.forEach((doc) => {
       const cat = doc.data().category;
       categoryBreakdown[cat] = (categoryBreakdown[cat] || 0) + 1;
     });
@@ -180,9 +192,9 @@ export const dailyAnalyticsAggregation = onSchedule(
       .set({
         date: dateStr,
         timestamp: dayStart,
-        totalVotes: votesSnap.data().count,
-        newTopics: topicsSnap.data().count,
-        newUsers: usersSnap.data().count,
+        totalVotes: votesCount.data().count,
+        newTopics: topicsCount.data().count,
+        newUsers: usersCount.data().count,
         activeUsers: uniqueVoters.size,
         topTopics,
         categoryBreakdown,
