@@ -11,7 +11,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "react": "^18.3.1",
+    "react": "^19.2.5",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.5.0",
     "firebase": "^11.6.0",
@@ -27,7 +27,7 @@
     "@codemirror/search": "^6.5.11"
   },
   "devDependencies": {
-    "@types/react": "^18.3.18",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.4.1",
     "typescript": "^5.6.3",
