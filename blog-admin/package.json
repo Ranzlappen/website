@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react-dom": "^19.2.5",
     "react-router-dom": "^7.5.0",
     "firebase": "^11.6.0",
     "zustand": "^5.0.3",
@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.4.1",
     "typescript": "^5.6.3",
     "vite": "^6.3.1",
