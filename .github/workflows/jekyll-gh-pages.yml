@@ -101,11 +101,9 @@ jobs:
         run: |
           sudo chown -R $(whoami) _site
           cp -r polyvote/dist _site/polyvote
-          cp _site/polyvote/index.html _site/polyvote/404.html
       - name: Copy Blog Admin into _site
         run: |
           cp -r blog-admin/dist _site/blog-admin
-          cp _site/blog-admin/index.html _site/blog-admin/404.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
 
