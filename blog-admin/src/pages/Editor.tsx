@@ -8,7 +8,6 @@ import type { FrontMatter } from '../types';
 import FrontMatterForm from '../components/FrontMatterForm';
 import MarkdownEditor from '../components/MarkdownEditor';
 import PostPreview from '../components/PostPreview';
-import CanvasEditor from '../components/CanvasEditor';
 import EditorToolbar from '../components/EditorToolbar';
 import ImageUploader from '../components/ImageUploader';
 import PublishDialog from '../components/PublishDialog';
@@ -28,7 +27,7 @@ export default function Editor() {
   const [showImageUploader, setShowImageUploader] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [editorView, setEditorView] = useState<EditorView | null>(null);
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview' | 'canvas'>('editor');
+  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [fmCollapsed, setFmCollapsed] = useState(false);
 
   // Auto-save timer
@@ -240,27 +239,19 @@ export default function Editor() {
         )}
       </div>
 
-      {/* Editor toolbar (hidden in canvas mode) */}
-      {activeTab !== 'canvas' && (
-        <EditorToolbar
-          editorView={editorView}
-          onImageUpload={() => setShowImageUploader(true)}
-        />
-      )}
+      {/* Editor toolbar */}
+      <EditorToolbar
+        editorView={editorView}
+        onImageUpload={() => setShowImageUploader(true)}
+      />
 
-      {/* Editor / Canvas / Preview toggle */}
-      <div className="flex border-b border-[var(--border)] bg-[var(--bg-surface)]">
+      {/* Editor / Preview toggle (visible below lg) */}
+      <div className="flex lg:hidden border-b border-[var(--border)] bg-[var(--bg-surface)]">
         <button
           onClick={() => setActiveTab('editor')}
           className={`flex-1 px-4 py-1.5 text-sm font-medium transition-colors ${activeTab === 'editor' ? 'text-[var(--accent)] border-b-2 border-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text)]'}`}
         >
           Editor
-        </button>
-        <button
-          onClick={() => setActiveTab('canvas')}
-          className={`flex-1 px-4 py-1.5 text-sm font-medium transition-colors ${activeTab === 'canvas' ? 'text-[var(--accent)] border-b-2 border-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text)]'}`}
-        >
-          Canvas
         </button>
         <button
           onClick={() => setActiveTab('preview')}
@@ -270,32 +261,21 @@ export default function Editor() {
         </button>
       </div>
 
-      {/* Content pane */}
+      {/* Split pane: Editor + Preview */}
       <div className="flex-1 flex min-h-0">
-        {activeTab === 'canvas' ? (
-          /* Canvas: full-width interactive editor */
-          <div className="flex-1 min-w-0">
-            <CanvasEditor
-              frontMatter={frontMatter}
-              body={body}
-              onBodyChange={handleBodyChange}
-            />
-          </div>
-        ) : (
-          /* Split pane: Editor + Preview */
-          <>
-            <div className={`flex-1 min-w-0 border-r border-[var(--border)] ${activeTab === 'preview' ? 'hidden' : ''}`}>
-              <MarkdownEditor
-                value={body}
-                onChange={handleBodyChange}
-                onViewReady={setEditorView}
-              />
-            </div>
-            <div className={`flex-1 min-w-0 ${activeTab === 'editor' ? 'hidden' : ''}`}>
-              <PostPreview frontMatter={frontMatter} body={body} />
-            </div>
-          </>
-        )}
+        {/* Markdown editor */}
+        <div className={`flex-1 min-w-0 border-r border-[var(--border)] ${activeTab === 'preview' ? 'hidden lg:block' : ''}`}>
+          <MarkdownEditor
+            value={body}
+            onChange={handleBodyChange}
+            onViewReady={setEditorView}
+          />
+        </div>
+
+        {/* Preview */}
+        <div className={`flex-1 min-w-0 ${activeTab === 'editor' ? 'hidden lg:block' : ''}`}>
+          <PostPreview frontMatter={frontMatter} body={body} />
+        </div>
       </div>
 
       {/* Status bar */}
