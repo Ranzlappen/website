@@ -28,6 +28,7 @@ export default function Editor() {
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [editorView, setEditorView] = useState<EditorView | null>(null);
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
+  const [fmCollapsed, setFmCollapsed] = useState(false);
 
   // Auto-save timer
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -207,14 +208,35 @@ export default function Editor() {
         </div>
       </header>
 
-      {/* Front matter form */}
-      <div className="shrink-0 px-4 py-3 border-b border-[var(--border)] overflow-auto max-h-[40vh]">
-        <FrontMatterForm
-          frontMatter={frontMatter}
-          slug={slug}
-          onChange={handleFrontMatterChange}
-          onSlugChange={handleSlugChange}
-        />
+      {/* Front matter form (collapsible) */}
+      <div className="shrink-0 border-b border-[var(--border)]">
+        <button
+          type="button"
+          onClick={() => setFmCollapsed(!fmCollapsed)}
+          className="w-full flex items-center justify-between px-4 py-2 text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors bg-[var(--bg-surface)]"
+        >
+          <span className="flex items-center gap-2">
+            <span>{fmCollapsed ? '\u25B6' : '\u25BC'}</span>
+            <span className="font-medium">Post Fields</span>
+            {fmCollapsed && frontMatter.title && (
+              <span className="text-[var(--text)] ml-2 truncate max-w-[300px]">{frontMatter.title}</span>
+            )}
+            {fmCollapsed && slug && (
+              <span className="text-[var(--text-muted)]">/ {slug}</span>
+            )}
+          </span>
+          <span>{fmCollapsed ? 'Show' : 'Hide'}</span>
+        </button>
+        {!fmCollapsed && (
+          <div className="px-4 py-3 overflow-auto max-h-[40vh]">
+            <FrontMatterForm
+              frontMatter={frontMatter}
+              slug={slug}
+              onChange={handleFrontMatterChange}
+              onSlugChange={handleSlugChange}
+            />
+          </div>
+        )}
       </div>
 
       {/* Editor toolbar */}
