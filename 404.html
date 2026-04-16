@@ -1,16 +1,80 @@
 ---
-layout: default
-title: "Page Not Found"
+layout: null
 permalink: /404.html
 ---
-
-<div class="error-page">
-  <h1>404</h1>
-  <p>This page doesn't exist — or maybe it wandered off somewhere, who knows. 🤷 </p>
-  <a href="{{ '/' | relative_url }}" class="hero-cta">
-    Back to home
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
-      <path d="M5 12h14M12 5l7 7-7 7"/>
-    </svg>
-  </a>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Not Found – RanzLappen</title>
+  <link rel="icon" type="image/png" href="/assets/images/favicon-32x32.png" />
+  <script>
+    (function () {
+      var defined = ['/blog-admin/', '/polyvote/'];
+      var path = window.location.pathname;
+      for (var i = 0; i < defined.length; i++) {
+        if (path.startsWith(defined[i]) && path !== defined[i]) {
+          sessionStorage.setItem('spa-redirect', path + window.location.search + window.location.hash);
+          window.location.replace(defined[i]);
+          return;
+        }
+      }
+    })();
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+      background: #0b1210;
+      color: #dce8e2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    .error-page h1 {
+      font-size: 6rem;
+      font-weight: 800;
+      color: #4ade80;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+    .error-page p {
+      font-size: 1.125rem;
+      color: #7e948a;
+      margin-bottom: 2rem;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border: 1px solid #253830;
+      border-radius: 0.5rem;
+      color: #4ade80;
+      text-decoration: none;
+      font-weight: 600;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .hero-cta:hover {
+      border-color: #4ade80;
+      background: rgba(74, 222, 128, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="error-page">
+    <h1>404</h1>
+    <p>This page doesn't exist — or maybe it wandered off somewhere, who knows.</p>
+    <a href="{{ '/' | relative_url }}" class="hero-cta">
+      Back to home
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
+  </div>
+</body>
+</html>
