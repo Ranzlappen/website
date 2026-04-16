@@ -171,7 +171,7 @@ export default function PostPreview({ frontMatter, body }: Props) {
   const [iframeReady, setIframeReady] = useState(false);
   const [debouncedBody, setDebouncedBody] = useState(body);
   const [debouncedFm, setDebouncedFm] = useState(frontMatter);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Debounce content updates
   useEffect(() => {

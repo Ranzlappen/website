@@ -18,5 +18,6 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],
+  "exclude": ["src/utils/seed.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
