@@ -54,6 +54,7 @@ exclude:
   - .gitignore
   - vendor
   - polyvote
+  - blog-admin
 
 # Plugins (GitHub Pages compatible)
 plugins:

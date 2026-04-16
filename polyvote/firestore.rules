@@ -113,6 +113,24 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── Blog Drafts ──
+    match /blogDrafts/{draftId} {
+      // Authors can read their own drafts; admins can read all
+      allow read: if isSignedIn() && (
+        resource.data.authorUid == request.auth.uid || isAdmin()
+      );
+      // All writes via Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // ── Blog Publish Log ──
+    match /blogPublishLog/{logId} {
+      // Only admins can read publish log
+      allow read: if isAdmin();
+      // Only Cloud Functions can write
+      allow create, update, delete: if false;
+    }
+
     // ── Audit Log ──
     match /auditLog/{logId} {
       // Only admins can read audit log
