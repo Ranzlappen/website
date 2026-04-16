@@ -27,6 +27,7 @@ export default function Editor() {
   const [showImageUploader, setShowImageUploader] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [editorView, setEditorView] = useState<EditorView | null>(null);
+  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
 
   // Auto-save timer
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -222,10 +223,26 @@ export default function Editor() {
         onImageUpload={() => setShowImageUploader(true)}
       />
 
+      {/* Editor / Preview toggle (visible below lg) */}
+      <div className="flex lg:hidden border-b border-[var(--border)] bg-[var(--bg-surface)]">
+        <button
+          onClick={() => setActiveTab('editor')}
+          className={`flex-1 px-4 py-1.5 text-sm font-medium transition-colors ${activeTab === 'editor' ? 'text-[var(--accent)] border-b-2 border-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text)]'}`}
+        >
+          Editor
+        </button>
+        <button
+          onClick={() => setActiveTab('preview')}
+          className={`flex-1 px-4 py-1.5 text-sm font-medium transition-colors ${activeTab === 'preview' ? 'text-[var(--accent)] border-b-2 border-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text)]'}`}
+        >
+          Preview
+        </button>
+      </div>
+
       {/* Split pane: Editor + Preview */}
       <div className="flex-1 flex min-h-0">
         {/* Markdown editor */}
-        <div className="flex-1 min-w-0 border-r border-[var(--border)]">
+        <div className={`flex-1 min-w-0 border-r border-[var(--border)] ${activeTab === 'preview' ? 'hidden lg:block' : ''}`}>
           <MarkdownEditor
             value={body}
             onChange={handleBodyChange}
@@ -234,7 +251,7 @@ export default function Editor() {
         </div>
 
         {/* Preview */}
-        <div className="flex-1 min-w-0 hidden lg:block">
+        <div className={`flex-1 min-w-0 ${activeTab === 'editor' ? 'hidden lg:block' : ''}`}>
           <PostPreview frontMatter={frontMatter} body={body} />
         </div>
       </div>
