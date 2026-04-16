@@ -81,22 +81,6 @@ export const blogPublishToGitHub = onCall(
       throw new HttpsError("permission-denied", "Not your draft.");
     }
 
-    // Rate limiting: max 10 publishes per hour
-    const oneHourAgo = Date.now() - 60 * 60 * 1000;
-    const recentPublishes = await db
-      .collection("blogPublishLog")
-      .where("actorUid", "==", uid)
-      .where("timestamp", ">", oneHourAgo)
-      .count()
-      .get();
-
-    if (recentPublishes.data().count >= 10) {
-      throw new HttpsError(
-        "resource-exhausted",
-        "Too many publishes. Max 10 per hour."
-      );
-    }
-
     // Generate markdown content
     const frontMatter = draft.frontMatter as FrontMatter;
     const markdown = generateMarkdownFile(frontMatter, draft.body);
