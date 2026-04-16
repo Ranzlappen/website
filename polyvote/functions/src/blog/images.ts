@@ -66,23 +66,6 @@ export const blogUploadImage = onCall(
       );
     }
 
-    // Rate limiting: max 20 uploads per hour
-    const oneHourAgo = Date.now() - 60 * 60 * 1000;
-    const recentUploads = await db
-      .collection("blogPublishLog")
-      .where("actorUid", "==", uid)
-      .where("action", "==", "image-upload")
-      .where("timestamp", ">", oneHourAgo)
-      .count()
-      .get();
-
-    if (recentUploads.data().count >= 20) {
-      throw new HttpsError(
-        "resource-exhausted",
-        "Too many uploads. Max 20 per hour."
-      );
-    }
-
     const filePath = `assets/images/${slug}/${filename}`;
     const octokit = new Octokit({ auth: githubToken.value() });
 
