@@ -7,20 +7,27 @@ on:
   push:
     branches: ["main"]
     paths-ignore:
+      # Docs / meta (never affect the built site)
       - 'README.md'
       - 'CLAUDE.md'
       - 'LICENSE'
       - '.gitignore'
       - 'polyvote/README.md'
       - 'polyvote/.gitignore'
+      - 'polyvote/.prettierrc'
+      - 'blog-admin/README.md'
+      - 'blog-admin/.gitignore'
+      # Firebase resources (deployed by firebase-deploy.yml, not bundled into the site)
       - 'polyvote/.firebaserc'
       - 'polyvote/firebase.json'
       - 'polyvote/firestore.rules'
       - 'polyvote/firestore.indexes.json'
       - 'polyvote/database.rules.json'
       - 'polyvote/functions/**'
-      - 'blog-admin/README.md'
-      - 'blog-admin/.gitignore'
+      # Sibling workflows + Dependabot config (don't affect Pages)
+      - '.github/dependabot.yml'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/firebase-deploy.yml'
   workflow_dispatch:
 
 permissions:

@@ -6,18 +6,23 @@ name: CI
 on:
   pull_request:
     branches: ["main"]
-    paths-ignore:
-      - 'README.md'
-      - 'CLAUDE.md'
-      - 'LICENSE'
-      - '.gitignore'
-      - 'polyvote/README.md'
-      - 'polyvote/.gitignore'
-      - 'polyvote/.firebaserc'
-      - 'polyvote/firebase.json'
-      - 'polyvote/functions/README.md'
-      - 'blog-admin/README.md'
-      - 'blog-admin/.gitignore'
+    # Positive filter: CI only exists for the app modules. Anything outside
+    # polyvote/ and blog-admin/ (blog content, Jekyll config, other workflows,
+    # root docs) cannot affect these jobs, so it's excluded by omission.
+    # The `!` entries below carve out files inside the app dirs that also
+    # shouldn't trigger (docs, Firebase config, lint/format settings).
+    paths:
+      - 'polyvote/**'
+      - 'blog-admin/**'
+      - '.github/workflows/ci.yml'
+      - '!**/README.md'
+      - '!**/.gitignore'
+      - '!polyvote/.firebaserc'
+      - '!polyvote/firebase.json'
+      - '!polyvote/firestore.rules'
+      - '!polyvote/firestore.indexes.json'
+      - '!polyvote/database.rules.json'
+      - '!polyvote/.prettierrc'
 
 concurrency:
   group: ci-${{ github.head_ref }}
