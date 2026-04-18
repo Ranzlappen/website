@@ -51,12 +51,13 @@ Production deploy of `castBlogVote` is automated (see CI/CD below). Manual deplo
 
 ## Key Conventions
 
+- **Module boundaries**: `polyvote/`, `blog-admin/`, and the Jekyll root (blog) are three independent modules, with `polyvote/functions/` as a fourth nested module. Each has its own `package.json`/`Gemfile`, TypeScript/ESLint/Tailwind config, and deploy path. Run install/lint/test/build/format from within the module's own directory (see **Build & Development**). Do **not** cross-import source between modules — there is no monorepo tooling and no shared package. If logic truly needs to be shared, duplicate it intentionally. Scope PRs to a single module when possible so CI's per-app path filters stay meaningful.
 - **Post status**: Posts use a `status` field in front matter (`published`, `draft`, `placeholder`, `unpublished`). Only `published` and `placeholder` appear in the sitemap and feed.
 - **Navigation**: Centralized in `_data/pages.yml` — single source of truth for nav and footer links.
 - **Firebase keys**: Public client-side keys in `_config.yml`, `polyvote/src/firebase.ts`, and `blog-admin/src/firebase.ts`. Security is enforced via Firestore rules and Cloud Functions.
-- **Server-validated writes**: All user actions (votes, comments, requests) go through Cloud Functions, not direct Firestore writes.
+- **Server-validated writes**: All client writes go through Cloud Functions (`httpsCallable`), never direct Firestore SDK writes. This applies to PolyVote user actions (votes, comments, requests) **and** to Blog Admin operations (drafts, publishing). Keep `blog-admin/src/firebase.ts` free of `addDoc`/`setDoc`/`updateDoc`/`deleteDoc`.
 - **Privacy-first**: No Google Analytics. Cookie consent is GDPR-compliant with functional category.
-- **Theme**: Dark mode is default. Both the blog (CSS custom properties) and PolyVote (Tailwind + CSS variables) support dark/light toggle.
+- **Theme**: Dark mode is default across all three modules. The blog (CSS custom properties) and PolyVote (Tailwind + CSS variables, persisted via Zustand/localStorage) support a dark/light toggle. Blog Admin is dark-only by design — it has no theme toggle and no `.light` CSS variant.
 
 ## Deployment & CI/CD
 
