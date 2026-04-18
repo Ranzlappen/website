@@ -7,8 +7,8 @@ Personal blog + PolyVote community voting platform + Blog Admin dashboard, hoste
 **Hybrid project** with three independent builds:
 
 - **Jekyll blog** (root) — Static site built by GitHub Pages. Posts in `_posts/`, layouts in `_layouts/`, includes in `_includes/`, pages in `pages/`. Config: `_config.yml`.
-- **PolyVote** (`polyvote/`) — React 18 SPA built with Vite. Backend: Firebase (Firestore, Auth, Cloud Functions). Deployed as a subfolder within the Jekyll `_site/`.
-- **Blog Admin** (`blog-admin/`) — React 18 SPA built with Vite for managing blog drafts and publishing. Uses Firebase (Firestore, Auth), CodeMirror for Markdown editing, and Zustand for state. Deployed as a subfolder within the Jekyll `_site/`.
+- **PolyVote** (`polyvote/`) — React 19 SPA built with Vite. Backend: Firebase (Firestore, Auth, Cloud Functions). Deployed as a subfolder within the Jekyll `_site/`.
+- **Blog Admin** (`blog-admin/`) — React 19 SPA built with Vite for managing blog drafts and publishing. Uses Firebase (Firestore, Auth), CodeMirror 6 for Markdown editing, and Zustand for state. Deployed as a subfolder within the Jekyll `_site/`.
 
 ## Build & Development
 
@@ -82,6 +82,8 @@ Three GitHub Actions workflows live in `.github/workflows/`. Each is scoped with
 
 **Concurrency**: CI cancels superseded runs per PR branch. Pages and Firebase deploys **queue** (no cancel) to avoid half-applied state.
 
+**Node version**: All JS jobs (CI + Pages build) run on Node 22.
+
 **Required secret**: `FIREBASE_SERVICE_ACCOUNT` (JSON service-account key) for `firebase-deploy.yml`.
 
 **Dependabot** (`.github/dependabot.yml`): weekly updates for all three npm packages, bundler, and GitHub Actions. Minor+patch are grouped. Each PR runs CI.
@@ -95,8 +97,9 @@ Three GitHub Actions workflows live in `.github/workflows/`. Each is scoped with
 
 | Layer | Blog | PolyVote | Blog Admin |
 |-------|------|----------|------------|
-| Framework | Jekyll (Ruby) | React 18 + TypeScript | React 18 + TypeScript |
-| Styling | Custom CSS (2700+ lines) | Tailwind CSS + Framer Motion | Tailwind CSS |
+| Framework | Jekyll (Ruby) | React 19 + TypeScript | React 19 + TypeScript |
+| Styling | Custom CSS (~2970 lines) | Tailwind CSS v3 + Framer Motion | Tailwind CSS v4 (via `@tailwindcss/vite`) |
+| Router | — | react-router-dom v6 | react-router-dom v7 |
 | State | Vanilla JS | Zustand | Zustand |
 | Backend | GitHub Pages (static) | Firebase (Firestore, Auth, Functions) | Firebase (Firestore, Auth) |
 | Comments | Giscus (GitHub Discussions) | Firebase subcollections | — |
