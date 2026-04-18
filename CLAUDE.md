@@ -148,3 +148,14 @@ Three GitHub Actions workflows live in `.github/workflows/`. Each is scoped with
     ├── .firebaserc             # Firebase project ID
     └── eslint.config.js        # ESLint flat config
 ```
+
+## Post-task self-check
+
+After every turn that produces a branch, PR, feature, or bug fix, do a quick self-check before replying: does the change introduce anything worth codifying in docs or automation? Scan for new env vars, npm scripts, path filters, deploy targets, secrets, setup steps, dependencies, or conventions that should be reflected in `README.md`, `CLAUDE.md`, `.github/workflows/*.yml`, or `.github/dependabot.yml`.
+
+Decide per case:
+
+- **Auto-implement** small, unambiguous updates — e.g. noting a newly introduced env var in README, extending a workflow `paths` filter to a new directory, adding a new npm script to the relevant command list, bumping a Node version already changed in one workflow to match the others. Make the edit in the same turn and call it out in the summary.
+- **Prompt first** for anything ambiguous, opinionated, or structurally significant — rewriting a README section, adding a new top-level doc, restructuring a workflow, or changes whose wording/location isn't obvious.
+
+If nothing is warranted, say "no doc/workflow updates needed" in one line. Skip this self-check entirely for pure Q&A turns that don't change code.
