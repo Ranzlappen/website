@@ -1,12 +1,15 @@
-# Deploy Firebase Realtime Database rules + blog voting function
-# on pushes to main that touch the relevant files.
-name: Deploy Firebase (blog voting)
+# Deploy Firebase resources (Firestore rules/indexes, Realtime Database rules,
+# and the castBlogVote Cloud Function) on pushes to main that touch the
+# relevant files.
+name: Deploy Firebase
 
 on:
   push:
     branches: ["main"]
     paths:
       - 'polyvote/database.rules.json'
+      - 'polyvote/firestore.rules'
+      - 'polyvote/firestore.indexes.json'
       - 'polyvote/firebase.json'
       - 'polyvote/.firebaserc'
       - 'polyvote/functions/src/blog/castBlogVote.ts'
@@ -57,6 +60,6 @@ jobs:
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-sa.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-sa.json" >> "$GITHUB_ENV"
 
-      - name: Deploy Realtime Database rules + castBlogVote
+      - name: Deploy Firestore + Realtime Database rules + castBlogVote
         working-directory: polyvote
-        run: firebase deploy --only database,functions:castBlogVote --non-interactive --force
+        run: firebase deploy --only database,firestore,functions:castBlogVote --non-interactive --force

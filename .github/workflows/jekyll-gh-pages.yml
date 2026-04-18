@@ -1,4 +1,6 @@
-# Build Jekyll blog, PolyVote, Blog Admin, and deploy to GitHub Pages
+# Build Jekyll blog, PolyVote, and Blog Admin, then deploy to GitHub Pages.
+# Lint/test validation is handled by ci.yml on PRs; this workflow only
+# produces and deploys the site artifact.
 name: Build and Deploy to GitHub Pages
 
 on:
@@ -15,6 +17,8 @@ on:
       - 'polyvote/firebase.json'
       - 'polyvote/firestore.rules'
       - 'polyvote/firestore.indexes.json'
+      - 'polyvote/database.rules.json'
+      - 'polyvote/functions/**'
       - 'blog-admin/.gitignore'
   workflow_dispatch:
 
@@ -50,57 +54,24 @@ jobs:
           cache: 'npm'
           cache-dependency-path: |
             polyvote/package-lock.json
-            polyvote/functions/package-lock.json
             blog-admin/package-lock.json
 
-      # ── PolyVote ──
       - name: PolyVote – Install dependencies
         working-directory: polyvote
         run: npm ci
-
-      - name: PolyVote – Audit dependencies
-        working-directory: polyvote
-        run: npm audit --audit-level=high || true
-
-      - name: PolyVote – Lint
-        working-directory: polyvote
-        run: npm run lint
-
-      - name: PolyVote – Test
-        working-directory: polyvote
-        run: npm test
 
       - name: PolyVote – Build
         working-directory: polyvote
         run: npm run build
 
-      # ── Cloud Functions ──
-      - name: Cloud Functions – Install dependencies
-        working-directory: polyvote/functions
-        run: npm ci
-
-      - name: Cloud Functions – Lint
-        working-directory: polyvote/functions
-        run: npm run lint
-
-      - name: Cloud Functions – Test
-        working-directory: polyvote/functions
-        run: npm test
-
-      # ── Blog Admin ──
       - name: Blog Admin – Install dependencies
         working-directory: blog-admin
         run: npm ci
-
-      - name: Blog Admin – Lint
-        working-directory: blog-admin
-        run: npm run lint
 
       - name: Blog Admin – Build
         working-directory: blog-admin
         run: npm run build
 
-      # ── Assemble site ──
       - name: Copy PolyVote into _site
         run: |
           sudo chown -R $(whoami) _site
