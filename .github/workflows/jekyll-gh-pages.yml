@@ -19,6 +19,7 @@ on:
       - 'polyvote/firestore.indexes.json'
       - 'polyvote/database.rules.json'
       - 'polyvote/functions/**'
+      - 'blog-admin/README.md'
       - 'blog-admin/.gitignore'
   workflow_dispatch:
 
