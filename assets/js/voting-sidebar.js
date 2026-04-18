@@ -15,9 +15,9 @@
   // Firebase Setup (loaded dynamically)
   // -------------------------------------------------------
   var db = null;
+  var functionsSdk = null;
   var firebaseReady = false;
   var appCheckReady = false;
-  var visitorHash = null;
 
   function loadFirebase() {
     // Read config from meta tags or global
@@ -32,15 +32,16 @@
       s1.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
       s1.onload = function () {
         var loaded = 0;
-        var total = 2;
+        var total = 3;
         function onReady() {
           loaded++;
           if (loaded < total) return;
           try {
-            var app = (firebase.apps && firebase.apps.length)
-              ? firebase.app()
-              : firebase.initializeApp(cfg);
+            if (!firebase.apps || !firebase.apps.length) {
+              firebase.initializeApp(cfg);
+            }
             db = firebase.database();
+            functionsSdk = firebase.functions();
             firebaseReady = true;
 
             if (cfg.recaptchaSiteKey) {
@@ -73,38 +74,14 @@
         s3.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js';
         s3.onload = onReady;
         document.head.appendChild(s3);
+
+        var s4 = document.createElement('script');
+        s4.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js';
+        s4.onload = onReady;
+        document.head.appendChild(s4);
       };
       document.head.appendChild(s1);
     });
-  }
-
-  // Get a hashed visitor ID via ipify + simple hash
-  function getVisitorHash() {
-    if (visitorHash) return Promise.resolve(visitorHash);
-
-    return fetch('https://api.ipify.org?format=json')
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        // Simple hash of IP
-        var ip = data.ip || 'anonymous';
-        var hash = 0;
-        for (var i = 0; i < ip.length; i++) {
-          var c = ip.charCodeAt(i);
-          hash = ((hash << 5) - hash) + c;
-          hash |= 0;
-        }
-        visitorHash = 'v' + Math.abs(hash).toString(36);
-        return visitorHash;
-      })
-      .catch(function () {
-        // Fallback: use a random ID stored in localStorage
-        visitorHash = localStorage.getItem('voter_id');
-        if (!visitorHash) {
-          visitorHash = 'v' + Math.random().toString(36).substr(2, 9);
-          localStorage.setItem('voter_id', visitorHash);
-        }
-        return visitorHash;
-      });
   }
 
   // -------------------------------------------------------
@@ -201,13 +178,14 @@
     var btns = sidebar.querySelectorAll('[data-idx="' + idx + '"]');
     btns.forEach(function (b) { b.classList.add('voted'); });
 
-    // Persist to Firebase
-    if (firebaseReady && db) {
-      var ref = db.ref('votes/' + postSlug + '/' + s.id);
-      getVisitorHash().then(function (hash) {
-        ref.child('voters/' + hash).set(direction);
-        ref.child(direction === 'up' ? 'up' : 'down')
-          .transaction(function (v) { return (v || 0) + 1; });
+    // Persist via Cloud Function (server-validated; App Check enforced)
+    if (firebaseReady && functionsSdk) {
+      functionsSdk.httpsCallable('castBlogVote')({
+        postSlug: postSlug,
+        sectionId: s.id,
+        direction: direction
+      }).catch(function (err) {
+        console.warn('Voting sidebar: vote call failed:', err && err.message);
       });
     }
 
@@ -264,35 +242,39 @@
   function loadVotes() {
     if (!firebaseReady || !db) return;
 
-    var ref = db.ref('votes/' + postSlug);
-    ref.on('value', function (snap) {
-      var data = snap.val() || {};
-
-      sections.forEach(function (s, idx) {
-        var sectionData = data[s.id] || {};
-        s.up = sectionData.up || 0;
-        s.down = sectionData.down || 0;
+    // Rules grant public read only on the leaf `up`/`down` counters,
+    // so subscribe per-section rather than reading the whole subtree.
+    sections.forEach(function (s, idx) {
+      var base = 'votes/' + postSlug + '/' + s.id;
+      db.ref(base + '/up').on('value', function (snap) {
+        s.up = snap.val() || 0;
         updatePctDisplay(idx);
+        if (idx === activeIdx) updateMobilePct(activeIdx);
+      }, function (err) {
+        console.warn('Voting sidebar: failed to read up counter:', err);
       });
-      updateMobilePct(activeIdx);
-    }, function (err) {
-      console.warn('Voting sidebar: failed to read votes from Firebase:', err);
+      db.ref(base + '/down').on('value', function (snap) {
+        s.down = snap.val() || 0;
+        updatePctDisplay(idx);
+        if (idx === activeIdx) updateMobilePct(activeIdx);
+      }, function (err) {
+        console.warn('Voting sidebar: failed to read down counter:', err);
+      });
     });
 
-    // Check if this visitor already voted
-    getVisitorHash().then(function (hash) {
-      var votedLocal = {};
-      try {
-        votedLocal = JSON.parse(localStorage.getItem('voted_' + postSlug) || '{}');
-      } catch (e) {}
+    // Restore "already voted" UI state from localStorage (server still
+    // enforces dedup by IP hash; this just gives instant feedback).
+    var votedLocal = {};
+    try {
+      votedLocal = JSON.parse(localStorage.getItem('voted_' + postSlug) || '{}');
+    } catch (e) {}
 
-      sections.forEach(function (s, idx) {
-        if (votedLocal[s.id]) {
-          s.voted = true;
-          var btns = sidebar.querySelectorAll('[data-idx="' + idx + '"]');
-          btns.forEach(function (b) { b.classList.add('voted'); });
-        }
-      });
+    sections.forEach(function (s, idx) {
+      if (votedLocal[s.id]) {
+        s.voted = true;
+        var btns = sidebar.querySelectorAll('[data-idx="' + idx + '"]');
+        btns.forEach(function (b) { b.classList.add('voted'); });
+      }
     });
   }
 
