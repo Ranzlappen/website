@@ -76,6 +76,9 @@ export {
   blogFetchExistingPost,
 } from "./blog/github";
 
+// Blog: public voting (Realtime Database)
+export { castBlogVote } from "./blog/castBlogVote";
+
 // User: server-validated writes
 export { postComment } from "./user/postComment";
 export { createTopicRequest } from "./user/createTopicRequest";
