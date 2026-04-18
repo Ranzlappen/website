@@ -1,37 +1,77 @@
-# RanzLappen — Personal Blog
+# ranzlappen.com — Blog + PolyVote + Blog Admin
 
-A clean, dark-themed personal blog. No coding required to set up or maintain — everything is done through GitHub's website (works on your phone).
+A hybrid static site: a dark-themed Jekyll blog, the PolyVote community voting SPA, and a Blog Admin publishing dashboard. The blog itself needs **no coding** — everything routine can be done from GitHub's website (works on your phone). The two React apps need a dev setup.
+
+> **New here?** If you just want to run or write posts, jump to [Get Your Blog Online](#get-your-blog-online). If you're a developer working on PolyVote or Blog Admin, start with [Developer Setup](#developer-setup).
+
+---
+
+## Developer Setup
+
+The repo contains **three independent modules** plus a nested Cloud Functions module. Each has its own package manifest, lint/test/build/deploy path, and its own README. **Do not cross-import source between modules** — duplicate intentionally if sharing is required (see [`CLAUDE.md`](./CLAUDE.md)).
+
+| Module | Path | Role | Local dev | Docs |
+|---|---|---|---|---|
+| Jekyll blog | `./` (root) | Static site, posts, pages | `bundle exec jekyll serve` | this README |
+| PolyVote | [`polyvote/`](./polyvote) | React 19 voting SPA (served at `/polyvote/`) | `cd polyvote && npm run dev` | [`polyvote/README.md`](./polyvote/README.md) |
+| Blog Admin | [`blog-admin/`](./blog-admin) | React 19 publishing dashboard (served at `/blog-admin/`) | `cd blog-admin && npm run dev` | [`blog-admin/README.md`](./blog-admin/README.md) |
+| Cloud Functions | [`polyvote/functions/`](./polyvote/functions) | Firebase callables/triggers (server-side writes) | `cd polyvote/functions && npm run serve` | [`polyvote/functions/README.md`](./polyvote/functions/README.md) |
+
+### Prerequisites
+
+- **Node 22** — required for PolyVote, Blog Admin, Cloud Functions, and CI. Check with `node --version`.
+- **Ruby 3.x + Bundler** — required to run Jekyll locally. Install Bundler with `gem install bundler`, then `bundle install` from the repo root.
+- **Firebase CLI** (only if you deploy server-side resources) — `npm install -g firebase-tools`, then `firebase login`.
+
+### Architecture source of truth
+
+[`CLAUDE.md`](./CLAUDE.md) is the authoritative architecture doc (build commands, conventions, CI/CD table, tech stack). When a README and `CLAUDE.md` disagree, `CLAUDE.md` wins and the README needs updating.
+
+### CI/CD at a glance
+
+Three GitHub Actions workflows live in [`.github/workflows/`](./.github/workflows). Each is scoped by path filter so unrelated changes don't trigger deploys.
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| [`ci.yml`](./.github/workflows/ci.yml) | PR → `main` | Per-app lint/test/build, only for changed apps |
+| [`jekyll-gh-pages.yml`](./.github/workflows/jekyll-gh-pages.yml) | Push → `main` | Builds Jekyll + PolyVote + Blog Admin, deploys to GitHub Pages |
+| [`firebase-deploy.yml`](./.github/workflows/firebase-deploy.yml) | Push → `main` touching Firebase paths | Deploys Firestore rules, RTDB rules, and the `castBlogVote` function |
+
+Required secret for Firebase deploys: `FIREBASE_SERVICE_ACCOUNT`.
 
 ---
 
 ## Table of Contents
 
-1. [Get Your Blog Online (5 minutes)](#get-your-blog-online)
-2. [How to Write a New Post](#how-to-write-a-new-post)
-3. [Article Status (Draft / Unpublished)](#article-status)
-4. [Add an Image Carousel](#add-an-image-carousel)
-5. [Add a Bar Chart](#add-a-bar-chart)
-6. [Add a Pie Chart](#add-a-pie-chart)
-7. [Add a Line Chart](#add-a-line-chart)
-8. [Add a Data Table](#add-a-data-table)
-9. [Add Sources & Citations](#add-sources--citations)
-10. [Built-in Features](#built-in-features)
-11. [Keyboard Shortcuts](#keyboard-shortcuts)
-12. [Enable Comments (Giscus)](#enable-comments-giscus)
-13. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
-14. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
-15. [Connect Your Own Domain](#connect-your-own-domain)
-16. [Change Colors or Fonts](#change-colors-or-fonts)
-17. [Tune the Blog Carousel](#tune-the-blog-carousel)
-18. [Moderate Comments and Votes](#moderate-comments-and-votes)
-19. [Fullstack Architecture](#fullstack-architecture)
+1. [Developer Setup](#developer-setup)
+2. [Get Your Blog Online (5 minutes)](#get-your-blog-online)
+3. [How to Write a New Post](#how-to-write-a-new-post)
+4. [Article Status (Draft / Unpublished)](#article-status)
+5. [Add an Image Carousel](#add-an-image-carousel)
+6. [Add a Bar Chart](#add-a-bar-chart)
+7. [Add a Pie Chart](#add-a-pie-chart)
+8. [Add a Line Chart](#add-a-line-chart)
+9. [Add a Data Table](#add-a-data-table)
+10. [Add Sources & Citations](#add-sources--citations)
+11. [Built-in Features](#built-in-features)
+12. [Keyboard Shortcuts](#keyboard-shortcuts)
+13. [Enable Comments (Giscus)](#enable-comments-giscus)
+14. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
+15. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
+16. [Connect Your Own Domain](#connect-your-own-domain)
+17. [Change Colors or Fonts](#change-colors-or-fonts)
+18. [Tune the Blog Carousel](#tune-the-blog-carousel)
+19. [Moderate Comments and Votes](#moderate-comments-and-votes)
+20. [Fullstack Architecture](#fullstack-architecture)
+21. [Quick Reference](#quick-reference)
+22. [Project Structure](#project-structure)
 
 ---
 
 <details>
 <summary><h2>Get Your Blog Online</h2></summary>
 
-You already have the repo at [github.com/Ranzlappen/website](https://github.com/Ranzlappen/website). If the files from the zip aren't uploaded yet:
+You should have your own copy of this repo on GitHub (your fork of the template). If the files from the zip aren't uploaded yet:
 
 ### Upload the files
 
@@ -980,63 +1020,74 @@ Vote data lives in your Firebase console:
 <details>
 <summary><h2>Fullstack Architecture</h2></summary>
 
-This site is a hybrid: a Jekyll static blog and an embedded React single-page app (PolyVote), both deployed as one GitHub Pages site through a single CI/CD pipeline. The table below documents every technology in the stack, its role, and why it was chosen.
+This site is a hybrid: a Jekyll static blog plus two embedded React single-page apps (**PolyVote** and **Blog Admin**). All three, plus the Firebase Cloud Functions that back server-side writes, are deployed through two GitHub Actions pipelines. The tables below document every technology in the stack, its role, and why it was chosen.
 
 ### Stack Overview
 
 | Technology | Layer | Role | Dependencies | Why This Choice |
 |---|---|---|---|---|
 | **Jekyll 4.3** | Static Site | Site generator — Liquid templates, Markdown content, auto-built pages | `jekyll ~> 4.3` (Ruby gem) | Native GitHub Pages support, zero-JS content delivery, low maintenance |
-| **jekyll-feed** | Static Site | Auto-generates RSS/Atom feed at `/feed.xml` | Ruby gem | Standards-compliant feed with no manual work |
 | **jekyll-seo-tag** | Static Site | Injects `<meta>` and Open Graph tags into every page | Ruby gem | SEO and social-media link previews out of the box |
-| **jekyll-sitemap** | Static Site | Auto-generates `sitemap.xml` for search engines | Ruby gem | Search engine discoverability |
 | **jekyll-paginate** | Static Site | Splits the blog listing into multiple pages | Ruby gem | Keeps page loads fast as the post count grows |
+| **Custom feed + sitemap** | Static Site | `feed.xml` and `sitemap.xml` are custom Liquid templates, not plugins — they filter posts by the `status` frontmatter so drafts/unpublished posts never leak | None | `jekyll-feed`/`jekyll-sitemap` can't filter by frontmatter; custom templates can |
 | **Custom CSS** | Static Site | Dark-first theme using CSS custom properties | None (vanilla CSS) | Full control, no build step, tiny footprint |
 | **Vanilla JS modules** | Static Site | Dark mode, search, carousel, voting sidebar, read-aloud, charts | Chart.js (CDN) | No bundler needed; each feature is one self-contained file |
 | | | | | |
-| **React 18** | App (PolyVote) | UI framework for the interactive voting app | `react`, `react-dom` | Component model suited for complex, real-time voting UI |
-| **TypeScript 5.6** | App (PolyVote) | Static type checking across the app | `typescript` (dev) | Catches bugs at build time; self-documenting code |
-| **Vite 5.4** | App (PolyVote) | Dev server and production bundler | `vite`, `@vitejs/plugin-react` (dev) | Fast HMR, native ESM, minimal config |
-| **Tailwind CSS 3** | App (PolyVote) | Utility-first CSS framework | `tailwindcss`, `postcss`, `autoprefixer` (dev) | Rapid UI development, class-based dark mode, matches Jekyll theme |
-| **React Router v6** | App (PolyVote) | Client-side routing (Home, Topic Detail, Requests) | `react-router-dom` | SPA navigation without full page reloads |
-| **Zustand 5** | App (PolyVote) | Global state management (auth, toasts, vote history) | `zustand` | Minimal boilerplate compared to Redux; lightweight store |
-| **Chart.js + react-chartjs-2** | App (PolyVote) | Radar chart visualization for multi-metric votes | `chart.js`, `react-chartjs-2` | Vote distribution visible at a glance across dimensions |
-| **Framer Motion 11** | App (PolyVote) | UI animations (enter, exit, hover, stagger) | `framer-motion` | Declarative animation API that integrates naturally with React |
-| **Lucide React** | App (PolyVote) | SVG icon library | `lucide-react` | Tree-shakeable, consistent icon set |
-| **date-fns 3** | App (PolyVote) | Date formatting ("2 hours ago") | `date-fns` | Lightweight, modular alternative to Moment.js |
+| **React 19** | App (PolyVote, Blog Admin) | UI framework for both SPAs | `react`, `react-dom` | Component model suited for real-time, interactive UIs |
+| **TypeScript** | Both apps + Functions | Static type checking | `typescript` (dev) | Catches bugs at build time; self-documenting |
+| **Vite 5** | App (PolyVote) | Dev server and production bundler | `vite`, `@vitejs/plugin-react` | Fast HMR, native ESM, minimal config |
+| **Vite 8** | App (Blog Admin) | Dev server and production bundler | `vite`, `@vitejs/plugin-react` | Same reasons as above; newer version ships with the `@tailwindcss/vite` plugin |
+| **Tailwind CSS 3** | App (PolyVote) | Utility-first CSS framework | `tailwindcss`, `postcss`, `autoprefixer` | Matches the blog's dark theme; class-based dark mode |
+| **Tailwind CSS 4** | App (Blog Admin) | Utility-first CSS framework | `@tailwindcss/vite` (no PostCSS config needed) | Newer config style; simpler setup; dark-only app |
+| **react-router-dom v6** | App (PolyVote) | Client-side routing | `react-router-dom` | Stable, widely used |
+| **react-router-dom v7** | App (Blog Admin) | Client-side routing | `react-router-dom` | Latest major; admin app built fresh so no migration cost |
+| **Zustand 5** | Both apps | Global state (auth, toasts, drafts, vote history) | `zustand` | Minimal boilerplate; lightweight store |
+| **CodeMirror 6** | App (Blog Admin) | Markdown editor with syntax highlighting | `@codemirror/{state,view,commands,search,lang-markdown,language-data}` | Battle-tested, extensible, works well with Markdown |
+| **react-markdown + remark-gfm + rehype-raw** | Both apps | Markdown rendering for previews | npm | GFM tables/tasks + raw HTML passthrough |
+| **Chart.js + react-chartjs-2** | App (PolyVote) | Radar chart for multi-metric votes | `chart.js`, `react-chartjs-2` | Vote distribution visible at a glance |
+| **Framer Motion 11** | App (PolyVote) | UI animations | `framer-motion` | Declarative animation API for React |
+| **Lucide React** | App (PolyVote) | SVG icon library | `lucide-react` | Tree-shakeable, consistent icons |
+| **date-fns 4** | App (PolyVote) | Date formatting ("2 hours ago") | `date-fns` | Lightweight, modular |
 | | | | | |
-| **Firebase Firestore** | Backend | NoSQL database for PolyVote topics, requests, and votes | `firebase` SDK | Real-time `onSnapshot` listeners, serverless, free tier |
-| **Firebase Realtime DB** | Backend | Simple vote counters for the Jekyll voting sidebar | `firebase` SDK (Jekyll: CDN) | Low-latency counters; simpler than Firestore for flat key-value data |
-| **Firebase Anonymous Auth** | Backend | User identity without requiring signup | `firebase` SDK | Enables Firestore write-access rules with zero user friction |
-| **Giscus** | Backend | Blog post comments powered by GitHub Discussions | None (embedded `<script>`) | Comments live in your repo — no external database needed |
-| **hCaptcha** | Backend | Contact form spam protection | None (embedded `<script>`) | Free, privacy-respecting CAPTCHA |
+| **Firebase Firestore** | Backend | NoSQL database for PolyVote topics/requests/votes and Blog Admin drafts | `firebase` SDK | Real-time listeners, serverless, free tier |
+| **Firebase Realtime Database** | Backend | Vote counters for the Jekyll voting sidebar | `firebase` SDK (Jekyll: CDN) | Low-latency counters; simpler than Firestore for flat key-value data |
+| **Firebase Anonymous Auth** | Backend (PolyVote) | User identity without signup | `firebase` SDK | Enables per-browser vote rules with zero user friction |
+| **Firebase Auth (email/password + custom claims)** | Backend (Blog Admin) | Admin identity + role claims | `firebase` SDK | Role-based access without a Firestore lookup per call |
+| **Cloud Functions (Node 22)** | Backend | Server-validated writes — all client mutations go through callables | `firebase-admin`, `firebase-functions`, `gray-matter`, `@octokit/rest`, `js-yaml` | Clients never write to Firestore directly; rules + functions enforce invariants. `blogPublishToGitHub` commits published posts back to the repo via the GitHub API |
+| **Giscus** | Backend | Blog comments via GitHub Discussions | Embedded `<script>` | Comments live in the repo — no extra DB |
+| **hCaptcha** | Backend | Contact form spam protection | Embedded `<script>` | Free, privacy-respecting CAPTCHA |
 | | | | | |
-| **GitHub Pages** | Hosting | Static site hosting with automatic HTTPS | None | Free hosting, custom domain support, tied to the repo |
-| **GitHub Actions** | CI/CD | Builds Jekyll + PolyVote and deploys to Pages | Workflow YAML (`.github/workflows/`) | Single pipeline produces one unified deployment artifact |
-| **Node.js 20** | CI/CD | Runs the PolyVote build step inside the CI pipeline | npm packages from `polyvote/package.json` | Required by the Vite / TypeScript / Tailwind toolchain |
+| **GitHub Pages** | Hosting | Static hosting with automatic HTTPS | None | Free, custom domain support |
+| **GitHub Actions** | CI/CD | Builds + deploys both SPAs and Cloud Functions | Workflow YAML (`.github/workflows/`) | Two pipelines: `jekyll-gh-pages.yml` for the site, `firebase-deploy.yml` for Firebase resources |
+| **Node.js 22** | CI/CD + Functions runtime | Runs all JS builds and the deployed Cloud Functions | Enforced via `engines.node` and workflow config | Required by current Vite/TypeScript toolchains and the Firebase runtime |
 
 ### How It All Connects
 
-Both halves of the site are built and deployed by a single GitHub Actions workflow:
+Two pipelines fire on push to `main` (scoped by path filter — unrelated changes skip):
 
 ```
 Push to main
-  └─► GitHub Actions
-        ├─ Jekyll build ──────────► _site/           (blog, pages, assets)
-        ├─ npm ci && npm run build ► polyvote/dist/   (React SPA bundle)
-        ├─ Copy dist/ into _site/polyvote/
-        ├─ Create _site/polyvote/404.html             (SPA route fallback)
-        └─ Deploy _site/ to GitHub Pages
+  │
+  ├─► jekyll-gh-pages.yml ──────────────────────────────► GitHub Pages
+  │     ├─ Jekyll build ─────────────────► _site/
+  │     ├─ polyvote:    npm ci && build ─► _site/polyvote/
+  │     ├─ blog-admin:  npm ci && build ─► _site/blog-admin/
+  │     └─ Deploy _site/ to Pages
+  │
+  └─► firebase-deploy.yml ──────────────────────────────► Firebase
+        ├─ functions: npm ci && build
+        └─ firebase deploy --only database,firestore,functions:castBlogVote
 ```
 
 The result is a single static deployment where:
 - `/` serves the Jekyll blog (Markdown → HTML, Liquid templates, vanilla JS)
-- `/polyvote/` serves the React SPA (TypeScript → bundled JS, Tailwind CSS)
-- Both share the same Firebase project for authentication, voting data, and real-time updates
+- `/polyvote/` serves the PolyVote SPA (TypeScript → bundled JS, Tailwind v3)
+- `/blog-admin/` serves the Blog Admin SPA (TypeScript → bundled JS, Tailwind v4, auth-gated)
+- Firebase (Firestore + RTDB + Cloud Functions) is shared across all three
 
 ### Shared Design Tokens
 
-Both halves use the same visual identity so the embedded app feels native. Jekyll defines colors via CSS custom properties (e.g. `--c-accent: #4ade80`), and PolyVote mirrors them in its Tailwind config (`colors.brand[400]: '#4ade80'`). Dark mode uses a class-based toggle in both — Jekyll's `[data-theme="dark"]` and Tailwind's `darkMode: 'class'` — ensuring a seamless switch across the entire site.
+Jekyll and PolyVote share a visual identity so the embedded app feels native: Jekyll defines colors via CSS custom properties (e.g. `--c-accent: #4ade80`) and PolyVote mirrors them in its Tailwind config. Dark mode is class-based in both (`[data-theme="dark"]` for Jekyll, `darkMode: 'class'` for PolyVote). Blog Admin is dark-only by design and uses its own CSS variables on `:root`.
 
 </details>
 
@@ -1063,6 +1114,9 @@ Both halves use the same visual identity so the embedded app feels native. Jekyl
 | Add a data table            | Use `<table>` inside `<div style="overflow-x: auto;">` in your post |
 | Add source citations        | Use `<sup><a href="#source-1">[1]</a></sup>` inline + `<ol>` at bottom |
 | Upload an image for a post  | Upload to `assets/images/` on GitHub, reference in your post   |
+| Run PolyVote locally        | `cd polyvote && npm install && npm run dev`                    |
+| Run Blog Admin locally      | `cd blog-admin && npm install && npm run dev`                  |
+| Run Cloud Functions emulator | `cd polyvote/functions && npm install && npm run serve`       |
 
 </details>
 
@@ -1083,18 +1137,31 @@ your-repo/
 ├── assets/images/           ← Put your images here
 ├── pages/                   ← Static pages (About, Contact, etc.)
 ├── index.html               ← Homepage
-├── feed.xml                 ← RSS/Atom feed (auto-generated, filtered by status)
-├── sitemap.xml              ← Sitemap (auto-generated, filtered by status)
+├── feed.xml                 ← RSS/Atom feed (custom Liquid template, filtered by status)
+├── sitemap.xml              ← Sitemap (custom Liquid template, filtered by status)
 ├── 404.html                 ← Page not found page
+│
+├── polyvote/                ← React 19 voting SPA — see polyvote/README.md
+│   └── functions/           ← Firebase Cloud Functions — see polyvote/functions/README.md
+├── blog-admin/              ← React 19 publishing dashboard — see blog-admin/README.md
+│
+├── .github/workflows/       ← CI + two deploy pipelines (Pages, Firebase)
+├── CLAUDE.md                ← Architecture source of truth (read this first as a developer)
 └── README.md                ← This file
 ```
 
-**You only ever need to touch these:**
+**For blog-only maintenance** (no code needed) you only touch:
 - `_posts/` — to write articles
 - `_config.yml` — to change settings or add API keys
 - `assets/css/style.css` — to change the look
 - `assets/images/` — to upload images
 - `pages/` — to edit About, Contact, etc.
+
+**For app development** see:
+- [`polyvote/README.md`](./polyvote/README.md) — PolyVote voting app
+- [`blog-admin/README.md`](./blog-admin/README.md) — Blog Admin publishing dashboard
+- [`polyvote/functions/README.md`](./polyvote/functions/README.md) — Cloud Functions
+- [`CLAUDE.md`](./CLAUDE.md) — architecture, conventions, CI/CD
 
 Everything else runs automatically.
 
