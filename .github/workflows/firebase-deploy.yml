@@ -1,0 +1,62 @@
+# Deploy Firebase Realtime Database rules + blog voting function
+# on pushes to main that touch the relevant files.
+name: Deploy Firebase (blog voting)
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'polyvote/database.rules.json'
+      - 'polyvote/firebase.json'
+      - 'polyvote/.firebaserc'
+      - 'polyvote/functions/src/blog/castBlogVote.ts'
+      - 'polyvote/functions/src/index.ts'
+      - 'polyvote/functions/package.json'
+      - 'polyvote/functions/package-lock.json'
+      - 'polyvote/functions/tsconfig.json'
+      - '.github/workflows/firebase-deploy.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: firebase-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: polyvote/functions/package-lock.json
+
+      - name: Cloud Functions – Install dependencies
+        working-directory: polyvote/functions
+        run: npm ci
+
+      - name: Cloud Functions – Build
+        working-directory: polyvote/functions
+        run: npm run build
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Write service account credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT secret is not set"
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-sa.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-sa.json" >> "$GITHUB_ENV"
+
+      - name: Deploy Realtime Database rules + castBlogVote
+        working-directory: polyvote
+        run: firebase deploy --only database,functions:castBlogVote --non-interactive --force
