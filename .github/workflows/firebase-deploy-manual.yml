@@ -1,0 +1,64 @@
+# Manually deploy any subset of Firebase resources. Future-proof: the default
+# target `functions` redeploys every function defined in
+# `polyvote/functions/src/index.ts`, so newly added functions are picked up
+# without having to edit this workflow.
+#
+# Shares the `firebase-deploy` concurrency group with `firebase-deploy.yml`
+# so a manual deploy never races with the auto-deploy on push.
+name: Deploy Firebase (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: >
+          `firebase deploy --only` target. Default `functions` deploys every
+          Cloud Function. Examples: `functions`,
+          `functions:blogSaveDraft,functions:blogPublishToGitHub`,
+          `functions,database,firestore`.
+        required: false
+        default: 'functions'
+
+concurrency:
+  group: firebase-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: polyvote/functions/package-lock.json
+
+      - name: Cloud Functions – Install dependencies
+        working-directory: polyvote/functions
+        run: npm ci
+
+      - name: Cloud Functions – Build
+        working-directory: polyvote/functions
+        run: npm run build
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Write service account credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT secret is not set"
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-sa.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-sa.json" >> "$GITHUB_ENV"
+
+      - name: Deploy (target=${{ inputs.target }})
+        working-directory: polyvote
+        run: firebase deploy --only "${{ inputs.target }}" --non-interactive --force
