@@ -62,13 +62,14 @@ Production deploy of `castBlogVote` is automated (see CI/CD below). Manual deplo
 
 ## Deployment & CI/CD
 
-Three GitHub Actions workflows live in `.github/workflows/`. Each is scoped with `paths` / `paths-ignore` filters so it only fires when its inputs change.
+Four GitHub Actions workflows live in `.github/workflows/`. The three auto-trigger workflows are each scoped with `paths` / `paths-ignore` filters so they only fire when their inputs change; the fourth is manual-only.
 
 | Workflow | Trigger | Scope | Deploys |
 |---|---|---|---|
 | `ci.yml` | PR → `main` | Per-app jobs gated by `dorny/paths-filter` — only changed apps run lint/test/build. | Nothing (validation only). |
 | `jekyll-gh-pages.yml` | Push → `main` | Skips docs, Firebase configs, Cloud Functions, and Firestore/RTDB rules. | Full site to GitHub Pages (Jekyll + PolyVote + Blog Admin). |
 | `firebase-deploy.yml` | Push → `main` (Firebase/Functions paths) + manual | Builds Cloud Functions, then deploys. | Firestore rules + indexes, RTDB rules, and the `castBlogVote` function. |
+| `firebase-deploy-manual.yml` | Manual only (`workflow_dispatch`) | Accepts a `target` input passed straight to `firebase deploy --only`. Default `functions` redeploys every function in `polyvote/functions/src/index.ts` — future-proof for newly added functions. Shares the `firebase-deploy` concurrency group with the auto-deploy. | Whatever the `target` input specifies (default: all Cloud Functions). |
 
 **What fires on a given change:**
 
@@ -90,9 +91,11 @@ Three GitHub Actions workflows live in `.github/workflows/`. Each is scoped with
 
 **Dependabot** (`.github/dependabot.yml`): weekly updates for all three npm packages, bundler, and GitHub Actions. Minor+patch are grouped. Each PR runs CI.
 
-**Manual fallbacks** (from `polyvote/`, authenticated via `firebase login`):
-- `firebase deploy --only firestore` — rules + indexes
-- `firebase deploy --only functions:<name>` — a specific function
+**Manual fallbacks**:
+- Trigger `firebase-deploy-manual.yml` via `workflow_dispatch` (preferred) — deploys via GitHub Actions using the shared service-account secret. Default target is `functions` (all Cloud Functions); override with any `--only` target, e.g. `functions:blogSaveDraft,functions:blogPublishToGitHub` or `functions,database,firestore`.
+- Or, from `polyvote/` authenticated via `firebase login`:
+  - `firebase deploy --only firestore` — rules + indexes
+  - `firebase deploy --only functions:<name>` — a specific function
 - Re-run Pages: trigger `jekyll-gh-pages.yml` via `workflow_dispatch`
 
 ## Tech Stack
