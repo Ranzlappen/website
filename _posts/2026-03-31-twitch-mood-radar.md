@@ -1,15 +1,27 @@
 ---
-title: "Moodradar, Real-Time Twitch Chat Mood Analyzer"
-description: "MoodRadar is an early-stage experimental single-file HTML tool that visualizes live Twitch chat mood and consensus in real time. Ideal for high-volume streams where messages scroll too fast to follow. Client-side, no login, instant insights into hype, toxic, wholesome, or neutral chat demeanor."
-keywords: ["moodradar", "twitch chat mood tracker", "twitch sentiment analyzer", "real-time chat pulse", "twitch consensus tool", "high throughput twitch chat", "live chat mood radar", "twitch stream dashboard"]
-date: 2026-04-03
-category: "Projects"
-tags: [twitch, tools, visualization, early-stage]
-image: /assets/images/moodradar/moodradar-hero.webp
+title: Moodradar, Real-Time Twitch Chat Mood Analyzer
+date: "2026-04-03"
+category: Projects
+tags:
+  - twitch
+  - tools
+  - visualization
+  - early-stage
 status: placeholder
-series: "project-showcases"
-series_order: 2
 comments: true
+description: MoodRadar is an early-stage experimental single-file HTML tool that visualizes live Twitch chat mood and consensus in real time. Ideal for high-volume streams where messages scroll too fast to follow. Client-side, no login, instant insights into hype, toxic, wholesome, or neutral chat demeanor.
+image: /assets/images/moodradar/moodradar-hero.webp
+keywords:
+  - moodradar
+  - twitch chat mood tracker
+  - twitch sentiment analyzer
+  - real-time chat pulse
+  - twitch consensus tool
+  - high throughput twitch chat
+  - live chat mood radar
+  - twitch stream dashboard
+series: project-showcases
+series_order: 2
 ---
 
 <nav>
