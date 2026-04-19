@@ -67,4 +67,5 @@ jobs:
           TARGETS="$TARGETS,functions:blogSaveDraft,functions:blogListDrafts,functions:blogGetDraft,functions:blogDeleteDraft"
           TARGETS="$TARGETS,functions:blogListExistingPosts,functions:blogFetchExistingPost,functions:blogImportPostForEdit"
           TARGETS="$TARGETS,functions:blogPublishToGitHub,functions:blogUploadImage"
+          TARGETS="$TARGETS,functions:blogListSeriesUsage"
           firebase deploy --only "$TARGETS" --non-interactive --force

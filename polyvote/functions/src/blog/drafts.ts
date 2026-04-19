@@ -10,11 +10,11 @@ const VALID_CATEGORIES = [
   "Privacy",
   "UX Design",
 ];
-const VALID_SERIES = [
-  "media-trust",
-  "project-showcases",
-  "privacy-and-control",
-];
+// Series IDs are free-form (authors can introduce new ones from the admin UI)
+// but must be kebab-case to match Jekyll's `_data/series.yml` id convention and
+// to stay safe in YAML/URLs.
+const SERIES_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const SERIES_ID_MAX_LENGTH = 50;
 
 interface FrontMatter {
   title: string;
@@ -87,12 +87,22 @@ function validateFrontMatter(data: unknown): FrontMatter {
   }
 
   const series =
-    typeof d.series === "string" && d.series.trim() ? d.series.trim() : null;
-  if (series && !VALID_SERIES.includes(series)) {
-    throw new HttpsError(
-      "invalid-argument",
-      `series must be one of: ${VALID_SERIES.join(", ")}`
-    );
+    typeof d.series === "string" && d.series.trim()
+      ? d.series.trim().toLowerCase()
+      : null;
+  if (series) {
+    if (series.length > SERIES_ID_MAX_LENGTH) {
+      throw new HttpsError(
+        "invalid-argument",
+        `series must be under ${SERIES_ID_MAX_LENGTH} chars.`
+      );
+    }
+    if (!SERIES_ID_PATTERN.test(series)) {
+      throw new HttpsError(
+        "invalid-argument",
+        "series must be kebab-case (lowercase letters, digits, and hyphens)."
+      );
+    }
   }
 
   const seriesOrder =

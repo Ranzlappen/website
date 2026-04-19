@@ -76,6 +76,9 @@ export {
   blogFetchExistingPost,
 } from "./blog/github";
 
+// Blog: series usage (aggregate used series + order numbers for admin UI)
+export { blogListSeriesUsage } from "./blog/seriesUsage";
+
 // Blog: Import existing post for edit (links draft to source file)
 export { blogImportPostForEdit } from "./blog/import";
 
