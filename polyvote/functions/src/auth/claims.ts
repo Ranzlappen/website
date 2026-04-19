@@ -3,7 +3,7 @@ import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import { requireRole, type Role } from "../utils/adminOnly";
 
-const VALID_ROLES: Role[] = ["user", "moderator", "admin"];
+const VALID_ROLES: Role[] = ["user", "author", "moderator", "admin"];
 
 /**
  * Admin-only callable: set a user's role (custom claims + Firestore profile).

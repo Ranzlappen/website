@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Ban, UserCheck, ShieldAlert, Shield, User } from 'lucide-react';
+import { Ban, UserCheck, ShieldAlert, Shield, User, PenLine } from 'lucide-react';
 import { adminListUsersFn, adminBanUserFn, adminUnbanUserFn, setUserRoleFn } from '../../firebase';
 import { useStore } from '../../hooks/useStore';
 import type { UserProfile, UserRole } from '../../types';
@@ -75,6 +75,7 @@ export default function AdminUsers() {
     switch (role) {
       case 'admin': return <ShieldAlert size={14} className="text-amber-400" />;
       case 'moderator': return <Shield size={14} className="text-blue-400" />;
+      case 'author': return <PenLine size={14} className="text-emerald-400" />;
       default: return <User size={14} className="text-gray-500" />;
     }
   };
@@ -112,6 +113,7 @@ export default function AdminUsers() {
           className="rounded-md border border-surface-200 bg-surface-100 px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-brand-400"
         >
           <option value="user">User</option>
+          <option value="author">Author</option>
           <option value="moderator">Moderator</option>
           <option value="admin">Admin</option>
         </select>
@@ -192,6 +194,7 @@ export default function AdminUsers() {
           <option value="">All Roles</option>
           <option value="admin">Admin</option>
           <option value="moderator">Moderator</option>
+          <option value="author">Author</option>
           <option value="user">User</option>
         </select>
         <select

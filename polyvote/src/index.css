@@ -72,6 +72,18 @@
   }
 }
 
+@layer utilities {
+  /* Hide scrollbar chrome while preserving horizontal scroll
+   * (used by the sticky navbar so a crowded header can scroll
+   * internally instead of pushing past the viewport). */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer components {
   /* Skeleton loading shimmer */
   .skeleton {

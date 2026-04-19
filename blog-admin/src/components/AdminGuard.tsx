@@ -1,10 +1,10 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Link, Navigate, Outlet } from 'react-router-dom';
 import { useStore } from '../store';
 
-export default function AuthGuard() {
+export default function AdminGuard() {
   const user = useStore((s) => s.user);
   const authLoading = useStore((s) => s.authLoading);
-  const isAuthor = useStore((s) => s.isAuthor);
+  const isAdmin = useStore((s) => s.isAdmin);
 
   if (authLoading) {
     return (
@@ -18,22 +18,19 @@ export default function AuthGuard() {
     return <Navigate to="/login" replace />;
   }
 
-  if (!isAuthor()) {
+  if (!isAdmin()) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 px-4 text-center">
-        <h1 className="text-xl font-bold">Account pending approval</h1>
+        <h1 className="text-xl font-bold">Admins only</h1>
         <p className="text-[var(--text-muted)] max-w-md">
-          Thanks for signing up. An administrator must grant you the{' '}
-          <strong>author</strong> role before you can access the blog editor.
+          You need the <strong>admin</strong> role to manage users.
         </p>
-        <button
-          onClick={() => {
-            import('../firebase').then(({ auth }) => auth.signOut());
-          }}
+        <Link
+          to="/"
           className="px-4 py-2 rounded bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
         >
-          Sign out
-        </button>
+          Back to dashboard
+        </Link>
       </div>
     );
   }

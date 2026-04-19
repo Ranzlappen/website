@@ -41,6 +41,25 @@ export interface ExistingPost {
 
 export type UserRole = 'user' | 'author' | 'moderator' | 'admin';
 
+export type UserStatus = 'active' | 'suspended' | 'banned';
+
+// Mirror of polyvote/src/types/index.ts `UserProfile`. Duplicated intentionally
+// per the module-boundary convention (CLAUDE.md: no cross-module imports).
+export interface UserProfile {
+  uid: string;
+  displayName: string;
+  email?: string | null;
+  role: UserRole;
+  status: UserStatus;
+  isAnonymous: boolean;
+  createdAt: number;
+  lastActive: number;
+  votesCount: number;
+  commentsCount: number;
+  bannedAt?: number | null;
+  banReason?: string | null;
+}
+
 export const CATEGORIES = [
   'Media',
   'Projects',

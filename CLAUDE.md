@@ -47,7 +47,7 @@ npm run lint                      # tsc --noEmit
 npm test                          # Vitest (unit tests)
 ```
 
-Production deploys of `castBlogVote` and the Blog Admin callables (`blogSaveDraft`, `blogListDrafts`, `blogGetDraft`, `blogDeleteDraft`, `blogListExistingPosts`, `blogFetchExistingPost`, `blogImportPostForEdit`, `blogPublishToGitHub`, `blogUploadImage`, `blogListSeriesUsage`) are automated (see CI/CD below). Manual deploys of anything else use `firebase deploy --only functions:<name>` from `polyvote/`.
+Production deploys of `castBlogVote`, the Blog Admin callables (`blogSaveDraft`, `blogListDrafts`, `blogGetDraft`, `blogDeleteDraft`, `blogListExistingPosts`, `blogFetchExistingPost`, `blogImportPostForEdit`, `blogPublishToGitHub`, `blogUploadImage`, `blogListSeriesUsage`), and the admin user-management callables shared with the Blog Admin Users panel (`setUserRole`, `adminListUsers`, `adminBanUser`, `adminUnbanUser`) are automated (see CI/CD below). Manual deploys of anything else use `firebase deploy --only functions:<name>` from `polyvote/`.
 
 ## Key Conventions
 
@@ -68,7 +68,7 @@ Four GitHub Actions workflows live in `.github/workflows/`. The three auto-trigg
 |---|---|---|---|
 | `ci.yml` | PR → `main` | Per-app jobs gated by `dorny/paths-filter` — only changed apps run lint/test/build. | Nothing (validation only). |
 | `jekyll-gh-pages.yml` | Push → `main` | Skips docs, Firebase configs, Cloud Functions, and Firestore/RTDB rules. | Full site to GitHub Pages (Jekyll + PolyVote + Blog Admin). |
-| `firebase-deploy.yml` | Push → `main` (Firebase/Functions paths) + manual | Builds Cloud Functions, then deploys. | Firestore rules + indexes, RTDB rules, `castBlogVote`, and all Blog Admin callables. |
+| `firebase-deploy.yml` | Push → `main` (Firebase/Functions paths) + manual | Builds Cloud Functions, then deploys. | Firestore rules + indexes, RTDB rules, `castBlogVote`, all Blog Admin callables, and admin user-management callables (`setUserRole`, `adminListUsers`, `adminBanUser`, `adminUnbanUser`). |
 | `firebase-deploy-manual.yml` | Manual only (`workflow_dispatch`) | Accepts a `target` input passed straight to `firebase deploy --only`. Default `functions` redeploys every function in `polyvote/functions/src/index.ts` — future-proof for newly added functions. Shares the `firebase-deploy` concurrency group with the auto-deploy. | Whatever the `target` input specifies (default: all Cloud Functions). |
 
 **What fires on a given change:**

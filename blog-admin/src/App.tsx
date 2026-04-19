@@ -4,12 +4,14 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import { useStore } from './store';
 import AuthGuard from './components/AuthGuard';
+import AdminGuard from './components/AdminGuard';
 import Toast from './components/Toast';
 import type { UserRole } from './types';
 
 const Login = lazy(() => import('./pages/Login'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Editor = lazy(() => import('./pages/Editor'));
+const Users = lazy(() => import('./pages/Users'));
 
 function LoadingScreen() {
   return (
@@ -49,6 +51,9 @@ export default function App() {
             <Route path="/new" element={<Editor />} />
             <Route path="/edit/:draftId" element={<Editor />} />
             <Route path="/copy/:filename" element={<Editor />} />
+          </Route>
+          <Route element={<AdminGuard />}>
+            <Route path="/users" element={<Users />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
