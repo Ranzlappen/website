@@ -248,6 +248,7 @@ export default function Editor() {
               slug={slug}
               onChange={handleFrontMatterChange}
               onSlugChange={handleSlugChange}
+              draftId={currentDraftId}
             />
           </div>
         )}

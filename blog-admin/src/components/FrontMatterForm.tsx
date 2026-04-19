@@ -1,18 +1,87 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FrontMatter } from '../types';
 import { CATEGORIES, STATUSES, SERIES_OPTIONS, slugify } from '../types';
+import { blogListSeriesUsageFn, type SeriesUsageEntry } from '../firebase';
 
 interface Props {
   frontMatter: FrontMatter;
   slug: string;
   onChange: (fm: FrontMatter) => void;
   onSlugChange: (slug: string) => void;
+  // Current draft ID, used to exclude the draft itself from "used orders" hints.
+  draftId?: string | null;
 }
 
-export default function FrontMatterForm({ frontMatter, slug, onChange, onSlugChange }: Props) {
+// Matches the backend SERIES_ID_PATTERN in polyvote/functions/src/blog/drafts.ts.
+function sanitizeSeriesId(raw: string): string {
+  return raw
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 50);
+}
+
+export default function FrontMatterForm({ frontMatter, slug, onChange, onSlugChange, draftId }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [tagInput, setTagInput] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
+  const [seriesInput, setSeriesInput] = useState<string>(frontMatter.series ?? '');
+  const [seriesUsage, setSeriesUsage] = useState<SeriesUsageEntry[]>([]);
+
+  // Keep local text in sync when the front matter changes externally
+  // (e.g. after loading a draft or importing a post).
+  useEffect(() => {
+    setSeriesInput(frontMatter.series ?? '');
+  }, [frontMatter.series]);
+
+  // Fetch series usage once per mount. Cheap to call; advisory only.
+  useEffect(() => {
+    let cancelled = false;
+    blogListSeriesUsageFn({})
+      .then((res) => {
+        if (cancelled) return;
+        const { posts, drafts } = res.data;
+        setSeriesUsage([...posts, ...drafts]);
+      })
+      .catch(() => {
+        // Soft-fail: without usage data the form still works, just without hints.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Distinct series IDs known to the editor: curated + fetched.
+  const knownSeriesIds = useMemo(() => {
+    const set = new Set<string>(SERIES_OPTIONS.map((s) => s.id));
+    for (const u of seriesUsage) if (u.series) set.add(u.series);
+    return Array.from(set).sort();
+  }, [seriesUsage]);
+
+  // Rows for the currently-selected series, excluding this draft.
+  const currentSeriesUsage = useMemo(() => {
+    if (!frontMatter.series) return [] as SeriesUsageEntry[];
+    return seriesUsage.filter(
+      (u) =>
+        u.series === frontMatter.series &&
+        !(u.source === 'draft' && u.draftId === draftId),
+    );
+  }, [seriesUsage, frontMatter.series, draftId]);
+
+  const usedOrderEntries = useMemo(
+    () =>
+      currentSeriesUsage
+        .filter((u): u is SeriesUsageEntry & { seriesOrder: number } => typeof u.seriesOrder === 'number')
+        .sort((a, b) => a.seriesOrder - b.seriesOrder),
+    [currentSeriesUsage],
+  );
+
+  const conflictEntry =
+    frontMatter.seriesOrder != null
+      ? usedOrderEntries.find((u) => u.seriesOrder === frontMatter.seriesOrder) ?? null
+      : null;
 
   function update(partial: Partial<FrontMatter>) {
     onChange({ ...frontMatter, ...partial });
@@ -215,27 +284,39 @@ export default function FrontMatterForm({ frontMatter, slug, onChange, onSlugCha
 
       {showAdvanced && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mt-3 pt-3 border-t border-[var(--border)]">
-          {/* Series */}
+          {/* Series (free-form combobox: type a new ID or pick a known one) */}
           <label className="flex flex-col gap-1">
             <span className={labelClass}>Series</span>
-            <select
-              value={frontMatter.series ?? ''}
-              onChange={(e) =>
+            <input
+              type="text"
+              list="series-options-datalist"
+              value={seriesInput}
+              placeholder="e.g. media-trust (or type a new one)"
+              onChange={(e) => setSeriesInput(e.target.value)}
+              onBlur={() => {
+                const sanitized = sanitizeSeriesId(seriesInput);
+                setSeriesInput(sanitized);
+                const nextSeries = sanitized || null;
                 update({
-                  series: e.target.value || null,
-                  seriesOrder: e.target.value ? frontMatter.seriesOrder : null,
-                })
-              }
+                  series: nextSeries,
+                  seriesOrder: nextSeries ? frontMatter.seriesOrder : null,
+                });
+              }}
               className={inputClass}
-            >
-              <option value="">None</option>
-              {SERIES_OPTIONS.map((s) => (
-                <option key={s.id} value={s.id}>{s.label}</option>
-              ))}
-            </select>
+            />
+            <datalist id="series-options-datalist">
+              {knownSeriesIds.map((id) => {
+                const curated = SERIES_OPTIONS.find((s) => s.id === id);
+                return (
+                  <option key={id} value={id}>
+                    {curated ? curated.label : id}
+                  </option>
+                );
+              })}
+            </datalist>
           </label>
 
-          {/* Series order */}
+          {/* Series order with used-number hint */}
           {frontMatter.series && (
             <label className="flex flex-col gap-1">
               <span className={labelClass}>Series Order</span>
@@ -248,6 +329,22 @@ export default function FrontMatterForm({ frontMatter, slug, onChange, onSlugCha
                 }
                 className={inputClass}
               />
+              {usedOrderEntries.length > 0 && (
+                <span
+                  className={`text-xs ${
+                    conflictEntry ? 'text-[var(--danger)]' : 'text-[var(--text-muted)]'
+                  }`}
+                >
+                  {conflictEntry ? (
+                    <>
+                      Conflict: #{conflictEntry.seriesOrder} already used by
+                      {' '}&ldquo;{conflictEntry.title}&rdquo;.
+                    </>
+                  ) : (
+                    <>Used: {usedOrderEntries.map((u) => `#${u.seriesOrder}`).join(', ')}</>
+                  )}
+                </span>
+              )}
             </label>
           )}
 

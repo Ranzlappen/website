@@ -249,6 +249,61 @@ The post itself **remains fully accessible** if someone visits its URL directly 
 ---
 
 <details>
+<summary><h2>Article Series</h2></summary>
+
+Group related posts into a **series**. When a post belongs to a series with at least one other post, a series nav renders automatically at the top of the article — listing every post in order and highlighting the current one.
+
+### 1. Define the series
+
+Series live in `_data/series.yml`. Each entry needs an `id` (kebab-case, referenced from post front matter), a `title`, and an optional `description`:
+
+```yaml
+- id: "media-trust"
+  title: "Media, Trust & Power"
+  description: "How media institutions, statistics, and advertising shape public perception — and what's broken."
+
+- id: "project-showcases"
+  title: "Project Showcases"
+  description: "Tools and experiments built to solve real problems."
+```
+
+### 2. Mark each post
+
+Add `series` and `series_order` to the front matter of every post that belongs to the series. `series_order` is the post's position in the series (1-indexed, integer):
+
+```
+---
+title: "Western Media Trust Crisis"
+date: 2026-03-31
+category: "Media"
+tags: [media, trust]
+description: "A look at why trust in mainstream media keeps falling."
+series: "media-trust"
+series_order: 1
+comments: true
+---
+```
+
+### 3. How rendering works
+
+`_includes/series-nav.html` is injected from `_layouts/post.html` on every post page. The nav renders only when **both** conditions are true:
+
+- The `series` value matches an `id` in `_data/series.yml`.
+- At least **two** posts with that `series` exist and have status `published` or `placeholder` (drafts and `unpublished` posts are excluded from the nav and count).
+
+Inside the series, posts are sorted by `series_order` ascending. Each number should be **unique within a series** — Jekyll won't warn on collisions, so two posts sharing an order will just render in an arbitrary order.
+
+### 4. Editing from the Blog Admin
+
+The Blog Admin editor's **Advanced fields** section exposes `Series` and `Series Order`. The series picker is a combobox — you can pick an existing series from the list or type a brand-new ID. The order input shows which numbers are already used in the selected series and flags collisions.
+
+If you introduce a brand-new series ID from the admin, remember to also add a matching entry to `_data/series.yml` — without it, the series nav won't render.
+
+</details>
+
+---
+
+<details>
 <summary><h2>Add an Image Carousel</h2></summary>
 
 You can add a swipeable image carousel (gallery/slideshow) to any post. Wrap your images in a `<div class="carousel">` block:

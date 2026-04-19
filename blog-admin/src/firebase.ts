@@ -76,3 +76,20 @@ export const blogImportPostForEditFn = httpsCallable<
   { filename: string; authorChoice: ImportAuthorChoice },
   { draftId: string; created: boolean }
 >(functions, 'blogImportPostForEdit');
+
+// ── Series usage ──
+
+export interface SeriesUsageEntry {
+  source: 'published' | 'draft';
+  series: string;
+  seriesOrder: number | null;
+  title: string;
+  filename: string;
+  draftId?: string;
+  status?: string;
+}
+
+export const blogListSeriesUsageFn = httpsCallable<
+  Record<string, never>,
+  { posts: SeriesUsageEntry[]; drafts: SeriesUsageEntry[] }
+>(functions, 'blogListSeriesUsage');
