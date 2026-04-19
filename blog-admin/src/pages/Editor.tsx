@@ -238,12 +238,6 @@ export default function Editor() {
           <span className="flex items-center gap-2">
             <span>{fmCollapsed ? '\u25B6' : '\u25BC'}</span>
             <span className="font-medium">Post Fields</span>
-            {fmCollapsed && frontMatter.title && (
-              <span className="text-[var(--text)] ml-2 truncate max-w-[300px]">{frontMatter.title}</span>
-            )}
-            {fmCollapsed && slug && (
-              <span className="text-[var(--text-muted)]">/ {slug}</span>
-            )}
           </span>
           <span>{fmCollapsed ? 'Show' : 'Hide'}</span>
         </button>

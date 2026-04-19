@@ -59,6 +59,12 @@ jobs:
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-sa.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-sa.json" >> "$GITHUB_ENV"
 
-      - name: Deploy Firestore + Realtime Database rules + castBlogVote
+      - name: Deploy Firestore + Realtime Database rules + Cloud Functions
         working-directory: polyvote
-        run: firebase deploy --only database,firestore,functions:castBlogVote --non-interactive --force
+        run: |
+          TARGETS="database,firestore"
+          TARGETS="$TARGETS,functions:castBlogVote"
+          TARGETS="$TARGETS,functions:blogSaveDraft,functions:blogListDrafts,functions:blogGetDraft,functions:blogDeleteDraft"
+          TARGETS="$TARGETS,functions:blogListExistingPosts,functions:blogFetchExistingPost,functions:blogImportPostForEdit"
+          TARGETS="$TARGETS,functions:blogPublishToGitHub,functions:blogUploadImage"
+          firebase deploy --only "$TARGETS" --non-interactive --force

@@ -12,18 +12,18 @@ series_order: 2
 comments: true
 ---
 
-<nav style="background: #1a1a1a; border: 1px solid #333; border-radius: 6px; padding: 18px 22px; margin-bottom: 28px; line-height: 1.7;">
-  <strong style="font-size: 1.05em;">Table of Contents</strong>
-  <ol style="margin: 10px 0 0 0; padding-left: 22px;">
-    <li><a href="#what-is-moodradar" style="text-decoration: none;">What is MoodRadar</a></li>
-    <li><a href="#how-it-works" style="text-decoration: none;">How It Works</a></li>
-    <li><a href="#core-features" style="text-decoration: none;">Core Features</a></li>
-    <li><a href="#high-throughput-use-cases" style="text-decoration: none;">High-Throughput Use Cases</a></li>
-    <li><a href="#live-demo-video" style="text-decoration: none;">Live Demo & Video</a></li>
-    <li><a href="#early-development-status" style="text-decoration: none;">Early Development Status</a></li>
-    <li><a href="#key-takeaways" style="text-decoration: none;">Key Takeaways</a></li>
-    <li><a href="#conclusion" style="text-decoration: none;">Conclusion</a></li>
-    <li><a href="#sources" style="text-decoration: none;">Sources</a></li>
+<nav>
+  <strong>Table of Contents</strong>
+  <ol>
+    <li><a href="#what-is-moodradar">What is MoodRadar</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#core-features">Core Features</a></li>
+    <li><a href="#high-throughput-use-cases">High-Throughput Use Cases</a></li>
+    <li><a href="#live-demo-video">Live Demo & Video</a></li>
+    <li><a href="#early-development-status">Early Development Status</a></li>
+    <li><a href="#key-takeaways">Key Takeaways</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+    <li><a href="#sources">Sources</a></li>
   </ol>
 </nav>
 

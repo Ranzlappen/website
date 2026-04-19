@@ -35,7 +35,7 @@ Three GitHub Actions workflows live in [`.github/workflows/`](./.github/workflow
 |---|---|---|
 | [`ci.yml`](./.github/workflows/ci.yml) | PR → `main` | Per-app lint/test/build, only for changed apps |
 | [`jekyll-gh-pages.yml`](./.github/workflows/jekyll-gh-pages.yml) | Push → `main` | Builds Jekyll + PolyVote + Blog Admin, deploys to GitHub Pages |
-| [`firebase-deploy.yml`](./.github/workflows/firebase-deploy.yml) | Push → `main` touching Firebase paths | Deploys Firestore rules, RTDB rules, and the `castBlogVote` function |
+| [`firebase-deploy.yml`](./.github/workflows/firebase-deploy.yml) | Push → `main` touching Firebase paths | Deploys Firestore rules, RTDB rules, `castBlogVote`, and all Blog Admin callables |
 
 Required secret for Firebase deploys: `FIREBASE_SERVICE_ACCOUNT`.
 
@@ -1076,7 +1076,7 @@ Push to main
   │
   └─► firebase-deploy.yml ──────────────────────────────► Firebase
         ├─ functions: npm ci && build
-        └─ firebase deploy --only database,firestore,functions:castBlogVote
+        └─ firebase deploy --only database,firestore,functions:castBlogVote,functions:blog*
 ```
 
 The result is a single static deployment where:

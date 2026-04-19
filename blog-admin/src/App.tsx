@@ -48,7 +48,6 @@ export default function App() {
             <Route index element={<Dashboard />} />
             <Route path="/new" element={<Editor />} />
             <Route path="/edit/:draftId" element={<Editor />} />
-            <Route path="/import/:filename" element={<Editor />} />
             <Route path="/copy/:filename" element={<Editor />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
