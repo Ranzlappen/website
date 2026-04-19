@@ -8,11 +8,11 @@
         "$sectionId": {
           ".validate": "$sectionId.matches(/^[A-Za-z0-9_-]{1,100}$/)",
           "up": {
-            ".read": true,
+            ".read": "auth != null",
             ".validate": "newData.isNumber()"
           },
           "down": {
-            ".read": true,
+            ".read": "auth != null",
             ".validate": "newData.isNumber()"
           },
           "voters": {

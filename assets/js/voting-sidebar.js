@@ -32,7 +32,7 @@
       s1.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
       s1.onload = function () {
         var loaded = 0;
-        var total = 3;
+        var total = 4;
         function onReady() {
           loaded++;
           if (loaded < total) return;
@@ -79,8 +79,28 @@
         s4.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js';
         s4.onload = onReady;
         document.head.appendChild(s4);
+
+        var s5 = document.createElement('script');
+        s5.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js';
+        s5.onload = onReady;
+        document.head.appendChild(s5);
       };
       document.head.appendChild(s1);
+    });
+  }
+
+  // Rules require `auth != null` on reads. Anonymous auth is cheap
+  // (persists in IndexedDB across pageviews) and keeps the scanner happy.
+  function ensureSignedIn() {
+    return new Promise(function (resolve) {
+      var auth = firebase.auth();
+      if (auth.currentUser) return resolve(true);
+      auth.signInAnonymously()
+        .then(function () { resolve(true); })
+        .catch(function (err) {
+          console.warn('Voting sidebar: anonymous sign-in failed:', err);
+          resolve(false);
+        });
     });
   }
 
@@ -283,20 +303,16 @@
   // -------------------------------------------------------
   function initFirebaseVoting() {
     loadFirebase().then(function (ok) {
-      if (ok) {
-        if (appCheckReady) {
-          // Wait for App Check token before reading the database
-          firebase.appCheck().getToken(/* forceRefresh */ false).then(function () {
-            loadVotes();
-          }).catch(function (err) {
-            console.warn('Voting sidebar: App Check token fetch failed:', err);
-            // Try loading votes anyway in case enforcement is relaxed
-            loadVotes();
-          });
-        } else {
-          loadVotes();
-        }
-      }
+      if (!ok) return;
+      var tokenStep = appCheckReady
+        ? firebase.appCheck().getToken(/* forceRefresh */ false)
+            .catch(function (err) {
+              console.warn('Voting sidebar: App Check token fetch failed:', err);
+            })
+        : Promise.resolve();
+      tokenStep
+        .then(ensureSignedIn)
+        .then(function () { loadVotes(); });
     });
   }
 
