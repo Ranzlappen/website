@@ -6,6 +6,7 @@ date: 2026-04-03
 category: UX Design
 tags: [dark-mode, light-mode, web-design, ux-psychology, frontend-backend]
 image: /assets/images/darkmode/darkmode-lightmode-hero.webp
+backdrop: /assets/images/darkmode/darkmode-lightmode-hero.webp
 status: placeholder
 series: "privacy-and-control"
 series_order: 2

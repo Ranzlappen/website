@@ -48,23 +48,25 @@ Required secret for Firebase deploys: `FIREBASE_SERVICE_ACCOUNT`.
 3. [How to Write a New Post](#how-to-write-a-new-post)
 4. [Article Status (Draft / Unpublished)](#article-status)
 5. [Add an Image Carousel](#add-an-image-carousel)
-6. [Add a Bar Chart](#add-a-bar-chart)
-7. [Add a Pie Chart](#add-a-pie-chart)
-8. [Add a Line Chart](#add-a-line-chart)
-9. [Add a Data Table](#add-a-data-table)
-10. [Add Sources & Citations](#add-sources--citations)
-11. [Built-in Features](#built-in-features)
-12. [Keyboard Shortcuts](#keyboard-shortcuts)
-13. [Enable Comments (Giscus)](#enable-comments-giscus)
-14. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
-15. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
-16. [Connect Your Own Domain](#connect-your-own-domain)
-17. [Change Colors or Fonts](#change-colors-or-fonts)
-18. [Tune the Blog Carousel](#tune-the-blog-carousel)
-19. [Moderate Comments and Votes](#moderate-comments-and-votes)
-20. [Fullstack Architecture](#fullstack-architecture)
-21. [Quick Reference](#quick-reference)
-22. [Project Structure](#project-structure)
+6. [Enable a Parallax Backdrop](#enable-a-parallax-backdrop)
+7. [Blog Admin (Author Dashboard)](#blog-admin-author-dashboard)
+8. [Add a Bar Chart](#add-a-bar-chart)
+9. [Add a Pie Chart](#add-a-pie-chart)
+10. [Add a Line Chart](#add-a-line-chart)
+11. [Add a Data Table](#add-a-data-table)
+12. [Add Sources & Citations](#add-sources--citations)
+13. [Built-in Features](#built-in-features)
+14. [Keyboard Shortcuts](#keyboard-shortcuts)
+15. [Enable Comments (Giscus)](#enable-comments-giscus)
+16. [Enable Voting Sidebar (Firebase)](#enable-voting-sidebar-firebase)
+17. [Enable Contact Form CAPTCHA (hCaptcha)](#enable-contact-form-captcha-hcaptcha)
+18. [Connect Your Own Domain](#connect-your-own-domain)
+19. [Change Colors or Fonts](#change-colors-or-fonts)
+20. [Tune the Blog Carousel](#tune-the-blog-carousel)
+21. [Moderate Comments and Votes](#moderate-comments-and-votes)
+22. [Fullstack Architecture](#fullstack-architecture)
+23. [Quick Reference](#quick-reference)
+24. [Project Structure](#project-structure)
 
 ---
 
@@ -269,6 +271,97 @@ That's it — the carousel auto-initializes with:
 - **Slide counter** (e.g., "1 / 3")
 
 Upload your images to `assets/images/` and reference them in the `src` attribute. You can add as many images as you want.
+
+</details>
+
+---
+
+<details>
+<summary><h2>Enable a Parallax Backdrop</h2></summary>
+
+A parallax backdrop pins the article's hero image behind the page content, scrolling slower than the rest of the page for a subtle depth effect. The post header, body, and footer become translucent panels layered on top of the image. It's opt-in per article — no global toggle.
+
+### Turn it on for an article
+
+Add a single `backdrop:` field to the post's front matter. Point it at any image in `assets/images/` — reusing the post's `image:` (hero) is the common pattern:
+
+```yaml
+---
+title: "My Post"
+date: 2026-04-15
+category: "Media"
+image: /assets/images/my-topic/my-hero.webp
+backdrop: /assets/images/my-topic/my-hero.webp
+status: published
+---
+```
+
+That's the entire setup. On the next build, the post page renders with the image fixed in the background and the content panels made translucent over it. See `_posts/2026-04-12-cookies.md` for a reference article.
+
+### How it works
+
+- The `_layouts/default.html` layout renders `<div class="parallax-backdrop">` around the referenced image when `page.backdrop` is set, and adds a `has-backdrop` class on `<body>`.
+- `_layouts/post.html` adds the `post--has-backdrop` modifier so the header, body, and footer pick up the translucent background rule in `assets/css/style.css`.
+- `assets/js/main.js` applies a `translate3d` on scroll so the backdrop moves slower than the content, creating the parallax effect.
+- Opacity of the translucent panels is tuned via the `--backdrop-opacity` CSS variable at the top of `assets/css/style.css` (defaults to `0.88`).
+
+### Turn it off
+
+Remove the `backdrop:` line. The post falls back to the normal opaque layout on the next build.
+
+### Setting it from Blog Admin
+
+If you use the Blog Admin dashboard (see next section), the front-matter form has a **Backdrop Image** field — paste the same path you'd put in `image:` and publish. No Markdown editing required.
+
+</details>
+
+---
+
+<details>
+<summary><h2>Blog Admin (Author Dashboard)</h2></summary>
+
+An optional web dashboard at `/blog-admin/` for writing, previewing, and publishing posts without ever touching Markdown files directly. It's mobile-friendly, so you can draft from a phone and ship a post without the GitHub UI.
+
+Developer setup and architecture live in [`blog-admin/README.md`](./blog-admin/README.md). This section is the author's tour of what the dashboard does once it's wired up.
+
+### What it gives you
+
+- **CodeMirror 6 editor** with Markdown syntax highlighting, search/replace, and keyboard shortcuts.
+- **Live preview** that matches the rendered blog post, including GFM tables/tasks and raw HTML passthrough.
+- **Front-matter form** for every field you'd otherwise edit by hand — title, date, category, tags, description, keywords, status (`published` / `draft` / `placeholder` / `unpublished`), hero image, **backdrop image** (parallax), author, PolyVote topic, series, and comments toggle.
+- **Draft list** on the dashboard showing every work-in-progress draft with last-edited timestamps.
+- **Import existing posts** from the repo's `_posts/` folder, in two explicit modes:
+  - **Edit** — links the draft to the existing GitHub file (via `blogDrafts.sourceFilename`), so re-imports reopen the same draft and a publish updates the file in place.
+  - **Copy** — creates an unlinked draft seeded with a `-copy` slug for building a new post from the old one.
+- **Image upload** — drop an image into the editor and the `blogUploadImage` Cloud Function commits it into `assets/images/` on the default branch; the Markdown gets the correct path automatically.
+- **One-click publish** — the `blogPublishToGitHub` Cloud Function commits the final Markdown file into `_posts/` via the GitHub API, and Jekyll rebuilds on the next push. A safety check blocks silent overwrites of existing files unless you confirm.
+
+### How to get in
+
+1. Visit `/blog-admin/` on your deployed site (or `http://localhost:5173/` when running `npm run dev` from `blog-admin/`).
+2. Log in with Firebase email/password. The first admin is bootstrapped once via the `bootstrapAdmin` Cloud Function; additional admins/authors are elevated by an existing admin through `setUserRole`.
+3. The dashboard lists your drafts. Click **New** to start one, click an existing draft to edit it, or use **Import** to pull in a post that's already in `_posts/`.
+
+### Author workflow at a glance
+
+```
+Dashboard → New/Edit/Import
+   → CodeMirror editor + front-matter form
+   → Save (writes a draft to Firestore via blogSaveDraft)
+   → Preview in the live pane
+   → Publish → blogPublishToGitHub commits _posts/<slug>.md
+   → jekyll-gh-pages.yml rebuilds the site → post is live
+```
+
+### Permissions and limits
+
+- All writes go through Cloud Functions — the client never touches Firestore directly. That means the full set of callables (`blogSaveDraft`, `blogListDrafts`, `blogGetDraft`, `blogDeleteDraft`, `blogListExistingPosts`, `blogFetchExistingPost`, `blogImportPostForEdit`, `blogPublishToGitHub`, `blogUploadImage`) must be deployed — they ship automatically via [`.github/workflows/firebase-deploy.yml`](./.github/workflows/firebase-deploy.yml).
+- Role is read from the signed-in user's ID-token custom claims (not a Firestore doc). If you see "Missing or insufficient permissions," your account lacks the right claim — have an admin run `setUserRole`.
+- Dark-only by design — there's no light-theme toggle in the admin.
+
+### When to use it vs. editing Markdown directly
+
+Use the admin when you want the form-based front matter, image uploads, or live preview — and especially when drafting on mobile. Edit the Markdown directly on GitHub when you just need a quick typo fix or when you want to review the exact file diff before committing.
 
 </details>
 
@@ -1110,6 +1203,8 @@ Jekyll and PolyVote share a visual identity so the embedded app feels native: Je
 | Moderate a comment          | Go to repo → Discussions tab → find and manage it              |
 | Check contact messages      | Go to repo → Issues tab → look for `[Contact]` labels         |
 | Add an image carousel       | Wrap `<img>` tags in `<div class="carousel">` in your post     |
+| Enable a parallax backdrop  | Add `backdrop: /assets/images/.../hero.webp` to the post's front matter |
+| Use the author dashboard    | Visit `/blog-admin/` (or `npm run dev` inside `blog-admin/`) and log in |
 | Add a bar chart             | Use `<canvas data-chart="bar">` inside `<div class="chart-container">` |
 | Add a data table            | Use `<table>` inside `<div style="overflow-x: auto;">` in your post |
 | Add source citations        | Use `<sup><a href="#source-1">[1]</a></sup>` inline + `<ol>` at bottom |

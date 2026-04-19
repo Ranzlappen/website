@@ -6,6 +6,7 @@ date: 2026-04-11
 category: "Technology"
 tags: [automation, history, industrial-revolution, robotics, ai, technology-evolution]
 image: /assets/images/automation-evolution/automation-evolution-hero.webp
+backdrop: /assets/images/automation-evolution/automation-evolution-hero.webp
 status: placeholder
 comments: true
 ---

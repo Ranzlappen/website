@@ -11,6 +11,7 @@ status: unpublished
 comments: true
 description: MoodRadar is an early-stage experimental single-file HTML tool that visualizes live Twitch chat mood and consensus in real time. Ideal for high-volume streams where messages scroll too fast to follow. Client-side, no login, instant insights into hype, toxic, wholesome, or neutral chat demeanor.
 image: /assets/images/moodradar/moodradar-hero.webp
+backdrop: /assets/images/moodradar/moodradar-hero.webp
 keywords:
   - moodradar
   - twitch chat mood tracker
