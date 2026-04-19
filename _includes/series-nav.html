@@ -1,5 +1,7 @@
 {% if page.series %}
-  {% assign series_posts = site.posts | where: "series", page.series | where_exp: "post", "post.status == 'published' or post.status == 'placeholder'" | sort: "series_order" %}
+  {% assign series_published = site.posts | where: "series", page.series | where: "status", "published" %}
+  {% assign series_placeholder = site.posts | where: "series", page.series | where: "status", "placeholder" %}
+  {% assign series_posts = series_published | concat: series_placeholder | sort: "series_order" %}
   {% assign series_info = site.data.series | where: "id", page.series | first %}
   {% if series_info and series_posts.size > 1 %}
   <nav class="series-nav" aria-label="Series navigation">
