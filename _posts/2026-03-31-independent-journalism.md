@@ -6,6 +6,7 @@ date: 2026-03-31
 category: "Media"
 tags: [journalism, media-trust, ai]
 image: /assets/images/journalism/media-trust-crisis-hero.webp
+backdrop: /assets/images/journalism/media-trust-crisis-hero.webp
 status: placeholder
 series: "media-trust"
 series_order: 1

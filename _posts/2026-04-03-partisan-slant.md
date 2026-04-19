@@ -6,6 +6,7 @@ date: 2026-04-03
 category: "Media"
 tags: ["statistics-misuse", "media-bias", "politics-data", "manipulation", "mean-median", "cherry-picking"]
 image: /assets/images/partisan-slant/partisan-slant-hero.webp
+backdrop: /assets/images/partisan-slant/partisan-slant-hero.webp
 status: placeholder
 series: "media-trust"
 series_order: 2
