@@ -19,7 +19,7 @@ Every good blog needs a name that makes people pause for a second. This one stuc
 
 ## Built with Claude, open sourced on GitHub
 
-This entire site — the Jekyll blog you're reading now, the **PolyVote** community voting SPA at [/polyvote/](/polyvote/), and the **Blog Admin** authoring dashboard at `/blog-admin/` — is self-developed, end to end, in collaboration with [Claude](https://www.claude.com/) (Anthropic's AI assistant). Every layout, every CSS variable, every React component, every Cloud Function, and every line of this About page has been written through that workflow: I describe what I want, Claude drafts the code, I review and push it.
+This entire site — the Jekyll blog you're reading now, the **PolyVote** community voting SPA at [/polyvote/](/polyvote/), and the **Blog Admin** authoring dashboard at `/blog-admin/` — is self-developed, end to end, in collaboration with [Claude](https://www.claude.com/) (Anthropic's AI assistant).
 
 The whole thing is open source and lives on GitHub at **[Ranzlappen/website](https://github.com/Ranzlappen/website)** — MIT licensed. Fork it, lift pieces of it, or use it as a template for your own blog. The [`README.md`](https://github.com/Ranzlappen/website/blob/main/README.md) walks non-developers through getting their own copy online from a phone, and [`CLAUDE.md`](https://github.com/Ranzlappen/website/blob/main/CLAUDE.md) is the architecture source of truth for anyone digging into the internals.
 
