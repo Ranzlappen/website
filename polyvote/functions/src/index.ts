@@ -76,6 +76,9 @@ export {
   blogFetchExistingPost,
 } from "./blog/github";
 
+// Blog: Import existing post for edit (links draft to source file)
+export { blogImportPostForEdit } from "./blog/import";
+
 // Blog: public voting (Realtime Database)
 export { castBlogVote } from "./blog/castBlogVote";
 

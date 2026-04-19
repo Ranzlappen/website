@@ -63,7 +63,10 @@ export const blogPublishToGitHub = onCall(
     const db = getFirestore();
     const uid = request.auth!.uid;
 
-    const { draftId } = request.data as { draftId: string };
+    const { draftId, confirmOverwrite } = request.data as {
+      draftId: string;
+      confirmOverwrite?: boolean;
+    };
     if (!draftId) {
       throw new HttpsError("invalid-argument", "draftId is required.");
     }
@@ -104,6 +107,20 @@ export const blogPublishToGitHub = onCall(
     } catch (e: unknown) {
       const err = e as { status?: number };
       if (err.status !== 404) throw e;
+    }
+
+    // Safety check: this draft would overwrite an existing GitHub file, but
+    // it isn't linked to that file (or the filename drifted since import).
+    // Surface the risk to the UI and require an explicit confirm retry.
+    const linked = draft.sourceFilename ?? null;
+    const isLinkedUpdate = linked !== null && linked === draft.filename;
+    if (existingSha && !isLinkedUpdate && !confirmOverwrite) {
+      throw new HttpsError(
+        "failed-precondition",
+        `A post named ${draft.filename} already exists on GitHub. ` +
+          `Confirm to overwrite, or change the slug to publish as a new post.`,
+        { code: "overwrite-confirm-required", filename: draft.filename }
+      );
     }
 
     // Create or update file

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { auth } from '../firebase';
 import {
@@ -8,6 +8,7 @@ import {
 } from '../firebase';
 import { useStore } from '../store';
 import DraftCard from '../components/DraftCard';
+import ImportDialog from '../components/ImportDialog';
 import type { ExistingPost } from '../types';
 
 type Tab = 'drafts' | 'github';
@@ -21,6 +22,18 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [ghPosts, setGhPosts] = useState<ExistingPost[]>([]);
   const [ghLoading, setGhLoading] = useState(false);
+  const [importingFilename, setImportingFilename] = useState<string | null>(null);
+
+  // Filenames that already have a draft linked to them — surfaced as a badge
+  // on the GitHub Posts tab so the user knows re-importing will reopen their
+  // draft instead of creating a duplicate.
+  const linkedFilenames = useMemo(() => {
+    const set = new Set<string>();
+    for (const d of drafts) {
+      if (d.sourceFilename) set.add(d.sourceFilename);
+    }
+    return set;
+  }, [drafts]);
 
   const loadDrafts = useCallback(async () => {
     setLoading(true);
@@ -157,30 +170,48 @@ export default function Dashboard() {
               <p className="text-[var(--text-muted)]">No posts found in repository.</p>
             ) : (
               <div className="flex flex-col gap-2">
-                {ghPosts.map((post) => (
-                  <div
-                    key={post.name}
-                    className="flex items-center justify-between bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg px-4 py-3"
-                  >
-                    <div>
-                      <p className="font-medium text-sm">{post.name}</p>
-                      <p className="text-xs text-[var(--text-muted)]">
-                        {(post.size / 1024).toFixed(1)} KB
-                      </p>
-                    </div>
-                    <Link
-                      to={`/import/${encodeURIComponent(post.name)}`}
-                      className="px-3 py-1.5 text-sm rounded border border-[var(--border)] text-[var(--accent)] hover:border-[var(--accent)] transition-colors"
+                {ghPosts.map((post) => {
+                  const isLinked = linkedFilenames.has(post.name);
+                  return (
+                    <div
+                      key={post.name}
+                      className="flex items-center justify-between bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg px-4 py-3"
                     >
-                      Import to editor
-                    </Link>
-                  </div>
-                ))}
+                      <div>
+                        <p className="font-medium text-sm flex items-center gap-2">
+                          {post.name}
+                          {isLinked && (
+                            <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/30">
+                              Linked draft
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-[var(--text-muted)]">
+                          {(post.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setImportingFilename(post.name)}
+                        className="px-3 py-1.5 text-sm rounded border border-[var(--border)] text-[var(--accent)] hover:border-[var(--accent)] transition-colors"
+                      >
+                        Import…
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
         )}
       </div>
+
+      {importingFilename && (
+        <ImportDialog
+          filename={importingFilename}
+          hasLinkedDraft={linkedFilenames.has(importingFilename)}
+          onClose={() => setImportingFilename(null)}
+        />
+      )}
     </div>
   );
 }
