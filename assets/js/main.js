@@ -761,18 +761,47 @@ DATE: 2026-04-02
   // -------------------------------------------------------
   // Parallax Backdrop
   // -------------------------------------------------------
+  // Decouple the transform from the scroll event rate: scroll events only
+  // update the target offset, and a RAF loop lerps the current offset toward
+  // it. This keeps the image moving smoothly between the bursty scroll events
+  // mobile browsers fire during momentum scrolling (the "skip on release" bug).
   var backdropImg = document.querySelector('.parallax-backdrop__img');
   if (backdropImg) {
-    var pTicking = false;
-    window.addEventListener('scroll', function () {
-      if (!pTicking) {
-        requestAnimationFrame(function () {
-          backdropImg.style.transform = 'translateY(' + (window.scrollY * 0.35) + 'px)';
-          pTicking = false;
-        });
-        pTicking = true;
+    var reduceMotion = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var targetY = window.scrollY * 0.35;
+    var currentY = targetY;
+    var rafId = null;
+
+    function applyBackdrop(y) {
+      backdropImg.style.transform = 'translate3d(0,' + y + 'px,0)';
+    }
+
+    function tickBackdrop() {
+      var dy = targetY - currentY;
+      if (Math.abs(dy) < 0.25) {
+        currentY = targetY;
+        applyBackdrop(currentY);
+        rafId = null;
+        return;
       }
-    }, { passive: true });
+      currentY += dy * 0.18;
+      applyBackdrop(currentY);
+      rafId = requestAnimationFrame(tickBackdrop);
+    }
+
+    function scheduleBackdrop() {
+      targetY = window.scrollY * 0.35;
+      if (reduceMotion) {
+        currentY = targetY;
+        applyBackdrop(currentY);
+        return;
+      }
+      if (rafId === null) rafId = requestAnimationFrame(tickBackdrop);
+    }
+
+    applyBackdrop(currentY);
+    window.addEventListener('scroll', scheduleBackdrop, { passive: true });
   }
 
 })();
