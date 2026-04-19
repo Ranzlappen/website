@@ -159,7 +159,7 @@ export default function Navbar() {
 
               {/* Login dropdown */}
               {showLogin && (
-                <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-surface-200 bg-surface p-4 shadow-xl z-50">
+                <div className="absolute right-0 top-full mt-2 w-72 max-w-[calc(100vw-1rem)] rounded-xl border border-surface-200 bg-surface p-4 shadow-xl z-50">
                   <h3 className="text-sm font-semibold text-gray-200 mb-3">
                     {isSignup ? 'Create Account' : 'Sign In'}
                   </h3>

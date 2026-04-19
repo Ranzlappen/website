@@ -105,7 +105,7 @@ export default function TopicDetail() {
         >
           {topic.category}
         </span>
-        <h1 className="text-2xl font-bold text-gray-100 sm:text-3xl mb-2">{topic.title}</h1>
+        <h1 className="text-2xl font-bold text-gray-100 sm:text-3xl mb-2 break-words">{topic.title}</h1>
         <div className="text-gray-400 mb-4 text-sm leading-relaxed [&_a]:text-brand-400 [&_a:hover]:underline [&_strong]:text-gray-300 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:mt-1 [&_h3]:text-gray-200 [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_p+p]:mt-2 [&_code]:bg-surface-100 [&_code]:px-1 [&_code]:rounded [&_blockquote]:border-l-2 [&_blockquote]:border-brand-400/30 [&_blockquote]:pl-3 [&_blockquote]:italic">
           <Suspense fallback={<p>{topic.description}</p>}>
             <Markdown>{topic.description}</Markdown>
@@ -143,9 +143,9 @@ export default function TopicDetail() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 + mi * 0.05 }}
             >
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold text-gray-200">{metric.label}</h2>
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <h2 className="text-lg font-semibold text-gray-200 break-words min-w-0">{metric.label}</h2>
+                <div className="flex items-center gap-2 shrink-0">
                   {voted && (
                     <span className="text-xs text-gray-500 hidden sm:inline">Click another to change vote</span>
                   )}

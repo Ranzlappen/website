@@ -103,7 +103,7 @@ export default function AdminTopics() {
       key: 'title',
       label: 'Title',
       render: (t: Topic) => (
-        <div className="max-w-xs truncate font-medium text-gray-200">{t.title}</div>
+        <div className="max-w-xs min-w-0 truncate font-medium text-gray-200">{t.title}</div>
       ),
     },
     {

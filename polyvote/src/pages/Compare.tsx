@@ -137,11 +137,11 @@ export default function Compare() {
                   onClick={() => addTopic(topic)}
                   className="flex w-full items-center gap-3 rounded-lg border border-surface-200 bg-surface-50 p-3 text-left hover:border-brand-400/40 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                 >
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${categoryColor[topic.category] || categoryColor.Other}`}>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium shrink-0 ${categoryColor[topic.category] || categoryColor.Other}`}>
                     {topic.category}
                   </span>
-                  <span className="flex-1 text-sm text-gray-200 truncate">{topic.title}</span>
-                  <span className="text-xs text-gray-500">{topic.totalVotes} votes</span>
+                  <span className="flex-1 min-w-0 text-sm text-gray-200 truncate">{topic.title}</span>
+                  <span className="text-xs text-gray-500 shrink-0">{topic.totalVotes} votes</span>
                 </button>
               ))}
               {filteredTopics.length === 0 && (

@@ -175,13 +175,13 @@ export default function Dashboard() {
                   return (
                     <div
                       key={post.name}
-                      className="flex items-center justify-between bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg px-4 py-3"
+                      className="flex items-center justify-between gap-3 bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg px-4 py-3"
                     >
-                      <div>
-                        <p className="font-medium text-sm flex items-center gap-2">
-                          {post.name}
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="break-all">{post.name}</span>
                           {isLinked && (
-                            <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/30">
+                            <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-[var(--accent)]/15 text-[var(--accent)] border border-[var(--accent)]/30 shrink-0">
                               Linked draft
                             </span>
                           )}
@@ -192,7 +192,7 @@ export default function Dashboard() {
                       </div>
                       <button
                         onClick={() => setImportingFilename(post.name)}
-                        className="px-3 py-1.5 text-sm rounded border border-[var(--border)] text-[var(--accent)] hover:border-[var(--accent)] transition-colors"
+                        className="px-3 py-1.5 text-sm rounded border border-[var(--border)] text-[var(--accent)] hover:border-[var(--accent)] transition-colors shrink-0"
                       >
                         Import…
                       </button>

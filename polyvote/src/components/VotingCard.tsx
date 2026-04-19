@@ -111,13 +111,13 @@ export default function VotingCard({
       </AnimatePresence>
 
       <div className="relative flex flex-wrap items-center justify-between gap-y-1">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           {/* Color dot */}
           <span
-            className="h-3 w-3 rounded-full ring-2 ring-white/10"
+            className="h-3 w-3 rounded-full ring-2 ring-white/10 shrink-0"
             style={{ backgroundColor: color }}
           />
-          <span className="text-sm font-medium text-gray-200 truncate">{label}</span>
+          <span className="text-sm font-medium text-gray-200 truncate min-w-0">{label}</span>
           <AnimatePresence>
             {selected && (
               <motion.span

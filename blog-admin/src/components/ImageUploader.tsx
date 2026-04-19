@@ -122,8 +122,8 @@ export default function ImageUploader({ slug, open, onClose, onUploaded }: Props
           )}
         </div>
 
-        <p className="text-xs text-[var(--text-muted)] mt-3">
-          Uploads to: <code>assets/images/{slug || 'uploads'}/</code>
+        <p className="text-xs text-[var(--text-muted)] mt-3 break-words">
+          Uploads to: <code className="break-all">assets/images/{slug || 'uploads'}/</code>
         </p>
 
         <div className="flex justify-end mt-4">

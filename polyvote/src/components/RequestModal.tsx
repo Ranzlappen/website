@@ -316,7 +316,7 @@ export default function RequestModal({ open, onClose, topic }: Props) {
               </button>
             </div>
 
-            <p className="text-sm text-gray-400 mb-1">
+            <p className="text-sm text-gray-400 mb-1 break-words">
               Topic: <span className="text-gray-200">{topic.title}</span>
             </p>
             <p className="text-xs text-gray-500 mb-5">

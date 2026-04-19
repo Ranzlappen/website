@@ -38,7 +38,7 @@ This analysis focuses exclusively on media ecosystems in Western democracies the
 <h3 id="data-snapshot">US vs Europe Data Snapshot</h3>
 
 <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%;">
-  <table style="width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.4; min-width: 640px; table-layout: auto;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.4; min-width: 100%; table-layout: auto;">
     <thead>
       <tr>
         <th style="text-align: left; padding: 11px 10px; width: 37%;">Country/Region</th>

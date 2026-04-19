@@ -41,12 +41,12 @@ export default function TopicCard({ topic, index }: Props) {
             </span>
 
             {/* Title */}
-            <h3 className="text-base font-semibold text-gray-100 group-hover:text-brand-400 transition-colors line-clamp-2">
+            <h3 className="text-base font-semibold text-gray-100 group-hover:text-brand-400 transition-colors line-clamp-2 break-words">
               {topic.title}
             </h3>
 
             {/* Description */}
-            <p className="text-sm text-gray-500 line-clamp-2">{topic.description}</p>
+            <p className="text-sm text-gray-500 line-clamp-2 break-words">{topic.description}</p>
           </div>
 
           {/* Mini radar preview */}

@@ -97,13 +97,13 @@ export default function MyVotes() {
                   className="block rounded-xl border border-surface-200 bg-surface-50 p-5 hover:border-brand-400/40 transition-all"
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium mb-1 ${categoryColor[topic.category] || categoryColor.Other}`}>
                         {topic.category}
                       </span>
-                      <h3 className="text-base font-semibold text-gray-100">{topic.title}</h3>
+                      <h3 className="text-base font-semibold text-gray-100 break-words">{topic.title}</h3>
                     </div>
-                    <span className="text-xs text-gray-500 whitespace-nowrap">
+                    <span className="text-xs text-gray-500 whitespace-nowrap shrink-0">
                       {Object.keys(myVotes).length}/{topic.metrics.length} metrics
                     </span>
                   </div>

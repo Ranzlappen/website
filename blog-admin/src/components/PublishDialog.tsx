@@ -66,8 +66,8 @@ export default function PublishDialog({ draftId, filename, open, onClose, onPubl
         {result ? (
           <>
             <h3 className="text-lg font-semibold mb-3 text-green-400">Published!</h3>
-            <p className="text-sm text-[var(--text-muted)] mb-2">
-              File <code className="text-[var(--text)]">_posts/{filename}</code> has been committed.
+            <p className="text-sm text-[var(--text-muted)] mb-2 break-words">
+              File <code className="text-[var(--text)] break-all">_posts/{filename}</code> has been committed.
             </p>
             <p className="text-sm text-[var(--text-muted)] mb-1">
               Commit: <code className="text-xs">{result.commitSha.slice(0, 8)}</code>
@@ -99,9 +99,9 @@ export default function PublishDialog({ draftId, filename, open, onClose, onPubl
             <h3 className="text-lg font-semibold mb-3 text-amber-400">
               Overwrite existing post?
             </h3>
-            <p className="text-sm text-[var(--text-muted)] mb-2">
+            <p className="text-sm text-[var(--text-muted)] mb-2 break-words">
               A post named{' '}
-              <code className="text-[var(--text)]">_posts/{filename}</code>{' '}
+              <code className="text-[var(--text)] break-all">_posts/{filename}</code>{' '}
               already exists on GitHub, and this draft isn't linked to it.
             </p>
             <p className="text-sm text-[var(--text-muted)] mb-4">
@@ -131,9 +131,9 @@ export default function PublishDialog({ draftId, filename, open, onClose, onPubl
         ) : (
           <>
             <h3 className="text-lg font-semibold mb-3">Publish to GitHub</h3>
-            <p className="text-sm text-[var(--text-muted)] mb-4">
+            <p className="text-sm text-[var(--text-muted)] mb-4 break-words">
               This will create or update the file{' '}
-              <code className="text-[var(--text)]">_posts/{filename}</code>{' '}
+              <code className="text-[var(--text)] break-all">_posts/{filename}</code>{' '}
               in the repository. A GitHub Actions build will be triggered automatically.
             </p>
 
