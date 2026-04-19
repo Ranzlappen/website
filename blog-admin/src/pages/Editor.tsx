@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
 import type { EditorView } from '@codemirror/view';
 import { blogSaveDraftFn, blogGetDraftFn, blogFetchExistingPostFn } from '../firebase';
 import { useStore } from '../store';
@@ -15,7 +15,15 @@ import PublishDialog from '../components/PublishDialog';
 export default function Editor() {
   const { draftId, filename } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const addToast = useStore((s) => s.addToast);
+
+  // `/copy/:filename` means "fork this GitHub post into a new draft". We seed
+  // a `-copy` slug so the user notices they need to change it before publish,
+  // and (unlike /import/) leave `currentDraftId` null so saving creates a
+  // fresh, unlinked draft.
+  const isCopyMode = location.pathname.startsWith('/copy/');
 
   const [frontMatter, setFrontMatter] = useState<FrontMatter>(createEmptyFrontMatter);
   const [slug, setSlug] = useState('');
@@ -59,8 +67,20 @@ export default function Editor() {
       try {
         const result = await blogFetchExistingPostFn({ filename: decodeURIComponent(filename) });
         const data = result.data;
-        setFrontMatter(data.frontMatter);
-        setSlug(data.slug);
+        if (isCopyMode) {
+          // Seed a distinct slug so publish won't silently collide with the
+          // source file, and apply the author override passed by the dialog.
+          const authorParam = searchParams.get('author');
+          const nextAuthor =
+            authorParam === null
+              ? data.frontMatter.author
+              : authorParam.trim() || null;
+          setFrontMatter({ ...data.frontMatter, author: nextAuthor });
+          setSlug(`${data.slug}-copy`);
+        } else {
+          setFrontMatter(data.frontMatter);
+          setSlug(data.slug);
+        }
         setBody(data.body);
         // Don't set currentDraftId — this is a new draft from an import
       } catch (err: unknown) {
@@ -74,7 +94,7 @@ export default function Editor() {
 
     if (draftId) loadDraft();
     else if (filename) importPost();
-  }, [draftId, filename, addToast, navigate]);
+  }, [draftId, filename, isCopyMode, searchParams, addToast, navigate]);
 
   // Mark dirty on changes
   const handleFrontMatterChange = useCallback((fm: FrontMatter) => {

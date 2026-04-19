@@ -44,7 +44,7 @@ export const blogDeleteDraftFn = httpsCallable<
 // ── Publish ──
 
 export const blogPublishToGitHubFn = httpsCallable<
-  { draftId: string },
+  { draftId: string; confirmOverwrite?: boolean },
   { commitSha: string; commitUrl: string }
 >(functions, 'blogPublishToGitHub');
 
@@ -66,3 +66,13 @@ export const blogFetchExistingPostFn = httpsCallable<
   { filename: string },
   { filename: string; slug: string; frontMatter: FrontMatter; body: string; sha: string }
 >(functions, 'blogFetchExistingPost');
+
+export type ImportAuthorChoice =
+  | 'default'
+  | 'keep'
+  | { value: string };
+
+export const blogImportPostForEditFn = httpsCallable<
+  { filename: string; authorChoice: ImportAuthorChoice },
+  { draftId: string; created: boolean }
+>(functions, 'blogImportPostForEdit');

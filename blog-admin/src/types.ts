@@ -27,6 +27,10 @@ export interface BlogDraft {
   githubSha: string | null;
   lastPublishedAt: number | null;
   draftStatus: 'editing' | 'published' | 'archived';
+  // Set when this draft was created by importing an existing GitHub post
+  // in "Edit" mode. Used to route re-imports back to the same draft and to
+  // distinguish a legitimate update from a silent overwrite at publish time.
+  sourceFilename: string | null;
 }
 
 export interface ExistingPost {

@@ -202,7 +202,8 @@ export const blogSaveDraft = onCall(async (request) => {
 
     return { id: draftId, updatedAt: now };
   } else {
-    // Create new draft
+    // Create new draft. Regular saves never link to a GitHub source file —
+    // that's exclusively set by `blogImportPostForEdit`.
     const draftRef = db.collection("blogDrafts").doc();
     await draftRef.set({
       slug: validSlug,
@@ -215,6 +216,7 @@ export const blogSaveDraft = onCall(async (request) => {
       githubSha: null,
       lastPublishedAt: null,
       draftStatus: "editing",
+      sourceFilename: null,
     });
 
     return { id: draftRef.id, updatedAt: now };

@@ -56,6 +56,7 @@ Production deploy of `castBlogVote` is automated (see CI/CD below). Manual deplo
 - **Navigation**: Centralized in `_data/pages.yml` — single source of truth for nav and footer links.
 - **Firebase keys**: Public client-side keys in `_config.yml`, `polyvote/src/firebase.ts`, and `blog-admin/src/firebase.ts`. Security is enforced via Firestore rules and Cloud Functions.
 - **Server-validated writes**: All client writes go through Cloud Functions (`httpsCallable`), never direct Firestore SDK writes. This applies to PolyVote user actions (votes, comments, requests) **and** to Blog Admin operations (drafts, publishing). Keep `blog-admin/src/firebase.ts` free of `addDoc`/`setDoc`/`updateDoc`/`deleteDoc`.
+- **Blog import flow**: Importing an existing `_posts/` file from Blog Admin offers two explicit modes — **Edit** (links the draft to the GitHub file via `blogDrafts.sourceFilename`, so re-imports reopen the same draft and publish updates in place) and **Copy** (unlinked draft seeded with a `-copy` slug for creating a new post). `blogPublishToGitHub` requires `confirmOverwrite: true` when a draft would silently overwrite an unlinked GitHub file.
 - **Privacy-first**: No Google Analytics. Cookie consent is GDPR-compliant with functional category.
 - **Theme**: Dark mode is default across all three modules. The blog (CSS custom properties) and PolyVote (Tailwind + CSS variables, persisted via Zustand/localStorage) support a dark/light toggle. Blog Admin is dark-only by design — it has no theme toggle and no `.light` CSS variant.
 
