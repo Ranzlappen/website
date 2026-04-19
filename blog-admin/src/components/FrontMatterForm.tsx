@@ -176,12 +176,12 @@ export default function FrontMatterForm({ frontMatter, slug, onChange, onSlugCha
               {frontMatter.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-[var(--bg)] border border-[var(--border)]"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-[var(--bg)] border border-[var(--border)] max-w-full break-all"
                 >
                   {tag}
                   <button
                     onClick={() => removeTag(tag)}
-                    className="text-[var(--text-muted)] hover:text-[var(--danger)] leading-none"
+                    className="text-[var(--text-muted)] hover:text-[var(--danger)] leading-none shrink-0"
                   >
                     &times;
                   </button>
@@ -317,12 +317,12 @@ export default function FrontMatterForm({ frontMatter, slug, onChange, onSlugCha
                 {frontMatter.keywords.map((kw) => (
                   <span
                     key={kw}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-[var(--bg)] border border-[var(--border)]"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-[var(--bg)] border border-[var(--border)] max-w-full break-all"
                   >
                     {kw}
                     <button
                       onClick={() => removeKeyword(kw)}
-                      className="text-[var(--text-muted)] hover:text-[var(--danger)] leading-none"
+                      className="text-[var(--text-muted)] hover:text-[var(--danger)] leading-none shrink-0"
                     >
                       &times;
                     </button>

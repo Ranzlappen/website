@@ -18,11 +18,11 @@ export default function DraftCard({ draft, onDelete }: Props) {
   return (
     <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-4 flex flex-col gap-3 hover:border-[var(--accent)]/30 transition-colors">
       <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <h3 className="font-semibold truncate">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold break-words">
             {draft.frontMatter.title || 'Untitled'}
           </h3>
-          <p className="text-sm text-[var(--text-muted)] mt-0.5">
+          <p className="text-sm text-[var(--text-muted)] mt-0.5 break-all">
             {draft.filename}
           </p>
         </div>
@@ -37,7 +37,7 @@ export default function DraftCard({ draft, onDelete }: Props) {
         </p>
       )}
 
-      <div className="flex items-center gap-3 text-xs text-[var(--text-muted)]">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--text-muted)]">
         <span>{draft.frontMatter.category}</span>
         <span>Status: {draft.frontMatter.status}</span>
         <span>Updated: {new Date(draft.updatedAt).toLocaleDateString()}</span>

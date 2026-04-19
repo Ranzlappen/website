@@ -236,13 +236,13 @@ export default function TopicRequestForm() {
           <div className="space-y-4">
             {metrics.map((metric, mi) => (
               <div key={mi} className="rounded-xl border border-surface-200 bg-surface-50 p-4">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-3 min-w-0">
                   <input
                     type="text"
                     value={metric.label}
                     onChange={(e) => updateMetricLabel(mi, e.target.value)}
                     placeholder={`Metric ${mi + 1} label`}
-                    className="flex-1 rounded-lg border border-surface-200 bg-surface-100 p-2 text-sm text-gray-200 placeholder:text-gray-500 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400/30"
+                    className="flex-1 min-w-0 rounded-lg border border-surface-200 bg-surface-100 p-2 text-sm text-gray-200 placeholder:text-gray-500 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400/30"
                   />
                   {metrics.length > 1 && (
                     <button

@@ -258,15 +258,15 @@ function CommentBubble({
 
   return (
     <div className={`rounded-xl border bg-surface-50 p-3 ${netVotes >= 3 ? 'border-brand-400/30' : 'border-surface-200'}`}>
-      <div className="flex items-center justify-between mb-1">
-        <span className={`text-xs font-medium ${isOwn ? 'text-brand-400' : 'text-gray-400'}`}>
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <span className={`text-xs font-medium truncate min-w-0 ${isOwn ? 'text-brand-400' : 'text-gray-400'}`}>
           {comment.displayName} {isOwn && '(you)'}
         </span>
-        <span className="text-xs text-gray-600">
+        <span className="text-xs text-gray-600 shrink-0">
           {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
         </span>
       </div>
-      <p className="text-sm text-gray-300">{comment.text}</p>
+      <p className="text-sm text-gray-300 break-words whitespace-pre-wrap">{comment.text}</p>
       <div className="mt-1.5 flex items-center gap-3">
         {/* Vote buttons */}
         <div className="flex items-center gap-1">

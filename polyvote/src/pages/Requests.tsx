@@ -182,8 +182,8 @@ export default function Requests() {
                         </span>
                       </div>
 
-                      <h3 className="text-base font-semibold text-gray-100 mb-1">{req.title}</h3>
-                      <p className="text-sm text-gray-400 mb-3">{req.description}</p>
+                      <h3 className="text-base font-semibold text-gray-100 mb-1 line-clamp-2 break-words">{req.title}</h3>
+                      <p className="text-sm text-gray-400 mb-3 break-words">{req.description}</p>
 
                       {/* Metrics preview */}
                       <div className="flex flex-wrap gap-2 mb-3">
@@ -270,10 +270,10 @@ export default function Requests() {
                       </span>
                     </div>
 
-                    <p className="text-xs text-gray-500 mb-1">
+                    <p className="text-xs text-gray-500 mb-1 break-words">
                       Topic: <span className="text-gray-300">{req.topicTitle}</span>
                     </p>
-                    {req.description && <p className="text-sm text-gray-400 mb-2">{req.description}</p>}
+                    {req.description && <p className="text-sm text-gray-400 mb-2 break-words">{req.description}</p>}
 
                     {/* Show structured changes */}
                     {req.changes && req.changes.length > 0 && (

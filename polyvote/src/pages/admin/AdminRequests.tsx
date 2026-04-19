@@ -207,7 +207,7 @@ function RequestCard({
               </span>
             )}
           </div>
-          <p className="text-sm font-medium text-gray-200">{req.topicTitle}</p>
+          <p className="text-sm font-medium text-gray-200 line-clamp-2 break-words">{req.topicTitle}</p>
           {req.description && (
             <p className="text-xs text-gray-500 mt-0.5 truncate">{req.description}</p>
           )}

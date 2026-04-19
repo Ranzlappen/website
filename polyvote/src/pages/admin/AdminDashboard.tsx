@@ -80,9 +80,9 @@ export default function AdminDashboard() {
                 <Link
                   key={t.id}
                   to={`/topic/${t.id}`}
-                  className="flex items-center justify-between text-sm text-gray-300 hover:text-brand-400 rounded-lg px-2 py-1.5 hover:bg-surface-100 transition-colors"
+                  className="flex items-center justify-between gap-2 text-sm text-gray-300 hover:text-brand-400 rounded-lg px-2 py-1.5 hover:bg-surface-100 transition-colors"
                 >
-                  <span className="truncate">
+                  <span className="truncate min-w-0 flex-1">
                     <span className="text-gray-500 mr-2">#{i + 1}</span>
                     {t.title}
                   </span>

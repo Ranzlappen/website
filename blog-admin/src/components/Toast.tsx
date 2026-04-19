@@ -12,7 +12,7 @@ export default function Toast() {
         <div
           key={toast.id}
           role="alert"
-          className={`px-4 py-3 rounded-lg shadow-lg border text-sm flex items-center gap-3 min-w-[280px] ${
+          className={`px-4 py-3 rounded-lg shadow-lg border text-sm flex items-start gap-3 min-w-[280px] max-w-[calc(100vw-2rem)] ${
             toast.type === 'error'
               ? 'bg-red-900/80 border-red-700 text-red-100'
               : toast.type === 'success'
@@ -20,7 +20,7 @@ export default function Toast() {
                 : 'bg-[var(--bg-surface)] border-[var(--border)] text-[var(--text)]'
           }`}
         >
-          <span className="flex-1">{toast.message}</span>
+          <span className="flex-1 min-w-0 break-words">{toast.message}</span>
           <button
             onClick={() => removeToast(toast.id)}
             className="opacity-60 hover:opacity-100 text-lg leading-none"

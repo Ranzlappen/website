@@ -31,14 +31,14 @@ export default function Toast() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="pointer-events-auto flex items-center gap-2 rounded-lg border border-surface-200 bg-surface-100 px-4 py-3 shadow-lg sm:max-w-sm"
+            className="pointer-events-auto flex items-start gap-2 rounded-lg border border-surface-200 bg-surface-100 px-4 py-3 shadow-lg sm:max-w-sm"
           >
-            {iconMap[t.type]}
-            <span className="text-sm text-gray-200">{t.text}</span>
+            <span className="shrink-0 mt-0.5">{iconMap[t.type]}</span>
+            <span className="text-sm text-gray-200 flex-1 min-w-0 break-words">{t.text}</span>
             <button
               onClick={() => removeToast(t.id)}
               aria-label={`Dismiss: ${t.text}`}
-              className="ml-2 text-gray-500 hover:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
+              className="ml-2 shrink-0 text-gray-500 hover:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 rounded"
             >
               <X size={14} />
             </button>

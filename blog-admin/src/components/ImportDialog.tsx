@@ -110,9 +110,9 @@ export default function ImportDialog({ filename, hasLinkedDraft, onClose }: Prop
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-lg font-semibold mb-1">Import post</h3>
-        <p className="text-xs text-[var(--text-muted)] mb-4 truncate">
+        <p className="text-xs text-[var(--text-muted)] mb-4 break-all">
           <code className="text-[var(--text)]">{filename}</code>
-          {postTitle && <span className="ml-2">— {postTitle}</span>}
+          {postTitle && <span className="ml-2 break-words">— {postTitle}</span>}
         </p>
 
         {loadingPreview ? (
@@ -195,7 +195,7 @@ export default function ImportDialog({ filename, hasLinkedDraft, onClose }: Prop
                     className="mt-1"
                   />
                   <div>
-                    <div className="text-sm font-medium">
+                    <div className="text-sm font-medium break-words">
                       Keep existing: <span className="text-[var(--accent)]">{existingAuthor}</span>
                     </div>
                     <div className="text-xs text-[var(--text-muted)]">
