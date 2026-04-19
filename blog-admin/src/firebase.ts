@@ -1,7 +1,13 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, EmailAuthProvider } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import type { BlogDraft, ExistingPost, FrontMatter } from './types';
+import type {
+  BlogDraft,
+  ExistingPost,
+  FrontMatter,
+  UserProfile,
+  UserRole,
+} from './types';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyByEwHUnausbBmyRT928uGTRw5ZvszjjiM',
@@ -93,3 +99,31 @@ export const blogListSeriesUsageFn = httpsCallable<
   Record<string, never>,
   { posts: SeriesUsageEntry[]; drafts: SeriesUsageEntry[] }
 >(functions, 'blogListSeriesUsage');
+
+// ── Admin: user management (admin-only) ──
+// Shared with the PolyVote admin dashboard; both UIs call the same backend.
+
+export const adminListUsersFn = httpsCallable<
+  {
+    pageSize?: number;
+    roleFilter?: string;
+    statusFilter?: string;
+    searchQuery?: string;
+  },
+  { users: UserProfile[]; hasMore: boolean; lastId: string | null }
+>(functions, 'adminListUsers');
+
+export const setUserRoleFn = httpsCallable<
+  { uid: string; role: UserRole },
+  { success: boolean; uid: string; role: UserRole }
+>(functions, 'setUserRole');
+
+export const adminBanUserFn = httpsCallable<
+  { uid: string; reason?: string },
+  { success: boolean }
+>(functions, 'adminBanUser');
+
+export const adminUnbanUserFn = httpsCallable<
+  { uid: string },
+  { success: boolean }
+>(functions, 'adminUnbanUser');

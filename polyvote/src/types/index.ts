@@ -122,7 +122,7 @@ export interface Comment {
 // ── Backend types ──
 
 /** User roles for access control */
-export type UserRole = 'user' | 'moderator' | 'admin';
+export type UserRole = 'user' | 'author' | 'moderator' | 'admin';
 
 /** User account status */
 export type UserStatus = 'active' | 'suspended' | 'banned';

@@ -17,6 +17,7 @@ export default function Dashboard() {
   const drafts = useStore((s) => s.drafts);
   const setDrafts = useStore((s) => s.setDrafts);
   const addToast = useStore((s) => s.addToast);
+  const isAdmin = useStore((s) => s.isAdmin);
 
   const [tab, setTab] = useState<Tab>('drafts');
   const [loading, setLoading] = useState(true);
@@ -97,6 +98,14 @@ export default function Dashboard() {
             >
               New Post
             </Link>
+            {isAdmin() && (
+              <Link
+                to="/users"
+                className="px-3 py-2 rounded border border-[var(--border)] text-sm text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--text-muted)] transition-colors"
+              >
+                Users
+              </Link>
+            )}
             <button
               onClick={() => auth.signOut()}
               className="px-3 py-2 rounded border border-[var(--border)] text-sm text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--text-muted)] transition-colors"

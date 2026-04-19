@@ -1,6 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from 'firebase/auth';
 import { auth } from '../firebase';
 import { useStore } from '../store';
 
@@ -14,6 +17,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSignup, setIsSignup] = useState(false);
 
   // Already logged in with author role
   if (!authLoading && user && !user.isAnonymous && isAuthor()) {
@@ -26,7 +30,11 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      if (isSignup) {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
       navigate('/', { replace: true });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Sign-in failed';
@@ -42,7 +50,9 @@ export default function Login() {
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold">Blog Admin</h1>
           <p className="text-[var(--text-muted)] mt-1 text-sm">
-            Sign in to manage blog posts
+            {isSignup
+              ? 'Create an account to request author access'
+              : 'Sign in to manage blog posts'}
           </p>
         </div>
 
@@ -82,7 +92,26 @@ export default function Login() {
             disabled={loading}
             className="bg-[var(--accent)] text-[var(--bg)] font-semibold py-2 rounded hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
           >
-            {loading ? 'Signing in...' : 'Sign in'}
+            {loading
+              ? isSignup
+                ? 'Creating account...'
+                : 'Signing in...'
+              : isSignup
+                ? 'Create account'
+                : 'Sign in'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsSignup(!isSignup);
+              setError('');
+            }}
+            className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
+          >
+            {isSignup
+              ? 'Already have an account? Sign in'
+              : 'Need an account? Register'}
           </button>
         </form>
 
