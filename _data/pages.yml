@@ -32,11 +32,6 @@
   menu: [main]
   order: 4
 
-- title: "PolyVote (alpha)"
-  url: "/polyvote/"
-  menu: [footer]
-  order: 5
-
 - title: "About"
   url: "/about/"
   menu: [main, footer]
