@@ -19,3 +19,7 @@
 - name: "Twitch Mood Radar"
   url: "https://twitch-mood-radar.ranzlappen.com"
   favicon: /assets/images/favicons/twitch-mood-radar.png
+
+- name: "PolyVote (alpha)"
+  url: /polyvote/
+  favicon: /assets/images/favicons/polyvote.svg
