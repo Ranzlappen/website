@@ -34,7 +34,7 @@
 
 - title: "PolyVote (alpha)"
   url: "/polyvote/"
-  menu: [main]
+  menu: [footer]
   order: 5
 
 - title: "About"
