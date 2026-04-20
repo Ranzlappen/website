@@ -17,6 +17,18 @@ DATE: 2026-04-02
       {% endfor %}
     </nav>
 
+    <!-- Project showcase -->
+    {% if site.data.projects and site.data.projects.size > 0 %}
+    <nav class="footer-projects" aria-label="My projects">
+      {% for project in site.data.projects %}
+      <a href="{{ project.url }}" target="_blank" rel="noopener noreferrer"
+         aria-label="{{ project.name }}" title="{{ project.name }}">
+        <img src="{{ project.favicon | relative_url }}" alt="" width="24" height="24" loading="lazy">
+      </a>
+      {% endfor %}
+    </nav>
+    {% endif %}
+
     <!-- Support -->
     <div class="footer-support">
       <a href="https://ko-fi.com/F1F1140LWT" target="_blank" rel="noopener noreferrer" class="footer-support__link">

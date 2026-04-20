@@ -22,62 +22,37 @@
   menu: [main]
   order: 2
 
+- title: "Projects"
+  url: "/projects/"
+  menu: [main]
+  order: 3
+
 - title: "Categories"
   url: "/categories/"
   menu: [main]
-  order: 3
+  order: 4
 
 - title: "PolyVote (alpha)"
   url: "/polyvote/"
   menu: [main]
-  order: 4
-
-- title: "Ticked"
-  url: "https://ticked.ranzlappen.com"
-  menu: [main]
   order: 5
-  external: true
-
-- title: "World Map"
-  url: "https://worldmap.ranzlappen.com"
-  menu: [main]
-  order: 6
-  external: true
-
-- title: "Mood Radar"
-  url: "https://twitch-mood-radar.ranzlappen.com"
-  menu: [main]
-  order: 7
-  external: true
-
-- title: "Court"
-  url: "https://court-procedure-guide.ranzlappen.com"
-  menu: [main]
-  order: 8
-  external: true
-
-- title: "Intuino"
-  url: "https://intuino.ranzlappen.com"
-  menu: [main]
-  order: 9
-  external: true
 
 - title: "About"
   url: "/about/"
   menu: [main, footer]
-  order: 10
+  order: 6
 
 - title: "Contact"
   url: "/contact/"
   menu: [main, footer]
-  order: 11
+  order: 7
 
 - title: "Disclaimer"
   url: "/disclaimer/"
   menu: [footer]
-  order: 12
+  order: 8
 
 - title: "Privacy Policy"
   url: "/privacy/"
   menu: [footer]
-  order: 13
+  order: 9

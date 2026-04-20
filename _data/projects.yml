@@ -1,0 +1,21 @@
+# ──────────────────────────────────────────────────────────────
+# External project registry
+#
+# Renders as a favicon strip in the site footer (see
+# _includes/footer.html). Add a new entry and commit a local
+# favicon copy under assets/images/favicons/ to surface a new app.
+#
+# fields:
+#   name:    human-readable app name (used for alt/title)
+#   url:     absolute URL to the hosted app
+#   favicon: site-relative path to a local favicon PNG
+#            (kept local for privacy — do NOT hotlink)
+# ──────────────────────────────────────────────────────────────
+
+- name: "Ticked"
+  url: "https://ticked.ranzlappen.com"
+  favicon: /assets/images/favicons/ticked.png
+
+- name: "Twitch Mood Radar"
+  url: "https://twitch-mood-radar.ranzlappen.com"
+  favicon: /assets/images/favicons/twitch-mood-radar.png
