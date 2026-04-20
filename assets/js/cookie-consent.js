@@ -216,7 +216,7 @@
     setTimeout(function () { banner.hidden = true; }, 300);
     // Return focus to trigger element if available
     var trigger = document.getElementById('cc-footer-settings');
-    if (trigger && trigger.offsetParent !== null) trigger.focus();
+    if (trigger && trigger.offsetParent !== null) trigger.focus({ preventScroll: true });
   }
 
   // ── Public API ────────────────────────────────────────────

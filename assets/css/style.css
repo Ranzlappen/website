@@ -2027,6 +2027,32 @@ img {
   height: 1.1rem;
 }
 
+.footer-projects {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.footer-projects a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--border-radius-sm);
+  opacity: 0.75;
+  transition: opacity var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+}
+.footer-projects a:hover {
+  opacity: 1;
+  background: var(--c-accent-bg);
+  transform: translateY(-1px);
+}
+.footer-projects img {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+}
+
 .footer-copy {
   width: 100%;
   text-align: center;
@@ -2691,6 +2717,7 @@ img {
   .footer-inner { flex-direction: column; text-align: center; }
   .footer-links { justify-content: center; }
   .footer-social { justify-content: center; }
+  .footer-projects { justify-content: center; }
   .footer-support { justify-content: center; }
   .footer-cookie-group { justify-content: center; }
   .cookie-card__grid { grid-template-columns: 1fr 1fr; }

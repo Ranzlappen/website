@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Blog
-permalink: /blog/
+title: Projects
+permalink: /projects/
 ---
 
 <section class="page-content">
   <div class="container">
     <div class="section-header">
-      <h1 class="section-title">Blog Posts</h1>
+      <h1 class="section-title">Projects</h1>
 
       <div class="view-toggle" role="group" aria-label="View mode">
         <button id="view-grid" aria-label="Grid view" type="button">
@@ -33,9 +33,9 @@ permalink: /blog/
     <div class="posts-grid" id="posts-grid" hidden>
       {% for post in site.posts %}
         {% if post.status == "published" or post.status == "placeholder" %}
-          {% unless post.category == "Projects" %}
+          {% if post.category == "Projects" %}
           {% include post-card.html post=post %}
-          {% endunless %}
+          {% endif %}
         {% endif %}
       {% endfor %}
     </div>
@@ -43,9 +43,9 @@ permalink: /blog/
     <div class="posts-list" id="posts-list" hidden>
       {% for post in site.posts %}
         {% if post.status == "published" or post.status == "placeholder" %}
-          {% unless post.category == "Projects" %}
+          {% if post.category == "Projects" %}
           {% include post-list-item.html post=post %}
-          {% endunless %}
+          {% endif %}
         {% endif %}
       {% endfor %}
     </div>
@@ -54,7 +54,7 @@ permalink: /blog/
       <div class="carousel-scene">
         {% for post in site.posts %}
           {% if post.status == "published" or post.status == "placeholder" %}
-            {% unless post.category == "Projects" %}
+            {% if post.category == "Projects" %}
             <article class="carousel-card">
               <a href="{{ post.url | relative_url }}" class="carousel-card__link" aria-label="{{ post.title }}">
                 <div class="carousel-card__inner">
@@ -106,7 +106,7 @@ permalink: /blog/
                 </div>
               </a>
             </article>
-            {% endunless %}
+            {% endif %}
           {% endif %}
         {% endfor %}
       </div>
