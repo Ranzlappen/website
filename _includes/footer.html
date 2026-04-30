@@ -55,6 +55,14 @@ DATE: 2026-04-02
       </a>
       {% endif %}
 
+      {% if site.author.email %}
+      <a href="mailto:{{ site.author.email }}" aria-label="Email">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M2 4h20a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm10.06 9.683L3.27 6.205 1.97 7.795l10.094 8.512L22.03 7.795l-1.299-1.59z"/>
+        </svg>
+      </a>
+      {% endif %}
+
       <a href="{{ '/feed.xml' | relative_url }}" aria-label="RSS Feed">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="6.18" cy="17.82" r="2.18"/>
