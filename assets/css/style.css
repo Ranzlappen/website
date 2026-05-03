@@ -115,6 +115,7 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-height) + 1rem);
   -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -3011,4 +3012,49 @@ img {
 }
 .post--has-backdrop .post-nav a {
   background-color: rgba(var(--c-bg-rgb), var(--backdrop-opacity));
+}
+
+/* ============================================================
+   View Transitions — cross-document page morph
+   Native browser feature (Chromium 126+, Safari 18.2+).
+   Firefox: silently no-ops, navigation is instant.
+   ============================================================ */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+::view-transition-old(root) {
+  animation-name: vt-page-out;
+}
+
+::view-transition-new(root) {
+  animation-name: vt-page-in;
+}
+
+@keyframes vt-page-out {
+  to {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+@keyframes vt-page-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
 }
