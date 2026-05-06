@@ -7,6 +7,6 @@ layout: default
   {% if page.subtitle %}<p>{{ page.subtitle }}</p>{% endif %}
 </header>
 
-<div class="page-body">
+<div class="page-body{% if page.sticky_headings == false %} page-body--no-sticky{% endif %}">
   {{ content }}
 </div>

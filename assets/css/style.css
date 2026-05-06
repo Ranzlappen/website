@@ -3058,3 +3058,72 @@ img {
     animation: none;
   }
 }
+
+/* ============================================================
+   Sticky h2 in long-form content (posts + .md pages)
+   Scoped via [itemprop="articleBody"] so the reused .post-body
+   wrappers (tags, post-nav, related-posts, giscus) are excluded.
+   The .is-stuck class is toggled by main.js via an
+   IntersectionObserver — see the Sticky h2 stuck-state IIFE.
+   ============================================================ */
+.post-body[itemprop="articleBody"] h2,
+.page-body h2 {
+  position: sticky;
+  top: var(--header-height);
+  z-index: 50;
+  background: transparent;
+  transform-origin: left center;
+  transition: transform var(--transition-base),
+              background-color var(--transition-fast),
+              padding var(--transition-fast),
+              box-shadow var(--transition-fast);
+  margin-left: calc(var(--space-md) * -1);
+  margin-right: calc(var(--space-md) * -1);
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+}
+
+.post-body[itemprop="articleBody"] h2.is-stuck,
+.page-body h2.is-stuck {
+  background: var(--c-bg);
+  transform: scale(0.85);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  box-shadow: 0 1px 0 var(--c-border-light);
+}
+
+.post-body[itemprop="articleBody"] h2.is-stuck {
+  border-top-color: transparent;
+}
+
+/* Opt-out paths:
+   per-heading: `## Heading {: .no-stick }` (kramdown IAL)
+   per-post:    front matter `sticky_headings: false`
+                → adds .post--no-sticky on <article>
+   per-page:    same flag → adds .page-body--no-sticky on .page-body
+*/
+.post-body[itemprop="articleBody"] h2.no-stick,
+.post--no-sticky .post-body[itemprop="articleBody"] h2,
+.page-body h2.no-stick,
+.page-body--no-sticky h2 {
+  position: static;
+  transform: none;
+  background: transparent;
+  box-shadow: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media print {
+  .post-body[itemprop="articleBody"] h2,
+  .page-body h2 { position: static; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-body[itemprop="articleBody"] h2,
+  .page-body h2 { transition: none; }
+  .post-body[itemprop="articleBody"] h2.is-stuck,
+  .page-body h2.is-stuck { transform: none; }
+}

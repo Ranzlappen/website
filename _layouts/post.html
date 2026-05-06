@@ -48,7 +48,7 @@ layout: default
 }
 </script>
 
-<article class="post{% if page.backdrop %} post--has-backdrop{% endif %}" itemscope itemtype="http://schema.org/BlogPosting">
+<article class="post{% if page.backdrop %} post--has-backdrop{% endif %}{% if page.sticky_headings == false %} post--no-sticky{% endif %}" itemscope itemtype="http://schema.org/BlogPosting">
   <nav class="breadcrumb" aria-label="Breadcrumb">
     <ol class="breadcrumb__list">
       <li class="breadcrumb__item"><a href="{{ '/' | relative_url }}">Home</a></li>
