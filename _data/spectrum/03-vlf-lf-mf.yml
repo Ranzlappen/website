@@ -1,29 +1,59 @@
+---
 # =============================================================================
-# Spectrum Batch 03 — VLF / LF / MF (3 kHz – 3 MHz)
-# Schema: see 01-ultra-low.yml header.
+# Spectrum Batch 03 — Very Low Frequency / Low Frequency / Medium Frequency (3 kHz to 3 MHz)
 # =============================================================================
 
 batch:
   id: "vlf-lf-mf"
   order: 3
-  name: "VLF, LF & MF (3 kHz – 3 MHz)"
-  short_name: "VLF/LF/MF"
+  name: "Very Low Frequency / Low Frequency / Medium Frequency (3 kHz to 3 MHz)"
+  short_name: "VLF / LF / MF"
   description: >
-    Long-wave radio bands. Home to navigation beacons, time signals,
-    AM broadcast, and long-range maritime communication.
+    The classic long-wave radio bands used for long-distance ground-wave propagation, maritime and aeronautical navigation, AM broadcasting, and time-signal services. These bands offer excellent reliability over thousands of kilometers with minimal infrastructure.
   last_updated: "2026-05-06"
 
 bands:
-  - frequency_range: "EXAMPLE: 3 kHz – 30 kHz"
-    band_name: "EXAMPLE: VLF (Very Low Frequency)"
-    wavelength: "EXAMPLE: 100 km – 10 km"
-    photon_energy: "EXAMPLE: 1.24 × 10⁻¹¹ – 1.24 × 10⁻¹⁰ eV"
-    common_names: "EXAMPLE: Myriametric waves, Band 4"
+  - frequency_range: "3 kHz – 30 kHz"
+    band_name: "Very Low Frequency (VLF)"
+    wavelength: "\~100 km – 10 km"
+    photon_energy: "\~1.2 × 10^{-11} eV – 1.2 × 10^{-10} eV (12–120 peV)"
+    common_names: "VLF, ITU VLF band, long-wave radio"
     applications:
-      - "EXAMPLE: Submarine communication"
-      - "EXAMPLE: Navigation (Omega, Alpha)"
-      - "EXAMPLE: Time-signal broadcast"
-    technologies: "EXAMPLE: Massive grounded antennas, ferrite-loop receivers"
-    propagation: "EXAMPLE: Stable Earth–ionosphere waveguide; penetrates ~20 m of seawater"
-    regulatory: "EXAMPLE: ITU Band 4; mixed military / aeronautical / time-signal allocations"
-    notes: "EXAMPLE: Replace with real data. VLF transmitters have antennas measured in kilometres."
+      - "Long-range maritime and aeronautical navigation (Omega, LORAN-C legacy systems)"
+      - "Time and frequency standard broadcasts (e.g., WWVB, DCF77, MSF)"
+      - "Submarine communication (one-way to submerged vessels)"
+      - "Geophysical research and lightning detection networks"
+    technologies: "Massive ground-based VLF transmitters (e.g., US Navy Cutler, Maine; Russian ZEVS), large loop and whip antennas, VLF receivers for lightning location (WWLLN)"
+    propagation: "Excellent ground-wave propagation along the Earth’s surface with low attenuation. Also propagates in the Earth-ionosphere waveguide."
+    regulatory: "ITU allocated for fixed, mobile, radionavigation, and standard frequency/time signals. Heavily used by military and government services."
+    notes: "Signals can travel thousands of kilometers with very stable phase. Used for precise timing and global navigation before GPS became dominant."
+
+  - frequency_range: "30 kHz – 300 kHz"
+    band_name: "Low Frequency (LF)"
+    wavelength: "\~10 km – 1 km"
+    photon_energy: "\~1.2 × 10^{-10} eV – 1.2 × 10^{-9} eV (0.12–1.2 neV)"
+    common_names: "LF, long-wave broadcasting band"
+    applications:
+      - "Long-wave AM broadcasting (Europe, Asia, Africa)"
+      - "Aeronautical and marine radio beacons (NDBs)"
+      - "Radio time signals and frequency standards"
+      - "Radio-controlled clocks and watches"
+    technologies: "High-power LF transmitters (e.g., Europe’s long-wave stations), ferrite-rod and loop antennas in consumer devices, Non-Directional Beacons (NDBs)"
+    propagation: "Very good ground-wave propagation, especially at night. Skywave reflection possible under certain ionospheric conditions."
+    regulatory: "ITU allocated for fixed, mobile, radionavigation, and broadcasting. Many countries still operate high-power LF broadcast stations."
+    notes: "The band where consumer radio-controlled clocks receive their time signal. Highly reliable for long-distance low-data-rate communication."
+
+  - frequency_range: "300 kHz – 3 MHz"
+    band_name: "Medium Frequency (MF)"
+    wavelength: "\~1 km – 100 m"
+    photon_energy: "\~1.2 × 10^{-9} eV – 1.2 × 10^{-8} eV (1.2–12 neV)"
+    common_names: "MF, AM broadcast band, medium-wave band"
+    applications:
+      - "Standard AM (medium-wave) broadcasting"
+      - "Aviation and maritime voice communications"
+      - "Emergency and disaster communications"
+      - "Regional and local radio services"
+    technologies: "AM broadcast transmitters (typically 10–1000 kW), ferrite-rod antennas in portable radios, aircraft and ship MF radios"
+    propagation: "Ground-wave during the day; strong skywave (ionospheric reflection) at night allowing long-distance reception."
+    regulatory: "ITU allocated for broadcasting, fixed, mobile, and radionavigation. The classic AM radio band in most countries."
+    notes: "The band most people associate with traditional AM radio. Night-time skywave propagation often allows reception of distant stations (DXing)."
