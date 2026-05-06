@@ -1,0 +1,31 @@
+# =============================================================================
+# Spectrum Batch 08 — Visible, UV, X-ray & Gamma (430 THz – >10²⁴ Hz)
+# Schema: see 01-ultra-low.yml header.
+# =============================================================================
+
+batch:
+  id: "visible-uv-xray-gamma"
+  order: 8
+  name: "Visible, UV, X-ray & Gamma (430 THz – >10²⁴ Hz)"
+  short_name: "Visible → γ"
+  description: >
+    The optical and ionising regions of the spectrum. From perceptible light
+    through ultraviolet, X-rays, and gamma rays — where photon energies become
+    chemically and biologically significant.
+  last_updated: "2026-05-06"
+
+bands:
+  - frequency_range: "EXAMPLE: 430 THz – 770 THz"
+    band_name: "EXAMPLE: Visible Light"
+    wavelength: "EXAMPLE: 700 nm – 380 nm"
+    photon_energy: "EXAMPLE: 1.65 eV – 3.26 eV"
+    common_names: "EXAMPLE: Optical, VIS, light"
+    applications:
+      - "EXAMPLE: Human vision"
+      - "EXAMPLE: Photography, imaging, displays"
+      - "EXAMPLE: Free-space optical communication, LiFi"
+      - "EXAMPLE: Photosynthesis (PAR ≈ 400–700 nm)"
+    technologies: "EXAMPLE: LEDs, lasers, CMOS/CCD sensors, optical fibres (near-IR / vis)"
+    propagation: "EXAMPLE: Line-of-sight; scattered by aerosols; absorbed strongly in water at red end"
+    regulatory: "EXAMPLE: Not radio-regulated; eye-safety covered by IEC 60825 laser classes"
+    notes: "EXAMPLE: Replace with real data. Visible band is roughly one octave wide — frequency doubles violet → red."

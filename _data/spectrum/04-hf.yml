@@ -1,0 +1,31 @@
+# =============================================================================
+# Spectrum Batch 04 — HF (3 MHz – 30 MHz)
+# Schema: see 01-ultra-low.yml header.
+# =============================================================================
+
+batch:
+  id: "hf"
+  order: 4
+  name: "HF — High Frequency (3 MHz – 30 MHz)"
+  short_name: "HF"
+  description: >
+    Short-wave bands. The classic skywave domain — long-distance
+    communication via ionospheric reflection, amateur radio, and
+    over-the-horizon radar.
+  last_updated: "2026-05-06"
+
+bands:
+  - frequency_range: "EXAMPLE: 3 MHz – 30 MHz"
+    band_name: "EXAMPLE: HF (High Frequency)"
+    wavelength: "EXAMPLE: 100 m – 10 m"
+    photon_energy: "EXAMPLE: 1.24 × 10⁻⁸ – 1.24 × 10⁻⁷ eV"
+    common_names: "EXAMPLE: Short wave, decametric waves, Band 7"
+    applications:
+      - "EXAMPLE: International short-wave broadcasting"
+      - "EXAMPLE: Amateur (ham) radio"
+      - "EXAMPLE: Aviation HF, maritime HF, military comms"
+      - "EXAMPLE: Over-the-horizon radar"
+    technologies: "EXAMPLE: SSB transceivers, dipole / Yagi / log-periodic antennas, NVIS"
+    propagation: "EXAMPLE: Skywave via F-layer; strongly diurnal and solar-cycle dependent"
+    regulatory: "EXAMPLE: Densely allocated by ITU; amateur sub-bands (80m–10m); WARC bands"
+    notes: "EXAMPLE: Replace with real data. Maximum Usable Frequency (MUF) tracks the solar cycle."

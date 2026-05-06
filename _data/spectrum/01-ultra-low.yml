@@ -1,0 +1,38 @@
+# =============================================================================
+# Spectrum Batch 01 — Ultra-Low Frequencies (sub-Hz to a few Hz)
+# -----------------------------------------------------------------------------
+# This file is one of several in _data/spectrum/. The reference page
+# pages/references/spectrum.html iterates site.data.spectrum (sorted
+# alphabetically by file basename) and concatenates every `bands` array
+# into a single table. Add or remove rows freely — the page rebuilds itself.
+#
+# Schema reminder (every row in `bands` should define ALL of these keys,
+# even if the value is an empty string ""):
+#   frequency_range, band_name, wavelength, photon_energy, common_names,
+#   applications (list), technologies, propagation, regulatory, notes
+# =============================================================================
+
+batch:
+  id: "ultra-low"
+  order: 1
+  name: "Ultra-Low Frequencies (sub-Hz to a few Hz)"
+  short_name: "Ultra-Low"
+  description: >
+    Quasi-DC and geomagnetic-coupled signals below the conventional radio bands.
+    Used for power transmission, geophysics, and submarine communication research.
+  last_updated: "2026-05-06"
+
+bands:
+  - frequency_range: "EXAMPLE: 0 Hz – 3 Hz"
+    band_name: "EXAMPLE: Sub-ELF / Quasi-DC"
+    wavelength: "EXAMPLE: > 100,000 km"
+    photon_energy: "EXAMPLE: < 1.24 × 10⁻¹⁴ eV"
+    common_names: "EXAMPLE: DC, geomagnetic micropulsations, Pc-Pi pulsations"
+    applications:
+      - "EXAMPLE: HVDC power transmission"
+      - "EXAMPLE: Geomagnetic / space-weather monitoring"
+      - "EXAMPLE: Magnetotelluric earth-resistivity surveys"
+    technologies: "EXAMPLE: HVDC links, SQUID magnetometers, fluxgate sensors"
+    propagation: "EXAMPLE: Conduction-dominated; no efficient radiation"
+    regulatory: "EXAMPLE: Not allocated as a radio band by ITU"
+    notes: "EXAMPLE: Replace this row with real data. Boundary case at the limit of zero frequency."

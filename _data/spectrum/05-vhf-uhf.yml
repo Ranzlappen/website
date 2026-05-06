@@ -1,0 +1,30 @@
+# =============================================================================
+# Spectrum Batch 05 — VHF / UHF (30 MHz – 3 GHz)
+# Schema: see 01-ultra-low.yml header.
+# =============================================================================
+
+batch:
+  id: "vhf-uhf"
+  order: 5
+  name: "VHF & UHF (30 MHz – 3 GHz)"
+  short_name: "VHF/UHF"
+  description: >
+    The everyday bands — FM broadcast, terrestrial TV, two-way radio,
+    cellular, GPS, Wi-Fi 2.4 GHz, Bluetooth, and most consumer wireless.
+  last_updated: "2026-05-06"
+
+bands:
+  - frequency_range: "EXAMPLE: 30 MHz – 300 MHz"
+    band_name: "EXAMPLE: VHF (Very High Frequency)"
+    wavelength: "EXAMPLE: 10 m – 1 m"
+    photon_energy: "EXAMPLE: 1.24 × 10⁻⁷ – 1.24 × 10⁻⁶ eV"
+    common_names: "EXAMPLE: Metric waves, Band 8"
+    applications:
+      - "EXAMPLE: FM broadcast (~88–108 MHz)"
+      - "EXAMPLE: Aviation comms / VOR / ILS"
+      - "EXAMPLE: Marine VHF"
+      - "EXAMPLE: Amateur 2 m / 6 m bands"
+    technologies: "EXAMPLE: Yagi antennas, vertical whips, FM transceivers, SDRs"
+    propagation: "EXAMPLE: Mostly line-of-sight with slight diffraction; sporadic-E and tropo-ducting possible"
+    regulatory: "EXAMPLE: ITU Band 8; nationally licensed broadcast and safety services"
+    notes: "EXAMPLE: Replace with real data. Tropospheric ducting can carry VHF hundreds of km on rare nights."
