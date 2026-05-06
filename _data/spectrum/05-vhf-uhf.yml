@@ -15,8 +15,8 @@ batch:
 bands:
   - frequency_range: "30 MHz – 300 MHz"
     band_name: "Very High Frequency (VHF)"
-    wavelength: "\~10 m – 1 m"
-    photon_energy: "\~1.2 × 10^{-7} eV – 1.2 × 10^{-6} eV (0.12–1.2 μeV)"
+    wavelength: "~10 m – 1 m"
+    photon_energy: "~1.2 × 10<sup>-7</sup> eV – 1.2 × 10<sup>-6</sup> eV (0.12–1.2 μeV)"
     common_names: "VHF, FM broadcast band, 2 m amateur band, TV channels 2–13"
     applications:
       - "FM radio broadcasting"
@@ -30,8 +30,8 @@ bands:
 
   - frequency_range: "300 MHz – 1 GHz"
     band_name: "Lower Ultra High Frequency (UHF)"
-    wavelength: "\~1 m – 30 cm"
-    photon_energy: "\~1.2 × 10^{-6} eV – 4 × 10^{-6} eV (1.2–4 μeV)"
+    wavelength: "~1 m – 30 cm"
+    photon_energy: "~1.2 × 10<sup>-6</sup> eV – 4 × 10<sup>-6</sup> eV (1.2–4 μeV)"
     common_names: "Lower UHF, 70 cm amateur band, UHF TV channels, cellular low-band"
     applications:
       - "UHF television broadcasting"
@@ -45,8 +45,8 @@ bands:
 
   - frequency_range: "1 GHz – 3 GHz"
     band_name: "Upper Ultra High Frequency (UHF)"
-    wavelength: "\~30 cm – 10 cm"
-    photon_energy: "\~4 × 10^{-6} eV – 1.2 × 10^{-5} eV (4–12 μeV)"
+    wavelength: "~30 cm – 10 cm"
+    photon_energy: "~4 × 10<sup>-6</sup> eV – 1.2 × 10<sup>-5</sup> eV (4–12 μeV)"
     common_names: "Upper UHF, 33 cm / 23 cm amateur bands, 5G mid-band (n78), Wi-Fi 2.4 GHz"
     applications:
       - "5G mid-band (3.5 GHz n78) and 4G LTE"

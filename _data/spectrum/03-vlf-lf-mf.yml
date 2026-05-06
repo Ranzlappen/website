@@ -15,8 +15,8 @@ batch:
 bands:
   - frequency_range: "3 kHz – 30 kHz"
     band_name: "Very Low Frequency (VLF)"
-    wavelength: "\~100 km – 10 km"
-    photon_energy: "\~1.2 × 10^{-11} eV – 1.2 × 10^{-10} eV (12–120 peV)"
+    wavelength: "~100 km – 10 km"
+    photon_energy: "~1.2 × 10<sup>-11</sup> eV – 1.2 × 10<sup>-10</sup> eV (12–120 peV)"
     common_names: "VLF, ITU VLF band, long-wave radio"
     applications:
       - "Long-range maritime and aeronautical navigation (Omega, LORAN-C legacy systems)"
@@ -30,8 +30,8 @@ bands:
 
   - frequency_range: "30 kHz – 300 kHz"
     band_name: "Low Frequency (LF)"
-    wavelength: "\~10 km – 1 km"
-    photon_energy: "\~1.2 × 10^{-10} eV – 1.2 × 10^{-9} eV (0.12–1.2 neV)"
+    wavelength: "~10 km – 1 km"
+    photon_energy: "~1.2 × 10<sup>-10</sup> eV – 1.2 × 10<sup>-9</sup> eV (0.12–1.2 neV)"
     common_names: "LF, long-wave broadcasting band"
     applications:
       - "Long-wave AM broadcasting (Europe, Asia, Africa)"
@@ -45,8 +45,8 @@ bands:
 
   - frequency_range: "300 kHz – 3 MHz"
     band_name: "Medium Frequency (MF)"
-    wavelength: "\~1 km – 100 m"
-    photon_energy: "\~1.2 × 10^{-9} eV – 1.2 × 10^{-8} eV (1.2–12 neV)"
+    wavelength: "~1 km – 100 m"
+    photon_energy: "~1.2 × 10<sup>-9</sup> eV – 1.2 × 10<sup>-8</sup> eV (1.2–12 neV)"
     common_names: "MF, AM broadcast band, medium-wave band"
     applications:
       - "Standard AM (medium-wave) broadcasting"
