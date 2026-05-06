@@ -86,4 +86,4 @@ bands:
     technologies: "High-sensitivity SQUID magnetometers, induction coils at remote observatories, Schumann-resonance-adjacent monitoring stations"
     propagation: "Still dominated by magnetospheric/ionospheric coupling. Wavelengths comparable to Earth radius — global-scale standing waves possible."
     regulatory: "No allocation. Overlaps with the very bottom edge of the ITU ELF band (3–3000 Hz) but remains natural-signal dominated."
-    notes: "This range marks the transition into the official ELF band (ITU defines ELF starting at 3 Hz). Some studies link ultra-low geomagnetic fluctuations to subtle effects on human brain alpha waves or animal navigation, though evidence remains debated."
+    notes: "This range marks the transition into the official ITU ELF band (which starts at 3 Hz). Note that different scientific fields sometimes use overlapping terminology without causing any practical confusion: in geophysical and space-physics research the term 'ultra-low frequency (ULF)' is often applied broadly to natural geomagnetic signals from 1 mHz up to a few hertz, whereas the official ITU radio-band definition places the ULF band at 300 Hz–3 kHz."
