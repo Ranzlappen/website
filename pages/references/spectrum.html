@@ -1,0 +1,645 @@
+---
+layout: default
+title: Electromagnetic Spectrum Reference
+description: A detailed, searchable reference table covering the full electromagnetic spectrum from sub-Hz quasi-DC fields through gamma radiation — frequency, wavelength, photon energy, applications, propagation, regulation, and trivia for every band.
+permalink: /references/spectrum/
+---
+
+{%- comment -%}
+=================================================================================
+Electromagnetic Spectrum Reference Page
+---------------------------------------------------------------------------------
+Data source: _data/spectrum/*.yml — one file per batch. Files are read by Jekyll
+into the site.data.spectrum hash, keyed by basename, and iterated alphabetically.
+The numeric prefixes (01-, 02-, …) determine display order.
+Each YAML file has a `batch` map (id, order, name, short_name, description,
+last_updated) and a `bands` array. Every entry in `bands` is one row.
+=================================================================================
+{%- endcomment -%}
+
+{%- assign batches = site.data.spectrum | sort -%}
+
+{%- comment -%} Find the most recent last_updated across all batches. {%- endcomment -%}
+{%- assign latest_update = "" -%}
+{%- for entry in batches -%}
+  {%- assign d = entry[1].batch.last_updated | default: "" -%}
+  {%- if d != "" and d > latest_update -%}{%- assign latest_update = d -%}{%- endif -%}
+{%- endfor -%}
+
+{%- comment -%} Count total rows for the header summary. {%- endcomment -%}
+{%- assign total_rows = 0 -%}
+{%- for entry in batches -%}
+  {%- assign bands = entry[1].bands | default: empty -%}
+  {%- assign total_rows = total_rows | plus: bands.size -%}
+{%- endfor -%}
+
+<section class="spectrum-page">
+  <div class="spectrum-container">
+
+    <header class="spectrum-hero">
+      <p class="spectrum-eyebrow">Reference</p>
+      <h1 class="spectrum-title">The Electromagnetic Spectrum</h1>
+      <p class="spectrum-lede">
+        From quasi-DC fields below one hertz to gamma rays beyond 10<sup>24</sup>&nbsp;Hz —
+        every electromagnetic phenomenon is a different frequency of the same
+        underlying field. This table gathers the bands, their boundaries, the
+        technology that lives in each, and the propagation quirks that make them
+        useful (or useless) for any given purpose.
+      </p>
+      <p class="spectrum-howto">
+        <strong>How to use:</strong> jump between batches with the tabs, type into the
+        search box to filter rows live, or click <em>Show more</em> on long cells
+        to expand the full text. The table scrolls horizontally on narrow screens
+        and the header stays pinned as you scroll.
+      </p>
+      <div class="spectrum-meta">
+        <span class="spectrum-meta__item">
+          <strong>{{ batches.size }}</strong> batches
+        </span>
+        <span class="spectrum-meta__item">
+          <strong>{{ total_rows }}</strong> rows
+        </span>
+        {% if latest_update != "" %}
+        <span class="spectrum-meta__item">
+          Last updated <time datetime="{{ latest_update }}"><strong>{{ latest_update }}</strong></time>
+        </span>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="spectrum-controls">
+      <nav class="spectrum-tabs" role="tablist" aria-label="Spectrum batches">
+        <button type="button" class="spectrum-tab is-active" data-batch="all" role="tab" aria-selected="true">
+          All
+        </button>
+        {% for entry in batches %}
+          {% assign b = entry[1].batch %}
+          <button type="button" class="spectrum-tab" data-batch="{{ b.id }}" role="tab" aria-selected="false" title="{{ b.name | escape }}">
+            {{ b.short_name | default: b.name }}
+          </button>
+        {% endfor %}
+      </nav>
+
+      <label class="spectrum-search">
+        <span class="spectrum-search__icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <input type="search" id="spectrum-search" placeholder="Filter by name, technology, application…" autocomplete="off" spellcheck="false">
+        <span class="spectrum-search__count" id="spectrum-count" aria-live="polite"></span>
+      </label>
+    </div>
+
+    <div class="spectrum-batch-blurb" id="spectrum-batch-blurb" hidden></div>
+    {%- comment -%} Batch descriptions kept in a hidden data island for the active-tab blurb. {%- endcomment -%}
+    <script type="application/json" id="spectrum-batch-data">
+      {
+        {% for entry in batches %}
+          {%- assign b = entry[1].batch -%}
+          "{{ b.id }}": {
+            "name": {{ b.name | jsonify }},
+            "description": {{ b.description | jsonify }}
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      }
+    </script>
+
+    <div class="spectrum-table-wrapper" role="region" aria-label="Electromagnetic spectrum table" tabindex="0">
+      <table class="spectrum-table" id="spectrum-table">
+        <thead>
+          <tr>
+            <th scope="col" class="col-freq">Frequency Range (Hz)</th>
+            <th scope="col" class="col-band">Band Name / Designation</th>
+            <th scope="col" class="col-wave">Wavelength Range</th>
+            <th scope="col" class="col-energy">Photon Energy</th>
+            <th scope="col" class="col-names">Common / Alternative Names &amp; Sub-bands</th>
+            <th scope="col" class="col-apps">Primary Applications &amp; Uses</th>
+            <th scope="col" class="col-tech">Example Technologies / Systems</th>
+            <th scope="col" class="col-prop">Propagation / Atmospheric Notes</th>
+            <th scope="col" class="col-reg">Regulatory / Allocation Notes</th>
+            <th scope="col" class="col-notes">Special Notes / Fun Facts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in batches %}
+            {% assign batch_key = entry[0] %}
+            {% assign batch_data = entry[1] %}
+            {% assign batch = batch_data.batch %}
+            {% for band in batch_data.bands %}
+              <tr data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}">
+                <td class="col-freq mono">{{ band.frequency_range }}</td>
+                <td class="col-band">
+                  <span class="band-pill" style="--pill-hue: {{ batch.order | times: 41 | modulo: 360 }};">
+                    {{ batch.short_name | default: batch.name }}
+                  </span>
+                  <div class="band-name">{{ band.band_name }}</div>
+                </td>
+                <td class="col-wave mono">{{ band.wavelength }}</td>
+                <td class="col-energy mono">{{ band.photon_energy }}</td>
+                <td class="col-names">{{ band.common_names }}</td>
+
+                <td class="col-apps">
+                  {% if band.applications and band.applications.size > 0 %}
+                    <details class="cell-collapse">
+                      <summary>
+                        <span class="cell-collapse__count">{{ band.applications.size }}</span>
+                        <span class="cell-collapse__label">use{% if band.applications.size != 1 %}s{% endif %}</span>
+                        <span class="cell-collapse__more">Show more</span>
+                      </summary>
+                      <ul class="cell-list">
+                        {% for app in band.applications %}
+                          <li>{{ app }}</li>
+                        {% endfor %}
+                      </ul>
+                    </details>
+                  {% else %}
+                    <span class="cell-empty">—</span>
+                  {% endif %}
+                </td>
+
+                <td class="col-tech">{{ band.technologies }}</td>
+                <td class="col-prop">{{ band.propagation }}</td>
+                <td class="col-reg">{{ band.regulatory }}</td>
+
+                <td class="col-notes">
+                  {% if band.notes and band.notes != "" %}
+                    <details class="cell-collapse">
+                      <summary>
+                        <span class="cell-collapse__preview">{{ band.notes | strip_newlines | truncatewords: 10 }}</span>
+                        <span class="cell-collapse__more">Show more</span>
+                      </summary>
+                      <div class="cell-prose">{{ band.notes }}</div>
+                    </details>
+                  {% else %}
+                    <span class="cell-empty">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <p class="spectrum-empty" id="spectrum-empty" hidden>
+        No bands match your filters.
+      </p>
+    </div>
+
+    <footer class="spectrum-footnote">
+      <p>
+        Data lives in <code>_data/spectrum/*.yml</code>. Each file is one batch
+        and contributes its <code>bands</code> array to the table above. Edit a
+        file, push, and the page rebuilds automatically.
+      </p>
+    </footer>
+
+  </div>
+</section>
+
+<style>
+/* ============================================================================
+   Spectrum Reference — scoped styles
+   Uses site-wide CSS variables (--c-bg, --c-surface, --c-text, --c-accent…)
+   defined in assets/css/style.css, so dark/light theme switching is automatic.
+   ========================================================================== */
+
+.spectrum-page {
+  padding: var(--space-xl) 0 calc(var(--space-xl) * 2);
+}
+
+.spectrum-container {
+  max-width: 100rem;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+/* ---- Hero ---- */
+.spectrum-hero { margin-bottom: var(--space-xl); }
+.spectrum-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  color: var(--c-accent);
+  margin: 0 0 var(--space-sm);
+  font-weight: 600;
+}
+.spectrum-title {
+  font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.75rem);
+  margin: 0 0 var(--space-md);
+  line-height: 1.15;
+  color: var(--c-text);
+}
+.spectrum-lede {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--c-text);
+  margin: 0 0 var(--space-md);
+  max-width: 60rem;
+}
+.spectrum-howto {
+  font-size: 0.95rem;
+  color: var(--c-text-muted);
+  margin: 0 0 var(--space-lg);
+  max-width: 60rem;
+}
+.spectrum-howto strong { color: var(--c-text); }
+.spectrum-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  font-size: 0.85rem;
+  color: var(--c-text-muted);
+}
+.spectrum-meta__item strong {
+  color: var(--c-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Controls (tabs + search) ---- */
+.spectrum-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  position: sticky;
+  top: var(--header-height, 3.75rem);
+  z-index: 10;
+  background: linear-gradient(to bottom,
+    rgba(var(--c-bg-rgb), 0.97) 0%,
+    rgba(var(--c-bg-rgb), 0.97) 70%,
+    rgba(var(--c-bg-rgb), 0) 100%);
+  padding: var(--space-md) 0 var(--space-lg);
+  backdrop-filter: blur(6px);
+}
+.spectrum-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.spectrum-tab {
+  appearance: none;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-muted);
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+  white-space: nowrap;
+}
+.spectrum-tab:hover {
+  color: var(--c-text);
+  border-color: var(--c-accent-border);
+  background: var(--c-surface-alt);
+}
+.spectrum-tab.is-active {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  border-color: var(--c-accent-border);
+}
+.spectrum-tab:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+.spectrum-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: 0.4rem 0.75rem;
+  min-width: min(22rem, 100%);
+  flex: 1 1 18rem;
+  max-width: 28rem;
+  transition: border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+.spectrum-search:focus-within {
+  border-color: var(--c-accent-border);
+  box-shadow: 0 0 0 3px var(--c-accent-bg);
+}
+.spectrum-search__icon {
+  display: inline-flex;
+  color: var(--c-text-faint);
+  flex-shrink: 0;
+}
+.spectrum-search__icon svg { width: 1rem; height: 1rem; }
+.spectrum-search input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.15rem 0;
+  min-width: 0;
+}
+.spectrum-search input::placeholder { color: var(--c-text-faint); }
+.spectrum-search__count {
+  font-size: 0.75rem;
+  color: var(--c-text-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---- Active-batch blurb ---- */
+.spectrum-batch-blurb {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-accent);
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-md);
+  font-size: 0.9rem;
+  color: var(--c-text-muted);
+}
+.spectrum-batch-blurb strong {
+  display: block;
+  color: var(--c-text);
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+/* ---- Table ---- */
+.spectrum-table-wrapper {
+  position: relative;
+  max-height: calc(100vh - 16rem);
+  overflow: auto;
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  background: var(--c-surface);
+  box-shadow: 0 4px 16px var(--c-card-shadow);
+}
+.spectrum-table-wrapper:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+.spectrum-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  color: var(--c-text);
+  min-width: 1800px;
+}
+
+.spectrum-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--c-surface-alt);
+  color: var(--c-text);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.85rem 1rem;
+  border-bottom: 2px solid var(--c-border);
+  white-space: nowrap;
+}
+
+.spectrum-table tbody td {
+  padding: 0.85rem 1rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--c-border-light);
+  line-height: 1.5;
+}
+
+.spectrum-table tbody tr:hover td {
+  background: var(--c-surface-alt);
+}
+
+.spectrum-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Per-column widths */
+.spectrum-table .col-freq   { min-width: 12rem; }
+.spectrum-table .col-band   { min-width: 14rem; }
+.spectrum-table .col-wave   { min-width: 11rem; }
+.spectrum-table .col-energy { min-width: 11rem; }
+.spectrum-table .col-names  { min-width: 14rem; }
+.spectrum-table .col-apps   { min-width: 14rem; }
+.spectrum-table .col-tech   { min-width: 16rem; }
+.spectrum-table .col-prop   { min-width: 16rem; }
+.spectrum-table .col-reg    { min-width: 14rem; }
+.spectrum-table .col-notes  { min-width: 16rem; }
+
+.mono {
+  font-family: var(--f-mono);
+  font-size: 0.825rem;
+  color: var(--c-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Band column — pill + name */
+.band-pill {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: hsl(var(--pill-hue, 140), 60%, 22%);
+  color: hsl(var(--pill-hue, 140), 80%, 80%);
+  border: 1px solid hsl(var(--pill-hue, 140), 50%, 32%);
+  margin-bottom: 0.35rem;
+}
+[data-theme="light"] .band-pill {
+  background: hsl(var(--pill-hue, 140), 65%, 92%);
+  color: hsl(var(--pill-hue, 140), 50%, 30%);
+  border-color: hsl(var(--pill-hue, 140), 50%, 75%);
+}
+.band-name {
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+/* Collapsibles (uses + notes) */
+.cell-collapse {
+  font-size: inherit;
+}
+.cell-collapse > summary {
+  list-style: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  color: var(--c-text);
+  user-select: none;
+}
+.cell-collapse > summary::-webkit-details-marker { display: none; }
+.cell-collapse > summary::marker { display: none; content: ""; }
+.cell-collapse__count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--c-accent);
+}
+.cell-collapse__label {
+  color: var(--c-text-muted);
+}
+.cell-collapse__preview {
+  color: var(--c-text);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.cell-collapse__more {
+  font-size: 0.75rem;
+  color: var(--c-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  flex-shrink: 0;
+}
+.cell-collapse[open] > summary .cell-collapse__more::after { content: " (collapse)"; }
+.cell-collapse[open] > summary .cell-collapse__preview { display: none; }
+.cell-collapse[open] > summary .cell-collapse__count,
+.cell-collapse[open] > summary .cell-collapse__label { opacity: 0.6; }
+
+.cell-list {
+  margin: 0.6rem 0 0;
+  padding-left: 1.1rem;
+}
+.cell-list li {
+  margin: 0.15rem 0;
+  line-height: 1.5;
+}
+.cell-prose {
+  margin-top: 0.6rem;
+  line-height: 1.6;
+  color: var(--c-text);
+}
+.cell-empty {
+  color: var(--c-text-faint);
+  font-style: italic;
+}
+
+/* Empty-state when filters match nothing */
+.spectrum-empty {
+  text-align: center;
+  padding: var(--space-xl);
+  color: var(--c-text-muted);
+  font-size: 0.95rem;
+}
+
+/* Footnote */
+.spectrum-footnote {
+  margin-top: var(--space-md);
+  font-size: 0.8rem;
+  color: var(--c-text-faint);
+  text-align: right;
+}
+.spectrum-footnote code {
+  background: var(--c-code-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.75rem;
+  color: var(--c-text-muted);
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  .spectrum-container { padding: 0 var(--space-md); }
+  .spectrum-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .spectrum-search { max-width: 100%; }
+  .spectrum-table-wrapper { max-height: calc(100vh - 18rem); }
+  .spectrum-table { font-size: 0.825rem; }
+  .spectrum-table thead th,
+  .spectrum-table tbody td { padding: 0.65rem 0.75rem; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .spectrum-tab,
+  .spectrum-search { transition: none; }
+}
+</style>
+
+<script>
+(function () {
+  const table  = document.getElementById('spectrum-table');
+  if (!table) return;
+
+  const rows   = Array.from(table.querySelectorAll('tbody > tr'));
+  const search = document.getElementById('spectrum-search');
+  const count  = document.getElementById('spectrum-count');
+  const empty  = document.getElementById('spectrum-empty');
+  const tabs   = Array.from(document.querySelectorAll('.spectrum-tab'));
+  const blurb  = document.getElementById('spectrum-batch-blurb');
+  const dataEl = document.getElementById('spectrum-batch-data');
+
+  let batchInfo = {};
+  try { batchInfo = JSON.parse(dataEl.textContent || '{}'); } catch (_) { batchInfo = {}; }
+
+  let activeBatch = 'all';
+  const totalRows = rows.length;
+
+  function applyFilters() {
+    const q = (search.value || '').trim().toLowerCase();
+    let visible = 0;
+    for (const row of rows) {
+      const inBatch = activeBatch === 'all' || row.dataset.batch === activeBatch;
+      const matches = !q || row.textContent.toLowerCase().includes(q);
+      const show = inBatch && matches;
+      row.hidden = !show;
+      if (show) visible++;
+    }
+    if (count) {
+      count.textContent = (q || activeBatch !== 'all')
+        ? `${visible} / ${totalRows}`
+        : `${totalRows} rows`;
+    }
+    if (empty) empty.hidden = visible !== 0;
+  }
+
+  function setActiveBatch(id) {
+    activeBatch = id;
+    for (const t of tabs) {
+      const isActive = t.dataset.batch === id;
+      t.classList.toggle('is-active', isActive);
+      t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    }
+    if (blurb) {
+      const info = batchInfo[id];
+      if (id === 'all' || !info) {
+        blurb.hidden = true;
+        blurb.innerHTML = '';
+      } else {
+        blurb.hidden = false;
+        blurb.innerHTML = '<strong></strong><span></span>';
+        blurb.querySelector('strong').textContent = info.name || '';
+        blurb.querySelector('span').textContent   = info.description || '';
+      }
+    }
+    applyFilters();
+  }
+
+  search.addEventListener('input', applyFilters);
+  for (const t of tabs) {
+    t.addEventListener('click', () => setActiveBatch(t.dataset.batch));
+  }
+
+  applyFilters();
+})();
+</script>

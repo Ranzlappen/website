@@ -1,0 +1,30 @@
+# =============================================================================
+# Spectrum Batch 07 — Terahertz & Infrared (300 GHz – 430 THz)
+# Schema: see 01-ultra-low.yml header.
+# =============================================================================
+
+batch:
+  id: "infrared-terahertz"
+  order: 7
+  name: "Terahertz & Infrared (300 GHz – 430 THz)"
+  short_name: "THz / IR"
+  description: >
+    The "T-ray" gap and the infrared sub-bands (FIR, MIR, NIR). Used for
+    thermal imaging, fibre-optic communication, spectroscopy, and remote sensing.
+  last_updated: "2026-05-06"
+
+bands:
+  - frequency_range: "EXAMPLE: 300 GHz – 3 THz"
+    band_name: "EXAMPLE: Terahertz / Sub-millimetre"
+    wavelength: "EXAMPLE: 1 mm – 100 µm"
+    photon_energy: "EXAMPLE: 1.24 meV – 12.4 meV"
+    common_names: "EXAMPLE: T-rays, sub-mm waves, far-IR boundary"
+    applications:
+      - "EXAMPLE: Body / package security scanners"
+      - "EXAMPLE: Molecular and rotational spectroscopy"
+      - "EXAMPLE: Radio astronomy (e.g. ALMA)"
+      - "EXAMPLE: Experimental high-bandwidth wireless"
+    technologies: "EXAMPLE: Quantum-cascade lasers, photoconductive antennas, bolometers, HEB mixers"
+    propagation: "EXAMPLE: Heavy water-vapour absorption; non-ionising; cannot penetrate metal or water"
+    regulatory: "EXAMPLE: Largely unallocated above ~275 GHz; ITU footnote 5.565 lists passive services"
+    notes: "EXAMPLE: Replace with real data. Historically called the 'terahertz gap' due to lack of compact sources."

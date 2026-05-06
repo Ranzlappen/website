@@ -1,0 +1,29 @@
+# =============================================================================
+# Spectrum Batch 03 — VLF / LF / MF (3 kHz – 3 MHz)
+# Schema: see 01-ultra-low.yml header.
+# =============================================================================
+
+batch:
+  id: "vlf-lf-mf"
+  order: 3
+  name: "VLF, LF & MF (3 kHz – 3 MHz)"
+  short_name: "VLF/LF/MF"
+  description: >
+    Long-wave radio bands. Home to navigation beacons, time signals,
+    AM broadcast, and long-range maritime communication.
+  last_updated: "2026-05-06"
+
+bands:
+  - frequency_range: "EXAMPLE: 3 kHz – 30 kHz"
+    band_name: "EXAMPLE: VLF (Very Low Frequency)"
+    wavelength: "EXAMPLE: 100 km – 10 km"
+    photon_energy: "EXAMPLE: 1.24 × 10⁻¹¹ – 1.24 × 10⁻¹⁰ eV"
+    common_names: "EXAMPLE: Myriametric waves, Band 4"
+    applications:
+      - "EXAMPLE: Submarine communication"
+      - "EXAMPLE: Navigation (Omega, Alpha)"
+      - "EXAMPLE: Time-signal broadcast"
+    technologies: "EXAMPLE: Massive grounded antennas, ferrite-loop receivers"
+    propagation: "EXAMPLE: Stable Earth–ionosphere waveguide; penetrates ~20 m of seawater"
+    regulatory: "EXAMPLE: ITU Band 4; mixed military / aeronautical / time-signal allocations"
+    notes: "EXAMPLE: Replace with real data. VLF transmitters have antennas measured in kilometres."

@@ -1,0 +1,31 @@
+# =============================================================================
+# Spectrum Batch 06 — SHF / EHF / Microwave (3 GHz – 300 GHz)
+# Schema: see 01-ultra-low.yml header.
+# =============================================================================
+
+batch:
+  id: "shf-ehf-microwave"
+  order: 6
+  name: "SHF, EHF & Microwave (3 GHz – 300 GHz)"
+  short_name: "SHF/EHF/µwave"
+  description: >
+    Centimetre and millimetre waves. Radar, satellite, 5G mmWave, Wi-Fi
+    5/6 GHz, microwave ovens, radio astronomy, and most modern point-to-point links.
+  last_updated: "2026-05-06"
+
+bands:
+  - frequency_range: "EXAMPLE: 3 GHz – 30 GHz"
+    band_name: "EXAMPLE: SHF (Super High Frequency) / Microwave"
+    wavelength: "EXAMPLE: 10 cm – 1 cm"
+    photon_energy: "EXAMPLE: 1.24 × 10⁻⁵ – 1.24 × 10⁻⁴ eV"
+    common_names: "EXAMPLE: Centimetric waves; IEEE C / X / Ku / K bands"
+    applications:
+      - "EXAMPLE: Satellite communications (C, Ku, Ka)"
+      - "EXAMPLE: Wi-Fi 5/6/6E (5 GHz, 6 GHz)"
+      - "EXAMPLE: Weather and air-traffic radar"
+      - "EXAMPLE: Microwave point-to-point backhaul"
+      - "EXAMPLE: 5G FR2 (mmWave) lower edge"
+    technologies: "EXAMPLE: Parabolic dishes, phased arrays, GaN/GaAs HEMTs, waveguides"
+    propagation: "EXAMPLE: Strict line-of-sight; rain fade above ~10 GHz; atmospheric absorption peaks"
+    regulatory: "EXAMPLE: ITU Region allocations; ISM at 2.4 / 5.8 / 24 GHz; auctioned 5G bands"
+    notes: "EXAMPLE: Replace with real data. 60 GHz suffers ~15 dB/km O₂ absorption — useful for short-range security."
