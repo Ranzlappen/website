@@ -15,8 +15,8 @@ batch:
 bands:
   - frequency_range: "3 GHz – 30 GHz"
     band_name: "Super High Frequency (SHF)"
-    wavelength: "\~10 cm – 1 cm"
-    photon_energy: "\~1.2 × 10^{-5} eV – 1.2 × 10^{-4} eV (12–120 neV)"
+    wavelength: "~10 cm – 1 cm"
+    photon_energy: "~1.2 × 10<sup>-5</sup> eV – 1.2 × 10<sup>-4</sup> eV (12–120 neV)"
     common_names: "SHF, microwave band, C / X / Ku / K / Ka radar bands, 5G mid-band"
     applications:
       - "5G mid-band and early 6G deployments"
@@ -30,8 +30,8 @@ bands:
 
   - frequency_range: "30 GHz – 100 GHz"
     band_name: "Extremely High Frequency (EHF) – Lower mmWave"
-    wavelength: "\~1 cm – 3 mm"
-    photon_energy: "\~1.2 × 10^{-4} eV – 4 × 10^{-4} eV (0.12–0.4 μeV)"
+    wavelength: "~1 cm – 3 mm"
+    photon_energy: "~1.2 × 10<sup>-4</sup> eV – 4 × 10<sup>-4</sup> eV (0.12–0.4 μeV)"
     common_names: "Lower mmWave, V / W radar bands, 5G/6G high-band"
     applications:
       - "5G/6G mmWave deployments"
@@ -45,8 +45,8 @@ bands:
 
   - frequency_range: "100 GHz – 300 GHz"
     band_name: "Extremely High Frequency (EHF) – Upper mmWave / Sub-THz"
-    wavelength: "\~3 mm – 1 mm"
-    photon_energy: "\~4 × 10^{-4} eV – 1.2 × 10^{-3} eV (0.4–1.2 μeV)"
+    wavelength: "~3 mm – 1 mm"
+    photon_energy: "~4 × 10<sup>-4</sup> eV – 1.2 × 10<sup>-3</sup> eV (0.4–1.2 μeV)"
     common_names: "Upper mmWave, sub-terahertz, W-band extension"
     applications:
       - "Experimental 6G and beyond"

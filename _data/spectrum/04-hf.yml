@@ -15,8 +15,8 @@ batch:
 bands:
   - frequency_range: "3 MHz – 10 MHz"
     band_name: "Lower High Frequency (HF)"
-    wavelength: "\~100 m – 30 m"
-    photon_energy: "\~1.2 × 10^{-8} eV – 4 × 10^{-8} eV (12–40 neV)"
+    wavelength: "~100 m – 30 m"
+    photon_energy: "~1.2 × 10<sup>-8</sup> eV – 4 × 10<sup>-8</sup> eV (12–40 neV)"
     common_names: "Lower HF, shortwave broadcast band (part), 80 m and 40 m amateur bands"
     applications:
       - "International shortwave broadcasting"
@@ -30,8 +30,8 @@ bands:
 
   - frequency_range: "10 MHz – 20 MHz"
     band_name: "Mid High Frequency (HF)"
-    wavelength: "\~30 m – 15 m"
-    photon_energy: "\~4 × 10^{-8} eV – 8 × 10^{-8} eV (40–80 neV)"
+    wavelength: "~30 m – 15 m"
+    photon_energy: "~4 × 10<sup>-8</sup> eV – 8 × 10<sup>-8</sup> eV (40–80 neV)"
     common_names: "Mid HF, 30 m / 20 m / 17 m amateur bands, shortwave broadcast"
     applications:
       - "Shortwave broadcasting and international news services"
@@ -45,8 +45,8 @@ bands:
 
   - frequency_range: "20 MHz – 30 MHz"
     band_name: "Upper High Frequency (HF)"
-    wavelength: "\~15 m – 10 m"
-    photon_energy: "\~8 × 10^{-8} eV – 1.2 × 10^{-7} eV (80–120 neV)"
+    wavelength: "~15 m – 10 m"
+    photon_energy: "~8 × 10<sup>-8</sup> eV – 1.2 × 10<sup>-7</sup> eV (80–120 neV)"
     common_names: "Upper HF, 17 m / 15 m / 12 m / 10 m amateur bands"
     applications:
       - "Amateur radio and contesting"

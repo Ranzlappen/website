@@ -15,8 +15,8 @@ batch:
 bands:
   - frequency_range: "300 GHz – 3 THz"
     band_name: "Terahertz / Far Infrared (FIR)"
-    wavelength: "\~1 mm – 100 μm"
-    photon_energy: "\~1.2 × 10^{-3} eV – 1.2 × 10^{-2} eV (1.2–12 meV)"
+    wavelength: "~1 mm – 100 μm"
+    photon_energy: "~1.2 × 10<sup>-3</sup> eV – 1.2 × 10<sup>-2</sup> eV (1.2–12 meV)"
     common_names: "THz gap, far-infrared, sub-millimeter waves"
     applications:
       - "Terahertz imaging and spectroscopy"
@@ -30,8 +30,8 @@ bands:
 
   - frequency_range: "3 THz – 100 THz"
     band_name: "Mid-Infrared & Long-Wave Infrared (MIR / LWIR)"
-    wavelength: "\~100 μm – 3 μm"
-    photon_energy: "\~1.2 × 10^{-2} eV – 0.4 eV (12 meV – 0.4 eV)"
+    wavelength: "~100 μm – 3 μm"
+    photon_energy: "~1.2 × 10<sup>-2</sup> eV – 0.4 eV (12 meV – 0.4 eV)"
     common_names: "Mid-IR, long-wave IR, thermal infrared"
     applications:
       - "Thermal cameras and night vision"
@@ -45,8 +45,8 @@ bands:
 
   - frequency_range: "100 THz – 400 THz"
     band_name: "Near-Infrared (NIR)"
-    wavelength: "\~3 μm – 750 nm"
-    photon_energy: "\~0.4 eV – 1.65 eV"
+    wavelength: "~3 μm – 750 nm"
+    photon_energy: "~0.4 eV – 1.65 eV"
     common_names: "Near-IR, IR-A, fiber-optic communication band"
     applications:
       - "Fiber-optic telecommunications"

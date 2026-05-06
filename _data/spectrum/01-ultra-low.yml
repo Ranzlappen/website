@@ -18,7 +18,7 @@ bands:
   - frequency_range: "0 Hz (DC / static fields) to ~0.001 Hz"
     band_name: "DC / Static Geomagnetic Fields"
     wavelength: "Effectively infinite (planetary / interplanetary scale)"
-    photon_energy: "< 4 × 10^{-18} eV (4 aeV)"
+    photon_energy: "< 4 × 10<sup>-18</sup> eV (4 aeV)"
     common_names: "Direct current (DC) geomagnetic field, Earth's core dynamo field, steady magnetospheric field"
     applications:
       - "Global navigation and compass orientation (historical and modern)"
@@ -33,7 +33,7 @@ bands:
   - frequency_range: "0.001 Hz – 0.01 Hz (1–10 mHz)"
     band_name: "Ultra-Low Frequency Micropulsations (Pc5 class)"
     wavelength: "~30,000,000 km – 3,000,000 km (planetary scale)"
-    photon_energy: "~4 × 10^{-18} eV – 4 × 10^{-17} eV (4–40 aeV)"
+    photon_energy: "~4 × 10<sup>-18</sup> eV – 4 × 10<sup>-17</sup> eV (4–40 aeV)"
     common_names: "Pc5 pulsations, global magnetospheric cavity modes, solar-wind-driven ULF waves"
     applications:
       - "Space weather forecasting and geomagnetic storm prediction"
@@ -48,7 +48,7 @@ bands:
   - frequency_range: "0.01 Hz – 0.1 Hz (10–100 mHz)"
     band_name: "Ultra-Low Frequency Micropulsations (Pc4 class)"
     wavelength: "~3,000,000 km – 300,000 km"
-    photon_energy: "~4 × 10^{-17} eV – 4 × 10^{-16} eV (40–400 aeV)"
+    photon_energy: "~4 × 10<sup>-17</sup> eV – 4 × 10<sup>-16</sup> eV (40–400 aeV)"
     common_names: "Pc4 pulsations, compressional ULF waves"
     applications:
       - "Magnetospheric diagnostics and solar-wind/magnetosphere coupling studies"
@@ -62,7 +62,7 @@ bands:
   - frequency_range: "0.1 Hz – 1 Hz (100 mHz – 1 Hz)"
     band_name: "Ultra-Low Frequency Micropulsations (Pc3 class)"
     wavelength: "~300,000 km – 30,000 km"
-    photon_energy: "~4 × 10^{-16} eV – 4 × 10^{-15} eV (0.4–4 feV)"
+    photon_energy: "~4 × 10<sup>-16</sup> eV – 4 × 10<sup>-15</sup> eV (0.4–4 feV)"
     common_names: "Pc3 pulsations, upstream waves, foreshock waves"
     applications:
       - "Solar-wind monitoring and space weather alerts"
@@ -76,7 +76,7 @@ bands:
   - frequency_range: "1 Hz – 3 Hz"
     band_name: "Upper Ultra-Low / Lower Extremely-Low Frequency Micropulsations"
     wavelength: "~30,000 km – 10,000 km"
-    photon_energy: "~4 × 10^{-15} eV – 1.2 × 10^{-14} eV (4–12 feV)"
+    photon_energy: "~4 × 10<sup>-15</sup> eV – 1.2 × 10<sup>-14</sup> eV (4–12 feV)"
     common_names: "Pc2 pulsations (border), sub-ELF geomagnetic variations, power-grid sub-harmonics"
     applications:
       - "Advanced geophysical sensing (Earth conductivity profiling)"

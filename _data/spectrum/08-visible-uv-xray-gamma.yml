@@ -15,8 +15,8 @@ batch:
 bands:
   - frequency_range: "400 THz – 750 THz"
     band_name: "Visible Light"
-    wavelength: "\~750 nm – 400 nm"
-    photon_energy: "\~1.65 eV – 3.1 eV"
+    wavelength: "~750 nm – 400 nm"
+    photon_energy: "~1.65 eV – 3.1 eV"
     common_names: "Visible spectrum, optical light, ROYGBIV"
     applications:
       - "Human vision and photography"
@@ -30,8 +30,8 @@ bands:
 
   - frequency_range: "750 THz – 30 PHz"
     band_name: "Ultraviolet (UV)"
-    wavelength: "\~400 nm – 10 nm"
-    photon_energy: "\~3.1 eV – 124 eV"
+    wavelength: "~400 nm – 10 nm"
+    photon_energy: "~3.1 eV – 124 eV"
     common_names: "UV-A, UV-B, UV-C, extreme UV (EUV)"
     applications:
       - "Sterilization and germicidal lamps"
@@ -45,8 +45,8 @@ bands:
 
   - frequency_range: "30 PHz – thousands of THz (PHz–EHz)"
     band_name: "X-ray / Gamma Ray"
-    wavelength: "\~10 nm – picometers and smaller"
-    photon_energy: "\~124 eV – MeV and higher"
+    wavelength: "~10 nm – picometers and smaller"
+    photon_energy: "~124 eV – MeV and higher"
     common_names: "Soft/hard X-rays, gamma rays"
     applications:
       - "Medical and dental X-ray imaging"
