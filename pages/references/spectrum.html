@@ -206,7 +206,7 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
    ========================================================================== */
 
 .spectrum-page {
-  padding: var(--space-xl) 0 calc(var(--space-xl) * 2);
+  padding: calc(var(--space-xl) * 1.75) 0 calc(var(--space-xl) * 2);
 }
 
 .spectrum-container {
@@ -260,10 +260,9 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
 /* ---- Controls (tabs + search) ---- */
 .spectrum-controls {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--space-md);
   align-items: center;
-  justify-content: space-between;
   margin-bottom: var(--space-md);
   position: sticky;
   top: var(--header-height, 3.75rem);
@@ -272,25 +271,40 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
     rgba(var(--c-bg-rgb), 0.97) 0%,
     rgba(var(--c-bg-rgb), 0.97) 70%,
     rgba(var(--c-bg-rgb), 0) 100%);
-  padding: var(--space-md) 0 var(--space-lg);
+  padding: var(--space-sm) 0 var(--space-md);
   backdrop-filter: blur(6px);
 }
 .spectrum-tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.4rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-border) transparent;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
 }
+.spectrum-tabs::-webkit-scrollbar { height: 4px; }
+.spectrum-tabs::-webkit-scrollbar-thumb {
+  background: var(--c-border);
+  border-radius: 999px;
+}
+.spectrum-tabs::-webkit-scrollbar-track { background: transparent; }
 .spectrum-tab {
   appearance: none;
   border: 1px solid var(--c-border);
   background: var(--c-surface);
   color: var(--c-text-muted);
-  padding: 0.45rem 0.85rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 999px;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
+  flex-shrink: 0;
   transition: background var(--transition-fast),
               color var(--transition-fast),
               border-color var(--transition-fast),
@@ -320,10 +334,10 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--border-radius);
-  padding: 0.4rem 0.75rem;
-  min-width: min(22rem, 100%);
-  flex: 1 1 18rem;
-  max-width: 28rem;
+  padding: 0.3rem 0.65rem;
+  flex: 0 1 14rem;
+  min-width: 0;
+  max-width: 18rem;
   transition: border-color var(--transition-fast),
               box-shadow var(--transition-fast);
 }
@@ -562,7 +576,7 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
     flex-direction: column;
     align-items: stretch;
   }
-  .spectrum-search { max-width: 100%; }
+  .spectrum-search { max-width: 100%; flex: 1 1 auto; }
   .spectrum-table-wrapper { max-height: calc(100vh - 18rem); }
   .spectrum-table { font-size: 0.825rem; }
   .spectrum-table thead th,
