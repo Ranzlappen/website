@@ -1,31 +1,59 @@
+---
 # =============================================================================
-# Spectrum Batch 08 — Visible, UV, X-ray & Gamma (430 THz – >10²⁴ Hz)
-# Schema: see 01-ultra-low.yml header.
+# Spectrum Batch 08 — Visible / Ultraviolet / X-ray / Gamma (400 THz to thousands of THz / PHz–EHz range)
 # =============================================================================
 
 batch:
   id: "visible-uv-xray-gamma"
   order: 8
-  name: "Visible, UV, X-ray & Gamma (430 THz – >10²⁴ Hz)"
-  short_name: "Visible → γ"
+  name: "Visible / Ultraviolet / X-ray / Gamma (400 THz to thousands of THz / PHz–EHz range)"
+  short_name: "Visible / UV / X-ray / Gamma"
   description: >
-    The optical and ionising regions of the spectrum. From perceptible light
-    through ultraviolet, X-rays, and gamma rays — where photon energies become
-    chemically and biologically significant.
+    The optical and high-energy part of the electromagnetic spectrum. These short wavelengths interact strongly with matter and are used for vision, medical imaging, sterilization, astronomy, and particle physics. Propagation is line-of-sight with significant absorption in air and materials.
   last_updated: "2026-05-06"
 
 bands:
-  - frequency_range: "EXAMPLE: 430 THz – 770 THz"
-    band_name: "EXAMPLE: Visible Light"
-    wavelength: "EXAMPLE: 700 nm – 380 nm"
-    photon_energy: "EXAMPLE: 1.65 eV – 3.26 eV"
-    common_names: "EXAMPLE: Optical, VIS, light"
+  - frequency_range: "400 THz – 750 THz"
+    band_name: "Visible Light"
+    wavelength: "\~750 nm – 400 nm"
+    photon_energy: "\~1.65 eV – 3.1 eV"
+    common_names: "Visible spectrum, optical light, ROYGBIV"
     applications:
-      - "EXAMPLE: Human vision"
-      - "EXAMPLE: Photography, imaging, displays"
-      - "EXAMPLE: Free-space optical communication, LiFi"
-      - "EXAMPLE: Photosynthesis (PAR ≈ 400–700 nm)"
-    technologies: "EXAMPLE: LEDs, lasers, CMOS/CCD sensors, optical fibres (near-IR / vis)"
-    propagation: "EXAMPLE: Line-of-sight; scattered by aerosols; absorbed strongly in water at red end"
-    regulatory: "EXAMPLE: Not radio-regulated; eye-safety covered by IEC 60825 laser classes"
-    notes: "EXAMPLE: Replace with real data. Visible band is roughly one octave wide — frequency doubles violet → red."
+      - "Human vision and photography"
+      - "Lighting and displays"
+      - "Optical microscopy and telescopes"
+      - "Laser-based communications and holography"
+    technologies: "LEDs, lasers, cameras, telescopes, optical fibers"
+    propagation: "Line-of-sight through transparent media. Strong absorption by pigments and materials."
+    regulatory: "No radio allocation. Governed by optical standards."
+    notes: "The only part of the electromagnetic spectrum detectable by the human eye. The basis of all color vision and most everyday optical technology."
+
+  - frequency_range: "750 THz – 30 PHz"
+    band_name: "Ultraviolet (UV)"
+    wavelength: "\~400 nm – 10 nm"
+    photon_energy: "\~3.1 eV – 124 eV"
+    common_names: "UV-A, UV-B, UV-C, extreme UV (EUV)"
+    applications:
+      - "Sterilization and germicidal lamps"
+      - "Fluorescence and black-light effects"
+      - "Lithography in semiconductor manufacturing"
+      - "Astronomy and space observation"
+    technologies: "UV lamps, excimer lasers, UV LEDs, EUV lithography machines"
+    propagation: "Strongly absorbed by the atmosphere (ozone layer) and most materials. Line-of-sight only."
+    regulatory: "No radio allocation. Regulated for safety (eye/skin damage) and industrial use."
+    notes: "UV-B causes sunburn; UV-C is germicidal. EUV is critical for modern chip manufacturing."
+
+  - frequency_range: "30 PHz – thousands of THz (PHz–EHz)"
+    band_name: "X-ray / Gamma Ray"
+    wavelength: "\~10 nm – picometers and smaller"
+    photon_energy: "\~124 eV – MeV and higher"
+    common_names: "Soft/hard X-rays, gamma rays"
+    applications:
+      - "Medical and dental X-ray imaging"
+      - "Airport security scanners and industrial radiography"
+      - "Astronomy (X-ray and gamma-ray telescopes)"
+      - "Cancer radiotherapy and nuclear medicine (PET scans)"
+    technologies: "X-ray tubes, CT scanners, synchrotron light sources, gamma cameras, space-based X-ray/gamma telescopes"
+    propagation: "Highly penetrating; absorbed by dense materials. Requires vacuum or special windows in air."
+    regulatory: "Strict safety regulations (radiation protection). No radio allocation."
+    notes: "Gamma rays are the highest-energy photons. Used in astrophysics to study black holes, supernovae, and the early universe."
