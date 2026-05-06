@@ -1,31 +1,59 @@
+---
 # =============================================================================
-# Spectrum Batch 04 — HF (3 MHz – 30 MHz)
-# Schema: see 01-ultra-low.yml header.
+# Spectrum Batch 04 — High Frequency (3 MHz to 30 MHz)
 # =============================================================================
 
 batch:
   id: "hf"
   order: 4
-  name: "HF — High Frequency (3 MHz – 30 MHz)"
+  name: "High Frequency (3 MHz to 30 MHz)"
   short_name: "HF"
   description: >
-    Short-wave bands. The classic skywave domain — long-distance
-    communication via ionospheric reflection, amateur radio, and
-    over-the-horizon radar.
+    The classic shortwave band. These frequencies support long-distance skywave propagation via the ionosphere, enabling global communication with relatively modest power and simple antennas. Famous for shortwave broadcasting, amateur radio, and over-the-horizon (OTH) radar.
   last_updated: "2026-05-06"
 
 bands:
-  - frequency_range: "EXAMPLE: 3 MHz – 30 MHz"
-    band_name: "EXAMPLE: HF (High Frequency)"
-    wavelength: "EXAMPLE: 100 m – 10 m"
-    photon_energy: "EXAMPLE: 1.24 × 10⁻⁸ – 1.24 × 10⁻⁷ eV"
-    common_names: "EXAMPLE: Short wave, decametric waves, Band 7"
+  - frequency_range: "3 MHz – 10 MHz"
+    band_name: "Lower High Frequency (HF)"
+    wavelength: "\~100 m – 30 m"
+    photon_energy: "\~1.2 × 10^{-8} eV – 4 × 10^{-8} eV (12–40 neV)"
+    common_names: "Lower HF, shortwave broadcast band (part), 80 m and 40 m amateur bands"
     applications:
-      - "EXAMPLE: International short-wave broadcasting"
-      - "EXAMPLE: Amateur (ham) radio"
-      - "EXAMPLE: Aviation HF, maritime HF, military comms"
-      - "EXAMPLE: Over-the-horizon radar"
-    technologies: "EXAMPLE: SSB transceivers, dipole / Yagi / log-periodic antennas, NVIS"
-    propagation: "EXAMPLE: Skywave via F-layer; strongly diurnal and solar-cycle dependent"
-    regulatory: "EXAMPLE: Densely allocated by ITU; amateur sub-bands (80m–10m); WARC bands"
-    notes: "EXAMPLE: Replace with real data. Maximum Usable Frequency (MUF) tracks the solar cycle."
+      - "International shortwave broadcasting"
+      - "Amateur radio (80 m and 40 m bands)"
+      - "Maritime and aeronautical voice communications"
+      - "Over-the-horizon (OTH) radar and long-range surveillance"
+    technologies: "High-power shortwave transmitters (100–500 kW), large directional log-periodic and curtain antennas, amateur transceivers"
+    propagation: "Excellent skywave reflection from the ionosphere (especially at night). Long-distance ground-wave possible over sea water."
+    regulatory: "ITU allocated for broadcasting, fixed, mobile, amateur, and radionavigation services. Heavily shared internationally."
+    notes: "The lower part of HF where skywave propagation is most reliable at night. Many international broadcasters and amateur operators are active here."
+
+  - frequency_range: "10 MHz – 20 MHz"
+    band_name: "Mid High Frequency (HF)"
+    wavelength: "\~30 m – 15 m"
+    photon_energy: "\~4 × 10^{-8} eV – 8 × 10^{-8} eV (40–80 neV)"
+    common_names: "Mid HF, 30 m / 20 m / 17 m amateur bands, shortwave broadcast"
+    applications:
+      - "Shortwave broadcasting and international news services"
+      - "Amateur radio DXing (20 m band is especially popular)"
+      - "Military and diplomatic long-range communications"
+      - "Over-the-horizon (OTH) radar systems"
+    technologies: "Shortwave broadcast stations, amateur radio equipment, military HF transceivers, OTH radar arrays (e.g., ROTHR, JORN)"
+    propagation: "Very good skywave propagation during daylight and twilight hours. Highly variable with solar activity."
+    regulatory: "ITU allocated for broadcasting, fixed, mobile, amateur, and radionavigation. One of the most congested HF sub-bands."
+    notes: "The 20 m amateur band is often called the 'DX king' because it offers reliable long-distance contacts worldwide."
+
+  - frequency_range: "20 MHz – 30 MHz"
+    band_name: "Upper High Frequency (HF)"
+    wavelength: "\~15 m – 10 m"
+    photon_energy: "\~8 × 10^{-8} eV – 1.2 × 10^{-7} eV (80–120 neV)"
+    common_names: "Upper HF, 17 m / 15 m / 12 m / 10 m amateur bands"
+    applications:
+      - "Amateur radio and contesting"
+      - "Shortwave broadcasting (less common in this part)"
+      - "Citizens Band (CB) radio (27 MHz)"
+      - "Military tactical communications and OTH radar"
+    technologies: "Amateur transceivers, CB radios, military man-pack HF sets, advanced OTH radar systems"
+    propagation: "Primarily daytime skywave. More affected by solar activity; can open for worldwide DX during solar maxima."
+    regulatory: "ITU allocated for fixed, mobile, amateur, and broadcasting. The 27 MHz CB band is license-free in many countries."
+    notes: "This is the highest part of HF and behaves more like low VHF during solar peaks. The 10 m amateur band can support worldwide contacts with low power during good conditions."
