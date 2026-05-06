@@ -1,30 +1,59 @@
+---
 # =============================================================================
-# Spectrum Batch 07 — Terahertz & Infrared (300 GHz – 430 THz)
-# Schema: see 01-ultra-low.yml header.
+# Spectrum Batch 07 — Infrared & Terahertz (300 GHz to 400 THz)
 # =============================================================================
 
 batch:
   id: "infrared-terahertz"
   order: 7
-  name: "Terahertz & Infrared (300 GHz – 430 THz)"
-  short_name: "THz / IR"
+  name: "Infrared & Terahertz (300 GHz to 400 THz)"
+  short_name: "Infrared / Terahertz"
   description: >
-    The "T-ray" gap and the infrared sub-bands (FIR, MIR, NIR). Used for
-    thermal imaging, fibre-optic communication, spectroscopy, and remote sensing.
+    The optical part of the spectrum between microwaves and visible light. These wavelengths are used for thermal imaging, night vision, remote controls, fiber-optic communications, and scientific spectroscopy. Propagation is line-of-sight with strong atmospheric absorption in certain bands.
   last_updated: "2026-05-06"
 
 bands:
-  - frequency_range: "EXAMPLE: 300 GHz – 3 THz"
-    band_name: "EXAMPLE: Terahertz / Sub-millimetre"
-    wavelength: "EXAMPLE: 1 mm – 100 µm"
-    photon_energy: "EXAMPLE: 1.24 meV – 12.4 meV"
-    common_names: "EXAMPLE: T-rays, sub-mm waves, far-IR boundary"
+  - frequency_range: "300 GHz – 3 THz"
+    band_name: "Terahertz / Far Infrared (FIR)"
+    wavelength: "\~1 mm – 100 μm"
+    photon_energy: "\~1.2 × 10^{-3} eV – 1.2 × 10^{-2} eV (1.2–12 meV)"
+    common_names: "THz gap, far-infrared, sub-millimeter waves"
     applications:
-      - "EXAMPLE: Body / package security scanners"
-      - "EXAMPLE: Molecular and rotational spectroscopy"
-      - "EXAMPLE: Radio astronomy (e.g. ALMA)"
-      - "EXAMPLE: Experimental high-bandwidth wireless"
-    technologies: "EXAMPLE: Quantum-cascade lasers, photoconductive antennas, bolometers, HEB mixers"
-    propagation: "EXAMPLE: Heavy water-vapour absorption; non-ionising; cannot penetrate metal or water"
-    regulatory: "EXAMPLE: Largely unallocated above ~275 GHz; ITU footnote 5.565 lists passive services"
-    notes: "EXAMPLE: Replace with real data. Historically called the 'terahertz gap' due to lack of compact sources."
+      - "Terahertz imaging and spectroscopy"
+      - "Airport security scanners"
+      - "Material characterization and pharmaceutical quality control"
+      - "Astronomy (sub-mm telescopes)"
+    technologies: "THz time-domain spectrometers, quantum cascade lasers, bolometer detectors, sub-mm radio telescopes"
+    propagation: "Strong atmospheric absorption (water vapor). Mostly line-of-sight; limited range in air."
+    regulatory: "ITU allocated for fixed, mobile, and scientific services. Emerging allocations for 6G research."
+    notes: "The 'terahertz gap' — difficult to generate and detect but offers huge bandwidth potential for future 6G."
+
+  - frequency_range: "3 THz – 100 THz"
+    band_name: "Mid-Infrared & Long-Wave Infrared (MIR / LWIR)"
+    wavelength: "\~100 μm – 3 μm"
+    photon_energy: "\~1.2 × 10^{-2} eV – 0.4 eV (12 meV – 0.4 eV)"
+    common_names: "Mid-IR, long-wave IR, thermal infrared"
+    applications:
+      - "Thermal cameras and night vision"
+      - "Gas sensing and environmental monitoring"
+      - "Medical diagnostics and thermography"
+      - "Industrial process control"
+    technologies: "Uncooled microbolometer cameras, FTIR spectrometers, CO2 lasers, infrared LEDs"
+    propagation: "Line-of-sight with strong absorption bands (water, CO2). Good for thermal emission detection."
+    regulatory: "No radio regulatory allocation (optical). Used freely in scientific, medical, and industrial applications."
+    notes: "The band where objects at room temperature emit most of their blackbody radiation. Basis of most thermal imaging."
+
+  - frequency_range: "100 THz – 400 THz"
+    band_name: "Near-Infrared (NIR)"
+    wavelength: "\~3 μm – 750 nm"
+    photon_energy: "\~0.4 eV – 1.65 eV"
+    common_names: "Near-IR, IR-A, fiber-optic communication band"
+    applications:
+      - "Fiber-optic telecommunications"
+      - "Remote controls and consumer IR devices"
+      - "Night vision and image intensifiers"
+      - "Medical imaging and spectroscopy"
+    technologies: "Fiber-optic transceivers, IR LEDs and lasers, night-vision goggles, optical coherence tomography"
+    propagation: "Line-of-sight with good atmospheric windows. Excellent for fiber transmission."
+    regulatory: "No radio allocation. Governed by optical standards (ITU-T for fiber optics)."
+    notes: "The band used by virtually all modern fiber-optic networks (850 nm, 1310 nm, 1550 nm windows). Also used by TV remotes and proximity sensors in phones."
