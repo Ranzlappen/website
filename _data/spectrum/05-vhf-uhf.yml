@@ -1,30 +1,59 @@
+---
 # =============================================================================
-# Spectrum Batch 05 — VHF / UHF (30 MHz – 3 GHz)
-# Schema: see 01-ultra-low.yml header.
+# Spectrum Batch 05 — Very High Frequency / Ultra High Frequency (30 MHz to 3 GHz)
 # =============================================================================
 
 batch:
   id: "vhf-uhf"
   order: 5
-  name: "VHF & UHF (30 MHz – 3 GHz)"
-  short_name: "VHF/UHF"
+  name: "Very High Frequency / Ultra High Frequency (30 MHz to 3 GHz)"
+  short_name: "VHF / UHF"
   description: >
-    The everyday bands — FM broadcast, terrestrial TV, two-way radio,
-    cellular, GPS, Wi-Fi 2.4 GHz, Bluetooth, and most consumer wireless.
+    The workhorse bands for modern wireless communications. These frequencies support line-of-sight propagation with high bandwidth, making them ideal for FM radio, television, cellular networks, Wi-Fi, GPS, public safety, and many other everyday wireless services.
   last_updated: "2026-05-06"
 
 bands:
-  - frequency_range: "EXAMPLE: 30 MHz – 300 MHz"
-    band_name: "EXAMPLE: VHF (Very High Frequency)"
-    wavelength: "EXAMPLE: 10 m – 1 m"
-    photon_energy: "EXAMPLE: 1.24 × 10⁻⁷ – 1.24 × 10⁻⁶ eV"
-    common_names: "EXAMPLE: Metric waves, Band 8"
+  - frequency_range: "30 MHz – 300 MHz"
+    band_name: "Very High Frequency (VHF)"
+    wavelength: "\~10 m – 1 m"
+    photon_energy: "\~1.2 × 10^{-7} eV – 1.2 × 10^{-6} eV (0.12–1.2 μeV)"
+    common_names: "VHF, FM broadcast band, 2 m amateur band, TV channels 2–13"
     applications:
-      - "EXAMPLE: FM broadcast (~88–108 MHz)"
-      - "EXAMPLE: Aviation comms / VOR / ILS"
-      - "EXAMPLE: Marine VHF"
-      - "EXAMPLE: Amateur 2 m / 6 m bands"
-    technologies: "EXAMPLE: Yagi antennas, vertical whips, FM transceivers, SDRs"
-    propagation: "EXAMPLE: Mostly line-of-sight with slight diffraction; sporadic-E and tropo-ducting possible"
-    regulatory: "EXAMPLE: ITU Band 8; nationally licensed broadcast and safety services"
-    notes: "EXAMPLE: Replace with real data. Tropospheric ducting can carry VHF hundreds of km on rare nights."
+      - "FM radio broadcasting"
+      - "Analog and digital television (VHF channels)"
+      - "Amateur radio (2 m band)"
+      - "Air traffic control, marine VHF radio, and public safety communications"
+    technologies: "FM broadcast transmitters, VHF television antennas, handheld and base-station radios, aircraft transponders"
+    propagation: "Primarily line-of-sight with good ground-wave over water. Occasional tropospheric ducting allows beyond-horizon reception."
+    regulatory: "ITU allocated for broadcasting, fixed, mobile, amateur, and radionavigation. Heavily used by commercial and government services."
+    notes: "The classic FM radio band (88–108 MHz) sits inside this range. Excellent for local-to-regional coverage with modest power."
+
+  - frequency_range: "300 MHz – 1 GHz"
+    band_name: "Lower Ultra High Frequency (UHF)"
+    wavelength: "\~1 m – 30 cm"
+    photon_energy: "\~1.2 × 10^{-6} eV – 4 × 10^{-6} eV (1.2–4 μeV)"
+    common_names: "Lower UHF, 70 cm amateur band, UHF TV channels, cellular low-band"
+    applications:
+      - "UHF television broadcasting"
+      - "Cellular networks (early 4G/5G low-band)"
+      - "Amateur radio (70 cm band)"
+      - "Public safety, trunked radio, and wireless microphones"
+    technologies: "UHF TV transmitters, cellular base stations, handheld radios, cordless phones"
+    propagation: "Line-of-sight with better building penetration than higher frequencies. Some tropospheric ducting possible."
+    regulatory: "ITU allocated for broadcasting, fixed, mobile, amateur, and radionavigation. Shared with many commercial services."
+    notes: "This range includes many early cellular bands and UHF TV channels. Good balance of range and bandwidth."
+
+  - frequency_range: "1 GHz – 3 GHz"
+    band_name: "Upper Ultra High Frequency (UHF)"
+    wavelength: "\~30 cm – 10 cm"
+    photon_energy: "\~4 × 10^{-6} eV – 1.2 × 10^{-5} eV (4–12 μeV)"
+    common_names: "Upper UHF, 33 cm / 23 cm amateur bands, 5G mid-band (n78), Wi-Fi 2.4 GHz"
+    applications:
+      - "5G mid-band (3.5 GHz n78) and 4G LTE"
+      - "Wi-Fi (2.4 GHz) and Bluetooth"
+      - "Satellite communications (L-band)"
+      - "Microwave links and radar"
+    technologies: "5G base stations, Wi-Fi routers, satellite phones, microwave point-to-point links"
+    propagation: "Line-of-sight with reduced range compared to lower bands. Good data capacity; affected by rain fade at the upper end."
+    regulatory: "ITU allocated for fixed, mobile, amateur, and radionavigation. One of the most densely used parts of the spectrum."
+    notes: "Contains the globally popular 3.5 GHz 5G mid-band and the 2.4 GHz Wi-Fi band. Excellent compromise between coverage and capacity."
