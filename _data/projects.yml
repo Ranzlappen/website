@@ -23,3 +23,7 @@
 - name: "PolyVote (alpha)"
   url: /polyvote/
   favicon: /assets/images/favicons/polyvote.svg
+
+- name: "EM Spectrum Reference"
+  url: /references/spectrum/
+  favicon: /assets/images/favicons/spectrum.svg
