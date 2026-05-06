@@ -805,3 +805,40 @@ DATE: 2026-04-02
   }
 
 })();
+
+/* --------------------------------------------------------------
+   Sticky h2 stuck-state observer.
+   Toggles .is-stuck on every targeted h2 while it is pinned, so
+   CSS can apply the scaled-down banner styling. The pure-CSS
+   `position: sticky` already handles the pinning + replacement.
+   See the matching CSS in assets/css/style.css.
+   -------------------------------------------------------------- */
+(function () {
+  'use strict';
+
+  var nodes = document.querySelectorAll(
+    '.post-body[itemprop="articleBody"] h2, .page-body h2'
+  );
+  var headings = Array.prototype.filter.call(nodes, function (h) {
+    if (h.classList.contains('no-stick')) return false;
+    if (h.closest('.post--no-sticky, .page-body--no-sticky')) return false;
+    return true;
+  });
+  if (!headings.length || !('IntersectionObserver' in window)) return;
+
+  var rootEl   = document.documentElement;
+  var headerRem = parseFloat(getComputedStyle(rootEl).getPropertyValue('--header-height')) || 3.75;
+  var rootFont  = parseFloat(getComputedStyle(rootEl).fontSize) || 16;
+  var headerPx  = Math.round(headerRem * rootFont);
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      entry.target.classList.toggle('is-stuck', entry.intersectionRatio < 1);
+    });
+  }, {
+    threshold: [1],
+    rootMargin: '-' + (headerPx + 1) + 'px 0px 0px 0px'
+  });
+
+  headings.forEach(function (h) { observer.observe(h); });
+})();

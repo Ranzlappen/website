@@ -150,6 +150,26 @@ Use ### for sub-sections within a section.
 - `date` must match the date in the filename.
 - Want a cover image? Add the image file to `assets/images/`, then add `image: /assets/images/your-image.jpg` to the template header.
 
+### Sticky section headings
+
+When readers scroll a long article, each `## Section heading` will pin under the site bar and shrink slightly until the next `##` rolls in to take its place. It's automatic — nothing to set up. `###` and smaller headings are never sticky, so use those for sub-sections you don't want to pin.
+
+**To turn it off for a single heading**, add a kramdown class on the same line:
+
+```
+## My quiet heading {: .no-stick }
+```
+
+**To turn it off for an entire post or page**, add this to the front matter:
+
+```yaml
+---
+sticky_headings: false
+---
+```
+
+This works on blog posts (`_posts/*.md`) and on Markdown pages (`pages/*.md`). HTML pages (the blog index, projects, tags, etc.) are not affected.
+
 ### Using HTML headings with a table of contents
 
 For longer articles, you can use HTML headings with `id` attributes instead of Markdown `##` headings. This lets you add a clickable table of contents at the top. Here's the pattern:
