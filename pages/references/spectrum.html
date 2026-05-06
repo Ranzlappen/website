@@ -129,7 +129,14 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
             {% assign batch = batch_data.batch %}
             {% for band in batch_data.bands %}
               <tr data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}">
-                <td class="col-freq mono">{{ band.frequency_range }}</td>
+                <td class="col-freq mono">
+                  {%- assign freq_pair = band.frequency_range | split: " – " -%}
+                  {%- if freq_pair.size == 2 -%}
+                    <span class="freq-pair"><span class="freq-low">{{ freq_pair[0] }}</span><span class="freq-sep" aria-hidden="true">–</span><span class="freq-high">{{ freq_pair[1] }}</span></span>
+                  {%- else -%}
+                    {{ band.frequency_range }}
+                  {%- endif -%}
+                </td>
                 <td class="col-band">
                   <span class="band-pill" style="--pill-hue: {{ batch.order | times: 41 | modulo: 360 }};">
                     {{ batch.short_name | default: batch.name }}
@@ -423,7 +430,7 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
   font-size: 0.78rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 0.85rem 1rem;
+  padding: 1.15rem 1rem 0.95rem;
   border-bottom: 2px solid var(--c-border);
   white-space: nowrap;
 }
@@ -477,6 +484,12 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
   font-size: 0.825rem;
   color: var(--c-text);
   font-variant-numeric: tabular-nums;
+}
+
+/* Frequency cell — split low/high so endpoints can stack on narrow screens. */
+.col-freq .freq-sep {
+  margin: 0 0.3rem;
+  color: var(--c-text-muted);
 }
 
 /* Band column — pill + name */
@@ -596,8 +609,26 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
   .spectrum-search { max-width: 100%; flex: 1 1 auto; }
   .spectrum-table-wrapper { max-height: calc(100vh - 18rem); }
   .spectrum-table { font-size: 0.825rem; }
-  .spectrum-table thead th,
-  .spectrum-table tbody td { padding: 0.65rem 0.75rem; }
+  .spectrum-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
+  .spectrum-table tbody td { padding: 0.65rem 0.6rem; }
+
+  /* Sticky frequency column shrinks to ~half its desktop width by stacking the
+     two endpoints vertically with the dash as a centered separator. */
+  .spectrum-table .col-freq { min-width: 4.75rem; width: 4.75rem; }
+  .col-freq.mono { font-size: 0.72rem; }
+  .col-freq .freq-pair {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.35;
+  }
+  .col-freq .freq-low,
+  .col-freq .freq-high { display: block; }
+  .col-freq .freq-sep {
+    display: block;
+    margin: 0.05rem 0;
+    opacity: 0.55;
+  }
 }
 
 /* Reduced motion */
