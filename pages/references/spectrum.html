@@ -443,8 +443,25 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
   border-bottom: 0;
 }
 
+/* Sticky first column — frequency stays pinned during horizontal scroll. */
+.spectrum-table td.col-freq,
+.spectrum-table th.col-freq {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  border-right: 1px solid var(--c-border);
+  background: var(--c-surface);
+}
+.spectrum-table tbody tr:hover td.col-freq {
+  background: var(--c-surface-alt);
+}
+.spectrum-table thead th.col-freq {
+  z-index: 3;
+  background: var(--c-surface-alt);
+}
+
 /* Per-column widths */
-.spectrum-table .col-freq   { min-width: 12rem; }
+.spectrum-table .col-freq   { min-width: 9rem; width: 9rem; }
 .spectrum-table .col-band   { min-width: 14rem; }
 .spectrum-table .col-wave   { min-width: 11rem; }
 .spectrum-table .col-energy { min-width: 11rem; }
