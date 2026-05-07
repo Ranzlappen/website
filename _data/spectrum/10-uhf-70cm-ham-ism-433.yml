@@ -1,0 +1,60 @@
+---
+# =============================================================================
+# Spectrum Batch 10 — 70 cm Amateur (UHF) + 433 MHz ISM (Region 1)
+# =============================================================================
+# Migrated and upgraded from the original 05-vhf-uhf.yml. Covers ONLY:
+#   – 70 cm amateur band: 430–440 MHz (Region 1 / 3) and 420–450 MHz (Region 2)
+#   – 433.05–434.79 MHz ISM / SRD (Region 1 / Europe); coexists with 70 cm ham
+# Other UHF allocations (PMR446, GMRS / FRS, cellular, ADS-B, ISM 902–928,
+# Wi-Fi / Bluetooth at 2.4 GHz, etc.) are deferred to later batch files.
+# Schema: identical 14-column layout + batch wrapper used by all earlier
+# files. Granular sub-rows split ham vs. ISM because the licensing model,
+# power limits, and culture are completely different even though the
+# spectrum overlaps in Region 1.
+# =============================================================================
+
+batch:
+  id: "uhf-70cm-ham-ism-433"
+  order: 10
+  name: "70 cm Amateur (UHF) + 433 MHz ISM"
+  short_name: "70 cm Ham + 433 ISM"
+  description: >
+    The 70 cm amateur band (UHF) and the overlapping European 433 MHz
+    ISM / SRD band. 70 cm is the workhorse UHF ham allocation worldwide:
+    FM repeaters, SSB / CW, FT8 / FT4, satellite uplinks/downlinks,
+    digital voice (D-STAR, DMR, C4FM), packet, and EME. The 433 MHz ISM
+    band (Region 1) sits inside 70 cm and hosts low-power LoRa,
+    weather stations, garage-door openers, doorbells, and car key fobs —
+    a license-free playground for makers.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "430 MHz – 440 MHz (Region 1 / 3) and 420 MHz – 450 MHz (Region 2)"
+    key_frequencies_channels: "CW / EME 432.000–432.100 MHz, SSB calling 432.200, FT8 432.174 MHz (R2) / 432.174 MHz worldwide, MSK144 432.360, FM simplex 446.000 (R1) / 446.000–446.100, FM repeater inputs/outputs 430.6–431.0 / 438.6–439.0 (R1), 442–445 / 447–450 (R2), satellite sub-band 435.0–438.0 MHz (uplink/downlink for AO-7, AO-73, RS-44, FOX-1 series, ISS digital), ATV (amateur TV) 434–440 (R1) / 421–450 (R2), DMR Brandmeister TG worldwide on 70 cm, D-STAR / C4FM hot-spots"
+    band_name_designation: "70 cm amateur band (UHF)"
+    primary_uses_hobbyist_relevance: "FM repeaters and simplex (the dominant local ham mode at UHF), SSB / CW DX from elevated sites, FT8 / FT4, packet / APRS-on-UHF, satellite (linear and FM birds), digital voice (D-STAR / DMR / C4FM), Amateur TV (ATV), EME for big stations"
+    hardware_modules: "All-mode VHF/UHF transceivers (Icom IC-9700, IC-705, IC-7100, Yaesu FT-991A, Kenwood TS-2000), FM mobiles (Yaesu FTM-300DR, Icom IC-2730A, Kenwood TM-V71A), HTs (Yaesu FT5DR, Icom ID-52A, Anytone AT-D878UVII for DMR, TYT MD-UV390, Baofeng UV-5R / UV-82HP for entry-level FM, Quansheng UV-K5 with custom firmware), MMDVM hot-spots (Pi-Star, openSPOT4)"
+    antenna_diy_considerations: "1/4-wave ground plane ≈ 17 cm whip with 4 radials, J-pole / Slim-Jim from copper or twin-lead, dual-band 2 m / 70 cm collinear, 7- to 19-element Yagi (boom 0.6–2 m) for SSB DX and satellite work, eggbeater / quadrifilar for low-elevation satellites, Arrow-style hand-held dual-band Yagi for FM birds"
+    legal_licensing_notes: "ITU amateur service. Region 1 (Europe / Africa / Russia): 430–440 MHz (secondary, shared with ISM 433 MHz, military radiolocation, and PMR446 nearby). Region 2 (Americas): 420–450 MHz (mostly secondary, primary in some segments). Region 3 (Asia / Pacific): 430–440 MHz typical. License required worldwide; consult IARU R1 / R2 / R3 band plans"
+    max_power_restrictions_eirp: "FCC: 1500 W PEP (General/Extra). IARU R1: 25–400 W PEP per national class (Germany 75 W class A, UK 400 W full, Spain 1 kW). Some national plans cap parts of 70 cm tighter (e.g., 50 W on satellite sub-band, 10 W on hot-spot duplex slots)"
+    propagation_interference_notes: "Line-of-sight + tropospheric ducting (excellent on summer mornings/evenings, hundreds of km). Sporadic-E essentially unreachable; aurora and meteor scatter possible but rare. Local QRM from 433 MHz ISM key fobs, garage-door openers, weather stations, LoRa, radar detectors, plasma displays. The U.S. 420–430 MHz segment is a U.S. military radar primary and amateur secondary"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. At 50 W into a Yagi, controlled-environment safe distance is typically 1–2 m in the main lobe; HT-class 5 W is essentially safe at any practical distance from the body except direct skin contact"
+    technologies_example_devices: "FM repeaters worldwide, EchoLink / IRLP / AllStar / Brandmeister DMR, D-STAR / DMR / C4FM digital voice, MMDVM hot-spots, AMSAT linear birds (RS-44, AO-73, FOX-1B/C/D), FM birds (SO-50), ATV via Reduced Bandwidth Television (RB-TV) / DATV"
+    hobbyist_project_ideas: "Hang a 70 cm J-pole on a fence post and work the local repeater network; build an Arrow-style dual-band Yagi and work SO-50 with a handheld; build an MMDVM hot-spot and link to Brandmeister DMR talkgroups; chase satellite grids on RS-44; experiment with DATV using DigiThin / BATC PortsDown"
+    sources_citations: "IARU Region 1 / 2 / 3 band plans, ARRL Operating Manual & Antenna Book, FCC Part 97, RSGB / DARC / REF / IARU-MS band plans, AMSAT satellite frequency lists, ITU Radio Regulations RR Article 5 (2026)"
+    usability_badge: "🔵 Ham-only"
+
+  - frequency_range: "433.05 MHz – 434.79 MHz (ISM / SRD, Region 1; coexists with 70 cm ham)"
+    key_frequencies_channels: "ISM / SRD center 433.92 MHz; 25 kHz channelisation common (433.075, 433.100, …, 434.775); LoRa default channels 433.175 / 433.375 / 433.575 (EU868 has its own but EU433 plan exists); car key fobs typically 433.92 MHz ASK/FSK; weather stations Oregon Scientific / Lacrosse / Bresser typically 433.92 MHz; PMR / SRD: 'Annex 1' ETSI EN 300 220 sub-bands; legacy garage-door openers 433.92 MHz ASK"
+    band_name_designation: "433 MHz ISM / SRD band (Region 1 — ITU footnote 5.280, ETSI EN 300 220)"
+    primary_uses_hobbyist_relevance: "Maker / IoT band: LoRa (long-range, low-data), weather stations, doorbells, key fobs, garage-door openers, generic ASK/FSK modules; reverse-engineering / replay testing of consumer gadgets with RTL-SDR; building DIY 433 MHz LoRa nodes and gateways"
+    hardware_modules: "RTL-SDR / HackRF One / LimeSDR Mini / SDRplay RSPdx for RX, LoRa modules (Semtech SX1276/SX1278, RFM95W, RFM96W on 433 MHz; SX1262 for the latest), ESP32 + LoRa dev boards (Heltec WiFi LoRa 32 V3, TTGO LoRa32, LilyGO T-Beam 433), Arduino + RFM69 / nRF905, RC switches (Elro, Brennenstuhl), Flipper Zero (sub-GHz), CC1101-based modules, Quansheng UV-K5 with patched firmware (RX only on ISM)"
+    antenna_diy_considerations: "1/4-wave whip ≈ 17 cm, helical / coil-loaded short whip on key-fob-class devices, rubber-duck on LoRa modules, 3–5-element Yagi for long-range LoRa links (10+ km), magnetic-mount whip on a vehicle for replay testing, ceramic chip antenna on tiny PCBs"
+    legal_licensing_notes: "Region 1 (Europe): ETSI EN 300 220, harmonised by ERC/REC 70-03 Annex 1 — 433.050–434.790 MHz at 10 mW ERP with up to 10 % duty cycle (low-power devices). Region 2 (Americas): NOT an ISM band — FCC uses 902–928 MHz instead; 433 MHz operation in the U.S. is generally amateur-only (Part 97), with very limited Part 15 device authorisations. Hobbyists in R1 can operate 433 MHz SRDs license-free; ham licensees must be aware that 70 cm has shared status with these ISM users in R1"
+    max_power_restrictions_eirp: "Region 1 / EU: 10 mW ERP (most of the band), 10 mW ERP with 10 % DC limit at 433.05–434.79 MHz; some sub-segments allow 1 mW with no duty-cycle restriction. Region 2: 433 MHz Part 15 effectively forbidden for general SRDs — use 902–928 MHz instead. Hams operating on 70 cm follow national amateur power limits and are NOT capped by ISM rules"
+    propagation_interference_notes: "Line-of-sight with modest building penetration; LoRa typically 2–10 km open-air at 10 mW. Heavy congestion in urban Europe from key fobs, weather stations, and consumer gadgets; LoRa CSS modulation is robust but not magic — duty-cycle limits matter. Adjacent 70 cm hams can splatter the band locally"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; 10 mW ERP is many orders of magnitude below all general-public limits"
+    technologies_example_devices: "LoRa / LoRaWAN EU433 (less common than EU868), Meshtastic on 433 MHz, generic ASK/OOK key fobs, weather stations, smart doorbells, RC switches, low-cost outdoor temperature/humidity sensors"
+    hobbyist_project_ideas: "Build a LoRa weather station with an SX1276 + ESP32 + DHT22; sniff and decode your wireless thermometer with rtl_433; deploy a Meshtastic node on EU433 for off-grid messaging; reverse-engineer a generic 433.92 MHz remote with HackRF + Universal Radio Hacker (your own equipment only); build a long-range LoRa link with a 5-element Yagi"
+    sources_citations: "ETSI EN 300 220 (Short-Range Devices), ERC/REC 70-03 Annex 1, ITU-R Radio Regulations RR 5.280 (ISM), IARU R1 band plan (70 cm), Semtech SX1276 datasheet, FCC Part 15 + Part 97 (for U.S. context), rtl_433 wiki (2026)"
+    usability_badge: "🟢 ISM (low power)"
