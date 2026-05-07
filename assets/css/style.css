@@ -3079,7 +3079,12 @@ main#main-content {
   top: var(--header-height);
   z-index: 50;
   background: transparent;
-  transform-origin: left center;
+  /* Anchor the scale to the top edge so the bounding rect's top stays
+     pinned at `--header-height`. With `left center` the visual top moves
+     downward as `is-stuck` applies `scale(0.85)`, which crosses the
+     IntersectionObserver's rootMargin threshold and toggles `is-stuck`
+     back off — producing a visible wiggle as the class flip-flops. */
+  transform-origin: left top;
   transition: transform var(--transition-base),
               background-color var(--transition-fast),
               padding var(--transition-fast),
