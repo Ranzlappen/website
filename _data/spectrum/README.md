@@ -76,18 +76,39 @@ Use one of these four exact strings — they're matched against the legend swatc
 
 ## `abbreviations.yml` schema
 
-Flat alphabetical array. Each entry is one card in the "Abbreviations & Quick Reference" section **and** one row in the JSON dictionary the in-table modal reads from. Keep `explanation` to **1–2 sentences**, beginner-friendly.
+Flat alphabetical array. Each entry is one card in the "Abbreviations & Quick Reference" section **and** one row in the JSON dictionary the in-table modal reads from. Keep `explanation` to **1–3 sentences**, beginner-friendly.
 
 ```yaml
 - term: "EIRP"
   full_form: "Effective Isotropic Radiated Power"
-  explanation: "TX power × antenna gain — what your strongest direction actually radiates compared to a perfect omnidirectional antenna. Most legal power limits are written in EIRP, not transmitter watts."
+  explanation: >-
+    TX power × antenna gain — what your strongest direction actually
+    radiates compared to a perfect omnidirectional antenna. Most legal
+    power limits (<span class="abbr-link" data-abbr="FCC">FCC</span>
+    Part 15, <span class="abbr-link" data-abbr="ETSI">ETSI</span>
+    EN 300 220) are written in EIRP, not transmitter watts.
 ```
 
 Adding a term here automatically:
 
 1. Renders an alphabetised card under "Show all abbreviations".
 2. Adds the term to the in-table click-to-explain regex (`assets/js/spectrum.js` reads `#spectrum-abbr-data` at runtime).
+
+**Use the `>-` folded scalar** for `explanation` so embedded HTML doesn't need quote-escaping and the value lands in JSON as a clean single-line string.
+
+### Cross-references
+
+Wrap any other glossary term that appears inside an explanation in:
+
+```html
+<span class="abbr-link" data-abbr="TERM">TERM</span>
+```
+
+The runtime renders these as link-styled clickable spans; clicking opens a new modal stacked on top of the current one (recursive — Escape unwinds the stack one step at a time). Cross-reference rules:
+
+- The `data-abbr` value **must exactly match** an existing `term` in this file (case-sensitive). Misses fall back to a generic modal that just echoes the term.
+- Wrap the **first occurrence** of a term in each explanation only — repeat-wrapping the same term every time it appears creates visual noise.
+- When you add a new term, sweep earlier explanations and wrap its first occurrence anywhere it's mentioned. The cross-reference graph is what makes the glossary feel alive.
 
 **Keep entries sorted alphabetically by `term`.** Mixed case is fine (`LoRa`, `mmWave`, `Z-Wave`) — the page renders the value verbatim.
 
