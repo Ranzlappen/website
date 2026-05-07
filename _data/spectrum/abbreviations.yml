@@ -1,0 +1,186 @@
+---
+# =============================================================================
+# Spectrum Abbreviations & Glossary
+# =============================================================================
+# Beginner-friendly explanations for every acronym and short-form term used in
+# the spectrum reference table. Rendered by pages/references/spectrum.html as
+# the alphabetical "Abbreviations & Quick Reference" section, and consumed by
+# assets/js/spectrum.js (via the #spectrum-abbr-data JSON island) to drive the
+# in-table abbreviation modal.
+#
+# Schema: array of { term, full_form, explanation }. Sorted alphabetically by
+# `term`. Keep `explanation` to 1–2 sentences and assume the reader is new to
+# the topic. Add new terms here only — do NOT duplicate the dictionary in JS.
+# =============================================================================
+
+- term: "ADS-B"
+  full_form: "Automatic Dependent Surveillance-Broadcast"
+  explanation: "Aircraft broadcast their position, altitude, and velocity on 1090 MHz so anyone with a receiver can plot live air traffic. A $30 RTL-SDR + dump1090 is the standard hobby setup."
+
+- term: "APRS"
+  full_form: "Automatic Packet Reporting System"
+  explanation: "Amateur-radio packet network on 144.39 MHz (US) / 144.800 MHz (EU) for live position beacons, weather, and short messages. Most modern HTs and many car rigs decode it natively."
+
+- term: "BLE"
+  full_form: "Bluetooth Low Energy"
+  explanation: "The low-power flavour of Bluetooth in the 2.4 GHz ISM band — used by fitness trackers, AirTag-style beacons, smart-home sensors, and almost every coin-cell-powered gadget."
+
+- term: "CSI"
+  full_form: "Channel State Information"
+  explanation: "Per-subcarrier amplitude and phase data Wi-Fi devices already exchange to equalise the channel. Tools like ESP32-CSI-Tool let you reuse it to sense motion, gestures, and even breathing through walls."
+
+- term: "CW"
+  full_form: "Continuous Wave (Morse code)"
+  explanation: "On/off keying of a single carrier — the original digital mode. Still extremely effective for weak signals and used by amateurs daily on the HF bands."
+
+- term: "DFS"
+  full_form: "Dynamic Frequency Selection"
+  explanation: "Wi-Fi rule on UNII-2A and UNII-2C (5.250–5.350 / 5.470–5.725 GHz): the access point listens for weather/military radar pulses and must vacate the channel within 10 s if it hears one."
+
+- term: "DMR"
+  full_form: "Digital Mobile Radio"
+  explanation: "ETSI TDMA digital-voice standard widely used in commercial and amateur trunked networks (MotoTRBO, BrandMeister, TGIF). Cheap import HTs ($60) put hams onto worldwide talkgroups."
+
+- term: "EIRP"
+  full_form: "Effective Isotropic Radiated Power"
+  explanation: "TX power × antenna gain — what your strongest direction actually radiates compared to a perfect omnidirectional antenna. Most legal power limits are written in EIRP, not transmitter watts."
+
+- term: "ELF"
+  full_form: "Extremely Low Frequency (3–30 Hz)"
+  explanation: "ITU-defined band at the very bottom of the radio spectrum. Used historically for one-way submarine communications because ELF penetrates seawater hundreds of metres deep."
+
+- term: "EME"
+  full_form: "Earth-Moon-Earth ('moonbounce')"
+  explanation: "Long-distance amateur technique that aims a high-gain dish at the Moon and bounces signals off the lunar surface back to another station on Earth. Common on 2 m, 70 cm, 23 cm, and microwave ham bands."
+
+- term: "ETSI"
+  full_form: "European Telecommunications Standards Institute"
+  explanation: "Sets the EU's wireless technical standards — the EN 300 220 / EN 301 893 / EN 303 series that hobbyists and product designers follow for license-free transmission."
+
+- term: "FCC"
+  full_form: "Federal Communications Commission"
+  explanation: "US wireless regulator. Sets the Part 15 unlicensed limits, Part 97 amateur rules, Part 90 land mobile rules, and OET-65 RF-exposure guidelines."
+
+- term: "FR1"
+  full_form: "5G NR Frequency Range 1 (sub-7.125 GHz)"
+  explanation: "The 5G NR low- and mid-band cellular spectrum where most coverage lives. Includes n1, n3, n7, n28, n41, n66, n71, n77, n78, and n79."
+
+- term: "FR2"
+  full_form: "5G NR Frequency Range 2 (mmWave, 24.25–71 GHz)"
+  explanation: "Millimeter-wave 5G — fast (multi-Gb/s) but very short range and easily blocked by buildings, hands, and rain. Bands n257, n258, n260, n261."
+
+- term: "FT8"
+  full_form: "Franke-Taylor 8-FSK"
+  explanation: "Weak-signal amateur digital mode from the WSJT-X suite. 15-second cycles, ~50 bits per QSO, decodes down to roughly –20 dB SNR — currently the most-popular mode on HF."
+
+- term: "GNSS"
+  full_form: "Global Navigation Satellite System"
+  explanation: "Umbrella term covering GPS (US), GLONASS (RU), Galileo (EU), and BeiDou (CN). Modern receivers combine all four constellations for faster lock and better urban accuracy."
+
+- term: "HF"
+  full_form: "High Frequency (3–30 MHz)"
+  explanation: "Shortwave spectrum — refracts off the ionosphere, so HF signals can travel thousands of kilometres on a few watts. Home of amateur, broadcast, marine, aviation, and time-signal services."
+
+- term: "HPUE"
+  full_form: "High-Power User Equipment"
+  explanation: "A power-class-2 cellular phone or modem allowed to transmit at 26 dBm (≈400 mW) instead of the usual 23 dBm (200 mW). Enabled on n14 FirstNet and n41 / n78 / n79 mid-band 5G to extend uplink range."
+
+- term: "ICNIRP"
+  full_form: "International Commission on Non-Ionizing Radiation Protection"
+  explanation: "Independent body that publishes the global RF and optical exposure guidelines national regulators (FCC OET-65, BNetzA, Ofcom) base their safe-distance rules on."
+
+- term: "ISM"
+  full_form: "Industrial, Scientific, Medical"
+  explanation: "Worldwide license-free spectrum bands (433 MHz EU, 902–928 MHz US, 2.4 GHz, 5.8 GHz, 24 GHz) shared by Wi-Fi, Bluetooth, microwave ovens, and a long tail of consumer gadgets."
+
+- term: "ITU"
+  full_form: "International Telecommunication Union"
+  explanation: "UN agency that allocates global spectrum and divides the world into Regions 1 (EU/Africa/RU), 2 (Americas), and 3 (Asia/Oceania). Every national regulator works downstream of ITU."
+
+- term: "LoRa"
+  full_form: "Long Range (chirp-spread-spectrum)"
+  explanation: "Semtech's low-power, low-data-rate radio modulation. A 25 mW transmitter reaches 5–15 km outdoors at the cost of just a few hundred bits per second. Foundation of LoRaWAN, Helium, and Meshtastic."
+
+- term: "LTE"
+  full_form: "Long-Term Evolution (4G cellular)"
+  explanation: "3GPP cellular standard now sitting alongside 5G NR. Its bands keep being numbered (B1, B3, B7…) and many were directly re-used as the corresponding 5G n-bands (n1, n3, n7…)."
+
+- term: "MIMO"
+  full_form: "Multiple-Input Multiple-Output"
+  explanation: "Multi-antenna technique that boosts capacity and range by sending parallel data streams or steering beams. Standard on Wi-Fi 5/6/7, LTE, and 5G."
+
+- term: "mmWave"
+  full_form: "Millimeter-wave (≈30–300 GHz)"
+  explanation: "Radio above ~30 GHz with wavelengths under 10 mm. Used by 5G FR2 (24–71 GHz), automotive 77 GHz radar, body scanners, and emerging point-to-point backhaul."
+
+- term: "MQTT"
+  full_form: "Message Queuing Telemetry Transport"
+  explanation: "Lightweight publish/subscribe protocol designed for IoT — small headers, retained messages, last-will. The de facto messaging layer over LoRaWAN, Wi-Fi, and cellular IoT."
+
+- term: "n78"
+  full_form: "5G NR Band n78 — global C-band TDD"
+  explanation: "TDD 3300–3800 MHz — the canonical European, UK, German, Japanese, and Indian 5G C-band. The most-deployed 5G mid-band in the world."
+
+- term: "NB-IoT"
+  full_form: "Narrowband IoT (3GPP)"
+  explanation: "Cellular standard for very-low-power, low-data-rate sensors. Runs in 200 kHz slices of LTE / 5G spectrum and is operated by every major carrier."
+
+- term: "NFC"
+  full_form: "Near-Field Communication"
+  explanation: "13.56 MHz inductive link with a few-cm range — tap-to-pay, transit cards, hotel keys, access badges, and the NFC reader built into every modern phone."
+
+- term: "OFDM"
+  full_form: "Orthogonal Frequency-Division Multiplexing"
+  explanation: "Modulation scheme that spreads data across many narrow subcarriers carried in parallel. The backbone of Wi-Fi, LTE, 5G NR, DVB-T, DAB, and powerline networking."
+
+- term: "PLC"
+  full_form: "Power-Line Communication / PowerLAN"
+  explanation: "Data carried over the electrical wiring already in your walls (2–30 MHz, IEEE 1901 / HomePlug AV2 / G.hn). Convenient for whole-home networking, but radiates as a major HF noise source."
+
+- term: "PMR446"
+  full_form: "Private Mobile Radio at 446 MHz"
+  explanation: "License-free EU walkie-talkie service — 16 analogue channels and 32 digital channels on 446.0–446.2 MHz. 500 mW ERP, integrated antenna only."
+
+- term: "RFID"
+  full_form: "Radio-Frequency Identification"
+  explanation: "Wireless tag-and-reader system — LF (125 kHz), HF (13.56 MHz), and UHF (860–960 MHz) variants cover everything from livestock chips and inventory tags to passport pages and toll transponders."
+
+- term: "SDR"
+  full_form: "Software-Defined Radio"
+  explanation: "Receiver or transceiver where the demodulator runs in software, not hardware. Cheap RTL-SDR dongles ($25) cover 24 MHz – 1.7 GHz; HackRF, LimeSDR, and PlutoSDR add transmit."
+
+- term: "SSB"
+  full_form: "Single Sideband"
+  explanation: "AM variant that transmits only the upper or lower sideband for ~3× the efficiency. The workhorse voice mode of HF amateur, marine, and aviation."
+
+- term: "TDD"
+  full_form: "Time Division Duplex"
+  explanation: "Uplink and downlink share the same frequency channel and alternate in short time slots — efficient for asymmetric traffic and standard on 5G NR mid-band (n40, n41, n78, n79)."
+
+- term: "UHF"
+  full_form: "Ultra High Frequency (300 MHz – 3 GHz)"
+  explanation: "Covers cellular, Wi-Fi 2.4 GHz, GPS L1, ISM 433/868/915 MHz, Bluetooth, the 70 cm and 23 cm amateur bands, and most TV broadcast — the densest, most-utilised slice of spectrum."
+
+- term: "UNII"
+  full_form: "Unlicensed National Information Infrastructure"
+  explanation: "FCC umbrella term for the 5 GHz and 6 GHz Wi-Fi spectrum tiers — UNII-1, UNII-2A, UNII-2C, UNII-3, plus the new 6 GHz UNII-5/6/7/8 opened in 2020 for Wi-Fi 6E and Wi-Fi 7."
+
+- term: "VHF"
+  full_form: "Very High Frequency (30–300 MHz)"
+  explanation: "FM broadcast (88–108), aviation voice (118–137), marine VHF (156–162), the 6 m / 2 m amateur bands, NOAA weather, and a long tail of land-mobile services."
+
+- term: "VLF"
+  full_form: "Very Low Frequency (3–30 kHz)"
+  explanation: "Submarine and time-signal transmitters operating at megawatt power levels. Receivable with a long-wire antenna into a PC soundcard — popular for low-budget propagation experiments."
+
+- term: "WSPR"
+  full_form: "Weak Signal Propagation Reporter"
+  explanation: "Amateur beacon mode that broadcasts 50 bits over 110 s at –30 dB SNR. Pico-balloons, QRP beacons, and home stations use it to map worldwide ionospheric propagation in near-real-time."
+
+- term: "Z-Wave"
+  full_form: "Z-Wave sub-GHz home-automation mesh"
+  explanation: "Low-power 868 MHz EU / 908 MHz US protocol used by smart locks, sensors, dimmers, and switches. Mesh of up to 232 nodes, simpler and less crowded than 2.4 GHz alternatives."
+
+- term: "Zigbee"
+  full_form: "Zigbee (IEEE 802.15.4 mesh)"
+  explanation: "Low-power 2.4 GHz mesh protocol used by Philips Hue, IKEA Tradfri, Aqara, and the Thread / Matter ecosystem. Up to ~65k nodes per network with very long battery life."

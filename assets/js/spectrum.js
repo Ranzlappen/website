@@ -68,40 +68,17 @@
   var table = document.getElementById('spectrum-table');
   if (!table) return;
 
-  // 10 most-common abbreviations with plain-English explanations.
-  var DICT = {
-    'ISM':    { expansion: 'Industrial, Scientific, Medical',
-                body: 'Worldwide license-free spectrum bands (e.g. 433 MHz EU, 902–928 MHz US, 2.4 GHz, 5.8 GHz) shared by Wi-Fi, Bluetooth, microwave ovens, and a long tail of consumer gadgets — anyone can transmit at low power without a license.' },
-    'EIRP':   { expansion: 'Effective Isotropic Radiated Power',
-                body: 'The TX power your transmitter would need to feed into a perfect omnidirectional (isotropic) antenna to match what your real antenna+amp combination radiates in its strongest direction. EIRP = TX power + antenna gain.' },
-    'FR1':    { expansion: '5G NR Frequency Range 1 (sub-6 GHz)',
-                body: 'The 5G NR low- and mid-band spectrum below 7.125 GHz — the cellular bands you actually get coverage on. Includes n1, n3, n7, n28, n41, n66, n71, n77, n78, n79.' },
-    'FR2':    { expansion: '5G NR Frequency Range 2 (mmWave)',
-                body: 'The 5G NR millimeter-wave spectrum 24.25–71 GHz — fast (multi-Gb/s) but very short range and easily blocked by buildings, hands, and rain. n257, n258, n260, n261.' },
-    'ICNIRP': { expansion: 'International Commission on Non-Ionizing Radiation Protection',
-                body: 'Independent body that publishes the global RF and optical exposure guidelines most national regulators (FCC OET-65, BNetzA, Ofcom) base their safe-distance rules on.' },
-    'n78':    { expansion: '5G NR Band n78 — global C-band TDD',
-                body: 'TDD 3300–3800 MHz — the canonical European, UK, German, and Japanese 5G C-band, plus India and large parts of Asia. The most-deployed 5G mid-band in the world.' },
-    'CSI':    { expansion: 'Channel State Information',
-                body: 'Per-subcarrier amplitude/phase data Wi-Fi devices already exchange to equalise the channel. Reading it (with ESP32-CSI-Tool, Atheros CSI Tool, or IEEE 802.11bf) lets you sense motion, gesture, even breathing through walls.' },
-    'LoRa':   { expansion: 'Long Range (chirp-spread-spectrum)',
-                body: 'Semtech’s low-power, low-data-rate radio modulation. Lets a 25 mW transmitter reach 5–15 km outdoors at the cost of just a few hundred bits per second. Foundation of LoRaWAN, Helium, and Meshtastic.' },
-    'DFS':    { expansion: 'Dynamic Frequency Selection',
-                body: 'Wi-Fi rule on UNII-2A and UNII-2C (5.250–5.350 / 5.470–5.725 GHz): the access point listens for weather/military radar pulses and must vacate the channel within 10 s if it hears one. Required by FCC + ETSI.' },
-    'HPUE':   { expansion: 'High-Power User Equipment',
-                body: 'A power-class-2 cellular phone or modem allowed to transmit at 26 dBm (≈400 mW) instead of the usual 23 dBm (200 mW). Enabled on n14 FirstNet and n41 / n78 / n79 mid-band 5G to extend uplink range.' },
-    'PLC':    { expansion: 'Power-Line Communication / PowerLAN',
-                body: 'Data carried over the electrical wiring already in your walls (2–30 MHz narrowband, standardised by IEEE 1901, HomePlug AV2, and ITU G.hn). Convenient for whole-home networking, but radiates as a major HF noise source and ruins reception on shortwave.' },
-    'TDD':    { expansion: 'Time Division Duplex',
-                body: 'Uplink and downlink share the same frequency channel and alternate in short time slots — efficient for asymmetric traffic and standard on 5G NR mid-band (n40, n41, n78, n79). Contrast with FDD where UL and DL use paired separate frequencies.' },
-    'UNII':   { expansion: 'Unlicensed National Information Infrastructure',
-                body: 'FCC umbrella term for the 5 GHz and 6 GHz Wi-Fi spectrum tiers — UNII-1, UNII-2A, UNII-2C, UNII-3, plus the new 6 GHz UNII-5/6/7/8 opened in 2020 for Wi-Fi 6E and Wi-Fi 7.' },
-    'EME':    { expansion: 'Earth-Moon-Earth ("moonbounce")',
-                body: 'Long-distance amateur-radio technique that aims a high-gain dish at the Moon and bounces signals off the lunar surface back to another station on Earth. Common on 2 m, 70 cm, 23 cm, 13 cm, 9 cm, 6 cm, 3 cm, and 1.25 cm ham bands.' }
-  };
+  // Pull the abbreviation dictionary from the Liquid-rendered JSON island so
+  // _data/spectrum/abbreviations.yml stays the single source of truth.
+  var DICT = {};
+  var abbrDataEl = document.getElementById('spectrum-abbr-data');
+  if (abbrDataEl) {
+    try { DICT = JSON.parse(abbrDataEl.textContent || '{}'); } catch (_) { DICT = {}; }
+  }
 
-  // Sort longest first so 'FR2' is matched before 'FR'.
+  // Sort longest first so 'FR2' is matched before 'FR', etc.
   var TERMS = Object.keys(DICT).sort(function (a, b) { return b.length - a.length; });
+  if (TERMS.length === 0) return;
   var WORD_RE = new RegExp('\\b(' + TERMS.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\b', 'g');
 
   // Walk text nodes inside the table body and wrap matches in clickable spans.
