@@ -1,0 +1,77 @@
+---
+# =============================================================================
+# Spectrum Batch 14 — 5 GHz / 6 GHz Wi-Fi (UNII-1 → UNII-8) + ISM 5.8 GHz
+# =============================================================================
+# Migrated and upgraded from the original 06-shf-ehf-microwave.yml. Covers
+# all 5 GHz and 6 GHz unlicensed UNII / ISM allocations:
+#   – UNII-1 / 2A / 2C / 3 (5.150–5.850 GHz): Wi-Fi 5 / 6 / 7 in 5 GHz
+#   – ISM 5.725–5.875 GHz (worldwide): 5.8 GHz FPV, RFID, amateur 9 cm
+#   – UNII-4 / 5 / 6 / 7 / 8 (5.850–7.125 GHz): C-V2X / ITS-G5 + Wi-Fi 6E / 7
+# Includes the lower edge of 5G NR n79 (4.4–5.0 GHz) where it touches
+# 5.0 GHz. 7 GHz+ microwave links, 10 GHz X-band radar, and satellite
+# Ku/Ka are deferred to later batch files. Schema: identical 14-column
+# layout + batch wrapper used by all earlier files.
+# =============================================================================
+
+batch:
+  id: "shf-5-6-ghz-wifi-ism"
+  order: 14
+  name: "5 GHz / 6 GHz Wi-Fi (UNII-1 → UNII-8) + ISM 5.8 GHz"
+  short_name: "5/6 GHz Wi-Fi + 5.8 ISM"
+  description: >
+    The modern Wi-Fi backbone. UNII-1 / 2A / 2C / 3 (5.150–5.850 GHz)
+    has carried Wi-Fi 4 / 5 / 6 for two decades, with DFS coexistence
+    with weather and military radar in 2A / 2C. The 5.725–5.875 GHz ISM
+    band overlaps UNII-3 and hosts 5.8 GHz analog / digital FPV drone
+    video, RFID, and the amateur 9 cm secondary allocation. UNII-5 / 6 /
+    7 / 8 (5.925–7.125 GHz) is the new 1200 MHz of Wi-Fi 6E / 7 spectrum
+    opened in the US (2020), Europe (UNII-5 only, 2021), and many other
+    countries. The 5.850–5.925 GHz slice is increasingly C-V2X / ITS-G5
+    automotive instead of Wi-Fi.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "5.150 GHz – 5.725 GHz (UNII-1 + UNII-2A + UNII-2C / Extended; 5G NR n79 lower edge)"
+    key_frequencies_channels: "UNII-1: 5.150–5.250 GHz, channels 36 / 40 / 44 / 48 (20 MHz), 38 / 46 (40 MHz), 42 (80 MHz), 50 (160 MHz). UNII-2A: 5.250–5.350 GHz, channels 52 / 56 / 60 / 64, DFS required. UNII-2C / Extended: 5.470–5.725 GHz, channels 100–144 (covers 11 × 20 MHz), DFS + TPC required. 5G NR n79 4.400–5.000 GHz TDD lower edge (Japan / China private campus 5G). Aeronautical altimeter band 4.2–4.4 GHz adjacent below"
+    band_name_designation: "5 GHz Wi-Fi (UNII-1 / 2A / 2C) — Wi-Fi 4 / 5 / 6 / 7 + 5G NR n79"
+    primary_uses_hobbyist_relevance: "Modern home / office Wi-Fi (5 GHz portion of dual- and tri-band routers), Wi-Fi mesh backhaul, low-density Wi-Fi point-to-point (P2P) links, PHY-layer learning, 5G NR n79 industrial / private campus monitoring (rare)"
+    hardware_modules: "Wi-Fi 6 / 6E / 7 routers (TP-Link Archer AX73 / AX95, ASUS RT-AX86U / RT-BE96U, Ubiquiti UniFi U6-Pro / U7-Pro, Aruba Instant On AP25 / AP32, Mikrotik hAP ax3 / hAP ax², Netgear Orbi RBKE963), Raspberry Pi 5 with built-in Wi-Fi 5 (5 GHz capable on Pi 4 / 5), ESP32-S3 (Wi-Fi 4 only — 2.4 GHz), ESP32-C5 (Wi-Fi 6 dual-band 2.4/5 GHz, sampling 2024–25), Wi-Fi NICs supporting monitor mode + DFS channels (Alfa AWUS036ACS / AWUS1900 with patched drivers), HackRF One / LimeSDR Mini / USRP B210 / BladeRF 2.0 micro for SDR observation, Wi-Spy DBx / Ekahau Sidekick 2 for surveys"
+    antenna_diy_considerations: "1/4-wave whip ≈ 1.4 cm at 5.5 GHz (impractical alone — use directional gain); 5 GHz dipole ≈ 2.7 cm; high-gain omni (5–9 dBi) for routers; 24 dBi parabolic dish or 19 dBi sector panel for long-range outdoor (Ubiquiti NanoBeam, LiteBeam); 4×4 / 8×8 MIMO panels for Wi-Fi 6 / 7 access points; circularly polarised patch for FPV (when used in 5 GHz mode)"
+    legal_licensing_notes: "ITU 5 GHz allocation: fixed, mobile, radiolocation, radionavigation, radio-determination satellite. Wi-Fi: FCC Part 15.407 (UNII rules); ETSI EN 301 893; Japan ARIB STD-T71. UNII-1 indoor + outdoor (FCC since 2014, EU still indoor-only in part). UNII-2A / 2C require DFS (Dynamic Frequency Selection — vacate channel within 10 s of detected radar) + TPC (Transmit Power Control). EU-RED applies. License-free for compliant equipment"
+    max_power_restrictions_eirp: "FCC UNII-1: 1 W (30 dBm) conducted, 4 W EIRP; UNII-2A: 250 mW conducted, 1 W EIRP (DFS); UNII-2C: 250 mW conducted, 1 W EIRP (DFS + TPC); UNII-3: 1 W / 4 W EIRP (next row). EU UNII-1 indoor: 200 mW EIRP; UNII-1 outdoor: 200 mW EIRP since 2018; UNII-2A: 200 mW EIRP indoor only (DFS); UNII-2C: 1 W EIRP (DFS + TPC, indoor / outdoor)"
+    propagation_interference_notes: "Better-than-2.4 GHz spectrum quality (less congestion, more channels) but worse building penetration. DFS-required channels (UNII-2A / 2C) are quietest but force vacate when weather / military radar pings; bursty radar pings can disconnect AP for 30 minutes. Local QRM from neighbour Wi-Fi APs and (rarely) cordless 5.8 GHz analog video"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 / IEC 62209 RF-exposure guidelines; routers at 1 W EIRP have controlled-environment exclusion zones of <1 m"
+    technologies_example_devices: "Wi-Fi 4 / 5 (802.11n / ac), Wi-Fi 6 (802.11ax HE-5), Wi-Fi 7 (802.11be EHT-5 with 320 MHz channels using 5+6 GHz aggregation), 5G NR n79 industrial private campus, weather radar (NEXRAD-S adjacent at 2.7 GHz, but C-band weather radar at 5.6 GHz coexists with UNII-2C), military / maritime navigation radars"
+    hobbyist_project_ideas: "Set up a Wi-Fi 6 / 7 mesh with band-steering (legacy 2.4 GHz, modern 5 / 6 GHz); flash OpenWrt on a Mikrotik hAP ax3 and force DFS-channel use; build a 10 km outdoor Wi-Fi 6 P2P link with two Ubiquiti AirFiber dishes; survey your apartment block with Wi-Spy + Ekahau"
+    sources_citations: "FCC Part 15.407 (UNII), ETSI EN 301 893, ITU-R Radio Regulations RR Article 5, IEEE 802.11ac / 802.11ax / 802.11be, Wi-Fi Alliance Wi-Fi 6 / 6E / 7 specs, 3GPP TS 38.101-1 (n79), Wi-Fi Alliance Wi-Fi 7 cert program (2026)"
+    usability_badge: "🟢 Public / ISM / Unlicensed (with DFS notes)"
+
+  - frequency_range: "5.725 GHz – 5.875 GHz (ISM + UNII-3 overlap; 5.8 GHz FPV; amateur 9 cm)"
+    key_frequencies_channels: "ITU 5.725–5.875 GHz ISM (footnote 5.150). UNII-3 (FCC): 5.725–5.850 GHz, channels 149 / 153 / 157 / 161 / 165 (20 MHz), 151 / 159 (40 MHz), 155 (80 MHz). 5.8 GHz analog / digital FPV: 40 standard channels 5.645–5.945 GHz (Bands A / B / E / F / R, 8 channels each) — overlaps both UNII-3 and UNII-4. RFID Class 1 Gen 2 5.8 GHz, RFID toll tags (e.g., e-ZPass 915 MHz US but 5.8 GHz in some EU systems). Amateur 9 cm: 5.650–5.925 GHz secondary (Region 1 / 2, varies by country — only a few hundred MHz hams can use)"
+    band_name_designation: "5.8 GHz ISM band (UNII-3 + amateur 9 cm + FPV)"
+    primary_uses_hobbyist_relevance: "5.8 GHz analog / digital FPV drone video (the most popular RC video band globally), RFID toll-tags / asset tracking, point-to-point Wi-Fi (UNII-3 portion), amateur 9 cm experimentation (secondary status), short-range microwave links, security RFID"
+    hardware_modules: "FPV: analog video TX / RX (Eachine TX805S, Foxeer Reaper, Rush Tank Mini at 25–600 mW with switchable channels); digital FPV (DJI O4 / O3, HDZero Race v3, Walksnail Avatar HD); FPV goggles (DJI Goggles 2 / Integra, HDZero, Skyzone, Fatshark); UNII-3 routers (any modern 5 GHz Wi-Fi router uses ch.149-165); RFID: 5.8 GHz toll readers; SDR: HackRF / BladeRF 2.0 / USRP / Pluto SDR (rare but possible); FPV race timing systems (LapRF, Chorus32)"
+    antenna_diy_considerations: "FPV: stubby 5.8 GHz dipole on TX (3 cm), patch / pagoda / clover-leaf / lollipop circularly polarized antennas; eggbeater / cloverleaf for omnidirectional FPV RX; 14 dBi crosshair patch for long-range RX; for Wi-Fi UNII-3: same as previous row; for ham 9 cm: parabolic dish with horn feed or large patch array"
+    legal_licensing_notes: "ITU 5.725–5.875 GHz ISM (RR 5.150). FPV: FCC Part 15.249 generic devices (≤50 mV/m at 3 m field strength → ~4 dBm EIRP); FCC Part 95 (cuts no specific FPV allocation in US — most pilots operate under Part 15 OR amateur Part 97 if licensed); ETSI EN 300 440 SRD up to 25 mW EIRP for non-amateurs; AMA / FAA Part 107 drone rules apply for flight regardless. Amateur 9 cm under FCC Part 97 / IARU R1 / R2 band plans; allows higher power but secondary to ISM users. UNII-3 unlicensed (FCC Part 15.407)"
+    max_power_restrictions_eirp: "FPV non-amateur (Part 15.249 / EN 300 440): ~4 dBm EIRP / 25 mW EIRP (most consumer 25 mW VTXs comply). FPV amateur (Part 97 with license): up to 1500 W PEP (impractical and unwise — typical pilots run 200–800 mW). UNII-3 Wi-Fi: 1 W (30 dBm) conducted, 4 W EIRP (FCC); 25 mW EIRP (EU CE, very restrictive). Pilots flying FPV at 200–600 mW are technically operating under amateur rules; FCC has not actively enforced against 200 mW FPV racers but DOES enforce against multi-W setups"
+    propagation_interference_notes: "Strict line-of-sight; trees and bodies block heavily; 60 cm wavelength gives strong multipath in cluttered environments. FPV typical range: 25 mW omni → 0.5–1 km; 600 mW omni + patch RX → 5–10 km; digital FPV (DJI O4, HDZero) extends usable range significantly. Major interferer: other FPV pilots on adjacent channels at race events; UNII-3 routers and weather-radar overlap"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; consumer 25–600 mW FPV TXs are below MPE limits at antenna-to-body distances of >5 cm. Higher-power amateur transmitters need standoff (typical 1–3 m main lobe at 2 W EIRP)"
+    technologies_example_devices: "5.8 GHz analog FPV (NTSC / PAL CVBS over 27 MHz FM), digital FPV (DJI O3 / O4, HDZero, Walksnail, ExpressLRS WiFi link), Wi-Fi UNII-3 (channels 149-165), 5.8 GHz RFID, amateur 9 cm SSB / FT8 / EME, 5.8 GHz police speed-radar (limited)"
+    hobbyist_project_ideas: "Build an FPV race quad with a 25 mW VTX and learn to read your bandplan to avoid interfering with other pilots; build a long-range FPV link with a 600 mW (amateur-licensed) VTX + 14 dBi crosshair RX; deploy a Wi-Fi 6 / 7 mesh exclusively on UNII-3 to avoid DFS interruptions; experiment on amateur 9 cm with a parabolic dish and a transverter"
+    sources_citations: "ITU-R Radio Regulations RR 5.150 (ISM), FCC Part 15.247 / 15.249 / 15.407, FCC Part 97 (amateur), ETSI EN 300 440 / EN 301 893, IARU R1 / R2 9 cm band plans, Wi-Fi Alliance UNII-3 specs, AMA FPV technical info, FPV community wiki (RotorBuilds, BetaFPV) (2026)"
+    usability_badge: "🟢 Public / ISM / Unlicensed (with DFS notes)"
+
+  - frequency_range: "5.850 GHz – 7.125 GHz (UNII-4 + UNII-5 / 6 / 7 / 8: Wi-Fi 6E / 7 + ITS-G5 / C-V2X)"
+    key_frequencies_channels: "UNII-4 (FCC, 2020 expansion): 5.850–5.895 GHz Wi-Fi (ch.169 / 173 / 177); 5.895–5.925 GHz reserved for ITS-G5 / C-V2X (US FCC reallocation 2020). EU: full 5.875–5.925 GHz reserved for ITS-G5 / C-V2X (no Wi-Fi). UNII-5: 5.925–6.425 GHz (500 MHz, US + EU + UK + AU + JP since 2020-21); UNII-6: 6.425–6.525 GHz (US only); UNII-7: 6.525–6.875 GHz (US only); UNII-8: 6.875–7.125 GHz (US only). Wi-Fi 6E / 7 channel plan: 59 × 20 MHz, 29 × 40 MHz, 14 × 80 MHz, 7 × 160 MHz, 3 × 320 MHz (Wi-Fi 7). AFC (Automated Frequency Coordination) required for Standard-Power UNII-5 / 7 outdoor in US"
+    band_name_designation: "UNII-4 + 6 GHz Wi-Fi 6E / 7 (UNII-5 / 6 / 7 / 8) + ITS-G5 / C-V2X"
+    primary_uses_hobbyist_relevance: "Wi-Fi 6E / 7 (the canonical 'fast clean band' for modern wireless), C-V2X / ITS-G5 vehicle-to-everything (5.9 GHz, automotive only — receive-only for hobbyists), ultra-wideband test setups, AFC-controlled outdoor Wi-Fi"
+    hardware_modules: "Wi-Fi 6E / 7 routers and APs (TP-Link Archer BE800 / BE900, ASUS RT-BE96U / GT-BE98 Pro, Ubiquiti U7-Pro / U7-Pro Max / U7-Outdoor, Aruba Instant On AP32, Netgear Orbi RBKE963, Mikrotik with planned 6 GHz support); Wi-Fi 6E clients (iPhone 15 / 16 Pro, Samsung Galaxy S22 onwards, Pixel 7 / 8 / 9, Intel AX210 / BE200 NICs); ESP32-C6 / C5 (Wi-Fi 6 dual-band, 2.4 + 5 GHz, no 6 GHz); SDR for observation: USRP X310 + UBX-160 daughterboard, BladeRF 2.0 micro xA9 (up to 6 GHz — 6E lower edge only), per Pluto SDR (no native 6 GHz coverage)"
+    antenna_diy_considerations: "1/4-wave whip ≈ 1.1 cm at 6.5 GHz (impractical alone); 6 GHz dipole ≈ 2.3 cm; PCB IFA on Wi-Fi 6E NICs; high-gain omni (5–9 dBi) for routers; 24 dBi parabolic dish for long-range outdoor (rare in 6 GHz due to AFC); 4×4 / 8×8 MIMO panels for Wi-Fi 7 access points"
+    legal_licensing_notes: "FCC: UNII-5 / 6 / 7 / 8 opened in 2020 (Order 20-51) for 1200 MHz of new Wi-Fi spectrum. Two power tiers: Low-Power Indoor (LPI, no AFC required, indoor-only, no battery, no weather-resistance) and Standard-Power (SP, requires AFC for UNII-5 + UNII-7 to protect incumbent 6 GHz fixed-microwave links). EU: only UNII-5 (5.925–6.425 GHz) opened (2021) at 200 mW EIRP LPI. UK: UNII-5 indoor-only LPI. UNII-4 partial reallocation: ITS-G5 (EU) and C-V2X (US) take 5.875–5.925 GHz, with FCC 2020 freeing 5.850–5.895 GHz for Wi-Fi"
+    max_power_restrictions_eirp: "FCC LPI: 5 dBm/MHz / 1 W (30 dBm) for ≥320 MHz channels indoors; SP (with AFC): 23 dBm/MHz / 4 W (36 dBm) EIRP outdoor. EU UNII-5 LPI: 23 dBm (200 mW) EIRP indoor + 14 dBm/MHz spectral. UK same as EU but with proposed VLP (Very Low Power) outdoor at 14 dBm. ITS-G5 / C-V2X: 33 dBm (2 W) EIRP roadside units, 23 dBm (200 mW) on-board units"
+    propagation_interference_notes: "Cleaner spectrum than 5 GHz UNII (no DFS, no legacy radar). Building penetration similar to 5 GHz; multipath same scale. Major incumbent in UNII-5 / 7 is fixed-service microwave point-to-point links (telecom backhaul) — AFC database protects them by tiling outdoor SP devices around active links"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 / IEC 62209 RF-exposure guidelines; LPI 1 W EIRP indoor is well below MPE; outdoor SP 4 W EIRP needs typical macrocell-class standoff"
+    technologies_example_devices: "Wi-Fi 6E (802.11ax HE-6), Wi-Fi 7 (802.11be EHT-6, MLO across 5+6 GHz), ITS-G5 (ETSI EN 302 663) cooperative ITS, C-V2X PC5 sidelink (3GPP), incumbent 6 GHz fixed-service microwave backhaul"
+    hobbyist_project_ideas: "Upgrade your home network to Wi-Fi 7 with TP-Link BE900 or Ubiquiti U7-Pro Max and benchmark single-stream throughput on a 320 MHz channel; build a Wi-Fi 6E AFC client demo (US); compare Wi-Fi 6E latency vs Wi-Fi 5 / 6 in a noisy apartment; passively observe 6 GHz beacon frames with a USRP / BladeRF when paired with appropriate front-end filtering"
+    sources_citations: "FCC Order 20-51 (6 GHz unlicensed), FCC Part 15.407 (UNII rules) updated 2020, ETSI EN 303 687 (6 GHz WAS / RLAN), IEEE 802.11ax / 802.11be, Wi-Fi Alliance Wi-Fi 6E / 7 cert programs, ETSI EN 302 663 (ITS-G5), 3GPP TR 22.886 (V2X), AFC system providers (e.g. Federated Wireless, RED Technologies) (2026)"
+    usability_badge: "🟢 Public / ISM / Unlicensed (with DFS notes)"
