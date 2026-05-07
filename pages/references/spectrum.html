@@ -82,6 +82,27 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
       </div>
     </section>
 
+    <section class="spectrum-abbr-legend">
+      <h2>Abbreviations &amp; Quick Reference</h2>
+      <p>Click or tap any abbreviation in the table to see its explanation. The cards below cover the most common terms — every match inside the table is also clickable.</p>
+      <div id="abbreviations-legend" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 20px 0;">
+        <button type="button" class="abbr-card" data-abbr="ISM"><span class="abbr-card__term">ISM</span><span class="abbr-card__expansion">Industrial, Scientific, Medical</span><span class="abbr-card__hint">License-free shared bands (433 MHz EU, 902–928 MHz US, 2.4 GHz, 5.8 GHz).</span></button>
+        <button type="button" class="abbr-card" data-abbr="EIRP"><span class="abbr-card__term">EIRP</span><span class="abbr-card__expansion">Effective Isotropic Radiated Power</span><span class="abbr-card__hint">TX power × antenna gain — what your strongest direction actually radiates.</span></button>
+        <button type="button" class="abbr-card" data-abbr="FR1"><span class="abbr-card__term">FR1</span><span class="abbr-card__expansion">5G NR Frequency Range 1 (sub-6 GHz)</span><span class="abbr-card__hint">The 5G NR low- and mid-band cellular spectrum (n1, n28, n41, n71, n78…).</span></button>
+        <button type="button" class="abbr-card" data-abbr="FR2"><span class="abbr-card__term">FR2</span><span class="abbr-card__expansion">5G NR Frequency Range 2 (mmWave)</span><span class="abbr-card__hint">5G mmWave 24.25–71 GHz (n257/n258/n260/n261) — fast but very short-range.</span></button>
+        <button type="button" class="abbr-card" data-abbr="ICNIRP"><span class="abbr-card__term">ICNIRP</span><span class="abbr-card__expansion">International Commission on Non-Ionizing Radiation Protection</span><span class="abbr-card__hint">Sets the global RF/optical exposure guidelines national regulators follow.</span></button>
+        <button type="button" class="abbr-card" data-abbr="n78"><span class="abbr-card__term">n78</span><span class="abbr-card__expansion">5G NR Band n78 — global C-band TDD</span><span class="abbr-card__hint">3300–3800 MHz — the most-deployed 5G mid-band in EU/UK/DE/Japan.</span></button>
+        <button type="button" class="abbr-card" data-abbr="CSI"><span class="abbr-card__term">CSI</span><span class="abbr-card__expansion">Channel State Information</span><span class="abbr-card__hint">Wi-Fi PHY data that lets you sense motion, gestures, even breathing through walls.</span></button>
+        <button type="button" class="abbr-card" data-abbr="LoRa"><span class="abbr-card__term">LoRa</span><span class="abbr-card__expansion">Long Range chirp-spread-spectrum</span><span class="abbr-card__hint">25 mW reaches 5–15 km outdoors. Backbone of LoRaWAN, Helium, Meshtastic.</span></button>
+        <button type="button" class="abbr-card" data-abbr="DFS"><span class="abbr-card__term">DFS</span><span class="abbr-card__expansion">Dynamic Frequency Selection</span><span class="abbr-card__hint">Wi-Fi rule on UNII-2A/2C — vacate the channel within 10 s of detected radar.</span></button>
+        <button type="button" class="abbr-card" data-abbr="HPUE"><span class="abbr-card__term">HPUE</span><span class="abbr-card__expansion">High-Power User Equipment</span><span class="abbr-card__hint">Class-2 cellular phones at 26 dBm / 400 mW (vs. usual 23 dBm) on n14/n41/n78.</span></button>
+        <button type="button" class="abbr-card" data-abbr="PLC"><span class="abbr-card__term">PLC</span><span class="abbr-card__expansion">Power-Line Communication / PowerLAN</span><span class="abbr-card__hint">Data over electrical wiring (2–30 MHz, IEEE 1901 / HomePlug AV2 / G.hn). A major HF noise source.</span></button>
+        <button type="button" class="abbr-card" data-abbr="TDD"><span class="abbr-card__term">TDD</span><span class="abbr-card__expansion">Time Division Duplex</span><span class="abbr-card__hint">Uplink and downlink share the same channel, alternating in time. Used by n40, n41, n78, n79.</span></button>
+        <button type="button" class="abbr-card" data-abbr="UNII"><span class="abbr-card__term">UNII</span><span class="abbr-card__expansion">Unlicensed National Information Infrastructure</span><span class="abbr-card__hint">FCC umbrella term for the 5 / 6 GHz Wi-Fi spectrum tiers (UNII-1 through UNII-8).</span></button>
+        <button type="button" class="abbr-card" data-abbr="EME"><span class="abbr-card__term">EME</span><span class="abbr-card__expansion">Earth-Moon-Earth ('moonbounce')</span><span class="abbr-card__hint">Ham long-distance technique — aim a high-gain dish at the Moon and bounce signals back to Earth.</span></button>
+      </div>
+    </section>
+
     <div class="spectrum-controls">
       <nav class="spectrum-tabs" role="tablist" aria-label="Spectrum batches">
         <button type="button" class="spectrum-tab is-active" data-batch="all" role="tab" aria-selected="true">
@@ -706,6 +727,48 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
   color: var(--c-accent);
   outline: none;
 }
+
+/* Abbreviation legend cards */
+.spectrum-abbr-legend { margin-bottom: var(--space-md); }
+.abbr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font: inherit;
+  transition: background var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+.abbr-card:hover,
+.abbr-card:focus-visible {
+  background: var(--c-surface-alt);
+  border-color: var(--c-accent-border);
+  outline: none;
+}
+.abbr-card:active { transform: translateY(1px); }
+.abbr-card__term {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--c-accent);
+  letter-spacing: 0.02em;
+}
+.abbr-card__expansion {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.abbr-card__hint {
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+  line-height: 1.4;
+}
 .spectrum-abbr-modal {
   position: fixed;
   inset: 0;
@@ -789,7 +852,15 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
     'DFS':    { expansion: 'Dynamic Frequency Selection',
                 body: 'Wi-Fi rule on UNII-2A and UNII-2C (5.250–5.350 / 5.470–5.725 GHz): the access point listens for weather/military radar pulses and must vacate the channel within 10 s if it hears one. Required by FCC + ETSI.' },
     'HPUE':   { expansion: 'High-Power User Equipment',
-                body: 'A power-class-2 cellular phone or modem allowed to transmit at 26 dBm (≈400 mW) instead of the usual 23 dBm (200 mW). Enabled on n14 FirstNet and n41 / n78 / n79 mid-band 5G to extend uplink range.' }
+                body: 'A power-class-2 cellular phone or modem allowed to transmit at 26 dBm (≈400 mW) instead of the usual 23 dBm (200 mW). Enabled on n14 FirstNet and n41 / n78 / n79 mid-band 5G to extend uplink range.' },
+    'PLC':    { expansion: 'Power-Line Communication / PowerLAN',
+                body: 'Data carried over the electrical wiring already in your walls (2–30 MHz narrowband, standardised by IEEE 1901, HomePlug AV2, and ITU G.hn). Convenient for whole-home networking, but radiates as a major HF noise source and ruins reception on shortwave.' },
+    'TDD':    { expansion: 'Time Division Duplex',
+                body: 'Uplink and downlink share the same frequency channel and alternate in short time slots — efficient for asymmetric traffic and standard on 5G NR mid-band (n40, n41, n78, n79). Contrast with FDD where UL and DL use paired separate frequencies.' },
+    'UNII':   { expansion: 'Unlicensed National Information Infrastructure',
+                body: 'FCC umbrella term for the 5 GHz and 6 GHz Wi-Fi spectrum tiers — UNII-1, UNII-2A, UNII-2C, UNII-3, plus the new 6 GHz UNII-5/6/7/8 opened in 2020 for Wi-Fi 6E and Wi-Fi 7.' },
+    'EME':    { expansion: 'Earth-Moon-Earth ("moonbounce")',
+                body: 'Long-distance amateur-radio technique that aims a high-gain dish at the Moon and bounces signals off the lunar surface back to another station on Earth. Common on 2 m, 70 cm, 23 cm, 13 cm, 9 cm, 6 cm, 3 cm, and 1.25 cm ham bands.' }
   };
 
   // Sort longest first so 'FR2' is matched before 'FR'.
@@ -888,24 +959,24 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
   var tbody = table.querySelector('tbody');
   if (tbody) decorate(tbody);
 
-  // Click / keyboard activation on any abbr-trigger or native <abbr>/[data-abbr] inside the table.
-  table.addEventListener('click', function (e) {
-    var t = e.target.closest('.abbr-trigger, abbr[title], [data-abbr]');
+  // Click / keyboard activation works document-wide so the abbreviation legend
+  // cards (.abbr-card) and the in-table .abbr-trigger spans / native <abbr>
+  // tags / any future [data-abbr] markup all open the same modal.
+  function activateFromEvent(e) {
+    var t = e.target.closest('.abbr-trigger, .abbr-card, abbr[title], [data-abbr]');
     if (!t) return;
     e.preventDefault();
-    var term = t.getAttribute('data-abbr') || t.textContent.trim();
+    var term = t.getAttribute('data-abbr') ||
+               (t.querySelector('.abbr-card__term') && t.querySelector('.abbr-card__term').textContent.trim()) ||
+               t.textContent.trim();
     openModal(term);
-  });
-  table.addEventListener('keydown', function (e) {
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    var t = e.target.closest('.abbr-trigger, abbr[title], [data-abbr]');
-    if (!t) return;
-    e.preventDefault();
-    var term = t.getAttribute('data-abbr') || t.textContent.trim();
-    openModal(term);
-  });
+  }
+  document.addEventListener('click', activateFromEvent);
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    if (!e.target.closest('.abbr-trigger, .abbr-card, abbr[title], [data-abbr]')) return;
+    activateFromEvent(e);
   });
 })();
 </script>
