@@ -67,6 +67,17 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
       </div>
     </header>
 
+    <section class="spectrum-legend">
+      <h2>Spectrum Legend &amp; Usability</h2>
+      <p>Each row is color-coded for quick reference:</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; font-size: 0.95em;">
+        <div><span style="background:#22c55e; color:white; padding:2px 8px; border-radius:4px;">🟢</span> Public / ISM / Unlicensed</div>
+        <div><span style="background:#3b82f6; color:white; padding:2px 8px; border-radius:4px;">🔵</span> Amateur Radio (Ham-only)</div>
+        <div><span style="background:#eab308; color:black; padding:2px 8px; border-radius:4px;">🟡</span> Licensed / Regulated</div>
+        <div><span style="background:#ef4444; color:white; padding:2px 8px; border-radius:4px;">🔴</span> Restricted / Scientific / Military</div>
+      </div>
+    </section>
+
     <div class="spectrum-controls">
       <nav class="spectrum-tabs" role="tablist" aria-label="Spectrum batches">
         <button type="button" class="spectrum-tab is-active" data-batch="all" role="tab" aria-selected="true">
@@ -153,7 +164,7 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
                 <td class="col-tech">{{ band.technologies_example_devices }}</td>
                 <td class="col-projects">{{ band.hobbyist_project_ideas }}</td>
                 <td class="col-sources">{{ band.sources_citations }}</td>
-                <td class="col-badge">{{ band.usability_badge }}</td>
+                <td class="col-badge"><span style="display:inline-block; padding:2px 8px; border-radius:4px; background:var(--c-surface-alt); border:1px solid var(--c-border); font-size:0.95em; white-space:nowrap;">{{ band.usability_badge }}</span></td>
               </tr>
             {% endfor %}
           {% endfor %}
