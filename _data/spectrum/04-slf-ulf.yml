@@ -1,0 +1,56 @@
+---
+# =============================================================================
+# Spectrum Batch 04 — Super Low / Ultra Low Frequency (SLF + ULF, 30 Hz – 3 kHz)
+# =============================================================================
+# Migrated and upgraded from the original 02-elf-slf-ulf.yml. Covers ONLY
+# the ITU SLF band (30 – 300 Hz) and the ITU ULF band (300 Hz – 3 kHz).
+# The 3 – 30 Hz ELF row lives in 03-elf.yml; VLF (3 – 30 kHz) lives in the
+# next batch file. Schema: identical 14-column layout + batch wrapper used
+# by all earlier files in this series.
+# =============================================================================
+
+batch:
+  id: "slf-ulf"
+  order: 4
+  name: "Super Low / Ultra Low Frequency (SLF + ULF, 30 Hz – 3 kHz)"
+  short_name: "SLF / ULF"
+  description: >
+    The two ITU bands sandwiched between ELF and VLF. SLF (30 – 300 Hz)
+    contains the 50/60 Hz mains frequencies and their harmonics and is used
+    for backup submarine comms and magnetotelluric surveys; ULF (300 Hz –
+    3 kHz) supports advanced submarine comms and audio-magnetotelluric (AMT)
+    geophysics. Both bands are receive-only for hobbyists — passive coil and
+    long-wire setups can monitor power-line harmonics, lightning sferics,
+    and natural ULF emissions tied to seismic and auroral activity.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "30 Hz – 300 Hz"
+    key_frequencies_channels: "50 Hz / 60 Hz mains and their harmonics (100, 120, 150, 180, 250, 300 Hz …), Russian ZEVS (~82 Hz), historical U.S. Navy ELF (~76 Hz, decommissioned), magnetotelluric survey bands"
+    band_name_designation: "Super Low Frequency (SLF) — ITU band 2"
+    primary_uses_hobbyist_relevance: "Backup submarine communication, power-grid harmonic monitoring, geomagnetically induced current (GIC) detection, magnetotelluric (MT) geophysical surveys, power-frequency exposure research; receive-only for hobbyists"
+    hardware_modules: "Multi-turn induction coils, SQUID magnetometers, fluxgate sensors, Arduino / Raspberry Pi loggers, USB sound-card ADC frontends, low-noise op-amp pre-amps; airborne EM survey systems (commercial)"
+    antenna_diy_considerations: "Large air-core or ferrite-core loop coils (1–3 m), long-wire grounded dipoles for E-field sensing; site away from mains wiring and inverters to keep the harmonics at observable levels rather than swamping the receiver"
+    legal_licensing_notes: "ITU allocated to fixed, mobile, and broadcasting services (military-dominant TX) in Regions 1, 2, and 3. No general amateur allocation; receive-only operation requires no license in most jurisdictions"
+    max_power_restrictions_eirp: "Operational TX systems run high input power for very low EIRP due to poor antenna efficiency at λ ≈ 1,000–10,000 km. Hobbyists are receive-only — no TX power applies"
+    propagation_interference_notes: "Excellent ground-wave and Earth-ionosphere waveguide propagation; moderate seawater and soil penetration. Dominant interference is 50/60 Hz mains and harmonics, switching supplies, and inverter PWM noise"
+    safety_exposure_limits: "Follow ICNIRP ELF/SLF exposure guidelines (reference levels ~100 μT magnetic / 5 kV/m electric at 50/60 Hz for general public). Ambient mains fields are well below limits in normal homes"
+    technologies_example_devices: "Russian ZEVS, decommissioned U.S. Navy ELF, magnetotelluric (MT) stations, airborne EM survey aircraft, medical ELF exposure test rigs, SQUID gradiometers"
+    hobbyist_project_ideas: "Monitor 50/60 Hz mains harmonics with a coil + sound-card ADC; map power-line interference around your neighborhood; log GIC surrogates during geomagnetic storms; build a portable MT-style two-channel logger"
+    sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, ARRL ELF/VLF resources, IEEE Trans. Power Delivery and EMC, ICNIRP ELF guidelines (2026)"
+    usability_badge: "🔵 Scientific / Receive-only for hobbyists"
+
+  - frequency_range: "300 Hz – 3 kHz"
+    key_frequencies_channels: "Audio-magnetotelluric (AMT) band, sferic tweeks, dawn-chorus precursors, advanced submarine-comms channels, standard time-signal sub-allocations"
+    band_name_designation: "Ultra Low Frequency (ULF) — ITU band 3"
+    primary_uses_hobbyist_relevance: "Advanced submarine communication, audio-magnetotelluric (AMT) geophysical surveys, monitoring of natural ULF emissions tied to lightning, earthquakes, and auroras; an excellent receive-only band for natural-radio hobbyists"
+    hardware_modules: "Air-core loop antennas, grounded-dipole E-field probes, induction coils, SQUID sensors, portable AMT instruments, Arduino / Raspberry Pi loggers, USB sound-card ADC frontends (full band fits in a 48 kHz audio capture)"
+    antenna_diy_considerations: "Large air-core loops (0.5–2 m, multi-turn) for B-field; long insulated wires staked into the ground for E-field; differential pre-amps reduce common-mode mains pickup"
+    legal_licensing_notes: "ITU allocated to fixed, mobile, radionavigation, and standard frequency / time-signal services in Regions 1, 2, and 3. Some industrial/scientific sharing. Receive-only operation requires no license in most jurisdictions"
+    max_power_restrictions_eirp: "TX is the domain of national programs with very high input power for modest EIRP. Hobbyists are receive-only — no TX power applies"
+    propagation_interference_notes: "Good ground-wave propagation with increasing seawater attenuation vs. ELF/SLF; still propagates globally via the Earth-ionosphere waveguide. Mains harmonics and switching-supply noise dominate the man-made interference floor"
+    safety_exposure_limits: "Follow ICNIRP ELF/low-frequency guidelines for general-public and occupational exposure"
+    technologies_example_devices: "ZEVS, audio-magnetotelluric (AMT) field gear, research aircraft with ULF sensors, university natural-radio observatories, INTERMAGNET stations"
+    hobbyist_project_ideas: "Record natural ULF sferics and tweeks with a sound-card receiver; build a two-channel B/E-field logger to study earthquake-precursor candidates; correlate ULF amplitude with auroral activity"
+    sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, ARRL VLF/ULF resources, IEEE Trans. Geoscience and Remote Sensing, USGS magnetotelluric publications (2026)"
+    usability_badge: "🔵 Scientific / Receive-only for hobbyists"
