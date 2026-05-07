@@ -14,24 +14,41 @@ into the site.data.spectrum hash, keyed by basename, and iterated alphabetically
 The numeric prefixes (01-, 02-, …) determine display order.
 Each YAML file has a `batch` map (id, order, name, short_name, description,
 last_updated) and a `bands` array. Every entry in `bands` is one row.
+
+Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
 =================================================================================
 {%- endcomment -%}
 
+{%- comment -%}
+  site.data.spectrum.* covers both the per-batch band files (01-…, 02-…, etc.)
+  and abbreviations.yml. The batch loops below skip any entry whose value
+  doesn't carry a `batch` map, so the abbreviations data is naturally ignored
+  by the table machinery.
+{%- endcomment -%}
 {%- assign batches = site.data.spectrum | sort -%}
+{%- assign abbreviations = site.data.spectrum.abbreviations -%}
 
 {%- comment -%} Find the most recent last_updated across all batches. {%- endcomment -%}
 {%- assign latest_update = "" -%}
 {%- for entry in batches -%}
-  {%- assign d = entry[1].batch.last_updated | default: "" -%}
-  {%- if d != "" and d > latest_update -%}{%- assign latest_update = d -%}{%- endif -%}
+  {%- if entry[1].batch -%}
+    {%- assign d = entry[1].batch.last_updated | default: "" -%}
+    {%- if d != "" and d > latest_update -%}{%- assign latest_update = d -%}{%- endif -%}
+  {%- endif -%}
 {%- endfor -%}
 
-{%- comment -%} Count total rows for the header summary. {%- endcomment -%}
+{%- comment -%} Count total rows + total batches for the header summary. {%- endcomment -%}
 {%- assign total_rows = 0 -%}
+{%- assign total_batches = 0 -%}
 {%- for entry in batches -%}
-  {%- assign bands = entry[1].bands | default: empty -%}
-  {%- assign total_rows = total_rows | plus: bands.size -%}
+  {%- if entry[1].batch -%}
+    {%- assign total_batches = total_batches | plus: 1 -%}
+    {%- assign bands = entry[1].bands | default: empty -%}
+    {%- assign total_rows = total_rows | plus: bands.size -%}
+  {%- endif -%}
 {%- endfor -%}
+
+<link rel="stylesheet" href="{{ '/assets/css/spectrum.css' | relative_url }}">
 
 <section class="spectrum-page">
   <div class="spectrum-container">
@@ -46,8 +63,8 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
         technology that lives in each, and the propagation quirks that make them
         useful (or useless) for any given purpose.
       </p>
-      <section class="legal-disclaimer" style="background: #fff3cd; border-left: 5px solid #ffc107; padding: 15px 20px; margin: 30px 0; border-radius: 4px;">
-        <h3 style="margin-top:0;">⚠️ Legal Disclaimer &amp; Important Notes</h3>
+      <section class="spectrum-disclaimer">
+        <h3>⚠️ Legal Disclaimer &amp; Important Notes</h3>
         <p>This reference is for educational and hobbyist purposes only. Frequency allocations, power limits, licensing rules, and restrictions change over time and vary by country/region. The information here is believed accurate as of May 2026 but may be outdated or incomplete in your location. Always verify with your national regulator (e.g. BNetzA in Germany, FCC in the US) before transmitting. The site owner is not liable for any misuse, interference, or legal consequences arising from the use of this reference.</p>
       </section>
       <p class="spectrum-howto">
@@ -58,7 +75,7 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
       </p>
       <div class="spectrum-meta">
         <span class="spectrum-meta__item">
-          <strong>{{ batches.size }}</strong> batches
+          <strong>{{ total_batches }}</strong> batches
         </span>
         <span class="spectrum-meta__item">
           <strong>{{ total_rows }}</strong> rows
@@ -74,34 +91,53 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
     <section class="spectrum-legend">
       <h2>Spectrum Legend &amp; Usability</h2>
       <p>Each row is color-coded for quick reference:</p>
-      <div style="display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; font-size: 0.95em;">
-        <div><span style="background:#22c55e; color:white; padding:2px 8px; border-radius:4px;">🟢</span> Public / ISM / Unlicensed</div>
-        <div><span style="background:#3b82f6; color:white; padding:2px 8px; border-radius:4px;">🔵</span> Amateur Radio (Ham-only)</div>
-        <div><span style="background:#eab308; color:black; padding:2px 8px; border-radius:4px;">🟡</span> Licensed / Regulated</div>
-        <div><span style="background:#ef4444; color:white; padding:2px 8px; border-radius:4px;">🔴</span> Restricted / Scientific / Military</div>
-      </div>
+      <ul class="spectrum-legend__list">
+        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--public" aria-hidden="true">🟢</span> Public / ISM / Unlicensed</li>
+        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--ham" aria-hidden="true">🔵</span> Amateur Radio (Ham-only)</li>
+        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--licensed" aria-hidden="true">🟡</span> Licensed / Regulated</li>
+        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--restricted" aria-hidden="true">🔴</span> Restricted / Scientific / Military</li>
+      </ul>
     </section>
 
-    <section class="spectrum-abbr-legend">
-      <h2>Abbreviations &amp; Quick Reference</h2>
-      <p>Click or tap any abbreviation in the table to see its explanation. The cards below cover the most common terms — every match inside the table is also clickable.</p>
-      <div id="abbreviations-legend" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 20px 0;">
-        <button type="button" class="abbr-card" data-abbr="ISM"><span class="abbr-card__term">ISM</span><span class="abbr-card__expansion">Industrial, Scientific, Medical</span><span class="abbr-card__hint">License-free shared bands (433 MHz EU, 902–928 MHz US, 2.4 GHz, 5.8 GHz).</span></button>
-        <button type="button" class="abbr-card" data-abbr="EIRP"><span class="abbr-card__term">EIRP</span><span class="abbr-card__expansion">Effective Isotropic Radiated Power</span><span class="abbr-card__hint">TX power × antenna gain — what your strongest direction actually radiates.</span></button>
-        <button type="button" class="abbr-card" data-abbr="FR1"><span class="abbr-card__term">FR1</span><span class="abbr-card__expansion">5G NR Frequency Range 1 (sub-6 GHz)</span><span class="abbr-card__hint">The 5G NR low- and mid-band cellular spectrum (n1, n28, n41, n71, n78…).</span></button>
-        <button type="button" class="abbr-card" data-abbr="FR2"><span class="abbr-card__term">FR2</span><span class="abbr-card__expansion">5G NR Frequency Range 2 (mmWave)</span><span class="abbr-card__hint">5G mmWave 24.25–71 GHz (n257/n258/n260/n261) — fast but very short-range.</span></button>
-        <button type="button" class="abbr-card" data-abbr="ICNIRP"><span class="abbr-card__term">ICNIRP</span><span class="abbr-card__expansion">International Commission on Non-Ionizing Radiation Protection</span><span class="abbr-card__hint">Sets the global RF/optical exposure guidelines national regulators follow.</span></button>
-        <button type="button" class="abbr-card" data-abbr="n78"><span class="abbr-card__term">n78</span><span class="abbr-card__expansion">5G NR Band n78 — global C-band TDD</span><span class="abbr-card__hint">3300–3800 MHz — the most-deployed 5G mid-band in EU/UK/DE/Japan.</span></button>
-        <button type="button" class="abbr-card" data-abbr="CSI"><span class="abbr-card__term">CSI</span><span class="abbr-card__expansion">Channel State Information</span><span class="abbr-card__hint">Wi-Fi PHY data that lets you sense motion, gestures, even breathing through walls.</span></button>
-        <button type="button" class="abbr-card" data-abbr="LoRa"><span class="abbr-card__term">LoRa</span><span class="abbr-card__expansion">Long Range chirp-spread-spectrum</span><span class="abbr-card__hint">25 mW reaches 5–15 km outdoors. Backbone of LoRaWAN, Helium, Meshtastic.</span></button>
-        <button type="button" class="abbr-card" data-abbr="DFS"><span class="abbr-card__term">DFS</span><span class="abbr-card__expansion">Dynamic Frequency Selection</span><span class="abbr-card__hint">Wi-Fi rule on UNII-2A/2C — vacate the channel within 10 s of detected radar.</span></button>
-        <button type="button" class="abbr-card" data-abbr="HPUE"><span class="abbr-card__term">HPUE</span><span class="abbr-card__expansion">High-Power User Equipment</span><span class="abbr-card__hint">Class-2 cellular phones at 26 dBm / 400 mW (vs. usual 23 dBm) on n14/n41/n78.</span></button>
-        <button type="button" class="abbr-card" data-abbr="PLC"><span class="abbr-card__term">PLC</span><span class="abbr-card__expansion">Power-Line Communication / PowerLAN</span><span class="abbr-card__hint">Data over electrical wiring (2–30 MHz, IEEE 1901 / HomePlug AV2 / G.hn). A major HF noise source.</span></button>
-        <button type="button" class="abbr-card" data-abbr="TDD"><span class="abbr-card__term">TDD</span><span class="abbr-card__expansion">Time Division Duplex</span><span class="abbr-card__hint">Uplink and downlink share the same channel, alternating in time. Used by n40, n41, n78, n79.</span></button>
-        <button type="button" class="abbr-card" data-abbr="UNII"><span class="abbr-card__term">UNII</span><span class="abbr-card__expansion">Unlicensed National Information Infrastructure</span><span class="abbr-card__hint">FCC umbrella term for the 5 / 6 GHz Wi-Fi spectrum tiers (UNII-1 through UNII-8).</span></button>
-        <button type="button" class="abbr-card" data-abbr="EME"><span class="abbr-card__term">EME</span><span class="abbr-card__expansion">Earth-Moon-Earth ('moonbounce')</span><span class="abbr-card__hint">Ham long-distance technique — aim a high-gain dish at the Moon and bounce signals back to Earth.</span></button>
+    <details class="spectrum-abbr-section" id="abbreviations-section">
+      <summary class="spectrum-abbr-section__summary">
+        <span class="spectrum-abbr-section__title">Abbreviations &amp; Quick Reference</span>
+        <span class="spectrum-abbr-section__count">{{ abbreviations.size }} terms</span>
+        <span class="spectrum-abbr-section__toggle" aria-hidden="true">
+          <span data-toggle-show>Show all abbreviations</span>
+          <span data-toggle-hide>Collapse</span>
+        </span>
+      </summary>
+      <div class="spectrum-abbr-section__body">
+        <p class="spectrum-abbr-section__intro">
+          Click or tap any abbreviation in the table — or any card below — to see its explanation.
+          Every term used in the table is listed here alphabetically.
+        </p>
+        <ul class="abbr-grid">
+          {% for entry in abbreviations %}
+          <li>
+            <button type="button" class="abbr-card" data-abbr="{{ entry.term | escape }}">
+              <span class="abbr-card__term">{{ entry.term }}</span>
+              <span class="abbr-card__expansion">{{ entry.full_form }}</span>
+              <span class="abbr-card__hint">{{ entry.explanation }}</span>
+            </button>
+          </li>
+          {% endfor %}
+        </ul>
       </div>
-    </section>
+    </details>
+
+    {%- comment -%} Abbreviation lookup table consumed by assets/js/spectrum.js for the in-table modal. {%- endcomment -%}
+    <script type="application/json" id="spectrum-abbr-data">
+      {
+        {% for entry in abbreviations %}
+          {{ entry.term | jsonify }}: {
+            "expansion": {{ entry.full_form | jsonify }},
+            "body": {{ entry.explanation | jsonify }}
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      }
+    </script>
 
     <div class="spectrum-controls">
       <nav class="spectrum-tabs" role="tablist" aria-label="Spectrum batches">
@@ -110,9 +146,11 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
         </button>
         {% for entry in batches %}
           {% assign b = entry[1].batch %}
+          {% if b %}
           <button type="button" class="spectrum-tab" data-batch="{{ b.id }}" role="tab" aria-selected="false" title="{{ b.name | escape }}">
             {{ b.short_name | default: b.name }}
           </button>
+          {% endif %}
         {% endfor %}
       </nav>
 
@@ -132,7 +170,9 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
     {%- comment -%} Batch descriptions kept in a hidden data island for the active-tab blurb. {%- endcomment -%}
     <script type="application/json" id="spectrum-batch-data">
       {
-        {% for entry in batches %}
+        {%- assign batch_entries = "" | split: "" -%}
+        {%- for entry in batches -%}{%- if entry[1].batch -%}{%- assign batch_entries = batch_entries | push: entry -%}{%- endif -%}{%- endfor -%}
+        {% for entry in batch_entries %}
           {%- assign b = entry[1].batch -%}
           "{{ b.id }}": {
             "name": {{ b.name | jsonify }},
@@ -167,6 +207,7 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
             {% assign batch_key = entry[0] %}
             {% assign batch_data = entry[1] %}
             {% assign batch = batch_data.batch %}
+            {% if batch %}
             {% for band in batch_data.bands %}
               <tr data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}">
                 <td class="col-freq mono">
@@ -189,9 +230,10 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
                 <td class="col-tech">{{ band.technologies_example_devices }}</td>
                 <td class="col-projects">{{ band.hobbyist_project_ideas }}</td>
                 <td class="col-sources">{{ band.sources_citations }}</td>
-                <td class="col-badge"><span style="display:inline-block; padding:2px 8px; border-radius:4px; background:var(--c-surface-alt); border:1px solid var(--c-border); font-size:0.95em; white-space:nowrap;">{{ band.usability_badge }}</span></td>
+                <td class="col-badge"><span class="usability-badge">{{ band.usability_badge }}</span></td>
               </tr>
             {% endfor %}
+            {% endif %}
           {% endfor %}
         </tbody>
       </table>
@@ -201,782 +243,7 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
       </p>
     </div>
 
-    <footer class="spectrum-footnote">
-      <p>
-        Data lives in <code>_data/spectrum/*.yml</code>. Each file is one batch
-        and contributes its <code>bands</code> array to the table above. Edit a
-        file, push, and the page rebuilds automatically.
-      </p>
-    </footer>
-
   </div>
 </section>
 
-<style>
-/* ============================================================================
-   Spectrum Reference — scoped styles
-   Uses site-wide CSS variables (--c-bg, --c-surface, --c-text, --c-accent…)
-   defined in assets/css/style.css, so dark/light theme switching is automatic.
-   ========================================================================== */
-
-.spectrum-page {
-  padding: var(--space-2xl) 0 var(--space-3xl);
-}
-
-.spectrum-container {
-  max-width: 100rem;
-  margin: 0 auto;
-  padding: 0 var(--space-lg);
-}
-
-/* ---- Hero ---- */
-.spectrum-hero { margin-bottom: var(--space-xl); }
-.spectrum-eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.75rem;
-  color: var(--c-accent);
-  margin: 0 0 var(--space-sm);
-  font-weight: 600;
-}
-.spectrum-title {
-  font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.75rem);
-  margin: 0 0 var(--space-md);
-  line-height: 1.15;
-  color: var(--c-text);
-}
-.spectrum-lede {
-  font-size: 1.05rem;
-  line-height: 1.65;
-  color: var(--c-text);
-  margin: 0 0 var(--space-md);
-  max-width: 60rem;
-}
-.spectrum-howto {
-  font-size: 0.95rem;
-  color: var(--c-text-muted);
-  margin: 0 0 var(--space-lg);
-  max-width: 60rem;
-}
-.spectrum-howto strong { color: var(--c-text); }
-.spectrum-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-md);
-  font-size: 0.85rem;
-  color: var(--c-text-muted);
-}
-.spectrum-meta__item strong {
-  color: var(--c-accent);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ---- Controls (tabs + search) ---- */
-.spectrum-controls {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: var(--space-md);
-  align-items: center;
-  margin-bottom: var(--space-md);
-  position: sticky;
-  top: var(--header-height, 3.75rem);
-  z-index: 10;
-  background: linear-gradient(to bottom,
-    rgba(var(--c-bg-rgb), 0.97) 0%,
-    rgba(var(--c-bg-rgb), 0.97) 70%,
-    rgba(var(--c-bg-rgb), 0) 100%);
-  padding: var(--space-sm) 0 var(--space-md);
-  backdrop-filter: blur(6px);
-}
-.spectrum-tabs {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.4rem;
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: var(--c-border) transparent;
-  padding-bottom: 2px;
-  -webkit-overflow-scrolling: touch;
-}
-.spectrum-tabs::-webkit-scrollbar { height: 4px; }
-.spectrum-tabs::-webkit-scrollbar-thumb {
-  background: var(--c-border);
-  border-radius: 999px;
-}
-.spectrum-tabs::-webkit-scrollbar-track { background: transparent; }
-.spectrum-tab {
-  appearance: none;
-  border: 1px solid var(--c-border);
-  background: var(--c-surface);
-  color: var(--c-text-muted);
-  padding: 0.4rem 0.8rem;
-  border-radius: 999px;
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 500;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background var(--transition-fast),
-              color var(--transition-fast),
-              border-color var(--transition-fast),
-              transform var(--transition-fast);
-  white-space: nowrap;
-}
-.spectrum-tab:hover {
-  color: var(--c-text);
-  border-color: var(--c-accent-border);
-  background: var(--c-surface-alt);
-}
-.spectrum-tab.is-active {
-  background: var(--c-accent-bg);
-  color: var(--c-accent);
-  border-color: var(--c-accent-border);
-}
-.spectrum-tab:focus-visible {
-  outline: 2px solid var(--c-accent);
-  outline-offset: 2px;
-}
-
-.spectrum-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--border-radius);
-  padding: 0.3rem 0.65rem;
-  flex: 0 1 14rem;
-  min-width: 0;
-  max-width: 18rem;
-  transition: border-color var(--transition-fast),
-              box-shadow var(--transition-fast);
-}
-.spectrum-search:focus-within {
-  border-color: var(--c-accent-border);
-  box-shadow: 0 0 0 3px var(--c-accent-bg);
-}
-.spectrum-search__icon {
-  display: inline-flex;
-  color: var(--c-text-faint);
-  flex-shrink: 0;
-}
-.spectrum-search__icon svg { width: 1rem; height: 1rem; }
-.spectrum-search input {
-  flex: 1;
-  background: transparent;
-  border: 0;
-  outline: 0;
-  color: var(--c-text);
-  font: inherit;
-  font-size: 0.9rem;
-  padding: 0.15rem 0;
-  min-width: 0;
-}
-.spectrum-search input::placeholder { color: var(--c-text-faint); }
-.spectrum-search__count {
-  font-size: 0.75rem;
-  color: var(--c-text-faint);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-/* ---- Active-batch blurb ---- */
-.spectrum-batch-blurb {
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-left: 3px solid var(--c-accent);
-  border-radius: var(--border-radius);
-  padding: var(--space-md) var(--space-lg);
-  margin-bottom: var(--space-md);
-  font-size: 0.9rem;
-  color: var(--c-text-muted);
-}
-.spectrum-batch-blurb strong {
-  display: block;
-  color: var(--c-text);
-  margin-bottom: 0.25rem;
-  font-size: 0.95rem;
-}
-
-/* ---- Table ---- */
-.spectrum-table-wrapper {
-  position: relative;
-  max-height: calc(100vh - 16rem);
-  overflow: auto;
-  border: 1px solid var(--c-border);
-  border-radius: var(--border-radius);
-  background: var(--c-surface);
-  box-shadow: 0 4px 16px var(--c-card-shadow);
-}
-.spectrum-table-wrapper:focus-visible {
-  outline: 2px solid var(--c-accent);
-  outline-offset: 2px;
-}
-
-.spectrum-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 0.875rem;
-  color: var(--c-text);
-  min-width: 1800px;
-}
-
-.spectrum-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: var(--c-surface-alt);
-  color: var(--c-text);
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 1.15rem 1rem 0.95rem;
-  border-bottom: 2px solid var(--c-border);
-  white-space: nowrap;
-}
-
-.spectrum-table tbody td {
-  padding: 0.85rem 1rem;
-  vertical-align: top;
-  border-bottom: 1px solid var(--c-border-light);
-  line-height: 1.5;
-}
-
-.spectrum-table tbody tr:hover td {
-  background: var(--c-surface-alt);
-}
-
-.spectrum-table tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-/* Sticky first column — frequency stays pinned during horizontal scroll. */
-.spectrum-table td.col-freq,
-.spectrum-table th.col-freq {
-  position: sticky;
-  left: 0;
-  z-index: 1;
-  border-right: 1px solid var(--c-border);
-  background: var(--c-surface);
-}
-.spectrum-table tbody tr:hover td.col-freq {
-  background: var(--c-surface-alt);
-}
-.spectrum-table thead th.col-freq {
-  z-index: 3;
-  background: var(--c-surface-alt);
-}
-
-/* Per-column widths */
-.spectrum-table .col-freq   { min-width: 9rem; width: 9rem; }
-.spectrum-table .col-band   { min-width: 14rem; }
-.spectrum-table .col-wave   { min-width: 11rem; }
-.spectrum-table .col-energy { min-width: 11rem; }
-.spectrum-table .col-names  { min-width: 14rem; }
-.spectrum-table .col-apps   { min-width: 14rem; }
-.spectrum-table .col-tech   { min-width: 16rem; }
-.spectrum-table .col-prop   { min-width: 16rem; }
-.spectrum-table .col-reg    { min-width: 14rem; }
-.spectrum-table .col-notes  { min-width: 16rem; }
-
-.mono {
-  font-family: var(--f-mono);
-  font-size: 0.825rem;
-  color: var(--c-text);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Frequency cell — split low/high so endpoints can stack on narrow screens. */
-.col-freq .freq-sep {
-  margin: 0 0.3rem;
-  color: var(--c-text-muted);
-}
-
-/* Band column — pill + name */
-.band-pill {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  background: hsl(var(--pill-hue, 140), 60%, 22%);
-  color: hsl(var(--pill-hue, 140), 80%, 80%);
-  border: 1px solid hsl(var(--pill-hue, 140), 50%, 32%);
-  margin-bottom: 0.35rem;
-}
-[data-theme="light"] .band-pill {
-  background: hsl(var(--pill-hue, 140), 65%, 92%);
-  color: hsl(var(--pill-hue, 140), 50%, 30%);
-  border-color: hsl(var(--pill-hue, 140), 50%, 75%);
-}
-.band-name {
-  font-weight: 600;
-  color: var(--c-text);
-}
-
-/* Collapsibles (uses + notes) */
-.cell-collapse {
-  font-size: inherit;
-}
-.cell-collapse > summary {
-  list-style: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  color: var(--c-text);
-  user-select: none;
-}
-.cell-collapse > summary::-webkit-details-marker { display: none; }
-.cell-collapse > summary::marker { display: none; content: ""; }
-.cell-collapse__count {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  color: var(--c-accent);
-}
-.cell-collapse__label {
-  color: var(--c-text-muted);
-}
-.cell-collapse__preview {
-  color: var(--c-text);
-  font-size: 0.85rem;
-  line-height: 1.45;
-}
-.cell-collapse__more {
-  font-size: 0.75rem;
-  color: var(--c-accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-thickness: 1px;
-  flex-shrink: 0;
-}
-.cell-collapse[open] > summary .cell-collapse__more::after { content: " (collapse)"; }
-.cell-collapse[open] > summary .cell-collapse__preview { display: none; }
-.cell-collapse[open] > summary .cell-collapse__count,
-.cell-collapse[open] > summary .cell-collapse__label { opacity: 0.6; }
-
-.cell-list {
-  margin: 0.6rem 0 0;
-  padding-left: 1.1rem;
-}
-.cell-list li {
-  margin: 0.15rem 0;
-  line-height: 1.5;
-}
-.cell-prose {
-  margin-top: 0.6rem;
-  line-height: 1.6;
-  color: var(--c-text);
-}
-.cell-empty {
-  color: var(--c-text-faint);
-  font-style: italic;
-}
-
-/* Empty-state when filters match nothing */
-.spectrum-empty {
-  text-align: center;
-  padding: var(--space-xl);
-  color: var(--c-text-muted);
-  font-size: 0.95rem;
-}
-
-/* Footnote */
-.spectrum-footnote {
-  margin-top: var(--space-md);
-  font-size: 0.8rem;
-  color: var(--c-text-faint);
-  text-align: right;
-}
-.spectrum-footnote code {
-  background: var(--c-code-bg);
-  padding: 0.1rem 0.4rem;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.75rem;
-  color: var(--c-text-muted);
-}
-
-/* Small screens */
-@media (max-width: 640px) {
-  .spectrum-container { padding: 0 var(--space-md); }
-  .spectrum-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .spectrum-search { max-width: 100%; flex: 1 1 auto; }
-  .spectrum-table-wrapper { max-height: calc(100vh - 18rem); }
-  .spectrum-table { font-size: 0.825rem; }
-  .spectrum-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
-  .spectrum-table tbody td { padding: 0.65rem 0.6rem; }
-
-  /* Sticky frequency column shrinks to ~half its desktop width by stacking the
-     two endpoints vertically with the dash as a centered separator. */
-  .spectrum-table .col-freq { min-width: 4.75rem; width: 4.75rem; }
-  .col-freq.mono { font-size: 0.72rem; }
-  .col-freq .freq-pair {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    line-height: 1.35;
-  }
-  .col-freq .freq-low,
-  .col-freq .freq-high { display: block; }
-  .col-freq .freq-sep {
-    display: block;
-    margin: 0.05rem 0;
-    opacity: 0.55;
-  }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .spectrum-tab,
-  .spectrum-search { transition: none; }
-}
-</style>
-
-<script>
-(function () {
-  const table  = document.getElementById('spectrum-table');
-  if (!table) return;
-
-  const rows   = Array.from(table.querySelectorAll('tbody > tr'));
-  const search = document.getElementById('spectrum-search');
-  const count  = document.getElementById('spectrum-count');
-  const empty  = document.getElementById('spectrum-empty');
-  const tabs   = Array.from(document.querySelectorAll('.spectrum-tab'));
-  const blurb  = document.getElementById('spectrum-batch-blurb');
-  const dataEl = document.getElementById('spectrum-batch-data');
-
-  let batchInfo = {};
-  try { batchInfo = JSON.parse(dataEl.textContent || '{}'); } catch (_) { batchInfo = {}; }
-
-  let activeBatch = 'all';
-  const totalRows = rows.length;
-
-  function applyFilters() {
-    const q = (search.value || '').trim().toLowerCase();
-    let visible = 0;
-    for (const row of rows) {
-      const inBatch = activeBatch === 'all' || row.dataset.batch === activeBatch;
-      const matches = !q || row.textContent.toLowerCase().includes(q);
-      const show = inBatch && matches;
-      row.hidden = !show;
-      if (show) visible++;
-    }
-    if (count) {
-      count.textContent = (q || activeBatch !== 'all')
-        ? `${visible} / ${totalRows}`
-        : `${totalRows} rows`;
-    }
-    if (empty) empty.hidden = visible !== 0;
-  }
-
-  function setActiveBatch(id) {
-    activeBatch = id;
-    for (const t of tabs) {
-      const isActive = t.dataset.batch === id;
-      t.classList.toggle('is-active', isActive);
-      t.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    }
-    if (blurb) {
-      const info = batchInfo[id];
-      if (id === 'all' || !info) {
-        blurb.hidden = true;
-        blurb.innerHTML = '';
-      } else {
-        blurb.hidden = false;
-        blurb.innerHTML = '<strong></strong><span></span>';
-        blurb.querySelector('strong').textContent = info.name || '';
-        blurb.querySelector('span').textContent   = info.description || '';
-      }
-    }
-    applyFilters();
-  }
-
-  search.addEventListener('input', applyFilters);
-  for (const t of tabs) {
-    t.addEventListener('click', () => setActiveBatch(t.dataset.batch));
-  }
-
-  applyFilters();
-})();
-</script>
-
-<style>
-/* Abbreviation tooltip + modal */
-.abbr-trigger {
-  border-bottom: 1px dotted var(--c-accent);
-  cursor: help;
-  text-decoration: none;
-  color: inherit;
-}
-.abbr-trigger:hover,
-.abbr-trigger:focus-visible {
-  background: var(--c-accent-bg);
-  color: var(--c-accent);
-  outline: none;
-}
-
-/* Abbreviation legend cards */
-.spectrum-abbr-legend { margin-bottom: var(--space-md); }
-.abbr-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  text-align: left;
-  padding: 0.85rem 1rem;
-  background: var(--c-surface);
-  color: var(--c-text);
-  border: 1px solid var(--c-border);
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font: inherit;
-  transition: background var(--transition-fast),
-              border-color var(--transition-fast),
-              transform var(--transition-fast);
-}
-.abbr-card:hover,
-.abbr-card:focus-visible {
-  background: var(--c-surface-alt);
-  border-color: var(--c-accent-border);
-  outline: none;
-}
-.abbr-card:active { transform: translateY(1px); }
-.abbr-card__term {
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--c-accent);
-  letter-spacing: 0.02em;
-}
-.abbr-card__expansion {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--c-text);
-}
-.abbr-card__hint {
-  font-size: 0.8rem;
-  color: var(--c-text-muted);
-  line-height: 1.4;
-}
-.spectrum-abbr-modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: var(--space-md);
-}
-.spectrum-abbr-modal[hidden] { display: none; }
-.spectrum-abbr-modal__backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(2px);
-}
-.spectrum-abbr-modal__panel {
-  position: relative;
-  background: var(--c-surface);
-  color: var(--c-text);
-  border: 1px solid var(--c-border);
-  border-radius: var(--border-radius);
-  padding: var(--space-lg);
-  max-width: 32rem;
-  width: 100%;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-}
-.spectrum-abbr-modal__term {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
-  color: var(--c-accent);
-}
-.spectrum-abbr-modal__expansion {
-  margin: 0 0 0.75rem;
-  font-weight: 600;
-  color: var(--c-text);
-}
-.spectrum-abbr-modal__body {
-  margin: 0;
-  line-height: 1.55;
-  color: var(--c-text-muted);
-}
-.spectrum-abbr-modal__close {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.6rem;
-  background: transparent;
-  border: 0;
-  color: var(--c-text-muted);
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-}
-.spectrum-abbr-modal__close:hover { color: var(--c-text); }
-</style>
-
-<script>
-(function () {
-  var table = document.getElementById('spectrum-table');
-  if (!table) return;
-
-  // 10 most-common abbreviations with plain-English explanations.
-  var DICT = {
-    'ISM':    { expansion: 'Industrial, Scientific, Medical',
-                body: 'Worldwide license-free spectrum bands (e.g. 433 MHz EU, 902–928 MHz US, 2.4 GHz, 5.8 GHz) shared by Wi-Fi, Bluetooth, microwave ovens, and a long tail of consumer gadgets — anyone can transmit at low power without a license.' },
-    'EIRP':   { expansion: 'Effective Isotropic Radiated Power',
-                body: 'The TX power your transmitter would need to feed into a perfect omnidirectional (isotropic) antenna to match what your real antenna+amp combination radiates in its strongest direction. EIRP = TX power + antenna gain.' },
-    'FR1':    { expansion: '5G NR Frequency Range 1 (sub-6 GHz)',
-                body: 'The 5G NR low- and mid-band spectrum below 7.125 GHz — the cellular bands you actually get coverage on. Includes n1, n3, n7, n28, n41, n66, n71, n77, n78, n79.' },
-    'FR2':    { expansion: '5G NR Frequency Range 2 (mmWave)',
-                body: 'The 5G NR millimeter-wave spectrum 24.25–71 GHz — fast (multi-Gb/s) but very short range and easily blocked by buildings, hands, and rain. n257, n258, n260, n261.' },
-    'ICNIRP': { expansion: 'International Commission on Non-Ionizing Radiation Protection',
-                body: 'Independent body that publishes the global RF and optical exposure guidelines most national regulators (FCC OET-65, BNetzA, Ofcom) base their safe-distance rules on.' },
-    'n78':    { expansion: '5G NR Band n78 — global C-band TDD',
-                body: 'TDD 3300–3800 MHz — the canonical European, UK, German, and Japanese 5G C-band, plus India and large parts of Asia. The most-deployed 5G mid-band in the world.' },
-    'CSI':    { expansion: 'Channel State Information',
-                body: 'Per-subcarrier amplitude/phase data Wi-Fi devices already exchange to equalise the channel. Reading it (with ESP32-CSI-Tool, Atheros CSI Tool, or IEEE 802.11bf) lets you sense motion, gesture, even breathing through walls.' },
-    'LoRa':   { expansion: 'Long Range (chirp-spread-spectrum)',
-                body: 'Semtech’s low-power, low-data-rate radio modulation. Lets a 25 mW transmitter reach 5–15 km outdoors at the cost of just a few hundred bits per second. Foundation of LoRaWAN, Helium, and Meshtastic.' },
-    'DFS':    { expansion: 'Dynamic Frequency Selection',
-                body: 'Wi-Fi rule on UNII-2A and UNII-2C (5.250–5.350 / 5.470–5.725 GHz): the access point listens for weather/military radar pulses and must vacate the channel within 10 s if it hears one. Required by FCC + ETSI.' },
-    'HPUE':   { expansion: 'High-Power User Equipment',
-                body: 'A power-class-2 cellular phone or modem allowed to transmit at 26 dBm (≈400 mW) instead of the usual 23 dBm (200 mW). Enabled on n14 FirstNet and n41 / n78 / n79 mid-band 5G to extend uplink range.' },
-    'PLC':    { expansion: 'Power-Line Communication / PowerLAN',
-                body: 'Data carried over the electrical wiring already in your walls (2–30 MHz narrowband, standardised by IEEE 1901, HomePlug AV2, and ITU G.hn). Convenient for whole-home networking, but radiates as a major HF noise source and ruins reception on shortwave.' },
-    'TDD':    { expansion: 'Time Division Duplex',
-                body: 'Uplink and downlink share the same frequency channel and alternate in short time slots — efficient for asymmetric traffic and standard on 5G NR mid-band (n40, n41, n78, n79). Contrast with FDD where UL and DL use paired separate frequencies.' },
-    'UNII':   { expansion: 'Unlicensed National Information Infrastructure',
-                body: 'FCC umbrella term for the 5 GHz and 6 GHz Wi-Fi spectrum tiers — UNII-1, UNII-2A, UNII-2C, UNII-3, plus the new 6 GHz UNII-5/6/7/8 opened in 2020 for Wi-Fi 6E and Wi-Fi 7.' },
-    'EME':    { expansion: 'Earth-Moon-Earth ("moonbounce")',
-                body: 'Long-distance amateur-radio technique that aims a high-gain dish at the Moon and bounces signals off the lunar surface back to another station on Earth. Common on 2 m, 70 cm, 23 cm, 13 cm, 9 cm, 6 cm, 3 cm, and 1.25 cm ham bands.' }
-  };
-
-  // Sort longest first so 'FR2' is matched before 'FR'.
-  var TERMS = Object.keys(DICT).sort(function (a, b) { return b.length - a.length; });
-  var WORD_RE = new RegExp('\\b(' + TERMS.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\b', 'g');
-
-  // Walk text nodes inside the table body and wrap matches in clickable spans.
-  function decorate(root) {
-    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode: function (node) {
-        // Skip nodes already inside an .abbr-trigger or inside a script/style.
-        var p = node.parentNode;
-        while (p && p !== root) {
-          if (p.classList && p.classList.contains('abbr-trigger')) return NodeFilter.FILTER_REJECT;
-          if (p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return NodeFilter.FILTER_REJECT;
-          p = p.parentNode;
-        }
-        return WORD_RE.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-      }
-    });
-
-    var targets = [];
-    while (walker.nextNode()) targets.push(walker.currentNode);
-
-    targets.forEach(function (node) {
-      WORD_RE.lastIndex = 0;
-      var text = node.nodeValue;
-      var frag = document.createDocumentFragment();
-      var lastIndex = 0;
-      var m;
-      while ((m = WORD_RE.exec(text)) !== null) {
-        if (m.index > lastIndex) frag.appendChild(document.createTextNode(text.slice(lastIndex, m.index)));
-        var span = document.createElement('span');
-        span.className = 'abbr-trigger';
-        span.setAttribute('data-abbr', m[1]);
-        span.setAttribute('tabindex', '0');
-        span.setAttribute('role', 'button');
-        span.setAttribute('aria-label', m[1] + ' — click for explanation');
-        span.textContent = m[1];
-        frag.appendChild(span);
-        lastIndex = m.index + m[1].length;
-      }
-      if (lastIndex < text.length) frag.appendChild(document.createTextNode(text.slice(lastIndex)));
-      node.parentNode.replaceChild(frag, node);
-    });
-  }
-
-  // Modal infrastructure (built lazily on first open).
-  var modal, termEl, expandEl, bodyEl, lastFocus;
-  function ensureModal() {
-    if (modal) return modal;
-    modal = document.createElement('div');
-    modal.className = 'spectrum-abbr-modal';
-    modal.setAttribute('role', 'dialog');
-    modal.setAttribute('aria-modal', 'true');
-    modal.hidden = true;
-    modal.innerHTML =
-      '<div class="spectrum-abbr-modal__backdrop"></div>' +
-      '<div class="spectrum-abbr-modal__panel" role="document">' +
-        '<button type="button" class="spectrum-abbr-modal__close" aria-label="Close">×</button>' +
-        '<h3 class="spectrum-abbr-modal__term"></h3>' +
-        '<p class="spectrum-abbr-modal__expansion"></p>' +
-        '<p class="spectrum-abbr-modal__body"></p>' +
-      '</div>';
-    document.body.appendChild(modal);
-    termEl   = modal.querySelector('.spectrum-abbr-modal__term');
-    expandEl = modal.querySelector('.spectrum-abbr-modal__expansion');
-    bodyEl   = modal.querySelector('.spectrum-abbr-modal__body');
-    modal.querySelector('.spectrum-abbr-modal__backdrop').addEventListener('click', closeModal);
-    modal.querySelector('.spectrum-abbr-modal__close').addEventListener('click', closeModal);
-    return modal;
-  }
-
-  function openModal(term) {
-    var def = DICT[term];
-    if (!def) {
-      // Allow custom <abbr title="..."> fallback content too.
-      def = { expansion: term, body: term };
-    }
-    ensureModal();
-    termEl.textContent = term;
-    expandEl.textContent = def.expansion || '';
-    bodyEl.textContent = def.body || '';
-    lastFocus = document.activeElement;
-    modal.hidden = false;
-    modal.querySelector('.spectrum-abbr-modal__close').focus();
-  }
-
-  function closeModal() {
-    if (!modal || modal.hidden) return;
-    modal.hidden = true;
-    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
-  }
-
-  // Decorate the table body (header is already short and stable).
-  var tbody = table.querySelector('tbody');
-  if (tbody) decorate(tbody);
-
-  // Click / keyboard activation works document-wide so the abbreviation legend
-  // cards (.abbr-card) and the in-table .abbr-trigger spans / native <abbr>
-  // tags / any future [data-abbr] markup all open the same modal.
-  function activateFromEvent(e) {
-    var t = e.target.closest('.abbr-trigger, .abbr-card, abbr[title], [data-abbr]');
-    if (!t) return;
-    e.preventDefault();
-    var term = t.getAttribute('data-abbr') ||
-               (t.querySelector('.abbr-card__term') && t.querySelector('.abbr-card__term').textContent.trim()) ||
-               t.textContent.trim();
-    openModal(term);
-  }
-  document.addEventListener('click', activateFromEvent);
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { closeModal(); return; }
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    if (!e.target.closest('.abbr-trigger, .abbr-card, abbr[title], [data-abbr]')) return;
-    activateFromEvent(e);
-  });
-})();
-</script>
+<script src="{{ '/assets/js/spectrum.js' | relative_url }}" defer></script>
