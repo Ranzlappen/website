@@ -91,12 +91,12 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
     <section class="spectrum-legend">
       <h2>Spectrum Legend &amp; Usability</h2>
       <p>Each row is color-coded for quick reference:</p>
-      <div style="display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; font-size: 0.95em;">
-        <div><span style="background:#22c55e; color:white; padding:2px 8px; border-radius:4px;">🟢</span> Public / ISM / Unlicensed</div>
-        <div><span style="background:#3b82f6; color:white; padding:2px 8px; border-radius:4px;">🔵</span> Amateur Radio (Ham-only)</div>
-        <div><span style="background:#eab308; color:black; padding:2px 8px; border-radius:4px;">🟡</span> Licensed / Regulated</div>
-        <div><span style="background:#ef4444; color:white; padding:2px 8px; border-radius:4px;">🔴</span> Restricted / Scientific / Military</div>
-      </div>
+      <ul class="spectrum-legend__list">
+        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--public" aria-hidden="true">🟢</span> Public / ISM / Unlicensed</li>
+        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--ham" aria-hidden="true">🔵</span> Amateur Radio (Ham-only)</li>
+        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--licensed" aria-hidden="true">🟡</span> Licensed / Regulated</li>
+        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--restricted" aria-hidden="true">🔴</span> Restricted / Scientific / Military</li>
+      </ul>
     </section>
 
     <details class="spectrum-abbr-section" id="abbreviations-section">
@@ -230,7 +230,7 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
                 <td class="col-tech">{{ band.technologies_example_devices }}</td>
                 <td class="col-projects">{{ band.hobbyist_project_ideas }}</td>
                 <td class="col-sources">{{ band.sources_citations }}</td>
-                <td class="col-badge"><span style="display:inline-block; padding:2px 8px; border-radius:4px; background:var(--c-surface-alt); border:1px solid var(--c-border); font-size:0.95em; white-space:nowrap;">{{ band.usability_badge }}</span></td>
+                <td class="col-badge"><span class="usability-badge">{{ band.usability_badge }}</span></td>
               </tr>
             {% endfor %}
             {% endif %}
