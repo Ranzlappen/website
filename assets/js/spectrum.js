@@ -122,51 +122,64 @@
     });
   }
 
-  // Modal infrastructure (built lazily on first open).
-  var modal, termEl, expandEl, bodyEl, lastFocus;
-  function ensureModal() {
-    if (modal) return modal;
-    modal = document.createElement('div');
-    modal.className = 'spectrum-abbr-modal';
-    modal.setAttribute('role', 'dialog');
-    modal.setAttribute('aria-modal', 'true');
-    modal.hidden = true;
-    modal.innerHTML =
+  // ---- Modal stack (recursive) -------------------------------------------
+  // Each .abbr-link inside an open modal opens its own modal on top of the
+  // current one. Escape / × / backdrop click close the topmost modal only.
+  var modalStack = [];
+
+  function buildModal(term, def) {
+    var m = document.createElement('div');
+    m.className = 'spectrum-abbr-modal';
+    m.setAttribute('role', 'dialog');
+    m.setAttribute('aria-modal', 'true');
+    m.innerHTML =
       '<div class="spectrum-abbr-modal__backdrop"></div>' +
       '<div class="spectrum-abbr-modal__panel" role="document">' +
         '<button type="button" class="spectrum-abbr-modal__close" aria-label="Close">×</button>' +
         '<h3 class="spectrum-abbr-modal__term"></h3>' +
         '<p class="spectrum-abbr-modal__expansion"></p>' +
-        '<p class="spectrum-abbr-modal__body"></p>' +
+        '<div class="spectrum-abbr-modal__body"></div>' +
       '</div>';
-    document.body.appendChild(modal);
-    termEl   = modal.querySelector('.spectrum-abbr-modal__term');
-    expandEl = modal.querySelector('.spectrum-abbr-modal__expansion');
-    bodyEl   = modal.querySelector('.spectrum-abbr-modal__body');
-    modal.querySelector('.spectrum-abbr-modal__backdrop').addEventListener('click', closeModal);
-    modal.querySelector('.spectrum-abbr-modal__close').addEventListener('click', closeModal);
-    return modal;
+    m.querySelector('.spectrum-abbr-modal__term').textContent = term;
+    m.querySelector('.spectrum-abbr-modal__expansion').textContent = def.expansion || '';
+    // body uses innerHTML so embedded <span class="abbr-link"> markup renders
+    // and the document-level click handler picks up clicks on those spans.
+    m.querySelector('.spectrum-abbr-modal__body').innerHTML = def.body || '';
+    m.querySelector('.spectrum-abbr-modal__backdrop').addEventListener('click', function () { closeModal(m); });
+    m.querySelector('.spectrum-abbr-modal__close').addEventListener('click', function () { closeModal(m); });
+    return m;
   }
 
   function openModal(term) {
-    var def = DICT[term];
-    if (!def) {
-      // Allow custom <abbr title="..."> fallback content too.
-      def = { expansion: term, body: term };
-    }
-    ensureModal();
-    termEl.textContent = term;
-    expandEl.textContent = def.expansion || '';
-    bodyEl.textContent = def.body || '';
-    lastFocus = document.activeElement;
-    modal.hidden = false;
-    modal.querySelector('.spectrum-abbr-modal__close').focus();
+    var def = DICT[term] || { expansion: term, body: term };
+    var m = buildModal(term, def);
+    document.body.appendChild(m);
+    document.body.classList.add('spectrum-modal-open');
+    modalStack.push({ modal: m, lastFocus: document.activeElement });
+    m.querySelector('.spectrum-abbr-modal__close').focus();
   }
 
-  function closeModal() {
-    if (!modal || modal.hidden) return;
-    modal.hidden = true;
-    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+  function closeModal(m) {
+    var idx = -1;
+    for (var i = modalStack.length - 1; i >= 0; i--) {
+      if (modalStack[i].modal === m) { idx = i; break; }
+    }
+    if (idx === -1) return;
+    var entry = modalStack.splice(idx, 1)[0];
+    entry.modal.remove();
+    if (modalStack.length === 0) {
+      document.body.classList.remove('spectrum-modal-open');
+      if (entry.lastFocus && typeof entry.lastFocus.focus === 'function') entry.lastFocus.focus();
+    } else {
+      var top = modalStack[modalStack.length - 1].modal;
+      var closeBtn = top.querySelector('.spectrum-abbr-modal__close');
+      if (closeBtn) closeBtn.focus();
+    }
+  }
+
+  function closeTopModal() {
+    if (modalStack.length === 0) return;
+    closeModal(modalStack[modalStack.length - 1].modal);
   }
 
   // Decorate the table body (header is already short and stable).
@@ -174,12 +187,15 @@
   if (tbody) decorate(tbody);
 
   // Click / keyboard activation works document-wide so the abbreviation legend
-  // cards (.abbr-card) and the in-table .abbr-trigger spans / native <abbr>
-  // tags / any future [data-abbr] markup all open the same modal.
+  // cards (.abbr-card), the in-table .abbr-trigger spans, native <abbr> tags,
+  // and the .abbr-link spans embedded inside modal bodies all open the same
+  // modal flow.
+  var ACTIVATE_SELECTOR = '.abbr-trigger, .abbr-card, abbr[title], [data-abbr], .abbr-link';
   function activateFromEvent(e) {
-    var t = e.target.closest('.abbr-trigger, .abbr-card, abbr[title], [data-abbr]');
+    var t = e.target.closest(ACTIVATE_SELECTOR);
     if (!t) return;
     e.preventDefault();
+    e.stopPropagation();
     var term = t.getAttribute('data-abbr') ||
                (t.querySelector('.abbr-card__term') && t.querySelector('.abbr-card__term').textContent.trim()) ||
                t.textContent.trim();
@@ -187,9 +203,9 @@
   }
   document.addEventListener('click', activateFromEvent);
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key === 'Escape') { closeTopModal(); return; }
     if (e.key !== 'Enter' && e.key !== ' ') return;
-    if (!e.target.closest('.abbr-trigger, .abbr-card, abbr[title], [data-abbr]')) return;
+    if (!e.target.closest(ACTIVATE_SELECTOR)) return;
     activateFromEvent(e);
   });
 })();

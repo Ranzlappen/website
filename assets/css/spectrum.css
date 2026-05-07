@@ -740,6 +740,34 @@
   line-height: 1.55;
   color: var(--c-text-muted);
 }
+.spectrum-abbr-modal__body p {
+  margin: 0;
+}
+
+/* Inline abbreviation cross-references inside modal bodies. Look like links,
+   click to open another modal stacked on top of the current one. */
+.abbr-link {
+  color: var(--c-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+  transition: color var(--transition-fast),
+              background var(--transition-fast);
+  border-radius: 2px;
+}
+.abbr-link:hover,
+.abbr-link:focus-visible {
+  color: var(--c-text);
+  background: var(--c-accent-bg);
+  outline: none;
+}
+
+/* Lock background scrolling while any abbreviation modal is open so the
+   stacked panels stay visually anchored. */
+body.spectrum-modal-open {
+  overflow: hidden;
+}
 .spectrum-abbr-modal__close {
   position: absolute;
   top: 0.5rem;
