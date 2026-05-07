@@ -1,0 +1,65 @@
+---
+# =============================================================================
+# Spectrum Batch 13 — 2.4 GHz: Wi-Fi 4/5/6 + 5G NR n40 / n41 / n7 mid-band
+# =============================================================================
+# Migrated and upgraded from the original 06-shf-ehf-microwave.yml. Note
+# that 2.400 GHz technically sits at the top of UHF (300 MHz – 3 GHz);
+# the 'SHF' framing in this filename follows the project plan, which
+# treats the modern microwave band as one practical 2.4 / 3.5 / 5 / 6 GHz
+# group. Scope:
+#   – 2.400–2.4835 GHz ISM, deep-dive on Wi-Fi 4 / 5 / 6 (2.4 GHz portion)
+#     and the 802.11 ax / be PHY in this band; coexistence with Bluetooth /
+#     BLE / Zigbee covered briefly here, more breadth in 11-uhf-ism-900-
+#     wifi-bt-lora.yml
+#   – 2.300–2.400 GHz (n40) and 2.500–2.690 GHz (n41 / n7 / n38) licensed
+#     5G NR / LTE TDD mid-band (high-power user equipment, BRS/EBS in US)
+# 5 GHz / 6 GHz Wi-Fi, 5G C-band, and microwave point-to-point are
+# deferred to later batch files. Schema: identical 14-column layout +
+# batch wrapper used by all earlier files.
+# =============================================================================
+
+batch:
+  id: "shf-2-4-ghz-wifi-5g"
+  order: 13
+  name: "2.4 GHz: Wi-Fi 4/5/6 + 5G NR n40 / n41 / n7 mid-band"
+  short_name: "2.4 GHz Wi-Fi + 5G mid"
+  description: >
+    The most congested slice of consumer spectrum. The worldwide
+    2.400–2.4835 GHz ISM band hosts Wi-Fi 4 / 5 / 6 / 6E (2.4 GHz radios),
+    Bluetooth Classic / BLE 5.x, Zigbee, Thread, ANT+, and a long tail of
+    consumer gadgets. The adjacent licensed bands at 2.3 GHz (n40) and
+    2.5 GHz (n41 / n7 / n38, BRS/EBS in the US) carry significant 4G LTE
+    and 5G NR mid-band traffic. Hobbyists work the ISM band hands-on with
+    routers, ESP32, and SDR; the licensed bands are receive-only.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "2.400 GHz – 2.4835 GHz (ISM, Wi-Fi 2.4 GHz / Bluetooth / Zigbee deep-dive)"
+    key_frequencies_channels: "Wi-Fi 2.4 GHz channels 1–13 (1: 2.412, 6: 2.437, 11: 2.462 GHz, 5 MHz spacing, 20 MHz wide → only ch.1 / 6 / 11 don't overlap; ch.12–13 EU / JP only; ch.14 Japan only). 802.11 PHY: b (DSSS / 11 Mb/s), g (OFDM / 54 Mb/s), n (HT, 20 / 40 MHz, MIMO, 600 Mb/s), ax (HE-2.4, OFDMA, 1024-QAM, ~1.1 Gb/s in 2.4 portion), be (Wi-Fi 7, 4096-QAM, MLO with 5/6 GHz). Bluetooth Classic 79 × 1 MHz channels 2.402–2.480 GHz; BLE 40 × 2 MHz channels with advertising on ch.37 (2.402), 38 (2.426), 39 (2.480). Zigbee / 802.15.4 channels 11–26 (2.405–2.480, 5 MHz spacing). ANT/ANT+ 2.457 GHz fixed. Microwave ovens fundamental 2.450 ± 0.05 GHz."
+    band_name_designation: "2.4 GHz ISM — Wi-Fi 4 / 5 / 6 / 7 (2.4 portion) + Bluetooth + 802.15.4"
+    primary_uses_hobbyist_relevance: "Home Wi-Fi (still the most-used band for IoT, smart speakers, and legacy clients), Wi-Fi mesh backhaul (rare on 2.4), Bluetooth pairing and BLE advertising, Zigbee / Thread / Matter mesh, ANT+ fitness sensors, ESP32 / ESP8266 / Raspberry Pi IoT projects, drone control links (Spektrum DSMX, FrSky D8 / D16, TBS Crossfire 2.4G), 2.4 GHz analog video (legacy FPV), spectrum-congestion analysis"
+    hardware_modules: "Consumer routers (TP-Link Archer, ASUS RT-AX86U, Ubiquiti UniFi, Aruba Instant On, OpenWrt-capable models), Raspberry Pi 4 / 5 with built-in Wi-Fi or Realtek / Mediatek USB sticks, ESP32 / ESP32-S3 / ESP32-C3 / ESP32-C6 (built-in Wi-Fi 4 + BLE + 802.15.4), ESP8266 (Wi-Fi 4 only), nRF52840 / nRF52833 (BLE / 802.15.4), Wi-Fi NICs supporting monitor mode (Alfa AWUS036ACS / AWUS036NHA), HackRF One / LimeSDR Mini / USRP B210 / BladeRF 2.0 micro for SDR, spectrum analyzers (Wi-Spy DBx, Ekahau Sidekick, R&S FSV3000)"
+    antenna_diy_considerations: "PCB inverted-F antenna (IFA) on every ESP32 dev board; 1/4-wave whip ≈ 3 cm; 2.4 GHz dipole / sleeve dipole; high-gain omni (5–9 dBi) for routers; cantenna or 24 dBi parabolic dish for long-range Wi-Fi (10–30 km point-to-point); 4×4 / 8×8 MIMO panels for Wi-Fi 6 / 7 access points; helical for circular polarization on FPV"
+    legal_licensing_notes: "Worldwide ISM band (ITU 5.150). FCC Part 15.247 (digital modulation, FHSS / DSSS / OFDM). ETSI EN 300 328 (Europe). Japan ARIB STD-T66. Australia AS/NZS 4268. License-free for compliant equipment. High-EIRP outdoor Wi-Fi (point-to-point) needs additional certification beyond the standard 4 W EIRP cap"
+    max_power_restrictions_eirp: "FCC Part 15.247 (FHSS / DSSS): 1 W (30 dBm) conducted with 6 dBi antenna → 4 W EIRP; FHSS-DSSS exception trades antenna gain 1:1 for TX power above 6 dBi. ETSI EN 300 328: 100 mW EIRP indoor / outdoor. Bluetooth Class 1: 100 mW (20 dBm); Class 2: 2.5 mW (4 dBm); BLE typically 0–10 dBm. Microwave-oven leakage limited by FDA 21 CFR 1030.10 to 5 mW/cm² at 5 cm (appliance, not 'transmitter')"
+    propagation_interference_notes: "Decent indoor penetration through drywall, mediocre through brick / concrete / metal. 60 cm wavelength → strong multipath. Heavy interference from microwave ovens (esp. 2.45 GHz fundamental), Bluetooth, BLE advertising bursts, Zigbee, baby monitors, video transmitters, USB 3.0 cables radiating in-band. Spectrum is congested in any urban apartment block — 2.4 GHz is largely 'legacy clients only' on modern AP deployments"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 / IEC 62209 RF-exposure guidelines; SAR-tested for phones / tablets. Wi-Fi APs at 100 mW EIRP are well below MPE limits at any practical distance"
+    technologies_example_devices: "Wi-Fi 4 / 5 / 6 / 6E / 7 (2.4 GHz portion), Bluetooth Classic + BLE 5.x, Zigbee 3.0 / Thread / Matter, ANT+, IEEE 802.15.4, FHSS RC links (FrSky D8 / D16, Spektrum DSMX, TBS Crossfire 2.4 GHz), legacy 2.4 GHz analog FPV video"
+    hobbyist_project_ideas: "Set up a Wi-Fi 6 / 7 mesh with band-steering (legacy clients on 2.4, modern on 5/6); flash OpenWrt on a TP-Link AX23 and run Network Time Server + AdGuard; build a 2.4 GHz spectrum scanner with HackRF + GQRX + spectrum painter; survey your apartment with Wi-Spy / Ekahau / kismet; build a long-range 2.4 GHz LoRa-style FSK link with nRF24L01+"
+    sources_citations: "ITU-R Radio Regulations RR 5.150 (ISM), FCC Part 15.247 / 15.249, ETSI EN 300 328, IEEE 802.11-2020 / 802.11ax / 802.11be drafts, IEEE 802.15.1 / 802.15.4, Bluetooth SIG Core Specification 5.x / 6.0, Zigbee Alliance / Connectivity Standards Alliance Matter 1.x, Wi-Fi Alliance Wi-Fi 6 / 6E / 7 specs (2026)"
+    usability_badge: "🟢 Public / ISM (Wi-Fi/Bluetooth) + 🟡 Licensed (5G)"
+
+  - frequency_range: "2.300 GHz – 2.400 GHz (n40) + 2.500 GHz – 2.690 GHz (n41 / n7 / n38, BRS/EBS in US)"
+    key_frequencies_channels: "n40 / B40 TDD 2300–2400 MHz (China Mobile, India Reliance Jio, Brazil); n41 / B41 TDD 2496–2690 MHz (US Sprint legacy → T-Mobile, Japan SoftBank, China Mobile, Brazil); n7 / B7 FDD 2500–2570 / 2620–2690 MHz (Europe IMT-E); n38 / B38 TDD 2570–2620 MHz (Europe complementary); n90 / NR-U TDD 2496–2690 (US T-Mobile); BRS / EBS 2496–2690 MHz US (long history of educational licensing → commercial 5G); 2390–2395 MHz US amateur (13 cm ham, lower edge — see ham row in next file); 2483.5–2495 MHz US Globalstar ATC; 2360–2400 MHz medical body-area networks (MBAN, FCC Part 95.2401)"
+    band_name_designation: "2.3 / 2.5 GHz cellular mid-band — n40 / n41 / n7 / n38 + US BRS/EBS"
+    primary_uses_hobbyist_relevance: "4G LTE and 5G NR mid-band capacity (one of the fastest TDD bands deployed today). Useful for cellular site surveys, drive-tests, indoor-coverage analysis, PHY-layer learning, and observation of TDD frame structure (the 'classic' 5G NR demonstration band)"
+    hardware_modules: "5G NR modems with n40 / n41 / n7 support (Quectel RM500Q-GL, RM520N-GL, Sierra Wireless EM9191, Telit FN980m), Waveshare RM502Q-AE M.2 boards, smartphones (any T-Mobile US 5G phone for n41, Samsung Galaxy / Pixel for global n40 / n41), drive-test kits (NetMonster on Android, NSG Pro, G-NetTrack Pro), USRP B210 / X310 + srsRAN / OAI for educational testbeds, RTL-SDR / Airspy R2 / SDRplay RSPdx topped at ~2 GHz so requires a downconverter or a wider-coverage SDR (HackRF One reaches 6 GHz, BladeRF 2.0 micro to 6 GHz, LimeSDR Mini to 3.8 GHz)"
+    antenna_diy_considerations: "1/4-wave whip ≈ 3 cm at 2.5 GHz; MIMO panel antennas for site survey; 4×4 MIMO sleeve dipoles for n41 high-power UE; log-periodic 700–6000 MHz for cellular drive-test; sectorised 65° / 90° panels for fixed installations; small parabolic dish for FWA point-to-point on n41"
+    legal_licensing_notes: "ITU allocated to mobile, fixed, and amateur (13 cm, in some sub-bands). Cellular bands operator-licensed per country (national auctions). User equipment license-by-rule. Setting up your own gNB / eNB requires either a research / experimental license or use of small isolated test cells (Faraday cage). MBAN at 2360–2400 MHz US is licensed-by-rule under Part 95"
+    max_power_restrictions_eirp: "Cellular UE 23 dBm typical; HPUE (high-power user equipment) 26 dBm power-class 2 on n41 (Sprint/T-Mobile 5G phones often). Macrocell base 40–80 W EIRP per sector; active antennas (massive MIMO 64T64R) up to 100+ W beam EIRP. BRS/EBS micro-cells lower"
+    propagation_interference_notes: "Mid-band — sweet spot of capacity vs. coverage. Indoor penetration weaker than 700 / 800 MHz but better than 3.5 GHz. Strong multipath in urban environments; 5G NR uses massive-MIMO beamforming to compensate. Local QRM from microwave ovens (n41 sits just above 2.45 GHz ISM), other Wi-Fi APs (channel-13 splatter into n40), Bluetooth bursts"
+    safety_exposure_limits: "Follow ICNIRP 2020 / FCC OET-65 / IEC 62209 RF-exposure guidelines; modern smartphones SAR-tested for body / head"
+    technologies_example_devices: "LTE Cat-1 through Cat-20 on n7 / n38 / n40 / n41, LTE-A carrier aggregation, LAA / LTE-U (in 5 GHz adjacent), 5G NR FR1 SA / NSA on n7 / n38 / n40 / n41, T-Mobile US 5G UC (n41 + n2 + n66 carrier aggregation), private 5G campus networks on n40 in some countries"
+    hobbyist_project_ideas: "Run a Quectel RM520N-GL on a Raspberry Pi CM4 with QMI / MBIM and log per-cell metrics across n40 / n41; build a passive 5G monitor with USRP B210 + srsRAN to learn the NR PHY frame structure (TDD on n41 is the standard demo); profile T-Mobile US 5G UC across a city with NetMonster"
+    sources_citations: "3GPP TS 38.101-1 (NR FR1 bands), 3GPP TS 36.101 (LTE bands), ITU-R Radio Regulations, FCC Part 27 (BRS/EBS), Auction 65 / 96 / 102 / 108 docs, ETSI / 3GPP Release 15 – 18, BNetzA / Ofcom / FCC band tables, GSMA Spectrum Tracker (2026)"
+    usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
