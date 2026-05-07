@@ -2,185 +2,1319 @@
 # =============================================================================
 # Spectrum Abbreviations & Glossary
 # =============================================================================
-# Beginner-friendly explanations for every acronym and short-form term used in
-# the spectrum reference table. Rendered by pages/references/spectrum.html as
-# the alphabetical "Abbreviations & Quick Reference" section, and consumed by
-# assets/js/spectrum.js (via the #spectrum-abbr-data JSON island) to drive the
-# in-table abbreviation modal.
+# Beginner-friendly explanations for every acronym, named entity, and
+# technical short-form used in the spectrum reference table. Rendered as the
+# alphabetical "Abbreviations & Quick Reference" section in
+# pages/references/spectrum.html, and consumed by assets/js/spectrum.js (via
+# the #spectrum-abbr-data JSON island) to drive the in-table modal.
 #
 # Schema: array of { term, full_form, explanation }. Sorted alphabetically by
-# `term`. Keep `explanation` to 1–2 sentences and assume the reader is new to
-# the topic. Add new terms here only — do NOT duplicate the dictionary in JS.
+# `term`. Keep `explanation` to 1–3 sentences. Cross-references to other
+# entries are wrapped in <span class="abbr-link" data-abbr="X">X</span> so
+# spectrum.js can stack a new modal on top of the current one when the user
+# clicks them.
+#
+# When adding a term, also reach back through earlier explanations and wrap
+# its first occurrence — the abbr-link graph is what makes this section feel
+# alive.
 # =============================================================================
 
 - term: "ADS-B"
   full_form: "Automatic Dependent Surveillance-Broadcast"
-  explanation: "Aircraft broadcast their position, altitude, and velocity on 1090 MHz so anyone with a receiver can plot live air traffic. A $30 RTL-SDR + dump1090 is the standard hobby setup."
+  explanation: >-
+    Aircraft continuously broadcast position, altitude, and velocity on
+    1090 MHz so anyone with a receiver can plot live air traffic. A $30
+    <span class="abbr-link" data-abbr="RTL-SDR">RTL-SDR</span> + dump1090 is
+    the standard hobby setup; flightradar24 and ADS-B Exchange are fed by
+    thousands of these.
+
+- term: "AIS"
+  full_form: "Automatic Identification System"
+  explanation: >-
+    Maritime equivalent of <span class="abbr-link" data-abbr="ADS-B">ADS-B</span>:
+    ships transmit identity, position, course, and speed on
+    <span class="abbr-link" data-abbr="VHF">VHF</span> marine channels 87B
+    (161.975 MHz) and 88B (162.025 MHz). Decode with an
+    <span class="abbr-link" data-abbr="SDR">SDR</span> + rtl-ais and plot on
+    OpenCPN or MarineTraffic.
+
+- term: "ALE"
+  full_form: "Automatic Link Establishment"
+  explanation: >-
+    Adaptive <span class="abbr-link" data-abbr="HF">HF</span> tactical mode
+    (MIL-STD-188-141) that scans channels and automatically picks the best
+    path to a destination based on link-quality probing. Backbone of US
+    military, government, and emergency-services HF voice/data networks.
+
+- term: "AM"
+  full_form: "Amplitude Modulation"
+  explanation: >-
+    Modulation that varies the carrier's amplitude with the audio waveform.
+    The original commercial radio mode — still used on the
+    <span class="abbr-link" data-abbr="MF">MF</span> broadcast band
+    (530–1700 kHz), shortwave international broadcasting, and aviation
+    <span class="abbr-link" data-abbr="VHF">VHF</span> voice.
+
+- term: "AMR"
+  full_form: "Automatic Meter Reading"
+  explanation: >-
+    Utility meters (electricity, water, gas) that broadcast consumption data
+    over short-range radio so utilities don't have to send a person.
+    Common implementations transmit on 169 MHz
+    (<span class="abbr-link" data-abbr="VHF">VHF</span>) or 902–928 MHz
+    <span class="abbr-link" data-abbr="ISM">ISM</span>; rtl_433 decodes most
+    of them.
+
+- term: "AMSAT"
+  full_form: "Radio Amateur Satellite Corporation"
+  explanation: >-
+    Volunteer organisation that builds and operates ham-radio satellites.
+    Their LEO birds (AO-7, FO-29, AO-91, SO-50, ESHail-2/QO-100) carry FM
+    or linear transponders accessible with a handheld
+    <span class="abbr-link" data-abbr="UHF">UHF</span> Yagi.
+
+- term: "ANT+"
+  full_form: "ANT+ wireless protocol"
+  explanation: >-
+    Low-power 2.4 GHz <span class="abbr-link" data-abbr="ISM">ISM</span>
+    protocol used by fitness sensors — heart-rate straps, bike power meters,
+    cadence sensors. Largely overtaken by
+    <span class="abbr-link" data-abbr="BLE">BLE</span>, but Garmin and
+    Wahoo gear still ship dual ANT+/BLE radios.
 
 - term: "APRS"
   full_form: "Automatic Packet Reporting System"
-  explanation: "Amateur-radio packet network on 144.39 MHz (US) / 144.800 MHz (EU) for live position beacons, weather, and short messages. Most modern HTs and many car rigs decode it natively."
+  explanation: >-
+    Amateur-radio packet network on 144.39 MHz (US) / 144.800 MHz (EU) for
+    live position beacons, weather, and short messages. Most modern handhelds
+    decode it natively; aprs.fi shows the worldwide map.
+
+- term: "ARRL"
+  full_form: "American Radio Relay League"
+  explanation: >-
+    The US national amateur-radio association — represents hams to the
+    <span class="abbr-link" data-abbr="FCC">FCC</span>, runs the
+    incoming/outgoing QSL bureau, and publishes the ARRL Handbook (the
+    canonical hobby reference).
+
+- term: "ATC"
+  full_form: "Air Traffic Control"
+  explanation: >-
+    Aviation voice communication on
+    <span class="abbr-link" data-abbr="VHF">VHF</span> 118–137 MHz (and
+    <span class="abbr-link" data-abbr="HF">HF</span> for oceanic flights via
+    <span class="abbr-link" data-abbr="HFDL">HFDL</span>). Standard
+    <span class="abbr-link" data-abbr="AM">AM</span> voice with 8.33 kHz
+    channel spacing in Europe; receivers like the Uniden BC125AT scan it
+    legally.
+
+- term: "ATIS"
+  full_form: "Automatic Terminal Information Service"
+  explanation: >-
+    Continuous looped <span class="abbr-link" data-abbr="VHF">VHF</span>
+    broadcast (typically 118–136 MHz <span class="abbr-link" data-abbr="AM">AM</span>)
+    that gives pilots the airport's current weather, runway in use, and
+    notices. Tune, listen, repeat — also great for SDR scanning practice.
+
+- term: "ATV"
+  full_form: "Amateur Television"
+  explanation: >-
+    Hams transmitting full-motion video on dedicated bands (70 cm, 23 cm,
+    13 cm). Analogue ATV is fading; modern setups use
+    <span class="abbr-link" data-abbr="DATV">DATV</span> with DVB-S2 over
+    <span class="abbr-link" data-abbr="UHF">UHF</span>/microwave.
+
+- term: "AWOS"
+  full_form: "Automated Weather Observing System"
+  explanation: >-
+    Unattended airport weather stations that broadcast a synthesised voice
+    report on dedicated <span class="abbr-link" data-abbr="VHF">VHF</span>
+    channels. Pilots tune in for current wind/visibility/altimeter; SDR
+    listeners get free weather coverage of their nearest small airport.
 
 - term: "BLE"
   full_form: "Bluetooth Low Energy"
-  explanation: "The low-power flavour of Bluetooth in the 2.4 GHz ISM band — used by fitness trackers, AirTag-style beacons, smart-home sensors, and almost every coin-cell-powered gadget."
+  explanation: >-
+    The low-power flavour of Bluetooth in the 2.4 GHz
+    <span class="abbr-link" data-abbr="ISM">ISM</span> band. Used by fitness
+    trackers, AirTag-style beacons, smart-home sensors, and almost every
+    coin-cell-powered gadget. Sniffable with an nRF52840 dongle running
+    Wireshark.
+
+- term: "BNetzA"
+  full_form: "Bundesnetzagentur"
+  explanation: >-
+    Germany's national wireless regulator — the German
+    <span class="abbr-link" data-abbr="FCC">FCC</span> /
+    <span class="abbr-link" data-abbr="Ofcom">Ofcom</span>. Sets local power
+    limits, runs the ham licence exam, and enforces
+    <span class="abbr-link" data-abbr="ETSI">ETSI</span> harmonised standards
+    on consumer gear.
+
+- term: "BPSK"
+  full_form: "Binary Phase-Shift Keying"
+  explanation: >-
+    Simplest digital phase modulation — two phase states (0° / 180°) carry
+    one bit per symbol. Building block of more complex modes like
+    <span class="abbr-link" data-abbr="QAM">QAM</span> and
+    <span class="abbr-link" data-abbr="OFDM">OFDM</span> subcarriers.
+
+- term: "C4FM"
+  full_form: "4-level FSK (Yaesu System Fusion)"
+  explanation: >-
+    Yaesu's digital-voice mode for ham repeaters — 12.5 kHz channels with
+    selectable digital or analogue
+    <span class="abbr-link" data-abbr="FM">FM</span>. Competes with
+    <span class="abbr-link" data-abbr="DMR">DMR</span> and
+    <span class="abbr-link" data-abbr="D-STAR">D-STAR</span> on the 2 m and
+    70 cm bands.
+
+- term: "CBRS"
+  full_form: "Citizens Broadband Radio Service"
+  explanation: >-
+    US 3550–3700 MHz shared-spectrum tier with a dynamic database
+    (<span class="abbr-link" data-abbr="SAS">SAS</span>) coordinating
+    incumbent Navy radar, <span class="abbr-link" data-abbr="PAL">PAL</span>
+    licensees, and General Authorized Access users. Anyone can deploy a
+    private LTE/5G network in CBRS without bidding for spectrum.
+
+- term: "CEPT"
+  full_form: "European Conference of Postal and Telecommunications Administrations"
+  explanation: >-
+    Pan-European body that harmonises radio rules across 48 member countries.
+    A CEPT-class ham licence (issued under T/R 61-01) lets you operate in
+    most of Europe without applying for individual permits.
+
+- term: "CHANDRA"
+  full_form: "Chandra X-ray Observatory"
+  explanation: >-
+    NASA's flagship X-ray space telescope — operating in high Earth orbit
+    since 1999. Imaging targets the keV–10 keV X-ray band invisible from the
+    ground (Earth's atmosphere absorbs all X-rays).
 
 - term: "CSI"
   full_form: "Channel State Information"
-  explanation: "Per-subcarrier amplitude and phase data Wi-Fi devices already exchange to equalise the channel. Tools like ESP32-CSI-Tool let you reuse it to sense motion, gestures, and even breathing through walls."
+  explanation: >-
+    Per-subcarrier amplitude and phase data
+    <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span> devices already
+    exchange to equalise the channel. Tools like ESP32-CSI-Tool and Atheros
+    CSI Tool let you reuse it to sense motion, gestures, and even breathing
+    through walls.
 
 - term: "CW"
   full_form: "Continuous Wave (Morse code)"
-  explanation: "On/off keying of a single carrier — the original digital mode. Still extremely effective for weak signals and used by amateurs daily on the HF bands."
+  explanation: >-
+    On/off keying of a single carrier — the original digital mode. Still
+    extremely effective for weak signals and used by amateurs daily on the
+    <span class="abbr-link" data-abbr="HF">HF</span> bands; CW signals punch
+    through QRM where <span class="abbr-link" data-abbr="SSB">SSB</span>
+    voice can't.
+
+- term: "DAB"
+  full_form: "Digital Audio Broadcasting"
+  explanation: >-
+    European digital radio standard on Band III
+    (<span class="abbr-link" data-abbr="VHF">VHF</span> 174–240 MHz). Carries
+    dozens of stations per multiplex using
+    <span class="abbr-link" data-abbr="OFDM">OFDM</span>; an
+    <span class="abbr-link" data-abbr="RTL-SDR">RTL-SDR</span> + Welle.io
+    decodes it for free.
+
+- term: "DARC"
+  full_form: "Deutscher Amateur-Radio-Club"
+  explanation: >-
+    Germany's national amateur-radio association — peer of the
+    <span class="abbr-link" data-abbr="ARRL">ARRL</span> and
+    <span class="abbr-link" data-abbr="RSGB">RSGB</span>. Member of the
+    <span class="abbr-link" data-abbr="IARU">IARU</span>; runs the German DOK
+    locator system.
+
+- term: "DATV"
+  full_form: "Digital Amateur Television"
+  explanation: >-
+    Modern <span class="abbr-link" data-abbr="ATV">ATV</span> using DVB-S2
+    over the 23 cm, 13 cm, and 3.4 GHz ham bands. Needs a small dish, a
+    Minitiouner-style receiver, and a few watts of power; British BATC
+    operates the QO-100 wideband transponder for satellite DATV.
+
+- term: "DCF77"
+  full_form: "DCF77 (German LF time signal)"
+  explanation: >-
+    The 77.5 kHz time-and-date transmission from Mainflingen, Germany —
+    audible across most of Europe. Decoded by virtually every "atomic" radio
+    clock sold on the continent; sits in the
+    <span class="abbr-link" data-abbr="LF">LF</span> band where wavelengths
+    are kilometre-scale.
 
 - term: "DFS"
   full_form: "Dynamic Frequency Selection"
-  explanation: "Wi-Fi rule on UNII-2A and UNII-2C (5.250–5.350 / 5.470–5.725 GHz): the access point listens for weather/military radar pulses and must vacate the channel within 10 s if it hears one."
+  explanation: >-
+    Wi-Fi rule on UNII-2A and UNII-2C (5.250–5.350 / 5.470–5.725 GHz): the
+    access point listens for weather and military radar pulses and must
+    vacate the channel within 10 s if it hears one. Required by
+    <span class="abbr-link" data-abbr="FCC">FCC</span> and
+    <span class="abbr-link" data-abbr="ETSI">ETSI</span>.
+
+- term: "DME"
+  full_form: "Distance Measuring Equipment"
+  explanation: >-
+    Aviation navigation aid that measures slant range to a ground beacon by
+    timing a 1 µs <span class="abbr-link" data-abbr="UHF">UHF</span> pulse
+    round-trip on 962–1213 MHz. Always paired with a
+    <span class="abbr-link" data-abbr="VHF">VHF</span> VOR or
+    <span class="abbr-link" data-abbr="ILS">ILS</span> for full position fix.
 
 - term: "DMR"
   full_form: "Digital Mobile Radio"
-  explanation: "ETSI TDMA digital-voice standard widely used in commercial and amateur trunked networks (MotoTRBO, BrandMeister, TGIF). Cheap import HTs ($60) put hams onto worldwide talkgroups."
+  explanation: >-
+    <span class="abbr-link" data-abbr="ETSI">ETSI</span> TDMA digital-voice
+    standard widely used on commercial and amateur trunked networks
+    (MotoTRBO, BrandMeister, TGIF). Cheap import HTs ($60) put hams onto
+    worldwide talkgroups via internet-linked repeaters.
+
+- term: "D-STAR"
+  full_form: "Digital Smart Technology for Amateur Radio"
+  explanation: >-
+    ICOM's GMSK digital-voice mode for ham 2 m / 70 cm / 23 cm. Routed via
+    internet-linked reflectors (REF, XRF, XLX); competes with
+    <span class="abbr-link" data-abbr="DMR">DMR</span> and
+    <span class="abbr-link" data-abbr="C4FM">C4FM</span> in the digital-voice
+    space.
+
+- term: "DSSS"
+  full_form: "Direct-Sequence Spread Spectrum"
+  explanation: >-
+    Spreads each data bit across a wide bandwidth using a fixed pseudo-random
+    chip sequence. Foundation of <span class="abbr-link" data-abbr="GPS">GPS</span>,
+    legacy 802.11b <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span>, and
+    early CDMA cellular.
+
+- term: "DVB-T"
+  full_form: "Digital Video Broadcasting – Terrestrial"
+  explanation: >-
+    European/Asian digital terrestrial TV standard. Same
+    <span class="abbr-link" data-abbr="OFDM">OFDM</span> + COFDM core that
+    powers <span class="abbr-link" data-abbr="DAB">DAB</span>; the receiver
+    chip from these cheap dongles is the basis of the iconic
+    <span class="abbr-link" data-abbr="RTL-SDR">RTL-SDR</span>.
+
+- term: "EAS"
+  full_form: "Emergency Alert System"
+  explanation: >-
+    US national broadcaster alert protocol — those header tones you hear
+    interrupting AM/FM/TV. Carries flood, tornado, and presidential alerts;
+    encoded at the start of the message in audible
+    <span class="abbr-link" data-abbr="FSK">FSK</span> data.
+
+- term: "EBU"
+  full_form: "European Broadcasting Union"
+  explanation: >-
+    Alliance of European public-service broadcasters (BBC, ARD, ZDF, RAI…).
+    Coordinates Eurovision, runs technical standards, and operates the
+    backbone satellite distribution most national broadcasters share.
+
+- term: "EHF"
+  full_form: "Extremely High Frequency (30–300 GHz)"
+  explanation: >-
+    Top of the conventional radio spectrum — 5G
+    <span class="abbr-link" data-abbr="FR2">FR2</span>
+    <span class="abbr-link" data-abbr="mmWave">mmWave</span>, automotive
+    77 GHz radar, satellite downlinks, and military links. Wavelengths under
+    10 mm; absorbed by oxygen at 60 GHz and water vapor at 183 GHz.
 
 - term: "EIRP"
   full_form: "Effective Isotropic Radiated Power"
-  explanation: "TX power × antenna gain — what your strongest direction actually radiates compared to a perfect omnidirectional antenna. Most legal power limits are written in EIRP, not transmitter watts."
+  explanation: >-
+    TX power × antenna gain — what your strongest direction actually radiates
+    compared to a perfect omnidirectional antenna. Most legal power limits
+    (<span class="abbr-link" data-abbr="FCC">FCC</span> Part 15,
+    <span class="abbr-link" data-abbr="ETSI">ETSI</span> EN 300 220) are
+    written in EIRP, not transmitter watts.
 
 - term: "ELF"
   full_form: "Extremely Low Frequency (3–30 Hz)"
-  explanation: "ITU-defined band at the very bottom of the radio spectrum. Used historically for one-way submarine communications because ELF penetrates seawater hundreds of metres deep."
+  explanation: >-
+    The lowest officially recognised <span class="abbr-link" data-abbr="ITU">ITU</span>
+    radio band. Wavelengths of 10,000–100,000 km penetrate seawater hundreds
+    of metres deep — used for one-way submarine communication
+    (<span class="abbr-link" data-abbr="ZEVS">ZEVS</span>) and home to the
+    natural <span class="abbr-link" data-abbr="Schumann">Schumann
+    resonances</span>.
 
 - term: "EME"
   full_form: "Earth-Moon-Earth ('moonbounce')"
-  explanation: "Long-distance amateur technique that aims a high-gain dish at the Moon and bounces signals off the lunar surface back to another station on Earth. Common on 2 m, 70 cm, 23 cm, and microwave ham bands."
+  explanation: >-
+    Long-distance amateur technique that aims a high-gain dish at the Moon
+    and bounces signals off the lunar surface back to Earth. Common on 2 m,
+    70 cm, 23 cm, and microwave ham bands; modes like
+    <span class="abbr-link" data-abbr="JT65">JT65</span> and Q65 make it
+    achievable with modest stations.
+
+- term: "ERP"
+  full_form: "Effective Radiated Power"
+  explanation: >-
+    Same idea as <span class="abbr-link" data-abbr="EIRP">EIRP</span> but
+    referenced to a half-wave dipole instead of an isotropic radiator —
+    ERP = EIRP − 2.15 dB. Used by European regulators for broadcast and
+    short-range allocations.
+
+- term: "ESA"
+  full_form: "European Space Agency"
+  explanation: >-
+    Europe's intergovernmental space agency — runs Galileo
+    (<span class="abbr-link" data-abbr="GNSS">GNSS</span>), the Sentinel
+    Earth-observation constellation, and contributes to the JWST and Hubble.
 
 - term: "ETSI"
   full_form: "European Telecommunications Standards Institute"
-  explanation: "Sets the EU's wireless technical standards — the EN 300 220 / EN 301 893 / EN 303 series that hobbyists and product designers follow for license-free transmission."
+  explanation: >-
+    Sets the EU's wireless technical standards — the EN 300 220 / EN 301 893
+    / EN 303 series that hobbyists and product designers follow for
+    license-free transmission. National regulators like
+    <span class="abbr-link" data-abbr="BNetzA">BNetzA</span> and
+    <span class="abbr-link" data-abbr="Ofcom">Ofcom</span> enforce them.
 
 - term: "FCC"
   full_form: "Federal Communications Commission"
-  explanation: "US wireless regulator. Sets the Part 15 unlicensed limits, Part 97 amateur rules, Part 90 land mobile rules, and OET-65 RF-exposure guidelines."
+  explanation: >-
+    US wireless regulator. Sets the Part 15 unlicensed limits, Part 97
+    amateur rules, Part 90 land-mobile rules, and OET-65 RF-exposure
+    guidelines that downstream <span class="abbr-link" data-abbr="ICNIRP">ICNIRP</span>
+    work into.
+
+- term: "FDD"
+  full_form: "Frequency Division Duplex"
+  explanation: >-
+    Cellular pattern where uplink and downlink use paired but separate
+    frequencies — the default on most LTE bands (B1, B3, B7…). Contrast with
+    <span class="abbr-link" data-abbr="TDD">TDD</span> where they share one
+    channel and alternate in time.
+
+- term: "FHSS"
+  full_form: "Frequency-Hopping Spread Spectrum"
+  explanation: >-
+    Transmitter and receiver hop synchronously across many channels per
+    second, dodging interference and resisting jamming. Used by Bluetooth
+    Classic, the <span class="abbr-link" data-abbr="FCC">FCC</span> Part
+    15.247 902–928 MHz <span class="abbr-link" data-abbr="ISM">ISM</span>
+    rules, and many telemetry radios.
+
+- term: "FM"
+  full_form: "Frequency Modulation"
+  explanation: >-
+    Modulation that varies the carrier's frequency with audio. The dominant
+    mode on the 88–108 MHz <span class="abbr-link" data-abbr="VHF">VHF</span>
+    broadcast band, marine VHF, ham 2 m / 70 cm voice, and analogue
+    walkie-talkies (<span class="abbr-link" data-abbr="PMR446">PMR446</span>,
+    <span class="abbr-link" data-abbr="FRS">FRS</span>,
+    <span class="abbr-link" data-abbr="GMRS">GMRS</span>).
+
+- term: "FPV"
+  full_form: "First-Person View"
+  explanation: >-
+    Live video link from a drone or RC car back to the pilot — typically
+    5.8 GHz <span class="abbr-link" data-abbr="ISM">ISM</span> analogue
+    (DJI Avata) or digital
+    (DJI O3, Walksnail, HDZero). Hams license at 1.2 GHz / 2.4 GHz / 5.8 GHz
+    can run higher power under Part 97.
 
 - term: "FR1"
   full_form: "5G NR Frequency Range 1 (sub-7.125 GHz)"
-  explanation: "The 5G NR low- and mid-band cellular spectrum where most coverage lives. Includes n1, n3, n7, n28, n41, n66, n71, n77, n78, and n79."
+  explanation: >-
+    The 5G <span class="abbr-link" data-abbr="NR">NR</span> low- and mid-band
+    cellular spectrum where most coverage lives. Includes n1, n3, n7, n28,
+    n41, n66, n71, n77, <span class="abbr-link" data-abbr="n78">n78</span>,
+    and n79.
 
 - term: "FR2"
   full_form: "5G NR Frequency Range 2 (mmWave, 24.25–71 GHz)"
-  explanation: "Millimeter-wave 5G — fast (multi-Gb/s) but very short range and easily blocked by buildings, hands, and rain. Bands n257, n258, n260, n261."
+  explanation: >-
+    <span class="abbr-link" data-abbr="mmWave">Millimeter-wave</span> 5G —
+    fast (multi-Gb/s) but very short range and easily blocked by buildings,
+    hands, and rain. Bands n257, n258, n260, n261; sits inside the
+    <span class="abbr-link" data-abbr="EHF">EHF</span> band.
+
+- term: "FRS"
+  full_form: "Family Radio Service"
+  explanation: >-
+    US license-free 462/467 MHz <span class="abbr-link" data-abbr="UHF">UHF</span>
+    walkie-talkie service — 22 channels at up to 2 W. Shares hardware with
+    <span class="abbr-link" data-abbr="GMRS">GMRS</span>; in Europe the
+    equivalent is <span class="abbr-link" data-abbr="PMR446">PMR446</span>.
+
+- term: "FSK"
+  full_form: "Frequency-Shift Keying"
+  explanation: >-
+    Digital modulation that swaps between two (or more) discrete frequencies
+    to send bits — robust, simple, and the foundation of
+    <span class="abbr-link" data-abbr="FT8">FT8</span>, RTTY, packet, and
+    most paging systems.
+
+- term: "FSO"
+  full_form: "Free-Space Optics"
+  explanation: >-
+    Point-to-point laser link through air for high-bandwidth backhaul.
+    Roof-to-roof FSO competes with mmWave; used inter-satellite by Starlink
+    and inter-data-center for lit-fibre alternatives.
+
+- term: "FT4"
+  full_form: "Fast 4-FSK (WSJT-X)"
+  explanation: >-
+    Faster sibling of <span class="abbr-link" data-abbr="FT8">FT8</span> —
+    7.5-second cycles instead of 15. Designed for HF contesting where you
+    want more QSOs per hour at the cost of slightly worse weak-signal
+    performance.
 
 - term: "FT8"
   full_form: "Franke-Taylor 8-FSK"
-  explanation: "Weak-signal amateur digital mode from the WSJT-X suite. 15-second cycles, ~50 bits per QSO, decodes down to roughly –20 dB SNR — currently the most-popular mode on HF."
+  explanation: >-
+    Weak-signal amateur digital mode from the
+    <span class="abbr-link" data-abbr="WSJT-X">WSJT-X</span> suite. 15-second
+    cycles, ~50 bits per QSO, decodes down to roughly –20 dB SNR — currently
+    the most-popular mode on <span class="abbr-link" data-abbr="HF">HF</span>.
+
+- term: "Galileo"
+  full_form: "Galileo (EU GNSS constellation)"
+  explanation: >-
+    Europe's <span class="abbr-link" data-abbr="GNSS">GNSS</span> system,
+    operated by <span class="abbr-link" data-abbr="ESA">ESA</span> and the
+    EU. 30 medium-Earth-orbit satellites; provides civilian PRS service with
+    higher integrity and accuracy than free
+    <span class="abbr-link" data-abbr="GPS">GPS</span>.
+
+- term: "GLONASS"
+  full_form: "Globalnaya Navigatsionnaya Sputnikovaya Sistema"
+  explanation: >-
+    Russia's <span class="abbr-link" data-abbr="GNSS">GNSS</span>
+    constellation. 24 satellites in three orbital planes; uses FDMA rather
+    than CDMA, so receivers need a different correlator design from
+    <span class="abbr-link" data-abbr="GPS">GPS</span>-only units.
+
+- term: "GMRS"
+  full_form: "General Mobile Radio Service"
+  explanation: >-
+    US 462/467 MHz <span class="abbr-link" data-abbr="UHF">UHF</span> service
+    — same channels as <span class="abbr-link" data-abbr="FRS">FRS</span> but
+    licensed (no exam, $35 per family for 10 years), allowing higher power
+    (50 W mobile, repeater operation).
+
+- term: "GMSK"
+  full_form: "Gaussian Minimum-Shift Keying"
+  explanation: >-
+    Continuous-phase <span class="abbr-link" data-abbr="FSK">FSK</span>
+    variant with a Gaussian pre-filter that eliminates spectral side-lobes.
+    Standard on <span class="abbr-link" data-abbr="GSM">GSM</span> and
+    <span class="abbr-link" data-abbr="D-STAR">D-STAR</span>.
 
 - term: "GNSS"
   full_form: "Global Navigation Satellite System"
-  explanation: "Umbrella term covering GPS (US), GLONASS (RU), Galileo (EU), and BeiDou (CN). Modern receivers combine all four constellations for faster lock and better urban accuracy."
+  explanation: >-
+    Umbrella term covering <span class="abbr-link" data-abbr="GPS">GPS</span>
+    (US), <span class="abbr-link" data-abbr="GLONASS">GLONASS</span> (RU),
+    <span class="abbr-link" data-abbr="Galileo">Galileo</span> (EU), and
+    BeiDou (CN). Modern receivers combine all four constellations for faster
+    lock and better urban accuracy.
+
+- term: "GPS"
+  full_form: "Global Positioning System"
+  explanation: >-
+    The original US satellite-navigation constellation — 24+ satellites in
+    medium Earth orbit, civilian L1 carrier on 1575.42 MHz. Now one of four
+    <span class="abbr-link" data-abbr="GNSS">GNSS</span> systems most
+    receivers fuse together.
+
+- term: "GSM"
+  full_form: "Global System for Mobile Communications"
+  explanation: >-
+    Original 2G European cellular standard on 900 / 1800 MHz, later 850 /
+    1900 in the US. Still operational in some networks; sniffable with an
+    <span class="abbr-link" data-abbr="SDR">SDR</span> + gr-gsm if you have
+    your own SIM.
+
+- term: "HAARP"
+  full_form: "High-frequency Active Auroral Research Program"
+  explanation: >-
+    US ionospheric heater near Gakona, Alaska — 3.6 MW
+    <span class="abbr-link" data-abbr="HF">HF</span> transmitter array used
+    for ionosphere physics experiments. Hobbyists can listen for HAARP's
+    test transmissions during scheduled campaigns.
+
+- term: "HackRF"
+  full_form: "HackRF One (open-source SDR)"
+  explanation: >-
+    Open-source half-duplex <span class="abbr-link" data-abbr="SDR">SDR</span>
+    by Great Scott Gadgets — 1 MHz to 6 GHz, 20 MS/s, transmit and receive.
+    Standard hardware for security research and signal experimentation; fork
+    of the broader <span class="abbr-link" data-abbr="USRP">USRP</span> and
+    <span class="abbr-link" data-abbr="LimeSDR">LimeSDR</span> ecosystem.
 
 - term: "HF"
   full_form: "High Frequency (3–30 MHz)"
-  explanation: "Shortwave spectrum — refracts off the ionosphere, so HF signals can travel thousands of kilometres on a few watts. Home of amateur, broadcast, marine, aviation, and time-signal services."
+  explanation: >-
+    Shortwave — refracts off the ionosphere, so HF signals can travel
+    thousands of kilometres on a few watts. Home of amateur, broadcast,
+    marine, aviation (<span class="abbr-link" data-abbr="HFDL">HFDL</span>),
+    and time-signal services.
+
+- term: "HFDL"
+  full_form: "HF Data Link"
+  explanation: >-
+    ARINC-operated worldwide aircraft data network on
+    <span class="abbr-link" data-abbr="HF">HF</span> (2.9–22 MHz) — used over
+    the oceans where <span class="abbr-link" data-abbr="VHF">VHF</span>
+    coverage runs out. Decodable with PC-HFDL or dumphfdl.
 
 - term: "HPUE"
   full_form: "High-Power User Equipment"
-  explanation: "A power-class-2 cellular phone or modem allowed to transmit at 26 dBm (≈400 mW) instead of the usual 23 dBm (200 mW). Enabled on n14 FirstNet and n41 / n78 / n79 mid-band 5G to extend uplink range."
+  explanation: >-
+    A power-class-2 cellular phone or modem allowed to transmit at 26 dBm
+    (≈400 mW) instead of the usual 23 dBm (200 mW). Enabled on n14 FirstNet
+    and n41 / <span class="abbr-link" data-abbr="n78">n78</span> / n79
+    mid-band 5G to extend uplink range.
+
+- term: "IARU"
+  full_form: "International Amateur Radio Union"
+  explanation: >-
+    Worldwide federation of national ham societies
+    (<span class="abbr-link" data-abbr="ARRL">ARRL</span>,
+    <span class="abbr-link" data-abbr="RSGB">RSGB</span>,
+    <span class="abbr-link" data-abbr="DARC">DARC</span>, etc.). Represents
+    amateurs at <span class="abbr-link" data-abbr="ITU">ITU</span> World
+    Radiocommunication Conferences.
+
+- term: "ICAO"
+  full_form: "International Civil Aviation Organization"
+  explanation: >-
+    UN agency that sets international aviation rules — radio call-sign
+    schemes, <span class="abbr-link" data-abbr="ATC">ATC</span> phraseology,
+    <span class="abbr-link" data-abbr="ADS-B">ADS-B</span> mandates, and the
+    24-bit aircraft hex addresses you decode on 1090 MHz.
 
 - term: "ICNIRP"
   full_form: "International Commission on Non-Ionizing Radiation Protection"
-  explanation: "Independent body that publishes the global RF and optical exposure guidelines national regulators (FCC OET-65, BNetzA, Ofcom) base their safe-distance rules on."
+  explanation: >-
+    Independent body that publishes the global RF and optical exposure
+    guidelines national regulators (<span class="abbr-link" data-abbr="FCC">FCC</span>
+    OET-65, <span class="abbr-link" data-abbr="BNetzA">BNetzA</span>,
+    <span class="abbr-link" data-abbr="Ofcom">Ofcom</span>) base their
+    safe-distance rules on.
+
+- term: "IEC"
+  full_form: "International Electrotechnical Commission"
+  explanation: >-
+    Geneva-based standards body for electrical and electronic technology —
+    safety, EMC, batteries, optical fibres. Co-publishes ISO/IEC standards
+    and overlaps with the
+    <span class="abbr-link" data-abbr="IEEE">IEEE</span> on radio topics.
+
+- term: "IEEE"
+  full_form: "Institute of Electrical and Electronics Engineers"
+  explanation: >-
+    Professional society that authors the 802.x family
+    (<span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span> 802.11,
+    <span class="abbr-link" data-abbr="Zigbee">Zigbee</span> 802.15.4,
+    Ethernet 802.3, etc.) and many of the spectrum-relevant standards
+    referenced in this table.
+
+- term: "IFR"
+  full_form: "Instrument Flight Rules"
+  explanation: >-
+    Aviation flight regime in which the pilot relies on instruments rather
+    than visual reference — typical in cloud or at night. Drives demand for
+    <span class="abbr-link" data-abbr="ILS">ILS</span>,
+    <span class="abbr-link" data-abbr="DME">DME</span>, and the
+    <span class="abbr-link" data-abbr="ATC">ATC</span> radio infrastructure.
+
+- term: "ILS"
+  full_form: "Instrument Landing System"
+  explanation: >-
+    Precision aircraft landing aid — a 108–112 MHz
+    <span class="abbr-link" data-abbr="VHF">VHF</span> localizer carrier
+    (lateral guidance) plus a 329–335 MHz
+    <span class="abbr-link" data-abbr="UHF">UHF</span> glideslope (vertical).
+    Tunable on a regular SDR.
 
 - term: "ISM"
   full_form: "Industrial, Scientific, Medical"
-  explanation: "Worldwide license-free spectrum bands (433 MHz EU, 902–928 MHz US, 2.4 GHz, 5.8 GHz, 24 GHz) shared by Wi-Fi, Bluetooth, microwave ovens, and a long tail of consumer gadgets."
+  explanation: >-
+    Worldwide license-free spectrum bands (433 MHz EU, 902–928 MHz US,
+    2.4 GHz, 5.8 GHz, 24 GHz) shared by
+    <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span>, Bluetooth,
+    microwave ovens, and a long tail of consumer gadgets — anyone can
+    transmit at low power without a license, subject to
+    <span class="abbr-link" data-abbr="EIRP">EIRP</span> limits.
 
 - term: "ITU"
   full_form: "International Telecommunication Union"
-  explanation: "UN agency that allocates global spectrum and divides the world into Regions 1 (EU/Africa/RU), 2 (Americas), and 3 (Asia/Oceania). Every national regulator works downstream of ITU."
+  explanation: >-
+    UN agency that allocates global spectrum and divides the world into
+    Regions 1 (EU/Africa/RU), 2 (Americas), and 3 (Asia/Oceania). Every
+    national regulator (<span class="abbr-link" data-abbr="FCC">FCC</span>,
+    <span class="abbr-link" data-abbr="BNetzA">BNetzA</span>, etc.) operates
+    downstream of ITU.
+
+- term: "JJY"
+  full_form: "JJY (Japanese LF time signal)"
+  explanation: >-
+    Japan's <span class="abbr-link" data-abbr="LF">LF</span> time-and-date
+    transmitter — 40 kHz from Otakadoyayama and 60 kHz from Hagane. Receivable
+    across East Asia; the Japanese counterpart of
+    <span class="abbr-link" data-abbr="DCF77">DCF77</span> and
+    <span class="abbr-link" data-abbr="WWVB">WWVB</span>.
+
+- term: "JS8"
+  full_form: "JS8Call"
+  explanation: >-
+    Real-time keyboard-to-keyboard mode based on
+    <span class="abbr-link" data-abbr="FT8">FT8</span> tones — adds free-text
+    messaging, store-and-forward relay, and group calls. Popular for ham
+    HF chatting and emergency comms.
+
+- term: "JT65"
+  full_form: "JT65 (Joe Taylor 65-FSK)"
+  explanation: >-
+    Earlier weak-signal mode from <span class="abbr-link" data-abbr="WSJT-X">WSJT-X</span>
+    — 60-second cycles, 65 tones. Largely supplanted by
+    <span class="abbr-link" data-abbr="FT8">FT8</span> on HF but still common
+    on <span class="abbr-link" data-abbr="EME">EME</span> and meteor scatter.
+
+- term: "KNX-RF"
+  full_form: "KNX-RF (wireless KNX)"
+  explanation: >-
+    Wireless variant of the KNX building-automation standard — runs at
+    868 MHz <span class="abbr-link" data-abbr="ISM">ISM</span> in Europe.
+    Used for retrofitting KNX into buildings without pulling new wires.
+
+- term: "LF"
+  full_form: "Low Frequency (30–300 kHz)"
+  explanation: >-
+    Long-wave — kilometre-scale wavelengths that hug the ground for stable
+    long-distance propagation. Hosts <span class="abbr-link" data-abbr="DCF77">DCF77</span>,
+    <span class="abbr-link" data-abbr="WWVB">WWVB</span>,
+    <span class="abbr-link" data-abbr="JJY">JJY</span> time signals,
+    aeronautical <span class="abbr-link" data-abbr="NDB">NDB</span>s, and the
+    2200 m amateur band.
+
+- term: "LimeSDR"
+  full_form: "LimeSDR (open-source SDR)"
+  explanation: >-
+    Lime Microsystems' open-hardware
+    <span class="abbr-link" data-abbr="SDR">SDR</span> — full-duplex,
+    100 kHz–3.8 GHz on the Mini, 30 MHz–3.8 GHz on the USB. Competes with
+    <span class="abbr-link" data-abbr="HackRF">HackRF</span> and
+    <span class="abbr-link" data-abbr="USRP">USRP</span>.
+
+- term: "LNA"
+  full_form: "Low-Noise Amplifier"
+  explanation: >-
+    First-stage amplifier mounted close to (ideally at) the antenna, designed
+    to add as little noise as possible. The single biggest factor in a
+    receiver's weak-signal sensitivity, especially above
+    <span class="abbr-link" data-abbr="VHF">VHF</span>.
+
+- term: "LNB"
+  full_form: "Low-Noise Block downconverter"
+  explanation: >-
+    Satellite-dish front-end that combines an
+    <span class="abbr-link" data-abbr="LNA">LNA</span> with a frequency
+    downconverter — Ku-band in (10–12 GHz) becomes L-band out (950–2150 MHz)
+    on a coax that an ordinary tuner or
+    <span class="abbr-link" data-abbr="SDR">SDR</span> can read.
 
 - term: "LoRa"
   full_form: "Long Range (chirp-spread-spectrum)"
-  explanation: "Semtech's low-power, low-data-rate radio modulation. A 25 mW transmitter reaches 5–15 km outdoors at the cost of just a few hundred bits per second. Foundation of LoRaWAN, Helium, and Meshtastic."
+  explanation: >-
+    Semtech's low-power, low-data-rate radio modulation. Lets a 25 mW
+    transmitter reach 5–15 km outdoors at the cost of just a few hundred
+    bits per second. Foundation of <span class="abbr-link" data-abbr="LoRaWAN">LoRaWAN</span>,
+    Helium, and Meshtastic.
+
+- term: "LoRaWAN"
+  full_form: "Long Range Wide-Area Network"
+  explanation: >-
+    Open MAC-layer protocol on top of <span class="abbr-link" data-abbr="LoRa">LoRa</span>
+    — defines gateways, network servers, and end-device classes A/B/C.
+    <span class="abbr-link" data-abbr="TheThingsNetwork">TheThingsNetwork</span>
+    runs the largest community deployment.
 
 - term: "LTE"
   full_form: "Long-Term Evolution (4G cellular)"
-  explanation: "3GPP cellular standard now sitting alongside 5G NR. Its bands keep being numbered (B1, B3, B7…) and many were directly re-used as the corresponding 5G n-bands (n1, n3, n7…)."
+  explanation: >-
+    3GPP cellular standard now sitting alongside 5G
+    <span class="abbr-link" data-abbr="NR">NR</span>. Its bands keep being
+    numbered (B1, B3, B7…) and many were directly re-used as the
+    corresponding 5G n-bands (n1, n3, n7…). Uses
+    <span class="abbr-link" data-abbr="OFDMA">OFDMA</span> downlink with
+    SC-FDMA uplink, both <span class="abbr-link" data-abbr="FDD">FDD</span>
+    and <span class="abbr-link" data-abbr="TDD">TDD</span>.
+
+- term: "M-Bus"
+  full_form: "Meter-Bus (EN 13757)"
+  explanation: >-
+    European utility-meter standard with a wireless variant (wM-Bus) at
+    169 MHz <span class="abbr-link" data-abbr="VHF">VHF</span> or 868 MHz
+    <span class="abbr-link" data-abbr="ISM">ISM</span>. The protocol used
+    behind much European
+    <span class="abbr-link" data-abbr="AMR">AMR</span> infrastructure.
+
+- term: "MF"
+  full_form: "Medium Frequency (300 kHz – 3 MHz)"
+  explanation: >-
+    Hosts the AM broadcast band (530–1700 kHz), the 630 m and 160 m amateur
+    bands, and marine/aeronautical voice. Strong night-time skywave DX —
+    you can hear stations a continent away with a ferrite-rod radio.
 
 - term: "MIMO"
   full_form: "Multiple-Input Multiple-Output"
-  explanation: "Multi-antenna technique that boosts capacity and range by sending parallel data streams or steering beams. Standard on Wi-Fi 5/6/7, LTE, and 5G."
+  explanation: >-
+    Multi-antenna technique that boosts capacity and range by sending
+    parallel data streams or steering beams. Standard on
+    <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span> 5/6/7,
+    <span class="abbr-link" data-abbr="LTE">LTE</span>, and 5G
+    <span class="abbr-link" data-abbr="NR">NR</span>; massive-MIMO base
+    stations have 64+ elements.
 
 - term: "mmWave"
   full_form: "Millimeter-wave (≈30–300 GHz)"
-  explanation: "Radio above ~30 GHz with wavelengths under 10 mm. Used by 5G FR2 (24–71 GHz), automotive 77 GHz radar, body scanners, and emerging point-to-point backhaul."
+  explanation: >-
+    Radio above ~30 GHz with wavelengths under 10 mm — the
+    <span class="abbr-link" data-abbr="EHF">EHF</span> band. Used by 5G
+    <span class="abbr-link" data-abbr="FR2">FR2</span>, automotive 77 GHz
+    radar, body scanners, and emerging point-to-point backhaul.
 
 - term: "MQTT"
   full_form: "Message Queuing Telemetry Transport"
-  explanation: "Lightweight publish/subscribe protocol designed for IoT — small headers, retained messages, last-will. The de facto messaging layer over LoRaWAN, Wi-Fi, and cellular IoT."
+  explanation: >-
+    Lightweight publish/subscribe protocol designed for IoT — small headers,
+    retained messages, last-will. The de facto messaging layer over
+    <span class="abbr-link" data-abbr="LoRaWAN">LoRaWAN</span>,
+    <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span>, and cellular IoT.
+
+- term: "MSF"
+  full_form: "MSF (UK LF time signal)"
+  explanation: >-
+    UK 60 kHz time signal from Anthorn — the British counterpart of
+    <span class="abbr-link" data-abbr="DCF77">DCF77</span> and
+    <span class="abbr-link" data-abbr="WWVB">WWVB</span>. Receivable across
+    most of north-west Europe.
+
+- term: "MSK"
+  full_form: "Minimum-Shift Keying"
+  explanation: >-
+    Continuous-phase <span class="abbr-link" data-abbr="FSK">FSK</span> with
+    the smallest possible frequency separation that keeps the two tones
+    orthogonal. Spectrally efficient; the basis of
+    <span class="abbr-link" data-abbr="GMSK">GMSK</span>.
+
+- term: "MURS"
+  full_form: "Multi-Use Radio Service"
+  explanation: >-
+    US license-free <span class="abbr-link" data-abbr="VHF">VHF</span>
+    walkie-talkie service — five 151–154 MHz channels at up to 2 W. Often
+    used for retail and short-range business comms; better in-building
+    propagation than <span class="abbr-link" data-abbr="FRS">FRS</span>.
 
 - term: "n78"
   full_form: "5G NR Band n78 — global C-band TDD"
-  explanation: "TDD 3300–3800 MHz — the canonical European, UK, German, Japanese, and Indian 5G C-band. The most-deployed 5G mid-band in the world."
+  explanation: >-
+    <span class="abbr-link" data-abbr="TDD">TDD</span> 3300–3800 MHz — the
+    canonical European, UK, German, Japanese, and Indian 5G C-band, plus
+    large parts of Asia. The most-deployed 5G mid-band in the world; lives
+    inside <span class="abbr-link" data-abbr="FR1">FR1</span>.
+
+- term: "NAA"
+  full_form: "NAA (US Navy VLF transmitter, Cutler ME)"
+  explanation: >-
+    24 kHz, 1.8 MW US Navy submarine-comms transmitter on the coast of
+    Maine — one of the most powerful radio transmitters ever built. Audible
+    worldwide on a <span class="abbr-link" data-abbr="VLF">VLF</span>
+    long-wire receiver.
 
 - term: "NB-IoT"
   full_form: "Narrowband IoT (3GPP)"
-  explanation: "Cellular standard for very-low-power, low-data-rate sensors. Runs in 200 kHz slices of LTE / 5G spectrum and is operated by every major carrier."
+  explanation: >-
+    Cellular standard for very-low-power, low-data-rate sensors. Runs in
+    200 kHz slices of <span class="abbr-link" data-abbr="LTE">LTE</span> /
+    5G spectrum and is operated by every major carrier — competing with
+    <span class="abbr-link" data-abbr="LoRaWAN">LoRaWAN</span> and
+    <span class="abbr-link" data-abbr="Sigfox">Sigfox</span>.
+
+- term: "NDB"
+  full_form: "Non-Directional Beacon"
+  explanation: >-
+    Aviation/marine radio beacon transmitting an
+    <span class="abbr-link" data-abbr="LF">LF</span> /
+    <span class="abbr-link" data-abbr="MF">MF</span> Morse-keyed identifier
+    (190–1750 kHz) so an aircraft's ADF needle can point home. Largely
+    superseded by <span class="abbr-link" data-abbr="GPS">GPS</span> but
+    many remain on the air.
+
+- term: "NEXRAD"
+  full_form: "Next-Generation Radar (US weather radar)"
+  explanation: >-
+    The 159-site WSR-88D Doppler radar network operated by
+    <span class="abbr-link" data-abbr="NOAA">NOAA</span> and the FAA on
+    2.7–3.0 GHz <span class="abbr-link" data-abbr="SHF">SHF</span>. Source of
+    the colourful precipitation maps on weather apps; raw Level-II data is
+    publicly streamed.
 
 - term: "NFC"
   full_form: "Near-Field Communication"
-  explanation: "13.56 MHz inductive link with a few-cm range — tap-to-pay, transit cards, hotel keys, access badges, and the NFC reader built into every modern phone."
+  explanation: >-
+    13.56 MHz inductive link with a few-cm range — tap-to-pay, transit
+    cards, hotel keys, access badges, and the NFC reader built into every
+    modern phone. Subset of <span class="abbr-link" data-abbr="RFID">RFID</span>.
+
+- term: "NIST"
+  full_form: "National Institute of Standards and Technology"
+  explanation: >-
+    US federal lab that maintains the national time standard — operates
+    <span class="abbr-link" data-abbr="WWVB">WWVB</span> (60 kHz LF time
+    signal), WWV/WWVH (HF time signals), and the NTP/PTP infrastructure
+    most computers sync to.
+
+- term: "NLK"
+  full_form: "NLK (US Navy VLF transmitter, Jim Creek WA)"
+  explanation: >-
+    24.8 kHz, 250 kW US Navy submarine-comms transmitter near Seattle —
+    sister station to <span class="abbr-link" data-abbr="NAA">NAA</span>
+    and <span class="abbr-link" data-abbr="NPM">NPM</span>. Receivable across
+    most of the western hemisphere on
+    <span class="abbr-link" data-abbr="VLF">VLF</span>.
+
+- term: "NOAA"
+  full_form: "National Oceanic and Atmospheric Administration"
+  explanation: >-
+    US science agency that operates weather satellites (NOAA-15/18/19,
+    GOES-East/West), <span class="abbr-link" data-abbr="NEXRAD">NEXRAD</span>
+    radar, and NOAA Weather Radio (162.4–162.55 MHz). The Sun-watching
+    SWPC issues space-weather alerts that affect HF propagation.
+
+- term: "NPM"
+  full_form: "NPM (US Navy VLF transmitter, Lualualei HI)"
+  explanation: >-
+    21.4 kHz, 425 kW US Navy submarine-comms transmitter on Oahu — one of
+    the dominant <span class="abbr-link" data-abbr="VLF">VLF</span> signals
+    audible across the Pacific. Sister station to
+    <span class="abbr-link" data-abbr="NAA">NAA</span> and
+    <span class="abbr-link" data-abbr="NLK">NLK</span>.
+
+- term: "NR"
+  full_form: "5G New Radio"
+  explanation: >-
+    The 5G physical layer — successor to
+    <span class="abbr-link" data-abbr="LTE">LTE</span>. Adds flexible
+    numerology, mmWave operation, and massive
+    <span class="abbr-link" data-abbr="MIMO">MIMO</span>; spectrum is split
+    into <span class="abbr-link" data-abbr="FR1">FR1</span> and
+    <span class="abbr-link" data-abbr="FR2">FR2</span>.
 
 - term: "OFDM"
   full_form: "Orthogonal Frequency-Division Multiplexing"
-  explanation: "Modulation scheme that spreads data across many narrow subcarriers carried in parallel. The backbone of Wi-Fi, LTE, 5G NR, DVB-T, DAB, and powerline networking."
+  explanation: >-
+    Modulation scheme that spreads data across many narrow subcarriers
+    carried in parallel. The backbone of
+    <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span>,
+    <span class="abbr-link" data-abbr="LTE">LTE</span>, 5G
+    <span class="abbr-link" data-abbr="NR">NR</span>,
+    <span class="abbr-link" data-abbr="DVB-T">DVB-T</span>,
+    <span class="abbr-link" data-abbr="DAB">DAB</span>, and powerline
+    networking.
+
+- term: "OFDMA"
+  full_form: "Orthogonal Frequency-Division Multiple Access"
+  explanation: >-
+    <span class="abbr-link" data-abbr="OFDM">OFDM</span> with subcarrier
+    groups assigned per-user instead of all-to-one — lets a base station
+    serve many low-rate clients simultaneously. Standard downlink in LTE,
+    5G, and Wi-Fi 6.
+
+- term: "Ofcom"
+  full_form: "Office of Communications"
+  explanation: >-
+    The UK's wireless regulator — UK equivalent of the
+    <span class="abbr-link" data-abbr="FCC">FCC</span> and
+    <span class="abbr-link" data-abbr="BNetzA">BNetzA</span>. Licenses
+    spectrum, runs the ham exam (with the RSGB), and enforces
+    <span class="abbr-link" data-abbr="ETSI">ETSI</span> rules.
+
+- term: "OTH"
+  full_form: "Over-The-Horizon radar"
+  explanation: >-
+    <span class="abbr-link" data-abbr="HF">HF</span> radar that bounces
+    signals off the ionosphere to detect targets thousands of kilometres
+    beyond the line-of-sight horizon. Russia's old "woodpecker" and
+    Australia's JORN are the canonical examples; SDR users hear them as
+    pulsing buzzes across the HF bands.
+
+- term: "P25"
+  full_form: "Project 25 (APCO P25)"
+  explanation: >-
+    North American digital land-mobile radio standard for police, fire, and
+    EMS. Phase 1 is FDMA, Phase 2 is two-slot TDMA — both compete with
+    <span class="abbr-link" data-abbr="DMR">DMR</span> and
+    <span class="abbr-link" data-abbr="TETRA">TETRA</span>. Decodable with
+    OP25 and an <span class="abbr-link" data-abbr="SDR">SDR</span>.
+
+- term: "PAL"
+  full_form: "Priority Access License (CBRS)"
+  explanation: >-
+    Middle tier of <span class="abbr-link" data-abbr="CBRS">CBRS</span>
+    — auctioned 10-year licences to specific 10 MHz blocks in 3550–3700 MHz.
+    Sits between protected incumbent radar and General Authorized Access
+    (GAA) hobbyist/private use.
+
+- term: "Pc"
+  full_form: "Pc1–Pc5 (Continuous magnetospheric pulsations)"
+  explanation: >-
+    ULF/ELF natural geomagnetic pulsations classified by period:
+    Pc5 (150–600 s), Pc4 (45–150 s), Pc3 (10–45 s), Pc2 (5–10 s),
+    Pc1 (0.2–5 s). Driven by solar wind and magnetospheric resonances;
+    receivable with a DIY induction-coil magnetometer.
 
 - term: "PLC"
   full_form: "Power-Line Communication / PowerLAN"
-  explanation: "Data carried over the electrical wiring already in your walls (2–30 MHz, IEEE 1901 / HomePlug AV2 / G.hn). Convenient for whole-home networking, but radiates as a major HF noise source."
+  explanation: >-
+    Data carried over the electrical wiring already in your walls (2–30 MHz
+    narrowband, standardised by IEEE 1901, HomePlug AV2, and ITU G.hn).
+    Convenient for whole-home networking, but radiates as a major
+    <span class="abbr-link" data-abbr="HF">HF</span> noise source and ruins
+    reception on shortwave.
 
 - term: "PMR446"
   full_form: "Private Mobile Radio at 446 MHz"
-  explanation: "License-free EU walkie-talkie service — 16 analogue channels and 32 digital channels on 446.0–446.2 MHz. 500 mW ERP, integrated antenna only."
+  explanation: >-
+    License-free EU walkie-talkie service — 16 analogue
+    <span class="abbr-link" data-abbr="FM">FM</span> channels and 32
+    digital channels on 446.0–446.2 MHz. 500 mW
+    <span class="abbr-link" data-abbr="ERP">ERP</span>, integrated antenna
+    only. Equivalent to US <span class="abbr-link" data-abbr="FRS">FRS</span>.
+
+- term: "POCSAG"
+  full_form: "Post Office Code Standardisation Advisory Group"
+  explanation: >-
+    1980s paging protocol still in widespread use for hospital pagers,
+    German fire-service alerts (DAPNET), and amateur DX-cluster paging.
+    <span class="abbr-link" data-abbr="FSK">FSK</span> at 512 / 1200 / 2400
+    bps; trivially decoded with multimon-ng + an
+    <span class="abbr-link" data-abbr="SDR">SDR</span>.
+
+- term: "PSK"
+  full_form: "Phase-Shift Keying"
+  explanation: >-
+    Family of modulations that encode bits as phase shifts of the carrier.
+    <span class="abbr-link" data-abbr="BPSK">BPSK</span>, QPSK, 8-PSK
+    progressively pack more bits per symbol; Wi-Fi and LTE OFDM subcarriers
+    use them as building blocks.
+
+- term: "PSK31"
+  full_form: "PSK31"
+  explanation: >-
+    Narrowband (~31 Hz) keyboard-to-keyboard ham digital mode by Peter
+    Martinez (G3PLX) — sounds like a warbling tone in
+    <span class="abbr-link" data-abbr="SSB">SSB</span> audio. Was the
+    workhorse HF chat mode before <span class="abbr-link" data-abbr="FT8">FT8</span>
+    took over.
+
+- term: "QAM"
+  full_form: "Quadrature Amplitude Modulation"
+  explanation: >-
+    Modulation that combines amplitude and phase changes for very high bit
+    density — 16-QAM (4 bits/symbol), 64-QAM (6), 256-QAM (8), up to
+    4096-QAM in Wi-Fi 7. The constellation diagrams you see in textbooks.
+
+- term: "QFH"
+  full_form: "Quadrifilar Helix antenna"
+  explanation: >-
+    Four-helix antenna with a near-isotropic upper hemisphere pattern —
+    excellent for receiving LEO weather satellites (NOAA APT, Meteor MN-2)
+    on 137 MHz <span class="abbr-link" data-abbr="VHF">VHF</span>.
+    Easily home-built from PVC pipe and copper wire.
+
+- term: "RDS"
+  full_form: "Radio Data System"
+  explanation: >-
+    Inaudible 57 kHz subcarrier on
+    <span class="abbr-link" data-abbr="FM">FM</span> broadcast that carries
+    station ID, song title, traffic alerts, and clock time. Decoded by
+    every car radio and easy to dump with rds-tools + an
+    <span class="abbr-link" data-abbr="RTL-SDR">RTL-SDR</span>.
 
 - term: "RFID"
   full_form: "Radio-Frequency Identification"
-  explanation: "Wireless tag-and-reader system — LF (125 kHz), HF (13.56 MHz), and UHF (860–960 MHz) variants cover everything from livestock chips and inventory tags to passport pages and toll transponders."
+  explanation: >-
+    Wireless tag-and-reader system — LF (125 kHz), HF (13.56 MHz, includes
+    <span class="abbr-link" data-abbr="NFC">NFC</span>), and UHF (860–960 MHz)
+    variants cover everything from livestock chips and inventory tags to
+    passport pages and toll transponders.
+
+- term: "ROSAT"
+  full_form: "Röntgen Satellite (X-ray)"
+  explanation: >-
+    German-led X-ray space telescope (1990–1999) that produced the first
+    all-sky survey at 0.1–2.5 keV. Catalogue still used for
+    target-of-opportunity follow-up by
+    <span class="abbr-link" data-abbr="CHANDRA">CHANDRA</span> and
+    <span class="abbr-link" data-abbr="XRISM">XRISM</span>.
+
+- term: "RSGB"
+  full_form: "Radio Society of Great Britain"
+  explanation: >-
+    UK's national amateur-radio society — peer of the
+    <span class="abbr-link" data-abbr="ARRL">ARRL</span> and
+    <span class="abbr-link" data-abbr="DARC">DARC</span>. Member of the
+    <span class="abbr-link" data-abbr="IARU">IARU</span>; runs the Foundation
+    / Intermediate / Full UK ham licence syllabus with
+    <span class="abbr-link" data-abbr="Ofcom">Ofcom</span>.
+
+- term: "RTL-SDR"
+  full_form: "RTL2832U USB SDR dongle"
+  explanation: >-
+    The $25 USB stick that started the SDR-for-the-masses revolution —
+    repurposed Realtek
+    <span class="abbr-link" data-abbr="DVB-T">DVB-T</span> tuner chip running
+    in raw I/Q mode. Covers 24 MHz – 1.7 GHz; an entire generation of
+    <span class="abbr-link" data-abbr="ADS-B">ADS-B</span>,
+    <span class="abbr-link" data-abbr="POCSAG">POCSAG</span>, and weather-sat
+    projects run on these.
+
+- term: "RTTY"
+  full_form: "Radioteletype"
+  explanation: >-
+    Classic mechanical teleprinter mode using
+    <span class="abbr-link" data-abbr="FSK">FSK</span> — 45.45 baud, 170 Hz
+    shift, 5-bit Baudot. Predates packet by decades and still used in HF
+    contests.
+
+- term: "SAR"
+  full_form: "Specific Absorption Rate"
+  explanation: >-
+    RF-exposure metric — watts of RF energy absorbed per kg of body tissue.
+    <span class="abbr-link" data-abbr="ICNIRP">ICNIRP</span> and
+    <span class="abbr-link" data-abbr="FCC">FCC</span> set the limits every
+    phone, ham radio, and Wi-Fi router must comply with.
+
+- term: "SAS"
+  full_form: "Spectrum Access System (CBRS)"
+  explanation: >-
+    Cloud database that coordinates the three
+    <span class="abbr-link" data-abbr="CBRS">CBRS</span> tiers — incumbent
+    Navy radar, <span class="abbr-link" data-abbr="PAL">PAL</span> licensees,
+    and General Authorized Access. Devices ask the SAS for a channel before
+    transmitting.
+
+- term: "Schumann"
+  full_form: "Schumann resonances"
+  explanation: >-
+    Standing electromagnetic waves trapped between Earth's surface and the
+    ionosphere — fundamental at 7.83 Hz, then ~14 / 20 / 26 / 33 Hz harmonics.
+    Continuously excited by global lightning; receivable in the
+    <span class="abbr-link" data-abbr="ELF">ELF</span> band with a sensitive
+    coil.
 
 - term: "SDR"
   full_form: "Software-Defined Radio"
-  explanation: "Receiver or transceiver where the demodulator runs in software, not hardware. Cheap RTL-SDR dongles ($25) cover 24 MHz – 1.7 GHz; HackRF, LimeSDR, and PlutoSDR add transmit."
+  explanation: >-
+    Receiver or transceiver where the demodulator runs in software, not
+    hardware. Cheap <span class="abbr-link" data-abbr="RTL-SDR">RTL-SDR</span>
+    dongles ($25) cover 24 MHz – 1.7 GHz;
+    <span class="abbr-link" data-abbr="HackRF">HackRF</span>,
+    <span class="abbr-link" data-abbr="LimeSDR">LimeSDR</span>, and PlutoSDR
+    add transmit; <span class="abbr-link" data-abbr="USRP">USRP</span> sits
+    at the high end.
+
+- term: "SHF"
+  full_form: "Super High Frequency (3–30 GHz)"
+  explanation: >-
+    Microwave band — 2.4 GHz / 5 GHz / 6 GHz
+    <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span>, satellite TV
+    Ku-band, weather radar, and the 13 cm / 9 cm / 6 cm / 3 cm amateur bands.
+    Atmospheric absorption is low across most of the band — ideal for
+    high-bandwidth point-to-point.
+
+- term: "Sigfox"
+  full_form: "Sigfox LPWAN"
+  explanation: >-
+    French LPWAN provider — ultra-narrowband (100 Hz)
+    <span class="abbr-link" data-abbr="BPSK">BPSK</span> on 868 MHz EU /
+    902 MHz US. 12-byte payloads, 140 messages/day. Competes with
+    <span class="abbr-link" data-abbr="LoRaWAN">LoRaWAN</span> and
+    <span class="abbr-link" data-abbr="NB-IoT">NB-IoT</span>.
 
 - term: "SSB"
   full_form: "Single Sideband"
-  explanation: "AM variant that transmits only the upper or lower sideband for ~3× the efficiency. The workhorse voice mode of HF amateur, marine, and aviation."
+  explanation: >-
+    <span class="abbr-link" data-abbr="AM">AM</span> variant that transmits
+    only the upper or lower sideband for ~3× the efficiency. The workhorse
+    voice mode of <span class="abbr-link" data-abbr="HF">HF</span> amateur,
+    marine, and aviation; the audio sounds robotic until your receiver's BFO
+    is tuned correctly.
+
+- term: "Starlink"
+  full_form: "Starlink (SpaceX LEO satellite internet)"
+  explanation: >-
+    SpaceX's low-Earth-orbit broadband constellation — 5500+ satellites
+    cross-linked with laser
+    (<span class="abbr-link" data-abbr="FSO">FSO</span>) backhaul. User
+    terminals communicate at Ku/Ka-band (12–18 / 27–40 GHz, in the
+    <span class="abbr-link" data-abbr="SHF">SHF</span> band).
 
 - term: "TDD"
   full_form: "Time Division Duplex"
-  explanation: "Uplink and downlink share the same frequency channel and alternate in short time slots — efficient for asymmetric traffic and standard on 5G NR mid-band (n40, n41, n78, n79)."
+  explanation: >-
+    Uplink and downlink share the same frequency channel and alternate in
+    short time slots — efficient for asymmetric traffic and standard on
+    5G <span class="abbr-link" data-abbr="NR">NR</span> mid-band (n40, n41,
+    <span class="abbr-link" data-abbr="n78">n78</span>, n79). Contrast with
+    <span class="abbr-link" data-abbr="FDD">FDD</span> where UL and DL use
+    paired separate frequencies.
+
+- term: "TETRA"
+  full_form: "Terrestrial Trunked Radio"
+  explanation: >-
+    European digital trunked-radio standard for police, fire, and other
+    emergency services on 380–400 MHz <span class="abbr-link" data-abbr="UHF">UHF</span>.
+    Competing standards include
+    <span class="abbr-link" data-abbr="P25">P25</span> (US) and
+    <span class="abbr-link" data-abbr="DMR">DMR</span>.
+
+- term: "TheThingsNetwork"
+  full_form: "The Things Network"
+  explanation: >-
+    Community-operated free
+    <span class="abbr-link" data-abbr="LoRaWAN">LoRaWAN</span> network — 20
+    000+ gateways in ~150 countries. Anyone can contribute a gateway and use
+    the global free-data plan for non-commercial IoT.
+
+- term: "Thread"
+  full_form: "Thread (IPv6 mesh networking)"
+  explanation: >-
+    Low-power IPv6-over-802.15.4 mesh — same physical layer as
+    <span class="abbr-link" data-abbr="Zigbee">Zigbee</span> but with a real
+    IP stack. Foundation of Apple HomeKit / Google Home / Matter Thread
+    border routers.
 
 - term: "UHF"
   full_form: "Ultra High Frequency (300 MHz – 3 GHz)"
-  explanation: "Covers cellular, Wi-Fi 2.4 GHz, GPS L1, ISM 433/868/915 MHz, Bluetooth, the 70 cm and 23 cm amateur bands, and most TV broadcast — the densest, most-utilised slice of spectrum."
+  explanation: >-
+    Covers cellular, <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span>
+    2.4 GHz, <span class="abbr-link" data-abbr="GPS">GPS</span> L1,
+    <span class="abbr-link" data-abbr="ISM">ISM</span> 433/868/915 MHz,
+    Bluetooth, the 70 cm and 23 cm amateur bands, and most TV broadcast —
+    the densest, most-utilised slice of spectrum.
+
+- term: "ULF"
+  full_form: "Ultra Low Frequency (300 Hz – 3 kHz)"
+  explanation: >-
+    Above <span class="abbr-link" data-abbr="ELF">ELF</span> and below
+    <span class="abbr-link" data-abbr="VLF">VLF</span>. Used for advanced
+    submarine comms and audio-magnetotelluric geophysics. Receive-only for
+    hobbyists with a coil and sound-card.
 
 - term: "UNII"
   full_form: "Unlicensed National Information Infrastructure"
-  explanation: "FCC umbrella term for the 5 GHz and 6 GHz Wi-Fi spectrum tiers — UNII-1, UNII-2A, UNII-2C, UNII-3, plus the new 6 GHz UNII-5/6/7/8 opened in 2020 for Wi-Fi 6E and Wi-Fi 7."
+  explanation: >-
+    <span class="abbr-link" data-abbr="FCC">FCC</span> umbrella term for the
+    5 GHz and 6 GHz <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span>
+    spectrum tiers — UNII-1, UNII-2A, UNII-2C
+    (<span class="abbr-link" data-abbr="DFS">DFS</span> required), UNII-3,
+    plus the new 6 GHz UNII-5/6/7/8 opened in 2020 for Wi-Fi 6E and Wi-Fi 7.
+
+- term: "USRP"
+  full_form: "Universal Software Radio Peripheral"
+  explanation: >-
+    Ettus Research's high-end <span class="abbr-link" data-abbr="SDR">SDR</span>
+    family — full-duplex MIMO, 6 GHz+ tuning, 200+ MS/s. The reference
+    platform for academic and military signal-processing research; runs on
+    GNU Radio.
 
 - term: "VHF"
   full_form: "Very High Frequency (30–300 MHz)"
-  explanation: "FM broadcast (88–108), aviation voice (118–137), marine VHF (156–162), the 6 m / 2 m amateur bands, NOAA weather, and a long tail of land-mobile services."
+  explanation: >-
+    <span class="abbr-link" data-abbr="FM">FM</span> broadcast (88–108),
+    aviation voice (118–137), marine VHF (156–162), the 6 m / 2 m amateur
+    bands, NOAA weather, and a long tail of land-mobile services. Mostly
+    line-of-sight with occasional sporadic-E openings.
 
 - term: "VLF"
   full_form: "Very Low Frequency (3–30 kHz)"
-  explanation: "Submarine and time-signal transmitters operating at megawatt power levels. Receivable with a long-wire antenna into a PC soundcard — popular for low-budget propagation experiments."
+  explanation: >-
+    Submarine and time-signal transmitters
+    (<span class="abbr-link" data-abbr="NAA">NAA</span>,
+    <span class="abbr-link" data-abbr="NLK">NLK</span>,
+    <span class="abbr-link" data-abbr="NPM">NPM</span>) operating at
+    megawatt power levels. Receivable with a long-wire antenna into a PC
+    soundcard — popular for low-budget propagation experiments and recording
+    natural whistlers.
+
+- term: "Wi-Fi"
+  full_form: "Wi-Fi (IEEE 802.11)"
+  explanation: >-
+    The dominant wireless LAN family — 2.4 / 5 / 6 GHz, multiple PHYs.
+    Wi-Fi 4 (n) added <span class="abbr-link" data-abbr="MIMO">MIMO</span>,
+    Wi-Fi 5 (ac) added MU-MIMO, Wi-Fi 6 (ax) added
+    <span class="abbr-link" data-abbr="OFDMA">OFDMA</span>, Wi-Fi 6E added
+    the <span class="abbr-link" data-abbr="UNII">UNII</span>-5/6/7/8 6 GHz
+    tiers, and Wi-Fi 7 (be) adds 320 MHz channels and 4096-QAM.
+
+- term: "WSJT-X"
+  full_form: "WSJT-X (weak-signal modes software)"
+  explanation: >-
+    Joe Taylor's free software suite for ham weak-signal modes —
+    <span class="abbr-link" data-abbr="FT8">FT8</span>,
+    <span class="abbr-link" data-abbr="FT4">FT4</span>,
+    <span class="abbr-link" data-abbr="JT65">JT65</span>, Q65, MSK144,
+    <span class="abbr-link" data-abbr="WSPR">WSPR</span>. Audio in,
+    audio out, deep error-correction.
 
 - term: "WSPR"
   full_form: "Weak Signal Propagation Reporter"
-  explanation: "Amateur beacon mode that broadcasts 50 bits over 110 s at –30 dB SNR. Pico-balloons, QRP beacons, and home stations use it to map worldwide ionospheric propagation in near-real-time."
+  explanation: >-
+    Amateur beacon mode (in
+    <span class="abbr-link" data-abbr="WSJT-X">WSJT-X</span>) that broadcasts
+    50 bits over 110 s at –30 dB SNR. Pico-balloons, QRP beacons, and home
+    stations use it to map worldwide ionospheric propagation in
+    near-real-time on wsprnet.org.
 
-- term: "Z-Wave"
-  full_form: "Z-Wave sub-GHz home-automation mesh"
-  explanation: "Low-power 868 MHz EU / 908 MHz US protocol used by smart locks, sensors, dimmers, and switches. Mesh of up to 232 nodes, simpler and less crowded than 2.4 GHz alternatives."
+- term: "WWVB"
+  full_form: "WWVB (NIST 60 kHz time signal)"
+  explanation: >-
+    The US <span class="abbr-link" data-abbr="LF">LF</span> time-and-date
+    transmitter from Fort Collins, Colorado. Broadcasts on 60 kHz at 70 kW —
+    received by virtually every "atomic" alarm clock sold in North America.
+    Operated by <span class="abbr-link" data-abbr="NIST">NIST</span>;
+    counterpart to <span class="abbr-link" data-abbr="DCF77">DCF77</span>
+    (EU) and <span class="abbr-link" data-abbr="JJY">JJY</span> (JP).
+
+- term: "XRISM"
+  full_form: "X-Ray Imaging and Spectroscopy Mission"
+  explanation: >-
+    JAXA/NASA X-ray space telescope launched 2023 — successor to Hitomi.
+    Carries the Resolve micro-calorimeter spectrometer for high-resolution
+    X-ray spectroscopy of clusters and AGN. Continues the lineage of
+    <span class="abbr-link" data-abbr="ROSAT">ROSAT</span> and
+    <span class="abbr-link" data-abbr="CHANDRA">CHANDRA</span>.
+
+- term: "ZEVS"
+  full_form: "ZEVS (Russian ELF transmitter)"
+  explanation: >-
+    Russian Navy 82 Hz <span class="abbr-link" data-abbr="ELF">ELF</span>
+    submarine-comms transmitter on the Kola Peninsula ('Zevs' = Zeus). One
+    of the very few intentional ELF emitters worldwide; signals propagate
+    globally through the Earth-ionosphere waveguide.
 
 - term: "Zigbee"
   full_form: "Zigbee (IEEE 802.15.4 mesh)"
-  explanation: "Low-power 2.4 GHz mesh protocol used by Philips Hue, IKEA Tradfri, Aqara, and the Thread / Matter ecosystem. Up to ~65k nodes per network with very long battery life."
+  explanation: >-
+    Low-power 2.4 GHz mesh protocol used by Philips Hue, IKEA Tradfri, Aqara,
+    and the <span class="abbr-link" data-abbr="Thread">Thread</span> /
+    Matter ecosystem. Up to ~65k nodes per network with very long battery
+    life.
+
+- term: "Z-Wave"
+  full_form: "Z-Wave sub-GHz home-automation mesh"
+  explanation: >-
+    Low-power 868 MHz EU / 908 MHz US protocol used by smart locks, sensors,
+    dimmers, and switches. Mesh of up to 232 nodes; simpler and less
+    crowded than 2.4 GHz alternatives like
+    <span class="abbr-link" data-abbr="Zigbee">Zigbee</span>.
