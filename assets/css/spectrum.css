@@ -460,14 +460,34 @@
     align-items: stretch;
   }
   .spectrum-search { max-width: 100%; flex: 1 1 auto; }
-  .spectrum-table-wrapper { max-height: calc(100vh - 18rem); }
-  .spectrum-table { font-size: 0.825rem; }
-  .spectrum-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
-  .spectrum-table tbody td { padding: 0.65rem 0.6rem; }
 
-  /* Sticky frequency column — narrow on mobile, with endpoints stacked and
-     allowed to wrap inside each line so values like "433 MHz" break cleanly. */
-  .spectrum-table .col-freq { min-width: 2.5rem; width: 2.5rem; }
+  /* Mobile table layout: a narrow sticky frequency column on the left and
+     each remaining column sized to one viewport "page" wide, so the user
+     swipes horizontally through one full attribute at a time. Requires
+     table-layout: fixed so per-column widths are actually enforced (auto
+     mode treats them as hints and reflates columns to fit content).        */
+  .spectrum-table-wrapper {
+    max-height: calc(100vh - 18rem);
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 2.5rem;             /* matches col-freq width */
+  }
+  .spectrum-table {
+    table-layout: fixed;
+    font-size: 0.825rem;
+    min-width: 0;                            /* override the desktop 1800px floor */
+  }
+  .spectrum-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
+  .spectrum-table tbody td { padding: 0.65rem 0.6rem; overflow-wrap: anywhere; }
+
+  /* Sticky frequency column — narrow, with endpoints stacked and free to
+     wrap inside each line so values like "433 MHz" break cleanly.          */
+  .spectrum-table .col-freq { width: 2.5rem; }
+  .spectrum-table td.col-freq,
+  .spectrum-table th.col-freq {
+    /* Right-edge shadow makes the sticky column read as "frozen" and hints
+       that there's content scrolling underneath it.                        */
+    box-shadow: 6px 0 6px -4px rgba(0, 0, 0, 0.45);
+  }
   .col-freq.mono {
     font-size: 0.72rem;
     overflow-wrap: anywhere;
@@ -489,6 +509,29 @@
     display: block;
     margin: 0.05rem 0;
     opacity: 0.55;
+  }
+
+  /* Every non-freq column = one viewport page minus the freq column and the
+     container's horizontal padding (2 × var(--space-md) ≈ 2rem). Each cell
+     is also a scroll-snap target so swipes land on column boundaries.      */
+  .spectrum-table .col-key,
+  .spectrum-table .col-band,
+  .spectrum-table .col-uses,
+  .spectrum-table .col-hardware,
+  .spectrum-table .col-antenna,
+  .spectrum-table .col-legal,
+  .spectrum-table .col-power,
+  .spectrum-table .col-prop,
+  .spectrum-table .col-safety,
+  .spectrum-table .col-tech,
+  .spectrum-table .col-projects,
+  .spectrum-table .col-sources,
+  .spectrum-table .col-badge {
+    width: calc(100vw - 4.5rem);
+  }
+  .spectrum-table thead th:not(.col-freq),
+  .spectrum-table tbody td:not(.col-freq) {
+    scroll-snap-align: start;
   }
 }
 
