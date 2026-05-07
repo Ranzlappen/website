@@ -212,8 +212,11 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
               <tr data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}">
                 <td class="col-freq mono">
                   {%- assign freq_pair = band.frequency_range | split: " – " -%}
-                  {%- if freq_pair.size == 2 -%}
-                    <span class="freq-pair"><span class="freq-low">{{ freq_pair[0] }}</span><span class="freq-sep" aria-hidden="true">–</span><span class="freq-high">{{ freq_pair[1] }}</span></span>
+                  {%- if freq_pair.size >= 2 -%}
+                    {%- assign freq_low = freq_pair | first -%}
+                    {%- assign freq_high_parts = freq_pair | slice: 1, 99 -%}
+                    {%- assign freq_high = freq_high_parts | join: " – " -%}
+                    <span class="freq-pair"><span class="freq-low">{{ freq_low }}</span><span class="freq-sep" aria-hidden="true">–</span><span class="freq-high">{{ freq_high }}</span></span>
                   {%- else -%}
                     {{ band.frequency_range }}
                   {%- endif -%}
