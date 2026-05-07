@@ -1,0 +1,566 @@
+/* ============================================================================
+   Spectrum Reference — scoped styles
+   Uses site-wide CSS variables (--c-bg, --c-surface, --c-text, --c-accent…)
+   defined in assets/css/style.css, so dark/light theme switching is automatic.
+   ========================================================================== */
+
+.spectrum-page {
+  padding: var(--space-2xl) 0 var(--space-3xl);
+}
+
+.spectrum-container {
+  max-width: 100rem;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+/* ---- Hero ---- */
+.spectrum-hero { margin-bottom: var(--space-xl); }
+.spectrum-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  color: var(--c-accent);
+  margin: 0 0 var(--space-sm);
+  font-weight: 600;
+}
+.spectrum-title {
+  font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.75rem);
+  margin: 0 0 var(--space-md);
+  line-height: 1.15;
+  color: var(--c-text);
+}
+.spectrum-lede {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--c-text);
+  margin: 0 0 var(--space-md);
+  max-width: 60rem;
+}
+.spectrum-howto {
+  font-size: 0.95rem;
+  color: var(--c-text-muted);
+  margin: 0 0 var(--space-lg);
+  max-width: 60rem;
+}
+.spectrum-howto strong { color: var(--c-text); }
+.spectrum-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  font-size: 0.85rem;
+  color: var(--c-text-muted);
+}
+.spectrum-meta__item strong {
+  color: var(--c-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Legal disclaimer ---- */
+.spectrum-disclaimer {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-left: 4px solid #f59e0b;
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-lg) 0;
+  color: var(--c-text);
+}
+[data-theme="light"] .spectrum-disclaimer {
+  background: #fff8e1;
+  border-color: rgba(180, 83, 9, 0.35);
+  border-left-color: #d97706;
+  color: #5c4500;
+}
+.spectrum-disclaimer h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+[data-theme="light"] .spectrum-disclaimer h3 {
+  color: #b45309;
+}
+.spectrum-disclaimer p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  color: inherit;
+}
+
+/* ---- Controls (tabs + search) ---- */
+.spectrum-controls {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-md);
+  align-items: center;
+  margin-bottom: var(--space-md);
+  position: sticky;
+  top: var(--header-height, 3.75rem);
+  z-index: 10;
+  background: linear-gradient(to bottom,
+    rgba(var(--c-bg-rgb), 0.97) 0%,
+    rgba(var(--c-bg-rgb), 0.97) 70%,
+    rgba(var(--c-bg-rgb), 0) 100%);
+  padding: var(--space-sm) 0 var(--space-md);
+  backdrop-filter: blur(6px);
+}
+.spectrum-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-border) transparent;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+.spectrum-tabs::-webkit-scrollbar { height: 4px; }
+.spectrum-tabs::-webkit-scrollbar-thumb {
+  background: var(--c-border);
+  border-radius: 999px;
+}
+.spectrum-tabs::-webkit-scrollbar-track { background: transparent; }
+.spectrum-tab {
+  appearance: none;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-muted);
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+  white-space: nowrap;
+}
+.spectrum-tab:hover {
+  color: var(--c-text);
+  border-color: var(--c-accent-border);
+  background: var(--c-surface-alt);
+}
+.spectrum-tab.is-active {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  border-color: var(--c-accent-border);
+}
+.spectrum-tab:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+.spectrum-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: 0.3rem 0.65rem;
+  flex: 0 1 14rem;
+  min-width: 0;
+  max-width: 18rem;
+  transition: border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+.spectrum-search:focus-within {
+  border-color: var(--c-accent-border);
+  box-shadow: 0 0 0 3px var(--c-accent-bg);
+}
+.spectrum-search__icon {
+  display: inline-flex;
+  color: var(--c-text-faint);
+  flex-shrink: 0;
+}
+.spectrum-search__icon svg { width: 1rem; height: 1rem; }
+.spectrum-search input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.15rem 0;
+  min-width: 0;
+}
+.spectrum-search input::placeholder { color: var(--c-text-faint); }
+.spectrum-search__count {
+  font-size: 0.75rem;
+  color: var(--c-text-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---- Active-batch blurb ---- */
+.spectrum-batch-blurb {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-accent);
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-md);
+  font-size: 0.9rem;
+  color: var(--c-text-muted);
+}
+.spectrum-batch-blurb strong {
+  display: block;
+  color: var(--c-text);
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+/* ---- Table ---- */
+.spectrum-table-wrapper {
+  position: relative;
+  max-height: calc(100vh - 16rem);
+  overflow: auto;
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  background: var(--c-surface);
+  box-shadow: 0 4px 16px var(--c-card-shadow);
+}
+.spectrum-table-wrapper:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+.spectrum-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  color: var(--c-text);
+  min-width: 1800px;
+}
+
+.spectrum-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--c-surface-alt);
+  color: var(--c-text);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 1.15rem 1rem 0.95rem;
+  border-bottom: 2px solid var(--c-border);
+  white-space: nowrap;
+}
+
+.spectrum-table tbody td {
+  padding: 0.85rem 1rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--c-border-light);
+  line-height: 1.5;
+}
+
+.spectrum-table tbody tr:hover td {
+  background: var(--c-surface-alt);
+}
+
+.spectrum-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Sticky first column — frequency stays pinned during horizontal scroll. */
+.spectrum-table td.col-freq,
+.spectrum-table th.col-freq {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  border-right: 1px solid var(--c-border);
+  background: var(--c-surface);
+}
+.spectrum-table tbody tr:hover td.col-freq {
+  background: var(--c-surface-alt);
+}
+.spectrum-table thead th.col-freq {
+  z-index: 3;
+  background: var(--c-surface-alt);
+}
+
+/* Per-column widths */
+.spectrum-table .col-freq   { min-width: 9rem; width: 9rem; }
+.spectrum-table .col-band   { min-width: 14rem; }
+.spectrum-table .col-wave   { min-width: 11rem; }
+.spectrum-table .col-energy { min-width: 11rem; }
+.spectrum-table .col-names  { min-width: 14rem; }
+.spectrum-table .col-apps   { min-width: 14rem; }
+.spectrum-table .col-tech   { min-width: 16rem; }
+.spectrum-table .col-prop   { min-width: 16rem; }
+.spectrum-table .col-reg    { min-width: 14rem; }
+.spectrum-table .col-notes  { min-width: 16rem; }
+
+.mono {
+  font-family: var(--f-mono);
+  font-size: 0.825rem;
+  color: var(--c-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Frequency cell — split low/high so endpoints can stack on narrow screens. */
+.col-freq .freq-sep {
+  margin: 0 0.3rem;
+  color: var(--c-text-muted);
+}
+
+/* Band column — pill + name */
+.band-pill {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: hsl(var(--pill-hue, 140), 60%, 22%);
+  color: hsl(var(--pill-hue, 140), 80%, 80%);
+  border: 1px solid hsl(var(--pill-hue, 140), 50%, 32%);
+  margin-bottom: 0.35rem;
+}
+[data-theme="light"] .band-pill {
+  background: hsl(var(--pill-hue, 140), 65%, 92%);
+  color: hsl(var(--pill-hue, 140), 50%, 30%);
+  border-color: hsl(var(--pill-hue, 140), 50%, 75%);
+}
+.band-name {
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+/* Collapsibles (uses + notes) */
+.cell-collapse {
+  font-size: inherit;
+}
+.cell-collapse > summary {
+  list-style: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  color: var(--c-text);
+  user-select: none;
+}
+.cell-collapse > summary::-webkit-details-marker { display: none; }
+.cell-collapse > summary::marker { display: none; content: ""; }
+.cell-collapse__count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--c-accent);
+}
+.cell-collapse__label {
+  color: var(--c-text-muted);
+}
+.cell-collapse__preview {
+  color: var(--c-text);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.cell-collapse__more {
+  font-size: 0.75rem;
+  color: var(--c-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  flex-shrink: 0;
+}
+.cell-collapse[open] > summary .cell-collapse__more::after { content: " (collapse)"; }
+.cell-collapse[open] > summary .cell-collapse__preview { display: none; }
+.cell-collapse[open] > summary .cell-collapse__count,
+.cell-collapse[open] > summary .cell-collapse__label { opacity: 0.6; }
+
+.cell-list {
+  margin: 0.6rem 0 0;
+  padding-left: 1.1rem;
+}
+.cell-list li {
+  margin: 0.15rem 0;
+  line-height: 1.5;
+}
+.cell-prose {
+  margin-top: 0.6rem;
+  line-height: 1.6;
+  color: var(--c-text);
+}
+.cell-empty {
+  color: var(--c-text-faint);
+  font-style: italic;
+}
+
+/* Empty-state when filters match nothing */
+.spectrum-empty {
+  text-align: center;
+  padding: var(--space-xl);
+  color: var(--c-text-muted);
+  font-size: 0.95rem;
+}
+
+/* Small screens */
+@media (max-width: 640px) {
+  .spectrum-container { padding: 0 var(--space-md); }
+  .spectrum-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .spectrum-search { max-width: 100%; flex: 1 1 auto; }
+  .spectrum-table-wrapper { max-height: calc(100vh - 18rem); }
+  .spectrum-table { font-size: 0.825rem; }
+  .spectrum-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
+  .spectrum-table tbody td { padding: 0.65rem 0.6rem; }
+
+  /* Sticky frequency column — narrow on mobile, with endpoints stacked and
+     allowed to wrap inside each line so values like "433 MHz" break cleanly. */
+  .spectrum-table .col-freq { min-width: 2.5rem; width: 2.5rem; }
+  .col-freq.mono {
+    font-size: 0.72rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .col-freq .freq-pair {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.35;
+  }
+  .col-freq .freq-low,
+  .col-freq .freq-high {
+    display: block;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .col-freq .freq-sep {
+    display: block;
+    margin: 0.05rem 0;
+    opacity: 0.55;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .spectrum-tab,
+  .spectrum-search { transition: none; }
+}
+
+/* Abbreviation tooltip + modal */
+.abbr-trigger {
+  border-bottom: 1px dotted var(--c-accent);
+  cursor: help;
+  text-decoration: none;
+  color: inherit;
+}
+.abbr-trigger:hover,
+.abbr-trigger:focus-visible {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  outline: none;
+}
+
+/* Abbreviation legend cards */
+.spectrum-abbr-legend { margin-bottom: var(--space-md); }
+.abbr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font: inherit;
+  transition: background var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+.abbr-card:hover,
+.abbr-card:focus-visible {
+  background: var(--c-surface-alt);
+  border-color: var(--c-accent-border);
+  outline: none;
+}
+.abbr-card:active { transform: translateY(1px); }
+.abbr-card__term {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--c-accent);
+  letter-spacing: 0.02em;
+}
+.abbr-card__expansion {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.abbr-card__hint {
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+  line-height: 1.4;
+}
+.spectrum-abbr-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-md);
+}
+.spectrum-abbr-modal[hidden] { display: none; }
+.spectrum-abbr-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+.spectrum-abbr-modal__panel {
+  position: relative;
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-lg);
+  max-width: 32rem;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+.spectrum-abbr-modal__term {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  color: var(--c-accent);
+}
+.spectrum-abbr-modal__expansion {
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.spectrum-abbr-modal__body {
+  margin: 0;
+  line-height: 1.55;
+  color: var(--c-text-muted);
+}
+.spectrum-abbr-modal__close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  background: transparent;
+  border: 0;
+  color: var(--c-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+.spectrum-abbr-modal__close:hover { color: var(--c-text); }
