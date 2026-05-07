@@ -110,16 +110,20 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
       <table class="spectrum-table" id="spectrum-table">
         <thead>
           <tr>
-            <th scope="col" class="col-freq">Frequency Range (Hz)</th>
+            <th scope="col" class="col-freq">Frequency Range</th>
+            <th scope="col" class="col-key">Key Frequencies / Channels</th>
             <th scope="col" class="col-band">Band Name / Designation</th>
-            <th scope="col" class="col-wave">Wavelength Range</th>
-            <th scope="col" class="col-energy">Photon Energy</th>
-            <th scope="col" class="col-names">Common / Alternative Names &amp; Sub-bands</th>
-            <th scope="col" class="col-apps">Primary Applications &amp; Uses</th>
-            <th scope="col" class="col-tech">Example Technologies / Systems</th>
-            <th scope="col" class="col-prop">Propagation / Atmospheric Notes</th>
-            <th scope="col" class="col-reg">Regulatory / Allocation Notes</th>
-            <th scope="col" class="col-notes">Special Notes / Fun Facts</th>
+            <th scope="col" class="col-uses">Primary Uses &amp; Hobbyist Relevance</th>
+            <th scope="col" class="col-hardware">Hardware / Modules</th>
+            <th scope="col" class="col-antenna">Antenna / DIY Considerations</th>
+            <th scope="col" class="col-legal">Legal / Licensing Notes</th>
+            <th scope="col" class="col-power">Max Power / Restrictions / EIRP</th>
+            <th scope="col" class="col-prop">Propagation / Interference Notes</th>
+            <th scope="col" class="col-safety">Safety / Exposure Limits</th>
+            <th scope="col" class="col-tech">Technologies &amp; Example Devices</th>
+            <th scope="col" class="col-projects">Hobbyist Project Ideas</th>
+            <th scope="col" class="col-sources">Sources / Citations</th>
+            <th scope="col" class="col-badge">Usability Badge</th>
           </tr>
         </thead>
         <tbody>
@@ -137,52 +141,19 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
                     {{ band.frequency_range }}
                   {%- endif -%}
                 </td>
-                <td class="col-band">
-                  <span class="band-pill" style="--pill-hue: {{ batch.order | times: 41 | modulo: 360 }};">
-                    {{ batch.short_name | default: batch.name }}
-                  </span>
-                  <div class="band-name">{{ band.band_name }}</div>
-                </td>
-                <td class="col-wave mono">{{ band.wavelength }}</td>
-                <td class="col-energy mono">{{ band.photon_energy }}</td>
-                <td class="col-names">{{ band.common_names }}</td>
-
-                <td class="col-apps">
-                  {% if band.applications and band.applications.size > 0 %}
-                    <details class="cell-collapse">
-                      <summary>
-                        <span class="cell-collapse__count">{{ band.applications.size }}</span>
-                        <span class="cell-collapse__label">use{% if band.applications.size != 1 %}s{% endif %}</span>
-                        <span class="cell-collapse__more">Show more</span>
-                      </summary>
-                      <ul class="cell-list">
-                        {% for app in band.applications %}
-                          <li>{{ app }}</li>
-                        {% endfor %}
-                      </ul>
-                    </details>
-                  {% else %}
-                    <span class="cell-empty">—</span>
-                  {% endif %}
-                </td>
-
-                <td class="col-tech">{{ band.technologies }}</td>
-                <td class="col-prop">{{ band.propagation }}</td>
-                <td class="col-reg">{{ band.regulatory }}</td>
-
-                <td class="col-notes">
-                  {% if band.notes and band.notes != "" %}
-                    <details class="cell-collapse">
-                      <summary>
-                        <span class="cell-collapse__preview">{{ band.notes | strip_newlines | truncatewords: 10 }}</span>
-                        <span class="cell-collapse__more">Show more</span>
-                      </summary>
-                      <div class="cell-prose">{{ band.notes }}</div>
-                    </details>
-                  {% else %}
-                    <span class="cell-empty">—</span>
-                  {% endif %}
-                </td>
+                <td class="col-key">{{ band.key_frequencies_channels }}</td>
+                <td class="col-band">{{ band.band_name_designation }}</td>
+                <td class="col-uses">{{ band.primary_uses_hobbyist_relevance }}</td>
+                <td class="col-hardware">{{ band.hardware_modules }}</td>
+                <td class="col-antenna">{{ band.antenna_diy_considerations }}</td>
+                <td class="col-legal">{{ band.legal_licensing_notes }}</td>
+                <td class="col-power">{{ band.max_power_restrictions_eirp }}</td>
+                <td class="col-prop">{{ band.propagation_interference_notes }}</td>
+                <td class="col-safety">{{ band.safety_exposure_limits }}</td>
+                <td class="col-tech">{{ band.technologies_example_devices }}</td>
+                <td class="col-projects">{{ band.hobbyist_project_ideas }}</td>
+                <td class="col-sources">{{ band.sources_citations }}</td>
+                <td class="col-badge">{{ band.usability_badge }}</td>
               </tr>
             {% endfor %}
           {% endfor %}
