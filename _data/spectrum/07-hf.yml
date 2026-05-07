@@ -1,0 +1,74 @@
+---
+# =============================================================================
+# Spectrum Batch 07 — High Frequency (HF, 3 MHz – 30 MHz)
+# =============================================================================
+# Migrated and upgraded from the original 04-hf.yml. Covers the full
+# ITU HF band, split into the same three sub-rows as the original
+# (Lower 3-10 MHz, Mid 10-20 MHz, Upper 20-30 MHz). VHF is deferred
+# to the next batch file. Schema: identical 14-column layout + batch
+# wrapper used by all earlier files.
+# HF is the canonical hobbyist band — modest antennas plus the
+# ionosphere give global reach.
+# =============================================================================
+
+batch:
+  id: "hf"
+  order: 7
+  name: "High Frequency (HF, 3 MHz – 30 MHz)"
+  short_name: "HF"
+  description: >
+    The classic shortwave band. Skywave propagation via the ionosphere
+    enables global communication with modest power and simple antennas,
+    making HF the home of international shortwave broadcasting, amateur
+    radio (80 / 40 / 30 / 20 / 17 / 15 / 12 / 10 m bands), CB radio at
+    27 MHz, marine and aeronautical HF, ALE, military tactical comms, and
+    over-the-horizon (OTH) radar. Conditions track the ~11-year solar
+    cycle — a quiet rural site, a wire dipole, and a sound-card-class SDR
+    are enough to start working the world.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "3 MHz – 10 MHz"
+    key_frequencies_channels: "Amateur 80 m 3.5–4.0 MHz (Region 2) / 3.5–3.8 MHz (Region 1), 60 m channels (~5.3 MHz), 40 m 7.0–7.3 MHz (Region 2) / 7.0–7.2 MHz (Region 1); WWV 5 MHz, WWVH 5 MHz, CHU 7.85 MHz; SW broadcast 4.7 / 5.9 / 7.2 / 9.4 MHz; aeronautical (HFDL) 5.5–6.7 MHz; marine SSB 4 / 6 MHz; military / ALE / STANAG channels"
+    band_name_designation: "Lower HF — ITU band 7 (lower portion); 80 m / 60 m / 40 m amateur"
+    primary_uses_hobbyist_relevance: "International shortwave broadcasting, amateur 80 m and 40 m (the bread-and-butter night-time bands), maritime and aeronautical HF voice / data, OTH radar, time / frequency standards (WWV, CHU, RWM)"
+    hardware_modules: "HF SDRs (Airspy HF+ Discovery, SDRplay RSP1A/RSPdx, RTL-SDR + Ham-It-Up, RX888, KiwiSDR), ham transceivers (Yaesu FT-710 / FT-991A, Icom IC-7300 / IC-705, Kenwood TS-590SG, Elecraft K3/K4), QRP rigs (uBITX, (tr)uSDX), USB sound-card / CAT interfaces (SignaLink, RigExpert), HF amplifiers (100 W → 1 kW)"
+    antenna_diy_considerations: "Half-wave dipoles (40 m ≈ 20 m long, 80 m ≈ 40 m long), end-fed half-waves with 49:1 unun, random-wire + 9:1 unun, magnetic loops for small lots, off-center-fed dipoles (Windom), inverted-Vs; star around the property and use baluns / chokes to keep RF off feedline"
+    legal_licensing_notes: "ITU allocated to amateur, broadcasting, fixed, mobile, maritime mobile, aeronautical mobile (R), and radionavigation. Amateur allocations differ between Regions 1 (Europe/Africa), 2 (Americas), and 3 (Asia/Pacific) — consult the IARU R1 / R2 band plan for your country. Broadcast and military bands are receive-only for non-licensees"
+    max_power_restrictions_eirp: "Amateur PEP limits typical: 1500 W (FCC, U.S. General/Extra), 400–1000 W (most CEPT R1 countries depending on class), 100 W (entry-level licenses in many countries). Shortwave broadcasters routinely run 100–500 kW into curtain arrays"
+    propagation_interference_notes: "Excellent night-time skywave (D-layer absorption falls), reliable transcontinental DX. Local interference: solar PV inverters, switch-mode supplies, plasma displays, PoE, VDSL, LED drivers. Summer thunderstorms raise the noise floor on 80 m"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; reference levels in the MPE table apply. At 100 W into a wire dipole the controlled-environment safe distance is typically a few meters"
+    technologies_example_devices: "Shortwave broadcasters (BBC WS, Voice of America, Radio Romania International), WWV / WWVH / CHU / RWM time stations, OTH radar (ROTHR, JORN), HFDL / HF-ACARS, ALE / STANAG-4538, amateur SSB / CW / FT8 / FT4 / WSPR / JS8Call"
+    hobbyist_project_ideas: "Hang a 40 m dipole and chase your first DX on FT8; build an EFHW with a toroidal 49:1 unun for portable POTA / SOTA; decode HFDL aircraft messages with PC-HFDL; log WWV/CHU for ionospheric monitoring; try a (tr)uSDX QRP rig on 40/20 m"
+    sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, IARU Region 1 / 2 / 3 band plans, ARRL Operating Manual & Antenna Book, FCC Part 97, RSGB Yearbook, NIST WWV publications (2026)"
+    usability_badge: "🔵 Amateur / Public broadcast (receive)"
+
+  - frequency_range: "10 MHz – 20 MHz"
+    key_frequencies_channels: "Amateur 30 m 10.1–10.15 MHz, 20 m 14.0–14.35 MHz, 17 m 18.068–18.168 MHz; WWV 10 / 15 MHz, WWVH 10 / 15 MHz, BPM 10 / 15 MHz; SW broadcast 11.6 / 13.6 / 15.1 / 17.5 MHz; HFDL aero 10–17 MHz; FT8 watering holes 14.074 / 18.100 MHz"
+    band_name_designation: "Mid HF — ITU band 7 (middle); 30 m / 20 m / 17 m amateur"
+    primary_uses_hobbyist_relevance: "Shortwave broadcasting and international news, amateur DXing (20 m is the legendary 'DX king'), military and diplomatic long-range comms, OTH radar, time and frequency standards"
+    hardware_modules: "HF SDRs (Airspy HF+ Discovery, SDRplay RSPdx, RX888 Mk II, KiwiSDR), full-feature HF transceivers (IC-7300, IC-7610, FT-DX10, K4, FlexRadio 6000-series), portable rigs (IC-705, Xiegu X6100/G90), USB sound-card interfaces, HF linear amps"
+    antenna_diy_considerations: "20 m half-wave dipole ≈ 10 m long — fits most yards; tri-band Yagis (20/15/10 m) for serious DX; magnetic loops 1–2 m diameter; vertical with elevated radials for low-angle DX; remote-tuned end-fed for portable"
+    legal_licensing_notes: "ITU allocated to amateur, broadcasting, fixed, mobile, and radionavigation. 30 m is amateur-secondary worldwide and CW/digital only — no SSB. 20 m is one of the most congested HF sub-bands. Region 1/2/3 allocations are largely harmonized here"
+    max_power_restrictions_eirp: "Amateur PEP limits per license class as in the lower HF row. 30 m typically capped at 200 W PEP and digital/CW only by IARU band plan. SW broadcasters 100–500 kW"
+    propagation_interference_notes: "Strong daylight and twilight skywave; conditions track sunspot number (SSN) and the F2-layer critical frequency. Solar flares cause sudden ionospheric disturbances (SIDs). Less local QRM than 80/40 m but VDSL/PLC still bite"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 MPE limits. At 100 W into a beam, keep beyond ~3–5 m of the radiator in the main lobe"
+    technologies_example_devices: "BBC World Service / RFI / Radio Habana, WWV / WWVH / BPM time stations, OTH radar (ROTHR, JORN, NEXTRAD-OTH), HFDL / SELCAL, military ALE / STANAG, amateur SSB / CW / FT8 / FT4 / WSPR / RTTY"
+    hobbyist_project_ideas: "Earn DXCC on 20 m FT8 with 5 W and a wire; build a Hexbeam tri-bander; chase grids on 17 m WSPR; run a personal KiwiSDR for the global community; start a CWops Academy CW course"
+    sources_citations: "ITU Radio Regulations (RR Article 5), IARU Region 1 / 2 / 3 band plans, ARRL Antenna Book, FCC Part 97, IEEE Trans. Antennas & Propagation, NIST WWV (2026)"
+    usability_badge: "🔵 Amateur / Public broadcast (receive)"
+
+  - frequency_range: "20 MHz – 30 MHz"
+    key_frequencies_channels: "Amateur 15 m 21.0–21.45 MHz, 12 m 24.89–24.99 MHz, 10 m 28.0–29.7 MHz; CB 26.965–27.405 MHz (40 channels, ch.19 27.185 MHz, ch.9 emergency 27.065 MHz); 11 m freebanding (illegal); WWV 20 / 25 MHz, BPM 20 MHz; SW broadcast 21.5 MHz band; OTH radar"
+    band_name_designation: "Upper HF — ITU band 7 (upper); 15 m / 12 m / 10 m amateur + 27 MHz CB"
+    primary_uses_hobbyist_relevance: "Amateur radio and contesting, shortwave broadcasting (less crowded), Citizens Band (CB) radio at 27 MHz, military tactical comms, OTH radar; the 'solar-cycle band' that opens worldwide near solar max"
+    hardware_modules: "HF SDRs (Airspy HF+ Discovery, SDRplay RSPdx), HF transceivers (IC-7300, FT-DX10, K4), 10 m mobile rigs (Anytone AT-6666, President Lincoln II+), CB radios (Cobra 29 LX, President McKinley, Uniden Bearcat 980 SSB), Si4732/Si4735 modules for DIY pocket SW receivers"
+    antenna_diy_considerations: "10 m half-wave ≈ 5 m long — easy DIY dipoles, vertical 5/8 wave whips, mobile loaded whips; 5-element 10 m Yagi is small enough for a backyard tower; CB antennas (Wilson 1000, Sirio Performer) work fine on the 10 m amateur band with minor retune"
+    legal_licensing_notes: "ITU allocated to amateur, fixed, mobile, and broadcasting. 27 MHz CB is license-free in most countries (FCC Part 95D in the U.S., CEPT 27 MHz CB harmonized in Europe, AM/SSB legality varies). 10 m amateur (28.0–29.7 MHz) is open to all license classes in many regions, including Technicians (FCC) on 28.3–28.5 MHz SSB"
+    max_power_restrictions_eirp: "CB capped at 4 W AM / 12 W PEP SSB (FCC, USA), 4 W AM (CEPT Europe). Amateur PEP per class up to 1500 W (FCC). Broadcast 21.5 MHz band stations 100–500 kW"
+    propagation_interference_notes: "Primarily daytime skywave; behaves like low VHF during deep solar minima (line-of-sight) and goes wild worldwide at solar max. Sporadic-E in late spring / early summer brings short-skip openings on 10 m even at low SSN"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 MPE limits. CB-class power levels are well within limits at typical antenna distances; amateur 1.5 kW into a beam needs the usual main-lobe stand-off"
+    technologies_example_devices: "Citizens Band (27 MHz, AM/SSB/FM depending on country), 10 m FM repeaters in some regions, FT8 worldwide DX with 5 W during solar peaks, Russian RWM 4.996/9.996/14.996 MHz time signals (edge), OTH radar systems"
+    hobbyist_project_ideas: "Hang a simple 10 m dipole and watch the band come alive at solar max; run CB SSB DX during a sporadic-E opening; build a Si4735-based handheld SW receiver; chase grid squares on 10 m FT8 with 5 W; rebuild a 1970s CB rig with modern modulator"
+    sources_citations: "ITU Radio Regulations (RR Article 5), IARU Region 1 / 2 / 3 band plans, FCC Part 95 (CB) and Part 97 (amateur), CEPT ECC Decisions on 27 MHz CB, ARRL Operating Manual, RSGB / DARC band plans (2026)"
+    usability_badge: "🔵 Amateur / Public broadcast (receive)"
