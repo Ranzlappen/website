@@ -1,0 +1,120 @@
+---
+# =============================================================================
+# Spectrum Batch 09 — VHF (non-ham): Broadcast, Aviation, Marine, Public Safety
+# =============================================================================
+# Migrated and upgraded from the original 05-vhf-uhf.yml. Covers everything
+# in the ITU VHF band (30 – 300 MHz) EXCEPT the amateur allocations:
+#   – 50–54 MHz (6 m)         → 08-vhf-6m-2m-ham.yml
+#   – 144–148 MHz (2 m)       → 08-vhf-6m-2m-ham.yml
+#   – 220–225 MHz (1.25 m, R2)→ deferred to a later VHF/UHF ham file
+# Schema: identical 14-column layout + batch wrapper used by all earlier
+# files. Granular sub-rows split by service / sub-band where it matters
+# to a hobbyist (FM broadcast, air band, marine, public safety, etc.).
+# =============================================================================
+
+batch:
+  id: "vhf-other"
+  order: 9
+  name: "VHF Non-Ham (Broadcast, Aviation, Marine, Public Safety)"
+  short_name: "VHF (other)"
+  description: >
+    The non-amateur portion of the ITU VHF band (30 – 300 MHz). Covers
+    low-band public safety and business, legacy VHF-Lo TV, OIRT FM Band II,
+    the global FM broadcast band (88 – 108 MHz), VOR / ILS / airband AM
+    voice (108 – 137 MHz), NOAA APT / Meteor weather satellites at 137 MHz,
+    marine VHF and AIS (156 – 162 MHz), MURS, NOAA Weather Radio, business /
+    land mobile, VHF-Hi TV (channels 7 – 13), DAB+ Band III, and the
+    225 – 300 MHz military UHF air band. Most of this is receive-only for
+    hobbyists with an RTL-SDR plus a discone or band-tuned vertical.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "30 MHz – 50 MHz"
+    key_frequencies_channels: "Low-band public safety (forestry, fire, utility, county sheriffs in some U.S. regions), business radio, paging, RC models on 27 MHz (CB-adjacent), 35 MHz (R/C aircraft, R1), 40 MHz (R/C surface), 49 MHz (toy walkie-talkies / baby monitors), cordless phone legacy"
+    band_name_designation: "Low-band VHF (VHF-Lo, below 6 m amateur)"
+    primary_uses_hobbyist_relevance: "Listening to long-range low-band public-safety dispatchers, RC modeling, monitoring DX during F2 / sporadic-E openings (the band can open like upper HF near solar max), legacy cordless / baby-monitor sniffing"
+    hardware_modules: "RTL-SDR / Airspy R2 / SDRplay RSP1A with discone or telescopic whip, scanner radios (Uniden BCD536HP, BCD436HP, Whistler TRX-1), Baofeng UV-5R re-tuned in some regions (limited), RC TX/RX modules (Spektrum, FrSky in 2.4 GHz now standard but some 35 MHz still in EU)"
+    antenna_diy_considerations: "Discone (1.5–2 m) for broadband RX, half-wave dipole ≈ 3–5 m, ground-plane / 1/4-wave whip on a vehicle, large loop for low-noise receive in noisy suburbs"
+    legal_licensing_notes: "ITU allocated to fixed, mobile, and broadcasting (aux). National licensing for TX (FCC Part 90 land mobile, CEPT business radio). RC has carve-outs (FCC Part 95, CEPT 35 MHz aircraft-only in many R1 countries). RX is unlicensed almost everywhere"
+    max_power_restrictions_eirp: "Land-mobile TX 25–110 W per FCC Part 90 channel; RC TX typically capped at 100 mW – 1 W EIRP. Hobbyists are receive-only here unless individually licensed"
+    propagation_interference_notes: "Mostly line-of-sight + tropospheric ducting; sporadic-E from May–August can bring 1000+ km DX; F2 possible at high SSN. Local QRM from plasma displays and ignition noise"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; ambient levels at hobbyist RX sites are negligible"
+    technologies_example_devices: "Project 25 (P25) low-band, MotoTRBO, EDACS legacy, RC aircraft / cars, Family Radio toys at 49 MHz, baby monitors"
+    hobbyist_project_ideas: "Build a low-band discone and listen for sporadic-E DX from rural fire dispatchers; log RC-model carriers during a model-airplane meet"
+    sources_citations: "ITU Radio Regulations (RR Article 5), FCC Part 90 / Part 95, CEPT / ETSI EN 300 220, ARRL Operating Manual (2026)"
+    usability_badge: "🟡 Licensed / Public receive (some services)"
+
+  - frequency_range: "54 MHz – 88 MHz"
+    key_frequencies_channels: "Legacy VHF-Lo TV channels 2–6 (54–72 / 76–88 MHz, mostly retired post-DTV transition), RC models 72–76 MHz (R/C aircraft channels 11–60 in U.S. AMA, 35 MHz in R1), OIRT / Russian-style FM Band II 65.9–74 MHz (still used in some CIS countries), Japanese FM broadcast 76–95 MHz (overlaps next row)"
+    band_name_designation: "VHF-Lo legacy TV / OIRT FM / RC"
+    primary_uses_hobbyist_relevance: "Mostly legacy at this point — useful for OIRT FM DXing during sporadic-E season, RC modeling on 72 MHz in the U.S. and 35 MHz / 40 MHz in Europe, occasional surviving low-VHF translators and pirate FM"
+    hardware_modules: "RTL-SDR + discone, scanners (Uniden BCD436HP / BCD536HP), Tecsun / Sangean wideband portables for OIRT FM, RC TX/RX modules"
+    antenna_diy_considerations: "VHF-Lo discone, 1/2-wave dipole ≈ 2 m at 75 MHz, J-pole, log-periodic for broadcast DX; orient horizontally for OIRT FM (often horizontally polarized), vertically for RC"
+    legal_licensing_notes: "ITU allocated to broadcasting (in Region 1 below 87.5 MHz partially), fixed, mobile, and radionavigation. RC carve-outs vary: FCC Part 95C 72/75 MHz, CEPT R1 35 MHz aircraft-only. RX is unlicensed"
+    max_power_restrictions_eirp: "OIRT FM broadcasters 1–100 kW ERP, RC TX 100 mW – 1 W EIRP. Hobbyists are receive-only here unless individually licensed"
+    propagation_interference_notes: "Sporadic-E openings in May–August routinely bring OIRT FM stations from 1500+ km; line-of-sight otherwise. RC users moved to 2.4 GHz, so 72/35 MHz is much quieter than it used to be"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines"
+    technologies_example_devices: "Legacy NTSC/PAL TV channels 2–6 (mostly off-air), OIRT FM stations, RC aircraft TX, vintage wireless mics"
+    hobbyist_project_ideas: "Chase OIRT FM DX during sporadic-E season; log surviving low-VHF analog TV translators in remote regions; build a 75 MHz dipole for vintage RC monitoring"
+    sources_citations: "ITU Radio Regulations (RR Article 5), FCC Part 73 (TV), CEPT ECC / ETSI EN 300 220, ARRL Antenna Book (2026)"
+    usability_badge: "🟡 Licensed / Public receive (some services)"
+
+  - frequency_range: "88 MHz – 108 MHz"
+    key_frequencies_channels: "FM broadcast Band II (87.5–108.0 MHz Region 1, 88.0–108.0 MHz Regions 2 / 3, 76–95 MHz Japan), 200 kHz channel spacing in N. America, 100 kHz in Europe; RDS subcarrier at 57 kHz, HD Radio (in-band on-channel digital) in the U.S."
+    band_name_designation: "FM broadcast band (Band II)"
+    primary_uses_hobbyist_relevance: "FM radio listening, FM DX (sporadic-E and tropo), RDS / RDS-PI decoding for station identification, HD Radio listening (Region 2), pirate FM monitoring"
+    hardware_modules: "Any FM tuner, RTL-SDR / Airspy with broadcast-FM filter, Sangean / Tecsun portables, USB FM dongles (Si4703 / RDA5807 / TEF6686 modules), HD Radio receivers (in U.S.)"
+    antenna_diy_considerations: "Half-wave dipole ≈ 1.4 m, J-pole, folded dipole indoors (300-Ω twin-lead), 5-element FM Yagi for hilltop DX; orient horizontally to match broadcasters"
+    legal_licensing_notes: "ITU allocated to broadcasting in all three regions. National licensing for TX (FCC, Ofcom, BNetzA, etc.). RX is unlicensed worldwide. Low-power FM (LPFM) and pirate operations are heavily regulated"
+    max_power_restrictions_eirp: "Commercial FM 100 W – 100 kW ERP class A through C. LPFM (FCC) 100 W max. Hobbyists are receive-only unless licensed"
+    propagation_interference_notes: "Mostly line-of-sight (~50–100 km); sporadic-E in summer can bring DX from 1500+ km; tropospheric ducting in stable warm-air masses adds 200–500 km enhancement. Local FM splatter from strong nearby stations dominates"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 MPE limits; near broadcast antennas keep well outside the rated controlled-environment exclusion zone"
+    technologies_example_devices: "Standard FM stereo + RDS, HD Radio (NRSC-5), DRM+ (rare), commercial FM transmitters by Nautel / RVR, low-power community FM"
+    hobbyist_project_ideas: "Build an FM Yagi and chase sporadic-E DX in June–July; decode RDS with RTL-SDR + redsea / SDR# RDS plugin; map local FM coverage with a logging receiver in a moving car"
+    sources_citations: "ITU Radio Regulations (RR Article 5), FCC Part 73 Subpart B (FM), Ofcom Tech Parameters, NRSC-5 HD Radio standard, World DX Club (2026)"
+    usability_badge: "🟡 Licensed / Public receive (some services)"
+
+  - frequency_range: "108 MHz – 137 MHz"
+    key_frequencies_channels: "VOR 108.0–117.95 MHz (50 kHz spacing), ILS localizer 108.10–111.95 MHz (odd 100 kHz), VHF airband AM voice 118.000–136.975 MHz with 25 kHz spacing (8.33 kHz in EU since 2018), 121.500 MHz civil aviation distress, 123.450 MHz air-to-air, 121.950 MHz UNICOM, ELT activation legacy 121.5 / 243.0 MHz"
+    band_name_designation: "Aviation band (VOR / ILS / Airband AM voice)"
+    primary_uses_hobbyist_relevance: "Listening to live ATC (tower, ground, approach, center, oceanic), tracking aircraft via combined VHF audio + ADS-B (1090 MHz, in a later file), VOR / ILS receiver experimentation, ELT monitoring on 121.5 MHz"
+    hardware_modules: "RTL-SDR with airband AM mode (SDR#, gqrx, SDRangel), aviation scanners (Uniden BCD436HP, Yupiteru MVT-7100), dedicated airband portables (Icom IC-A25N, Yaesu FTA-750L for licensed pilots), 8.33 kHz-capable EU airband radios"
+    antenna_diy_considerations: "1/4-wave ground plane ≈ 60 cm, discone for full airband coverage, vertical dipole in the attic, magnetic-mount whip on a car; vertical polarization matches aviation"
+    legal_licensing_notes: "ITU allocated to aeronautical radionavigation (108–117.975) and aeronautical mobile (R) (117.975–137). License required to TX (pilot or ground-station). RX is unlicensed in most countries; some R1 nations (e.g., France, Germany) technically restrict scanner use of airband — check local rules"
+    max_power_restrictions_eirp: "VOR ground stations 50–200 W EIRP, ILS localizer ~100 W, airband voice ground stations up to ~50 W ERP, airborne radios 5–25 W. Hobbyists are receive-only (unless licensed pilots)"
+    propagation_interference_notes: "Strict line-of-sight (great with altitude — easy 200+ km from a hilltop). Sporadic-E rarely intrudes. Local interference from cheap LED drivers and intermod from FM broadcast skirts"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines"
+    technologies_example_devices: "ATC voice (analog AM), VOR / ILS, ATIS, AWOS / ASOS automated weather, DATIS, ACARS in adjacent UHF, ELTs"
+    hobbyist_project_ideas: "Plug an RTL-SDR + airband filter into your laptop and listen to your nearest tower; combine VHF voice with dump1090 ADS-B at 1090 MHz to follow individual flights; build a discone covering 108–800 MHz"
+    sources_citations: "ITU Radio Regulations (RR Article 5), ICAO Annex 10, FCC Part 87, EUROCONTROL 8.33 kHz docs, Eurocontrol VATSIM resources (2026)"
+    usability_badge: "🟡 Licensed / Public receive (some services)"
+
+  - frequency_range: "137 MHz – 174 MHz (excluding 144–148 MHz amateur)"
+    key_frequencies_channels: "NOAA APT 137.10 / 137.62 / 137.9125 MHz, Meteor M2 LRPT 137.100 / 137.900 MHz, COSPAS-SARSAT 121.5 (legacy) / 406 MHz (UHF, see later); 138–144 MHz government/military; 148–150.8 MHz government; 150.8–162 MHz business / land mobile / public safety / marine; 151.820–154.600 MHz MURS (USA); 156.025–162.025 MHz marine VHF (DSC ch.70 156.525, AIS ch.87B 161.975 / ch.88B 162.025, calling ch.16 156.800); 162.400–162.550 MHz NOAA Weather Radio (NWR); 169–172 MHz wireless mics / hearing-assist"
+    band_name_designation: "Mid VHF (Weather sats, Government, Marine, Land Mobile, MURS, NOAA WX) — excludes 144–148 MHz 2 m ham"
+    primary_uses_hobbyist_relevance: "Receiving weather satellite imagery (NOAA APT, Meteor M2 LRPT), monitoring marine VHF and AIS, decoding NOAA Weather Radio SAME alerts, scanning public-safety / business land mobile, MURS handhelds, P25 / DMR / MotoTRBO / NXDN trunked systems"
+    hardware_modules: "RTL-SDR / Airspy R2 / SDRplay RSPdx with QFH or turnstile (137 MHz sats), AIS receivers (dAISy, MarineTraffic dongles), marine VHF radios (Standard Horizon HX890, Icom IC-M25), MURS handhelds (Motorola RMM2050), digital-voice scanners (Uniden BCD536HP + DMR/P25 keys, SDRTrunk software)"
+    antenna_diy_considerations: "QFH (Quadrifilar Helix) or crossed-dipole turnstile for 137 MHz polar-orbiting weather sats, 5/8-wave whip for marine 156 MHz, J-pole / Slim-Jim for 150–170 MHz scanning, attic dipole ≈ 90 cm at 162 MHz"
+    legal_licensing_notes: "ITU allocated to space operation / meteorology-satellite (137–138), fixed, mobile, maritime mobile (156–162), and broadcasting (NOAA WX). National TX licensing: FCC Part 80 (marine) / Part 90 (LMR) / Part 95 (MURS, GMRS adjacent in UHF). RX is unlicensed for non-encrypted services. Decrypting trunked encryption is illegal in most jurisdictions"
+    max_power_restrictions_eirp: "Marine VHF 1 W (low) / 25 W (high); MURS 2 W (USA); LMR Part 90 up to 100 W mobile; NOAA WX 300–1000 W ERP. Hobbyists are receive-only here unless individually licensed"
+    propagation_interference_notes: "Line-of-sight with tropospheric ducting; weather-sat passes are 8–14 minutes long with 1000+ km of horizon-to-horizon. Local intermod from paging transmitters can desense cheap RTL-SDRs — use a 137 MHz SAW filter or LNA"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines"
+    technologies_example_devices: "NOAA-15/18/19 APT (still operational in 2026 era), Meteor M2-3/M2-4 LRPT, AIS class A/B transponders, P25 Phase I/II, DMR Tier II/III, NXDN, MotoTRBO, NOAA SAME alerts, FRS adjacent in UHF"
+    hobbyist_project_ideas: "Build a QFH antenna and decode NOAA APT or Meteor LRPT with WXtoImg / SatDump; receive AIS with an RTL-SDR and feed MarineTraffic; log NOAA WX SAME alerts to a Raspberry Pi; map local LMR with SDRTrunk (legal, unencrypted only)"
+    sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R M.1371 (AIS), FCC Part 80 / Part 90 / Part 95, NOAA NESDIS APT/LRPT specs, NOAA NWR All-Hazards (2026)"
+    usability_badge: "🟡 Licensed / Public receive (some services)"
+
+  - frequency_range: "174 MHz – 300 MHz (excluding 220–225 MHz 1.25 m amateur, R2)"
+    key_frequencies_channels: "VHF-Hi TV channels 7–13 (174–216 MHz, mostly digital ATSC / DVB-T post-transition), DAB+ Band III 174–240 MHz (Europe / Australia / SE Asia, blocks 5A–13F), legacy paging POCSAG / FLEX 217–222 MHz, U.S. 220–222 MHz commercial mobile + 222–225 MHz 1.25 m ham (excluded), 225.0–399.9 MHz military UHF airband AM with 25 kHz spacing (243.0 MHz mil distress), MILSAT downlinks 240–270 MHz (FLTSATCOM / UFO legacy), satellite paging"
+    band_name_designation: "VHF-Hi TV / DAB+ Band III / Military UHF Air"
+    primary_uses_hobbyist_relevance: "DAB+ broadcast reception, TV DXing on channels 7–13 in remaining analog regions, monitoring military air and MILSAT downlinks (the FLTSATCOM 'pirate' band 240–270 MHz hosts unauthorized voice traffic interesting to monitor), legacy paging decoding"
+    hardware_modules: "DAB+ receivers (Pure, Roberts, Sony XDR-S61D, Tecsun PL-880 with DAB), RTL-SDR + DAB-Player / welle.io / qt-dab, ATSC / DVB-T tuner sticks, dedicated military-air scanners (Yupiteru MVT-7100, AOR AR8200), MILSAT-capable verticals + LNAs"
+    antenna_diy_considerations: "Yagi for DAB+ Band III (3–5 element, ~80 cm boom), discone for broadband military-air RX, helical / turnstile for MILSAT 240–270 MHz downlinks, log-periodic 100–500 MHz for general scanning"
+    legal_licensing_notes: "ITU allocated to broadcasting (174–230), fixed, mobile, mobile-satellite (around 240–270), aeronautical mobile (OR) and aeronautical radionavigation (military), and amateur in the U.S. only at 220–225 MHz. RX is unlicensed in most countries; some R1 countries restrict scanner use of military-air bands"
+    max_power_restrictions_eirp: "DAB+ multiplexes 1–10 kW ERP per block, ATSC / DVB-T 50–500 kW ERP, military air 5–50 W airborne / 100+ W ground. Hobbyists are receive-only here"
+    propagation_interference_notes: "Strict line-of-sight; tropospheric enhancement can bring 500+ km DAB / TV DX. MILSAT downlinks have global footprints (geostationary) — easy to receive with a small Yagi or even a discone in the right direction"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines"
+    technologies_example_devices: "DAB+ (ETSI TS 102 563), ATSC 1.0 / 3.0, DVB-T / T2, FLTSATCOM, UFO satellite system, P25 / DMR repeaters in adjacent UHF"
+    hobbyist_project_ideas: "Build a Yagi for Band III and chase tropo DAB+ DX; receive FLTSATCOM downlinks with a small handheld Yagi (note: not for re-transmission); decode legacy POCSAG paging traffic with PDW or multimon-ng"
+    sources_citations: "ITU Radio Regulations (RR Article 5), FCC Part 73 (TV) / Part 90, ETSI TS 102 563 (DAB+), STANAG 4205 (mil-air), UHF Satcom community (2026)"
+    usability_badge: "🟡 Licensed / Public receive (some services)"
