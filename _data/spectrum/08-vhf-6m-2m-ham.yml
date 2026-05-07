@@ -1,0 +1,57 @@
+---
+# =============================================================================
+# Spectrum Batch 08 — VHF Amateur (6 m + 2 m Ham bands)
+# =============================================================================
+# Migrated and upgraded from the original 05-vhf-uhf.yml. Covers ONLY
+# the 6 m (50–54 MHz) and 2 m (144–148 MHz) amateur radio bands plus
+# their canonical sub-band edges. Non-ham VHF (FM broadcast, air band,
+# marine VHF, public safety) and the 70 cm / 33 cm / 23 cm UHF ham
+# bands are deferred to later batch files. Schema: identical 14-column
+# layout + batch wrapper used by all earlier files.
+# =============================================================================
+
+batch:
+  id: "vhf-6m-2m-ham"
+  order: 8
+  name: "VHF Amateur (6 m + 2 m Ham bands)"
+  short_name: "VHF Ham (6 m / 2 m)"
+  description: >
+    The two flagship VHF amateur bands. 6 m (50–54 MHz, the 'magic
+    band') sits at the bottom edge of VHF and gets dramatic openings
+    via sporadic-E, F2, TEP, and aurora. 2 m (144–148 MHz) is the
+    workhorse of local FM repeater operation, SSB / CW DX from
+    contest hilltops, packet / APRS, satellite uplinks/downlinks, and
+    EME. Region 1 has a narrower 50.0–52.0 MHz / 144.0–146.0 MHz
+    allocation; Region 2 enjoys the full 50–54 / 144–148 MHz.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "50 MHz – 54 MHz (Region 2) / 50.0 MHz – 52.0 MHz (Region 1)"
+    key_frequencies_channels: "CW/DX 50.000–50.100, beacons 50.0–50.1 MHz, FT8 50.313 MHz, FT4 50.318 MHz, SSB DX calling 50.110, SSB QSO 50.110–50.300, MS calling 50.260, FM simplex 52.525 MHz (R2), repeater inputs/outputs 51–54 MHz (R2 only). IARU R1 narrower: 50.0–52.0 MHz only"
+    band_name_designation: "6 m amateur band — 'Magic Band' (VHF)"
+    primary_uses_hobbyist_relevance: "Sporadic-E and F2 DX, FT8 grid-square hunting, weak-signal SSB / CW, meteor scatter (MSK144), aurora, EME for big stations, FM simplex / repeaters in Region 2, beacon monitoring for propagation alerts"
+    hardware_modules: "All-mode VHF/UHF transceivers (Yaesu FT-991A, Icom IC-9700, IC-7100, IC-705, Kenwood TS-2000), SDRs (RTL-SDR for RX, HackRF, Airspy R2, USRP), 6 m-capable HF rigs (IC-7300, FT-DX10), portable QRP (Xiegu G90 with 6 m), Baofeng UV-5R / UV-82 (FM only, low-power)"
+    antenna_diy_considerations: "Half-wave dipole ≈ 2.85 m long, inverted-V from a fishing pole, 3- to 5-element Yagi (boom ~3–5 m), Moxon for compact directivity, vertical / ground-plane / J-pole for FM, magnetic loops for HOA-friendly setups"
+    legal_licensing_notes: "ITU amateur service, primary in Region 2 (full 50–54 MHz), shared/secondary in Region 1 (typically 50.0–52.0 MHz, with national variations — 50.0–50.5 MHz in some CEPT countries, 50.0–52.0 MHz elsewhere). License required worldwide. Consult IARU R1 / R2 / R3 band plans"
+    max_power_restrictions_eirp: "FCC: 1500 W PEP (General/Extra). IARU R1: typically 100–400 W PEP per national license class; some countries cap 6 m at 25 W or 100 W PEP. Always check national rules"
+    propagation_interference_notes: "Sporadic-E (May–August northern hemisphere), F2 propagation near solar maxima, trans-equatorial propagation (TEP), aurora, meteor scatter; otherwise line-of-sight with tropospheric ducting in summer. Local QRM from broadcast TV (in some regions), plasma displays, and switch-mode supplies"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. At 100 W PEP into a Yagi, controlled-environment safe distance is typically a few meters in the main lobe"
+    technologies_example_devices: "FT8 / FT4 / MSK144 (WSJT-X), JS8Call, beacon networks (e.g., 50.000–50.100 MHz IARU beacon segment), 6 m FM repeaters (R2 only), satellite operations (limited), DX clusters (DXSummit, PSK Reporter)"
+    hobbyist_project_ideas: "Build a 3-element 6 m Yagi from aluminium tubing and chase sporadic-E openings on FT8; set up a beacon-monitoring receiver to catch the band opening before everyone else; try meteor-scatter MSK144 during the Perseids"
+    sources_citations: "IARU Region 1 / 2 / 3 band plans, ARRL Operating Manual & Antenna Book, FCC Part 97, RSGB / DARC band plans, ITU Radio Regulations RR Article 5 (2026)"
+    usability_badge: "🔵 Ham-only"
+
+  - frequency_range: "144 MHz – 148 MHz (Region 2) / 144 MHz – 146 MHz (Region 1)"
+    key_frequencies_channels: "CW 144.000–144.100, EME 144.000–144.100, SSB calling 144.200, FT8 144.174 MHz, MSK144 144.150 MHz, FM simplex calling 146.520 (R2) / 145.500 (R1), repeater inputs 144.6–144.8 / 146.0–147.0 (R2), repeater outputs 145.2–145.5 (R1) / 146.0–148.0 (R2), satellite sub-band 145.8–146.0 MHz, APRS 144.390 (R2) / 144.800 (R1)"
+    band_name_designation: "2 m amateur band (VHF)"
+    primary_uses_hobbyist_relevance: "Local FM repeaters, FM simplex, SSB / CW DX from elevated sites, FT8 / MSK144, packet / APRS, satellite (linear and FM birds, AO-91 historical, SO-50, AO-73, RS-44, ISS), EME for big stations, ARES / RACES / SKYWARN nets"
+    hardware_modules: "All-mode VHF/UHF transceivers (Icom IC-9700, IC-705, Yaesu FT-991A, FT-818, Kenwood TS-2000), FM mobiles (Yaesu FTM-300DR, Icom IC-2730A, Kenwood TM-V71A), HTs (Yaesu FT5DR, Icom ID-52A, AnyTone AT-D878UVII for DMR, Baofeng UV-5R / UV-82HP for entry-level FM), TNCs (Mobilinkd TNC4, Kenwood TM-D710 built-in), APRS trackers (TinyTrak, OpenTracker, T-Beam ESP32)"
+    antenna_diy_considerations: "Half-wave dipole ≈ 1 m long, ground-plane (radials at 45°) for omnidirectional FM, J-pole from copper or 300-Ω twin-lead, 3- to 11-element Yagi (boom 0.5–4 m), Moxon, twin Yagi for SSB DX, eggbeater or turnstile for satellites, Slim-Jim for portable"
+    legal_licensing_notes: "ITU amateur service, primary in Region 2 (144–148 MHz) and Region 1 (144–146 MHz only). License required worldwide. Region 1 must respect the narrower 2 MHz allocation; the 146–148 MHz segment is non-amateur there"
+    max_power_restrictions_eirp: "FCC: 1500 W PEP (General/Extra). IARU R1: typical 100–400 W PEP per national class. Some sub-bands (FM repeater inputs/outputs, simplex, satellite, EME) have band-plan power and bandwidth limits — consult national band plan"
+    propagation_interference_notes: "Mostly line-of-sight (~horizon + a bit), with tropospheric ducting and enhancement on summer mornings/evenings, occasional sporadic-E (rare but possible), aurora, meteor scatter. Local QRM from pagers, ISM devices, and broadband-over-powerline. The 145.8–146.0 MHz satellite segment is internationally protected"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. Handheld 5 W FM exposure is well-controlled; stay outside the main lobe of higher-power Yagis"
+    technologies_example_devices: "FM repeaters worldwide, EchoLink / IRLP / AllStar nodes, D-STAR / DMR / C4FM digital voice, APRS (worldwide igate network), satellite QSOs (SO-50, RS-44, ISS APRS digipeater), MSK144 meteor scatter, EME on 2 m"
+    hobbyist_project_ideas: "Build a 2 m ground-plane from coat-hangers / copper wire and work local repeaters; assemble a 6-element Yagi for SSB DX from a hilltop; set up an APRS digipeater or igate with a Raspberry Pi + Direwolf; work an FM satellite with a handheld and an Arrow / dual-band Yagi"
+    sources_citations: "IARU Region 1 / 2 / 3 band plans, ARRL Operating Manual & Antenna Book, FCC Part 97, RSGB / DARC band plans, AMSAT satellite frequency lists, ITU Radio Regulations (2026)"
+    usability_badge: "🔵 Ham-only"
