@@ -46,8 +46,8 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
         technology that lives in each, and the propagation quirks that make them
         useful (or useless) for any given purpose.
       </p>
-      <section class="legal-disclaimer" style="background: #fff3cd; border-left: 5px solid #ffc107; padding: 15px 20px; margin: 30px 0; border-radius: 4px;">
-        <h3 style="margin-top:0;">⚠️ Legal Disclaimer &amp; Important Notes</h3>
+      <section class="spectrum-disclaimer">
+        <h3>⚠️ Legal Disclaimer &amp; Important Notes</h3>
         <p>This reference is for educational and hobbyist purposes only. Frequency allocations, power limits, licensing rules, and restrictions change over time and vary by country/region. The information here is believed accurate as of May 2026 but may be outdated or incomplete in your location. Always verify with your national regulator (e.g. BNetzA in Germany, FCC in the US) before transmitting. The site owner is not liable for any misuse, interference, or legal consequences arising from the use of this reference.</p>
       </section>
       <p class="spectrum-howto">
@@ -201,14 +201,6 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
       </p>
     </div>
 
-    <footer class="spectrum-footnote">
-      <p>
-        Data lives in <code>_data/spectrum/*.yml</code>. Each file is one batch
-        and contributes its <code>bands</code> array to the table above. Edit a
-        file, push, and the page rebuilds automatically.
-      </p>
-    </footer>
-
   </div>
 </section>
 
@@ -269,6 +261,38 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
 .spectrum-meta__item strong {
   color: var(--c-accent);
   font-variant-numeric: tabular-nums;
+}
+
+/* ---- Legal disclaimer ---- */
+.spectrum-disclaimer {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-left: 4px solid #f59e0b;
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-lg) 0;
+  color: var(--c-text);
+}
+[data-theme="light"] .spectrum-disclaimer {
+  background: #fff8e1;
+  border-color: rgba(180, 83, 9, 0.35);
+  border-left-color: #d97706;
+  color: #5c4500;
+}
+.spectrum-disclaimer h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+[data-theme="light"] .spectrum-disclaimer h3 {
+  color: #b45309;
+}
+.spectrum-disclaimer p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  color: inherit;
 }
 
 /* ---- Controls (tabs + search) ---- */
@@ -591,21 +615,6 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
   font-size: 0.95rem;
 }
 
-/* Footnote */
-.spectrum-footnote {
-  margin-top: var(--space-md);
-  font-size: 0.8rem;
-  color: var(--c-text-faint);
-  text-align: right;
-}
-.spectrum-footnote code {
-  background: var(--c-code-bg);
-  padding: 0.1rem 0.4rem;
-  border-radius: var(--border-radius-sm);
-  font-size: 0.75rem;
-  color: var(--c-text-muted);
-}
-
 /* Small screens */
 @media (max-width: 640px) {
   .spectrum-container { padding: 0 var(--space-md); }
@@ -619,10 +628,14 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
   .spectrum-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
   .spectrum-table tbody td { padding: 0.65rem 0.6rem; }
 
-  /* Sticky frequency column shrinks to ~half its desktop width by stacking the
-     two endpoints vertically with the dash as a centered separator. */
-  .spectrum-table .col-freq { min-width: 4.75rem; width: 4.75rem; }
-  .col-freq.mono { font-size: 0.72rem; }
+  /* Sticky frequency column — narrow on mobile, with endpoints stacked and
+     allowed to wrap inside each line so values like "433 MHz" break cleanly. */
+  .spectrum-table .col-freq { min-width: 2.5rem; width: 2.5rem; }
+  .col-freq.mono {
+    font-size: 0.72rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
   .col-freq .freq-pair {
     display: flex;
     flex-direction: column;
@@ -630,7 +643,11 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
     line-height: 1.35;
   }
   .col-freq .freq-low,
-  .col-freq .freq-high { display: block; }
+  .col-freq .freq-high {
+    display: block;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
   .col-freq .freq-sep {
     display: block;
     margin: 0.05rem 0;
