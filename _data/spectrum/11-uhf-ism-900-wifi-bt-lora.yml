@@ -1,0 +1,78 @@
+---
+# =============================================================================
+# Spectrum Batch 11 — UHF ISM 868 / 902–928 MHz + 2.4 GHz Wi-Fi / BT / Zigbee
+# =============================================================================
+# Migrated and upgraded from the original 05-vhf-uhf.yml. Covers the
+# license-free UHF ISM and SRD bands that hobbyists actually use:
+#   – 863–870 MHz SRD (Europe/Germany — ITU Region 1 / EU): LoRa EU868, Sigfox EU, Z-Wave EU
+#   – 902–928 MHz ISM (United States — ITU Region 2 / US/Canada/AU): LoRa US915, Z-Wave US,
+#     AMR utility meters, 900 MHz cordless / mesh
+#   – 2.400–2.4835 GHz ISM (worldwide): Wi-Fi 2.4G, Bluetooth / BLE,
+#     Zigbee, Thread, IEEE 802.15.4, ANT+, microwave ovens, video links
+# 433 MHz ISM lives in 10-uhf-70cm-ham-ism-433.yml. 5 GHz Wi-Fi, cellular,
+# satellite, GNSS, and ADS-B are deferred to later batch files. Schema:
+# identical 14-column layout + batch wrapper used by all earlier files.
+# =============================================================================
+
+batch:
+  id: "uhf-ism-900-wifi-bt-lora"
+  order: 11
+  name: "UHF ISM 868 / 902–928 MHz + 2.4 GHz Wi-Fi / Bluetooth / Zigbee"
+  short_name: "UHF ISM + 2.4 GHz"
+  description: >
+    The maker / IoT spine of the modern unlicensed UHF spectrum. The
+    868 MHz SRD band (Europe/Germany — ITU Region 1) and 902–928 MHz
+    ISM band (United States — ITU Region 2) host LoRa, Sigfox, Z-Wave,
+    and AMR utility meters; the worldwide 2.4 GHz ISM band hosts Wi-Fi
+    2.4G, Bluetooth / BLE, Zigbee, Thread, ANT+, and a long tail of
+    consumer gadgets. Europe/Germany (ITU Region 1) vs United States
+    (ITU Region 2) splits the 900 MHz region cleanly — projects shipped
+    worldwide need separate hardware SKUs (e.g., LoRa SX1276 EU868 vs
+    RFM95W US915 modules).
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "863 MHz – 870 MHz (SRD, Europe/Germany — ITU Region 1 / EU)"
+    key_frequencies_channels: "Z-Wave EU 868.42 MHz; LoRa EU868 default channels 868.10 / 868.30 / 868.50, plus 867.10 / 867.30 / 867.50 / 867.70 / 867.90 (8 channels @ 125 kHz); Sigfox EU 868.13 MHz; weather stations and alarm sensors 868.30 MHz; FS20 / Homematic 868.30 MHz; ETSI EN 300 220 sub-bands g, g1, g2, g3, g4 with different duty-cycle limits (0.1 % – 10 %)"
+    band_name_designation: "868 MHz SRD band (Europe/Germany — ITU Region 1) — ETSI EN 300 220, ERC/REC 70-03"
+    primary_uses_hobbyist_relevance: "European LoRa / LoRaWAN deployments (TheThingsNetwork EU868), Z-Wave home automation, Sigfox IoT, smart-meter AMR, alarm systems, wireless thermometers and weather stations, doorbells and garage openers"
+    hardware_modules: "Semtech SX1276 / SX1262 LoRa modules (RFM95W EU868 variant), ESP32 + LoRa dev boards (Heltec WiFi LoRa 32 V3 868, TTGO LoRa32 868, LilyGO T-Beam 868), Z-Wave coordinators (Aeotec Z-Stick 7, Zooz ZST10), Sigfox modules (Wisol WSSFM10R1), CC1101 868 MHz modules, Flipper Zero (TX region-locked, great for remotes/433/868/915 MHz), RTL-SDR / HackRF for sniffing, dragino LG308 LoRaWAN gateways"
+    antenna_diy_considerations: "1/4-wave whip ≈ 8 cm, helical / coil-loaded for tiny enclosures, ceramic chip antenna on PCBs, 3–5-element Yagi for 5–10 km LoRa links, magnetic-mount whip on a vehicle for war-driving Sigfox / LoRa coverage"
+    legal_licensing_notes: "Europe/Germany (ITU Region 1, Europe / Africa / Russia): ETSI EN 300 220 / ERC 70-03 — license-free at modest power and duty-cycle limits. United States (ITU Region 2, Americas): NOT a general SRD band — overlaps with cellular and is restricted to Part 15 spread-spectrum / authorised devices only. ITU Region 3 varies by country (Australia uses 915–928 MHz, Japan uses 920–928 MHz). Hobbyists in R1 operate license-free; export-bound projects need region-specific SKUs"
+    max_power_restrictions_eirp: "EU 868 sub-band g (868.0–868.6 MHz): 25 mW ERP, 1 % DC. Sub-band g1 (868.7–869.2): 25 mW ERP, 0.1 % DC. Sub-band g3 (869.4–869.65): 500 mW ERP, 10 % DC (the 'high-power' LoRa downlink slot). Other sub-bands: 5–25 mW with 0.1–1 % DC. Strict duty-cycle accounting required for compliance"
+    propagation_interference_notes: "Better building penetration than 2.4 GHz, decent foliage performance; LoRa links 2–15 km open-air at 14 dBm (25 mW). Heavy congestion in dense urban Europe from smart meters and consumer gadgets; duty-cycle limits enforce fair sharing"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; 25 mW ERP is many orders of magnitude below all general-public limits"
+    technologies_example_devices: "LoRaWAN EU868 (TTN, Helium, Chirpstack), Z-Wave 700 / 800-series, Sigfox EU, Wireless M-Bus (smart meters), KNX-RF, Homematic, FS20, ELV ESA / wireless alarm sensors"
+    hobbyist_project_ideas: "Build a TTN gateway with a Raspberry Pi + RAK2245 / RAK2287 hat; deploy a solar-powered LoRa weather station that uplinks once an hour; sniff Z-Wave traffic with a Z-Stick + Zniffer; build a Meshtastic node on EU868"
+    sources_citations: "ETSI EN 300 220, ERC/REC 70-03 (Annex 1 + Annex 13), ITU-R Radio Regulations RR 5.150 (ISM), Semtech LoRa AN1200.13 (regional parameters), Z-Wave Alliance specs, Sigfox Technology page (2026)"
+    usability_badge: "🟢 Public / ISM / Unlicensed"
+
+  - frequency_range: "902 MHz – 928 MHz (ISM, United States — ITU Region 2 / US/CA/AU; 920–928 MHz Japan)"
+    key_frequencies_channels: "ITU footnote 5.150 / 5.282 ISM. Z-Wave US 908.42 / 916.00 / 919.70 MHz; LoRa US915 default 902.3–914.9 MHz (64 × 125 kHz uplink + 8 × 500 kHz uplink + 8 × 500 kHz downlink); Sigfox RC4 902.2 MHz; AMR / smart-meter Itron / Landis+Gyr / FlexNet 902–928; legacy 900 MHz cordless phones; XBee Pro 900HP; Helium Network US915; PCS-adjacent unlicensed; FHSS / DSSS Part 15.247"
+    band_name_designation: "902–928 MHz ISM band (United States — ITU Region 2) — FCC Part 15.247 / 15.249, ITU 5.150"
+    primary_uses_hobbyist_relevance: "North-American LoRa / LoRaWAN (Helium, TTN US915), Z-Wave home automation, AMR utility-meter sniffing (rtl_433), legacy 900 MHz analog video / cordless / mesh, long-range FHSS data links (XBee Pro 900HP), backyard mesh networks (Meshtastic US915)"
+    hardware_modules: "Semtech SX1276 / SX1262 LoRa modules (RFM95W US915 variant), ESP32 + LoRa dev boards (Heltec WiFi LoRa 32 V3 915, TTGO LoRa32 915, LilyGO T-Beam 915, RAK Wireless WisBlock), XBee Pro 900HP, Digi 9XStream legacy, Z-Wave coordinators (Aeotec Z-Stick 7 US, Zooz ZST10 700), CC1101 915 modules, Multi-Tech Conduit / Dragino LPS8 LoRaWAN gateways, RTL-SDR + rtl_433 for AMR / weather, Flipper Zero (TX region-locked, great for remotes/433/868/915 MHz)"
+    antenna_diy_considerations: "1/4-wave whip ≈ 8 cm, 1/2-wave dipole ≈ 16 cm, fiberglass omnis (Diamond X-30 retuned, Fern-Coil 915), 5–8-element Yagi for 10–25 km LoRa, MIMO collinear for gateway use, mag-mount whip on a vehicle for AMR drive-by reads"
+    legal_licensing_notes: "United States (ITU Region 2, USA, Canada, Mexico): FCC Part 15.247 (digital modulation, FHSS / DSSS) / 15.249 (low-power general). Australia: AS/NZS 4268 915–928 MHz. Japan: 920–928 MHz at lower power. Europe/Germany (ITU Region 1): NOT permitted — overlaps GSM-900 cellular, so EU products use 868 MHz instead. License-free for compliant equipment"
+    max_power_restrictions_eirp: "FCC Part 15.247 FHSS / DSSS: 1 W (30 dBm) conducted, 4 W EIRP (36 dBm) with up to 6 dBi antenna; higher antenna gain reduces TX cap by 1 dB per dB above 6 dBi (FHSS/DSSS exception). Part 15.249 generic: 50 mV/m at 3 m field strength. Australia: 1 W EIRP. Japan: 250 mW conducted typical"
+    propagation_interference_notes: "Better than 2.4 GHz at building penetration but worse than 868 MHz; LoRa links 5–25 km open-air at 1 W. Local interference from Helium hotspots, smart-meter mesh, baby monitors, and old 900 MHz cordless phones"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; even 1 W is well below MPE at typical antenna distances"
+    technologies_example_devices: "LoRaWAN US915, Helium Network IoT, Z-Wave 700 / 800-series US, Sigfox RC4, AMR utility meters (Itron ERT, Landis+Gyr), legacy 900 MHz analog video transmitters, wireless rangefinders, RC telemetry"
+    hobbyist_project_ideas: "Build a Helium / TTN US915 gateway with a Raspberry Pi + RAK2287; sniff your local utility AMR with rtl_433 to read your own meter; deploy Meshtastic across a city in US915; build a 25 km point-to-point LoRa link with two Yagis"
+    sources_citations: "FCC Part 15.247 / 15.249, ITU-R Radio Regulations RR 5.150 / 5.282 (ISM), Semtech LoRa AN1200.13 (US915 parameters), Z-Wave Alliance specs, AS/NZS 4268, ARRL RFI Book, rtl_433 wiki (2026)"
+    usability_badge: "🟢 Public / ISM / Unlicensed"
+
+  - frequency_range: "2.400 GHz – 2.4835 GHz (ISM, worldwide)"
+    key_frequencies_channels: "Wi-Fi 2.4G channels 1–13 (1: 2.412, 6: 2.437, 11: 2.462 GHz, 20 MHz spacing 5 MHz apart; ch.14 only Japan); Bluetooth Classic 79 × 1 MHz channels 2.402–2.480 GHz; BLE 40 × 2 MHz channels 2.402–2.480 GHz with advertising on 37/38/39; Zigbee / IEEE 802.15.4 channels 11–26 (2.405–2.480 GHz, 5 MHz spacing); Thread / Matter on 802.15.4; ANT/ANT+ 2.457 GHz; microwave ovens centred near 2.45 GHz (heavy interferer); RC drones legacy 2.4 GHz FHSS"
+    band_name_designation: "2.4 GHz ISM band (worldwide) — ITU 5.150, FCC Part 15.247 / 15.249, ETSI EN 300 328"
+    primary_uses_hobbyist_relevance: "Wi-Fi (802.11b / g / n / ax-2.4), Bluetooth Classic and BLE, Zigbee / Thread / Matter / IEEE 802.15.4 mesh, ANT+, RC drones (FrSky / Spektrum / TBS Crossfire 2.4G), wireless USB / HID, ESP32 / ESP8266 IoT projects, Bluetooth gadgets and DIY"
+    hardware_modules: "ESP8266 / ESP32 / ESP32-S3 / ESP32-C3 / ESP32-C6 (Wi-Fi + BLE + 802.15.4), nRF52840 / nRF52810 / nRF24L01 (BLE / 802.15.4), CC2540 / CC2652 (Zigbee / Thread), Bluetooth modules (HC-05 SPP, HM-10 BLE), Wi-Fi routers / mesh (TP-Link, Ubiquiti, OpenWrt), Zigbee coordinators (ConBee II, Sonoff Zigbee 3.0 USB Dongle Plus), HackRF / LimeSDR / RTL-SDR for monitoring, USRP for academic work"
+    antenna_diy_considerations: "PCB trace inverted-F (IFA) / meandered antenna (the standard on every ESP32 dev board), ceramic chip antenna, 1/4-wave whip ≈ 3 cm, 2.4 GHz dipole / sleeve dipole, parabolic / cantenna for long-range Wi-Fi (10–20 dBi), patch / panel antennas, 4×4 MIMO for modern Wi-Fi 6"
+    legal_licensing_notes: "Worldwide ISM band (ITU 5.150). FCC Part 15.247 (digital modulation, FHSS / DSSS / OFDM); ETSI EN 300 328 (Europe); Japan ARIB STD-T66; Australia AS/NZS 4268. License-free for compliant equipment. Long-range outdoor Wi-Fi may need additional certification beyond a certain EIRP"
+    max_power_restrictions_eirp: "FCC Part 15.247: 1 W (30 dBm) conducted with 6 dBi antenna → 4 W EIRP; Wi-Fi APs typically 100–630 mW EIRP indoor. ETSI EN 300 328: 100 mW EIRP. Bluetooth Class 1: 100 mW (20 dBm), Class 2: 2.5 mW (4 dBm), BLE typical 0–10 dBm. Microwave ovens 'leak' up to 5 mW/cm<sup>2</sup> at 5 cm but are not 'transmitters' in the regulatory sense"
+    propagation_interference_notes: "Line-of-sight with mediocre building penetration (drywall fine, brick / concrete / metal struggles); rain fade negligible at 2.4 GHz but 60 cm wavelength reflects off everything → multipath. Heavy interference: microwave ovens (2.45 GHz fundamental), other Wi-Fi APs, Bluetooth, baby monitors, video transmitters, wireless USB. Spectrum is congested in any urban area"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; SAR-tested for phones and tablets. Wi-Fi APs at 100 mW are well below MPE limits at any practical distance. Microwave ovens have separate appliance-leakage limits (5 mW/cm<sup>2</sup> at 5 cm per FDA 21 CFR 1030.10)"
+    technologies_example_devices: "Wi-Fi 4 / 5 / 6 / 6E (2.4 GHz portion), Bluetooth Classic + BLE (5.x), Zigbee 3.0 / Thread / Matter, ANT+, IEEE 802.15.4, FHSS RC links (FrSky D8 / D16, Spektrum DSMX, TBS Crossfire 2.4), MJPEG 2.4 GHz video transmitters, Logitech Unifying receivers, microwave ovens"
+    hobbyist_project_ideas: "Build an ESP32 BLE / Wi-Fi IoT sensor that posts to MQTT; deploy a Zigbee-Home-Assistant network with a ConBee II + zigbee2mqtt; build a 20+ km point-to-point Wi-Fi link with two Ubiquiti dishes; sniff BLE advertisements with nRF52840 + Wireshark; build a long-range RC link with TBS Crossfire on 2.4 GHz; experiment with WiFi CSI sensing — through-wall motion/breathing detection using existing WiFi signals (open-source ESP32 projects, e.g., ESP32-CSI-Tool, Atheros CSI Tool)"
+    sources_citations: "ITU-R Radio Regulations RR 5.150 (ISM), FCC Part 15.247 / 15.249, ETSI EN 300 328, IEEE 802.11 / 802.15.1 / 802.15.4 standards, Bluetooth SIG Core Specification 5.x, Zigbee Alliance / CSA Matter spec, Wi-Fi Alliance docs, FDA 21 CFR 1030.10 (microwave ovens) (2026)"
+    usability_badge: "🟢 Public / ISM / Unlicensed"

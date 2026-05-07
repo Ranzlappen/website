@@ -46,6 +46,10 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
         technology that lives in each, and the propagation quirks that make them
         useful (or useless) for any given purpose.
       </p>
+      <section class="legal-disclaimer" style="background: #fff3cd; border-left: 5px solid #ffc107; padding: 15px 20px; margin: 30px 0; border-radius: 4px;">
+        <h3 style="margin-top:0;">⚠️ Legal Disclaimer &amp; Important Notes</h3>
+        <p>This reference is for educational and hobbyist purposes only. Frequency allocations, power limits, licensing rules, and restrictions change over time and vary by country/region. The information here is believed accurate as of May 2026 but may be outdated or incomplete in your location. Always verify with your national regulator (e.g. BNetzA in Germany, FCC in the US) before transmitting. The site owner is not liable for any misuse, interference, or legal consequences arising from the use of this reference.</p>
+      </section>
       <p class="spectrum-howto">
         <strong>How to use:</strong> jump between batches with the tabs, type into the
         search box to filter rows live, or click <em>Show more</em> on long cells
@@ -66,6 +70,38 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
         {% endif %}
       </div>
     </header>
+
+    <section class="spectrum-legend">
+      <h2>Spectrum Legend &amp; Usability</h2>
+      <p>Each row is color-coded for quick reference:</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; font-size: 0.95em;">
+        <div><span style="background:#22c55e; color:white; padding:2px 8px; border-radius:4px;">🟢</span> Public / ISM / Unlicensed</div>
+        <div><span style="background:#3b82f6; color:white; padding:2px 8px; border-radius:4px;">🔵</span> Amateur Radio (Ham-only)</div>
+        <div><span style="background:#eab308; color:black; padding:2px 8px; border-radius:4px;">🟡</span> Licensed / Regulated</div>
+        <div><span style="background:#ef4444; color:white; padding:2px 8px; border-radius:4px;">🔴</span> Restricted / Scientific / Military</div>
+      </div>
+    </section>
+
+    <section class="spectrum-abbr-legend">
+      <h2>Abbreviations &amp; Quick Reference</h2>
+      <p>Click or tap any abbreviation in the table to see its explanation. The cards below cover the most common terms — every match inside the table is also clickable.</p>
+      <div id="abbreviations-legend" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 20px 0;">
+        <button type="button" class="abbr-card" data-abbr="ISM"><span class="abbr-card__term">ISM</span><span class="abbr-card__expansion">Industrial, Scientific, Medical</span><span class="abbr-card__hint">License-free shared bands (433 MHz EU, 902–928 MHz US, 2.4 GHz, 5.8 GHz).</span></button>
+        <button type="button" class="abbr-card" data-abbr="EIRP"><span class="abbr-card__term">EIRP</span><span class="abbr-card__expansion">Effective Isotropic Radiated Power</span><span class="abbr-card__hint">TX power × antenna gain — what your strongest direction actually radiates.</span></button>
+        <button type="button" class="abbr-card" data-abbr="FR1"><span class="abbr-card__term">FR1</span><span class="abbr-card__expansion">5G NR Frequency Range 1 (sub-6 GHz)</span><span class="abbr-card__hint">The 5G NR low- and mid-band cellular spectrum (n1, n28, n41, n71, n78…).</span></button>
+        <button type="button" class="abbr-card" data-abbr="FR2"><span class="abbr-card__term">FR2</span><span class="abbr-card__expansion">5G NR Frequency Range 2 (mmWave)</span><span class="abbr-card__hint">5G mmWave 24.25–71 GHz (n257/n258/n260/n261) — fast but very short-range.</span></button>
+        <button type="button" class="abbr-card" data-abbr="ICNIRP"><span class="abbr-card__term">ICNIRP</span><span class="abbr-card__expansion">International Commission on Non-Ionizing Radiation Protection</span><span class="abbr-card__hint">Sets the global RF/optical exposure guidelines national regulators follow.</span></button>
+        <button type="button" class="abbr-card" data-abbr="n78"><span class="abbr-card__term">n78</span><span class="abbr-card__expansion">5G NR Band n78 — global C-band TDD</span><span class="abbr-card__hint">3300–3800 MHz — the most-deployed 5G mid-band in EU/UK/DE/Japan.</span></button>
+        <button type="button" class="abbr-card" data-abbr="CSI"><span class="abbr-card__term">CSI</span><span class="abbr-card__expansion">Channel State Information</span><span class="abbr-card__hint">Wi-Fi PHY data that lets you sense motion, gestures, even breathing through walls.</span></button>
+        <button type="button" class="abbr-card" data-abbr="LoRa"><span class="abbr-card__term">LoRa</span><span class="abbr-card__expansion">Long Range chirp-spread-spectrum</span><span class="abbr-card__hint">25 mW reaches 5–15 km outdoors. Backbone of LoRaWAN, Helium, Meshtastic.</span></button>
+        <button type="button" class="abbr-card" data-abbr="DFS"><span class="abbr-card__term">DFS</span><span class="abbr-card__expansion">Dynamic Frequency Selection</span><span class="abbr-card__hint">Wi-Fi rule on UNII-2A/2C — vacate the channel within 10 s of detected radar.</span></button>
+        <button type="button" class="abbr-card" data-abbr="HPUE"><span class="abbr-card__term">HPUE</span><span class="abbr-card__expansion">High-Power User Equipment</span><span class="abbr-card__hint">Class-2 cellular phones at 26 dBm / 400 mW (vs. usual 23 dBm) on n14/n41/n78.</span></button>
+        <button type="button" class="abbr-card" data-abbr="PLC"><span class="abbr-card__term">PLC</span><span class="abbr-card__expansion">Power-Line Communication / PowerLAN</span><span class="abbr-card__hint">Data over electrical wiring (2–30 MHz, IEEE 1901 / HomePlug AV2 / G.hn). A major HF noise source.</span></button>
+        <button type="button" class="abbr-card" data-abbr="TDD"><span class="abbr-card__term">TDD</span><span class="abbr-card__expansion">Time Division Duplex</span><span class="abbr-card__hint">Uplink and downlink share the same channel, alternating in time. Used by n40, n41, n78, n79.</span></button>
+        <button type="button" class="abbr-card" data-abbr="UNII"><span class="abbr-card__term">UNII</span><span class="abbr-card__expansion">Unlicensed National Information Infrastructure</span><span class="abbr-card__hint">FCC umbrella term for the 5 / 6 GHz Wi-Fi spectrum tiers (UNII-1 through UNII-8).</span></button>
+        <button type="button" class="abbr-card" data-abbr="EME"><span class="abbr-card__term">EME</span><span class="abbr-card__expansion">Earth-Moon-Earth ('moonbounce')</span><span class="abbr-card__hint">Ham long-distance technique — aim a high-gain dish at the Moon and bounce signals back to Earth.</span></button>
+      </div>
+    </section>
 
     <div class="spectrum-controls">
       <nav class="spectrum-tabs" role="tablist" aria-label="Spectrum batches">
@@ -110,16 +146,20 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
       <table class="spectrum-table" id="spectrum-table">
         <thead>
           <tr>
-            <th scope="col" class="col-freq">Frequency Range (Hz)</th>
+            <th scope="col" class="col-freq">Frequency Range</th>
+            <th scope="col" class="col-key">Key Frequencies / Channels</th>
             <th scope="col" class="col-band">Band Name / Designation</th>
-            <th scope="col" class="col-wave">Wavelength Range</th>
-            <th scope="col" class="col-energy">Photon Energy</th>
-            <th scope="col" class="col-names">Common / Alternative Names &amp; Sub-bands</th>
-            <th scope="col" class="col-apps">Primary Applications &amp; Uses</th>
-            <th scope="col" class="col-tech">Example Technologies / Systems</th>
-            <th scope="col" class="col-prop">Propagation / Atmospheric Notes</th>
-            <th scope="col" class="col-reg">Regulatory / Allocation Notes</th>
-            <th scope="col" class="col-notes">Special Notes / Fun Facts</th>
+            <th scope="col" class="col-uses">Primary Uses &amp; Hobbyist Relevance</th>
+            <th scope="col" class="col-hardware">Hardware / Modules</th>
+            <th scope="col" class="col-antenna">Antenna / DIY Considerations</th>
+            <th scope="col" class="col-legal">Legal / Licensing Notes</th>
+            <th scope="col" class="col-power">Max Power / Restrictions / EIRP</th>
+            <th scope="col" class="col-prop">Propagation / Interference Notes</th>
+            <th scope="col" class="col-safety">Safety / Exposure Limits</th>
+            <th scope="col" class="col-tech">Technologies &amp; Example Devices</th>
+            <th scope="col" class="col-projects">Hobbyist Project Ideas</th>
+            <th scope="col" class="col-sources">Sources / Citations</th>
+            <th scope="col" class="col-badge">Usability Badge</th>
           </tr>
         </thead>
         <tbody>
@@ -137,52 +177,19 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
                     {{ band.frequency_range }}
                   {%- endif -%}
                 </td>
-                <td class="col-band">
-                  <span class="band-pill" style="--pill-hue: {{ batch.order | times: 41 | modulo: 360 }};">
-                    {{ batch.short_name | default: batch.name }}
-                  </span>
-                  <div class="band-name">{{ band.band_name }}</div>
-                </td>
-                <td class="col-wave mono">{{ band.wavelength }}</td>
-                <td class="col-energy mono">{{ band.photon_energy }}</td>
-                <td class="col-names">{{ band.common_names }}</td>
-
-                <td class="col-apps">
-                  {% if band.applications and band.applications.size > 0 %}
-                    <details class="cell-collapse">
-                      <summary>
-                        <span class="cell-collapse__count">{{ band.applications.size }}</span>
-                        <span class="cell-collapse__label">use{% if band.applications.size != 1 %}s{% endif %}</span>
-                        <span class="cell-collapse__more">Show more</span>
-                      </summary>
-                      <ul class="cell-list">
-                        {% for app in band.applications %}
-                          <li>{{ app }}</li>
-                        {% endfor %}
-                      </ul>
-                    </details>
-                  {% else %}
-                    <span class="cell-empty">—</span>
-                  {% endif %}
-                </td>
-
-                <td class="col-tech">{{ band.technologies }}</td>
-                <td class="col-prop">{{ band.propagation }}</td>
-                <td class="col-reg">{{ band.regulatory }}</td>
-
-                <td class="col-notes">
-                  {% if band.notes and band.notes != "" %}
-                    <details class="cell-collapse">
-                      <summary>
-                        <span class="cell-collapse__preview">{{ band.notes | strip_newlines | truncatewords: 10 }}</span>
-                        <span class="cell-collapse__more">Show more</span>
-                      </summary>
-                      <div class="cell-prose">{{ band.notes }}</div>
-                    </details>
-                  {% else %}
-                    <span class="cell-empty">—</span>
-                  {% endif %}
-                </td>
+                <td class="col-key">{{ band.key_frequencies_channels }}</td>
+                <td class="col-band">{{ band.band_name_designation }}</td>
+                <td class="col-uses">{{ band.primary_uses_hobbyist_relevance }}</td>
+                <td class="col-hardware">{{ band.hardware_modules }}</td>
+                <td class="col-antenna">{{ band.antenna_diy_considerations }}</td>
+                <td class="col-legal">{{ band.legal_licensing_notes }}</td>
+                <td class="col-power">{{ band.max_power_restrictions_eirp }}</td>
+                <td class="col-prop">{{ band.propagation_interference_notes }}</td>
+                <td class="col-safety">{{ band.safety_exposure_limits }}</td>
+                <td class="col-tech">{{ band.technologies_example_devices }}</td>
+                <td class="col-projects">{{ band.hobbyist_project_ideas }}</td>
+                <td class="col-sources">{{ band.sources_citations }}</td>
+                <td class="col-badge"><span style="display:inline-block; padding:2px 8px; border-radius:4px; background:var(--c-surface-alt); border:1px solid var(--c-border); font-size:0.95em; white-space:nowrap;">{{ band.usability_badge }}</span></td>
               </tr>
             {% endfor %}
           {% endfor %}
@@ -703,5 +710,273 @@ last_updated) and a `bands` array. Every entry in `bands` is one row.
   }
 
   applyFilters();
+})();
+</script>
+
+<style>
+/* Abbreviation tooltip + modal */
+.abbr-trigger {
+  border-bottom: 1px dotted var(--c-accent);
+  cursor: help;
+  text-decoration: none;
+  color: inherit;
+}
+.abbr-trigger:hover,
+.abbr-trigger:focus-visible {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  outline: none;
+}
+
+/* Abbreviation legend cards */
+.spectrum-abbr-legend { margin-bottom: var(--space-md); }
+.abbr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font: inherit;
+  transition: background var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+.abbr-card:hover,
+.abbr-card:focus-visible {
+  background: var(--c-surface-alt);
+  border-color: var(--c-accent-border);
+  outline: none;
+}
+.abbr-card:active { transform: translateY(1px); }
+.abbr-card__term {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--c-accent);
+  letter-spacing: 0.02em;
+}
+.abbr-card__expansion {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.abbr-card__hint {
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+  line-height: 1.4;
+}
+.spectrum-abbr-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-md);
+}
+.spectrum-abbr-modal[hidden] { display: none; }
+.spectrum-abbr-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+.spectrum-abbr-modal__panel {
+  position: relative;
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-lg);
+  max-width: 32rem;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+.spectrum-abbr-modal__term {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  color: var(--c-accent);
+}
+.spectrum-abbr-modal__expansion {
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.spectrum-abbr-modal__body {
+  margin: 0;
+  line-height: 1.55;
+  color: var(--c-text-muted);
+}
+.spectrum-abbr-modal__close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  background: transparent;
+  border: 0;
+  color: var(--c-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+.spectrum-abbr-modal__close:hover { color: var(--c-text); }
+</style>
+
+<script>
+(function () {
+  var table = document.getElementById('spectrum-table');
+  if (!table) return;
+
+  // 10 most-common abbreviations with plain-English explanations.
+  var DICT = {
+    'ISM':    { expansion: 'Industrial, Scientific, Medical',
+                body: 'Worldwide license-free spectrum bands (e.g. 433 MHz EU, 902–928 MHz US, 2.4 GHz, 5.8 GHz) shared by Wi-Fi, Bluetooth, microwave ovens, and a long tail of consumer gadgets — anyone can transmit at low power without a license.' },
+    'EIRP':   { expansion: 'Effective Isotropic Radiated Power',
+                body: 'The TX power your transmitter would need to feed into a perfect omnidirectional (isotropic) antenna to match what your real antenna+amp combination radiates in its strongest direction. EIRP = TX power + antenna gain.' },
+    'FR1':    { expansion: '5G NR Frequency Range 1 (sub-6 GHz)',
+                body: 'The 5G NR low- and mid-band spectrum below 7.125 GHz — the cellular bands you actually get coverage on. Includes n1, n3, n7, n28, n41, n66, n71, n77, n78, n79.' },
+    'FR2':    { expansion: '5G NR Frequency Range 2 (mmWave)',
+                body: 'The 5G NR millimeter-wave spectrum 24.25–71 GHz — fast (multi-Gb/s) but very short range and easily blocked by buildings, hands, and rain. n257, n258, n260, n261.' },
+    'ICNIRP': { expansion: 'International Commission on Non-Ionizing Radiation Protection',
+                body: 'Independent body that publishes the global RF and optical exposure guidelines most national regulators (FCC OET-65, BNetzA, Ofcom) base their safe-distance rules on.' },
+    'n78':    { expansion: '5G NR Band n78 — global C-band TDD',
+                body: 'TDD 3300–3800 MHz — the canonical European, UK, German, and Japanese 5G C-band, plus India and large parts of Asia. The most-deployed 5G mid-band in the world.' },
+    'CSI':    { expansion: 'Channel State Information',
+                body: 'Per-subcarrier amplitude/phase data Wi-Fi devices already exchange to equalise the channel. Reading it (with ESP32-CSI-Tool, Atheros CSI Tool, or IEEE 802.11bf) lets you sense motion, gesture, even breathing through walls.' },
+    'LoRa':   { expansion: 'Long Range (chirp-spread-spectrum)',
+                body: 'Semtech’s low-power, low-data-rate radio modulation. Lets a 25 mW transmitter reach 5–15 km outdoors at the cost of just a few hundred bits per second. Foundation of LoRaWAN, Helium, and Meshtastic.' },
+    'DFS':    { expansion: 'Dynamic Frequency Selection',
+                body: 'Wi-Fi rule on UNII-2A and UNII-2C (5.250–5.350 / 5.470–5.725 GHz): the access point listens for weather/military radar pulses and must vacate the channel within 10 s if it hears one. Required by FCC + ETSI.' },
+    'HPUE':   { expansion: 'High-Power User Equipment',
+                body: 'A power-class-2 cellular phone or modem allowed to transmit at 26 dBm (≈400 mW) instead of the usual 23 dBm (200 mW). Enabled on n14 FirstNet and n41 / n78 / n79 mid-band 5G to extend uplink range.' },
+    'PLC':    { expansion: 'Power-Line Communication / PowerLAN',
+                body: 'Data carried over the electrical wiring already in your walls (2–30 MHz narrowband, standardised by IEEE 1901, HomePlug AV2, and ITU G.hn). Convenient for whole-home networking, but radiates as a major HF noise source and ruins reception on shortwave.' },
+    'TDD':    { expansion: 'Time Division Duplex',
+                body: 'Uplink and downlink share the same frequency channel and alternate in short time slots — efficient for asymmetric traffic and standard on 5G NR mid-band (n40, n41, n78, n79). Contrast with FDD where UL and DL use paired separate frequencies.' },
+    'UNII':   { expansion: 'Unlicensed National Information Infrastructure',
+                body: 'FCC umbrella term for the 5 GHz and 6 GHz Wi-Fi spectrum tiers — UNII-1, UNII-2A, UNII-2C, UNII-3, plus the new 6 GHz UNII-5/6/7/8 opened in 2020 for Wi-Fi 6E and Wi-Fi 7.' },
+    'EME':    { expansion: 'Earth-Moon-Earth ("moonbounce")',
+                body: 'Long-distance amateur-radio technique that aims a high-gain dish at the Moon and bounces signals off the lunar surface back to another station on Earth. Common on 2 m, 70 cm, 23 cm, 13 cm, 9 cm, 6 cm, 3 cm, and 1.25 cm ham bands.' }
+  };
+
+  // Sort longest first so 'FR2' is matched before 'FR'.
+  var TERMS = Object.keys(DICT).sort(function (a, b) { return b.length - a.length; });
+  var WORD_RE = new RegExp('\\b(' + TERMS.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\b', 'g');
+
+  // Walk text nodes inside the table body and wrap matches in clickable spans.
+  function decorate(root) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (node) {
+        // Skip nodes already inside an .abbr-trigger or inside a script/style.
+        var p = node.parentNode;
+        while (p && p !== root) {
+          if (p.classList && p.classList.contains('abbr-trigger')) return NodeFilter.FILTER_REJECT;
+          if (p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return NodeFilter.FILTER_REJECT;
+          p = p.parentNode;
+        }
+        return WORD_RE.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+
+    targets.forEach(function (node) {
+      WORD_RE.lastIndex = 0;
+      var text = node.nodeValue;
+      var frag = document.createDocumentFragment();
+      var lastIndex = 0;
+      var m;
+      while ((m = WORD_RE.exec(text)) !== null) {
+        if (m.index > lastIndex) frag.appendChild(document.createTextNode(text.slice(lastIndex, m.index)));
+        var span = document.createElement('span');
+        span.className = 'abbr-trigger';
+        span.setAttribute('data-abbr', m[1]);
+        span.setAttribute('tabindex', '0');
+        span.setAttribute('role', 'button');
+        span.setAttribute('aria-label', m[1] + ' — click for explanation');
+        span.textContent = m[1];
+        frag.appendChild(span);
+        lastIndex = m.index + m[1].length;
+      }
+      if (lastIndex < text.length) frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+
+  // Modal infrastructure (built lazily on first open).
+  var modal, termEl, expandEl, bodyEl, lastFocus;
+  function ensureModal() {
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.className = 'spectrum-abbr-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.hidden = true;
+    modal.innerHTML =
+      '<div class="spectrum-abbr-modal__backdrop"></div>' +
+      '<div class="spectrum-abbr-modal__panel" role="document">' +
+        '<button type="button" class="spectrum-abbr-modal__close" aria-label="Close">×</button>' +
+        '<h3 class="spectrum-abbr-modal__term"></h3>' +
+        '<p class="spectrum-abbr-modal__expansion"></p>' +
+        '<p class="spectrum-abbr-modal__body"></p>' +
+      '</div>';
+    document.body.appendChild(modal);
+    termEl   = modal.querySelector('.spectrum-abbr-modal__term');
+    expandEl = modal.querySelector('.spectrum-abbr-modal__expansion');
+    bodyEl   = modal.querySelector('.spectrum-abbr-modal__body');
+    modal.querySelector('.spectrum-abbr-modal__backdrop').addEventListener('click', closeModal);
+    modal.querySelector('.spectrum-abbr-modal__close').addEventListener('click', closeModal);
+    return modal;
+  }
+
+  function openModal(term) {
+    var def = DICT[term];
+    if (!def) {
+      // Allow custom <abbr title="..."> fallback content too.
+      def = { expansion: term, body: term };
+    }
+    ensureModal();
+    termEl.textContent = term;
+    expandEl.textContent = def.expansion || '';
+    bodyEl.textContent = def.body || '';
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    modal.querySelector('.spectrum-abbr-modal__close').focus();
+  }
+
+  function closeModal() {
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+  }
+
+  // Decorate the table body (header is already short and stable).
+  var tbody = table.querySelector('tbody');
+  if (tbody) decorate(tbody);
+
+  // Click / keyboard activation works document-wide so the abbreviation legend
+  // cards (.abbr-card) and the in-table .abbr-trigger spans / native <abbr>
+  // tags / any future [data-abbr] markup all open the same modal.
+  function activateFromEvent(e) {
+    var t = e.target.closest('.abbr-trigger, .abbr-card, abbr[title], [data-abbr]');
+    if (!t) return;
+    e.preventDefault();
+    var term = t.getAttribute('data-abbr') ||
+               (t.querySelector('.abbr-card__term') && t.querySelector('.abbr-card__term').textContent.trim()) ||
+               t.textContent.trim();
+    openModal(term);
+  }
+  document.addEventListener('click', activateFromEvent);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    if (!e.target.closest('.abbr-trigger, .abbr-card, abbr[title], [data-abbr]')) return;
+    activateFromEvent(e);
+  });
 })();
 </script>

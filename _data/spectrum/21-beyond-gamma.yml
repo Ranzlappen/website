@@ -1,0 +1,39 @@
+---
+# =============================================================================
+# Spectrum Batch 21 — Beyond Gamma Rays (> 300 EHz / > 1.24 MeV)
+# =============================================================================
+# New upper-boundary summary file for the ~21-file spectrum reference structure.
+# Captures everything above the previous highest-frequency entry: ultra-high-
+# energy gamma rays, cosmic rays, and the particle-physics regime that sits
+# beyond the conventional electromagnetic spectrum used in radio engineering.
+# A single summary row only — finer subdivisions are out of scope for hobbyist
+# reference and belong in dedicated astrophysics/particle-physics resources.
+# =============================================================================
+
+batch:
+  id: "beyond-gamma"
+  order: 21
+  name: "Beyond Gamma Rays (> 300 EHz / > 1.24 MeV)"
+  short_name: "Beyond Gamma"
+  description: >
+    Upper-boundary summary covering the ultra-high-energy astrophysical and
+    particle regime — UHE gamma rays, cosmic rays, and accelerator-scale
+    particle energies — that sit above the conventional radio and gamma-ray
+    bands. Effectively inaccessible to hobbyists; included for completeness.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "Beyond gamma rays (> 300 EHz / > 1.24 MeV)"
+    key_frequencies_channels: "Ultra-high-energy gamma rays, cosmic rays, particle physics energies"
+    band_name_designation: "Ultra-high-energy astrophysical / particle regime"
+    primary_uses_hobbyist_relevance: "Astrophysics, particle physics research, cosmic ray detection"
+    hardware_modules: "Space telescopes (Fermi, Swift), ground-based cosmic-ray arrays (Pierre Auger), particle accelerators"
+    antenna_diy_considerations: "Not applicable for hobbyists (requires specialized scientific instrumentation)"
+    legal_licensing_notes: "No radio licensing (non-RF). Follow radiation safety protocols for any lab work."
+    max_power_restrictions_eirp: "N/A"
+    propagation_interference_notes: "Interacts with atmosphere and magnetic fields; cosmic-ray showers"
+    safety_exposure_limits: "Ionizing radiation hazards — extreme caution required"
+    technologies_example_devices: "Gamma-ray astronomy, CERN/LHC detectors, neutrino observatories"
+    hobbyist_project_ideas: "Citizen science cosmic-ray detection with smartphone apps or simple Geiger counters (limited to lower energies)"
+    sources_citations: "NASA/ESA astrophysics data, Particle Data Group, CERN publications (2026)"
+    usability_badge: "🔴 Restricted / Scientific only"

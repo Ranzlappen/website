@@ -1,0 +1,93 @@
+---
+# =============================================================================
+# Spectrum Batch 12 — UHF Cellular / 5G NR Mid-Band / Public Safety
+# =============================================================================
+# Migrated and upgraded from the original 05-vhf-uhf.yml and 06-shf-ehf-
+# microwave.yml. Covers UHF licensed mobile services that hobbyists are
+# most likely to encounter: TETRA / TETRAPOL / DMR Tier III / P25 public
+# safety, the canonical 600 MHz – 2.7 GHz cellular bands (LTE / 5G NR
+# FR1 low- and mid-band), and the 5G NR C-band (3.3–4.2 GHz, n77 / n78
+# / n79). The 5G C-band technically lives in SHF (3 – 30 GHz) but is
+# included here per project plan because the n-numbers, deployments,
+# and hobbyist tooling cluster with the rest of UHF cellular. mmWave
+# 5G (n257 / n258 / n260 / n261 etc.) and SHF satellite / radar / Wi-Fi
+# 5/6/7 are deferred to later batch files. Schema: identical 14-column
+# layout + batch wrapper used by all earlier files.
+# =============================================================================
+
+batch:
+  id: "uhf-5g-nr-public-safety"
+  order: 12
+  name: "UHF Cellular / 5G NR Mid-Band / Public Safety"
+  short_name: "UHF Cellular + 5G NR + PS"
+  description: >
+    Licensed UHF mobile services. Public-safety PMR (TETRA, P25, DMR
+    Tier III) at 380–470 / 700 / 800 MHz; cellular LTE / 5G NR low-band
+    600–1000 MHz (n5 / n8 / n12 / n14 / n20 / n28 / n71); cellular mid-
+    band 1.4–2.7 GHz (n1 / n2 / n3 / n7 / n40 / n41 / n66); and 5G NR
+    C-band 3.3–4.2 GHz (n77 / n78 / n79). Hobbyists are receive-only —
+    use an SDR or modem to map coverage, decode signalling (where legal
+    and unencrypted), and learn the PHY-layer behaviour of modern
+    cellular and public-safety networks.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "380 MHz – 470 MHz (Public-Safety / PMR / TETRA / DMR)"
+    key_frequencies_channels: "TETRA 380–400 MHz (government / public-safety, Europe/Germany — ITU Region 1, ETSI EN 300 392); TETRA 410–430 MHz (private / industry, R1); TETRAPOL 380–400 MHz (legacy, France / Spain / Germany BOS); DMR Tier I / II / III 446–470 MHz consumer / 410–470 MHz business; P25 Phase 1 / 2 segments 380–470 MHz (and primarily 700 / 800 MHz, see next row); UHF business / land-mobile 450–470 MHz; PMR446 446.0–446.2 MHz license-free FM / digital; UHF airband adjunct 400.15–406 MHz satcom / Argos / SARSAT (search-and-rescue) 406.025–406.100 MHz"
+    band_name_designation: "UHF Public-Safety / PMR / TETRA / DMR"
+    primary_uses_hobbyist_relevance: "Listening to non-encrypted public-safety dispatch (where legal), monitoring TETRA control channels, decoding DMR / NXDN / dPMR, mapping local PMR usage, license-free PMR446 walkie-talkies, COSPAS-SARSAT 406 MHz beacon monitoring (RX-only — TX is illegal except in genuine emergencies)"
+    hardware_modules: "RTL-SDR / Airspy R2 / SDRplay RSPdx + SDRTrunk / DSDPlus / Tetra-RX / TETRA-Decoder / TETRA-Kit (open-source); scanners (Uniden BCD536HP, BCD436HP, Whistler TRX-1/2 with DMR / NXDN / P25 keys); PMR446 handhelds (Motorola TLKR T82, Retevis RT24, Baofeng UV-5R EU PMR variant — note FM-only PMR446 strict in EU); MOTOTRBO / Hytera radios (licensed); Airbus Sepura / TPH900 TETRA terminals (for licensed users). Limitation: even the best hobbyist SDR cannot decrypt encrypted public-safety traffic (TETRA TEA, P25 AES, DMR ARC4) — it just shows the encrypted bitstream"
+    antenna_diy_considerations: "1/4-wave whip ≈ 16 cm at 460 MHz, J-pole / Slim-Jim, magnetic-mount whip on a vehicle for war-driving, broadband discone for scanning, log-periodic 100–800 MHz, base-station collinear (Comet GP-3, Diamond X-30) for stationary monitoring"
+    legal_licensing_notes: "ITU allocated to fixed, mobile, and amateur (in some countries — note 70 cm ham overlap at 430–440 MHz EU). National licensing required for TX (TETRA, P25, DMR business). PMR446 (Europe/Germany — ITU Region 1) and FRS (United States — ITU Region 2 — see 462/467 MHz separately) are license-free at low power. Decrypting encrypted public-safety traffic is illegal in most jurisdictions; receiving non-encrypted traffic is generally legal in United States (ITU Region 2) / UK / NL / SE but restricted in DE / FR — check local rules"
+    max_power_restrictions_eirp: "TETRA terminals 1–3 W (handheld) / 10–30 W (mobile) / 25 W (base); DMR Tier II / III similar; P25 5 W HT / 100 W mobile / 100+ W base. PMR446 capped at 0.5 W ERP in EU (FM) or 0.5 W (digital). Hobbyists are receive-only unless individually licensed (or using PMR446)"
+    propagation_interference_notes: "Line-of-sight with good building penetration (better than 800 MHz for diffraction); tropo enhancement adds 100–300 km. Local QRM from 70 cm ham, 433 MHz ISM, and switch-mode supplies"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines"
+    technologies_example_devices: "TETRA / TETRAPOL (BOS / public-safety in DE / FR / UK ESN transition / NL C2000), P25 Phase 1 / 2, DMR Tier II / III, NXDN, dPMR, Project 25 trunked systems, PMR446 consumer FM / digital, COSPAS-SARSAT 406 MHz beacons"
+    hobbyist_project_ideas: "Build an SDRTrunk receiver to follow your local trunked public-safety system (legally and unencrypted only); decode DMR voice with DSDPlus and an RTL-SDR; map TETRA coverage in your city; build a 406 MHz beacon-monitoring station feeding the SARNET community"
+    sources_citations: "ETSI EN 300 392 (TETRA), ETSI TS 102 361 (DMR), TIA-102 (P25), ITU-R Radio Regulations, FCC Part 90, BNetzA / Ofcom national tables, COSPAS-SARSAT documentation (2026)"
+    usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
+
+  - frequency_range: "600 MHz – 1000 MHz (Cellular LTE / 5G NR low-band, FRS / GMRS, public-safety 700/800 MHz)"
+    key_frequencies_channels: "n71 / B71 600 MHz (UL 663–698 MHz / DL 617–652 MHz, USA T-Mobile); n29 / B29 700 MHz SDL DL-only (717–728 MHz, USA); n12 / B12 700 MHz lower (UL 699–716 MHz / DL 729–746 MHz); n13 / B13 700 MHz upper-c (UL 777–787 / DL 746–756 MHz, USA Verizon); n14 / B14 FirstNet 700 MHz upper (UL 788–798 / DL 758–768 MHz, US public-safety LTE/5G HPUE 1.25 W); n28 / B28 700 MHz APAC (UL 703–748 / DL 758–803 MHz, EU + Asia + LATAM); n8 / B8 GSM-900 / E-GSM 900 MHz EU (UL 880–915 / DL 925–960 MHz); n5 / B5 850 MHz CDMA-legacy (UL 824–849 / DL 869–894 MHz); n26 / B26 850 MHz extended (UL 814–849 / DL 859–894 MHz, USA Sprint legacy → T-Mobile); n20 / B20 800 MHz EU + UK ESN (UL 832–862 / DL 791–821 MHz); n6 / B6 850 MHz Japan KDDI (UL 830–840 / DL 875–885 MHz); n18 / B18 850 MHz Japan KDDI (UL 815–830 / DL 860–875 MHz); n83 SDL 700 MHz; P25 Phase 1 / 2 700 MHz (763–775 / 793–805 MHz public-safety US); P25 800 MHz NPSPAC (806–824 / 851–869 MHz); FRS / GMRS 462.5500–467.7250 MHz (United States — ITU Region 2; FRS license-free, GMRS individual license)"
+    band_name_designation: "UHF Cellular Low-Band + 700 / 800 MHz Public-Safety + FRS / GMRS"
+    primary_uses_hobbyist_relevance: "Mapping LTE / 5G NR low-band coverage, monitoring 700 / 800 MHz public-safety trunked systems (P25 / DMR), running FRS / GMRS handhelds (United States — ITU Region 2), decoding cellular control-plane signalling for PHY-layer education (RX-only)"
+    hardware_modules: "RTL-SDR / Airspy / SDRplay + Falcon / srsRAN / OAI for LTE PHY decoding; 5G NR modems (Quectel RM500Q, RM502Q-AE, Sierra Wireless EM9191, Telit FN980); Android engineering modes (NetMonster, G-NetTrack Pro, NSG Pro on Samsung); FRS / GMRS HTs (Midland GXT1000VP4, Motorola T800, BTECH GMRS-V1 with license); P25 / DMR scanners (Uniden BCD536HP, Whistler TRX-2). Limitation: SDRs cannot decrypt encrypted cellular calls (LTE / NR PDCP-level encryption) — they only see PHY-layer signalling and the encrypted PDCP frames"
+    antenna_diy_considerations: "1/4-wave whip ≈ 8 cm at 900 MHz, half-wave dipole ≈ 16 cm, log-periodic 700–2700 MHz for cellular surveys, 5G NR-friendly 4×4 MIMO panel for site-survey work, mag-mount whip on a vehicle"
+    legal_licensing_notes: "ITU allocated to mobile, fixed, broadcasting (legacy TV in 614–698 MHz post-incentive auction), and aeronautical mobile in some sub-bands. Cellular bands operator-licensed worldwide (national auctions); user equipment license-by-rule. Public-safety 700 / 800 MHz operator-licensed. FRS license-free in United States (ITU Region 2); GMRS requires individual license in the US ($35 for 10 years, no exam)"
+    max_power_restrictions_eirp: "Cellular UE: 23 dBm (200 mW) typical, 26 dBm (400 mW) for some Cat-A power-class-2 5G devices on n41 / n78 (mid-band). Cellular base: 40–60 W per sector EIRP, often 80+ W with active antennas. FRS: 2 W ERP (US), GMRS: 5 W (HT) / 50 W (mobile / repeater). Public-safety LTE Band 14 high-power user equipment up to 1.25 W (HPUE)"
+    propagation_interference_notes: "Excellent building penetration vs. mid- and high-band; 600 / 700 MHz reaches indoor coverage where 3.5 GHz cannot. Tropo enhancement modest. Local QRM from cellular boosters / repeaters and DTV adjacent channels"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; modern smartphones SAR-tested per IEC 62209; macrocell base-stations have published exclusion zones (typically 1–10 m in main lobe at 60 W EIRP)"
+    technologies_example_devices: "LTE Cat-1 / Cat-4 / Cat-M / NB-IoT, 5G NR FR1 SA / NSA, FirstNet (US) on Band 14, ESN (UK) on Band 20 / 28, P25 Phase 2 trunked, DMR Tier III, FRS / GMRS handhelds"
+    hobbyist_project_ideas: "Use an Android phone in engineering mode (NetMonster) to map your local n71 / n28 cell IDs and signal strength; decode LTE PCI / TAC with srsRAN + RTL-SDR; build a small directional antenna and locate a weak 700 MHz repeater; run a GMRS repeater (US license required)"
+    sources_citations: "3GPP TS 38.101-1 / 36.101 (NR / LTE bands), ITU-R Radio Regulations, FCC Part 27 / Part 90 / Part 95, ETSI / 3GPP Release 15 – 18, BNetzA national table, Ofcom UK ESN docs (2026)"
+    usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
+
+  - frequency_range: "1.4 GHz – 2.7 GHz (Cellular LTE / 5G NR low- and mid-band)"
+    key_frequencies_channels: "n45 / B45 1500 MHz APT (~1432–1517 MHz); n66 / B66 / B4 AWS-1 / AWS-3 (1710–1780 / 2110–2200 MHz); n3 / B3 DCS 1800 (1710–1785 / 1805–1880 MHz); n2 / B2 PCS 1900 (1850–1910 / 1930–1990 MHz); n1 / B1 IMT-2100 (1920–1980 / 2110–2170 MHz); n30 / B30 WCS 2300 (2305–2315 / 2350–2360 MHz); n40 / B40 TDD 2300 (2300–2400 MHz); n41 / B41 TDD 2500 (2496–2690 MHz); n7 / B7 IMT-E 2600 (2500–2570 / 2620–2690 MHz); n38 / B38 TDD 2600 (2570–2620 MHz); n75 / n76 SDL 1500 / 1500 (downlink-only supplemental)"
+    band_name_designation: "UHF Cellular Low-Mid / Mid-Band — n1 / n2 / n3 / n7 / n40 / n41 / n66"
+    primary_uses_hobbyist_relevance: "The bread-and-butter of 4G LTE and 5G NR FR1 mid-band capacity. Useful for cellular site surveys, drive-tests, indoor-coverage analysis, and PHY-layer learning"
+    hardware_modules: "5G modems (Quectel RM500Q-GL / RM520N-GL, Sierra Wireless EM9191, Telit FN980m), Waveshare RM502Q-AE M.2 boards, Android engineering tools (NetMonster, NSG Pro, G-NetTrack Pro), drive-test kits (Rohde & Schwarz TSME6, R&S Romes for pros), HackRF One / LimeSDR Mini / USRP B210 + srsRAN / OAI for educational testbeds, RTL-SDR for downlink-only PHY observation. Limitation: SDRs cannot decrypt encrypted cellular calls — only PHY-layer signalling visible"
+    antenna_diy_considerations: "1/4-wave whip ≈ 4 cm at 1900 MHz, MIMO panel antennas for site survey, 4×4 MIMO sleeve dipoles for n41 / n78 mid-band, log-periodic 700–6000 MHz for cellular drive-test, hilltop dish with feed converter (rare for hobbyists)"
+    legal_licensing_notes: "ITU allocated to mobile, fixed, satellite, and radiolocation in some sub-bands. Cellular bands auctioned to operators per country. UE license-by-rule. Setting up your own LTE / 5G eNB / gNB requires either a research / experimental license or use of small isolated test cells (Faraday cage)"
+    max_power_restrictions_eirp: "UE 23 dBm typical; 26 dBm power-class 2 on n41 / n78 / n79 (HPUE). Macrocell base 40–80 W EIRP per sector, active antennas push to 100+ W with massive MIMO. Hobbyists are receive-only outside experimental licenses"
+    propagation_interference_notes: "Mid-band — sweet spot of capacity vs. coverage. Building penetration weaker than low-band but better than 3.5 GHz. Sensitive to vegetation. Local QRM from microwave ovens (n7 / n41 sit just above 2.45 GHz ISM)"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 / IEC 62209 RF-exposure guidelines; modern smartphones SAR-tested for body / head"
+    technologies_example_devices: "LTE Cat-1 through Cat-20, LTE-A carrier aggregation, LAA / LTE-U (in 5 GHz), 5G NR FR1 SA / NSA, NB-IoT (in-band on existing LTE carriers), private 5G on n40 / n41 (industrial)"
+    hobbyist_project_ideas: "Run srsRAN on a USRP B210 inside a Faraday cage to learn LTE / 5G NR PHY end-to-end; build a 5G NR site-survey rig with a Quectel RM520N-GL on a Raspberry Pi CM4; profile your home cellular coverage with NetMonster across all bands"
+    sources_citations: "3GPP TS 38.101-1 / 36.101 (NR / LTE bands), ITU-R Radio Regulations, FCC Part 22 / Part 24 / Part 27, ETSI / 3GPP Release 15 – 18, BNetzA / Ofcom / FCC band tables, GSMA Spectrum Tracker (2026)"
+    usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
+
+  - frequency_range: "3.3 GHz – 4.2 GHz (5G NR C-Band: n77 / n78 / n79)"
+    key_frequencies_channels: "n78 3300–3800 MHz TDD (Europe DE / FR / UK / NL deployments, India n78, Japan portions); n77 3300–4200 MHz TDD (USA C-band 3.7–3.98 GHz auction segment, China expanded n77 3300–4200, Brazil); n79 4400–5000 MHz TDD (Japan / China private); US C-band 3.7–3.98 GHz CBRS-adjacent; CBRS / PAL / GAA 3.55–3.70 GHz (USA Part 96, GAA-tier license-free for compliant SAS-managed devices); EU pioneer band 3.4–3.8 GHz; UK 3.4–3.8 GHz (EE / Vodafone / O2 / Three); German 3.7–3.8 GHz industrial / private 5G campus license"
+    band_name_designation: "5G NR C-Band (Mid-Band / 'sub-6') — n77 / n78 / n79 + CBRS"
+    primary_uses_hobbyist_relevance: "Public 5G NR mid-band capacity worldwide, US Citizens Broadband Radio Service (CBRS) at 3.55–3.70 GHz, German / French / UK / Japanese industrial private 5G campus networks, fixed wireless access (FWA), passive 5G PHY observation with SDR"
+    hardware_modules: "5G NR modems with n77 / n78 / n79 support (Quectel RM500Q-GL, RM520N-GL, Sierra EM9191, Telit FN980m); CBRS-capable APs (Baicells Nova 233, Cradlepoint W1855, Celona, Ruckus Q710 / Q910); SDR for RX with up-converted front-end (Airspy / SDRplay top out at ~6 GHz natively, USRP B210 / X310 covers natively, LimeSDR XTRX, BladeRF 2.0 micro covers up to 6 GHz); spectrum analyzers (R&S FSV3000, Anritsu MS2090A); for hobbyists: Quectel modem on a Raspberry Pi gives PHY-layer telemetry. Limitation: SDRs cannot decrypt encrypted cellular calls — only PHY-layer signalling visible"
+    antenna_diy_considerations: "Patch / panel antennas (4×4 or 8×8 MIMO) for site survey, parabolic dish + feed for FWA point-to-point, sectorised 65° / 90° panel for fixed CBRS sites, 1/4-wave whip ≈ 2 cm (impractical alone — use directional gain), log-periodic 1–6 GHz for general scanning"
+    legal_licensing_notes: "ITU allocated to fixed, mobile, satellite (legacy C-band downlink), and radiolocation (military radar in some sub-bands — coordination required, esp. US C-band 3.7–3.98 GHz cleared from FSS). CBRS (USA Part 96) is a tiered shared-access band: incumbents (Navy radar) > PAL (priority access licenses) > GAA (general authorised access, license-free for compliant SAS-managed devices). Private 5G campus licenses widely available in Germany (3.7–3.8 GHz), France, Netherlands, UK, Japan"
+    max_power_restrictions_eirp: "n78 macrocell base ~52 dBm / 80 W EIRP per sector, active antennas (massive MIMO 64T64R) up to 65–78 dBm beam EIRP. UE 26 dBm power-class 2 (HPUE). CBRS Category A AP: 30 dBm / 1 W per 10 MHz (indoor); Category B: 47 dBm / 50 W EIRP (outdoor); CBRS UE 23 dBm typical. Industrial / private 5G campus: 23 dBm UE, base limited per national rules (DE 75 dBm/MHz EIRP)"
+    propagation_interference_notes: "Line-of-sight dominant; weaker building penetration than low- and mid-band — operators rely on outdoor-indoor signal at 3.5 GHz with limited success. Heavy beamforming (massive MIMO) compensates. Some incumbents (US C-band radar altimeters at 4.2–4.4 GHz) caused 5G coordination issues — adjacent channel"
+    safety_exposure_limits: "Follow ICNIRP 2020 / FCC OET-65 RF-exposure guidelines; small-cell EIRP and sector EIRP have published exclusion zones. Higher public scrutiny in densely populated areas — operators routinely publish coverage / exposure maps"
+    technologies_example_devices: "5G NR FR1 SA / NSA on n77 / n78 / n79, FWA (T-Mobile Home Internet, Vodafone GigaCube), CBRS PAL / GAA on n48, German Industrie-4.0 5G campus networks, Japan private 5G NR on n79"
+    hobbyist_project_ideas: "Run a Quectel RM520N-GL on a Pi CM4 with QMI / MBIM and log per-cell metrics across n77 / n78 / n79; build a passive 5G monitor with USRP B210 + srsRAN to learn the PHY frame structure; deploy a CBRS LTE/NR small cell in your home (US, Cat-A AP + SAS account)"
+    sources_citations: "3GPP TS 38.101-1 (NR FR1 bands), ITU-R Radio Regulations, FCC Part 96 (CBRS) and Auction 107 (US C-band) docs, BNetzA 3.7–3.8 GHz industrial license rules, Ofcom 5G C-band auctions, ETSI / 3GPP Release 15 – 18, GSMA 5G Spectrum Tracker (2026)"
+    usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"

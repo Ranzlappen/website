@@ -1,0 +1,56 @@
+---
+# =============================================================================
+# Spectrum Batch 06 — Low Frequency / Medium Frequency (LF + MF, 30 kHz – 3 MHz)
+# =============================================================================
+# Migrated and upgraded from the original 03-vlf-lf-mf.yml. Covers ONLY
+# the ITU LF band (30 – 300 kHz) and the ITU MF band (300 – 3000 kHz).
+# VLF (3 – 30 kHz) lives in 05-vlf.yml; HF (3 – 30 MHz) is deferred to
+# the next batch file. Schema: identical 14-column layout + batch
+# wrapper used by all earlier files.
+# =============================================================================
+
+batch:
+  id: "lf-mf"
+  order: 6
+  name: "Low Frequency / Medium Frequency (LF + MF, 30 kHz – 3 MHz)"
+  short_name: "LF / MF"
+  description: >
+    The classic long-wave and medium-wave broadcasting bands. LF
+    (30 – 300 kHz) hosts long-wave AM broadcasting (Europe/Asia/Africa),
+    aeronautical and marine NDBs, time signals (DCF77, WWVB, MSF, JJY),
+    and the 2200 m amateur band. MF (300 – 3000 kHz) is the canonical
+    AM broadcast band with strong night-time skywave DX, plus marine
+    and aeronautical voice and the 630 m and 160 m amateur allocations.
+    Both are receive-friendly with simple ferrite-rod or loop antennas.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "30 kHz – 300 kHz"
+    key_frequencies_channels: "Time signals: WWVB 60 kHz (USA), MSF 60 kHz (UK), DCF77 77.5 kHz (Germany), JJY 40/60 kHz (Japan), BPC 68.5 kHz (China). Amateur 2200 m band 135.7–137.8 kHz. NDBs typically 190–535 kHz (overlap with MF). Long-wave AM broadcast 148.5–283.5 kHz (ITU Region 1)"
+    band_name_designation: "Low Frequency (LF) — ITU band 5; long-wave radio"
+    primary_uses_hobbyist_relevance: "Long-wave AM broadcasting (Europe/Asia/Africa), aeronautical and marine non-directional beacons (NDBs), radio-controlled clocks and watches, amateur 2200 m experimentation, time/frequency standard reception"
+    hardware_modules: "Portable long-wave receivers (Sangean ATS-909, Tecsun PL-365/PL-330/PL-990), SDRs with HF/VLF upconverter (RTL-SDR + Ham-It-Up), Airspy HF+ Discovery (direct LF coverage), KiwiSDR (web), Arduino-based DCF77 / WWVB decoder modules (e.g., HKW EM2S, MAS6180)"
+    antenna_diy_considerations: "Ferrite-rod antennas (10–30 cm) for portable RX; large multi-turn air-core loops (1–2 m) for fixed sites; tuned active whips (Mini-Whip / PA0RDT style) for E-field; broadband terminated long wires; orient loops for null-to-noise"
+    legal_licensing_notes: "ITU allocated to fixed, mobile, radionavigation, and broadcasting in Regions 1, 2, and 3. Long-wave broadcasting is a Region 1 (Europe/Africa) staple; Region 2 (Americas) has no long-wave broadcast. 2200 m amateur (135.7–137.8 kHz) requires a license and very low EIRP (typically 1 W ERP cap). Receive-only is unrestricted"
+    max_power_restrictions_eirp: "Broadcast LF stations run hundreds of kW to MW input (e.g., DCF77 ~50 kW carrier, historical Europe 1 ≥ 1 MW). Amateur 2200 m capped near 1 W EIRP. Hobbyists effectively receive-only"
+    propagation_interference_notes: "Excellent ground-wave (hundreds to thousands of km); reliable night-time skywave for true DX. Local interference dominated by switch-mode supplies, PLC, plasma TVs, LED drivers, and Ethernet PoE. Thunderstorm sferics raise the noise floor in summer"
+    safety_exposure_limits: "Follow ICNIRP low-frequency RF guidelines; ambient field strengths at hobbyist sites are far below public-exposure limits"
+    technologies_example_devices: "DCF77 (77.5 kHz), WWVB (60 kHz), MSF (60 kHz), JJY (40/60 kHz), HBG (75 kHz, decommissioned), historical LORAN-C 100 kHz, European long-wave broadcasters (BBC R4 198 kHz historical, France Inter 162 kHz historical), aeronautical NDBs"
+    hobbyist_project_ideas: "Build a DCF77 / WWVB time-signal decoder with an Arduino + ferrite-rod module; chase long-wave AM DX with a tuned loop; log NDB carriers across a continent; experiment on the 2200 m band as a licensed amateur with a small kite/balloon antenna"
+    sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, NIST WWVB documentation, PTB DCF77, NPL MSF, EBU long-wave coordination, ARRL Operating Manual, IEEE Trans. Broadcasting (2026)"
+    usability_badge: "🟢 Public / Broadcast (receive-only)"
+
+  - frequency_range: "300 kHz – 3 MHz (300 – 3000 kHz)"
+    key_frequencies_channels: "AM broadcast band 526.5–1606.5 kHz (Region 1) / 525–1705 kHz (Region 2) with 9 or 10 kHz channel spacing; amateur 630 m 472–479 kHz and 160 m 1.8–2.0 MHz; aeronautical NDBs 190–535 kHz; maritime distress 500 kHz (historical CW), 2182 kHz (voice); marine SSB 2 MHz channels"
+    band_name_designation: "Medium Frequency (MF) — ITU band 6; medium-wave / AM broadcast band"
+    primary_uses_hobbyist_relevance: "Standard AM (medium-wave) broadcasting, amateur 630 m and 160 m, aviation and maritime voice, emergency and disaster comms, regional/local radio. The classic 'AM DXing' band"
+    hardware_modules: "Portable AM/MW receivers (Tecsun PL-330/PL-990, Sangean ATS-909X, C. Crane CC Skywave), SDRs with upconverter or direct-sampling (RTL-SDR + Ham-It-Up, SDRplay RSP1A, Airspy HF+ Discovery), ham SSB transceivers for 160/630 m, sound-card-based decoders for HD Radio (in Region 2)"
+    antenna_diy_considerations: "Ferrite-rod antennas (10–30 cm) in portable AM radios, large air-core loops (1 m+) for serious DX, tuned active whips, beverage antennas for low-noise nighttime DX, magnetic tuned loops; nulls are sharp at MF — rotate to suppress local broadcast splatter"
+    legal_licensing_notes: "ITU allocated to broadcasting, fixed, mobile, maritime mobile, and radionavigation. AM broadcast band canonical worldwide. Amateur 630 m (472–479 kHz) and 160 m (1.8–2.0 MHz) require a license; EIRP/peak-envelope limits vary by country (e.g., FCC 5 W EIRP on 630 m, 1.5 kW PEP on 160 m). Receive-only is unrestricted"
+    max_power_restrictions_eirp: "AM broadcast TX ranges from a few kW (local) to 1 MW+ (clear-channel and international). Amateur 630 m capped at low EIRP (~5 W EIRP in many countries), 160 m at typical HF amateur PEP limits. Hobbyists are receive-only unless licensed"
+    propagation_interference_notes: "Strong ground-wave by day (regional coverage); robust ionospheric skywave at night enables thousands-of-km DX. Local interference: switch-mode supplies, plasma displays, PoE, electric fences, and the broadcast skirt itself near a strong local station"
+    safety_exposure_limits: "Follow ICNIRP low-frequency RF guidelines for general public and occupational exposure"
+    technologies_example_devices: "Clear-channel AM stations (WSM 650 kHz, WBBM 780 kHz, BBC Radio 5 Live 693/909 kHz historical), historical LORAN-C 100 kHz, NDBs across the 200–500 kHz region, marine SSB on 2 MHz, amateur WSPR/FT8 on 630 m and 160 m"
+    hobbyist_project_ideas: "Build a long-wave / medium-wave DX station with a magnetic loop in a quiet rural site; run an AM broadcast band scanner that logs every audible station overnight; chase 160 m FT8 with a basic dipole; build a portable Si4735-based AM receiver with an Arduino UI"
+    sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, NIST WWVB / WWV, EBU medium-wave coordination, ARRL Antenna Book and Operating Manual, IEEE Trans. Broadcasting (2026)"
+    usability_badge: "🟢 Public / Broadcast (receive-only)"

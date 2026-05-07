@@ -1,0 +1,62 @@
+---
+# =============================================================================
+# Spectrum Batch 16 — 24 GHz ISM (1.25 cm) + Amateur + Radar
+# =============================================================================
+# Migrated and upgraded from the original 06-shf-ehf-microwave.yml. Covers
+# the worldwide 24.0–24.25 GHz ISM allocation and the overlapping 1.25 cm
+# amateur band. The ISM portion hosts K-band police speed radar at
+# 24.125 GHz, legacy 24 GHz automotive short-range radar (SRR), industrial
+# heating, motion sensors, and license-free SRDs. The amateur band
+# coexists at the same frequencies under secondary status. mmWave 5G NR
+# (n258 starting at 24.25 GHz), 47 / 76 / 122 / 134 GHz amateur bands,
+# and 60 GHz / 77 GHz automotive radar are deferred to later batch
+# files. Schema: identical 14-column layout + batch wrapper used by
+# all earlier files.
+# =============================================================================
+
+batch:
+  id: "shf-24-ghz-ism-radar"
+  order: 16
+  name: "24 GHz ISM (1.25 cm) + Amateur + Radar"
+  short_name: "24 GHz ISM + Ham"
+  description: >
+    The worldwide 24.0–24.25 GHz ISM band (ITU 5.150) and the overlapping
+    1.25 cm amateur allocation. K-band police speed radar at 24.125 GHz,
+    legacy automotive SRR (now phasing out toward 77 GHz), industrial
+    heating, motion sensors, license-free SRDs, and amateur narrow-band
+    SSB / CW / FT8 / EME activity coexist here. A relatively quiet band
+    with rain fade and atmospheric absorption manageable for short-range
+    work — accessible to hobbyists with off-the-shelf K-band radar
+    modules or transverters built from surplus microwave parts.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "24.000 GHz – 24.250 GHz (ISM band, worldwide; K-band radar; SRDs)"
+    key_frequencies_channels: "ITU 5.150 ISM. K-band police speed radar centred 24.125 GHz (24.05–24.25 GHz allocation, US most common); industrial heating dielectric / RF cookers ~24.125 GHz; legacy automotive short-range radar (SRR) 24.05–24.25 GHz (200 MHz BW) — phased out in EU since 2022, US after 2023, replaced by 77 GHz; motion sensors / door openers 24.125 GHz; tank level sensors 24.0–24.25 GHz (FMCW); FOD (foreign-object detection) airport radar; 5.8 GHz / 24 GHz dual-band marine radar"
+    band_name_designation: "24 GHz ISM band — K-band radar / SRD"
+    primary_uses_hobbyist_relevance: "K-band police-radar reception (legal RX in most jurisdictions), motion-sensor experimentation (the K-LC1A / K-LC2 / K-LC3 / RFbeam K-MC4 / IPM-165 / HB100 / RCWL-9196 hobby modules are 24 GHz Doppler radar), traffic-monitoring radar, drone proximity sensing (some legacy modules), homemade FMCW range / velocity radar"
+    hardware_modules: "Hobby Doppler-radar modules: HB100 (~10.525 GHz X-band — wrong band, but common reference), RCWL-9196 / RCWL-0516 (microwave general), K-LC1A / K-LC2 / K-LC3 / K-LC5 / K-LC6 (RFbeam Microwave AG, 24 GHz, $30–80, simple I/Q output), IPM-165 (InnoSenT, 24 GHz, narrowband), IVS-148 (InnoSenT FMCW); commercial radar modules (Continental ARS-3, Hella RTS, BSD; pre-2023 EU SRR); SDR + 24 GHz mixer / multiplier chains for advanced builders (HMC-984ALP4 chip mixers, HMC1097LP4 PLL synths, ADL5375 modulators); police-radar detectors (Escort Redline 360c, Valentine One Gen2, Uniden R7) — these double as RX-only K-band experimentation aids"
+    antenna_diy_considerations: "Patch-array antennas (built into hobby radar modules, ~80° beam, 8–10 dBi); horn antennas (pyramidal or conical, 18–22 dBi at 24 GHz); small parabolic dishes (20–40 cm, 28–34 dBi gain); waveguide-to-coax transitions (WR-42); slot arrays for low-profile installations; lens antennas (dielectric or metasurface) for compact ranges"
+    legal_licensing_notes: "Worldwide ISM (ITU 5.150). FCC Part 15.245 (24.0–24.25 GHz field-disturbance sensors): 2.5 V/m at 3 m field strength → ~10 dBm EIRP for typical hobby modules. FCC Part 15.249 (general SRDs): 250 mV/m at 3 m → ~4 dBm EIRP. ETSI EN 300 440 / EN 300 718-1 SRD harmonised standards; EU 24.05–24.25 GHz SRDs at 100 mW EIRP duty-cycle limited. Police-radar detector legality varies (illegal in DC, VA, parts of CA freight, mil. installations; legal elsewhere in US; banned in CH and parts of CA). License-free for compliant hobby modules"
+    max_power_restrictions_eirp: "FCC Part 15.245 field-disturbance sensors: ~10 dBm EIRP. FCC Part 15.249 SRDs: ~4 dBm EIRP. EU SRD harmonised: 100 mW EIRP @ 24.05–24.25 GHz with 20 % duty-cycle (some sub-bands lower). Police speed radar: 100 mW – 1 W EIRP into a 20 dBi horn = 10–100 W effective EIRP. Hobbyists are TX-limited unless individually licensed amateur — see next row"
+    propagation_interference_notes: "Strict line-of-sight; significant rain fade (10–25 dB/km in heavy rain at 24 GHz); some atmospheric water-vapour absorption (~0.2 dB/km at sea level); oxygen absorption peak at 60 GHz means 24 GHz is still relatively low-loss for short-range work. Local interference from K-band police radar (intermittent), garage door openers, motion sensors, microwave-leakage detectors"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. Higher-frequency surface absorption (skin depth ~1 mm at 24 GHz) → power deposits in skin and eye lens. ICNIRP general public limit at 24 GHz is 10 W/m<sup>2</sup> (1 mW/cm<sup>2</sup>) averaged over 6 minutes; consumer hobby modules at 10 dBm are safe at any practical distance. Never look down a fed waveguide or horn under TX"
+    technologies_example_devices: "K-band police speed radar (Stalker, Decatur Genesis II Select, Kustom Falcon HR), legacy automotive SRR (Continental ARS-3, Hella RTS), tank-level FMCW gauges (Endress+Hauser, Vega), motion sensors / door openers, microwave-oven leakage detectors (some), traffic-monitoring radar (Wavetronix, RTMS)"
+    hobbyist_project_ideas: "Build a Doppler speed-detector with an RFbeam K-LC2 + Arduino + audio amp and clock cars on your street; build a simple FMCW range-finder with an IPM-165 module + sound-card ADC + Python FFT (Sparkfun / Hackaday tutorials); reverse-engineer a junkyard 24 GHz SRR module; pair an SDR + downconverter for spectrum analysis of your local 24 GHz environment"
+    sources_citations: "ITU-R Radio Regulations RR 5.150 (ISM), FCC Part 15.245 / 15.249, ETSI EN 300 440 / EN 302 858 (24 GHz SRR), RFbeam K-LC datasheets, InnoSenT IPM / IVS application notes, IEEE Trans. Microwave Theory & Techniques (2026)"
+    usability_badge: "🟢 Public / ISM + 🔵 Ham-only"
+
+  - frequency_range: "24.000 GHz – 24.250 GHz (1.25 cm Amateur Band — secondary)"
+    key_frequencies_channels: "Narrow-band SSB / CW / FT8 calling 24.048 GHz worldwide (IARU R1 / R2 standard); EME 24.048 GHz; ATV / digital wide-band 24.150–24.250 GHz; beacons 24.048.500 GHz; IARU R1 sub-band: 24.000–24.050 (narrow-band, EME), 24.050–24.150 (wide-band data / mixed), 24.150–24.250 (ATV / digital); R2 (US, FCC Part 97.301): 24.000–24.250 GHz amateur secondary (primary in some carve-outs); coexists with ISM users on a 'do-not-disturb' basis"
+    band_name_designation: "1.25 cm amateur band (24 GHz)"
+    primary_uses_hobbyist_relevance: "Narrow-band SSB / CW / FT8 microwave DX, EME (very challenging at 24 GHz — typically ≥1 m dish + ≥10 W), microwave contesting (ARRL 10 GHz & Up, IARU Microwave Contest), Amateur TV (DATV) experimentation, beacon monitoring; the next 'serious microwave' band above 10 GHz for active hobbyists"
+    hardware_modules: "Amateur transverters: Kuhne MKU 24 G2 / G3 (28 → 24048 MHz, ~0.5–2 W), DB6NT modules, Down East Microwave (Larry Naylor) DEMI-24G; LNAs: Kuhne MKU LNA 24G, custom GaAs HEMT designs (NE3210S01); PAs: GaN bricks (Mitsubishi RA9H2326M, ~10 W class); SDR transverters: ADALM-Pluto + 24 GHz transverter, USRP X310 + UBX-160 + transverter; multiplier chains from 12 GHz commercial sources (×2 multiplier with HMC189 / HMC368) for receive-only experimentation; surplus 24 GHz waveguide bricks from microwave backhaul links (rare but possible)"
+    antenna_diy_considerations: "Small parabolic dishes (20 cm = 32 dBi, 30 cm = 36 dBi, 60 cm = 42 dBi) — dishes get small / cheap at 24 GHz, but pointing accuracy becomes critical (beamwidth 1–3°); horn antennas (pyramidal 22–25 dBi); waveguide feeds (WR-42); offset-fed dishes (recycled satellite dishes work with custom 24 GHz feeds); slot arrays for portable / contest stations; cassegrain feeds for EME"
+    legal_licensing_notes: "ITU amateur service: 24.000–24.250 GHz secondary in Region 1, primary or secondary depending on segment in Region 2 (FCC Part 97.301), shared with ISM users (RR 5.150). License required worldwide (often advanced/full class for microwave bands). Amateurs must accept interference from ISM and not cause interference to ISM industrial users"
+    max_power_restrictions_eirp: "FCC: 1500 W PEP (General/Extra) — but realistic hobbyist setups run 0.5–10 W due to amplifier cost and complexity at 24 GHz. IARU R1: typically 25–400 W per national class, with some countries imposing EIRP caps to coordinate with primary services. EU CEPT: 25–100 W PEP. Practical setups: 1–5 W into a 30 cm dish → 36 dBi → 4–20 kW EIRP, capable of regional contest QSOs and some EME with a bigger dish"
+    propagation_interference_notes: "Strict line-of-sight; rain fade significant (10–25 dB/km in heavy rain); aircraft-scatter and tropospheric ducting work but harder than 10 GHz. EME requires ≥40 dBi gain (1 m dish) and ≥10 W TX with low-noise feed. Local QRM from ISM users (police radar, motion sensors, industrial heating)"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. At 24 GHz, surface absorption is significant (skin depth ~1 mm) — keep clear of dish main lobe under TX. At 5 W into a 60 cm dish → ~42 dBi → ~80 kW EIRP, controlled-environment safe distance is several meters in main lobe"
+    technologies_example_devices: "FT8 / FT4 / JT65 (WSJT-X) on 24 GHz, narrow-band SSB / CW QSOs, IARU 24 GHz beacons, EME, commercial transverters (Kuhne, DB6NT, DEMI), DATV (DVB-S2 narrow-band-amateur-TV via BATC PortsDown / DATV-Express)"
+    hobbyist_project_ideas: "Build a 24 GHz portable station with a Kuhne MKU 24 G3 transverter + Pluto SDR + 30 cm offset dish for contesting; experiment with rainscatter on 24 GHz (more lossy than 10 GHz but possible); set up a 24 GHz beacon in your garden and study local propagation; attempt your first 24 GHz QSO at a microwave hilltop event with another local ham"
+    sources_citations: "IARU Region 1 / 2 / 3 microwave band plans, ARRL UHF / Microwave Manual, FCC Part 97.301 / 97.303, RSGB / DARC / REF microwave handbooks, AMSAT / EME papers (2026)"
+    usability_badge: "🔵 Ham-only"

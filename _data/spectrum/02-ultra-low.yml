@@ -1,0 +1,84 @@
+---
+# =============================================================================
+# Spectrum Batch 02 — Ultra-Low Frequencies (1 mHz – 3 Hz)
+# =============================================================================
+# Migrated and upgraded from the original 01-ultra-low.yml. Covers
+# magnetospheric micropulsations (Pc5, Pc4, Pc3, and the Pc2 border) below
+# the official ITU ELF band, which starts at 3 Hz. Pure DC / static-field
+# content is intentionally excluded — see 01-below-dc-static.yml for the
+# lower-boundary summary. The 3 Hz+ ELF rows live in later batch files.
+# Schema: identical 14-column layout used by the boundary files.
+# =============================================================================
+
+batch:
+  id: "ultra-low"
+  order: 2
+  name: "Ultra-Low Frequencies (1 mHz – 3 Hz)"
+  short_name: "Ultra-Low"
+  description: >
+    Magnetospheric micropulsations below the ITU ELF band — Pc5, Pc4, Pc3, and
+    the Pc2 border. Natural geomagnetic signals driven by solar wind and
+    magnetospheric/ionospheric coupling, accessible passively to hobbyists with
+    simple coil receivers, DIY magnetometers, and Arduino/Raspberry Pi loggers.
+  last_updated: "2026-05-07"
+
+bands:
+  - frequency_range: "0.001 Hz – 0.01 Hz (1–10 mHz)"
+    key_frequencies_channels: "Pc5 pulsations (1–10 mHz, ~100–600 s period), global magnetospheric cavity modes, solar-wind-driven ULF waves"
+    band_name_designation: "Ultra-Low Frequency Micropulsations (Pc5 class)"
+    primary_uses_hobbyist_relevance: "Space-weather forecasting, geomagnetic storm prediction, magnetospheric field-line resonance research, power-grid harmonic analysis"
+    hardware_modules: "Simple DIY magnetometers, Arduino-based fluxgate boards (e.g., RM3100), smartphone magnetometer apps for casual visualization"
+    antenna_diy_considerations: "Very large multi-turn loop coils (m-scale), long insulated wire pairs for differential E-field sensing; signals captured passively as a magnetic field"
+    legal_licensing_notes: "No radio license needed (passive observation of natural signals)"
+    max_power_restrictions_eirp: "N/A (natural signals)"
+    propagation_interference_notes: "Magnetohydrodynamic (MHD) waves in the magnetosphere coupling to ground via ionospheric currents; strongly affected by solar activity and nearby power lines; can induce GIC blackouts (e.g., 1989 Quebec)"
+    safety_exposure_limits: "Follow ICNIRP static/ELF field guidelines — natural levels are far below exposure limits"
+    technologies_example_devices: "Fluxgate magnetometers, SQUID magnetometers, SuperMAG global array, GOES/ACE satellite magnetometers, USGS observatories"
+    hobbyist_project_ideas: "Build a Schumann-resonance-style coil + sound-card ADC station and log Pc5 pulsations during geomagnetic storms; mirror SuperMAG public feeds"
+    sources_citations: "ITU-R V.431, NASA SuperMAG, USGS Geomagnetism Program, IEEE space-physics literature, INTERMAGNET (2026)"
+    usability_badge: "🟢 Public / Natural"
+
+  - frequency_range: "0.01 Hz – 0.1 Hz (10–100 mHz)"
+    key_frequencies_channels: "Pc4 pulsations (10–100 mHz, ~10–100 s period), compressional and toroidal ULF waves"
+    band_name_designation: "Ultra-Low Frequency Micropulsations (Pc4 class)"
+    primary_uses_hobbyist_relevance: "Magnetospheric diagnostics, solar-wind/magnetosphere coupling studies, deep-Earth conductivity sounding, auroral electrojet monitoring"
+    hardware_modules: "DIY induction-coil sensors, Arduino + HMC5883L / MMC5883 / RM3100 magnetometer breakouts, smartphone compass logging apps"
+    antenna_diy_considerations: "Large air-core loop coils (multi-turn, 1–3 m diameter), long-wire pairs for differential E-field sensing; site away from mains wiring"
+    legal_licensing_notes: "No radio license needed (passive natural signals)"
+    max_power_restrictions_eirp: "N/A (natural signals)"
+    propagation_interference_notes: "Compressional/toroidal MHD waves reaching ground via Hall/Pedersen currents; latitude-dependent; affected by solar activity and 50/60 Hz mains harmonics"
+    safety_exposure_limits: "Follow ICNIRP static/ELF guidelines — natural exposure is well below all limits"
+    technologies_example_devices: "Fluxgate magnetometers, SQUID magnetometers, CARISMA / IMAGE magnetometer chains, THEMIS spacecraft"
+    hobbyist_project_ideas: "Log Pc4 pulsations during a geomagnetic storm with a DIY coil + USB sound-card ADC; cross-correlate with public auroral indices"
+    sources_citations: "ITU-R V.431, NASA THEMIS, IAGA / INTERMAGNET, IEEE Trans. Geoscience and Remote Sensing (2026)"
+    usability_badge: "🟢 Public / Natural"
+
+  - frequency_range: "0.1 Hz – 1 Hz (100 mHz – 1 Hz)"
+    key_frequencies_channels: "Pc3 pulsations (~1–10 s period), upstream / foreshock waves from the bow shock"
+    band_name_designation: "Ultra-Low Frequency Micropulsations (Pc3 class)"
+    primary_uses_hobbyist_relevance: "Solar-wind monitoring and space-weather alerts, ionospheric/magnetospheric research, seismic-EM precursor research"
+    hardware_modules: "DIY induction coils with low-noise op-amp pre-amps, Arduino / Raspberry Pi data loggers, USB sound-card ADC frontends, fluxgate breakout boards"
+    antenna_diy_considerations: "Multi-turn copper loops (1–10 m diameter), buried long-wire E-field probes; quiet rural site preferred to avoid mains hum"
+    legal_licensing_notes: "No radio license needed (passive observation)"
+    max_power_restrictions_eirp: "N/A (natural signals)"
+    propagation_interference_notes: "Foreshock-region waves traveling sunward and coupling into the magnetosphere; affected by solar-wind speed, geomagnetic latitude, and AC mains harmonics"
+    safety_exposure_limits: "Follow ICNIRP static/ELF guidelines — negligible at natural levels"
+    technologies_example_devices: "Fluxgate magnetometers, SQUID magnetometers, SAMBA / MACCS arrays, Cluster and MMS spacecraft, Japanese geomagnetic observatories"
+    hobbyist_project_ideas: "Build a backyard coil-based ULF observatory and stream Pc3 pulsations during high solar-wind-speed events; publish data to a citizen-science feed"
+    sources_citations: "ITU-R V.431, NASA Cluster/MMS, IAGA, IEEE Antennas & Propagation publications (2026)"
+    usability_badge: "🟢 Public / Natural"
+
+  - frequency_range: "1 Hz – 3 Hz"
+    key_frequencies_channels: "Pc2 pulsations (border), sub-ELF geomagnetic variations, power-grid sub-harmonics"
+    band_name_designation: "Upper Ultra-Low / Pre-ELF transition (Pc2 border)"
+    primary_uses_hobbyist_relevance: "Advanced geophysical sensing (Earth-conductivity profiling), earthquake-EM precursor research, lab-scale weak-field interaction studies"
+    hardware_modules: "DIY high-permeability core induction coils, low-noise op-amp pre-amps, Arduino / Raspberry Pi loggers, SQUID magnetometers in lab settings"
+    antenna_diy_considerations: "Large permalloy- or ferrite-core coils, long-baseline wire E-field probes; site well away from mains wiring and inverters"
+    legal_licensing_notes: "No radio license needed; sits just below the official ITU ELF band, which starts at 3 Hz"
+    max_power_restrictions_eirp: "N/A (passive natural-signal reception)"
+    propagation_interference_notes: "Magnetospheric/ionospheric coupling with wavelengths comparable to Earth's radius (global-scale standing waves possible); strongly affected by solar activity, 50/60 Hz mains harmonics, and DC-bus inverters"
+    safety_exposure_limits: "Follow ICNIRP ELF guidelines for general-public and occupational exposure"
+    technologies_example_devices: "Fluxgate magnetometers, SQUID magnetometers, induction coils at remote observatories, Schumann-adjacent monitoring stations"
+    hobbyist_project_ideas: "Build a sub-ELF induction-coil receiver and characterize your local power-line harmonic environment vs. a quiet rural reference site"
+    sources_citations: "ITU-R V.431 (band designations), NASA geomagnetic data, ICNIRP ELF guidelines, IEEE Trans. EMC (2026)"
+    usability_badge: "🟢 Public / Natural"
