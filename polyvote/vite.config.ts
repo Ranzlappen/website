@@ -48,10 +48,17 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'chart': ['chart.js', 'react-chartjs-2'],
-          'firebase': ['firebase/app', 'firebase/firestore', 'firebase/auth'],
-          'framer': ['framer-motion'],
+        // Rolldown (vite 8) requires manualChunks as a function
+        manualChunks(id) {
+          if (id.includes('node_modules/chart.js') || id.includes('node_modules/react-chartjs-2')) {
+            return 'chart';
+          }
+          if (id.includes('node_modules/firebase/') || id.includes('node_modules/@firebase/')) {
+            return 'firebase';
+          }
+          if (id.includes('node_modules/framer-motion')) {
+            return 'framer';
+          }
         },
       },
     },
