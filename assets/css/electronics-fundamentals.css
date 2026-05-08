@@ -679,7 +679,11 @@
   .electronics-page { padding: 0; }
   .electronics-container { max-width: none; padding: 0; }
   .electronics-hero,
-  .electronics-section { break-inside: avoid; }
+  .electronics-section,
+  .electronics-card,
+  .electronics-formula-card,
+  .electronics-guide,
+  .electronics-calculator { break-inside: avoid; }
   .electronics-card,
   .electronics-formula-card,
   .electronics-calculator,
@@ -777,9 +781,11 @@
 
       .electronics-floating-reset {
         position: fixed;
-        bottom: var(--space-md);
+        /* Lift above the page footer so they don't overlap on short
+           pages where both compete for the bottom-right corner. */
+        bottom: 1.5rem;
         right: var(--space-md);
-        z-index: 50;
+        z-index: 60;
         appearance: none;
         background: var(--c-surface);
         color: var(--c-text);
@@ -809,10 +815,17 @@
 
       .electronics-bookmark-btn::before { content: ""; }
       /* Lightweight emphasis so the bookmark button reads as a "save" action
-         even when it sits next to Clear / Copy / Open-in-Wheel siblings. */
+         even when it sits next to Clear / Copy / Open-in-Wheel siblings.
+         font-family: prepend the platform colour-emoji fonts so the
+         🔖 and 🔗 glyphs render in colour on Windows (which otherwise
+         falls back to monochrome) while still letting the Latin label
+         pick up the body face from the font stack. */
       .electronics-bookmark-btn,
       .electronics-share-btn {
         font-weight: 600;
+        font-family: "Apple Color Emoji", "Segoe UI Emoji",
+                     "Segoe UI Symbol", "Noto Color Emoji",
+                     system-ui, var(--f-body, sans-serif);
       }
       .electronics-share-btn:hover,
       .electronics-bookmark-btn:hover {
@@ -864,29 +877,47 @@
         padding: 0.15rem 0.55rem;
       }
 
-      /* Live resistor preview SVG (Section 4). */
+      /* Live resistor preview SVG (Section 4). The container locks a
+         5:1 aspect ratio so the body never collapses into an
+         illegibly thin sliver on narrow screens; the SVG inside
+         fills the box without distortion via preserveAspectRatio. */
       .electronics-rcd-resistor-preview {
         margin: var(--space-md) auto;
         max-width: 22rem;
         color: var(--c-text-muted);
+        aspect-ratio: 5 / 1;
+        width: 100%;
       }
       .electronics-rcd-resistor-preview svg {
         width: 100%;
-        height: auto;
+        height: 100%;
         display: block;
       }
 
-      /* Pseudo-3D tilt on swatches — pure CSS, hover-only so click targets
-         stay accurate. */
+      /* Pseudo-3D tilt on swatches — pure CSS. Hover fires on pointer
+         devices; :active + :focus-visible give tap / keyboard users
+         the same affordance on mobile and via assistive tech. */
       .electronics-rcd-swatch {
         perspective: 600px;
         transform-style: preserve-3d;
       }
-      .electronics-rcd-swatch:hover {
+      .electronics-rcd-swatch:hover,
+      .electronics-rcd-swatch:active,
+      .electronics-rcd-swatch:focus-visible {
         transform: scale(1.06) rotateX(8deg) rotateY(-6deg);
       }
-      .electronics-rcd-swatch.is-active:hover {
+      .electronics-rcd-swatch.is-active:hover,
+      .electronics-rcd-swatch.is-active:active,
+      .electronics-rcd-swatch.is-active:focus-visible {
         transform: scale(1.10) rotateX(8deg) rotateY(-6deg);
+      }
+      /* Light-theme contrast fix for white / yellow / silver chips —
+         their backgrounds are too pale to read against the light
+         page, so swap to the themed --c-border for a visible edge. */
+      [data-theme="light"] .electronics-rcd-swatch[data-color="white"],
+      [data-theme="light"] .electronics-rcd-swatch[data-color="yellow"],
+      [data-theme="light"] .electronics-rcd-swatch[data-color="silver"] {
+        border-color: var(--c-border);
       }
 
       /* E-series "value cloud" — popularity-derived font sizes. JS adds
@@ -952,28 +983,47 @@
         opacity: 0.85;
       }
       .electronics-rcd-chart-toggle {
+        /* Made more prominent (Batch 4): bigger pill, accent border by
+           default, hover lift, and a small chart-icon glyph — so the
+           "you can also see this as a chart" affordance stops getting
+           lost between the tolerance bar and the Reset / Copy /
+           Open-in-Quick-Wheel actions row. */
         appearance: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
         background: var(--c-surface);
-        border: 1px solid var(--c-border);
-        color: var(--c-text-muted);
+        border: 1.5px solid var(--c-accent-border);
+        color: var(--c-accent);
         border-radius: 999px;
-        padding: 0.35rem 0.85rem;
+        padding: 0.5rem 1.05rem;
         font: inherit;
-        font-size: 0.8rem;
+        font-size: 0.88rem;
+        font-weight: 600;
         cursor: pointer;
-        margin-bottom: var(--space-sm);
+        margin-bottom: var(--space-md);
+        box-shadow: 0 2px 8px var(--c-card-shadow);
         transition: background var(--transition-fast),
                     color var(--transition-fast),
-                    border-color var(--transition-fast);
+                    border-color var(--transition-fast),
+                    transform var(--transition-fast),
+                    box-shadow var(--transition-fast);
       }
       .electronics-rcd-chart-toggle:hover {
-        color: var(--c-text);
-        border-color: var(--c-accent-border);
+        background: var(--c-accent-bg);
+        color: var(--c-accent);
+        border-color: var(--c-accent);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px var(--c-card-shadow);
+      }
+      .electronics-rcd-chart-toggle:focus-visible {
+        outline: 2px solid var(--c-accent);
+        outline-offset: 2px;
       }
       .electronics-rcd-chart-toggle[aria-pressed="true"] {
         background: var(--c-accent-bg);
         color: var(--c-accent);
-        border-color: var(--c-accent-border);
+        border-color: var(--c-accent);
       }
 
       @media print {
@@ -1895,12 +1945,17 @@
         }
         .electronics-eseries-finder input[type="number"] { width: 9rem; }
         .electronics-eseries-grid {
+          /* Value-cloud polish (Batch 4): wider min-track and a touch
+             more gap so popularity-tier sizing has room to breathe;
+             extra inner padding on the cloud frame for visual rhythm. */
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
-          gap: 0.3rem;
-          max-height: 260px;
+          grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+          gap: 0.5rem;
+          align-items: center;
+          justify-items: center;
+          max-height: 280px;
           overflow-y: auto;
-          padding: 0.35rem;
+          padding: 0.6rem;
           background: var(--c-bg-alt);
           border: 1px solid var(--c-border-light);
           border-radius: var(--border-radius-sm);
