@@ -77,6 +77,291 @@ widgets should subclass EF.CalculatorKernel directly.
       </div>
     </header>
 
+    {%- comment -%}
+      ========== Batch 9.8: page-level chrome ==========
+      Sticky table of contents (right side, desktop-only), floating Reset All
+      pill (bottom-right, post-hero), and a last-updated footer at the very
+      bottom of the page. All driven by the EF.Widget lifecycle.
+    {%- endcomment -%}
+    <style>
+      .electronics-toc {
+        position: fixed;
+        top: calc(var(--header-height, 3.75rem) + var(--space-md));
+        right: var(--space-md);
+        width: 12rem;
+        max-height: calc(100vh - var(--header-height, 3.75rem) - 2 * var(--space-md));
+        overflow-y: auto;
+        padding: var(--space-sm) var(--space-md);
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 16px var(--c-card-shadow);
+        font-size: 0.85rem;
+        z-index: 5;
+        display: none;
+      }
+      @media (min-width: 1280px) {
+        .electronics-toc { display: block; }
+      }
+      .electronics-toc__title {
+        margin: 0 0 0.4rem;
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--c-text-muted);
+        font-weight: 600;
+      }
+      .electronics-toc ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+      .electronics-toc a {
+        display: block;
+        padding: 0.35rem 0.5rem;
+        border-left: 2px solid transparent;
+        border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+        color: var(--c-text-muted);
+        text-decoration: none;
+        transition: background var(--transition-fast),
+                    border-color var(--transition-fast),
+                    color var(--transition-fast);
+      }
+      .electronics-toc a:hover {
+        color: var(--c-text);
+        background: var(--c-surface-alt);
+      }
+      .electronics-toc a.is-active {
+        color: var(--c-accent);
+        border-left-color: var(--c-accent);
+        background: var(--c-accent-bg);
+        font-weight: 600;
+      }
+
+      .electronics-floating-reset {
+        position: fixed;
+        bottom: var(--space-md);
+        right: var(--space-md);
+        z-index: 50;
+        appearance: none;
+        background: var(--c-surface);
+        color: var(--c-text);
+        border: 1px solid var(--c-border);
+        border-radius: 999px;
+        padding: 0.55rem 1.1rem;
+        font: inherit;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 6px 24px var(--c-card-shadow);
+        transition: background var(--transition-fast),
+                    color var(--transition-fast),
+                    border-color var(--transition-fast),
+                    transform var(--transition-fast);
+      }
+      .electronics-floating-reset:hover {
+        color: var(--c-accent);
+        border-color: var(--c-accent-border);
+        transform: translateY(-1px);
+      }
+      .electronics-floating-reset:focus-visible {
+        outline: 2px solid var(--c-accent);
+        outline-offset: 3px;
+      }
+      .electronics-floating-reset[hidden] { display: none; }
+
+      .electronics-bookmark-btn::before { content: ""; }
+      /* Lightweight emphasis so the bookmark button reads as a "save" action
+         even when it sits next to Clear / Copy / Open-in-Wheel siblings. */
+      .electronics-bookmark-btn {
+        font-weight: 600;
+      }
+
+      .electronics-footer {
+        margin-top: var(--space-2xl);
+        padding: var(--space-lg) 0;
+        border-top: 1px solid var(--c-border-light);
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-md);
+        align-items: baseline;
+        font-size: 0.82rem;
+        color: var(--c-text-muted);
+      }
+      .electronics-footer__version {
+        font-family: var(--f-mono);
+        font-variant-numeric: tabular-nums;
+        background: var(--c-surface-alt);
+        border: 1px solid var(--c-border);
+        border-radius: var(--border-radius-sm);
+        padding: 0.15rem 0.55rem;
+      }
+
+      /* Live resistor preview SVG (Section 4). */
+      .electronics-rcd-resistor-preview {
+        margin: var(--space-md) auto;
+        max-width: 22rem;
+        color: var(--c-text-muted);
+      }
+      .electronics-rcd-resistor-preview svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      /* Pseudo-3D tilt on swatches — pure CSS, hover-only so click targets
+         stay accurate. */
+      .electronics-rcd-swatch {
+        perspective: 600px;
+        transform-style: preserve-3d;
+      }
+      .electronics-rcd-swatch:hover {
+        transform: scale(1.06) rotateX(8deg) rotateY(-6deg);
+      }
+      .electronics-rcd-swatch.is-active:hover {
+        transform: scale(1.10) rotateX(8deg) rotateY(-6deg);
+      }
+
+      /* E-series "value cloud" — popularity-derived font sizes. JS adds
+         the .electronics-eseries-value--tN modifier (1..4). */
+      .electronics-eseries-value--t1 { font-size: 0.7rem;  opacity: 0.65; }
+      .electronics-eseries-value--t2 { font-size: 0.82rem; opacity: 0.85; }
+      .electronics-eseries-value--t3 { font-size: 0.95rem; }
+      .electronics-eseries-value--t4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        background: var(--c-accent-bg);
+        border-color: var(--c-accent-border);
+        color: var(--c-accent);
+      }
+
+      /* Tolerance-chart toggle (Section 4). Default = chart hidden, CSS
+         fallback visible. The fallback shows nested rectangles whose width
+         matches each tolerance class's spread relative to ±20%. */
+      .electronics-rcd-chart-wrapper {
+        display: none;
+      }
+      .electronics-rcd-chart-wrapper.is-shown {
+        display: block;
+      }
+      .electronics-rcd-chart-fallback {
+        position: relative;
+        height: 200px;
+        margin: 0 0 var(--space-md);
+        padding: var(--space-sm) var(--space-md);
+        background: var(--c-bg-alt);
+        border: 1px solid var(--c-border-light);
+        border-radius: var(--border-radius-sm);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+      }
+      .electronics-rcd-chart-fallback.is-hidden { display: none; }
+      .electronics-rcd-chart-fallback__row {
+        display: grid;
+        grid-template-columns: 4rem minmax(0, 1fr);
+        gap: 0.5rem;
+        align-items: center;
+        font-size: 0.78rem;
+        font-family: var(--f-mono);
+        font-variant-numeric: tabular-nums;
+      }
+      .electronics-rcd-chart-fallback__label {
+        color: var(--c-text-muted);
+        text-align: right;
+      }
+      .electronics-rcd-chart-fallback__bar {
+        position: relative;
+        height: 1.2rem;
+        background: var(--c-border);
+        border-radius: 4px;
+      }
+      .electronics-rcd-chart-fallback__fill {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        background: var(--fallback-color, var(--c-accent));
+        border-radius: 4px;
+        opacity: 0.85;
+      }
+      .electronics-rcd-chart-toggle {
+        appearance: none;
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        color: var(--c-text-muted);
+        border-radius: 999px;
+        padding: 0.35rem 0.85rem;
+        font: inherit;
+        font-size: 0.8rem;
+        cursor: pointer;
+        margin-bottom: var(--space-sm);
+        transition: background var(--transition-fast),
+                    color var(--transition-fast),
+                    border-color var(--transition-fast);
+      }
+      .electronics-rcd-chart-toggle:hover {
+        color: var(--c-text);
+        border-color: var(--c-accent-border);
+      }
+      .electronics-rcd-chart-toggle[aria-pressed="true"] {
+        background: var(--c-accent-bg);
+        color: var(--c-accent);
+        border-color: var(--c-accent-border);
+      }
+
+      @media print {
+        /* Hide interactive chrome that doesn't print well. */
+        .electronics-toc,
+        .electronics-floating-reset,
+        .electronics-rcd-chart-toggle,
+        .electronics-bookmark-btn,
+        canvas.electronics-rcd-resistor-preview,
+        .electronics-rcd-chart-wrapper canvas,
+        .electronics-ohms-chart-wrapper canvas,
+        .electronics-led-chart-wrapper canvas,
+        .electronics-divider-chart-wrapper canvas,
+        .electronics-rc-chart-wrapper canvas,
+        .electronics-wheel-chart-wrapper canvas,
+        .electronics-sp-chart-wrapper canvas {
+          display: none !important;
+        }
+        /* Force the CSS fallback bar visible on print so a paper copy still
+           communicates tolerance ranges. */
+        .electronics-rcd-chart-fallback.is-hidden { display: flex !important; }
+        /* Enlarge formula equations for paper readability. */
+        .electronics-formula-card__equation {
+          font-size: 1.3rem !important;
+          line-height: 1.5;
+        }
+        /* Resistor preview prints in colour. */
+        .electronics-rcd-resistor-preview svg {
+          color: #111 !important;
+        }
+      }
+    </style>
+
+    <aside class="electronics-toc" id="electronics-toc" role="navigation" aria-label="On this page">
+      <h4 class="electronics-toc__title">On this page</h4>
+      <ol>
+        <li><a href="#electronics-quick-reference">Quick Wheel</a></li>
+        <li><a href="#electronics-formulas">Formulas &amp; Laws</a></li>
+        <li><a href="#electronics-calculators">Calculators</a></li>
+        <li><a href="#electronics-components">Component Lab</a></li>
+        <li><a href="#electronics-design-guides">Design Guides</a></li>
+        <li><a href="#electronics-tables">Reference Tables</a></li>
+      </ol>
+    </aside>
+
+    <button type="button"
+            class="electronics-floating-reset"
+            id="electronics-reset-all-floating"
+            hidden>
+      ↻ Reset all
+    </button>
+
     {%- comment -%} ========== Section 1: Hero / Quick Reference Wheel ========== {%- endcomment -%}
     <section class="electronics-section" id="electronics-quick-reference" aria-labelledby="electronics-wheel-heading">
       <h2 class="electronics-section__title" id="electronics-wheel-heading" style="text-align: center;">
@@ -1801,14 +2086,15 @@ widgets should subclass EF.CalculatorKernel directly.
       </div>
     </section>
 
-    {%- comment -%} ========== Section 4: Component References & Charts ========== {%- endcomment -%}
+    {%- comment -%} ========== Section 4: Visual Component Lab ========== {%- endcomment -%}
     <section class="electronics-section" id="electronics-components" aria-labelledby="electronics-components-heading">
-      <h2 class="electronics-section__title" id="electronics-components-heading">Component References &amp; Charts</h2>
+      <h2 class="electronics-section__title" id="electronics-components-heading">Visual Component Lab</h2>
       <p class="electronics-section__intro">
-        Decode resistor color bands interactively, look up standard E-series
-        values with a built-in closest-match finder, and compare tolerance
-        grades visually. Both panels stay in sync with the dark/light theme
-        and feed the Quick Wheel above when you find a value worth playing with.
+        A hands-on bench: pick colors on a live resistor preview, scan an
+        E-series value cloud sized by popularity, and toggle the tolerance
+        chart on demand. Every panel stays in sync with the dark/light theme
+        and feeds the Quick Wheel above when you find a value worth playing
+        with.
       </p>
 
       <style>
@@ -2111,6 +2397,17 @@ widgets should subclass EF.CalculatorKernel directly.
                id="electronics-rcd-bands"
                role="group" aria-label="Resistor color bands"></div>
 
+          {%- comment -%}
+            Live resistor preview (Batch 9.8). The SVG is populated by the
+            initLiveResistorPreview widget — which watches the bands
+            container via MutationObserver — so it doesn't need to reach
+            inside the decoder's closure.
+          {%- endcomment -%}
+          <figure class="electronics-rcd-resistor-preview" aria-hidden="true">
+            <svg id="electronics-rcd-resistor-svg" viewBox="0 0 300 40"
+                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+          </figure>
+
           <div class="electronics-rcd-result" role="status" aria-live="polite">
             <span class="electronics-rcd-result__value" id="electronics-rcd-value">1 kΩ</span>
             <span class="electronics-rcd-result__tolerance" id="electronics-rcd-tolerance">±5%</span>
@@ -2124,6 +2421,49 @@ widgets should subclass EF.CalculatorKernel directly.
             <span class="electronics-rcd-tolerance-bar__label electronics-rcd-tolerance-bar__label--min" id="electronics-rcd-bar-min">—</span>
             <span class="electronics-rcd-tolerance-bar__label electronics-rcd-tolerance-bar__label--nominal" id="electronics-rcd-bar-nominal">—</span>
             <span class="electronics-rcd-tolerance-bar__label electronics-rcd-tolerance-bar__label--max" id="electronics-rcd-bar-max">—</span>
+          </div>
+
+          {%- comment -%}
+            CSS fallback bar (Batch 9.8). Always rendered; hidden via
+            .is-hidden when the user opts to show the Chart.js comparison.
+            Bars are sized at run-time by initToleranceChartToggle to scale
+            against ±20%.
+          {%- endcomment -%}
+          <button type="button"
+                  class="electronics-rcd-chart-toggle"
+                  id="electronics-rcd-chart-toggle"
+                  aria-pressed="false">📊 Show chart</button>
+          <div class="electronics-rcd-chart-fallback" id="electronics-rcd-chart-fallback" aria-hidden="true">
+            <div class="electronics-rcd-chart-fallback__row">
+              <span class="electronics-rcd-chart-fallback__label">±20%</span>
+              <div class="electronics-rcd-chart-fallback__bar">
+                <div class="electronics-rcd-chart-fallback__fill" style="left: 0%; width: 100%; --fallback-color: #94a3b8;"></div>
+              </div>
+            </div>
+            <div class="electronics-rcd-chart-fallback__row">
+              <span class="electronics-rcd-chart-fallback__label">±10%</span>
+              <div class="electronics-rcd-chart-fallback__bar">
+                <div class="electronics-rcd-chart-fallback__fill" style="left: 25%; width: 50%; --fallback-color: #c0c0c0;"></div>
+              </div>
+            </div>
+            <div class="electronics-rcd-chart-fallback__row">
+              <span class="electronics-rcd-chart-fallback__label">±5%</span>
+              <div class="electronics-rcd-chart-fallback__bar">
+                <div class="electronics-rcd-chart-fallback__fill" style="left: 37.5%; width: 25%; --fallback-color: #d4a017;"></div>
+              </div>
+            </div>
+            <div class="electronics-rcd-chart-fallback__row">
+              <span class="electronics-rcd-chart-fallback__label">±2%</span>
+              <div class="electronics-rcd-chart-fallback__bar">
+                <div class="electronics-rcd-chart-fallback__fill" style="left: 45%; width: 10%; --fallback-color: #d42d2d;"></div>
+              </div>
+            </div>
+            <div class="electronics-rcd-chart-fallback__row">
+              <span class="electronics-rcd-chart-fallback__label">±1%</span>
+              <div class="electronics-rcd-chart-fallback__bar">
+                <div class="electronics-rcd-chart-fallback__fill" style="left: 47.5%; width: 5%; --fallback-color: #8b4513;"></div>
+              </div>
+            </div>
           </div>
 
           <div class="electronics-rcd-chart-wrapper">
@@ -3004,6 +3344,15 @@ widgets should subclass EF.CalculatorKernel directly.
         </p>
       </div>
     </section>
+
+    {%- comment -%} ========== Last-updated footer (Batch 9.8) ========== {%- endcomment -%}
+    <footer class="electronics-footer" role="contentinfo">
+      <span>
+        Last updated <time datetime="2026-05-08"><strong>2026-05-08</strong></time>
+      </span>
+      <span class="electronics-footer__version">Electronics Fundamentals v1.0 · 12 widgets</span>
+      <span>Bug or correction? Open an issue on <a href="https://github.com/Ranzlappen/website/issues" rel="noopener">GitHub</a>.</span>
+    </footer>
 
   </div>
 </section>

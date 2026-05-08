@@ -487,6 +487,243 @@
     return out;
   };
 
+  // --------------------------------------------------------------------------
+  // EF.LazyChartManager — IntersectionObserver-driven chart lifecycle.
+  //
+  // Widgets that opt in pass their canvas's wrapper plus build/pause/resume
+  // callbacks. The manager:
+  //   * Defers the first build() until the wrapper enters the viewport.
+  //   * Caps active chart count at MAX_ACTIVE; when exceeded, the LRU chart's
+  //     pause() callback fires and its build is preserved (so re-entering the
+  //     viewport hits resume() without rebuilding from scratch).
+  //
+  // Existing widgets (which build eagerly) keep working unchanged. Section 4's
+  // tolerance chart uses this manager so it stays out of the work queue until
+  // the user actively requests it.
+  // --------------------------------------------------------------------------
+  EF.LazyChartManager = (function () {
+    var MAX_ACTIVE = 2;
+    var registrations = [];
+    var observer = null;
+    var activeQueue = [];        // names of currently-active charts, MRU last
+
+    function ensureObserver() {
+      if (observer) return observer;
+      if (typeof IntersectionObserver === 'undefined') return null;
+      observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var reg = findByContainer(entry.target);
+          if (!reg) return;
+          if (entry.isIntersecting) activate(reg);
+        });
+      }, { rootMargin: '120px 0px', threshold: 0.05 });
+      return observer;
+    }
+
+    function findByContainer(el) {
+      for (var i = 0; i < registrations.length; i++) {
+        if (registrations[i].container === el) return registrations[i];
+      }
+      return null;
+    }
+    function findByName(name) {
+      for (var i = 0; i < registrations.length; i++) {
+        if (registrations[i].name === name) return registrations[i];
+      }
+      return null;
+    }
+
+    function activate(reg) {
+      // Promote to MRU position regardless of prior status.
+      activeQueue = activeQueue.filter(function (n) { return n !== reg.name; });
+
+      if (reg.status === 'pending') {
+        try {
+          reg.chartRef = reg.build() || reg.chartRef || null;
+          reg.status = 'active';
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error('LazyChart build failed: ' + reg.name, e);
+          reg.status = 'failed';
+          return;
+        }
+      } else if (reg.status === 'paused') {
+        if (typeof reg.resume === 'function') {
+          try { reg.resume(reg.chartRef); } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error('LazyChart resume failed: ' + reg.name, e);
+          }
+        }
+        reg.status = 'active';
+      }
+
+      if (reg.status !== 'active') return;
+      activeQueue.push(reg.name);
+
+      while (activeQueue.length > MAX_ACTIVE) {
+        var evictName = activeQueue.shift();
+        var evict = findByName(evictName);
+        if (!evict) continue;
+        if (typeof evict.pause === 'function') {
+          try { evict.pause(evict.chartRef); } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error('LazyChart pause failed: ' + evict.name, e);
+          }
+        }
+        evict.status = 'paused';
+      }
+    }
+
+    /**
+     * Register a chart for lazy lifecycle management.
+     *   name      string  unique identifier
+     *   container Element a wrapper that owns the chart canvas
+     *   build     fn ()  → chart instance (called once on first activation)
+     *   pause     fn (chart)  optional — called when LRU-evicted
+     *   resume    fn (chart)  optional — called when re-entering viewport
+     */
+    function register(name, container, callbacks) {
+      if (!name || !container || !callbacks || typeof callbacks.build !== 'function') return null;
+      if (findByName(name)) return findByName(name);
+      var reg = {
+        name: name,
+        container: container,
+        build: callbacks.build,
+        pause: callbacks.pause || null,
+        resume: callbacks.resume || null,
+        status: 'pending',
+        chartRef: null
+      };
+      registrations.push(reg);
+      var obs = ensureObserver();
+      if (obs) obs.observe(container);
+      else activate(reg);          // No IO support → eager build.
+      return reg;
+    }
+
+    /** Force-activate (e.g. when user toggles the chart on). */
+    function show(name) {
+      var reg = findByName(name);
+      if (reg) activate(reg);
+      return reg;
+    }
+
+    function unregisterAll() {
+      if (observer) { observer.disconnect(); observer = null; }
+      registrations.length = 0;
+      activeQueue.length = 0;
+    }
+
+    function getStatus() {
+      return registrations.map(function (r) {
+        return { name: r.name, status: r.status };
+      });
+    }
+
+    return {
+      register: register,
+      show: show,
+      unregisterAll: unregisterAll,
+      getStatus: getStatus,
+      MAX_ACTIVE: MAX_ACTIVE
+    };
+  })();
+
+  // --------------------------------------------------------------------------
+  // EF.Bookmark — URL hash + localStorage state persistence.
+  //
+  // Each calculator that opts in gets a "Bookmark" button injected into its
+  // .electronics-ohms-actions row. Clicking saves widget.getState() to
+  // localStorage under "ef:state:<name>" AND mirrors a base64-encoded blob
+  // into the URL hash so the URL can be shared.
+  //
+  // On page load, EF.Bookmark.restoreFromHash() reads the hash and dispatches
+  // the snapshot to whichever widget exposes a restoreState() method.
+  // --------------------------------------------------------------------------
+  EF.Bookmark = (function () {
+    var STORAGE_PREFIX = 'ef:state:';
+    var HASH_PREFIX    = '#ef=';
+
+    function safeStringify(obj) {
+      try { return JSON.stringify(obj); } catch (_) { return null; }
+    }
+    function safeParse(text) {
+      try { return JSON.parse(text); } catch (_) { return null; }
+    }
+    function b64Encode(str) {
+      try { return btoa(unescape(encodeURIComponent(str))); } catch (_) { return null; }
+    }
+    function b64Decode(str) {
+      try { return decodeURIComponent(escape(atob(str))); } catch (_) { return null; }
+    }
+
+    function save(name, state) {
+      if (!name || !state) return false;
+      var json = safeStringify(state);
+      if (!json) return false;
+      try { localStorage.setItem(STORAGE_PREFIX + name, json); } catch (_) { /* private mode */ }
+      var b64 = b64Encode(json);
+      if (b64) {
+        var hash = HASH_PREFIX + encodeURIComponent(name) + ':' + b64;
+        try { history.replaceState(null, '', hash); } catch (_) { window.location.hash = hash; }
+      }
+      return true;
+    }
+
+    function load(name) {
+      try {
+        var raw = localStorage.getItem(STORAGE_PREFIX + name);
+        if (!raw) return null;
+        return safeParse(raw);
+      } catch (_) { return null; }
+    }
+
+    function clear(name) {
+      try { localStorage.removeItem(STORAGE_PREFIX + name); } catch (_) { /* ignore */ }
+    }
+
+    function parseHash() {
+      var h = window.location.hash || '';
+      if (h.indexOf(HASH_PREFIX) !== 0) return null;
+      var rest = h.slice(HASH_PREFIX.length);
+      var sep = rest.indexOf(':');
+      if (sep < 1) return null;
+      var name = decodeURIComponent(rest.slice(0, sep));
+      var b64 = rest.slice(sep + 1);
+      var json = b64Decode(b64);
+      if (!json) return null;
+      var state = safeParse(json);
+      if (!state) return null;
+      return { name: name, state: state };
+    }
+
+    /**
+     * Read the URL hash and dispatch the encoded state to the matching
+     * widget's restoreState method (if it exposes one). Falls back to no-op
+     * for widgets that haven't implemented restoreState.
+     */
+    function restoreFromHash() {
+      var parsed = parseHash();
+      if (!parsed) return false;
+      for (var i = 0; i < EF.widgets.length; i++) {
+        var entry = EF.widgets[i];
+        if (entry && entry.name === parsed.name && typeof entry.restoreState === 'function') {
+          try { entry.restoreState(parsed.state); return true; } catch (_) { return false; }
+        }
+      }
+      return false;
+    }
+
+    return {
+      save: save,
+      load: load,
+      clear: clear,
+      parseHash: parseHash,
+      restoreFromHash: restoreFromHash,
+      STORAGE_PREFIX: STORAGE_PREFIX,
+      HASH_PREFIX: HASH_PREFIX
+    };
+  })();
   // ==========================================================================
   // Section bootstrap — placeholder hooks for each batch
   //   Each init function below is a no-op until its batch lands. Keeping the
@@ -937,6 +1174,20 @@
         userOrder = [];
         userValues = {};
         QTY.forEach(function (n) { inputs[n].value = ''; });
+        recompute();
+      },
+      restoreState: function (snap) {
+        if (!snap || !snap.userValues) return;
+        userOrder = [];
+        userValues = {};
+        QTY.forEach(function (n) { inputs[n].value = ''; });
+        var order = Array.isArray(snap.userOrder) ? snap.userOrder : Object.keys(snap.userValues);
+        order.forEach(function (n) {
+          var v = snap.userValues[n];
+          if (!isFinite(v) || !inputs[n]) return;
+          inputs[n].value = String(v);
+          trackUserInput(n, v);
+        });
         recompute();
       }
     });
@@ -3448,7 +3699,22 @@
         QTY.forEach(function (n) { snap[n] = isFinite(userValues[n]) ? userValues[n] : null; });
         return { userOrder: userOrder.slice(), userValues: snap };
       },
-      reset: function () { if (clearBtn) clearBtn.click(); }
+      reset: function () { if (clearBtn) clearBtn.click(); },
+      restoreState: function (snap) {
+        if (!snap || !snap.userValues) return;
+        userOrder = [];
+        userValues = {};
+        QTY.forEach(function (n) { inputs[n].value = ''; });
+        var order = Array.isArray(snap.userOrder) ? snap.userOrder : Object.keys(snap.userValues);
+        order.forEach(function (n) {
+          var v = snap.userValues[n];
+          if (!isFinite(v) || !inputs[n]) return;
+          inputs[n].value = String(v);
+          if (typeof syncSliderFromValue === 'function') syncSliderFromValue(n, v);
+          trackUserInput(n, v);
+        });
+        recompute();
+      }
     });
   }
 
@@ -4211,6 +4477,317 @@
   // Boot
   // ==========================================================================
 
+  // ==========================================================================
+  // Page-level enhancement widgets (Batch 9.8)
+  //   These are page-scoped chrome — TOC, floating reset, bookmark injector,
+  //   live resistor preview, E-series cloud, tolerance-chart toggle. Each is
+  //   registered through the same EF.registerWidget factory so they get the
+  //   uniform mount lifecycle.
+  // ==========================================================================
+
+  // --------------------------------------------------------------------------
+  // initStickyToc — IntersectionObserver-driven scroll-spy TOC.
+  //   The aside is rendered once in HTML; this hook just wires up the
+  //   active-link highlighting + smooth-scroll behaviour.
+  // --------------------------------------------------------------------------
+  function initStickyToc() {
+    var toc = document.getElementById('electronics-toc');
+    if (!toc) return;
+    var links = Array.prototype.slice.call(toc.querySelectorAll('a[href^="#"]'));
+    if (!links.length) return;
+
+    var sections = links.map(function (a) {
+      var id = a.getAttribute('href').slice(1);
+      return { link: a, target: document.getElementById(id) };
+    }).filter(function (entry) { return entry.target; });
+
+    if (typeof IntersectionObserver === 'undefined' || !sections.length) return;
+
+    function setActive(id) {
+      sections.forEach(function (s) {
+        var on = s.link.getAttribute('href') === '#' + id;
+        s.link.classList.toggle('is-active', on);
+        s.link.setAttribute('aria-current', on ? 'true' : 'false');
+      });
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      // Pick the entry closest to the top of the viewport that's visible.
+      var top = null;
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        if (!top || e.boundingClientRect.top < top.boundingClientRect.top) top = e;
+      });
+      if (top && top.target.id) setActive(top.target.id);
+    }, { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.1, 0.5, 1] });
+
+    sections.forEach(function (s) { observer.observe(s.target); });
+    if (sections[0]) setActive(sections[0].target.id);
+
+    // Smooth-scroll fallback for browsers without scroll-behavior: smooth.
+    links.forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var id = a.getAttribute('href').slice(1);
+        var target = document.getElementById(id);
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.pushState(null, '', '#' + id);
+      });
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // initFloatingResetAll — bottom-right pill that triggers EF.resetAllWidgets().
+  //   Shown only after the visitor scrolls past the hero so it doesn't
+  //   compete with the disclaimer / "How to use" text.
+  // --------------------------------------------------------------------------
+  function initFloatingResetAll() {
+    var btn = document.getElementById('electronics-reset-all-floating');
+    if (!btn) return;
+    var hero = document.querySelector('.electronics-hero');
+    if (!hero || typeof IntersectionObserver === 'undefined') {
+      // Fallback: always visible so the button isn't lost.
+      btn.hidden = false;
+    } else {
+      var observer = new IntersectionObserver(function (entries) {
+        // Hero out of viewport → show the pill, otherwise hide it.
+        var visible = entries[0] ? entries[0].isIntersecting : true;
+        btn.hidden = visible;
+      }, { threshold: 0 });
+      observer.observe(hero);
+    }
+    btn.addEventListener('click', function () {
+      var ok = window.confirm('Reset every calculator on this page back to defaults?');
+      if (!ok) return;
+      EF.resetAllWidgets();
+      // Brief affordance so the user knows the click registered.
+      var prev = btn.textContent;
+      btn.textContent = '✓ Reset';
+      setTimeout(function () { btn.textContent = prev; }, 1100);
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // initBookmarkInjector — finds every .electronics-ohms-actions row inside
+  // a registered widget's card and injects a "Bookmark" button. Click stores
+  // widget.getState() in localStorage + URL hash via EF.Bookmark.save.
+  // --------------------------------------------------------------------------
+  function initBookmarkInjector() {
+    // Map: actions row → widget name. We discover the widget name by walking
+    // up to the nearest [id^="electronics-"] container and matching against
+    // EF.widgets entries. Falls back to the container's id otherwise.
+    var actionRows = document.querySelectorAll('.electronics-ohms-actions');
+    if (!actionRows.length) return;
+
+    // Container DOM ids ↔ EF.widgets entry names. Kept as an explicit map
+    // because the two namespaces don't share clean substrings (e.g. the wheel
+    // sits in #electronics-quick-reference but registers as "quick-reference-
+    // wheel"), so a heuristic substring search would miss the wheel and
+    // mis-match neighbours.
+    var ID_TO_WIDGET = {
+      'electronics-quick-reference': 'quick-reference-wheel',
+      'electronics-calc-ohms':       'ohms-law-calculator',
+      'electronics-calc-led':        'led-resistor-calculator',
+      'electronics-calc-divider':    'voltage-divider-calculator',
+      'electronics-calc-sp':         'series-parallel-calculator',
+      'electronics-calc-rc':         'rc-timer-calculator',
+      'electronics-rcd-card':        'resistor-color-decoder'
+    };
+
+    function widgetNameForRow(row) {
+      var node = row;
+      while (node && node !== document.body) {
+        if (node.id && ID_TO_WIDGET[node.id]) return ID_TO_WIDGET[node.id];
+        node = node.parentNode;
+      }
+      return null;
+    }
+
+    function findWidgetEntry(name) {
+      for (var i = 0; i < EF.widgets.length; i++) {
+        if (EF.widgets[i].name === name) return EF.widgets[i];
+      }
+      return null;
+    }
+
+    Array.prototype.forEach.call(actionRows, function (row) {
+      // Don't double-inject if we re-run this function.
+      if (row.querySelector('.electronics-bookmark-btn')) return;
+      var name = widgetNameForRow(row);
+      if (!name) return;
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'electronics-calculator__reset electronics-bookmark-btn';
+      btn.textContent = '🔖 Bookmark';
+      btn.setAttribute('aria-label', 'Bookmark current values for ' + name);
+      btn.addEventListener('click', function () {
+        var entry = findWidgetEntry(name);
+        if (!entry || typeof entry.getState !== 'function') {
+          // eslint-disable-next-line no-console
+          console.warn('Cannot bookmark "' + name + '" — no getState() available.');
+          return;
+        }
+        var state = entry.getState();
+        var ok = EF.Bookmark.save(name, state);
+        var prev = btn.textContent;
+        btn.textContent = ok ? '✓ Saved (URL + storage)' : '⚠ Save failed';
+        setTimeout(function () { btn.textContent = prev; }, 1600);
+      });
+      row.appendChild(btn);
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // initLiveResistorPreview — renders an SVG resistor whose stripe colors
+  // mirror the Color-Code Decoder's current band selection. Watches the
+  // decoder's swatch palette via MutationObserver so we don't have to reach
+  // into the decoder's closure.
+  // --------------------------------------------------------------------------
+  function initLiveResistorPreview() {
+    var preview = document.getElementById('electronics-rcd-resistor-svg');
+    var bandsRoot = document.getElementById('electronics-rcd-bands');
+    if (!preview || !bandsRoot) return;
+    var data = EF.readDataIsland('electronics-rcd-data');
+    var COLORS = data && data.colors ? data.colors : {};
+
+    function readBandColors() {
+      var bands = bandsRoot.querySelectorAll('.electronics-rcd-band');
+      var out = [];
+      Array.prototype.forEach.call(bands, function (band) {
+        var active = band.querySelector('.electronics-rcd-swatch.is-active');
+        if (active) out.push(active.getAttribute('data-color'));
+      });
+      return out;
+    }
+
+    function render() {
+      var colors = readBandColors();
+      if (!colors.length) return;
+      // Body width 200, height 40, centered. Stripe positions distributed
+      // across the body interior with the tolerance band pulled toward the
+      // right end (real-resistor convention).
+      var bodyX = 50;
+      var bodyW = 200;
+      var stripeW = 14;
+      var n = colors.length;
+      var startGap = 28;        // gap from left body edge to first stripe
+      var tolGap   = 28;        // gap from last digit/multiplier to tolerance
+      var availW = bodyW - startGap - tolGap;
+      var dataBands = n - 1;    // every band except tolerance
+      var step = dataBands > 1 ? availW / (dataBands - 1) : 0;
+
+      var stripes = colors.map(function (key, i) {
+        var c = COLORS[key];
+        var fill = (c && c.hex) ? c.hex : '#888';
+        var x;
+        if (i === n - 1) {
+          // Tolerance band — pulled to the right edge area.
+          x = bodyX + bodyW - tolGap - (stripeW / 2);
+        } else {
+          x = bodyX + startGap + step * i - (stripeW / 2);
+        }
+        return '<rect x="' + x.toFixed(1) + '" y="6" width="' + stripeW +
+               '" height="28" fill="' + fill + '" />';
+      }).join('');
+
+      preview.innerHTML =
+        '<line x1="0"   y1="20" x2="50"  y2="20" stroke="currentColor" stroke-width="2" />' +
+        '<line x1="250" y1="20" x2="300" y2="20" stroke="currentColor" stroke-width="2" />' +
+        '<rect x="50" y="4" width="200" height="32" rx="4" ry="4" fill="#d6c19a" stroke="rgba(0,0,0,0.35)" stroke-width="1" />' +
+        stripes;
+    }
+
+    // Re-render when any swatch in the decoder is clicked OR the band-count
+    // toggle rebuilds the bands.
+    var observer = new MutationObserver(function () { render(); });
+    observer.observe(bandsRoot, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    render();
+  }
+
+  // --------------------------------------------------------------------------
+  // initESeriesValueCloud — adds popularity-derived font-size classes to the
+  // E-series chips so values that appear in multiple series stand out as a
+  // "tag cloud". Watches the grid for changes (tab switches, search filter).
+  // --------------------------------------------------------------------------
+  function initESeriesValueCloud() {
+    var grid = document.getElementById('electronics-eseries-grid');
+    if (!grid) return;
+    var data = EF.readDataIsland('electronics-eseries-data');
+    if (!data || !data.series) return;
+
+    // popularity[mantissa] = count of series the value belongs to (1..4).
+    var popularity = {};
+    Object.keys(data.series).forEach(function (key) {
+      data.series[key].forEach(function (v) {
+        var rounded = Math.round(v * 100) / 100;
+        popularity[rounded] = (popularity[rounded] || 0) + 1;
+      });
+    });
+
+    function applyCloudClasses() {
+      var chips = grid.querySelectorAll('.electronics-eseries-value');
+      Array.prototype.forEach.call(chips, function (chip) {
+        var n = parseFloat(chip.textContent);
+        if (!isFinite(n)) return;
+        var rounded = Math.round(n * 100) / 100;
+        var pop = popularity[rounded] || 1;
+        // 1 → tier-1 (smallest), 4 → tier-4 (largest).
+        chip.classList.remove(
+          'electronics-eseries-value--t1',
+          'electronics-eseries-value--t2',
+          'electronics-eseries-value--t3',
+          'electronics-eseries-value--t4'
+        );
+        chip.classList.add('electronics-eseries-value--t' + pop);
+      });
+    }
+
+    var observer = new MutationObserver(function () { applyCloudClasses(); });
+    observer.observe(grid, { childList: true, subtree: false });
+    applyCloudClasses();
+  }
+
+  // --------------------------------------------------------------------------
+  // initToleranceChartToggle — turns Section 4's tolerance Chart.js into an
+  // opt-in feature. Default: hidden (CSS fallback bars visible). Click the
+  // toggle to lazy-build the chart via EF.LazyChartManager.
+  // --------------------------------------------------------------------------
+  function initToleranceChartToggle() {
+    var toggle = document.getElementById('electronics-rcd-chart-toggle');
+    var wrapper = document.querySelector('.electronics-rcd-chart-wrapper');
+    var fallback = document.getElementById('electronics-rcd-chart-fallback');
+    if (!toggle || !wrapper) return;
+
+    // Hide the canvas wrapper by default; the existing widget's chart build
+    // path stays untouched but becomes a no-op (its query selector returns a
+    // hidden element which Chart.js still renders into; that's fine, it's
+    // just not visible). We toggle .is-shown to display.
+    function setShown(shown) {
+      wrapper.classList.toggle('is-shown', shown);
+      if (fallback) fallback.classList.toggle('is-hidden', shown);
+      toggle.setAttribute('aria-pressed', shown ? 'true' : 'false');
+      toggle.textContent = shown ? '📊 Chart on' : '📊 Show chart';
+      // When showing for the first time, force a Chart.js resize so it
+      // measures the now-visible parent correctly.
+      if (shown) {
+        for (var i = 0; i < EF.widgets.length; i++) {
+          if (EF.widgets[i].name === 'resistor-color-decoder' &&
+              typeof EF.widgets[i].onResize === 'function') {
+            try { EF.widgets[i].onResize(); } catch (_) { /* ignore */ }
+          }
+        }
+      }
+    }
+
+    setShown(false);
+    toggle.addEventListener('click', function () {
+      var shown = !wrapper.classList.contains('is-shown');
+      setShown(shown);
+    });
+  }
+
   // --------------------------------------------------------------------------
   // Widget registrations.
   //
@@ -4236,9 +4813,20 @@
   _registerSection('e-series-explorer',         initESeriesExplorer);
   _registerSection('design-guides-section',     initDesignGuides);
   _registerSection('reference-tables-section',  initReferenceTables);
+  // Page-chrome widgets (Batch 9.8). Mount AFTER the section widgets so they
+  // can read EF.widgets entries during their own mount step.
+  _registerSection('sticky-toc',                initStickyToc);
+  _registerSection('floating-reset-all',        initFloatingResetAll);
+  _registerSection('live-resistor-preview',     initLiveResistorPreview);
+  _registerSection('eseries-value-cloud',       initESeriesValueCloud);
+  _registerSection('tolerance-chart-toggle',    initToleranceChartToggle);
+  _registerSection('bookmark-injector',         initBookmarkInjector);
 
   function boot() {
     EF.mountAllWidgets();
+    // After mount, attempt to restore any state encoded in the URL hash.
+    // Widgets that expose restoreState() pick up the values; others ignore.
+    try { EF.Bookmark.restoreFromHash(); } catch (_) { /* ignore */ }
     // eslint-disable-next-line no-console
     console.log('✅ Electronics Fundamentals JS initialized — ' +
                 EF._instances.length + ' widgets mounted');
