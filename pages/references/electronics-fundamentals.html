@@ -1319,6 +1319,462 @@ Styles live in /assets/css/electronics-fundamentals.css and behaviour in
           </script>
         </article>
 
+        {%- comment -%} ----- Calculator 4: Series / Parallel Resistors & Capacitors ----- {%- endcomment -%}
+        <article class="electronics-calculator electronics-sp"
+                 id="electronics-calc-sp"
+                 data-calculator="series-parallel"
+                 aria-labelledby="electronics-calc-sp-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-sp-title">
+            Calculator 4 &mdash; Series / Parallel
+          </h3>
+          <p class="electronics-calculator__hint">
+            Combine two or more resistors or capacitors and read the equivalent
+            value. Resistors and capacitors follow opposite rules: resistors
+            <em>add</em> in series and <em>reciprocate</em> in parallel; capacitors
+            do the reverse.
+          </p>
+
+          <style>
+            .electronics-sp-modes {
+              display: flex;
+              flex-wrap: wrap;
+              gap: var(--space-md);
+              margin-bottom: var(--space-md);
+            }
+            .electronics-sp-modes fieldset {
+              border: 0; padding: 0; margin: 0;
+              display: flex; flex-wrap: wrap; gap: 0.4rem;
+            }
+            .electronics-sp-modes legend {
+              position: absolute;
+              width: 1px; height: 1px;
+              margin: -1px; padding: 0;
+              overflow: hidden;
+              clip: rect(0, 0, 0, 0);
+              border: 0;
+            }
+            .electronics-sp-modes label {
+              display: inline-flex;
+              cursor: pointer;
+              user-select: none;
+            }
+            .electronics-sp-modes input[type="radio"] {
+              position: absolute;
+              opacity: 0;
+              pointer-events: none;
+            }
+            .electronics-sp-modes label > span {
+              padding: 0.4rem 0.85rem;
+              border: 1px solid var(--c-border);
+              border-radius: 999px;
+              background: var(--c-surface);
+              color: var(--c-text-muted);
+              font-size: 0.82rem;
+              font-weight: 500;
+              transition: background var(--transition-fast),
+                          color var(--transition-fast),
+                          border-color var(--transition-fast);
+            }
+            .electronics-sp-modes label:hover > span {
+              border-color: var(--c-accent-border);
+              color: var(--c-text);
+            }
+            .electronics-sp-modes input:checked + span {
+              background: var(--c-accent-bg);
+              color: var(--c-accent);
+              border-color: var(--c-accent-border);
+            }
+            .electronics-sp-modes input:focus-visible + span {
+              outline: 2px solid var(--c-accent);
+              outline-offset: 2px;
+            }
+
+            .electronics-sp-grid {
+              display: grid;
+              grid-template-columns: minmax(0, 1fr);
+              gap: var(--space-lg);
+              align-items: start;
+            }
+            @media (min-width: 880px) {
+              .electronics-sp-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+            }
+            .electronics-sp-rows {
+              display: flex;
+              flex-direction: column;
+              gap: var(--space-sm);
+            }
+            .electronics-sp-row {
+              display: grid;
+              grid-template-columns: minmax(2.5rem, 3.25rem) minmax(0, 1fr) auto;
+              gap: var(--space-sm);
+              align-items: center;
+            }
+            .electronics-sp-row__label {
+              font-family: var(--f-mono);
+              color: var(--c-text);
+              font-size: 0.92rem;
+              font-variant-numeric: tabular-nums;
+            }
+            .electronics-sp-row__remove {
+              appearance: none;
+              background: transparent;
+              border: 1px solid var(--c-border);
+              border-radius: 50%;
+              width: 1.75rem; height: 1.75rem;
+              color: var(--c-text-muted);
+              cursor: pointer;
+              font-size: 1.1rem;
+              line-height: 1;
+              padding: 0;
+              transition: color var(--transition-fast),
+                          border-color var(--transition-fast);
+            }
+            .electronics-sp-row__remove:hover:not(:disabled) {
+              color: #f87171;
+              border-color: rgba(239, 68, 68, 0.5);
+            }
+            .electronics-sp-row__remove:disabled {
+              opacity: 0.35;
+              cursor: not-allowed;
+            }
+            .electronics-sp-add {
+              appearance: none;
+              background: transparent;
+              border: 1px dashed var(--c-border);
+              border-radius: var(--border-radius-sm);
+              padding: 0.5rem 0.85rem;
+              color: var(--c-text-muted);
+              cursor: pointer;
+              font: inherit;
+              font-size: 0.85rem;
+              align-self: flex-start;
+              transition: border-color var(--transition-fast),
+                          color var(--transition-fast);
+            }
+            .electronics-sp-add:hover:not(:disabled) {
+              border-color: var(--c-accent-border);
+              color: var(--c-accent);
+            }
+            .electronics-sp-add:disabled { opacity: 0.4; cursor: not-allowed; }
+
+            .electronics-sp-chart-wrapper {
+              position: relative;
+              height: 260px;
+              background: var(--c-bg-alt);
+              border: 1px solid var(--c-border-light);
+              border-radius: var(--border-radius-sm);
+              padding: var(--space-sm);
+            }
+            .electronics-sp-chart-label {
+              margin: 0.25rem 0 0;
+              text-align: center;
+              font-size: 0.72rem;
+              color: var(--c-text-muted);
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+            }
+            .electronics-calculator__reset:disabled {
+              opacity: 0.4; cursor: not-allowed;
+            }
+          </style>
+
+          <div class="electronics-sp-modes">
+            <fieldset>
+              <legend>Component type</legend>
+              <label><input type="radio" name="sp-type" value="resistor" checked><span>Resistors</span></label>
+              <label><input type="radio" name="sp-type" value="capacitor"><span>Capacitors</span></label>
+            </fieldset>
+            <fieldset>
+              <legend>Topology</legend>
+              <label><input type="radio" name="sp-topology" value="series" checked><span>Series</span></label>
+              <label><input type="radio" name="sp-topology" value="parallel"><span>Parallel</span></label>
+            </fieldset>
+          </div>
+
+          <div class="electronics-sp-grid">
+            <div>
+              <div class="electronics-sp-rows" id="electronics-sp-rows" role="group" aria-label="Component values"></div>
+              <button type="button" class="electronics-sp-add" id="electronics-sp-add"
+                      aria-label="Add another component">+ Add component</button>
+            </div>
+
+            <div>
+              <div class="electronics-sp-chart-wrapper">
+                <canvas id="electronics-calc-sp-chart"
+                        role="img"
+                        aria-label="Bar chart of individual component values vs total equivalent"></canvas>
+              </div>
+              <p class="electronics-sp-chart-label">Individual values vs equivalent total</p>
+            </div>
+          </div>
+
+          <div id="electronics-sp-result"
+               class="electronics-ohms-result"
+               role="status" aria-live="polite">
+            Pick a type and topology, then enter component values.
+          </div>
+
+          <div id="electronics-sp-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-sp-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-sp-copy">
+              Copy results
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-sp-open-wheel">
+              Open in Quick Wheel &uarr;
+            </button>
+          </div>
+
+          <script type="application/json" id="electronics-calc-sp-data">
+            {
+              "minRows": 2,
+              "maxRows": 8,
+              "defaults": {
+                "resistor": [1000, 2200],
+                "capacitor": [0.000010, 0.000022]
+              },
+              "ranges": {
+                "resistor":  { "min": 1,     "max": 100000,  "step": 1 },
+                "capacitor": { "min": 1e-12, "max": 0.0001,  "step": 1e-9 }
+              }
+            }
+          </script>
+        </article>
+
+        {%- comment -%} ----- Calculator 5: RC Timer / Time Constant ----- {%- endcomment -%}
+        <article class="electronics-calculator electronics-rc"
+                 id="electronics-calc-rc"
+                 data-calculator="rc-timer"
+                 aria-labelledby="electronics-calc-rc-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-rc-title">
+            Calculator 5 &mdash; RC Timer / Time Constant
+          </h3>
+          <p class="electronics-calculator__hint">
+            A resistor charging a capacitor follows V(t)=V&middot;(1&minus;e<sup>&minus;t/&tau;</sup>),
+            where <strong>&tau; = R&middot;C</strong>. After 5&tau; the cap is essentially
+            full (99.3 %). Drag the sliders, hit Play, and watch the curve fill in.
+          </p>
+
+          <style>
+            .electronics-rc-grid {
+              display: grid;
+              grid-template-columns: minmax(0, 1fr);
+              gap: var(--space-lg);
+              align-items: start;
+            }
+            @media (min-width: 880px) {
+              .electronics-rc-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+            }
+            .electronics-rc-stats {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+              gap: var(--space-sm);
+              margin-bottom: var(--space-md);
+            }
+            .electronics-rc-stats__pill {
+              padding: 0.5rem 0.75rem;
+              background: var(--c-surface-alt);
+              border: 1px solid var(--c-border);
+              border-radius: var(--border-radius-sm);
+              font-family: var(--f-mono);
+              font-variant-numeric: tabular-nums;
+              font-size: 0.92rem;
+            }
+            .electronics-rc-stats__pill small {
+              display: block;
+              font-family: var(--f-body);
+              font-size: 0.7rem;
+              color: var(--c-text-muted);
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+              font-weight: 500;
+              margin-bottom: 0.15rem;
+            }
+            .electronics-rc-stats__pill strong {
+              color: var(--c-accent);
+              font-weight: 600;
+            }
+            .electronics-rc-chart-wrapper {
+              position: relative;
+              height: 260px;
+              background: var(--c-bg-alt);
+              border: 1px solid var(--c-border-light);
+              border-radius: var(--border-radius-sm);
+              padding: var(--space-sm);
+            }
+            .electronics-rc-chart-label {
+              margin: 0.25rem 0 0;
+              text-align: center;
+              font-size: 0.72rem;
+              color: var(--c-text-muted);
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+            }
+            .electronics-rc-controls {
+              display: flex;
+              flex-wrap: wrap;
+              gap: var(--space-sm);
+              margin-top: var(--space-sm);
+            }
+            .electronics-rc-controls button {
+              appearance: none;
+              background: var(--c-surface);
+              border: 1px solid var(--c-border);
+              color: var(--c-text);
+              border-radius: 999px;
+              padding: 0.45rem 0.95rem;
+              font: inherit;
+              font-size: 0.85rem;
+              font-weight: 500;
+              cursor: pointer;
+              transition: background var(--transition-fast),
+                          color var(--transition-fast),
+                          border-color var(--transition-fast);
+            }
+            .electronics-rc-controls button:hover {
+              border-color: var(--c-accent-border);
+              color: var(--c-accent);
+            }
+            .electronics-rc-controls button.is-active {
+              background: var(--c-accent-bg);
+              color: var(--c-accent);
+              border-color: var(--c-accent-border);
+            }
+            @media print {
+              .electronics-rc-controls { display: none; }
+            }
+          </style>
+
+          <div class="electronics-rc-grid">
+
+            <div class="electronics-ohms-fields" role="group" aria-label="RC timer inputs">
+              <div class="electronics-ohms-field" data-field="V">
+                <span class="electronics-ohms-field__label" id="ef-rc-v-label">
+                  Supply (V)
+                  <small>volts</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-rc-V" data-quantity="V"
+                         step="any" inputmode="decimal" placeholder="5.0"
+                         autocomplete="off" aria-labelledby="ef-rc-v-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-rc-V-slider" data-quantity="V"
+                         min="0" max="24" step="0.1" value="5"
+                         aria-label="Supply voltage, 0 to 24 volts">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="R">
+                <span class="electronics-ohms-field__label" id="ef-rc-r-label">
+                  Resistance (R)
+                  <small>ohms (&Omega;)</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-rc-R" data-quantity="R"
+                         step="any" inputmode="decimal" placeholder="10000"
+                         autocomplete="off" aria-labelledby="ef-rc-r-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-rc-R-slider" data-quantity="R"
+                         min="1" max="1000000" step="1" value="10000"
+                         aria-label="Resistance, 1 to 1 megohm">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="C">
+                <span class="electronics-ohms-field__label" id="ef-rc-c-label">
+                  Capacitance (C)
+                  <small>farads</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-rc-C" data-quantity="C"
+                         step="any" inputmode="decimal" placeholder="0.000001"
+                         autocomplete="off" aria-labelledby="ef-rc-c-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-rc-C-slider" data-quantity="C"
+                         min="1e-9" max="0.001" step="1e-9" value="0.000001"
+                         aria-label="Capacitance, 1 nanofarad to 1 millifarad">
+                </div>
+              </div>
+
+              <div class="electronics-rc-stats">
+                <div class="electronics-rc-stats__pill">
+                  <small>Time constant &tau;</small>
+                  <strong id="ef-rc-tau">&mdash;</strong>
+                </div>
+                <div class="electronics-rc-stats__pill">
+                  <small>5&tau; (full)</small>
+                  <strong id="ef-rc-fullTime">&mdash;</strong>
+                </div>
+                <div class="electronics-rc-stats__pill">
+                  <small>Cutoff freq f<sub>c</sub></small>
+                  <strong id="ef-rc-fc">&mdash;</strong>
+                </div>
+                <div class="electronics-rc-stats__pill">
+                  <small>V(t) at cursor</small>
+                  <strong id="ef-rc-vt">&mdash;</strong>
+                </div>
+              </div>
+
+              <div class="electronics-rc-controls" role="group" aria-label="Animation controls">
+                <button type="button" id="electronics-rc-play" aria-pressed="false">▶ Play</button>
+                <button type="button" id="electronics-rc-mode-charge" class="is-active" aria-pressed="true">Charging</button>
+                <button type="button" id="electronics-rc-mode-discharge" aria-pressed="false">Discharging</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="electronics-rc-chart-wrapper">
+                <canvas id="electronics-calc-rc-chart"
+                        role="img"
+                        aria-label="Exponential charge or discharge curve with time-constant markers"></canvas>
+              </div>
+              <p class="electronics-rc-chart-label">V(t) &middot; markers at &tau; (63.2 %) and 5&tau; (99.3 %)</p>
+            </div>
+          </div>
+
+          <div id="electronics-rc-result"
+               class="electronics-ohms-result"
+               role="status" aria-live="polite">
+            Set R, C, and V to see the time constant.
+          </div>
+
+          <div id="electronics-rc-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-rc-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-rc-copy">
+              Copy results
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-rc-open-wheel">
+              Open in Quick Wheel &uarr;
+            </button>
+          </div>
+
+          <script type="application/json" id="electronics-calc-rc-data">
+            {
+              "defaults": { "V": 5, "R": 10000, "C": 0.000001 },
+              "ranges": {
+                "V": { "min": 0,     "max": 24,      "step": 0.1 },
+                "R": { "min": 1,     "max": 1000000, "step": 1 },
+                "C": { "min": 1e-9,  "max": 0.001,   "step": 1e-9 }
+              },
+              "animationMs": 3000
+            }
+          </script>
+        </article>
+
       </div>
     </section>
 
