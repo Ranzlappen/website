@@ -213,6 +213,281 @@
   };
 
   // ==========================================================================
+  // Widget architecture (Batch 9.7)
+  // --------------------------------------------------------------------------
+  // The page started life as a stack of standalone IIFE-style init functions.
+  // As the calculator surface grew (10+ widgets, four chart families, two
+  // resize/theme observers) it became worth giving every widget a uniform
+  // lifecycle so future calculators can hook into a single, well-tested
+  // skeleton instead of re-deriving the patterns each time.
+  //
+  // The split:
+  //   * EF.Widget          — generic lifecycle (constructor / mount / unmount
+  //                          / reset / getState / toJSON / destroy) that any
+  //                          interactive section can extend.
+  //   * EF.CalculatorKernel — extends Widget with the helpers every calculator
+  //                          on this page uses (debounce, sanitizeInput,
+  //                          formatWithSI, copyToClipboardWithUnits,
+  //                          openInQuickWheel, themeChart hook, resize-
+  //                          observer registration, ARIA announcer).
+  //   * EF.registerWidget   — factory + registry. Widgets are registered at
+  //                          IIFE-evaluation time and instantiated/mounted in
+  //                          order on DOMContentLoaded by EF.mountAllWidgets.
+  //
+  // Existing widgets keep their carefully-tuned closure-based logic intact;
+  // they're wrapped in a small _SectionAdapter (which itself extends
+  // CalculatorKernel) so the new lifecycle works end-to-end without rewriting
+  // the inside of each calculator. New widgets should subclass
+  // CalculatorKernel directly.
+  // ==========================================================================
+
+  function _inherit(Child, Parent) {
+    Child.prototype = Object.create(Parent.prototype);
+    Child.prototype.constructor = Child;
+  }
+
+  // --------------------------------------------------------------------------
+  // EF.Widget — generic lifecycle base class.
+  // --------------------------------------------------------------------------
+  function Widget(options) {
+    options = options || {};
+    this.name = options.name || 'unnamed-widget';
+    this.element = options.element || null;
+    this.options = options;
+    this._mounted = false;
+    this._destroyed = false;
+    this._cleanups = [];
+  }
+  Widget.prototype.mount = function (container) {
+    if (this._destroyed) {
+      throw new Error('Cannot mount destroyed widget: ' + this.name);
+    }
+    if (this._mounted) return this;
+    if (container) this.element = container;
+    this._mounted = true;
+    return this;
+  };
+  Widget.prototype.unmount = function () {
+    if (!this._mounted) return this;
+    this._mounted = false;
+    return this;
+  };
+  Widget.prototype.reset = function () { return this; };
+  Widget.prototype.getState = function () { return {}; };
+  Widget.prototype.toJSON = function () {
+    return { name: this.name, state: this.getState() };
+  };
+  Widget.prototype.destroy = function () {
+    while (this._cleanups.length) {
+      var fn = this._cleanups.pop();
+      try { fn(); } catch (_) { /* swallow — destroy must finish */ }
+    }
+    this.unmount();
+    this._destroyed = true;
+    return this;
+  };
+  /** Register a cleanup callback to run on destroy(). */
+  Widget.prototype.addCleanup = function (fn) {
+    if (typeof fn === 'function') this._cleanups.push(fn);
+  };
+  EF.Widget = Widget;
+
+  // --------------------------------------------------------------------------
+  // EF.CalculatorKernel — Widget + shared calculator helpers.
+  // --------------------------------------------------------------------------
+  function CalculatorKernel(options) {
+    Widget.call(this, options);
+    this.chart = null;
+    this.announcer = null;        // ARIA live region; subclasses may set this
+  }
+  _inherit(CalculatorKernel, Widget);
+
+  CalculatorKernel.prototype.debounce = function (fn, wait) {
+    return EF.debounce(fn, wait);
+  };
+
+  /** Coerce a raw <input> value to a finite number (or NaN if invalid). */
+  CalculatorKernel.prototype.sanitizeInput = function (raw) {
+    if (raw === null || raw === undefined || raw === '') return NaN;
+    var num = parseFloat(raw);
+    return isFinite(num) ? num : NaN;
+  };
+
+  /** Format a number with an SI prefix (12000 → "12 kΩ"). */
+  CalculatorKernel.prototype.formatWithSI = function (value, unit) {
+    return EF.formatNumberWithUnits(value, unit);
+  };
+
+  /** Copy text to the clipboard; returns Promise<boolean>. */
+  CalculatorKernel.prototype.copyToClipboardWithUnits = function (text) {
+    return EF.copyToClipboard(text);
+  };
+
+  /** Send a {V,I,R,P} subset to the Quick Wheel via EF.widgets registry. */
+  CalculatorKernel.prototype.openInQuickWheel = function (values, opts) {
+    if (!values || typeof values !== 'object') return false;
+    for (var i = 0; i < EF.widgets.length; i++) {
+      var entry = EF.widgets[i];
+      if (entry && entry.name === 'quick-reference-wheel' &&
+          typeof entry.setValues === 'function') {
+        entry.setValues(values, opts || { scroll: true });
+        return true;
+      }
+    }
+    return false;
+  };
+
+  /** Subclasses override to re-skin their Chart.js instance on theme toggle. */
+  CalculatorKernel.prototype.themeChart = function () { /* no-op */ };
+
+  /** Hook a Chart.js instance up for parent-driven resize calls. */
+  CalculatorKernel.prototype.registerResizeObserver = function (chart) {
+    if (!chart) return;
+    this.chart = chart;
+    // Chart.js v4 already listens to its own ResizeObserver internally; the
+    // EF.widgets onResize hook is the explicit fallback for edge cases (e.g.
+    // when the chart's wrapper changes dimensions without a window resize).
+  };
+
+  /** Push a status string into the widget's ARIA live region (if set). */
+  CalculatorKernel.prototype.announce = function (text) {
+    if (this.announcer) this.announcer.textContent = text;
+  };
+  EF.CalculatorKernel = CalculatorKernel;
+
+  // --------------------------------------------------------------------------
+  // _SectionAdapter — bridges the existing closure-based init functions into
+  // the new lifecycle. Each existing widget is wrapped in one of these.
+  // --------------------------------------------------------------------------
+  function _SectionAdapter(options, initFn) {
+    CalculatorKernel.call(this, options);
+    this._initFn = initFn;
+    this._entry  = null;          // resolved EF.widgets entry post-mount
+    this._initialised = false;
+  }
+  _inherit(_SectionAdapter, CalculatorKernel);
+
+  _SectionAdapter.prototype.mount = function (container) {
+    CalculatorKernel.prototype.mount.call(this, container);
+    if (this._initialised) return this;
+    try { this._initFn(); } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Widget init failed: ' + this.name, e);
+    }
+    this._initialised = true;
+    // The init may or may not register an entry on EF.widgets depending on
+    // whether the section needs theme/resize plumbing. Either is fine — we
+    // just link to it if present so reset()/getState() can delegate.
+    for (var i = 0; i < EF.widgets.length; i++) {
+      if (EF.widgets[i] && EF.widgets[i].name === this.name) {
+        this._entry = EF.widgets[i];
+        break;
+      }
+    }
+    return this;
+  };
+  _SectionAdapter.prototype.reset = function () {
+    if (this._entry && typeof this._entry.reset === 'function') {
+      try { this._entry.reset(); } catch (_) { /* ignore */ }
+    }
+    return this;
+  };
+  _SectionAdapter.prototype.getState = function () {
+    if (this._entry && typeof this._entry.getState === 'function') {
+      try { return this._entry.getState(); } catch (_) { return {}; }
+    }
+    return {};
+  };
+
+  // --------------------------------------------------------------------------
+  // Registry + lifecycle
+  // --------------------------------------------------------------------------
+  EF._registry  = [];
+  EF._instances = [];
+
+  /**
+   * Register a widget factory under a name. The factory is called once per
+   * page from EF.mountAllWidgets() and must return an EF.Widget-compatible
+   * instance (anything implementing mount / reset / getState / destroy).
+   *
+   * Widget factories are invoked in registration order, so register the
+   * Quick Wheel (or any "sink" that other widgets call into) first.
+   */
+  EF.registerWidget = function (name, factory) {
+    if (!name || typeof factory !== 'function') return;
+    EF._registry.push({ name: name, factory: factory });
+  };
+
+  /** Walks the registry, instantiates each widget, calls mount(). */
+  EF.mountAllWidgets = function () {
+    EF._registry.forEach(function (entry) {
+      try {
+        var instance = entry.factory();
+        if (!instance) return;
+        if (typeof instance.mount === 'function') instance.mount();
+        EF._instances.push(instance);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Widget mount failed: ' + entry.name, e);
+      }
+    });
+  };
+
+  /** Tear down every active widget; useful for hot-reload / SPA scenarios. */
+  EF.unmountAllWidgets = function () {
+    while (EF._instances.length) {
+      var w = EF._instances.pop();
+      try {
+        if (typeof w.destroy === 'function') w.destroy();
+        else if (typeof w.unmount === 'function') w.unmount();
+      } catch (_) { /* ignore */ }
+    }
+  };
+
+  /**
+   * Reset every active widget back to its default state. Walks both the
+   * adapter instances and the legacy EF.widgets entries so registry-based
+   * and direct-push widgets stay in sync.
+   */
+  EF.resetAllWidgets = function () {
+    var seen = {};
+    EF._instances.forEach(function (w) {
+      if (!w || !w.name) return;
+      if (typeof w.reset === 'function') {
+        try { w.reset(); } catch (_) { /* ignore */ }
+      }
+      seen[w.name] = true;
+    });
+    EF.widgets.forEach(function (entry) {
+      if (!entry || !entry.name || seen[entry.name]) return;
+      if (typeof entry.reset === 'function') {
+        try { entry.reset(); } catch (_) { /* ignore */ }
+      }
+    });
+  };
+
+  /**
+   * Snapshot every active widget's state into a plain object keyed by name.
+   * Suitable for JSON serialisation, debugging, or future state-restoration.
+   */
+  EF.getAllWidgetStates = function () {
+    var out = {};
+    EF._instances.forEach(function (w) {
+      if (!w || !w.name) return;
+      if (typeof w.getState === 'function') {
+        try { out[w.name] = w.getState(); } catch (_) { out[w.name] = null; }
+      }
+    });
+    EF.widgets.forEach(function (entry) {
+      if (!entry || !entry.name || out[entry.name] !== undefined) return;
+      if (typeof entry.getState === 'function') {
+        try { out[entry.name] = entry.getState(); } catch (_) { out[entry.name] = null; }
+      }
+    });
+    return out;
+  };
+
+  // ==========================================================================
   // Section bootstrap — placeholder hooks for each batch
   //   Each init function below is a no-op until its batch lands. Keeping the
   //   wiring in place now means later batches only have to fill in the body,
@@ -652,7 +927,18 @@
       name: 'quick-reference-wheel',
       onResize: function () { if (chart) chart.resize(); },
       onThemeChange: applyChartTheme,
-      setValues: setExternalValues
+      setValues: setExternalValues,
+      getState: function () {
+        var snap = {};
+        QTY.forEach(function (n) { snap[n] = isFinite(userValues[n]) ? userValues[n] : null; });
+        return { userOrder: userOrder.slice(), userValues: snap };
+      },
+      reset: function () {
+        userOrder = [];
+        userValues = {};
+        QTY.forEach(function (n) { inputs[n].value = ''; });
+        recompute();
+      }
     });
 
     // Initial state
@@ -1223,7 +1509,17 @@
     EF.widgets.push({
       name: 'led-resistor-calculator',
       onResize: function () { if (chart) chart.resize(); },
-      onThemeChange: applyChartTheme
+      onThemeChange: applyChartTheme,
+      getState: function () {
+        return {
+          Vsupply: parseFloat(inputs.Vsupply.value) || null,
+          Vf:      parseFloat(inputs.Vf.value)      || null,
+          I:       parseFloat(inputs.I.value)       || null,
+          color:   colorSelect ? colorSelect.value  : null,
+          lastResult: lastResult
+        };
+      },
+      reset: function () { if (clearBtn) clearBtn.click(); }
     });
   }
 
@@ -1620,7 +1916,14 @@
     EF.widgets.push({
       name: 'voltage-divider-calculator',
       onResize: function () { if (chart) chart.resize(); },
-      onThemeChange: applyChartTheme
+      onThemeChange: applyChartTheme,
+      getState: function () {
+        var snap = {};
+        QTY.forEach(function (n) { snap[n] = parseFloat(inputs[n].value) || null; });
+        snap.lastResult = lastResult;
+        return snap;
+      },
+      reset: function () { if (clearBtn) clearBtn.click(); }
     });
   }
 
@@ -2049,7 +2352,17 @@
     EF.widgets.push({
       name: 'series-parallel-calculator',
       onResize: function () { if (chart) chart.resize(); },
-      onThemeChange: applyChartTheme
+      onThemeChange: applyChartTheme,
+      getState: function () {
+        return {
+          type: state.type,
+          topology: state.topology,
+          rowCount: state.rows.length,
+          values: lastValues.slice(),
+          total: lastTotal
+        };
+      },
+      reset: function () { if (clearBtn) clearBtn.click(); }
     });
   }
 
@@ -2510,7 +2823,20 @@
     EF.widgets.push({
       name: 'rc-timer-calculator',
       onResize: function () { if (chart) chart.resize(); },
-      onThemeChange: applyChartTheme
+      onThemeChange: applyChartTheme,
+      getState: function () {
+        var snap = {};
+        QTY.forEach(function (n) { snap[n] = parseFloat(inputs[n].value) || null; });
+        snap.mode = mode;
+        snap.isPlaying = isPlaying;
+        snap.cursorT = cursorT;
+        snap.lastResult = lastResult;
+        return snap;
+      },
+      reset: function () {
+        if (typeof pause === 'function') pause();
+        if (clearBtn) clearBtn.click();
+      }
     });
   }
 
@@ -3116,7 +3442,13 @@
         if (viChart) viChart.resize();
         if (prChart) prChart.resize();
       },
-      onThemeChange: applyChartTheme
+      onThemeChange: applyChartTheme,
+      getState: function () {
+        var snap = {};
+        QTY.forEach(function (n) { snap[n] = isFinite(userValues[n]) ? userValues[n] : null; });
+        return { userOrder: userOrder.slice(), userValues: snap };
+      },
+      reset: function () { if (clearBtn) clearBtn.click(); }
     });
   }
 
@@ -3588,7 +3920,17 @@
     EF.widgets.push({
       name: 'resistor-color-decoder',
       onResize: function () { if (chart) chart.resize(); },
-      onThemeChange: applyChartTheme
+      onThemeChange: applyChartTheme,
+      getState: function () {
+        var r = compute();
+        return {
+          bandCount: bandCount,
+          bandColors: bandColors.slice(),
+          nominal: r ? r.nominal : null,
+          tolerance: r ? r.tolerance : null
+        };
+      },
+      reset: function () { if (resetBtn) resetBtn.click(); }
     });
   }
 
@@ -3868,15 +4210,38 @@
   // ==========================================================================
   // Boot
   // ==========================================================================
+
+  // --------------------------------------------------------------------------
+  // Widget registrations.
+  //
+  // The order matters: the Quick Wheel registers first so any later widget
+  // calling openInQuickWheel() can find it via the EF.widgets entry it
+  // pushes during init. Adapter wraps each existing init function in a
+  // CalculatorKernel-derived class with mount / reset / getState / destroy
+  // — see EF.Widget / EF.CalculatorKernel above.
+  // --------------------------------------------------------------------------
+  function _registerSection(name, initFn) {
+    EF.registerWidget(name, function () {
+      return new _SectionAdapter({ name: name }, initFn);
+    });
+  }
+  _registerSection('quick-reference-wheel',     initQuickReferenceWheel);
+  _registerSection('formulas-section',          initFormulasSection);
+  _registerSection('ohms-law-calculator',       initOhmsLawCalculator);
+  _registerSection('led-resistor-calculator',   initLedResistorCalculator);
+  _registerSection('voltage-divider-calculator',initVoltageDividerCalculator);
+  _registerSection('series-parallel-calculator',initSeriesParallelCalculator);
+  _registerSection('rc-timer-calculator',       initRcTimerCalculator);
+  _registerSection('resistor-color-decoder',    initResistorColorDecoder);
+  _registerSection('e-series-explorer',         initESeriesExplorer);
+  _registerSection('design-guides-section',     initDesignGuides);
+  _registerSection('reference-tables-section',  initReferenceTables);
+
   function boot() {
-    initQuickReferenceWheel();
-    initFormulasSection();
-    initCalculators();
-    initComponentCharts();
-    initDesignGuides();
-    initReferenceTables();
+    EF.mountAllWidgets();
     // eslint-disable-next-line no-console
-    console.log('✅ Electronics Fundamentals JS initialized');
+    console.log('✅ Electronics Fundamentals JS initialized — ' +
+                EF._instances.length + ' widgets mounted');
   }
 
   if (document.readyState === 'loading') {

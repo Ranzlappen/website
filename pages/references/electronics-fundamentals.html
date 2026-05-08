@@ -10,12 +10,35 @@ permalink: /references/electronics-fundamentals/
 Electronics Fundamentals Reference Page
 ---------------------------------------------------------------------------------
 Interactive cheat sheet for volts, amps, ohms, watts, circuit design, calculators,
-and practical EE references. The page is built up in batches — each batch fills
-in one of the locked sections below (quick-reference wheel, formulas, calculators,
-component charts, circuit guides, reference tables).
+and practical EE references. Six locked sections: quick-reference wheel,
+formulas, five calculators (Ohm's Law, LED Resistor, Voltage Divider,
+Series/Parallel, RC Timer), component references (color-code decoder + E-series
+explorer), circuit design guides, and reference tables.
 
-Styles live in /assets/css/electronics-fundamentals.css and behaviour in
+Styles live in /assets/css/electronics-fundamentals.css; behaviour in
 /assets/js/electronics-fundamentals.js.
+
+Each interactive section is a "widget" registered through a uniform lifecycle
+defined in the JS bundle:
+
+    EF.Widget               — base class (mount / unmount / reset / getState
+                              / toJSON / destroy / addCleanup)
+    EF.CalculatorKernel     — extends Widget with shared helpers (debounce,
+                              sanitizeInput, formatWithSI,
+                              copyToClipboardWithUnits, openInQuickWheel,
+                              themeChart, registerResizeObserver, announce)
+    EF.registerWidget(name, factory)
+                            — register a widget at IIFE-evaluation time;
+                              EF.mountAllWidgets() instantiates and mounts
+                              all of them on DOMContentLoaded
+    EF.resetAllWidgets()    — reset every active widget back to defaults
+    EF.getAllWidgetStates() — snapshot every widget's state for debugging
+                              or future state-restoration
+
+Existing widgets keep their closure-based logic unchanged; each is wrapped
+in a _SectionAdapter that extends EF.CalculatorKernel so the new lifecycle
+works end-to-end without rewriting the inside of every calculator. New
+widgets should subclass EF.CalculatorKernel directly.
 =================================================================================
 {%- endcomment -%}
 
