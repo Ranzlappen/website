@@ -938,6 +938,387 @@ Styles live in /assets/css/electronics-fundamentals.css and behaviour in
             }
           </script>
         </article>
+
+        {%- comment -%} ----- Calculator 2: LED Resistor ----- {%- endcomment -%}
+        <article class="electronics-calculator electronics-led"
+                 id="electronics-calc-led"
+                 data-calculator="led-resistor"
+                 aria-labelledby="electronics-calc-led-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-led-title">
+            Calculator 2 &mdash; LED Resistor
+          </h3>
+          <p class="electronics-calculator__hint">
+            Pick a supply voltage, an LED color, and the desired forward current.
+            The calculator returns the series resistor you need, snapped to the
+            nearest standard E-series value, and shows the operating point on
+            the LED&rsquo;s I&ndash;V curve.
+          </p>
+
+          {%- comment -%} Calc 2 layout extras (reuses .electronics-ohms-* classes for fields/sliders/result). {%- endcomment -%}
+          <style>
+            .electronics-led-grid {
+              display: grid;
+              grid-template-columns: minmax(0, 1fr);
+              gap: var(--space-lg);
+              align-items: start;
+            }
+            @media (min-width: 880px) {
+              .electronics-led-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+            }
+            .electronics-led-chart-wrapper {
+              position: relative;
+              height: 240px;
+              background: var(--c-bg-alt);
+              border: 1px solid var(--c-border-light);
+              border-radius: var(--border-radius-sm);
+              padding: var(--space-sm);
+            }
+            .electronics-led-chart-label {
+              margin: 0.25rem 0 0;
+              text-align: center;
+              font-size: 0.72rem;
+              color: var(--c-text-muted);
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+            }
+            .electronics-led-eseries {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+              gap: var(--space-sm);
+            }
+            .electronics-led-eseries__pill {
+              padding: 0.5rem 0.75rem;
+              background: var(--c-surface-alt);
+              border: 1px solid var(--c-border);
+              border-radius: var(--border-radius-sm);
+              display: flex;
+              flex-direction: column;
+              gap: 0.15rem;
+              font-family: var(--f-mono);
+              font-size: 0.92rem;
+              font-variant-numeric: tabular-nums;
+            }
+            .electronics-led-eseries__pill small {
+              font-family: var(--f-body);
+              font-size: 0.7rem;
+              color: var(--c-text-muted);
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+              font-weight: 500;
+            }
+            .electronics-led-eseries__pill strong {
+              color: var(--c-accent);
+              font-weight: 600;
+            }
+            .electronics-led-eseries__pill--highlight {
+              border-color: var(--c-accent-border);
+              background: var(--c-accent-bg);
+            }
+          </style>
+
+          <div class="electronics-led-grid">
+            <div class="electronics-ohms-fields" role="group" aria-label="LED resistor inputs">
+
+              <div class="electronics-ohms-field" data-field="Vsupply">
+                <span class="electronics-ohms-field__label" id="ef-led-vsupply-label">
+                  Supply (V<sub>S</sub>)
+                  <small>volts</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-led-Vsupply" data-quantity="Vsupply"
+                         step="any" inputmode="decimal" placeholder="5.0"
+                         autocomplete="off" aria-labelledby="ef-led-vsupply-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-led-Vsupply-slider" data-quantity="Vsupply"
+                         min="0" max="24" step="0.1" value="5"
+                         aria-label="Supply voltage slider, 0 to 24 volts">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="color">
+                <span class="electronics-ohms-field__label" id="ef-led-color-label">
+                  LED color
+                  <small>quick preset</small>
+                </span>
+                <select class="electronics-calculator__select"
+                        id="ef-led-color"
+                        aria-labelledby="ef-led-color-label">
+                  <option value="red">Red &mdash; V&fnof; &asymp; 2.0&nbsp;V</option>
+                  <option value="yellow">Yellow &mdash; V&fnof; &asymp; 2.1&nbsp;V</option>
+                  <option value="green">Green &mdash; V&fnof; &asymp; 2.2&nbsp;V</option>
+                  <option value="blue">Blue &mdash; V&fnof; &asymp; 3.2&nbsp;V</option>
+                  <option value="white">White &mdash; V&fnof; &asymp; 3.2&nbsp;V</option>
+                  <option value="ir">IR &mdash; V&fnof; &asymp; 1.2&nbsp;V</option>
+                  <option value="uv">UV &mdash; V&fnof; &asymp; 3.5&nbsp;V</option>
+                  <option value="custom">Custom &mdash; set V&fnof; below</option>
+                </select>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="Vf">
+                <span class="electronics-ohms-field__label" id="ef-led-vf-label">
+                  Forward (V<sub>f</sub>)
+                  <small>LED voltage drop</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-led-Vf" data-quantity="Vf"
+                         step="any" inputmode="decimal" placeholder="2.0"
+                         autocomplete="off" aria-labelledby="ef-led-vf-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-led-Vf-slider" data-quantity="Vf"
+                         min="0.5" max="5" step="0.05" value="2"
+                         aria-label="Forward voltage slider, 0.5 to 5 volts">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="I">
+                <span class="electronics-ohms-field__label" id="ef-led-i-label">
+                  Target (I<sub>LED</sub>)
+                  <small>amperes</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-led-I" data-quantity="I"
+                         step="any" inputmode="decimal" placeholder="0.020"
+                         autocomplete="off" aria-labelledby="ef-led-i-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-led-I-slider" data-quantity="I"
+                         min="0.001" max="0.05" step="0.001" value="0.02"
+                         aria-label="LED current slider, 1 to 50 milliamps">
+                </div>
+              </div>
+
+              <div class="electronics-led-eseries" id="electronics-led-eseries" aria-live="polite">
+                <div class="electronics-led-eseries__pill" data-pill="calc">
+                  <small>Calculated R</small>
+                  <strong id="ef-led-R-calc">&mdash;</strong>
+                </div>
+                <div class="electronics-led-eseries__pill" data-pill="e12">
+                  <small>Nearest E12</small>
+                  <strong id="ef-led-R-e12">&mdash;</strong>
+                </div>
+                <div class="electronics-led-eseries__pill" data-pill="e24">
+                  <small>Nearest E24</small>
+                  <strong id="ef-led-R-e24">&mdash;</strong>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="electronics-led-chart-wrapper">
+                <canvas id="electronics-calc-led-chart"
+                        role="img"
+                        aria-label="LED I-V curve with operating point and power-dissipation shading"></canvas>
+              </div>
+              <p class="electronics-led-chart-label">LED I&ndash;V Curve &middot; operating point &middot; power shading</p>
+            </div>
+          </div>
+
+          <div id="electronics-led-result"
+               class="electronics-ohms-result"
+               role="status" aria-live="polite">
+            Set a supply voltage, color, and target current.
+          </div>
+
+          <div id="electronics-led-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-led-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-led-copy">
+              Copy results
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-led-open-wheel">
+              Open in Quick Wheel &uarr;
+            </button>
+          </div>
+
+          <script type="application/json" id="electronics-calc-led-data">
+            {
+              "defaults": { "Vsupply": 5, "color": "red", "Vf": 2.0, "I": 0.02 },
+              "presets": {
+                "red":    { "label": "Red",    "vf": 2.0 },
+                "yellow": { "label": "Yellow", "vf": 2.1 },
+                "green":  { "label": "Green",  "vf": 2.2 },
+                "blue":   { "label": "Blue",   "vf": 3.2 },
+                "white":  { "label": "White",  "vf": 3.2 },
+                "ir":     { "label": "IR",     "vf": 1.2 },
+                "uv":     { "label": "UV",     "vf": 3.5 }
+              },
+              "ranges": {
+                "Vsupply": { "min": 0,     "max": 24,   "step": 0.1 },
+                "Vf":      { "min": 0.5,   "max": 5,    "step": 0.05 },
+                "I":       { "min": 0.001, "max": 0.05, "step": 0.001 }
+              },
+              "safeCurrentMa": { "ok": 30, "caution": 50 }
+            }
+          </script>
+        </article>
+
+        {%- comment -%} ----- Calculator 3: Voltage Divider ----- {%- endcomment -%}
+        <article class="electronics-calculator electronics-divider"
+                 id="electronics-calc-divider"
+                 data-calculator="voltage-divider"
+                 aria-labelledby="electronics-calc-divider-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-divider-title">
+            Calculator 3 &mdash; Voltage Divider
+          </h3>
+          <p class="electronics-calculator__hint">
+            Two resistors in series across a supply pull a fraction of the input
+            voltage out at their midpoint. Set V<sub>in</sub>, R<sub>1</sub>, and
+            R<sub>2</sub> to see the unloaded V<sub>out</sub>; add an optional load
+            to see how the output sags under real-world current draw.
+          </p>
+
+          <style>
+            .electronics-divider-grid {
+              display: grid;
+              grid-template-columns: minmax(0, 1fr);
+              gap: var(--space-lg);
+              align-items: start;
+            }
+            @media (min-width: 880px) {
+              .electronics-divider-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+            }
+            .electronics-divider-chart-wrapper {
+              position: relative;
+              height: 240px;
+              background: var(--c-bg-alt);
+              border: 1px solid var(--c-border-light);
+              border-radius: var(--border-radius-sm);
+              padding: var(--space-sm);
+            }
+            .electronics-divider-chart-label {
+              margin: 0.25rem 0 0;
+              text-align: center;
+              font-size: 0.72rem;
+              color: var(--c-text-muted);
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+            }
+          </style>
+
+          <div class="electronics-divider-grid">
+            <div class="electronics-ohms-fields" role="group" aria-label="Voltage divider inputs">
+
+              <div class="electronics-ohms-field" data-field="Vin">
+                <span class="electronics-ohms-field__label" id="ef-div-vin-label">
+                  Input (V<sub>in</sub>)
+                  <small>volts</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-div-Vin" data-quantity="Vin"
+                         step="any" inputmode="decimal" placeholder="12.0"
+                         autocomplete="off" aria-labelledby="ef-div-vin-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-div-Vin-slider" data-quantity="Vin"
+                         min="0" max="24" step="0.1" value="12"
+                         aria-label="Input voltage slider, 0 to 24 volts">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="R1">
+                <span class="electronics-ohms-field__label" id="ef-div-r1-label">
+                  R<sub>1</sub> (top)
+                  <small>ohms</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-div-R1" data-quantity="R1"
+                         step="any" inputmode="decimal" placeholder="1000"
+                         autocomplete="off" aria-labelledby="ef-div-r1-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-div-R1-slider" data-quantity="R1"
+                         min="1" max="100000" step="1" value="1000"
+                         aria-label="R1 slider, 1 to 100 000 ohms">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="R2">
+                <span class="electronics-ohms-field__label" id="ef-div-r2-label">
+                  R<sub>2</sub> (bottom)
+                  <small>ohms</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-div-R2" data-quantity="R2"
+                         step="any" inputmode="decimal" placeholder="1000"
+                         autocomplete="off" aria-labelledby="ef-div-r2-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-div-R2-slider" data-quantity="R2"
+                         min="1" max="100000" step="1" value="1000"
+                         aria-label="R2 slider, 1 to 100 000 ohms">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="RL">
+                <span class="electronics-ohms-field__label" id="ef-div-rl-label">
+                  R<sub>load</sub> <em>(optional)</em>
+                  <small>0 = unloaded</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-div-RL" data-quantity="RL"
+                         step="any" inputmode="decimal" placeholder="0"
+                         autocomplete="off" aria-labelledby="ef-div-rl-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-div-RL-slider" data-quantity="RL"
+                         min="0" max="1000000" step="100" value="0"
+                         aria-label="Load resistance slider, 0 to 1 megohm">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="electronics-divider-chart-wrapper">
+                <canvas id="electronics-calc-divider-chart"
+                        role="img"
+                        aria-label="V_out vs R2 curve with optional load-effect overlay"></canvas>
+              </div>
+              <p class="electronics-divider-chart-label">V<sub>out</sub> vs R<sub>2</sub> &middot; load overlay when R<sub>load</sub> &gt; 0</p>
+            </div>
+          </div>
+
+          <div id="electronics-div-result"
+               class="electronics-ohms-result"
+               role="status" aria-live="polite">
+            Set V<sub>in</sub>, R<sub>1</sub>, and R<sub>2</sub> to see V<sub>out</sub>.
+          </div>
+
+          <div id="electronics-div-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-div-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-div-copy">
+              Copy results
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-div-open-wheel">
+              Open in Quick Wheel &uarr;
+            </button>
+          </div>
+
+          <script type="application/json" id="electronics-calc-divider-data">
+            {
+              "defaults": { "Vin": 12, "R1": 1000, "R2": 1000, "RL": 0 },
+              "ranges": {
+                "Vin": { "min": 0, "max": 24,      "step": 0.1 },
+                "R1":  { "min": 1, "max": 100000,  "step": 1 },
+                "R2":  { "min": 1, "max": 100000,  "step": 1 },
+                "RL":  { "min": 0, "max": 1000000, "step": 100 }
+              }
+            }
+          </script>
+        </article>
+
       </div>
     </section>
 
