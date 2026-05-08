@@ -19,6 +19,20 @@
 # alive.
 # =============================================================================
 
+- term: "ADS"
+  full_form: "Active Denial System"
+  explanation: >-
+    Vehicle- or trailer-mounted directed-energy weapon that radiates a
+    focused 95 GHz beam at ~100 kW peak. Energy is absorbed entirely in
+    the outermost ~0.4 mm of skin (penetration depth at <span
+    class="abbr-link" data-abbr="λ">λ</span> ≈ 3.16 mm), triggering
+    intolerable heat-pain in 2–3 s without lasting injury at compliant
+    dwell. Restricted military / law-enforcement; civilian construction
+    or use is illegal under <span class="abbr-link"
+    data-abbr="ITAR">ITAR</span> + criminal weapons law in every fielded
+    jurisdiction. See also <span class="abbr-link"
+    data-abbr="VMADS">VMADS</span>.
+
 - term: "ADS-B"
   full_form: "Automatic Dependent Surveillance-Broadcast"
   explanation: >-
@@ -27,6 +41,17 @@
     <span class="abbr-link" data-abbr="RTL-SDR">RTL-SDR</span> + dump1090 is
     the standard hobby setup; flightradar24 and ADS-B Exchange are fed by
     thousands of these.
+
+- term: "AGN"
+  full_form: "Active Galactic Nucleus"
+  explanation: >-
+    Supermassive black hole at the centre of a galaxy actively accreting
+    matter and radiating across the spectrum — quasars, blazars,
+    Seyferts, radio galaxies. AGN are the strongest extragalactic radio
+    sources and the canonical targets of <span class="abbr-link"
+    data-abbr="VLBI">VLBI</span> + <span class="abbr-link"
+    data-abbr="ALMA">ALMA</span>; also bright in X-ray and gamma-ray.
+    Used by amateurs as calibration sources for 1.4 GHz dishes.
 
 - term: "AIS"
   full_form: "Automatic Identification System"
@@ -45,6 +70,18 @@
     (MIL-STD-188-141) that scans channels and automatically picks the best
     path to a destination based on link-quality probing. Backbone of US
     military, government, and emergency-services HF voice/data networks.
+
+- term: "ALMA"
+  full_form: "Atacama Large Millimeter / submillimeter Array"
+  explanation: >-
+    66-antenna interferometer at 5 km altitude in the Chilean Atacama
+    desert, 31.3–950 GHz, the world's flagship millimetre-wave
+    observatory (operated by ESO + NRAO + NAOJ). All science data is
+    public after a proprietary period — amateurs can download spectra
+    of star-forming regions, AGN, and exoplanet disks from the ALMA
+    Science Archive. See also <span class="abbr-link"
+    data-abbr="VLBI">VLBI</span>, <span class="abbr-link"
+    data-abbr="NRAO">NRAO</span>.
 
 - term: "AM"
   full_form: "Amplitude Modulation"
@@ -205,6 +242,15 @@
     since 1999. Imaging targets the keV–10 keV X-ray band invisible from the
     ground (Earth's atmosphere absorbs all X-rays).
 
+- term: "CMB"
+  full_form: "Cosmic Microwave Background"
+  explanation: >-
+    The 2.725 K thermal afterglow of the Big Bang, peaking at ~160 GHz.
+    Mapped by COBE / WMAP / Planck satellites and now LiteBIRD, CMB-S4,
+    Simons Observatory. Its tiny anisotropies (ΔT / T ≈ 10⁻⁵) encode
+    the geometry, age, and composition of the universe. Strictly a
+    receive-only target and only at high-altitude or space.
+
 - term: "CSI"
   full_form: "Channel State Information"
   explanation: >-
@@ -352,6 +398,16 @@
     chip from these cheap dongles is the basis of the iconic
     <span class="abbr-link" data-abbr="RTL-SDR">RTL-SDR</span>.
 
+- term: "EAR"
+  full_form: "Export Administration Regulations (US Department of Commerce)"
+  explanation: >-
+    Civilian-side US export-control regime (15 CFR Parts 730–774).
+    Covers cryptography, "dual-use" sensors, advanced electronics, and
+    most commercial RF gear. Sister regime to <span class="abbr-link"
+    data-abbr="ITAR">ITAR</span> (which covers explicitly military
+    items). EAR Cat. 3A includes high-end semiconductors and crypto;
+    EAR99 is the catch-all "low-sensitivity" tier.
+
 - term: "EAS"
   full_form: "Emergency Alert System"
   explanation: >-
@@ -440,6 +496,27 @@
     <span class="abbr-link" data-abbr="keV">keV</span> (kilo) <
     <span class="abbr-link" data-abbr="MeV">MeV</span> (mega) <
     <span class="abbr-link" data-abbr="GeV">GeV</span> (giga).
+
+- term: "EVN"
+  full_form: "European VLBI Network"
+  explanation: >-
+    Continental array of ~20 radio telescopes (Effelsberg, Jodrell Bank,
+    Westerbork, Onsala, Medicina, Yebes, …) coordinated for joint <span
+    class="abbr-link" data-abbr="VLBI">VLBI</span> observations.
+    Operates 1.6 / 5 / 22 / 43 GHz primarily; combines with global
+    partners including <span class="abbr-link"
+    data-abbr="VLBA">VLBA</span> for the Event Horizon Telescope. See
+    <span class="abbr-link" data-abbr="IVS">IVS</span>.
+
+- term: "FAST"
+  full_form: "Five-hundred-meter Aperture Spherical Telescope (China)"
+  explanation: >-
+    World's largest single-dish radio telescope, 500 m fixed reflector
+    in a karst depression in Guizhou, China. Operates 70 MHz – 3 GHz with
+    19-beam receiver. Replaced Arecibo (decommissioned 2020) as the most
+    sensitive metre / decimetre-wave instrument; major contributor to
+    pulsar surveys, fast radio bursts, and <span class="abbr-link"
+    data-abbr="HI">HI</span>-line cosmology.
 
 - term: "FCC"
   full_form: "Federal Communications Commission"
@@ -549,6 +626,18 @@
     higher integrity and accuracy than free
     <span class="abbr-link" data-abbr="GPS">GPS</span>.
 
+- term: "GBT"
+  full_form: "Green Bank Telescope"
+  explanation: >-
+    100 m fully-steerable single-dish radio telescope in the Green Bank
+    Observatory radio-quiet zone (West Virginia, USA). Operates
+    100 MHz – 116 GHz; lead instrument of the US <span class="abbr-link"
+    data-abbr="NRAO">NRAO</span> for spectroscopy, pulsar timing,
+    Breakthrough Listen <span class="abbr-link"
+    data-abbr="SETI">SETI</span> surveys, and <span class="abbr-link"
+    data-abbr="HI">HI</span>-line cosmology. Public archive of raw
+    + reduced data.
+
 - term: "GeV"
   full_form: "giga-electron-volt (10⁹ eV)"
   explanation: >-
@@ -637,6 +726,17 @@
     of the broader <span class="abbr-link" data-abbr="USRP">USRP</span> and
     <span class="abbr-link" data-abbr="LimeSDR">LimeSDR</span> ecosystem.
 
+- term: "HEMT"
+  full_form: "High-Electron-Mobility Transistor"
+  explanation: >-
+    Heterojunction (typically GaAs / GaN / InP) field-effect transistor
+    with a quantum-well 2-D electron gas — extreme low-noise + high-
+    frequency performance. Cryogenic HEMT <span class="abbr-link"
+    data-abbr="LNA">LNA</span>s (≤ 0.3 dB noise figure at 1.4 GHz) are
+    the canonical front-end for radio astronomy, satellite earth
+    stations, and amateur EME / weak-signal work. GaN HEMTs power
+    modern 5G PAs.
+
 - term: "HF"
   full_form: "High Frequency (3–30 MHz)"
   explanation: >-
@@ -652,6 +752,19 @@
     <span class="abbr-link" data-abbr="HF">HF</span> (2.9–22 MHz) — used over
     the oceans where <span class="abbr-link" data-abbr="VHF">VHF</span>
     coverage runs out. Decodable with PC-HFDL or dumphfdl.
+
+- term: "HI"
+  full_form: "Neutral atomic hydrogen (HI line, 21 cm)"
+  explanation: >-
+    Hyperfine spin-flip transition of neutral hydrogen at 1420.4057517
+    MHz (λ ≈ 21.106 cm). The most abundant tracer in the universe and
+    the cornerstone of galactic radio astronomy — measure galactic
+    rotation curves with a 1 m dish + 1420 MHz <span class="abbr-link"
+    data-abbr="LNA">LNA</span> + <span class="abbr-link"
+    data-abbr="RTL-SDR">RTL-SDR</span> in 30 minutes. Photon energy ≈
+    5.87 <span class="abbr-link" data-abbr="μeV">μeV</span> — see
+    <span class="abbr-link" data-abbr="ν">ν</span>·<span
+    class="abbr-link" data-abbr="h">h</span>.
 
 - term: "HPUE"
   full_form: "High-Power User Equipment"
@@ -723,6 +836,16 @@
     <span class="abbr-link" data-abbr="UHF">UHF</span> glideslope (vertical).
     Tunable on a regular SDR.
 
+- term: "IRAM"
+  full_form: "Institut de Radioastronomie Millimétrique"
+  explanation: >-
+    Franco-German-Spanish millimetre-wave observatory operating the
+    30 m IRAM-30m single dish (Pico Veleta, Spain) and the NOEMA
+    interferometer (Plateau de Bure, France) at 70–375 GHz. Major
+    partner in <span class="abbr-link" data-abbr="VLBI">VLBI</span>
+    networks and the Event Horizon Telescope; archive is publicly
+    accessible.
+
 - term: "ISM"
   full_form: "Industrial, Scientific, Medical"
   explanation: >-
@@ -733,6 +856,17 @@
     transmit at low power without a license, subject to
     <span class="abbr-link" data-abbr="EIRP">EIRP</span> limits.
 
+- term: "ITAR"
+  full_form: "International Traffic in Arms Regulations (US Department of State)"
+  explanation: >-
+    US export-control regime for defence articles (22 CFR Parts 120–130).
+    Cat. IV "Launch Vehicles, Missiles, Rockets, Torpedoes, Bombs, &
+    Mines" covers directed-energy weapons like <span class="abbr-link"
+    data-abbr="ADS">ADS</span>; Cat. XI covers military electronics and
+    radar; Cat. XV covers spacecraft. Sister regime to <span
+    class="abbr-link" data-abbr="EAR">EAR</span> (commercial /
+    dual-use).
+
 - term: "ITU"
   full_form: "International Telecommunication Union"
   explanation: >-
@@ -741,6 +875,16 @@
     national regulator (<span class="abbr-link" data-abbr="FCC">FCC</span>,
     <span class="abbr-link" data-abbr="BNetzA">BNetzA</span>, etc.) operates
     downstream of ITU.
+
+- term: "IVS"
+  full_form: "International VLBI Service for Geodesy and Astrometry"
+  explanation: >-
+    Global coordination body for <span class="abbr-link"
+    data-abbr="VLBI">VLBI</span> Earth-orientation, geodesy, and
+    astrometry. Defines the standard frequencies (S/X/K/Q-band — 2.3 /
+    8.4 / 22 / 43 GHz), session schedules, and data-correlation
+    pipelines. Continuously refines the celestial reference frame
+    (ICRF) used by every GNSS and deep-space mission.
 
 - term: "JJY"
   full_form: "JJY (Japanese LF time signal)"
@@ -1028,6 +1172,18 @@
     into <span class="abbr-link" data-abbr="FR1">FR1</span> and
     <span class="abbr-link" data-abbr="FR2">FR2</span>.
 
+- term: "NRAO"
+  full_form: "National Radio Astronomy Observatory (USA)"
+  explanation: >-
+    US national radio-astronomy facility (NSF + Associated Universities)
+    operating the <span class="abbr-link" data-abbr="VLBA">VLBA</span>,
+    Karl G. Jansky Very Large Array (VLA), and partner-share in <span
+    class="abbr-link" data-abbr="ALMA">ALMA</span>. Hosts public data
+    archives, summer student programmes, and education kits used by
+    amateur radio astronomers (<span class="abbr-link"
+    data-abbr="SARA">SARA</span>, <span class="abbr-link"
+    data-abbr="OSRT">OSRT</span>).
+
 - term: "Ofcom"
   full_form: "Office of Communications"
   explanation: >-
@@ -1056,6 +1212,17 @@
     groups assigned per-user instead of all-to-one — lets a base station
     serve many low-rate clients simultaneously. Standard downlink in LTE,
     5G, and Wi-Fi 6.
+
+- term: "OSRT"
+  full_form: "Open Source Radio Telescope"
+  explanation: >-
+    Community-driven hardware / software project for amateur radio
+    astronomy at 21 cm and beyond — typically a 1.0–1.5 m offset
+    parabolic dish, low-noise amplifier, <span class="abbr-link"
+    data-abbr="RTL-SDR">RTL-SDR</span>, and GNU-Radio H-line scripts.
+    Educational kits cost ≤ $300 and detect the galactic <span
+    class="abbr-link" data-abbr="HI">HI</span> line in ≈ 30 minutes
+    integration.
 
 - term: "OTH"
   full_form: "Over-The-Horizon radar"
@@ -1168,6 +1335,19 @@
     on 137 MHz <span class="abbr-link" data-abbr="VHF">VHF</span>.
     Easily home-built from PVC pipe and copper wire.
 
+- term: "RAS"
+  full_form: "Radio Astronomy Service (ITU-defined)"
+  explanation: >-
+    The <span class="abbr-link" data-abbr="ITU">ITU</span> radiocom-
+    munication service for passive observation of natural radio
+    emissions. Allocated primary at protected windows (1400–1427 MHz HI,
+    22.21–22.5 GHz H₂O, plus mm-wave / sub-THz protected slots);
+    interference thresholds set extraordinarily strict by ITU-R RA.769
+    (e.g. −255 dBW/m²/Hz at 1.4 GHz). National compliance enforced by
+    <span class="abbr-link" data-abbr="FCC">FCC</span> / <span
+    class="abbr-link" data-abbr="BNetzA">BNetzA</span> / <span
+    class="abbr-link" data-abbr="Ofcom">Ofcom</span>.
+
 - term: "RDS"
   full_form: "Radio Data System"
   explanation: >-
@@ -1231,6 +1411,16 @@
     <span class="abbr-link" data-abbr="FCC">FCC</span> set the limits every
     phone, ham radio, and Wi-Fi router must comply with.
 
+- term: "SARA"
+  full_form: "Society of Amateur Radio Astronomers"
+  explanation: >-
+    Membership organisation for amateur and educational radio astronomy.
+    Quarterly journal, observation database, mentoring on backyard
+    1–4 m dishes for 21 cm <span class="abbr-link"
+    data-abbr="HI">HI</span> mapping, solar / Jupiter monitoring, and
+    pulsar searches. Friendly entry point next to <span
+    class="abbr-link" data-abbr="OSRT">OSRT</span>.
+
 - term: "SAS"
   full_form: "Spectrum Access System (CBRS)"
   explanation: >-
@@ -1260,6 +1450,17 @@
     add transmit; <span class="abbr-link" data-abbr="USRP">USRP</span> sits
     at the high end.
 
+- term: "SETI"
+  full_form: "Search for Extra-Terrestrial Intelligence"
+  explanation: >-
+    Long-running research programme listening for narrowband artificial
+    radio signals from other civilisations. Modern public data: the
+    Breakthrough Listen archive (Green Bank + Parkes raw voltages),
+    SETI@home retrospective, Allen Telescope Array surveys. The
+    "water hole" 1.4–1.7 GHz between <span class="abbr-link"
+    data-abbr="HI">HI</span> and OH lines is the canonical hunting
+    band. Hobbyists analyse archived data with open-source pipelines.
+
 - term: "SHF"
   full_form: "Super High Frequency (3–30 GHz)"
   explanation: >-
@@ -1277,6 +1478,15 @@
     902 MHz US. 12-byte payloads, 140 messages/day. Competes with
     <span class="abbr-link" data-abbr="LoRaWAN">LoRaWAN</span> and
     <span class="abbr-link" data-abbr="NB-IoT">NB-IoT</span>.
+
+- term: "SKAO"
+  full_form: "Square Kilometre Array Observatory"
+  explanation: >-
+    Inter-governmental observatory (~16 member states) building the
+    Square Kilometre Array — SKA-Low (50–350 MHz, 131 000 dipoles,
+    Murchison, Australia) and SKA-Mid (350 MHz – 15.4 GHz, 197 dishes,
+    Karoo, South Africa). When complete it will be the world's largest
+    radio telescope and produce ~700 PB of science data per year.
 
 - term: "SSB"
   full_form: "Single Sideband"
@@ -1373,6 +1583,32 @@
     bands, NOAA weather, and a long tail of land-mobile services. Mostly
     line-of-sight with occasional sporadic-E openings.
 
+- term: "VLBA"
+  full_form: "Very Long Baseline Array"
+  explanation: >-
+    Dedicated 10-antenna VLBI network operated by <span
+    class="abbr-link" data-abbr="NRAO">NRAO</span> across the US (Mauna
+    Kea HI through St. Croix VI — ~8000 km baselines). Operates
+    1.4 / 2.3 / 5 / 8.4 / 15 / 22 / 43 / 86 GHz for astrometry, AGN
+    structure, and galactic / extragalactic surveys. See <span
+    class="abbr-link" data-abbr="VLBI">VLBI</span>, <span
+    class="abbr-link" data-abbr="EVN">EVN</span>.
+
+- term: "VLBI"
+  full_form: "Very Long Baseline Interferometry"
+  explanation: >-
+    Technique that combines signals recorded simultaneously by widely-
+    separated radio telescopes (often inter-continental, sometimes
+    with a satellite element) to synthesise an aperture as large as
+    the baseline between them. Angular resolution ≈ <span
+    class="abbr-link" data-abbr="λ">λ</span>/B → micro-arcseconds at
+    cm wavelengths. Each station records onto a hydrogen-maser-locked
+    clock; correlators (DiFX, SFXC) align the bitstreams later. Used
+    by <span class="abbr-link" data-abbr="VLBA">VLBA</span>, <span
+    class="abbr-link" data-abbr="EVN">EVN</span>, the Event Horizon
+    Telescope, and Earth-orientation geodesy via <span
+    class="abbr-link" data-abbr="IVS">IVS</span>.
+
 - term: "VLF"
   full_form: "Very Low Frequency (3–30 kHz)"
   explanation: >-
@@ -1383,6 +1619,16 @@
     megawatt power levels. Receivable with a long-wire antenna into a PC
     soundcard — popular for low-budget propagation experiments and recording
     natural whistlers.
+
+- term: "VMADS"
+  full_form: "Vehicle-Mounted Active Denial System"
+  explanation: >-
+    Truck-mounted variant of the 95 GHz <span class="abbr-link"
+    data-abbr="ADS">ADS</span> — Raytheon ADS Mod 1, with ~2 m
+    parabolic reflector and 100 kW gyrotron source. "Silent Guardian"
+    is a smaller ~30 kW palletised version; Solid-State ADS is a
+    GaN-based generation under DoD R&D. Same ITAR / weapons-law
+    restrictions apply.
 
 - term: "Wavelength"
   full_form: "λ — distance between successive wave peaks"
