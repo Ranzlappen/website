@@ -2306,11 +2306,86 @@
     applyFilters();
   }
 
+  // ==========================================================================
+  // Section 6 — Reference Tables
+  //   Tabs swap between SI prefixes, resistor color codes, capacitor codes,
+  //   wire-gauge ratings, logic-family thresholds, and battery-cell voltages.
+  //   A single search input filters rows live in whichever table is showing.
+  // ==========================================================================
   function initReferenceTables() {
+    var section = document.getElementById('electronics-tables');
+    if (!section) return;
     var grid = document.getElementById('electronics-tables-grid');
     if (!grid) return;
-    // TODO: Batch 9 will render SI prefixes, unit conversions, and schematic
-    //       symbols here.
+
+    var wrappers = Array.prototype.slice.call(
+      grid.querySelectorAll('.electronics-table-wrapper[data-table]')
+    );
+    if (!wrappers.length) return;
+
+    var tabs    = Array.prototype.slice.call(section.querySelectorAll('.electronics-tables-tab'));
+    var search  = document.getElementById('electronics-tables-search');
+    var countEl = document.getElementById('electronics-tables-count');
+    var emptyEl = document.getElementById('electronics-tables-empty');
+
+    // Pre-cache rows per table + their lower-cased text so per-keystroke
+    // filtering stays cheap on tables with dozens of rows.
+    var byKey = {};
+    wrappers.forEach(function (w) {
+      var key = w.getAttribute('data-table');
+      var rows = Array.prototype.slice.call(w.querySelectorAll('tbody tr'));
+      byKey[key] = {
+        wrapper: w,
+        rows: rows,
+        haystacks: rows.map(function (r) { return r.textContent.toLowerCase(); })
+      };
+    });
+
+    var activeKey = (wrappers[0] && wrappers[0].getAttribute('data-table')) || null;
+
+    function applyFilters() {
+      var entry = byKey[activeKey];
+      if (!entry) return;
+      var q = search ? (search.value || '').trim().toLowerCase() : '';
+      var visible = 0;
+      var total = entry.rows.length;
+      for (var i = 0; i < total; i++) {
+        var show = !q || entry.haystacks[i].indexOf(q) !== -1;
+        entry.rows[i].hidden = !show;
+        if (show) visible++;
+      }
+      if (emptyEl) emptyEl.hidden = visible !== 0;
+      if (countEl) {
+        countEl.textContent = q
+          ? visible + ' / ' + total
+          : total + ' rows';
+      }
+    }
+
+    function showTable(key) {
+      if (!byKey[key]) return;
+      activeKey = key;
+      wrappers.forEach(function (w) {
+        w.hidden = w.getAttribute('data-table') !== key;
+      });
+      tabs.forEach(function (t) {
+        var on = t.getAttribute('data-table') === key;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      applyFilters();
+    }
+
+    var debouncedFilter = EF.debounce(applyFilters, 60);
+    if (search) search.addEventListener('input', debouncedFilter);
+
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        showTable(t.getAttribute('data-table'));
+      });
+    });
+
+    showTable(activeKey);
   }
 
   // ==========================================================================

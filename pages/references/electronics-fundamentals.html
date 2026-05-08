@@ -1701,14 +1701,401 @@ Styles live in /assets/css/electronics-fundamentals.css and behaviour in
     </section>
 
     {%- comment -%} ========== Section 6: Reference Tables ========== {%- endcomment -%}
-    <section class="electronics-section" id="electronics-tables">
-      <h2 class="electronics-section__title">Reference Tables</h2>
+    <section class="electronics-section" id="electronics-tables" aria-labelledby="electronics-tables-heading">
+      <h2 class="electronics-section__title" id="electronics-tables-heading">Reference Tables</h2>
       <p class="electronics-section__intro">
-        SI prefixes, common unit conversions, schematic symbols, and the rest
-        of the lookup tables that round out the cheat sheet.
+        SI prefixes, resistor and capacitor markings, wire-gauge ratings, logic
+        thresholds, and battery-cell voltages &mdash; the lookup tables that round
+        out the cheat sheet. Switch tables with the tabs, or filter rows live
+        with the search box.
       </p>
+
+      <style>
+        .electronics-tables-controls {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--space-md);
+          align-items: center;
+          margin-bottom: var(--space-md);
+        }
+        .electronics-tables-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .electronics-tables-tab {
+          appearance: none;
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
+          color: var(--c-text-muted);
+          border-radius: 999px;
+          padding: 0.4rem 0.85rem;
+          font: inherit;
+          font-size: 0.82rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background var(--transition-fast),
+                      color var(--transition-fast),
+                      border-color var(--transition-fast);
+        }
+        .electronics-tables-tab:hover {
+          color: var(--c-text);
+          border-color: var(--c-accent-border);
+        }
+        .electronics-tables-tab.is-active {
+          background: var(--c-accent-bg);
+          color: var(--c-accent);
+          border-color: var(--c-accent-border);
+        }
+        .electronics-tables-tab:focus-visible {
+          outline: 2px solid var(--c-accent);
+          outline-offset: 2px;
+        }
+        .electronics-tables-search {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: var(--space-sm);
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
+          border-radius: var(--border-radius);
+          padding: 0.3rem 0.65rem;
+          flex: 0 1 16rem;
+          min-width: 0;
+        }
+        .electronics-tables-search:focus-within {
+          border-color: var(--c-accent-border);
+          box-shadow: 0 0 0 3px var(--c-accent-bg);
+        }
+        .electronics-tables-search input {
+          flex: 1;
+          background: transparent;
+          border: 0;
+          outline: 0;
+          color: var(--c-text);
+          font: inherit;
+          font-size: 0.9rem;
+          padding: 0.15rem 0;
+          min-width: 0;
+        }
+        .electronics-tables-search input::placeholder { color: var(--c-text-faint); }
+        .electronics-tables-search__count {
+          font-size: 0.75rem;
+          color: var(--c-text-faint);
+          font-variant-numeric: tabular-nums;
+          white-space: nowrap;
+        }
+        .electronics-tables-empty {
+          text-align: center;
+          padding: var(--space-xl);
+          color: var(--c-text-muted);
+          font-size: 0.95rem;
+        }
+        /* Inline color swatch used in the resistor color-code table. */
+        .electronics-color-swatch {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+        }
+        .electronics-color-swatch__chip {
+          width: 0.95rem;
+          height: 0.95rem;
+          border-radius: 3px;
+          border: 1px solid rgba(0, 0, 0, 0.35);
+          flex-shrink: 0;
+        }
+        @media print {
+          .electronics-tables-controls { display: none; }
+          .electronics-table-wrapper { display: block !important; break-inside: avoid; margin-bottom: var(--space-md); }
+          .electronics-table-wrapper[hidden] { display: block !important; }
+        }
+      </style>
+
+      <div class="electronics-tables-controls">
+        <nav class="electronics-tables-tabs" role="tablist" aria-label="Reference table tabs">
+          <button type="button" class="electronics-tables-tab is-active"
+                  data-table="si" role="tab" aria-selected="true">SI Prefixes</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="resistor" role="tab" aria-selected="false">Resistor Codes</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="capacitor" role="tab" aria-selected="false">Capacitor Codes</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="awg" role="tab" aria-selected="false">Wire Gauge (AWG)</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="logic" role="tab" aria-selected="false">Logic Levels</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="battery" role="tab" aria-selected="false">Battery Cells</button>
+        </nav>
+        <label class="electronics-tables-search">
+          <span aria-hidden="true">🔍</span>
+          <input type="search" id="electronics-tables-search"
+                 placeholder="Filter rows in the active table…"
+                 autocomplete="off" spellcheck="false"
+                 aria-label="Search rows in the active reference table">
+          <span class="electronics-tables-search__count" id="electronics-tables-count" aria-live="polite"></span>
+        </label>
+      </div>
+
       <div class="electronics-tables" id="electronics-tables-grid">
-        {%- comment -%} TODO: Batch 9 will fill the reference tables here. {%- endcomment -%}
+
+        {%- comment -%} ----- 1. SI Prefixes ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="si" tabindex="0"
+             role="region" aria-label="SI prefixes table">
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              SI prefixes from yotta (10<sup>24</sup>) down to yocto (10<sup>&minus;24</sup>) &mdash; the units every electrical quantity gets multiplied by.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Prefix</th>
+                <th scope="col">Symbol</th>
+                <th scope="col">Factor</th>
+                <th scope="col">Hobby example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>yotta</td><td class="mono">Y</td><td class="mono">10<sup>24</sup></td><td>(astrophysics scale)</td></tr>
+              <tr><td>zetta</td><td class="mono">Z</td><td class="mono">10<sup>21</sup></td><td>&mdash;</td></tr>
+              <tr><td>exa</td><td class="mono">E</td><td class="mono">10<sup>18</sup></td><td>&mdash;</td></tr>
+              <tr><td>peta</td><td class="mono">P</td><td class="mono">10<sup>15</sup></td><td>&mdash;</td></tr>
+              <tr><td>tera</td><td class="mono">T</td><td class="mono">10<sup>12</sup></td><td>1&nbsp;TΩ insulation resistance</td></tr>
+              <tr><td>giga</td><td class="mono">G</td><td class="mono">10<sup>9</sup></td><td>5&nbsp;GHz Wi-Fi, 1&nbsp;GHz scope</td></tr>
+              <tr><td>mega</td><td class="mono">M</td><td class="mono">10<sup>6</sup></td><td>16&nbsp;MHz crystal, 10&nbsp;MΩ multimeter input</td></tr>
+              <tr><td>kilo</td><td class="mono">k</td><td class="mono">10<sup>3</sup></td><td>1&nbsp;kΩ pull-up, 1&nbsp;kV insulation tester</td></tr>
+              <tr><td>(none)</td><td class="mono">&mdash;</td><td class="mono">10<sup>0</sup></td><td>1&nbsp;V, 1&nbsp;A, 1&nbsp;Ω &mdash; the base units</td></tr>
+              <tr><td>milli</td><td class="mono">m</td><td class="mono">10<sup>&minus;3</sup></td><td>1&nbsp;mA LED current, 100&nbsp;mV ripple</td></tr>
+              <tr><td>micro</td><td class="mono">µ</td><td class="mono">10<sup>&minus;6</sup></td><td>100&nbsp;µF bulk cap, 10&nbsp;µA leakage</td></tr>
+              <tr><td>nano</td><td class="mono">n</td><td class="mono">10<sup>&minus;9</sup></td><td>100&nbsp;nF decoupling, ns timing</td></tr>
+              <tr><td>pico</td><td class="mono">p</td><td class="mono">10<sup>&minus;12</sup></td><td>22&nbsp;pF crystal load cap</td></tr>
+              <tr><td>femto</td><td class="mono">f</td><td class="mono">10<sup>&minus;15</sup></td><td>fs laser pulses</td></tr>
+              <tr><td>atto</td><td class="mono">a</td><td class="mono">10<sup>&minus;18</sup></td><td>&mdash;</td></tr>
+              <tr><td>zepto</td><td class="mono">z</td><td class="mono">10<sup>&minus;21</sup></td><td>&mdash;</td></tr>
+              <tr><td>yocto</td><td class="mono">y</td><td class="mono">10<sup>&minus;24</sup></td><td>&mdash;</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 2. Resistor Color Codes ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="resistor" tabindex="0"
+             role="region" aria-label="Resistor color code table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              4-band axial resistors: <strong>digit</strong> · <strong>digit</strong> · <strong>multiplier</strong> · <strong>tolerance</strong>. Read with the tolerance band on your right.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Color</th>
+                <th scope="col">Digit</th>
+                <th scope="col">Multiplier</th>
+                <th scope="col">Tolerance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--black" aria-hidden="true"></span>Black</span></td>
+                <td class="mono">0</td><td class="mono">×1</td><td>&mdash;</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--brown" aria-hidden="true"></span>Brown</span></td>
+                <td class="mono">1</td><td class="mono">×10</td><td>±1%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--red" aria-hidden="true"></span>Red</span></td>
+                <td class="mono">2</td><td class="mono">×100</td><td>±2%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--orange" aria-hidden="true"></span>Orange</span></td>
+                <td class="mono">3</td><td class="mono">×1k</td><td>&mdash;</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--yellow" aria-hidden="true"></span>Yellow</span></td>
+                <td class="mono">4</td><td class="mono">×10k</td><td>&mdash;</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--green" aria-hidden="true"></span>Green</span></td>
+                <td class="mono">5</td><td class="mono">×100k</td><td>±0.5%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--blue" aria-hidden="true"></span>Blue</span></td>
+                <td class="mono">6</td><td class="mono">×1M</td><td>±0.25%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--violet" aria-hidden="true"></span>Violet</span></td>
+                <td class="mono">7</td><td class="mono">×10M</td><td>±0.1%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--gray" aria-hidden="true"></span>Gray</span></td>
+                <td class="mono">8</td><td>&mdash;</td><td>±0.05%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--white" aria-hidden="true"></span>White</span></td>
+                <td class="mono">9</td><td>&mdash;</td><td>&mdash;</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--gold" aria-hidden="true"></span>Gold</span></td>
+                <td>&mdash;</td><td class="mono">×0.1</td><td>±5%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--silver" aria-hidden="true"></span>Silver</span></td>
+                <td>&mdash;</td><td class="mono">×0.01</td><td>±10%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 3. Capacitor 3-Digit Codes ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="capacitor" tabindex="0"
+             role="region" aria-label="Capacitor 3-digit code table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              Three-digit code on ceramic disc/MLCC parts: first two digits + N trailing zeros = picofarads. So <strong>104</strong> = 10 × 10<sup>4</sup> pF = 100 nF.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Code</th>
+                <th scope="col">Picofarads</th>
+                <th scope="col">Conventional</th>
+                <th scope="col">Common use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">100</td><td class="mono">10 pF</td><td class="mono">10 pF</td><td>RF tuning, crystal load</td></tr>
+              <tr><td class="mono">220</td><td class="mono">22 pF</td><td class="mono">22 pF</td><td>Crystal load cap</td></tr>
+              <tr><td class="mono">471</td><td class="mono">470 pF</td><td class="mono">470 pF</td><td>RF coupling</td></tr>
+              <tr><td class="mono">102</td><td class="mono">1,000 pF</td><td class="mono">1 nF</td><td>EMI filter</td></tr>
+              <tr><td class="mono">222</td><td class="mono">2,200 pF</td><td class="mono">2.2 nF</td><td>Audio coupling</td></tr>
+              <tr><td class="mono">472</td><td class="mono">4,700 pF</td><td class="mono">4.7 nF</td><td>Snubber, audio</td></tr>
+              <tr><td class="mono">103</td><td class="mono">10,000 pF</td><td class="mono">10 nF</td><td>Local bypass</td></tr>
+              <tr><td class="mono">223</td><td class="mono">22,000 pF</td><td class="mono">22 nF</td><td>Audio</td></tr>
+              <tr><td class="mono">473</td><td class="mono">47,000 pF</td><td class="mono">47 nF</td><td>Mid-frequency bypass</td></tr>
+              <tr><td class="mono">104</td><td class="mono">100,000 pF</td><td class="mono">100 nF (0.1 µF)</td><td>Decoupling — the workhorse</td></tr>
+              <tr><td class="mono">224</td><td class="mono">220,000 pF</td><td class="mono">220 nF (0.22 µF)</td><td>Decoupling, audio</td></tr>
+              <tr><td class="mono">474</td><td class="mono">470,000 pF</td><td class="mono">470 nF (0.47 µF)</td><td>Bulk decoupling</td></tr>
+              <tr><td class="mono">105</td><td class="mono">1,000,000 pF</td><td class="mono">1 µF</td><td>Bulk decoupling, audio</td></tr>
+              <tr><td class="mono">106</td><td class="mono">10,000,000 pF</td><td class="mono">10 µF</td><td>Bulk filtering, MLCC</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 4. Wire Gauge (AWG) ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="awg" tabindex="0"
+             role="region" aria-label="AWG wire gauge table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              American Wire Gauge — the smaller the AWG number, the thicker the wire. Currents below are conservative free-air values for short hobby runs; derate by ~30 % in bundles or long runs.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">AWG</th>
+                <th scope="col">Diameter</th>
+                <th scope="col">Resistance</th>
+                <th scope="col">Max current</th>
+                <th scope="col">Common use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">30</td><td class="mono">0.255 mm</td><td class="mono">339 mΩ/m</td><td class="mono">~0.86 A</td><td>Wire-wrap, fine signal</td></tr>
+              <tr><td class="mono">26</td><td class="mono">0.405 mm</td><td class="mono">134 mΩ/m</td><td class="mono">~2.2 A</td><td>Ribbon cable, sensor leads</td></tr>
+              <tr><td class="mono">24</td><td class="mono">0.511 mm</td><td class="mono">84.2 mΩ/m</td><td class="mono">~3.5 A</td><td>USB power, hookup wire</td></tr>
+              <tr><td class="mono">22</td><td class="mono">0.644 mm</td><td class="mono">53.0 mΩ/m</td><td class="mono">~7 A</td><td>General hobby, breadboard</td></tr>
+              <tr><td class="mono">20</td><td class="mono">0.812 mm</td><td class="mono">33.3 mΩ/m</td><td class="mono">~11 A</td><td>Speaker wire, low-power motors</td></tr>
+              <tr><td class="mono">18</td><td class="mono">1.024 mm</td><td class="mono">21.0 mΩ/m</td><td class="mono">~16 A</td><td>Power leads, DC supplies</td></tr>
+              <tr><td class="mono">16</td><td class="mono">1.291 mm</td><td class="mono">13.2 mΩ/m</td><td class="mono">~22 A</td><td>Small battery cables</td></tr>
+              <tr><td class="mono">14</td><td class="mono">1.628 mm</td><td class="mono">8.28 mΩ/m</td><td class="mono">~32 A</td><td>Mains household wiring</td></tr>
+              <tr><td class="mono">12</td><td class="mono">2.053 mm</td><td class="mono">5.21 mΩ/m</td><td class="mono">~41 A</td><td>High-current power</td></tr>
+              <tr><td class="mono">10</td><td class="mono">2.588 mm</td><td class="mono">3.28 mΩ/m</td><td class="mono">~55 A</td><td>Battery banks, EVs</td></tr>
+              <tr><td class="mono">8</td><td class="mono">3.264 mm</td><td class="mono">2.06 mΩ/m</td><td class="mono">~73 A</td><td>Inverter feeds, 50 A circuits</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 5. Logic Voltage Levels ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="logic" tabindex="0"
+             role="region" aria-label="Logic family voltage levels table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              Input/output voltage thresholds for common logic families. <code>V<sub>IL</sub></code>/<code>V<sub>IH</sub></code> are valid input ranges; <code>V<sub>OL</sub></code>/<code>V<sub>OH</sub></code> are guaranteed output ranges.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Family</th>
+                <th scope="col">V<sub>CC</sub></th>
+                <th scope="col">V<sub>IL,max</sub></th>
+                <th scope="col">V<sub>IH,min</sub></th>
+                <th scope="col">V<sub>OL,max</sub></th>
+                <th scope="col">V<sub>OH,min</sub></th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>5 V TTL (74xx, 74LSxx)</td>
+                <td class="mono">5.0 V</td><td class="mono">0.8 V</td><td class="mono">2.0 V</td>
+                <td class="mono">0.4 V</td><td class="mono">2.4 V</td>
+                <td>Tolerates 5 V inputs into 5 V chips</td>
+              </tr>
+              <tr>
+                <td>5 V CMOS (74HCxx)</td>
+                <td class="mono">5.0 V</td><td class="mono">1.5 V</td><td class="mono">3.5 V</td>
+                <td class="mono">0.05 V</td><td class="mono">4.95 V</td>
+                <td>Higher noise margin than TTL</td>
+              </tr>
+              <tr>
+                <td>3.3 V LVTTL</td>
+                <td class="mono">3.3 V</td><td class="mono">0.8 V</td><td class="mono">2.0 V</td>
+                <td class="mono">0.4 V</td><td class="mono">2.4 V</td>
+                <td>Compatible with 5 V TTL inputs</td>
+              </tr>
+              <tr>
+                <td>3.3 V CMOS (74LVCxx)</td>
+                <td class="mono">3.3 V</td><td class="mono">0.99 V</td><td class="mono">2.31 V</td>
+                <td class="mono">0.1 V</td><td class="mono">3.2 V</td>
+                <td>Common on Arduino, ESP32, RPi</td>
+              </tr>
+              <tr>
+                <td>1.8 V CMOS</td>
+                <td class="mono">1.8 V</td><td class="mono">0.54 V</td><td class="mono">1.26 V</td>
+                <td class="mono">0.1 V</td><td class="mono">1.7 V</td>
+                <td>Modern SoCs, FPGAs core IO</td>
+              </tr>
+              <tr>
+                <td>RS-232</td>
+                <td class="mono">±5 to ±15 V</td><td class="mono">+3 V</td><td class="mono">&minus;3 V</td>
+                <td class="mono">+5 V</td><td class="mono">&minus;5 V</td>
+                <td>Inverted; mark/space at ±voltages</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 6. Battery Cell Voltages ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="battery" tabindex="0"
+             role="region" aria-label="Battery cell voltage table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              Per-cell voltages for common chemistries. Multiply by series count to get pack voltage (e.g.&nbsp;3S Li-ion = 3 × 3.7 V = 11.1 V nominal).
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Cell type</th>
+                <th scope="col">Nominal</th>
+                <th scope="col">Fully charged</th>
+                <th scope="col">Discharged (cutoff)</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Alkaline AA / AAA</td><td class="mono">1.5 V</td><td class="mono">1.6 V</td><td class="mono">0.9 V</td><td>Single-use; high internal resistance</td></tr>
+              <tr><td>NiMH AA / AAA</td><td class="mono">1.2 V</td><td class="mono">1.4 V</td><td class="mono">1.0 V</td><td>Rechargeable; low self-discharge variants exist</td></tr>
+              <tr><td>Lead-acid (per cell)</td><td class="mono">2.0 V</td><td class="mono">2.1 V</td><td class="mono">1.75 V</td><td>6 cells = 12 V SLA pack</td></tr>
+              <tr><td>LiFePO<sub>4</sub></td><td class="mono">3.2 V</td><td class="mono">3.65 V</td><td class="mono">2.5 V</td><td>Safer Li chemistry; flat discharge curve</td></tr>
+              <tr><td>Li-ion (LiCoO<sub>2</sub>)</td><td class="mono">3.7 V</td><td class="mono">4.2 V</td><td class="mono">3.0 V</td><td>Phones, laptops; needs BMS</td></tr>
+              <tr><td>Li-Po</td><td class="mono">3.7 V</td><td class="mono">4.2 V</td><td class="mono">3.0 V</td><td>Drones, RC; identical chemistry to Li-ion</td></tr>
+              <tr><td>CR2032 coin</td><td class="mono">3.0 V</td><td class="mono">3.3 V</td><td class="mono">2.0 V</td><td>RTC backup, remote controls</td></tr>
+              <tr><td>9 V (PP3)</td><td class="mono">9.0 V</td><td class="mono">9.6 V</td><td class="mono">5.4 V</td><td>Six 1.5 V cells in series internally</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="electronics-tables-empty" id="electronics-tables-empty" hidden>
+          No rows match your filter.
+        </p>
       </div>
     </section>
 
