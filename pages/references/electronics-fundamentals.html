@@ -3387,4 +3387,18 @@ widgets should subclass EF.CalculatorKernel directly.
   </div>
 </section>
 
+{%- comment -%}
+  Modular bundle (Intermission Batch 2). Each file is its own IIFE that
+  bails silently on any page without `.electronics-page`, so loading them
+  site-wide is safe. Order matters: utils → widget-core (creates EF) →
+  per-section files (register their widgets) → entry (mounts everything).
+{%- endcomment -%}
+<script src="{{ '/assets/js/electronics-utils.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-widget-core.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-quick-wheel.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-formulas.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-ohms-calculator.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-led-divider-calculators.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-sp-rc-calculators.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-components.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/electronics-fundamentals.js' | relative_url }}" defer></script>
