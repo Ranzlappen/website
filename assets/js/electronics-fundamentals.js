@@ -96,6 +96,19 @@
     try { return JSON.parse(el.textContent || '{}'); } catch (_) { return {}; }
   }
 
+  /** Strict input sanitiser. Coerces a raw <input>.value (or any string /
+   *  number) into a finite number; returns NaN for empty / null / non-numeric
+   *  / Infinity / -Infinity inputs. The single source of truth for "is this
+   *  a real, usable number?" across every calculator. */
+  function sanitizeInput(raw) {
+    if (raw === null || raw === undefined) return NaN;
+    if (typeof raw === 'number') return Number.isFinite(raw) ? raw : NaN;
+    var trimmed = String(raw).trim();
+    if (trimmed === '') return NaN;
+    var num = parseFloat(trimmed);
+    return Number.isFinite(num) ? num : NaN;
+  }
+
   // Expose a tiny namespace for later batches to hang helpers / shared state
   // off of, instead of dotting more globals onto window.
   var EF = {
@@ -103,6 +116,7 @@
     copyToClipboard: copyToClipboard,
     formatNumberWithUnits: formatNumberWithUnits,
     readDataIsland: readDataIsland,
+    sanitizeInput: sanitizeInput,
     // Each section's init() will register itself here so resize/theme handlers
     // can iterate every active widget without reaching back into the DOM.
     widgets: []
@@ -308,9 +322,7 @@
 
   /** Coerce a raw <input> value to a finite number (or NaN if invalid). */
   CalculatorKernel.prototype.sanitizeInput = function (raw) {
-    if (raw === null || raw === undefined || raw === '') return NaN;
-    var num = parseFloat(raw);
-    return isFinite(num) ? num : NaN;
+    return EF.sanitizeInput(raw);
   };
 
   /** Format a number with an SI prefix (12000 → "12 kΩ"). */
@@ -418,7 +430,12 @@
     EF._registry.push({ name: name, factory: factory });
   };
 
-  /** Walks the registry, instantiates each widget, calls mount(). */
+  /** Walks the registry, instantiates each widget, calls mount(). After all
+   *  widgets are up, dispatches a synthetic theme sync so every chart picks
+   *  up the live `--c-accent`/`--c-text`/grid colors even when the user
+   *  never toggles the site theme — the dark-mode safety net for charts
+   *  that finished their first build inside a hidden / lazily-mounted
+   *  container. */
   EF.mountAllWidgets = function () {
     EF._registry.forEach(function (entry) {
       try {
@@ -429,6 +446,18 @@
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Widget mount failed: ' + entry.name, e);
+      }
+    });
+    EF.syncAllWidgetThemes();
+  };
+
+  /** Force every widget that exposes onThemeChange to re-skin itself with
+   *  the current `EF.theme`. Idempotent and cheap — call as often as needed
+   *  (e.g. after a delayed Chart.js arrival). */
+  EF.syncAllWidgetThemes = function () {
+    EF.widgets.forEach(function (entry) {
+      if (entry && typeof entry.onThemeChange === 'function') {
+        try { entry.onThemeChange(EF.theme); } catch (_) { /* ignore */ }
       }
     });
   };
@@ -505,6 +534,7 @@
     var MAX_ACTIVE = 2;
     var registrations = [];
     var observer = null;
+    var resizeObserver = null;   // ResizeObserver instance (if supported)
     var activeQueue = [];        // names of currently-active charts, MRU last
 
     function ensureObserver() {
@@ -518,6 +548,35 @@
         });
       }, { rootMargin: '120px 0px', threshold: 0.05 });
       return observer;
+    }
+
+    /** ResizeObserver re-runs chart.resize() whenever a registered wrapper
+     *  changes size — covers responsive sidebar collapses, mobile rotation,
+     *  and parent layout shifts that don't trigger a window resize. Only
+     *  fires for *active* registrations so paused/pending charts stay idle. */
+    function ensureResizeObserver() {
+      if (resizeObserver) return resizeObserver;
+      if (typeof ResizeObserver === 'undefined') return null;
+      // Debounce per wrapper so rapid layout changes coalesce into a single
+      // chart.resize() call.
+      var pending = new WeakMap();
+      resizeObserver = new ResizeObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var reg = findByContainer(entry.target);
+          if (!reg || reg.status !== 'active' || !reg.chartRef) return;
+          var prior = pending.get(entry.target);
+          if (prior) clearTimeout(prior);
+          pending.set(entry.target, setTimeout(function () {
+            pending.delete(entry.target);
+            try { if (typeof reg.chartRef.resize === 'function') reg.chartRef.resize(); }
+            catch (e) {
+              // eslint-disable-next-line no-console
+              console.error('LazyChart resize failed: ' + reg.name, e);
+            }
+          }, 100));
+        });
+      });
+      return resizeObserver;
     }
 
     function findByContainer(el) {
@@ -598,6 +657,8 @@
       var obs = ensureObserver();
       if (obs) obs.observe(container);
       else activate(reg);          // No IO support → eager build.
+      var ro = ensureResizeObserver();
+      if (ro) ro.observe(container);
       return reg;
     }
 
@@ -609,7 +670,8 @@
     }
 
     function unregisterAll() {
-      if (observer) { observer.disconnect(); observer = null; }
+      if (observer)       { observer.disconnect();       observer = null; }
+      if (resizeObserver) { resizeObserver.disconnect(); resizeObserver = null; }
       registrations.length = 0;
       activeQueue.length = 0;
     }
@@ -1763,14 +1825,26 @@
       onThemeChange: applyChartTheme,
       getState: function () {
         return {
-          Vsupply: parseFloat(inputs.Vsupply.value) || null,
-          Vf:      parseFloat(inputs.Vf.value)      || null,
-          I:       parseFloat(inputs.I.value)       || null,
-          color:   colorSelect ? colorSelect.value  : null,
-          lastResult: lastResult
+          Vsupply: EF.sanitizeInput(inputs.Vsupply.value),
+          Vf:      EF.sanitizeInput(inputs.Vf.value),
+          I:       EF.sanitizeInput(inputs.I.value),
+          color:   colorSelect ? colorSelect.value : null
         };
       },
-      reset: function () { if (clearBtn) clearBtn.click(); }
+      reset: function () { if (clearBtn) clearBtn.click(); },
+      restoreState: function (snap) {
+        if (!snap) return;
+        if (colorSelect && snap.color && colorSelect.querySelector('option[value="' + snap.color + '"]')) {
+          colorSelect.value = snap.color;
+        }
+        ['Vsupply', 'Vf', 'I'].forEach(function (n) {
+          var v = EF.sanitizeInput(snap[n]);
+          if (!Number.isFinite(v)) return;
+          inputs[n].value = String(v);
+          syncSlider(n, v);
+        });
+        recompute();
+      }
     });
   }
 
@@ -2170,11 +2244,23 @@
       onThemeChange: applyChartTheme,
       getState: function () {
         var snap = {};
-        QTY.forEach(function (n) { snap[n] = parseFloat(inputs[n].value) || null; });
-        snap.lastResult = lastResult;
+        QTY.forEach(function (n) {
+          var v = EF.sanitizeInput(inputs[n].value);
+          snap[n] = Number.isFinite(v) ? v : null;
+        });
         return snap;
       },
-      reset: function () { if (clearBtn) clearBtn.click(); }
+      reset: function () { if (clearBtn) clearBtn.click(); },
+      restoreState: function (snap) {
+        if (!snap) return;
+        QTY.forEach(function (n) {
+          var v = EF.sanitizeInput(snap[n]);
+          if (!Number.isFinite(v)) return;
+          inputs[n].value = String(v);
+          syncSlider(n, v);
+        });
+        recompute();
+      }
     });
   }
 
@@ -2221,15 +2307,23 @@
 
     // ---- Component math ----------------------------------------------------
     function combine(values) {
-      // Filter out NaN / non-positive entries so a half-typed row doesn't
+      // Strictly filter to finite, positive numbers so a half-typed row, a
+      // just-deleted row whose closure was already evicted, an Infinity from
+      // an upstream divide-by-zero, or a NaN from parseFloat('') can never
       // poison the total. Both formulas need at least one valid value.
-      var v = values.filter(function (x) { return isFinite(x) && x > 0; });
+      var v = (values || []).filter(function (x) {
+        return Number.isFinite(x) && x > 0;
+      });
       if (!v.length) return { total: NaN, count: 0 };
       var total;
       if (state.type === 'resistor' && state.topology === 'series')        total = v.reduce(sum, 0);
       else if (state.type === 'resistor' && state.topology === 'parallel') total = 1 / v.reduce(recipSum, 0);
       else if (state.type === 'capacitor' && state.topology === 'series')  total = 1 / v.reduce(recipSum, 0);
       else                                                                  total = v.reduce(sum, 0);
+      // The reciprocal formulas can hand back Infinity for degenerate cases
+      // (e.g. one row entered as something parseFloat resolved to 0). Coerce
+      // to NaN so renderResult's guard catches it cleanly.
+      if (!Number.isFinite(total)) return { total: NaN, count: v.length };
       return { total: total, count: v.length };
     }
     function sum(acc, x)      { return acc + x; }
@@ -2330,11 +2424,20 @@
     }
 
     function removeRow(entry) {
+      // Defence in depth: tolerate a stale `entry` reference (e.g. a
+      // double-click during a debounced recompute, or a programmatic call
+      // after the row was already spliced) so we never end up with an
+      // out-of-range splice that leaves a phantom node in the DOM.
+      if (!entry || !entry.row) return;
       if (state.rows.length <= MIN_ROWS) return;
       var idx = state.rows.indexOf(entry);
-      if (idx === -1) return;
+      if (idx === -1) {
+        // Entry wasn't in state.rows but its DOM node may still hang around.
+        try { entry.row.remove(); } catch (_) { /* node already detached */ }
+        return;
+      }
       state.rows.splice(idx, 1);
-      entry.row.remove();
+      try { entry.row.remove(); } catch (_) { /* already detached */ }
       relabel();
       recompute();
     }
@@ -2402,8 +2505,10 @@
 
     function readValues() {
       return state.rows.map(function (r) {
-        var n = parseFloat(r.num.value);
-        return isFinite(n) ? n : NaN;
+        // EF.sanitizeInput already returns NaN for empty / non-numeric /
+        // Infinity inputs; this single-line read replaces the prior
+        // parseFloat + isFinite pair.
+        return EF.sanitizeInput(r && r.num ? r.num.value : '');
       });
     }
 
@@ -2609,11 +2714,47 @@
           type: state.type,
           topology: state.topology,
           rowCount: state.rows.length,
-          values: lastValues.slice(),
-          total: lastTotal
+          values: lastValues.filter(function (v) { return Number.isFinite(v); })
         };
       },
-      reset: function () { if (clearBtn) clearBtn.click(); }
+      reset: function () { if (clearBtn) clearBtn.click(); },
+      restoreState: function (snap) {
+        if (!snap) return;
+        // 1) Sync the type/topology radios programmatically. Clicking
+        //    matching radios fires the change handler which routes through
+        //    setType/setTopology — that already re-seeds rows + updates
+        //    the Open-in-Quick-Wheel enabled state, so we just feed it.
+        if (snap.type && (snap.type === 'resistor' || snap.type === 'capacitor')) {
+          var typeRadio = card.querySelector('input[name="sp-type"][value="' + snap.type + '"]');
+          if (typeRadio && !typeRadio.checked) { typeRadio.checked = true; setType(snap.type, { force: true }); }
+        }
+        if (snap.topology && (snap.topology === 'series' || snap.topology === 'parallel')) {
+          var topoRadio = card.querySelector('input[name="sp-topology"][value="' + snap.topology + '"]');
+          if (topoRadio && !topoRadio.checked) { topoRadio.checked = true; setTopology(snap.topology); }
+        }
+        // 2) Match row count to the snapshot (within MIN/MAX bounds).
+        var values = Array.isArray(snap.values) ? snap.values : [];
+        var target = Math.max(MIN_ROWS, Math.min(MAX_ROWS, values.length || state.rows.length));
+        while (state.rows.length < target) buildRow(NaN);
+        while (state.rows.length > target) {
+          var last = state.rows[state.rows.length - 1];
+          if (!last) break;
+          removeRow(last);
+        }
+        // 3) Inject the saved values into each row's input + slider.
+        for (var i = 0; i < state.rows.length; i++) {
+          var v = EF.sanitizeInput(values[i]);
+          if (!Number.isFinite(v) || v <= 0) continue;
+          state.rows[i].num.value = String(v);
+          var slider = state.rows[i].slider;
+          if (slider) {
+            var min = parseFloat(slider.min);
+            var max = parseFloat(slider.max);
+            slider.value = String(Math.max(min, Math.min(max, v)));
+          }
+        }
+        recompute();
+      }
     });
   }
 
@@ -3077,16 +3218,32 @@
       onThemeChange: applyChartTheme,
       getState: function () {
         var snap = {};
-        QTY.forEach(function (n) { snap[n] = parseFloat(inputs[n].value) || null; });
+        QTY.forEach(function (n) {
+          var v = EF.sanitizeInput(inputs[n].value);
+          snap[n] = Number.isFinite(v) ? v : null;
+        });
         snap.mode = mode;
-        snap.isPlaying = isPlaying;
-        snap.cursorT = cursorT;
-        snap.lastResult = lastResult;
         return snap;
       },
       reset: function () {
         if (typeof pause === 'function') pause();
         if (clearBtn) clearBtn.click();
+      },
+      restoreState: function (snap) {
+        if (!snap) return;
+        if (typeof pause === 'function') pause();
+        if (snap.mode && snap.mode !== mode) {
+          // Programmatic mode swap goes through the existing setMode logic
+          // so the toggle button states stay in sync with the curve direction.
+          setMode(snap.mode);
+        }
+        QTY.forEach(function (n) {
+          var v = EF.sanitizeInput(snap[n]);
+          if (!Number.isFinite(v) || v < 0) return;
+          inputs[n].value = String(v);
+          syncSlider(n, v);
+        });
+        recompute();
       }
     });
   }
@@ -4256,14 +4413,30 @@
         var label = format(v, activeKey);
         if (q && label.indexOf(q) === -1) return;
         visible++;
-        var chip = document.createElement('div');
+        // Render each value as a real <button> so SR users can tab to it,
+        // arrow-key around the cloud, and Enter/Space to copy. Click copies
+        // the formatted mantissa to the clipboard — a quick lookup workflow
+        // that doesn't disturb the closest-finder state.
+        var chip = document.createElement('button');
+        chip.type = 'button';
         chip.className = 'electronics-eseries-value';
-        chip.setAttribute('role', 'listitem');
+        chip.setAttribute('data-value', label);
         chip.textContent = label;
+        var ariaLabel = activeKey + ' ' + label;
         if (closestMantissa !== null && Math.abs(v - closestMantissa) < 1e-4) {
           chip.classList.add('is-closest');
-          chip.setAttribute('aria-label', label + ' (closest match)');
+          chip.setAttribute('aria-current', 'true');
+          ariaLabel += ' — closest match';
         }
+        chip.setAttribute('aria-label', ariaLabel);
+        chip.addEventListener('click', function () {
+          EF.copyToClipboard(label).then(function (ok) {
+            if (!ok) return;
+            var prev = chip.textContent;
+            chip.textContent = '✓';
+            setTimeout(function () { chip.textContent = prev; }, 800);
+          });
+        });
         grid.appendChild(chip);
       });
       if (emptyEl) emptyEl.hidden = visible !== 0;
@@ -4617,6 +4790,7 @@
       var name = widgetNameForRow(row);
       if (!name) return;
 
+      // ----- 🔖 Bookmark — saves to localStorage + URL hash silently -----
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'electronics-calculator__reset electronics-bookmark-btn';
@@ -4636,6 +4810,31 @@
         setTimeout(function () { btn.textContent = prev; }, 1600);
       });
       row.appendChild(btn);
+
+      // ----- 🔗 Share — saves AND copies the resulting URL to clipboard.
+      // Different from Bookmark: this is the "send-to-a-friend" flow, while
+      // Bookmark is the "I'll come back to this on my own" flow.
+      var shareBtn = document.createElement('button');
+      shareBtn.type = 'button';
+      shareBtn.className = 'electronics-calculator__reset electronics-share-btn';
+      shareBtn.textContent = '🔗 Share';
+      shareBtn.setAttribute('aria-label', 'Copy a shareable URL with the current ' + name + ' state');
+      shareBtn.addEventListener('click', function () {
+        var entry = findWidgetEntry(name);
+        if (!entry || typeof entry.getState !== 'function') return;
+        var state = entry.getState();
+        var saved = EF.Bookmark.save(name, state);
+        if (!saved) {
+          shareBtn.textContent = '⚠ Save failed';
+          setTimeout(function () { shareBtn.textContent = '🔗 Share'; }, 1600);
+          return;
+        }
+        EF.copyToClipboard(window.location.href).then(function (ok) {
+          shareBtn.textContent = ok ? '✓ URL copied' : '⚠ Copy failed';
+          setTimeout(function () { shareBtn.textContent = '🔗 Share'; }, 1600);
+        });
+      });
+      row.appendChild(shareBtn);
     });
   }
 

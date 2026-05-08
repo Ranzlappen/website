@@ -176,8 +176,38 @@ widgets should subclass EF.CalculatorKernel directly.
       .electronics-bookmark-btn::before { content: ""; }
       /* Lightweight emphasis so the bookmark button reads as a "save" action
          even when it sits next to Clear / Copy / Open-in-Wheel siblings. */
-      .electronics-bookmark-btn {
+      .electronics-bookmark-btn,
+      .electronics-share-btn {
         font-weight: 600;
+      }
+      .electronics-share-btn:hover,
+      .electronics-bookmark-btn:hover {
+        color: var(--c-accent);
+        border-color: var(--c-accent-border);
+      }
+
+      /* Value-cloud chips are real <button> elements (Batch 9.9). Strip the
+         browser default chrome so the existing .electronics-eseries-value
+         visuals stay intact, plus a focus ring for keyboard users. */
+      button.electronics-eseries-value {
+        appearance: none;
+        -webkit-appearance: none;
+        font: inherit;
+        cursor: pointer;
+        line-height: 1;
+        transition: transform var(--transition-fast),
+                    color var(--transition-fast),
+                    border-color var(--transition-fast),
+                    background var(--transition-fast);
+      }
+      button.electronics-eseries-value:hover {
+        color: var(--c-accent);
+        border-color: var(--c-accent-border);
+        transform: translateY(-1px);
+      }
+      button.electronics-eseries-value:focus-visible {
+        outline: 2px solid var(--c-accent);
+        outline-offset: 2px;
       }
 
       .electronics-footer {
