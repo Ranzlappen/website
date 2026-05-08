@@ -1810,27 +1810,74 @@ Styles live in /assets/css/electronics-fundamentals.css and behaviour in
           font-weight: 500;
         }
         .electronics-rcd-band__select {
+          /* Deprecated: kept as a no-op for any cached HTML still in flight.
+             The decoder now uses .electronics-rcd-swatch buttons instead. */
+          display: none;
+        }
+        .electronics-rcd-band__palette {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(2.4rem, 1fr));
+          gap: 0.3rem;
+          padding: 0.25rem;
+          background: var(--c-bg-alt);
+          border: 1px solid var(--c-border-light);
+          border-radius: var(--border-radius-sm);
+        }
+        .electronics-rcd-swatch {
           appearance: none;
           -webkit-appearance: none;
-          width: 100%;
-          height: 3.5rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          aspect-ratio: 1 / 1;
+          min-height: 2.4rem;
+          padding: 0;
+          border: 2px solid rgba(0, 0, 0, 0.35);
           border-radius: var(--border-radius-sm);
-          border: 2px solid var(--c-border);
-          background-color: var(--c-surface-alt);
-          color: var(--c-text);
-          text-align: center;
           font: inherit;
+          font-family: var(--f-mono);
+          font-size: 0.7rem;
           font-weight: 700;
-          font-size: 1.05rem;
+          font-variant-numeric: tabular-nums;
+          line-height: 1;
           cursor: pointer;
-          padding: 0.25rem;
-          transition: border-color var(--transition-fast),
-                      box-shadow var(--transition-fast);
+          background-color: var(--swatch-bg, var(--c-surface-alt));
+          color: var(--swatch-fg, var(--c-text));
+          transition: transform var(--transition-fast),
+                      box-shadow var(--transition-fast),
+                      border-color var(--transition-fast);
         }
-        .electronics-rcd-band__select:focus-visible {
+        .electronics-rcd-swatch:hover {
+          transform: scale(1.06);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+          z-index: 1;
+        }
+        .electronics-rcd-swatch:focus-visible {
           outline: none;
+          box-shadow: 0 0 0 3px var(--c-accent-bg),
+                      0 0 0 5px var(--c-accent-border);
+          z-index: 2;
+        }
+        .electronics-rcd-swatch.is-active {
+          transform: scale(1.10);
           border-color: var(--c-accent);
-          box-shadow: 0 0 0 3px var(--c-accent-bg);
+          box-shadow: 0 0 0 2px var(--c-bg-alt),
+                      0 0 0 4px var(--c-accent),
+                      inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+          z-index: 3;
+        }
+        .electronics-rcd-swatch.is-active:focus-visible {
+          box-shadow: 0 0 0 2px var(--c-bg-alt),
+                      0 0 0 4px var(--c-accent),
+                      0 0 0 7px var(--c-accent-bg);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .electronics-rcd-swatch { transition: none; }
+          .electronics-rcd-swatch:hover,
+          .electronics-rcd-swatch.is-active { transform: none; }
+        }
+        @media print {
+          .electronics-rcd-swatch { transform: none !important; box-shadow: none !important; }
         }
         .electronics-rcd-band__caption {
           font-size: 0.78rem;

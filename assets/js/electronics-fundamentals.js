@@ -3212,15 +3212,15 @@
       });
     }
 
-    function applySelectColor(select, colorKey) {
+    // Apply the swatch's color palette as inline CSS variables so the same
+    // .electronics-rcd-swatch class can render any of the 12 hues without
+    // proliferating per-color modifier classes. The bg/fg pair is pulled from
+    // the data island, which lets future palette tweaks ship via JSON only.
+    function applySwatchColor(btn, colorKey) {
       var c = COLORS[colorKey];
       if (!c) return;
-      select.style.backgroundColor = c.hex;
-      select.style.color = c.text;
-      // Add a subtle outline so light-coloured chips (white, yellow) keep a
-      // visible edge on light backgrounds.
-      var lightChip = (colorKey === 'white' || colorKey === 'yellow' || colorKey === 'silver');
-      select.style.borderColor = lightChip ? 'rgba(0, 0, 0, 0.35)' : 'transparent';
+      btn.style.setProperty('--swatch-bg', c.hex);
+      btn.style.setProperty('--swatch-fg', c.text);
     }
 
     function captionFor(colorKey, role) {
@@ -3232,6 +3232,18 @@
       else if (role === 'multiplier') detail = '× ' + c.multiplier;
       else if (role === 'tolerance')  detail = '± ' + c.tolerance + '%';
       return label + ' · ' + detail;
+    }
+
+    // Short, scannable label printed inside the swatch itself — digit (0–9),
+    // multiplier (×10, ×0.1, …), or tolerance (±5%, ±10%, …) so the visitor
+    // can hunt by value, not by color memory.
+    function swatchValueText(colorKey, role) {
+      var c = COLORS[colorKey];
+      if (!c) return '';
+      if (role === 'digit')      return String(c.digit);
+      if (role === 'multiplier') return '×' + c.multiplier;
+      if (role === 'tolerance')  return '±' + c.tolerance + '%';
+      return '';
     }
 
     function buildBands() {
@@ -3256,40 +3268,83 @@
         legendEl.textContent = legend;
         wrap.appendChild(legendEl);
 
-        var select = document.createElement('select');
-        select.className = 'electronics-rcd-band__select';
-        select.setAttribute('data-position', i);
-        select.setAttribute('aria-label', legend + ' color');
-        valid.forEach(function (k) {
-          var opt = document.createElement('option');
-          opt.value = k;
-          opt.textContent = k.charAt(0).toUpperCase() + k.slice(1);
-          select.appendChild(opt);
-        });
-        select.value = bandColors[i];
-        applySelectColor(select, bandColors[i]);
+        // Palette = a per-band radiogroup of clickable color swatches.
+        var palette = document.createElement('div');
+        palette.className = 'electronics-rcd-band__palette';
+        palette.setAttribute('role', 'radiogroup');
+        palette.setAttribute('aria-label', legend + ' color');
 
         var caption = document.createElement('span');
         caption.className = 'electronics-rcd-band__caption';
         caption.textContent = captionFor(bandColors[i], role);
 
-        select.addEventListener('change', (function (idx, roleAtIdx, capEl) {
-          return function (e) {
-            var key = e.target.value;
-            if (!COLORS[key]) {
-              setWarning('Unrecognised color "' + key + '"; falling back to default.');
-              key = bandColors[idx];
-              e.target.value = key;
-              return;
-            }
-            bandColors[idx] = key;
-            applySelectColor(e.target, key);
-            capEl.textContent = captionFor(key, roleAtIdx);
-            recompute();
+        // One <button> per valid color — color via CSS vars, value text inside.
+        // Click flips active state, aria-checked, caption, and the live result.
+        valid.forEach((function (idx, roleAtIdx, capEl) {
+          return function (k) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'electronics-rcd-swatch';
+            btn.setAttribute('role', 'radio');
+            btn.setAttribute('data-color', k);
+            btn.textContent = swatchValueText(k, roleAtIdx);
+            btn.setAttribute('aria-label',
+              k.charAt(0).toUpperCase() + k.slice(1) +
+              ' — ' + (swatchValueText(k, roleAtIdx) || k));
+            applySwatchColor(btn, k);
+            var isActive = (k === bandColors[idx]);
+            if (isActive) btn.classList.add('is-active');
+            btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+            // Native radios skip un-checked radios in tab order; we mirror
+            // that so Tab lands on the active swatch, then Tab again moves
+            // out of the band rather than hopping every color.
+            btn.tabIndex = isActive ? 0 : -1;
+
+            btn.addEventListener('click', function () {
+              var key = btn.getAttribute('data-color');
+              if (!COLORS[key]) {
+                setWarning('Unrecognised color "' + key + '"; ignoring click.');
+                return;
+              }
+              if (key === bandColors[idx]) return;
+              bandColors[idx] = key;
+              // Toggle active class + aria-checked + tabindex within this
+              // palette only.
+              var siblings = palette.querySelectorAll('.electronics-rcd-swatch');
+              for (var s = 0; s < siblings.length; s++) {
+                var sib = siblings[s];
+                var on = (sib === btn);
+                sib.classList.toggle('is-active', on);
+                sib.setAttribute('aria-checked', on ? 'true' : 'false');
+                sib.tabIndex = on ? 0 : -1;
+              }
+              capEl.textContent = captionFor(key, roleAtIdx);
+              recompute();
+            });
+
+            // Arrow-key navigation within the palette so radio semantics feel
+            // native to keyboard users. Left/Up = previous, Right/Down = next,
+            // Home / End = first / last.
+            btn.addEventListener('keydown', function (e) {
+              var keys = ['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'Home', 'End'];
+              if (keys.indexOf(e.key) === -1) return;
+              e.preventDefault();
+              var siblings = palette.querySelectorAll('.electronics-rcd-swatch');
+              var current = Array.prototype.indexOf.call(siblings, btn);
+              var next = current;
+              if (e.key === 'ArrowLeft' || e.key === 'ArrowUp')   next = (current - 1 + siblings.length) % siblings.length;
+              if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (current + 1) % siblings.length;
+              if (e.key === 'Home') next = 0;
+              if (e.key === 'End')  next = siblings.length - 1;
+              var target = siblings[next];
+              if (target) { target.focus(); target.click(); }
+            });
+
+            palette.appendChild(btn);
           };
         })(i, role, caption));
 
-        wrap.appendChild(select);
+        wrap.appendChild(palette);
         wrap.appendChild(caption);
         bandsEl.appendChild(wrap);
       }
