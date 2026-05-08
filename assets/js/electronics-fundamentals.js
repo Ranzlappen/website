@@ -2236,10 +2236,74 @@
     //       should call EF.ensureChartJs().then(...).
   }
 
+  // ==========================================================================
+  // Section 5 — Circuit Design Guides & Practical Tips
+  //   Static cards laid out by Liquid; this hook adds the interactive
+  //   filtering UI on top: tier pills (best-practice / warning / danger) plus
+  //   a free-text search that walks each card's data-topic + body text.
+  // ==========================================================================
   function initDesignGuides() {
+    var section = document.getElementById('electronics-design-guides');
+    if (!section) return;
     var grid = document.getElementById('electronics-guides-grid');
     if (!grid) return;
-    // TODO: Batch 8 will populate the design-guide cards here.
+
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.electronics-guide'));
+    if (!cards.length) return;
+
+    var search    = document.getElementById('electronics-guides-search');
+    var countEl   = document.getElementById('electronics-guides-count');
+    var emptyEl   = document.getElementById('electronics-guides-empty');
+    var filterBtns = Array.prototype.slice.call(section.querySelectorAll('.electronics-guides-filter'));
+
+    var activeTier = 'all';
+    var total = cards.length;
+
+    // Pre-compute lower-cased haystacks once so per-keystroke filtering stays
+    // cheap even with dozens of cards.
+    var haystacks = cards.map(function (card) {
+      var topic = (card.getAttribute('data-topic') || '').toLowerCase();
+      var text  = card.textContent.toLowerCase();
+      return topic + ' ' + text;
+    });
+
+    function applyFilters() {
+      var q = search ? (search.value || '').trim().toLowerCase() : '';
+      var visible = 0;
+      for (var i = 0; i < cards.length; i++) {
+        var card = cards[i];
+        var tierOk = activeTier === 'all' || card.getAttribute('data-tier') === activeTier;
+        var textOk = !q || haystacks[i].indexOf(q) !== -1;
+        var show = tierOk && textOk;
+        card.hidden = !show;
+        if (show) visible++;
+      }
+      if (emptyEl) emptyEl.hidden = visible !== 0;
+      if (countEl) {
+        countEl.textContent = (q || activeTier !== 'all')
+          ? visible + ' / ' + total
+          : total + ' tips';
+      }
+    }
+    var debouncedFilter = EF.debounce(applyFilters, 60);
+
+    if (search) {
+      search.addEventListener('input', debouncedFilter);
+    }
+
+    filterBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        activeTier = btn.getAttribute('data-filter') || 'all';
+        filterBtns.forEach(function (b) {
+          var on = (b === btn);
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        applyFilters();
+      });
+    });
+
+    applyFilters();
   }
 
   function initReferenceTables() {

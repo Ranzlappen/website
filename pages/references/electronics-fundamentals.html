@@ -1335,15 +1335,369 @@ Styles live in /assets/css/electronics-fundamentals.css and behaviour in
     </section>
 
     {%- comment -%} ========== Section 5: Circuit Design Guides & Practical Tips ========== {%- endcomment -%}
-    <section class="electronics-section" id="electronics-design-guides">
-      <h2 class="electronics-section__title">Circuit Design Guides &amp; Practical Tips</h2>
+    <section class="electronics-section" id="electronics-design-guides" aria-labelledby="electronics-design-guides-heading">
+      <h2 class="electronics-section__title" id="electronics-design-guides-heading">Circuit Design Guides &amp; Practical Tips</h2>
       <p class="electronics-section__intro">
-        Decoupling, pull-ups vs. pull-downs, choosing the right transistor,
-        protecting inputs — the practical rules of thumb that aren't in a textbook.
+        Decoupling, pull-ups vs.&nbsp;pull-downs, choosing the right transistor,
+        protecting inputs &mdash; the practical rules of thumb that aren&rsquo;t in a
+        textbook. Filter by tier, or search for a specific topic.
       </p>
-      <div class="electronics-guides" id="electronics-guides-grid">
-        {%- comment -%} TODO: Batch 8 will fill the design guides here. {%- endcomment -%}
+
+      <style>
+        .electronics-guides-controls {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--space-md);
+          align-items: center;
+          margin-bottom: var(--space-md);
+        }
+        .electronics-guides-tabs {
+          display: flex; flex-wrap: wrap; gap: 0.4rem;
+        }
+        .electronics-guides-filter {
+          appearance: none;
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
+          color: var(--c-text-muted);
+          border-radius: 999px;
+          padding: 0.4rem 0.85rem;
+          font: inherit;
+          font-size: 0.82rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background var(--transition-fast),
+                      color var(--transition-fast),
+                      border-color var(--transition-fast);
+        }
+        .electronics-guides-filter:hover {
+          color: var(--c-text);
+          border-color: var(--c-accent-border);
+        }
+        .electronics-guides-filter.is-active {
+          background: var(--c-accent-bg);
+          color: var(--c-accent);
+          border-color: var(--c-accent-border);
+        }
+        .electronics-guides-filter:focus-visible {
+          outline: 2px solid var(--c-accent);
+          outline-offset: 2px;
+        }
+        .electronics-guides-search {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: var(--space-sm);
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
+          border-radius: var(--border-radius);
+          padding: 0.3rem 0.65rem;
+          flex: 0 1 16rem;
+          min-width: 0;
+          transition: border-color var(--transition-fast),
+                      box-shadow var(--transition-fast);
+        }
+        .electronics-guides-search:focus-within {
+          border-color: var(--c-accent-border);
+          box-shadow: 0 0 0 3px var(--c-accent-bg);
+        }
+        .electronics-guides-search input {
+          flex: 1;
+          background: transparent;
+          border: 0;
+          outline: 0;
+          color: var(--c-text);
+          font: inherit;
+          font-size: 0.9rem;
+          padding: 0.15rem 0;
+          min-width: 0;
+        }
+        .electronics-guides-search input::placeholder { color: var(--c-text-faint); }
+        .electronics-guides-search__count {
+          font-size: 0.75rem;
+          color: var(--c-text-faint);
+          font-variant-numeric: tabular-nums;
+          white-space: nowrap;
+        }
+
+        /* Tier-specific left-border tints (mirrors the .electronics-guide__tag
+           palette without overriding .electronics-guide's default green). */
+        .electronics-guide[data-tier="warning"] { border-left-color: #f59e0b; }
+        .electronics-guide[data-tier="danger"]  { border-left-color: #ef4444; }
+        .electronics-guide__example {
+          margin: var(--space-sm) 0 0;
+          padding-top: var(--space-sm);
+          border-top: 1px solid var(--c-border-light);
+          font-size: 0.85rem;
+          color: var(--c-text-muted);
+          line-height: 1.55;
+        }
+        .electronics-guide__example strong {
+          display: inline-block;
+          margin-right: 0.4rem;
+          color: var(--c-accent);
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          font-size: 0.7rem;
+          font-weight: 700;
+        }
+        .electronics-guide__body code {
+          background: var(--c-code-bg);
+          border: 1px solid var(--c-border-light);
+          border-radius: var(--border-radius-sm);
+          padding: 0.05rem 0.35rem;
+          font-family: var(--f-mono);
+          font-size: 0.85rem;
+          color: var(--c-accent);
+        }
+        .electronics-guides-empty {
+          text-align: center;
+          padding: var(--space-xl);
+          color: var(--c-text-muted);
+          font-size: 0.95rem;
+        }
+
+        @media print {
+          .electronics-guides-controls { display: none; }
+          .electronics-guide { break-inside: avoid; }
+        }
+      </style>
+
+      <div class="electronics-guides-controls">
+        <div class="electronics-guides-tabs" role="tablist" aria-label="Design-guide tier filters">
+          <button type="button" class="electronics-guides-filter is-active"
+                  data-filter="all" role="tab" aria-selected="true">All</button>
+          <button type="button" class="electronics-guides-filter"
+                  data-filter="best-practice" role="tab" aria-selected="false">Best practices</button>
+          <button type="button" class="electronics-guides-filter"
+                  data-filter="warning" role="tab" aria-selected="false">⚠ Warnings</button>
+          <button type="button" class="electronics-guides-filter"
+                  data-filter="danger" role="tab" aria-selected="false">⛔ Hazards</button>
+        </div>
+        <label class="electronics-guides-search">
+          <span class="spectrum-search__icon" aria-hidden="true">🔍</span>
+          <input type="search" id="electronics-guides-search"
+                 placeholder="Filter by topic, technique, part…"
+                 autocomplete="off" spellcheck="false"
+                 aria-label="Search design guides">
+          <span class="electronics-guides-search__count" id="electronics-guides-count" aria-live="polite"></span>
+        </label>
       </div>
+
+      <div class="electronics-guides" id="electronics-guides-grid">
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="decoupling capacitors bypass">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">Decoupling capacitors are non-negotiable</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Place a <code>100&nbsp;nF</code> ceramic + <code>10&nbsp;µF</code> bulk
+              capacitor as close as possible to every IC&rsquo;s power pin. The
+              100&nbsp;nF handles fast transients; the 10&nbsp;µF holds the rail
+              steady during current spikes. Skipping decoupling is the #1 cause
+              of mysterious &ldquo;random&rdquo; bugs that vanish when you press a
+              finger on the board.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> An ATmega328P needs decoupling within
+              10&nbsp;mm of V<sub>CC</sub>; otherwise EMI couples into the ADC and
+              you&rsquo;ll see noisy readings.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="pull-up pull-down resistor gpio input">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">Pull-ups vs.&nbsp;pull-downs</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Floating MCU inputs read random values &mdash; you must define a
+              default. <strong>Pull-up</strong>: input idles high, switch pulls
+              it low. <strong>Pull-down</strong>: input idles low, switch pulls
+              it high. Use <code>10&nbsp;kΩ</code> for general logic,
+              <code>4.7&nbsp;kΩ</code> for I²C / 1-Wire (datasheet-specified),
+              <code>100&nbsp;kΩ</code> when you need ultra-low quiescent current.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> AVR / ESP32 / RP2040 all expose internal
+              pull-ups (~30&ndash;50&nbsp;kΩ). Toggle them in software instead of
+              soldering external resistors when the value isn&rsquo;t critical.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="warning" data-topic="power supply sequencing fpga ddr">
+          <span class="electronics-guide__tag electronics-guide__tag--warning">Warning</span>
+          <h3 class="electronics-guide__title">Power-supply sequencing</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Some ICs (FPGAs, DDR memory, mixed-signal chips) require core / IO
+              rails to come up in a specific order &mdash; typically core before
+              IO. Wrong order can latch up the chip permanently. Read the
+              <em>Power Sequencing</em> section of every datasheet before you
+              design the supply rails.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Xilinx 7-series FPGAs require V<sub>CCINT</sub>
+              before V<sub>CCAUX</sub> before V<sub>CCO</sub>. Violating that order
+              is silent until you ship 100 units that all fail in the field.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="danger" data-topic="esd protection tvs static discharge">
+          <span class="electronics-guide__tag electronics-guide__tag--danger">Hazard</span>
+          <h3 class="electronics-guide__title">ESD protection on exposed pins</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Anything connected to a connector or human-touchable surface
+              (USB, audio jacks, switches, buttons) needs ESD protection. A
+              25&nbsp;kV finger-zap into a bare GPIO will kill the IC every
+              time. Use TVS diodes (e.g.&nbsp;<code>PESD5V0S2UT</code>,
+              <code>USBLC6-2SC6</code>) inline with each exposed signal &mdash;
+              5&nbsp;V / 8&nbsp;V / 12&nbsp;V variants per logic level.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> USB ports without ESD diodes blow MCUs
+              the first time someone shuffles across carpet and plugs in a
+              cable.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="bjt mosfet transistor switching">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">BJT vs.&nbsp;MOSFET &mdash; which switch?</h3>
+          <div class="electronics-guide__body">
+            <p>
+              BJTs (<code>2N3904</code>, <code>BC547</code>) are
+              <em>current-controlled</em> &mdash; drive the base with a few mA via
+              a series resistor. MOSFETs (<code>IRLZ44N</code>, <code>AO3401</code>)
+              are <em>voltage-controlled</em> &mdash; drive the gate above
+              V<sub>GS(th)</sub>. For switching loads above ~500&nbsp;mA, prefer
+              MOSFETs: lower R<sub>DS(on)</sub> means less heat. For analog gain
+              stages, BJTs still rule.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Switching a 12&nbsp;V relay at 50&nbsp;mA:
+              a <code>2N7000</code> logic-level MOSFET works at a 3.3&nbsp;V gate.
+              A <code>2N3904</code> BJT needs ~1&nbsp;mA base current via a
+              <code>1&nbsp;kΩ</code> resistor.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="warning" data-topic="reverse polarity protection schottky pmos">
+          <span class="electronics-guide__tag electronics-guide__tag--warning">Warning</span>
+          <h3 class="electronics-guide__title">Reverse-polarity protection</h3>
+          <div class="electronics-guide__body">
+            <p>
+              If your circuit might be plugged in backwards (battery clips,
+              screw terminals, barrel jacks), add reverse protection or risk
+              magic smoke. <strong>Schottky in series</strong>: simple,
+              ~0.3&nbsp;V drop, fine for low-current loads.
+              <strong>P-channel MOSFET</strong> (gate to ground via a Zener):
+              near-zero drop, perfect for battery-powered designs.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> A barrel-jack 12&nbsp;V supply reversed
+              across an LM7805 instantly cooks the regulator unless you have a
+              <code>1N5819</code> or P-FET in the path.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="switch debounce contact bounce">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">Switch debouncing</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Mechanical contacts bounce 5&ndash;20&nbsp;ms when toggled,
+              generating dozens of false edges per press. Two clean fixes:
+              <strong>RC filter</strong> &mdash; <code>10&nbsp;kΩ + 100&nbsp;nF</code>
+              gives a ~1&nbsp;ms time constant, smooth in hardware.
+              <strong>Software debounce</strong> &mdash; track the last edge
+              time, ignore changes within 20&nbsp;ms. SPDT switches with a
+              cross-coupled NAND latch produce a perfect bounce-free signal.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> An Arduino &ldquo;count button presses&rdquo;
+              sketch without debouncing will register 5&ndash;15 counts for one
+              physical press.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="warning" data-topic="thermal heatsink junction temperature">
+          <span class="electronics-guide__tag electronics-guide__tag--warning">Warning</span>
+          <h3 class="electronics-guide__title">Heat dissipation &amp; thermal resistance</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Power dissipated in a part raises its junction temperature:
+              <code>T<sub>J</sub> = T<sub>A</sub> + (P × θ<sub>JA</sub>)</code>.
+              For a TO-220 package, θ<sub>JA</sub> &asymp; 50&nbsp;°C/W
+              <em>without</em> a heatsink. Drop 2&nbsp;W into one and the
+              junction hits 100&nbsp;°C above ambient &mdash; over T<sub>J(max)</sub>=150&nbsp;°C
+              if your room is over 50&nbsp;°C. Use heatsinks, copper pours, or
+              larger packages above ~1&nbsp;W.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> An <code>LM317</code> dropping 5&nbsp;V
+              at 1&nbsp;A dissipates 5&nbsp;W. Without a heatsink it would hit
+              250&nbsp;°C above ambient &mdash; instant smoke. Add a TO-220
+              heatsink (θ<sub>HS</sub>&asymp;10&nbsp;°C/W) and it stabilises at
+              50&ndash;60&nbsp;°C above ambient.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="pcb trace width current ipc-2221">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">PCB trace width for current</h3>
+          <div class="electronics-guide__body">
+            <p>
+              PCB traces aren&rsquo;t superconductors. IPC-2221 rule of thumb
+              (1&nbsp;oz copper, 10&nbsp;°C rise): <code>1&nbsp;A → 10&nbsp;mil</code>,
+              <code>3&nbsp;A → 30&nbsp;mil</code>,
+              <code>5&nbsp;A → 60&nbsp;mil</code>,
+              <code>10&nbsp;A → 200&nbsp;mil</code>. For internal layers, double
+              the width. KiCad&rsquo;s <em>Calculator Tools</em> has IPC-2221 built
+              in.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Routing a 5&nbsp;A motor supply on a
+              10&nbsp;mil trace: temperature-rise calc says 60&nbsp;°C &mdash;
+              trace warms enough to melt solder mask near connectors.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="warning" data-topic="gpio input protection clamping diode tvs">
+          <span class="electronics-guide__tag electronics-guide__tag--warning">Warning</span>
+          <h3 class="electronics-guide__title">Input protection on MCU GPIO</h3>
+          <div class="electronics-guide__body">
+            <p>
+              GPIOs typically tolerate <code>V<sub>CC</sub> + 0.3&nbsp;V</code>
+              max. Connecting them to higher-voltage signals or noisy
+              real-world inputs (sensors, motor encoders, automotive busses)
+              requires clamping. Standard recipe: <code>1&nbsp;kΩ</code> series
+              resistor + Schottky diodes to V<sub>CC</sub> and GND. The diodes
+              shunt over- and under-shoots; the resistor limits current
+              through them to safe values (typically &le;&nbsp;1&nbsp;mA into
+              the ESD structure).
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Reading a 12&nbsp;V automotive signal
+              directly into a 3.3&nbsp;V GPIO blows the input the first time
+              the alternator spikes to 18&nbsp;V.
+            </p>
+          </div>
+        </article>
+
+      </div>
+
+      <p class="electronics-guides-empty" id="electronics-guides-empty" hidden>
+        No design guides match your filter.
+      </p>
     </section>
 
     {%- comment -%} ========== Section 6: Reference Tables ========== {%- endcomment -%}
