@@ -40,74 +40,10 @@
     var userValues = {};
     var chart = null;
 
-    // ----------------------------------------------------------------------
-    // Solver: takes the two user-provided quantities and derives the other
-    // two via Ohm's law (V = I·R) and the power identity (P = V·I).
-    // ----------------------------------------------------------------------
-    function solve(known) {
-      var a = known[0];
-      var b = known[1];
-      var pair = [a.name, b.name].sort().join('');
-      var out = { V: NaN, I: NaN, R: NaN, P: NaN };
-      out[a.name] = a.value;
-      out[b.name] = b.value;
-
-      function err(msg) { return { error: msg }; }
-
-      switch (pair) {
-        case 'IV': {
-          var V = out.V, I = out.I;
-          if (Math.abs(I) < EPSILON) return err('Cannot derive R: current is zero (open circuit).');
-          out.R = V / I;
-          out.P = V * I;
-          break;
-        }
-        case 'RV': {
-          var V2 = out.V, R = out.R;
-          if (R < 0) return err('Resistance cannot be negative.');
-          if (Math.abs(R) < EPSILON) return err('Cannot derive I: resistance is zero (short circuit).');
-          out.I = V2 / R;
-          out.P = (V2 * V2) / R;
-          break;
-        }
-        case 'PV': {
-          var V3 = out.V, P = out.P;
-          if (P < 0) return err('Power cannot be negative.');
-          if (Math.abs(V3) < EPSILON) return err('Cannot derive I or R: voltage is zero.');
-          out.I = P / V3;
-          out.R = Math.abs(P) < EPSILON ? Infinity : (V3 * V3) / P;
-          break;
-        }
-        case 'IR': {
-          var I2 = out.I, R2 = out.R;
-          if (R2 < 0) return err('Resistance cannot be negative.');
-          out.V = I2 * R2;
-          out.P = I2 * I2 * R2;
-          break;
-        }
-        case 'IP': {
-          var I3 = out.I, P2 = out.P;
-          if (P2 < 0) return err('Power cannot be negative.');
-          if (Math.abs(I3) < EPSILON) return err('Cannot derive V or R: current is zero.');
-          out.V = P2 / I3;
-          out.R = P2 / (I3 * I3);
-          break;
-        }
-        case 'PR': {
-          var P3 = out.P, R3 = out.R;
-          if (P3 < 0) return err('Power cannot be negative.');
-          if (R3 < 0) return err('Resistance cannot be negative.');
-          if (Math.abs(R3) < EPSILON && Math.abs(P3) < EPSILON) {
-            return { partial: true, values: out };
-          }
-          if (Math.abs(R3) < EPSILON) return err('Cannot derive V: resistance is zero with non-zero power.');
-          out.V = Math.sqrt(P3 * R3);
-          out.I = Math.sqrt(P3 / R3);
-          break;
-        }
-      }
-      return { values: out };
-    }
+    // Solver delegated to EF.solveOhmsLaw — single shared implementation
+    // (Batch 6 deduplication). Same shape of return value: { values } /
+    // { error } / { partial: true, values }.
+    var solve = EF.solveOhmsLaw;
 
     // ----------------------------------------------------------------------
     // Status helpers
@@ -268,18 +204,9 @@
       });
     }
 
-    function chartTheme() {
-      var dark = EF.theme !== 'light';
-      return {
-        grid:    dark ? 'rgba(220, 232, 226, 0.10)' : 'rgba(26, 42, 34, 0.10)',
-        angle:   dark ? 'rgba(220, 232, 226, 0.18)' : 'rgba(26, 42, 34, 0.20)',
-        ticks:   dark ? '#7e948a' : '#5a7068',
-        label:   dark ? '#dce8e2' : '#1a2a22',
-        fill:    'rgba(74, 222, 128, 0.22)',
-        stroke:  '#4ade80',
-        point:   '#4ade80'
-      };
-    }
+    // chartTheme delegated to EF.chartTheme — unified palette across every
+    // chart on the page (Batch 6 deduplication).
+    var chartTheme = EF.chartTheme;
     function logScale(x) {
       if (!isFinite(x) || x <= 0) return 0;
       return Math.log10(1 + Math.abs(x));

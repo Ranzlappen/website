@@ -108,6 +108,159 @@
   }
 
   // ==========================================================================
+  // Shared widget helpers (Batch 6 deduplication)
+  //   Every helper below was previously defined inline in two or more
+  //   per-section files. They live here now so each section file calls
+  //   EF.foo() instead of carrying its own copy.
+  // ==========================================================================
+
+  /** Walk the EF.widgets registry and return the entry whose name matches.
+   *  Used by every "Open in Quick Wheel" button + the Bookmark restore path
+   *  + initFormulasSection's Try-it dispatcher. Replaces ad-hoc for-loops
+   *  scattered through six init functions. */
+  function findWidgetByName(name) {
+    if (!name) return null;
+    for (var i = 0; i < EF.widgets.length; i++) {
+      if (EF.widgets[i] && EF.widgets[i].name === name) return EF.widgets[i];
+    }
+    return null;
+  }
+
+  /** Solve Ohm's law from a 2-element `known` array
+   *    [{ name: 'V', value: 12 }, { name: 'R', value: 100 }]
+   *  Returns:
+   *    { values: { V, I, R, P } }                        on success
+   *    { error: 'Cannot derive R: …' }                   on domain violation
+   *    { partial: true, values: {…} }                    when P=R=0 (under-
+   *                                                      determined but valid)
+   *
+   *  Single shared implementation — was duplicated verbatim in the Quick
+   *  Wheel and the Ohm's Law calculator before this batch. EPSILON is the
+   *  divide-by-zero threshold matching typical hobby-grade meter resolution
+   *  (1 µV / 1 µA / 1 µΩ). */
+  function solveOhmsLaw(known) {
+    var EPSILON = 1e-9;
+    var a = known[0], b = known[1];
+    var pair = [a.name, b.name].sort().join('');
+    var out = { V: NaN, I: NaN, R: NaN, P: NaN };
+    out[a.name] = a.value;
+    out[b.name] = b.value;
+
+    function err(msg) { return { error: msg }; }
+
+    switch (pair) {
+      case 'IV':
+        if (Math.abs(out.I) < EPSILON) return err('Cannot derive R: current is zero (open circuit).');
+        out.R = out.V / out.I;
+        out.P = out.V * out.I;
+        break;
+      case 'RV':
+        if (out.R < 0) return err('Resistance cannot be negative.');
+        if (Math.abs(out.R) < EPSILON) return err('Cannot derive I: resistance is zero (short circuit).');
+        out.I = out.V / out.R;
+        out.P = (out.V * out.V) / out.R;
+        break;
+      case 'PV':
+        if (out.P < 0) return err('Power cannot be negative.');
+        if (Math.abs(out.V) < EPSILON) return err('Cannot derive I or R: voltage is zero.');
+        out.I = out.P / out.V;
+        out.R = Math.abs(out.P) < EPSILON ? Infinity : (out.V * out.V) / out.P;
+        break;
+      case 'IR':
+        if (out.R < 0) return err('Resistance cannot be negative.');
+        out.V = out.I * out.R;
+        out.P = out.I * out.I * out.R;
+        break;
+      case 'IP':
+        if (out.P < 0) return err('Power cannot be negative.');
+        if (Math.abs(out.I) < EPSILON) return err('Cannot derive V or R: current is zero.');
+        out.V = out.P / out.I;
+        out.R = out.P / (out.I * out.I);
+        break;
+      case 'PR':
+        if (out.P < 0) return err('Power cannot be negative.');
+        if (out.R < 0) return err('Resistance cannot be negative.');
+        if (Math.abs(out.R) < EPSILON && Math.abs(out.P) < EPSILON) {
+          return { partial: true, values: out };
+        }
+        if (Math.abs(out.R) < EPSILON) return err('Cannot derive V: resistance is zero with non-zero power.');
+        out.V = Math.sqrt(out.P * out.R);
+        out.I = Math.sqrt(out.P / out.R);
+        break;
+    }
+    return { values: out };
+  }
+
+  /** Clamp `value` to `slider`'s min/max and write it. No-op if value isn't
+   *  finite or the slider doesn't exist. Replaces the per-calc syncSlider /
+   *  syncSliderFromValue helpers in Ohm's, LED, Voltage Divider, RC Timer. */
+  function syncSliderToValue(slider, value) {
+    if (!slider || !Number.isFinite(value)) return;
+    var min = parseFloat(slider.min);
+    var max = parseFloat(slider.max);
+    slider.value = String(Math.max(min, Math.min(max, value)));
+  }
+
+  /** Unified Chart.js theme palette derived from the live CSS custom
+   *  properties on `<html>`. Returns the *superset* of keys any chart on the
+   *  page asks for (grid / axis / angle / ticks / label / accent / fill /
+   *  stroke / point / marker / loaded / bars / curveColors). Sections pick
+   *  whichever they need; unused keys are harmless.
+   *
+   *  Replaces seven per-file `chartTheme()` definitions that all read the
+   *  same CSS variables and returned overlapping shapes. */
+  function chartTheme() {
+    var styles = (typeof window !== 'undefined' && window.getComputedStyle)
+      ? getComputedStyle(document.documentElement)
+      : null;
+    var dark = EF.theme !== 'light';
+    function v(name, fb) {
+      if (!styles) return fb;
+      var raw = styles.getPropertyValue(name);
+      raw = raw ? raw.trim() : '';
+      return raw || fb;
+    }
+    return {
+      grid:   dark ? 'rgba(220, 232, 226, 0.10)' : 'rgba(26, 42, 34, 0.10)',
+      axis:   dark ? 'rgba(220, 232, 226, 0.18)' : 'rgba(26, 42, 34, 0.20)',
+      angle:  dark ? 'rgba(220, 232, 226, 0.18)' : 'rgba(26, 42, 34, 0.20)',
+      ticks:  v('--c-text-muted', dark ? '#7e948a' : '#5a7068'),
+      label:  v('--c-text',       dark ? '#dce8e2' : '#1a2a22'),
+      accent: v('--c-accent',     '#4ade80'),
+      fill:   'rgba(74, 222, 128, 0.22)',
+      stroke: '#4ade80',
+      point:  '#4ade80',
+      marker: '#f59e0b',
+      loaded: '#f59e0b',
+      // Categorical palettes — fixed across themes so individual bars /
+      // V-I curves keep their identity when the visitor toggles dark/light.
+      curveColors: ['#3b82f6', '#a78bfa', '#f59e0b', '#ef4444'],
+      bars:        ['#3b82f6', '#a78bfa', '#f59e0b', '#ef4444',
+                    '#06b6d4', '#ec4899', '#84cc16', '#eab308']
+    };
+  }
+
+  /** Copy `text` to the clipboard and flash a success label on the supplied
+   *  button (then revert after `ms`). Returns the same Promise<boolean> as
+   *  EF.copyToClipboard so the caller can chain a failure-path setWarning.
+   *
+   *  Replaces the verbose copy-button handlers that were duplicated verbatim
+   *  across six calculator cards. */
+  function copyWithFlash(btn, text, opts) {
+    opts = opts || {};
+    var ms = opts.ms || 1400;
+    var label = opts.label || 'Copied ✓';
+    return copyToClipboard(text).then(function (ok) {
+      if (ok && btn) {
+        var prev = btn.textContent;
+        btn.textContent = label;
+        setTimeout(function () { btn.textContent = prev; }, ms);
+      }
+      return ok;
+    });
+  }
+
+  // ==========================================================================
   // EF namespace bootstrap
   //   Idempotent — if a previous file already created the namespace (e.g.
   //   during hot-reload) we extend it rather than replace it. `widgets` is
@@ -120,6 +273,11 @@
   EF.formatNumberWithUnits = formatNumberWithUnits;
   EF.readDataIsland        = readDataIsland;
   EF.sanitizeInput         = sanitizeInput;
+  EF.findWidgetByName      = findWidgetByName;
+  EF.solveOhmsLaw          = solveOhmsLaw;
+  EF.syncSliderToValue     = syncSliderToValue;
+  EF.chartTheme            = chartTheme;
+  EF.copyWithFlash         = copyWithFlash;
   if (!Array.isArray(EF.widgets)) EF.widgets = [];
   window.ElectronicsFundamentals = EF;
 

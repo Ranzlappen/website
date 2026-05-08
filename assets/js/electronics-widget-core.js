@@ -155,14 +155,10 @@
   CalculatorKernel.prototype.copyToClipboardWithUnits = function (text) { return EF.copyToClipboard(text); };
   CalculatorKernel.prototype.openInQuickWheel = function (values, opts) {
     if (!values || typeof values !== 'object') return false;
-    for (var i = 0; i < EF.widgets.length; i++) {
-      var entry = EF.widgets[i];
-      if (entry && entry.name === 'quick-reference-wheel' && typeof entry.setValues === 'function') {
-        entry.setValues(values, opts || { scroll: true });
-        return true;
-      }
-    }
-    return false;
+    var entry = EF.findWidgetByName('quick-reference-wheel');
+    if (!entry || typeof entry.setValues !== 'function') return false;
+    entry.setValues(values, opts || { scroll: true });
+    return true;
   };
   CalculatorKernel.prototype.themeChart = function () { /* subclass override */ };
   CalculatorKernel.prototype.registerResizeObserver = function (chart) {

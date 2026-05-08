@@ -53,57 +53,9 @@
     var viChart = null;
     var prChart = null;
 
-    // ----- Solver (parallel to the wheel's; kept local to avoid coupling) -----
-    function solve(known) {
-      var a = known[0], b = known[1];
-      var pair = [a.name, b.name].sort().join('');
-      var out = { V: NaN, I: NaN, R: NaN, P: NaN };
-      out[a.name] = a.value;
-      out[b.name] = b.value;
-      function err(msg) { return { error: msg }; }
-
-      switch (pair) {
-        case 'IV':
-          if (Math.abs(out.I) < EPSILON) return err('Cannot derive R: current is zero (open circuit).');
-          out.R = out.V / out.I;
-          out.P = out.V * out.I;
-          break;
-        case 'RV':
-          if (out.R < 0) return err('Resistance cannot be negative.');
-          if (Math.abs(out.R) < EPSILON) return err('Cannot derive I: resistance is zero (short circuit).');
-          out.I = out.V / out.R;
-          out.P = (out.V * out.V) / out.R;
-          break;
-        case 'PV':
-          if (out.P < 0) return err('Power cannot be negative.');
-          if (Math.abs(out.V) < EPSILON) return err('Cannot derive I or R: voltage is zero.');
-          out.I = out.P / out.V;
-          out.R = Math.abs(out.P) < EPSILON ? Infinity : (out.V * out.V) / out.P;
-          break;
-        case 'IR':
-          if (out.R < 0) return err('Resistance cannot be negative.');
-          out.V = out.I * out.R;
-          out.P = out.I * out.I * out.R;
-          break;
-        case 'IP':
-          if (out.P < 0) return err('Power cannot be negative.');
-          if (Math.abs(out.I) < EPSILON) return err('Cannot derive V or R: current is zero.');
-          out.V = out.P / out.I;
-          out.R = out.P / (out.I * out.I);
-          break;
-        case 'PR':
-          if (out.P < 0) return err('Power cannot be negative.');
-          if (out.R < 0) return err('Resistance cannot be negative.');
-          if (Math.abs(out.R) < EPSILON && Math.abs(out.P) < EPSILON) {
-            return { partial: true, values: out };
-          }
-          if (Math.abs(out.R) < EPSILON) return err('Cannot derive V: resistance is zero with non-zero power.');
-          out.V = Math.sqrt(out.P * out.R);
-          out.I = Math.sqrt(out.P / out.R);
-          break;
-      }
-      return { values: out };
-    }
+    // Solver delegated to EF.solveOhmsLaw — single shared implementation
+    // (Batch 6 deduplication). Same return shape as before.
+    var solve = EF.solveOhmsLaw;
 
     // ----- Display helpers -----
     function isUserInput(n) { return Object.prototype.hasOwnProperty.call(userValues, n); }
@@ -143,15 +95,8 @@
       });
     }
 
-    function syncSliderFromValue(name, value) {
-      var s = sliders[name];
-      if (!s) return;
-      var min = parseFloat(s.min);
-      var max = parseFloat(s.max);
-      if (!isFinite(value)) return;
-      var clamped = Math.max(min, Math.min(max, value));
-      s.value = String(clamped);
-    }
+    // Slider clamp delegated to EF.syncSliderToValue (Batch 6).
+    function syncSliderFromValue(name, value) { EF.syncSliderToValue(sliders[name], value); }
 
     function lastValues() {
       var v = {};
@@ -285,14 +230,8 @@
           'R = ' + (isFinite(v.R) ? EF.formatNumberWithUnits(v.R, 'Ω') : '—'),
           'P = ' + (isFinite(v.P) ? EF.formatNumberWithUnits(v.P, 'W') : '—')
         ].join('\n');
-        EF.copyToClipboard(text).then(function (ok) {
-          if (ok) {
-            var prev = copyBtn.textContent;
-            copyBtn.textContent = 'Copied ✓';
-            setTimeout(function () { copyBtn.textContent = prev; }, 1400);
-          } else {
-            setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
-          }
+        EF.copyWithFlash(copyBtn, text).then(function (ok) {
+          if (!ok) setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
         });
       });
     }
@@ -315,15 +254,14 @@
           setWarning('Enter at least two values before opening in the Quick Wheel.');
           return;
         }
-        // Try the registry first, then fall back to direct DOM dispatch.
-        for (var w = 0; w < EF.widgets.length; w++) {
-          if (EF.widgets[w].name === 'quick-reference-wheel' &&
-              typeof EF.widgets[w].setValues === 'function') {
-            EF.widgets[w].setValues(values, { scroll: true });
-            // eslint-disable-next-line no-console
-            console.log('🧮 Calculator → Quick Wheel:', values);
-            return;
-          }
+        // Registry first (Batch 6: shared lookup); DOM-dispatch fallback for
+        // the rare case the wheel widget hasn't registered yet.
+        var wheel = EF.findWidgetByName('quick-reference-wheel');
+        if (wheel && typeof wheel.setValues === 'function') {
+          wheel.setValues(values, { scroll: true });
+          // eslint-disable-next-line no-console
+          console.log('🧮 Calculator → Quick Wheel:', values);
+          return;
         }
         QTY.forEach(function (n) {
           var el = document.getElementById('ef-wheel-' + n);
@@ -343,24 +281,10 @@
     }
 
     // ====== Charts ============================================================
-    function chartTheme() {
-      var styles = getComputedStyle(document.documentElement);
-      var dark = EF.theme !== 'light';
-      function v(name, fallback) {
-        var raw = styles.getPropertyValue(name).trim();
-        return raw || fallback;
-      }
-      return {
-        grid:    dark ? 'rgba(220, 232, 226, 0.10)' : 'rgba(26, 42, 34, 0.10)',
-        axis:    dark ? 'rgba(220, 232, 226, 0.18)' : 'rgba(26, 42, 34, 0.20)',
-        ticks:   v('--c-text-muted', dark ? '#7e948a' : '#5a7068'),
-        label:   v('--c-text',       dark ? '#dce8e2' : '#1a2a22'),
-        accent:  v('--c-accent',     '#4ade80'),
-        // V–I curve palette is fixed (theme-independent) so each line keeps
-        // its identity when the theme toggles.
-        curveColors: ['#3b82f6', '#a78bfa', '#f59e0b', '#ef4444']
-      };
-    }
+    // chartTheme delegated to EF.chartTheme — it returns the unified
+    // palette including curveColors used here for the V-I curve family
+    // (Batch 6 deduplication).
+    var chartTheme = EF.chartTheme;
 
     function buildVIChart() {
       if (!window.Chart || !viCanvas) return;

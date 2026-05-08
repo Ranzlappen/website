@@ -328,14 +328,8 @@
         }
         lines.push(symbolFor(state.type) + '_total = ' +
                    EF.formatNumberWithUnits(lastTotal, unit));
-        EF.copyToClipboard(lines.join('\n')).then(function (ok) {
-          if (ok) {
-            var prev = copyBtn.textContent;
-            copyBtn.textContent = 'Copied ✓';
-            setTimeout(function () { copyBtn.textContent = prev; }, 1400);
-          } else {
-            setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
-          }
+        EF.copyWithFlash(copyBtn, lines.join('\n')).then(function (ok) {
+          if (!ok) setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
         });
       });
     }
@@ -348,31 +342,19 @@
           return;
         }
         var values = { R: lastTotal };
-        for (var w = 0; w < EF.widgets.length; w++) {
-          if (EF.widgets[w].name === 'quick-reference-wheel' &&
-              typeof EF.widgets[w].setValues === 'function') {
-            EF.widgets[w].setValues(values, { scroll: true });
-            // eslint-disable-next-line no-console
-            console.log('🪛 Series/Parallel → Quick Wheel:', values);
-            return;
-          }
+        var wheel = EF.findWidgetByName('quick-reference-wheel');
+        if (wheel && typeof wheel.setValues === 'function') {
+          wheel.setValues(values, { scroll: true });
+          // eslint-disable-next-line no-console
+          console.log('🪛 Series/Parallel → Quick Wheel:', values);
         }
       });
     }
 
     // ---- Chart -------------------------------------------------------------
-    function chartTheme() {
-      var styles = getComputedStyle(document.documentElement);
-      var dark = EF.theme !== 'light';
-      function v(name, fb) { return styles.getPropertyValue(name).trim() || fb; }
-      return {
-        grid:   dark ? 'rgba(220, 232, 226, 0.10)' : 'rgba(26, 42, 34, 0.10)',
-        ticks:  v('--c-text-muted', dark ? '#7e948a' : '#5a7068'),
-        label:  v('--c-text',       dark ? '#dce8e2' : '#1a2a22'),
-        accent: v('--c-accent',     '#4ade80'),
-        bars:   ['#3b82f6', '#a78bfa', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#84cc16', '#eab308']
-      };
-    }
+    // chartTheme delegated to EF.chartTheme — its `bars` palette already
+    // matches the 8-hue cycle this calc was using (Batch 6 deduplication).
+    var chartTheme = EF.chartTheme;
 
     function buildChart() {
       if (!window.Chart || !canvas) return;
@@ -568,12 +550,8 @@
     var lastResult = null;
     var chart = null;
 
-    function syncSlider(name, value) {
-      var s = sliders[name];
-      if (!s || !isFinite(value)) return;
-      var min = parseFloat(s.min), max = parseFloat(s.max);
-      s.value = String(Math.max(min, Math.min(max, value)));
-    }
+    // Slider clamp delegated to EF.syncSliderToValue (Batch 6).
+    function syncSlider(name, value) { EF.syncSliderToValue(sliders[name], value); }
     function readNumber(name) {
       var num = parseFloat(inputs[name].value);
       return isFinite(num) ? num : NaN;
@@ -719,14 +697,8 @@
           '5τ      = ' + EF.formatNumberWithUnits(r.fullTime, 's'),
           'f_c     = ' + EF.formatNumberWithUnits(r.fc, 'Hz')
         ].join('\n');
-        EF.copyToClipboard(lines).then(function (ok) {
-          if (ok) {
-            var prev = copyBtn.textContent;
-            copyBtn.textContent = 'Copied ✓';
-            setTimeout(function () { copyBtn.textContent = prev; }, 1400);
-          } else {
-            setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
-          }
+        EF.copyWithFlash(copyBtn, lines).then(function (ok) {
+          if (!ok) setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
         });
       });
     }
@@ -742,31 +714,19 @@
         // discharging. Sending {V, R} lets the wheel report the *peak* current
         // and resistor power dissipation, which is the safety-relevant figure.
         var values = { V: r.V, R: r.R };
-        for (var w = 0; w < EF.widgets.length; w++) {
-          if (EF.widgets[w].name === 'quick-reference-wheel' &&
-              typeof EF.widgets[w].setValues === 'function') {
-            EF.widgets[w].setValues(values, { scroll: true });
-            // eslint-disable-next-line no-console
-            console.log('⏱ RC Timer → Quick Wheel (peak):', values);
-            return;
-          }
+        var wheel = EF.findWidgetByName('quick-reference-wheel');
+        if (wheel && typeof wheel.setValues === 'function') {
+          wheel.setValues(values, { scroll: true });
+          // eslint-disable-next-line no-console
+          console.log('⏱ RC Timer → Quick Wheel (peak):', values);
         }
       });
     }
 
     // ---- Chart -------------------------------------------------------------
-    function chartTheme() {
-      var styles = getComputedStyle(document.documentElement);
-      var dark = EF.theme !== 'light';
-      function v(name, fb) { return styles.getPropertyValue(name).trim() || fb; }
-      return {
-        grid:   dark ? 'rgba(220, 232, 226, 0.10)' : 'rgba(26, 42, 34, 0.10)',
-        ticks:  v('--c-text-muted', dark ? '#7e948a' : '#5a7068'),
-        label:  v('--c-text',       dark ? '#dce8e2' : '#1a2a22'),
-        accent: v('--c-accent',     '#4ade80'),
-        marker: '#f59e0b'
-      };
-    }
+    // chartTheme delegated to EF.chartTheme — its `marker` key (orange)
+    // already matches what RC Timer used (Batch 6 deduplication).
+    var chartTheme = EF.chartTheme;
 
     function buildChart() {
       if (!window.Chart || !canvas) return;

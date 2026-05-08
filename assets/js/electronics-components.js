@@ -329,14 +329,8 @@
                    EF.formatNumberWithUnits(r.min, 'Ω') + '  to  ' +
                    EF.formatNumberWithUnits(r.max, 'Ω') + ')\n' +
                    'Bands: ' + bandColors.join(' · ');
-        EF.copyToClipboard(text).then(function (ok) {
-          if (ok) {
-            var prev = copyBtn.textContent;
-            copyBtn.textContent = 'Copied ✓';
-            setTimeout(function () { copyBtn.textContent = prev; }, 1400);
-          } else {
-            setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
-          }
+        EF.copyWithFlash(copyBtn, text).then(function (ok) {
+          if (!ok) setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
         });
       });
     }
@@ -348,30 +342,18 @@
           return;
         }
         var values = { R: r.nominal };
-        for (var w = 0; w < EF.widgets.length; w++) {
-          if (EF.widgets[w].name === 'quick-reference-wheel' &&
-              typeof EF.widgets[w].setValues === 'function') {
-            EF.widgets[w].setValues(values, { scroll: true });
-            // eslint-disable-next-line no-console
-            console.log('🎨 Color decoder → Quick Wheel:', values);
-            return;
-          }
+        var wheel = EF.findWidgetByName('quick-reference-wheel');
+        if (wheel && typeof wheel.setValues === 'function') {
+          wheel.setValues(values, { scroll: true });
+          // eslint-disable-next-line no-console
+          console.log('🎨 Color decoder → Quick Wheel:', values);
         }
       });
     }
 
     // ----- Mini chart: tolerance-grade comparison -----
-    function chartTheme() {
-      var styles = getComputedStyle(document.documentElement);
-      var dark = EF.theme !== 'light';
-      function v(name, fb) { return styles.getPropertyValue(name).trim() || fb; }
-      return {
-        grid:   dark ? 'rgba(220, 232, 226, 0.10)' : 'rgba(26, 42, 34, 0.10)',
-        ticks:  v('--c-text-muted', dark ? '#7e948a' : '#5a7068'),
-        label:  v('--c-text',       dark ? '#dce8e2' : '#1a2a22'),
-        accent: v('--c-accent',     '#4ade80')
-      };
-    }
+    // chartTheme delegated to EF.chartTheme (Batch 6 deduplication).
+    var chartTheme = EF.chartTheme;
 
     function buildChart() {
       if (!window.Chart || !canvas) return;
@@ -568,12 +550,7 @@
         }
         chip.setAttribute('aria-label', ariaLabel);
         chip.addEventListener('click', function () {
-          EF.copyToClipboard(label).then(function (ok) {
-            if (!ok) return;
-            var prev = chip.textContent;
-            chip.textContent = '✓';
-            setTimeout(function () { chip.textContent = prev; }, 800);
-          });
+          EF.copyWithFlash(chip, label, { label: '✓', ms: 800 });
         });
         grid.appendChild(chip);
       });

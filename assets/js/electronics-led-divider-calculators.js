@@ -89,13 +89,8 @@
     var lastResult = null;
     var chart = null;
 
-    // -------- Input sync --------
-    function syncSlider(name, value) {
-      var s = sliders[name];
-      if (!s || !isFinite(value)) return;
-      var min = parseFloat(s.min), max = parseFloat(s.max);
-      s.value = String(Math.max(min, Math.min(max, value)));
-    }
+    // Slider clamp delegated to EF.syncSliderToValue (Batch 6).
+    function syncSlider(name, value) { EF.syncSliderToValue(sliders[name], value); }
     function readNumber(name) {
       var num = parseFloat(inputs[name].value);
       return isFinite(num) ? num : NaN;
@@ -266,14 +261,8 @@
           'P_R      = ' + EF.formatNumberWithUnits(r.Pr, 'W'),
           'P_LED    = ' + EF.formatNumberWithUnits(r.Pl, 'W')
         ].join('\n');
-        EF.copyToClipboard(lines).then(function (ok) {
-          if (ok) {
-            var prev = copyBtn.textContent;
-            copyBtn.textContent = 'Copied ✓';
-            setTimeout(function () { copyBtn.textContent = prev; }, 1400);
-          } else {
-            setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
-          }
+        EF.copyWithFlash(copyBtn, lines).then(function (ok) {
+          if (!ok) setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
         });
       });
     }
@@ -288,14 +277,12 @@
         // Send the *resistor's* perspective: V across resistor + LED current.
         // The wheel shows R = Vr/I and P = Vr*I — coherent with this calculator.
         var values = { V: r.Vr, I: r.I };
-        for (var w = 0; w < EF.widgets.length; w++) {
-          if (EF.widgets[w].name === 'quick-reference-wheel' &&
-              typeof EF.widgets[w].setValues === 'function') {
-            EF.widgets[w].setValues(values, { scroll: true });
-            // eslint-disable-next-line no-console
-            console.log('🔦 LED Resistor → Quick Wheel (resistor side):', values);
-            return;
-          }
+        var wheel = EF.findWidgetByName('quick-reference-wheel');
+        if (wheel && typeof wheel.setValues === 'function') {
+          wheel.setValues(values, { scroll: true });
+          // eslint-disable-next-line no-console
+          console.log('🔦 LED Resistor → Quick Wheel (resistor side):', values);
+          return;
         }
         // Fallback: dispatch input events on wheel inputs.
         ['V', 'I', 'R', 'P'].forEach(function (n) {
@@ -316,17 +303,8 @@
     }
 
     // -------- Chart --------
-    function chartTheme() {
-      var styles = getComputedStyle(document.documentElement);
-      var dark = EF.theme !== 'light';
-      function v(name, fb) { return styles.getPropertyValue(name).trim() || fb; }
-      return {
-        grid:   dark ? 'rgba(220, 232, 226, 0.10)' : 'rgba(26, 42, 34, 0.10)',
-        ticks:  v('--c-text-muted', dark ? '#7e948a' : '#5a7068'),
-        label:  v('--c-text',       dark ? '#dce8e2' : '#1a2a22'),
-        accent: v('--c-accent',     '#4ade80')
-      };
-    }
+    // chartTheme delegated to EF.chartTheme (Batch 6 deduplication).
+    var chartTheme = EF.chartTheme;
 
     function ledIV(V, Vf, Itarget) {
       // Sigmoid centred at Vf, normalised so I(Vf) = Itarget. Steepness matches
@@ -543,12 +521,8 @@
     var lastResult = null;
     var chart = null;
 
-    function syncSlider(name, value) {
-      var s = sliders[name];
-      if (!s || !isFinite(value)) return;
-      var min = parseFloat(s.min), max = parseFloat(s.max);
-      s.value = String(Math.max(min, Math.min(max, value)));
-    }
+    // Slider clamp delegated to EF.syncSliderToValue (Batch 6).
+    function syncSlider(name, value) { EF.syncSliderToValue(sliders[name], value); }
     function readNumber(name) {
       var num = parseFloat(inputs[name].value);
       return isFinite(num) ? num : NaN;
@@ -690,14 +664,8 @@
           'I_in       = ' + EF.formatNumberWithUnits(r.Iin, 'A'),
           'P_total    = ' + EF.formatNumberWithUnits(r.Ptotal, 'W')
         ].join('\n');
-        EF.copyToClipboard(lines).then(function (ok) {
-          if (ok) {
-            var prev = copyBtn.textContent;
-            copyBtn.textContent = 'Copied ✓';
-            setTimeout(function () { copyBtn.textContent = prev; }, 1400);
-          } else {
-            setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
-          }
+        EF.copyWithFlash(copyBtn, lines).then(function (ok) {
+          if (!ok) setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
         });
       });
     }
@@ -712,14 +680,12 @@
         // Send the input-side equivalent: V_in across R1+R2, the wheel shows
         // I_in and P_total. Clean Ohm's-law translation of the divider.
         var values = { V: r.Vin, R: r.R1 + r.R2 };
-        for (var w = 0; w < EF.widgets.length; w++) {
-          if (EF.widgets[w].name === 'quick-reference-wheel' &&
-              typeof EF.widgets[w].setValues === 'function') {
-            EF.widgets[w].setValues(values, { scroll: true });
-            // eslint-disable-next-line no-console
-            console.log('🔀 Voltage Divider → Quick Wheel (input side):', values);
-            return;
-          }
+        var wheel = EF.findWidgetByName('quick-reference-wheel');
+        if (wheel && typeof wheel.setValues === 'function') {
+          wheel.setValues(values, { scroll: true });
+          // eslint-disable-next-line no-console
+          console.log('🔀 Voltage Divider → Quick Wheel (input side):', values);
+          return;
         }
         ['V', 'I', 'R', 'P'].forEach(function (n) {
           var el = document.getElementById('ef-wheel-' + n);
@@ -739,18 +705,9 @@
     }
 
     // -------- Chart --------
-    function chartTheme() {
-      var styles = getComputedStyle(document.documentElement);
-      var dark = EF.theme !== 'light';
-      function v(name, fb) { return styles.getPropertyValue(name).trim() || fb; }
-      return {
-        grid:   dark ? 'rgba(220, 232, 226, 0.10)' : 'rgba(26, 42, 34, 0.10)',
-        ticks:  v('--c-text-muted', dark ? '#7e948a' : '#5a7068'),
-        label:  v('--c-text',       dark ? '#dce8e2' : '#1a2a22'),
-        accent: v('--c-accent',     '#4ade80'),
-        loaded: '#f59e0b'
-      };
-    }
+    // chartTheme delegated to EF.chartTheme — its `loaded` key (orange)
+    // already matches what this divider used (Batch 6 deduplication).
+    var chartTheme = EF.chartTheme;
 
     function buildChart() {
       if (!window.Chart || !canvas) return;
