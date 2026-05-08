@@ -1,0 +1,132 @@
+---
+layout: default
+title: Electronics Fundamentals Reference
+description: Interactive cheat sheet for volts, amps, ohms, watts, circuit design, calculators, and practical EE references.
+permalink: /references/electronics-fundamentals/
+---
+
+{%- comment -%}
+=================================================================================
+Electronics Fundamentals Reference Page
+---------------------------------------------------------------------------------
+Interactive cheat sheet for volts, amps, ohms, watts, circuit design, calculators,
+and practical EE references. The page is built up in batches — each batch fills
+in one of the locked sections below (quick-reference wheel, formulas, calculators,
+component charts, circuit guides, reference tables).
+
+Styles live in /assets/css/electronics-fundamentals.css and behaviour in
+/assets/js/electronics-fundamentals.js.
+=================================================================================
+{%- endcomment -%}
+
+<link rel="stylesheet" href="{{ '/assets/css/electronics-fundamentals.css' | relative_url }}">
+
+<section class="electronics-page">
+  <div class="electronics-container">
+
+    <header class="electronics-hero">
+      <p class="electronics-eyebrow">Reference</p>
+      <h1 class="electronics-title">Electronics Fundamentals</h1>
+      <p class="electronics-lede">
+        Volts, amps, ohms, watts — the four quantities that govern every circuit
+        you'll ever build. This page collects the formulas, calculators, component
+        charts, and design rules of thumb that turn those four quantities into
+        working hardware, in one searchable cheat sheet.
+      </p>
+      <section class="electronics-disclaimer">
+        <h3>⚠️ Safety Disclaimer &amp; Important Notes</h3>
+        <p>This reference is for educational and hobbyist purposes only. Working with electricity carries real risks — shock, burns, fire, and damage to equipment. Mains voltage (110&nbsp;V / 230&nbsp;V AC) and stored energy in capacitors and inductors can be lethal even after a circuit is unpowered. Always verify component ratings, follow local electrical codes, and consult a qualified electrician for anything connected to mains. The site owner is not liable for any injury, damage, or loss arising from the use of this reference.</p>
+      </section>
+      <p class="electronics-howto">
+        <strong>How to use:</strong> jump to a section from the quick-reference
+        wheel, plug numbers into the interactive calculators, or scroll the
+        component charts and reference tables for at-a-glance values. Every
+        formula links back to the underlying law so you can derive the rest
+        yourself.
+      </p>
+      <div class="electronics-meta">
+        <span class="electronics-meta__item">
+          <strong>6</strong> sections
+        </span>
+        <span class="electronics-meta__item">
+          Last updated <time datetime="2026-05-08"><strong>2026-05-08</strong></time>
+        </span>
+      </div>
+    </header>
+
+    {%- comment -%} ========== Section 1: Hero / Quick Reference Wheel ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-quick-reference">
+      <h2 class="electronics-section__title">Quick Reference Wheel</h2>
+      <p class="electronics-section__intro">
+        At-a-glance navigation: every formula, calculator, and chart on the page,
+        arranged radially around the four core quantities (V, I, R, P).
+      </p>
+      <div class="electronics-wheel" id="electronics-wheel">
+        {%- comment -%} TODO: Batch 4 will fill the wheel here. {%- endcomment -%}
+      </div>
+    </section>
+
+    {%- comment -%} ========== Section 2: Core Formulas & Laws ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-formulas">
+      <h2 class="electronics-section__title">Core Formulas &amp; Laws</h2>
+      <p class="electronics-section__intro">
+        Ohm's law, Kirchhoff's laws, power formulas, and the AC equivalents —
+        the algebra behind every circuit on this page.
+      </p>
+      <div class="electronics-formulas" id="electronics-formulas-grid">
+        {%- comment -%} TODO: Batch 5 will fill the formulas grid here. {%- endcomment -%}
+      </div>
+    </section>
+
+    {%- comment -%} ========== Section 3: Interactive Calculators ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-calculators">
+      <h2 class="electronics-section__title">Interactive Calculators</h2>
+      <p class="electronics-section__intro">
+        Plug in any two values and the rest follow: Ohm's law, voltage dividers,
+        LED current-limiting, RC time constants, and more.
+      </p>
+      <div class="electronics-calculators" id="electronics-calculators-grid">
+        {%- comment -%} TODO: Batch 6 will fill the calculators here. {%- endcomment -%}
+      </div>
+    </section>
+
+    {%- comment -%} ========== Section 4: Component References & Charts ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-components">
+      <h2 class="electronics-section__title">Component References &amp; Charts</h2>
+      <p class="electronics-section__intro">
+        Resistor color codes, capacitor markings, standard E-series values,
+        wire-gauge tables, and other lookup-style references.
+      </p>
+      <div class="electronics-components" id="electronics-components-grid">
+        {%- comment -%} TODO: Batch 7 will fill the component charts here. {%- endcomment -%}
+      </div>
+    </section>
+
+    {%- comment -%} ========== Section 5: Circuit Design Guides & Practical Tips ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-design-guides">
+      <h2 class="electronics-section__title">Circuit Design Guides &amp; Practical Tips</h2>
+      <p class="electronics-section__intro">
+        Decoupling, pull-ups vs. pull-downs, choosing the right transistor,
+        protecting inputs — the practical rules of thumb that aren't in a textbook.
+      </p>
+      <div class="electronics-guides" id="electronics-guides-grid">
+        {%- comment -%} TODO: Batch 8 will fill the design guides here. {%- endcomment -%}
+      </div>
+    </section>
+
+    {%- comment -%} ========== Section 6: Reference Tables ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-tables">
+      <h2 class="electronics-section__title">Reference Tables</h2>
+      <p class="electronics-section__intro">
+        SI prefixes, common unit conversions, schematic symbols, and the rest
+        of the lookup tables that round out the cheat sheet.
+      </p>
+      <div class="electronics-tables" id="electronics-tables-grid">
+        {%- comment -%} TODO: Batch 9 will fill the reference tables here. {%- endcomment -%}
+      </div>
+    </section>
+
+  </div>
+</section>
+
+<script src="{{ '/assets/js/electronics-fundamentals.js' | relative_url }}" defer></script>
