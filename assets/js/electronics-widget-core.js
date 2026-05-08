@@ -92,6 +92,161 @@
   };
 
   // ==========================================================================
+  // EF.confirmModal — accessible in-page replacement for window.confirm()
+  //   Builds a focus-trapping ARIA dialog. Returns a Promise that resolves
+  //   to `true` (confirmed) or `false` (cancelled / dismissed via Esc /
+  //   backdrop click). Used by the floating Reset All button.
+  //
+  //   Falls back to window.confirm() if document.body is unavailable for
+  //   any reason (very early boot, ancient browser quirks).
+  // ==========================================================================
+  EF.confirmModal = function (opts) {
+    opts = opts || {};
+    var title       = opts.title       || 'Are you sure?';
+    var message     = opts.message     || '';
+    var confirmText = opts.confirmText || 'Confirm';
+    var cancelText  = opts.cancelText  || 'Cancel';
+    var dangerous   = !!opts.dangerous;
+    if (!document.body) {
+      return Promise.resolve(window.confirm(title + (message ? '\n\n' + message : '')));
+    }
+    return new Promise(function (resolve) {
+      var prevFocus = document.activeElement;
+      var titleId = 'ef-modal-title-' + Math.random().toString(36).slice(2, 9);
+      var descId  = 'ef-modal-desc-'  + Math.random().toString(36).slice(2, 9);
+
+      // Inline styles: the page's CSS file is intentionally not extended in
+      // this batch. We use just enough inline styling that the modal looks
+      // intentional in both light and dark themes (CSS variables resolve
+      // against [data-theme]).
+      var backdrop = document.createElement('div');
+      backdrop.className = 'electronics-modal-backdrop';
+      backdrop.setAttribute('role', 'presentation');
+      backdrop.style.cssText = [
+        'position:fixed', 'inset:0', 'z-index:9999',
+        'background:rgba(0,0,0,0.55)',
+        'display:flex', 'align-items:center', 'justify-content:center',
+        'padding:1rem',
+        'animation:none'
+      ].join(';');
+
+      var dialog = document.createElement('div');
+      dialog.className = 'electronics-modal';
+      dialog.setAttribute('role', 'dialog');
+      dialog.setAttribute('aria-modal', 'true');
+      dialog.setAttribute('aria-labelledby', titleId);
+      if (message) dialog.setAttribute('aria-describedby', descId);
+      dialog.style.cssText = [
+        'background:var(--c-bg, #1a1a1a)',
+        'color:var(--c-fg, #f5f5f5)',
+        'border:1px solid var(--c-border, rgba(255,255,255,0.15))',
+        'border-radius:var(--border-radius, 0.5rem)',
+        'padding:1.25rem 1.5rem',
+        'max-width:30rem', 'width:100%',
+        'box-shadow:0 12px 32px rgba(0,0,0,0.45)',
+        'font-family:var(--f-body, system-ui, sans-serif)'
+      ].join(';');
+
+      var h = document.createElement('h2');
+      h.id = titleId;
+      h.className = 'electronics-modal__title';
+      h.textContent = title;
+      h.style.cssText = 'margin:0 0 0.5rem;font-size:1.1rem;line-height:1.3';
+
+      var p = null;
+      if (message) {
+        p = document.createElement('p');
+        p.id = descId;
+        p.className = 'electronics-modal__message';
+        p.textContent = message;
+        p.style.cssText = 'margin:0 0 1rem;font-size:0.95rem;line-height:1.45;opacity:0.9';
+      }
+
+      var actions = document.createElement('div');
+      actions.className = 'electronics-modal__actions';
+      actions.style.cssText = 'display:flex;justify-content:flex-end;gap:0.5rem;flex-wrap:wrap';
+
+      // Reuse the calculator button styling that's already in the CSS so
+      // these look at home with the rest of the page.
+      var btnBase = 'padding:0.5rem 1rem;border-radius:var(--border-radius-sm,0.35rem);' +
+                    'border:1px solid var(--c-border, rgba(255,255,255,0.15));' +
+                    'cursor:pointer;font:inherit;line-height:1;';
+      var cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'electronics-calculator__reset';
+      cancelBtn.textContent = cancelText;
+      cancelBtn.style.cssText = btnBase +
+        'background:transparent;color:var(--c-fg, #f5f5f5);';
+
+      var confirmBtn = document.createElement('button');
+      confirmBtn.type = 'button';
+      confirmBtn.className = 'electronics-calculator__reset';
+      confirmBtn.textContent = confirmText;
+      confirmBtn.style.cssText = btnBase + (dangerous
+        ? 'background:var(--c-warn, #c0392b);color:#fff;border-color:transparent;'
+        : 'background:var(--c-accent, #2c7be5);color:#fff;border-color:transparent;');
+
+      actions.appendChild(cancelBtn);
+      actions.appendChild(confirmBtn);
+
+      dialog.appendChild(h);
+      if (p) dialog.appendChild(p);
+      dialog.appendChild(actions);
+      backdrop.appendChild(dialog);
+      document.body.appendChild(backdrop);
+
+      // Focus trap: keep Tab inside the dialog.
+      function focusables() {
+        return dialog.querySelectorAll(
+          'button:not([disabled]), [href], input:not([disabled]), ' +
+          'select:not([disabled]), textarea:not([disabled]), ' +
+          '[tabindex]:not([tabindex="-1"])'
+        );
+      }
+      function onKeyDown(e) {
+        if (e.key === 'Escape' || e.keyCode === 27) {
+          e.preventDefault();
+          done(false);
+          return;
+        }
+        if (e.key !== 'Tab' && e.keyCode !== 9) return;
+        var nodes = focusables();
+        if (!nodes.length) return;
+        var first = nodes[0];
+        var last  = nodes[nodes.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault(); last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault(); first.focus();
+        }
+      }
+      function onBackdropClick(e) {
+        if (e.target === backdrop) done(false);
+      }
+      function done(value) {
+        document.removeEventListener('keydown', onKeyDown, true);
+        backdrop.removeEventListener('click', onBackdropClick);
+        if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
+        if (prevFocus && typeof prevFocus.focus === 'function') {
+          try { prevFocus.focus(); } catch (_) { /* ignore */ }
+        }
+        resolve(value);
+      }
+
+      cancelBtn.addEventListener('click',  function () { done(false); });
+      confirmBtn.addEventListener('click', function () { done(true);  });
+      backdrop.addEventListener('click', onBackdropClick);
+      document.addEventListener('keydown', onKeyDown, true);
+
+      // Default focus: cancel for safety on dangerous actions, confirm
+      // otherwise so Enter accepts.
+      setTimeout(function () {
+        (dangerous ? cancelBtn : confirmBtn).focus();
+      }, 0);
+    });
+  };
+
+  // ==========================================================================
   // Widget base class
   // ==========================================================================
   function _inherit(Child, Parent) {
@@ -208,6 +363,19 @@
       try { return this._entry.getState(); } catch (_) { return {}; }
     }
     return {};
+  };
+  /** Chain destroy → entry.destroy so each section can disconnect its own
+   *  observers / timers / DOM listeners on teardown. The entry contract:
+   *  if a widget's EF.widgets entry exposes a `destroy()` function, it is
+   *  invoked before the parent Widget.destroy clears _cleanups. */
+  _SectionAdapter.prototype.destroy = function () {
+    if (this._entry && typeof this._entry.destroy === 'function') {
+      try { this._entry.destroy(); } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Widget entry.destroy failed: ' + this.name, e);
+      }
+    }
+    return CalculatorKernel.prototype.destroy.call(this);
   };
   EF._SectionAdapter = _SectionAdapter;
 
@@ -449,6 +617,7 @@
   EF.Bookmark = (function () {
     var STORAGE_PREFIX = 'ef:state:';
     var HASH_PREFIX    = '#ef=';
+    var api = {};
 
     function safeStringify(obj) { try { return JSON.stringify(obj); } catch (_) { return null; } }
     function safeParse(text)    { try { return JSON.parse(text); } catch (_) { return null; } }
@@ -456,15 +625,31 @@
     function b64Decode(str) { try { return decodeURIComponent(escape(atob(str))); } catch (_) { return null; } }
 
     function save(name, state) {
+      api.lastResult = { ok: false, persisted: false, hashed: false, quotaExceeded: false };
       if (!name || !state) return false;
       var json = safeStringify(state);
-      if (!json) return false;
-      try { localStorage.setItem(STORAGE_PREFIX + name, json); } catch (_) { /* private mode */ }
+      if (!json) { api.lastResult.ok = false; return false; }
+      try {
+        localStorage.setItem(STORAGE_PREFIX + name, json);
+        api.lastResult.persisted = true;
+      } catch (e) {
+        // localStorage can throw in private mode or when over quota.
+        // Detect quota errors so callers can show the user a visible warning.
+        var quota = e && (
+          e.code === 22 || e.code === 1014 ||
+          /quota/i.test(e.name || '') || /quota/i.test(e.message || '')
+        );
+        api.lastResult.quotaExceeded = !!quota;
+      }
       var b64 = b64Encode(json);
       if (b64) {
         var hash = HASH_PREFIX + encodeURIComponent(name) + ':' + b64;
-        try { history.replaceState(null, '', hash); } catch (_) { window.location.hash = hash; }
+        try { history.replaceState(null, '', hash); api.lastResult.hashed = true; }
+        catch (_) {
+          try { window.location.hash = hash; api.lastResult.hashed = true; } catch (__) { /* ignore */ }
+        }
       }
+      api.lastResult.ok = true;
       return true;
     }
 
@@ -495,20 +680,59 @@
       return { name: name, state: state };
     }
 
+    /** Look up the DOM container associated with a widget name. We try a
+     *  registered hint first (set by widget files via registerContainer) and
+     *  fall back to the convention `#electronics-<name>-card` /
+     *  `[data-widget="<name>"]` so older registrations still scroll. */
+    function findContainer(name) {
+      if (!name) return null;
+      if (api._containers && api._containers[name]) {
+        var hinted = api._containers[name];
+        if (hinted && hinted.isConnected !== false) return hinted;
+      }
+      return document.querySelector('[data-widget="' + name + '"]') ||
+             document.getElementById('electronics-' + name + '-card') ||
+             document.getElementById(name) ||
+             null;
+    }
+
+    function registerContainer(name, el) {
+      if (!name || !el) return;
+      if (!api._containers) api._containers = {};
+      api._containers[name] = el;
+    }
+
     function restoreFromHash() {
       var parsed = parseHash();
       if (!parsed) return false;
       for (var i = 0; i < EF.widgets.length; i++) {
         var entry = EF.widgets[i];
         if (entry && entry.name === parsed.name && typeof entry.restoreState === 'function') {
-          try { entry.restoreState(parsed.state); return true; } catch (_) { return false; }
+          try {
+            entry.restoreState(parsed.state);
+            // After a successful restore, scroll the widget into view so the
+            // user lands directly on the recreated state. Honours reduced-motion.
+            var container = findContainer(parsed.name);
+            if (container && typeof EF.scrollIntoView === 'function') {
+              setTimeout(function () { EF.scrollIntoView(container, { block: 'start' }); }, 0);
+            }
+            return true;
+          } catch (_) { return false; }
         }
       }
       return false;
     }
 
-    return { save: save, load: load, clear: clear, parseHash: parseHash,
-             restoreFromHash: restoreFromHash,
-             STORAGE_PREFIX: STORAGE_PREFIX, HASH_PREFIX: HASH_PREFIX };
+    api.save = save;
+    api.load = load;
+    api.clear = clear;
+    api.parseHash = parseHash;
+    api.restoreFromHash = restoreFromHash;
+    api.registerContainer = registerContainer;
+    api.findContainer = findContainer;
+    api.STORAGE_PREFIX = STORAGE_PREFIX;
+    api.HASH_PREFIX    = HASH_PREFIX;
+    api.lastResult = null;
+    return api;
   })();
 })();

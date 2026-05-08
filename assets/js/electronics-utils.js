@@ -260,6 +260,115 @@
     });
   }
 
+  /** Smooth-scroll an element into view, honouring prefers-reduced-motion.
+   *  When the user opts out of motion, we fall back to behavior: 'auto'
+   *  (instant scroll) so the element still becomes visible. */
+  function scrollIntoView(el, opts) {
+    if (!el || typeof el.scrollIntoView !== 'function') return;
+    opts = opts || {};
+    var reduced = window.matchMedia &&
+                  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({
+      behavior: reduced ? 'auto' : (opts.behavior || 'smooth'),
+      block:    opts.block    || 'start',
+      inline:   opts.inline   || 'nearest'
+    });
+  }
+
+  /** Inject <title> and (optional) <desc> children into an existing SVG so
+   *  screen readers can announce a meaningful description. Idempotent —
+   *  calling twice on the same SVG is a no-op. Used for the Quick Wheel
+   *  SVG, the resistor-preview SVG, and any future inline SVG.
+   *
+   *  Also wires aria-labelledby on the <svg> so AT picks up the title. */
+  function describeSvg(svg, title, desc) {
+    if (!svg || svg.querySelector(':scope > title, :scope > desc')) return;
+    var SVG_NS = 'http://www.w3.org/2000/svg';
+    var titleId = 'ef-svg-title-' + Math.random().toString(36).slice(2, 9);
+    var descId  = 'ef-svg-desc-'  + Math.random().toString(36).slice(2, 9);
+    if (title) {
+      var t = document.createElementNS(SVG_NS, 'title');
+      t.id = titleId;
+      t.textContent = title;
+      svg.insertBefore(t, svg.firstChild);
+    }
+    if (desc) {
+      var d = document.createElementNS(SVG_NS, 'desc');
+      d.id = descId;
+      d.textContent = desc;
+      var titleEl = svg.querySelector(':scope > title');
+      if (titleEl && titleEl.nextSibling) svg.insertBefore(d, titleEl.nextSibling);
+      else                                 svg.appendChild(d);
+    }
+    var ids = [];
+    if (title) ids.push(titleId);
+    if (desc)  ids.push(descId);
+    if (ids.length) {
+      // Only set aria-labelledby if the SVG doesn't already carry an
+      // aria-label attribute (which takes precedence in some assistive tech).
+      // We additively wire the title/desc via aria-describedby so both
+      // strands are announceable.
+      var existingLabelled = svg.getAttribute('aria-labelledby') || '';
+      var existingDescribed = svg.getAttribute('aria-describedby') || '';
+      if (title && !svg.getAttribute('aria-label') && existingLabelled.indexOf(titleId) === -1) {
+        svg.setAttribute('aria-labelledby', (existingLabelled + ' ' + titleId).trim());
+      }
+      if (desc && existingDescribed.indexOf(descId) === -1) {
+        svg.setAttribute('aria-describedby', (existingDescribed + ' ' + descId).trim());
+      }
+    }
+  }
+
+  /** Walk a calculator card and auto-wire `aria-describedby` on every
+   *  numeric input that has a sibling/labelledby <small> unit hint. This
+   *  is what each calculator init function calls so screen readers can
+   *  announce the unit string ("volts", "ohms", "farads") as a description
+   *  of the input independent of its name. Idempotent — skips inputs whose
+   *  describedby already covers the small.
+   *
+   *  Resolution order:
+   *    1. If the input has aria-labelledby, take that span and look for a
+   *       descendent <small>. Use the FIRST <small> found.
+   *    2. Else, look for a <small> within the closest .electronics-ohms-field
+   *       or .electronics-calculator__field ancestor. */
+  function autoWireUnitHints(card) {
+    if (!card || typeof card.querySelectorAll !== 'function') return;
+    var inputs = card.querySelectorAll(
+      'input[type="number"].electronics-calculator__input, ' +
+      'input.electronics-calculator__input[inputmode="decimal"]'
+    );
+    Array.prototype.forEach.call(inputs, function (input) {
+      var small = null;
+      var labelledById = input.getAttribute('aria-labelledby');
+      if (labelledById) {
+        var labelSpan = card.ownerDocument.getElementById(labelledById);
+        if (labelSpan) small = labelSpan.querySelector('small');
+      }
+      if (!small) {
+        var field = input.closest('.electronics-ohms-field, .electronics-calculator__field');
+        if (field) small = field.querySelector(':scope > .electronics-ohms-field__label small, :scope small');
+      }
+      if (small) wireInputDescription(input, small);
+    });
+  }
+
+  /** Wire `input.aria-describedby` to point at `descSpan`. Auto-generates an
+   *  id on the description span if it lacks one. Idempotent. Used to link
+   *  every numeric calculator input to its small unit-hint span (e.g. the
+   *  "volts" / "ohms" / "farads" sub-label). */
+  function wireInputDescription(input, descSpan) {
+    if (!input || !descSpan) return;
+    if (!descSpan.id) {
+      descSpan.id = 'ef-aria-desc-' + Math.random().toString(36).slice(2, 9);
+    }
+    var existing = input.getAttribute('aria-describedby') || '';
+    var parts = existing ? existing.split(/\s+/) : [];
+    if (parts.indexOf(descSpan.id) === -1) {
+      parts.push(descSpan.id);
+      input.setAttribute('aria-describedby', parts.join(' '));
+    }
+  }
+
   // ==========================================================================
   // EF namespace bootstrap
   //   Idempotent — if a previous file already created the namespace (e.g.
@@ -278,6 +387,10 @@
   EF.syncSliderToValue     = syncSliderToValue;
   EF.chartTheme            = chartTheme;
   EF.copyWithFlash         = copyWithFlash;
+  EF.scrollIntoView        = scrollIntoView;
+  EF.describeSvg           = describeSvg;
+  EF.wireInputDescription  = wireInputDescription;
+  EF.autoWireUnitHints     = autoWireUnitHints;
   if (!Array.isArray(EF.widgets)) EF.widgets = [];
   window.ElectronicsFundamentals = EF;
 

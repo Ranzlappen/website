@@ -42,6 +42,10 @@
     var typeRadios     = card.querySelectorAll('input[name="sp-type"]');
     var topologyRadios = card.querySelectorAll('input[name="sp-topology"]');
 
+    // Auto-wire aria-describedby on every numeric input → its small unit hint.
+    // Row inputs are added dynamically; we re-wire after each row build below.
+    if (typeof EF.autoWireUnitHints === 'function') EF.autoWireUnitHints(card);
+
     var data = EF.readDataIsland('electronics-calc-sp-data');
     var MIN_ROWS = (data && data.minRows) || 2;
     var MAX_ROWS = (data && data.maxRows) || 8;
@@ -160,12 +164,14 @@
     }
 
     function relabel() {
+      // Unit suffix for the accessible name so screen readers announce
+      // "R1 value in ohms" / "C2 value in farads".
+      var unitName = state.type === 'capacitor' ? 'farads' : 'ohms';
       for (var i = 0; i < state.rows.length; i++) {
         var label = symbolFor(state.type) + subscriptOf(i + 1);
         state.rows[i].label.textContent = label;
-        var lbl = state.rows[i].num.getAttribute('aria-label');
-        state.rows[i].num.setAttribute('aria-label', label + ' value');
-        state.rows[i].slider.setAttribute('aria-label', label + ' slider');
+        state.rows[i].num.setAttribute('aria-label', label + ' value in ' + unitName);
+        state.rows[i].slider.setAttribute('aria-label', label + ' slider, ' + unitName);
         state.rows[i].btn.setAttribute('aria-label', 'Remove ' + label);
         state.rows[i].btn.disabled = state.rows.length <= MIN_ROWS;
       }
@@ -523,6 +529,9 @@
       fields[n]  = card.querySelector('.electronics-ohms-field[data-field="' + n + '"]');
     });
     if (!inputs.V || !inputs.R || !inputs.C) return;
+
+    // Auto-wire aria-describedby on every numeric input → its small unit hint.
+    if (typeof EF.autoWireUnitHints === 'function') EF.autoWireUnitHints(card);
 
     var resultEl    = document.getElementById('electronics-rc-result');
     var warningEl   = document.getElementById('electronics-rc-warning');

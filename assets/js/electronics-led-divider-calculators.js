@@ -67,6 +67,9 @@
     };
     if (!inputs.Vsupply || !inputs.Vf || !inputs.I) return;
 
+    // Auto-wire aria-describedby on every numeric input → its small unit hint.
+    if (typeof EF.autoWireUnitHints === 'function') EF.autoWireUnitHints(card);
+
     var colorSelect = document.getElementById('ef-led-color');
     var resultEl    = document.getElementById('electronics-led-result');
     var warningEl   = document.getElementById('electronics-led-warning');
@@ -298,7 +301,7 @@
           el.dispatchEvent(new Event('input', { bubbles: true }));
         });
         var section = document.getElementById('electronics-quick-reference');
-        if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (section) EF.scrollIntoView(section, { block: 'start' });
       });
     }
 
@@ -508,6 +511,9 @@
     });
     if (!inputs.Vin || !inputs.R1 || !inputs.R2 || !inputs.RL) return;
 
+    // Auto-wire aria-describedby on every numeric input → its small unit hint.
+    if (typeof EF.autoWireUnitHints === 'function') EF.autoWireUnitHints(card);
+
     var resultEl    = document.getElementById('electronics-div-result');
     var warningEl   = document.getElementById('electronics-div-warning');
     var clearBtn    = document.getElementById('electronics-div-clear');
@@ -700,7 +706,7 @@
           el.dispatchEvent(new Event('input', { bubbles: true }));
         });
         var section = document.getElementById('electronics-quick-reference');
-        if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (section) EF.scrollIntoView(section, { block: 'start' });
       });
     }
 

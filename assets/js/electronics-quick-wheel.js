@@ -20,6 +20,18 @@
     var quadrants = wheel.querySelectorAll('.electronics-wheel__quadrant');
     var examples  = section ? section.querySelectorAll('.electronics-wheel-example') : [];
 
+    // Inject accessible <title> + <desc> into the SVG so screen readers can
+    // announce a meaningful overview of the wheel (the existing aria-label
+    // is shorter; describeSvg adds longer-form description without conflict).
+    var wheelSvg = wheel.querySelector('svg');
+    if (wheelSvg && typeof EF.describeSvg === 'function') {
+      EF.describeSvg(
+        wheelSvg,
+        'Ohm’s Law Quick Wheel',
+        'Four quadrants — Voltage (V), Current (I), Resistance (R), and Power (P). Each quadrant lists the three formulas that solve for that quantity. Click any quadrant to focus the matching input on the right.'
+      );
+    }
+
     var QTY = ['V', 'I', 'R', 'P'];
     var inputs = {};
     var fields = {};
@@ -325,7 +337,7 @@
       });
       recompute();
       if (opts.scroll !== false && section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        EF.scrollIntoView(section, { block: 'start' });
       }
     }
 

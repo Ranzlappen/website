@@ -789,8 +789,6 @@
       return { link: a, target: document.getElementById(id) };
     }).filter(function (entry) { return entry.target; });
 
-    if (typeof IntersectionObserver === 'undefined' || !sections.length) return;
-
     function setActive(id) {
       sections.forEach(function (s) {
         var on = s.link.getAttribute('href') === '#' + id;
@@ -799,27 +797,39 @@
       });
     }
 
-    var observer = new IntersectionObserver(function (entries) {
-      // Pick the entry closest to the top of the viewport that's visible.
-      var top = null;
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        if (!top || e.boundingClientRect.top < top.boundingClientRect.top) top = e;
-      });
-      if (top && top.target.id) setActive(top.target.id);
-    }, { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.1, 0.5, 1] });
+    // Scroll-spy is a progressive enhancement: without IntersectionObserver
+    // we still wire the click-to-scroll handler below, just no live highlight.
+    if (typeof IntersectionObserver !== 'undefined' && sections.length) {
+      var observer = new IntersectionObserver(function (entries) {
+        // Pick the entry closest to the top of the viewport that's visible.
+        var top = null;
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          if (!top || e.boundingClientRect.top < top.boundingClientRect.top) top = e;
+        });
+        if (top && top.target.id) setActive(top.target.id);
+      }, { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.1, 0.5, 1] });
 
-    sections.forEach(function (s) { observer.observe(s.target); });
-    if (sections[0]) setActive(sections[0].target.id);
+      sections.forEach(function (s) { observer.observe(s.target); });
+      if (sections[0]) setActive(sections[0].target.id);
+      EF.widgets.push({
+        name: 'sticky-toc-observer',
+        destroy: function () { try { observer.disconnect(); } catch (_) { /* ignore */ } }
+      });
+    } else if (sections[0]) {
+      // Static highlight on the first link as a sane default.
+      setActive(sections[0].target.id);
+    }
 
     // Smooth-scroll fallback for browsers without scroll-behavior: smooth.
+    // EF.scrollIntoView honours prefers-reduced-motion automatically.
     links.forEach(function (a) {
       a.addEventListener('click', function (e) {
         var id = a.getAttribute('href').slice(1);
         var target = document.getElementById(id);
         if (!target) return;
         e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        EF.scrollIntoView(target, { block: 'start' });
         history.pushState(null, '', '#' + id);
       });
     });
@@ -834,11 +844,12 @@
     var btn = document.getElementById('electronics-reset-all-floating');
     if (!btn) return;
     var hero = document.querySelector('.electronics-hero');
+    var observer = null;
     if (!hero || typeof IntersectionObserver === 'undefined') {
       // Fallback: always visible so the button isn't lost.
       btn.hidden = false;
     } else {
-      var observer = new IntersectionObserver(function (entries) {
+      observer = new IntersectionObserver(function (entries) {
         // Hero out of viewport → show the pill, otherwise hide it.
         var visible = entries[0] ? entries[0].isIntersecting : true;
         btn.hidden = visible;
@@ -846,14 +857,30 @@
       observer.observe(hero);
     }
     btn.addEventListener('click', function () {
-      var ok = window.confirm('Reset every calculator on this page back to defaults?');
-      if (!ok) return;
-      EF.resetAllWidgets();
-      // Brief affordance so the user knows the click registered.
-      var prev = btn.textContent;
-      btn.textContent = '✓ Reset';
-      setTimeout(function () { btn.textContent = prev; }, 1100);
+      // Custom focus-trapping ARIA dialog — replaces window.confirm() so the
+      // page styling stays intact and screen readers get a proper modal.
+      var prompt = EF.confirmModal({
+        title: 'Reset every calculator?',
+        message: 'This will return every calculator on this page (Ohm’s Law, LED, Divider, S/P, RC, Color Decoder, Quick Wheel) to its default values. Bookmarks and the URL hash are not cleared.',
+        confirmText: 'Reset all',
+        cancelText: 'Cancel',
+        dangerous: true
+      });
+      prompt.then(function (ok) {
+        if (!ok) return;
+        EF.resetAllWidgets();
+        // Brief affordance so the user knows the click registered.
+        var prev = btn.textContent;
+        btn.textContent = '✓ Reset';
+        setTimeout(function () { btn.textContent = prev; }, 1100);
+      });
     });
+    if (observer) {
+      EF.widgets.push({
+        name: 'floating-reset-observer',
+        destroy: function () { try { observer.disconnect(); } catch (_) { /* ignore */ } }
+      });
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -899,13 +926,35 @@
       return null;
     }
 
+    /** Build a result label that surfaces quota errors visibly, instead of
+     *  silently failing to localStorage. EF.Bookmark.save now returns true
+     *  whenever the URL hash was updated (which is enough to re-load), but
+     *  exposes EF.Bookmark.lastResult.{persisted, hashed, quotaExceeded} so
+     *  we can tell the user which strand actually worked. */
+    function summariseSave(savedFlag) {
+      var r = EF.Bookmark.lastResult || {};
+      if (!savedFlag && !r.hashed && !r.persisted) return '⚠ Save failed';
+      if (r.quotaExceeded && r.hashed)  return '✓ URL saved (storage full)';
+      if (r.quotaExceeded && !r.hashed) return '⚠ Storage full';
+      if (r.hashed && r.persisted)      return '✓ Saved (URL + storage)';
+      if (r.hashed)                     return '✓ Saved to URL';
+      if (r.persisted)                  return '✓ Saved (URL pending)';
+      return '⚠ Save failed';
+    }
+
     Array.prototype.forEach.call(actionRows, function (row) {
       // Don't double-inject if we re-run this function.
       if (row.querySelector('.electronics-bookmark-btn')) return;
       var name = widgetNameForRow(row);
       if (!name) return;
 
-      // ----- 🔖 Bookmark — saves to localStorage + URL hash silently -----
+      // Hint to EF.Bookmark.restoreFromHash about which DOM node to scroll to.
+      var card = row.closest('[id^="electronics-"]') || row.parentNode;
+      if (card && typeof EF.Bookmark.registerContainer === 'function') {
+        EF.Bookmark.registerContainer(name, card);
+      }
+
+      // ----- 🔖 Bookmark — saves to localStorage + URL hash. -----
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'electronics-calculator__reset electronics-bookmark-btn';
@@ -920,9 +969,8 @@
         }
         var state = entry.getState();
         var ok = EF.Bookmark.save(name, state);
-        var prev = btn.textContent;
-        btn.textContent = ok ? '✓ Saved (URL + storage)' : '⚠ Save failed';
-        setTimeout(function () { btn.textContent = prev; }, 1600);
+        btn.textContent = summariseSave(ok);
+        setTimeout(function () { btn.textContent = '🔖 Bookmark'; }, 2200);
       });
       row.appendChild(btn);
 
@@ -939,14 +987,15 @@
         if (!entry || typeof entry.getState !== 'function') return;
         var state = entry.getState();
         var saved = EF.Bookmark.save(name, state);
-        if (!saved) {
-          shareBtn.textContent = '⚠ Save failed';
-          setTimeout(function () { shareBtn.textContent = '🔗 Share'; }, 1600);
+        var r = EF.Bookmark.lastResult || {};
+        if (!saved || !r.hashed) {
+          shareBtn.textContent = r.quotaExceeded ? '⚠ Storage full' : '⚠ Save failed';
+          setTimeout(function () { shareBtn.textContent = '🔗 Share'; }, 2200);
           return;
         }
         EF.copyToClipboard(window.location.href).then(function (ok) {
           shareBtn.textContent = ok ? '✓ URL copied' : '⚠ Copy failed';
-          setTimeout(function () { shareBtn.textContent = '🔗 Share'; }, 1600);
+          setTimeout(function () { shareBtn.textContent = '🔗 Share'; }, 2200);
         });
       });
       row.appendChild(shareBtn);
@@ -1017,6 +1066,23 @@
         '<line x1="250" y1="30" x2="300" y2="30" stroke="currentColor" stroke-width="2" />' +
         '<rect x="50" y="14" width="200" height="32" rx="4" ry="4" fill="#d6c19a" stroke="rgba(0,0,0,0.35)" stroke-width="1" />' +
         stripes;
+
+      // Inject (or refresh) accessible <title>/<desc> describing the current
+      // band sequence. describeSvg is idempotent: if the title already exists
+      // we update its text in place rather than spawn a duplicate.
+      var titleEl = preview.querySelector(':scope > title');
+      var descEl  = preview.querySelector(':scope > desc');
+      var humanColors = colors.map(function (k) {
+        var c = COLORS[k];
+        return (c && c.name) ? c.name : k;
+      }).join(', ');
+      var titleText = 'Resistor preview, ' + colors.length + ' bands';
+      var descText  = 'Stripe colors from left to right: ' + humanColors + '.';
+      if (titleEl) titleEl.textContent = titleText;
+      if (descEl)  descEl.textContent  = descText;
+      if (!titleEl && !descEl && typeof EF.describeSvg === 'function') {
+        EF.describeSvg(preview, titleText, descText);
+      }
     }
 
     // Re-render when any swatch in the decoder is clicked OR the band-count
@@ -1024,6 +1090,13 @@
     var observer = new MutationObserver(function () { render(); });
     observer.observe(bandsRoot, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
     render();
+
+    // Disconnect the observer if the page tears the widget down (SPA-style
+    // hot-reloads, future EF.unmountAllWidgets).
+    EF.widgets.push({
+      name: 'live-resistor-preview',
+      destroy: function () { try { observer.disconnect(); } catch (_) { /* ignore */ } }
+    });
   }
 
   // --------------------------------------------------------------------------
@@ -1067,6 +1140,11 @@
     var observer = new MutationObserver(function () { applyCloudClasses(); });
     observer.observe(grid, { childList: true, subtree: false });
     applyCloudClasses();
+
+    EF.widgets.push({
+      name: 'eseries-value-cloud',
+      destroy: function () { try { observer.disconnect(); } catch (_) { /* ignore */ } }
+    });
   }
 
   // --------------------------------------------------------------------------

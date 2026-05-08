@@ -35,6 +35,11 @@
     });
     if (!inputs.V || !inputs.I || !inputs.R || !inputs.P) return;
 
+    // Auto-wire aria-describedby on every numeric input → its small unit
+    // hint (volts / amperes / ohms / watts), so screen readers announce
+    // the unit independently of the input's accessible name.
+    if (typeof EF.autoWireUnitHints === 'function') EF.autoWireUnitHints(card);
+
     var resultEl    = document.getElementById('electronics-calc-result');
     var warningEl   = document.getElementById('electronics-calc-warning');
     var clearBtn    = document.getElementById('electronics-calc-clear');
@@ -276,7 +281,7 @@
           el.dispatchEvent(new Event('input', { bubbles: true }));
         });
         var wheelSection = document.getElementById('electronics-quick-reference');
-        if (wheelSection) wheelSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (wheelSection) EF.scrollIntoView(wheelSection, { block: 'start' });
       });
     }
 

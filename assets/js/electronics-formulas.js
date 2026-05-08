@@ -52,7 +52,7 @@
         input.dispatchEvent(new Event('input', { bubbles: true }));
       });
       var wheelSection = document.getElementById('electronics-quick-reference');
-      if (wheelSection) wheelSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (wheelSection) EF.scrollIntoView(wheelSection, { block: 'start' });
     }
 
     function handleClick(btn) {
