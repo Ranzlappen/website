@@ -9,36 +9,19 @@ permalink: /references/electronics-fundamentals/
 =================================================================================
 Electronics Fundamentals Reference Page
 ---------------------------------------------------------------------------------
-Interactive cheat sheet for volts, amps, ohms, watts, circuit design, calculators,
-and practical EE references. Six locked sections: quick-reference wheel,
-formulas, five calculators (Ohm's Law, LED Resistor, Voltage Divider,
+Interactive cheat sheet for volts, amps, ohms, watts, circuit design,
+calculators, and practical EE references. Six locked sections: quick-reference
+wheel, formulas, five calculators (Ohm's Law, LED Resistor, Voltage Divider,
 Series/Parallel, RC Timer), component references (color-code decoder + E-series
 explorer), circuit design guides, and reference tables.
 
-Styles live in /assets/css/electronics-fundamentals.css; behaviour in
-/assets/js/electronics-fundamentals.js.
+Styles live in /assets/css/electronics-fundamentals.css; behaviour in the
+nine-file modular JS bundle loaded at the bottom of this page.
 
-Each interactive section is a "widget" registered through a uniform lifecycle
-defined in the JS bundle:
-
-    EF.Widget               — base class (mount / unmount / reset / getState
-                              / toJSON / destroy / addCleanup)
-    EF.CalculatorKernel     — extends Widget with shared helpers (debounce,
-                              sanitizeInput, formatWithSI,
-                              copyToClipboardWithUnits, openInQuickWheel,
-                              themeChart, registerResizeObserver, announce)
-    EF.registerWidget(name, factory)
-                            — register a widget at IIFE-evaluation time;
-                              EF.mountAllWidgets() instantiates and mounts
-                              all of them on DOMContentLoaded
-    EF.resetAllWidgets()    — reset every active widget back to defaults
-    EF.getAllWidgetStates() — snapshot every widget's state for debugging
-                              or future state-restoration
-
-Existing widgets keep their closure-based logic unchanged; each is wrapped
-in a _SectionAdapter that extends EF.CalculatorKernel so the new lifecycle
-works end-to-end without rewriting the inside of every calculator. New
-widgets should subclass EF.CalculatorKernel directly.
+📖 Architecture & maintenance guide (Widget lifecycle, registry, lazy chart
+manager, bookmark persistence, soft warnings, data islands, "how to add a new
+widget"):
+       _data/references/electronics/README.md
 =================================================================================
 {%- endcomment -%}
 
@@ -84,7 +67,7 @@ widgets should subclass EF.CalculatorKernel directly.
     </header>
 
     {%- comment -%}
-      ========== Batch 9.8: page-level chrome ==========
+      ========== Page-level chrome ==========
       Sticky table of contents (right side, desktop-only), floating Reset All
       pill (bottom-right, post-hero), and a last-updated footer at the very
       bottom of the page. All driven by the EF.Widget lifecycle.
@@ -1197,10 +1180,10 @@ widgets should subclass EF.CalculatorKernel directly.
           </div>
 
           {%- comment -%}
-            Batch 8: common-values preset row. Each button preloads the
-            decoder bands for a frequently encountered hobby resistor so
-            visitors can hit the value they recognise in one click instead
-            of clicking through bands. Click handler lives in
+            Common-values preset row. Each button preloads the decoder
+            bands for a frequently encountered hobby resistor so visitors
+            can hit the value they recognise in one click instead of
+            clicking through bands. Click handler lives in
             initResistorColorDecoder (electronics-components.js).
           {%- endcomment -%}
           <div class="electronics-rcd-presets" id="electronics-rcd-presets"
@@ -1225,7 +1208,7 @@ widgets should subclass EF.CalculatorKernel directly.
                role="group" aria-label="Resistor color bands"></div>
 
           {%- comment -%}
-            Live resistor preview (Batch 9.8). The SVG is populated by the
+            Live resistor preview. The SVG is populated by the
             initLiveResistorPreview widget — which watches the bands
             container via MutationObserver — so it doesn't need to reach
             inside the decoder's closure.
@@ -1251,10 +1234,9 @@ widgets should subclass EF.CalculatorKernel directly.
           </div>
 
           {%- comment -%}
-            CSS fallback bar (Batch 9.8). Always rendered; hidden via
-            .is-hidden when the user opts to show the Chart.js comparison.
-            Bars are sized at run-time by initToleranceChartToggle to scale
-            against ±20%.
+            CSS fallback bar. Always rendered; hidden via .is-hidden when
+            the user opts to show the Chart.js comparison. Bars are sized
+            at run-time by initToleranceChartToggle to scale against ±20%.
           {%- endcomment -%}
           <button type="button"
                   class="electronics-rcd-chart-toggle"
@@ -1958,7 +1940,7 @@ widgets should subclass EF.CalculatorKernel directly.
       </div>
     </section>
 
-    {%- comment -%} ========== Last-updated footer (Batch 9.8) ========== {%- endcomment -%}
+    {%- comment -%} ========== Last-updated footer ========== {%- endcomment -%}
     <footer class="electronics-footer" role="contentinfo">
       <span>
         Last updated <time datetime="2026-05-08"><strong>2026-05-08</strong></time>
@@ -1971,10 +1953,11 @@ widgets should subclass EF.CalculatorKernel directly.
 </section>
 
 {%- comment -%}
-  Modular bundle (Intermission Batch 2). Each file is its own IIFE that
-  bails silently on any page without `.electronics-page`, so loading them
-  site-wide is safe. Order matters: utils → widget-core (creates EF) →
-  per-section files (register their widgets) → entry (mounts everything).
+  Modular bundle. Each file is its own IIFE that bails silently on any
+  page without `.electronics-page`, so loading them site-wide is safe.
+  Order matters: utils → widget-core (creates EF) → per-section files
+  (register their widgets) → entry (mounts everything). See
+  _data/references/electronics/README.md for the full architecture guide.
 {%- endcomment -%}
 <script src="{{ '/assets/js/electronics-utils.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/electronics-widget-core.js' | relative_url }}" defer></script>

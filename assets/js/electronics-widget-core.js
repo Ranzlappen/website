@@ -5,6 +5,13 @@
    Second file of the modular electronics-fundamentals JS bundle. Depends on
    electronics-utils.js (must run first — it creates window.ElectronicsFundamentals).
 
+   📖 Architecture & maintenance guide:
+        _data/references/electronics/README.md
+      Read it before extending the framework — it documents the Widget
+      lifecycle, registry, lazy-chart contract, bookmark persistence,
+      soft-warning thresholds, theme sync, data islands, and the
+      "how to add a new widget" walkthrough.
+
    Exposes on EF:
      * EF.Widget                — base class with mount/unmount/reset/
                                   getState/toJSON/destroy/addCleanup

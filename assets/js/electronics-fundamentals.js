@@ -10,9 +10,11 @@
      1. Mount every registered widget via EF.mountAllWidgets() (which also
         runs EF.syncAllWidgetThemes() to close the dark-mode safety net).
      2. Restore any URL-hash bookmark via EF.Bookmark.restoreFromHash().
-     3. Log a summary to the console.
 
-   The whole modular bundle in load order:
+   📖 Architecture & maintenance guide:
+        _data/references/electronics/README.md
+
+   Bundle load order (each file is its own IIFE, safe to load on any page):
      1. electronics-utils.js                 (utilities + EF namespace)
      2. electronics-widget-core.js           (Widget/Kernel/registry/Lazy/Bookmark/ChartJS)
      3. electronics-quick-wheel.js           (Section 1)
@@ -40,9 +42,6 @@
     // After mount, attempt to restore any state encoded in the URL hash.
     // Widgets that expose restoreState() pick up the values; others ignore.
     try { EF.Bookmark.restoreFromHash(); } catch (_) { /* ignore */ }
-    var count = (EF._instances && EF._instances.length) || 0;
-    // eslint-disable-next-line no-console
-    console.log('✅ Electronics Fundamentals JS initialized — ' + count + ' widgets mounted');
   }
 
   if (document.readyState === 'loading') {
