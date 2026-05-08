@@ -1050,14 +1050,14 @@
       });
       row.appendChild(btn);
 
-      // ----- 🔗 Share — Batch 8: opens a popup with the URL pre-selected
-      // for copy-paste AND a small QR code. Bookmark stays the "I'll come
-      // back to this myself" flow; Share is "send to a friend / phone".
+      // ----- 🔗 Share — saves state and copies the resulting URL to the
+      // clipboard. Different from Bookmark: this is the "send-to-a-friend"
+      // flow, while Bookmark is the "I'll come back to this myself" flow.
       var shareBtn = document.createElement('button');
       shareBtn.type = 'button';
       shareBtn.className = 'electronics-calculator__reset electronics-share-btn';
       shareBtn.textContent = '🔗 Share';
-      shareBtn.setAttribute('aria-label', 'Share current ' + name + ' state — copy URL or scan QR');
+      shareBtn.setAttribute('aria-label', 'Copy a shareable URL with the current ' + name + ' state');
       shareBtn.addEventListener('click', function () {
         var entry = findWidgetEntry(name);
         if (!entry || typeof entry.getState !== 'function') return;
@@ -1069,66 +1069,10 @@
           setTimeout(function () { shareBtn.textContent = '🔗 Share'; }, 2200);
           return;
         }
-        var url = window.location.href;
-        // Body content for the modal: pre-selected URL input + QR canvas.
-        var body = document.createElement('div');
-        body.className = 'electronics-share-popup';
-
-        var popupRow = document.createElement('div');
-        popupRow.className = 'electronics-share-popup__row';
-
-        // QR — falls back to a "scan via URL" hint if generation fails
-        // (e.g. URL too long for v1-9 byte mode).
-        var qrWrap = document.createElement('div');
-        qrWrap.className = 'electronics-share-popup__qr';
-        var qr = null;
-        try { qr = EF.makeQrCanvas(url, 4); } catch (_) { qr = null; }
-        if (qr) qrWrap.appendChild(qr);
-        else    qrWrap.textContent = 'QR unavailable for this URL length';
-
-        var urlBox = document.createElement('div');
-        urlBox.className = 'electronics-share-popup__url';
-        var urlInput = document.createElement('input');
-        urlInput.type = 'text';
-        urlInput.readOnly = true;
-        urlInput.value = url;
-        urlInput.setAttribute('aria-label', 'Shareable URL');
-        urlInput.addEventListener('focus', function () { urlInput.select(); });
-
-        var copyBtn = document.createElement('button');
-        copyBtn.type = 'button';
-        copyBtn.className = 'electronics-calculator__reset';
-        copyBtn.textContent = 'Copy';
-        copyBtn.addEventListener('click', function () {
-          EF.copyToClipboard(url).then(function (ok) {
-            copyBtn.textContent = ok ? '✓ Copied' : '⚠ Copy failed';
-            setTimeout(function () { copyBtn.textContent = 'Copy'; }, 1600);
-          });
+        EF.copyToClipboard(window.location.href).then(function (ok) {
+          shareBtn.textContent = ok ? '✓ URL copied' : '⚠ Copy failed';
+          setTimeout(function () { shareBtn.textContent = '🔗 Share'; }, 2200);
         });
-        urlBox.appendChild(urlInput);
-        urlBox.appendChild(copyBtn);
-
-        popupRow.appendChild(qrWrap);
-        popupRow.appendChild(urlBox);
-        body.appendChild(popupRow);
-
-        var hint = document.createElement('p');
-        hint.className = 'electronics-share-popup__hint';
-        hint.textContent = qr
-          ? 'Scan the QR with a phone, or copy the URL above. The state is encoded in the # of the URL — bookmarks and history capture it automatically.'
-          : 'Copy the URL above to share. The state is encoded in the # of the URL.';
-        body.appendChild(hint);
-
-        EF.confirmModal({
-          title: '🔗 Share this ' + name.replace(/-/g, ' '),
-          bodyNode: body,
-          variant: 'info',
-          confirmText: 'Done',
-          hideCancel: true
-        });
-        // Auto-select the URL on open so the user can hit ⌘C / Ctrl+C
-        // without an extra click.
-        setTimeout(function () { try { urlInput.select(); } catch (_) {} }, 50);
       });
       row.appendChild(shareBtn);
     });

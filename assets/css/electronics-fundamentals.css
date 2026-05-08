@@ -2430,57 +2430,7 @@
   .electronics-modal-backdrop, .electronics-modal { animation: none; }
 }
 
-/* ---- 8.5 — Share popup card (URL + QR) ---- */
-.electronics-share-popup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-.electronics-share-popup__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-md);
-  align-items: center;
-}
-.electronics-share-popup__qr {
-  flex: 0 0 auto;
-  background: #fff;
-  padding: 0.5rem;
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--c-border);
-  /* QR generator paints onto a canvas element inside this wrapper. */
-}
-.electronics-share-popup__qr canvas {
-  display: block;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-}
-.electronics-share-popup__url {
-  flex: 1 1 14rem;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-.electronics-share-popup__url input {
-  flex: 1 1 auto;
-  min-width: 0;
-  background: var(--c-surface-alt);
-  color: var(--c-text);
-  border: 1px solid var(--c-border);
-  border-radius: var(--border-radius-sm);
-  padding: 0.35rem 0.5rem;
-  font: inherit;
-  font-size: 0.82rem;
-  font-family: var(--f-mono);
-}
-.electronics-share-popup__hint {
-  font-size: 0.82rem;
-  color: var(--c-text-muted);
-  margin: 0;
-}
-
-/* ---- 8.6 — Print: hide volatile chrome ---- */
+/* ---- 8.5 — Print: hide volatile chrome ---- */
 @media print {
   .electronics-help-trigger,
   .electronics-modal-backdrop { display: none !important; }
