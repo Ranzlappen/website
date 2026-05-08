@@ -312,15 +312,333 @@ Styles live in /assets/css/electronics-fundamentals.css and behaviour in
     </section>
 
     {%- comment -%} ========== Section 2: Core Formulas & Laws ========== {%- endcomment -%}
-    <section class="electronics-section" id="electronics-formulas">
-      <h2 class="electronics-section__title">Core Formulas &amp; Laws</h2>
+    <section class="electronics-section" id="electronics-formulas" aria-labelledby="electronics-formulas-heading">
+      <h2 class="electronics-section__title" id="electronics-formulas-heading">Core Formulas &amp; Laws</h2>
       <p class="electronics-section__intro">
-        Ohm's law, Kirchhoff's laws, power formulas, and the AC equivalents —
-        the algebra behind every circuit on this page.
+        The algebra behind every circuit on this page. Click <em>Try it</em> on any
+        card to load that formula&rsquo;s example into the Quick Wheel above.
       </p>
+
+      {%- comment -%}
+        Inline scoped styles for this section only — keeps single-section
+        flourishes out of the shared electronics-fundamentals.css.
+      {%- endcomment -%}
+      <style>
+        .electronics-formula-card { gap: 0.6rem; }
+        .electronics-formula-card__equation { line-height: 1.55; }
+        .electronics-formula-card__equation .alt {
+          display: block;
+          font-size: 0.92rem;
+          opacity: 0.8;
+          margin-top: 0.2rem;
+        }
+        .electronics-formula-card__description,
+        .electronics-formula-card__example {
+          margin: 0;
+          font-size: 0.88rem;
+          line-height: 1.55;
+          color: var(--c-text-muted);
+        }
+        .electronics-formula-card__example {
+          color: var(--c-text);
+          padding-top: 0.45rem;
+          border-top: 1px solid var(--c-border-light);
+        }
+        .electronics-formula-card__example strong {
+          display: inline-block;
+          margin-right: 0.4rem;
+          color: var(--c-accent);
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          font-size: 0.7rem;
+          font-weight: 700;
+        }
+        .electronics-formula-card__try {
+          align-self: flex-start;
+          margin-top: auto;
+        }
+        .electronics-formula-card__try::after { content: " →"; }
+
+        .electronics-formulas-notes {
+          margin-top: var(--space-lg);
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
+          border-radius: var(--border-radius);
+        }
+        .electronics-formulas-notes > summary {
+          padding: var(--space-md) var(--space-lg);
+          font-weight: 600;
+          color: var(--c-text);
+          cursor: pointer;
+          list-style: none;
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+        }
+        .electronics-formulas-notes > summary::marker { display: none; }
+        .electronics-formulas-notes > summary::-webkit-details-marker { display: none; }
+        .electronics-formulas-notes > summary::after {
+          content: "▾";
+          margin-left: auto;
+          font-size: 0.8rem;
+          color: var(--c-text-muted);
+          transition: transform var(--transition-fast);
+        }
+        .electronics-formulas-notes[open] > summary::after { transform: rotate(180deg); }
+        .electronics-formulas-notes[open] > summary { border-bottom: 1px solid var(--c-border-light); }
+        .electronics-formulas-notes__body { padding: var(--space-md) var(--space-lg) var(--space-lg); }
+        .electronics-formulas-notes__body ul { margin: 0; padding-left: 1.2rem; }
+        .electronics-formulas-notes__body li {
+          margin: 0.45rem 0;
+          line-height: 1.6;
+          color: var(--c-text);
+          font-size: 0.92rem;
+        }
+        .electronics-formulas-notes__body li code,
+        .electronics-formulas-notes__body li var {
+          background: var(--c-code-bg);
+          border: 1px solid var(--c-border-light);
+          border-radius: var(--border-radius-sm);
+          padding: 0.05rem 0.35rem;
+          font-family: var(--f-mono);
+          font-size: 0.85rem;
+          font-style: normal;
+          color: var(--c-accent);
+        }
+
+        @media print {
+          .electronics-formula-card__try { display: none; }
+          .electronics-formulas-notes { break-inside: avoid; }
+          .electronics-formulas-notes[open] > summary,
+          .electronics-formulas-notes__body { background: #fff; color: #111; }
+        }
+      </style>
+
       <div class="electronics-formulas" id="electronics-formulas-grid">
-        {%- comment -%} TODO: Batch 5 will fill the formulas grid here. {%- endcomment -%}
+
+        {%- comment -%} ----- Card 1: Ohm's Law ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="ohms-law">
+          <h3 class="electronics-formula-card__name">Ohm&rsquo;s Law</h3>
+          <div class="electronics-formula-card__equation">
+            V = I &middot; R
+            <span class="alt">I = V &divide; R</span>
+            <span class="alt">R = V &divide; I</span>
+          </div>
+          <p class="electronics-formula-card__description">
+            The foundational DC relationship — voltage, current, and resistance lock each
+            other in. Every other formula on this page builds on it.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> A 9&nbsp;V battery across 100&nbsp;&Omega; drives 90&nbsp;mA through the wire.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Ohm&rsquo;s Law"
+                  data-try-v="9" data-try-r="100"
+                  aria-label="Load Ohm's Law example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 2: Electrical Power ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="power">
+          <h3 class="electronics-formula-card__name">Electrical Power</h3>
+          <div class="electronics-formula-card__equation">
+            P = V &middot; I
+            <span class="alt">P = I<sup>2</sup> &middot; R</span>
+            <span class="alt">P = V<sup>2</sup> &divide; R</span>
+          </div>
+          <p class="electronics-formula-card__description">
+            How fast a circuit converts electrical energy into heat, light, or motion. One
+            watt is one joule per second.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> A USB port at 5&nbsp;V supplying 2&nbsp;A delivers 10&nbsp;W &mdash; enough to warm a small heater.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Electrical Power"
+                  data-try-v="5" data-try-i="2"
+                  aria-label="Load Electrical Power example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 3: KCL ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="kcl">
+          <h3 class="electronics-formula-card__name">Kirchhoff&rsquo;s Current Law (KCL)</h3>
+          <div class="electronics-formula-card__equation">
+            &Sigma; I<sub>in</sub> = &Sigma; I<sub>out</sub>
+            <span class="alt">at every node</span>
+          </div>
+          <p class="electronics-formula-card__description">
+            Charge can&rsquo;t accumulate at a node, so all the current entering must leave it.
+            The accounting trick that lets you solve any branched circuit.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> A node fed by 100&nbsp;mA from one branch and 50&nbsp;mA from another has 150&nbsp;mA flowing out the third leg.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="KCL node"
+                  data-try-v="12" data-try-i="0.15"
+                  aria-label="Load KCL example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 4: KVL ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="kvl">
+          <h3 class="electronics-formula-card__name">Kirchhoff&rsquo;s Voltage Law (KVL)</h3>
+          <div class="electronics-formula-card__equation">
+            &Sigma; V<sub>loop</sub> = 0
+            <span class="alt">&Sigma; V<sub>rises</sub> = &Sigma; V<sub>drops</sub></span>
+          </div>
+          <p class="electronics-formula-card__description">
+            Walk a closed loop and the voltage rises must equal the voltage drops. Pick a
+            direction, sum the signs &mdash; the loop closes back on itself.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> In a 9&nbsp;V battery + 6&nbsp;&Omega; + 3&nbsp;&Omega; series loop, the resistors drop 6&nbsp;V and 3&nbsp;V respectively, summing to the 9&nbsp;V supply.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="KVL loop"
+                  data-try-v="9" data-try-r="9"
+                  aria-label="Load KVL example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 5: Resistors in Series ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="resistors-series">
+          <h3 class="electronics-formula-card__name">Resistors in Series</h3>
+          <div class="electronics-formula-card__equation">
+            R<sub>total</sub> = R<sub>1</sub> + R<sub>2</sub> + &hellip; + R<sub>n</sub>
+          </div>
+          <p class="electronics-formula-card__description">
+            Resistors in series share the same current; their resistances add. Voltages
+            divide proportionally to each resistance.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> 100&nbsp;&Omega; + 200&nbsp;&Omega; in series with a 12&nbsp;V supply equals 300&nbsp;&Omega; total &rarr; 40&nbsp;mA through the chain.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Series resistors"
+                  data-try-v="12" data-try-r="300"
+                  aria-label="Load series-resistor example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 6: Resistors in Parallel ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="resistors-parallel">
+          <h3 class="electronics-formula-card__name">Resistors in Parallel</h3>
+          <div class="electronics-formula-card__equation">
+            1 &divide; R<sub>total</sub> = 1&divide;R<sub>1</sub> + 1&divide;R<sub>2</sub> + &hellip;
+            <span class="alt">two-resistor: R = (R<sub>1</sub> &middot; R<sub>2</sub>) &divide; (R<sub>1</sub> + R<sub>2</sub>)</span>
+          </div>
+          <p class="electronics-formula-card__description">
+            Resistors in parallel share the same voltage; reciprocals add. Currents split
+            inversely with each resistance &mdash; the smaller resistor carries more.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> 100&nbsp;&Omega; &Vert; 200&nbsp;&Omega; = 66.7&nbsp;&Omega;. At 5&nbsp;V the parallel pair draws 75&nbsp;mA total.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Parallel resistors"
+                  data-try-v="5" data-try-r="66.67"
+                  aria-label="Load parallel-resistor example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 7: Capacitors in Series ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="capacitors-series">
+          <h3 class="electronics-formula-card__name">Capacitors in Series</h3>
+          <div class="electronics-formula-card__equation">
+            1 &divide; C<sub>total</sub> = 1&divide;C<sub>1</sub> + 1&divide;C<sub>2</sub> + &hellip;
+            <span class="alt">opposite of resistors</span>
+          </div>
+          <p class="electronics-formula-card__description">
+            Series caps store the same charge but split the voltage; their reciprocals add.
+            Useful for raising the working voltage when you only have low-V parts.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> Two 100&nbsp;&micro;F caps in series &asymp; 50&nbsp;&micro;F. Charging through 10&nbsp;k&Omega; from 12&nbsp;V draws 1.2&nbsp;mA at <var>t</var>=0.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Series capacitors RC"
+                  data-try-v="12" data-try-r="10000"
+                  aria-label="Load series-capacitor RC example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 8: Capacitors in Parallel ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="capacitors-parallel">
+          <h3 class="electronics-formula-card__name">Capacitors in Parallel</h3>
+          <div class="electronics-formula-card__equation">
+            C<sub>total</sub> = C<sub>1</sub> + C<sub>2</sub> + &hellip; + C<sub>n</sub>
+          </div>
+          <p class="electronics-formula-card__description">
+            Parallel caps share the voltage and accumulate capacitance &mdash; the canonical
+            decoupling stack on every PCB power rail.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> 10&nbsp;&micro;F + 100&nbsp;nF + 1&nbsp;nF in parallel covers low- to high-frequency noise on a single 5&nbsp;V supply.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Parallel capacitors decoupling"
+                  data-try-v="5" data-try-r="100"
+                  aria-label="Load parallel-capacitor decoupling example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
       </div>
+
+      <details class="electronics-formulas-notes">
+        <summary>Derivations &amp; Notes</summary>
+        <div class="electronics-formulas-notes__body">
+          <ul>
+            <li>
+              <strong>Ohm&rsquo;s Law assumes linear, &ldquo;ohmic&rdquo; components.</strong>
+              Diodes, LEDs, transistors, and most semiconductors don&rsquo;t follow it &mdash;
+              their <var>V/I</var> curves are non-linear. Treat them with their datasheet
+              equations or a piecewise model instead.
+            </li>
+            <li>
+              <strong>The DC power formulas need RMS values for AC.</strong>
+              For AC loads, use <code>P<sub>avg</sub> = V<sub>rms</sub> &middot; I<sub>rms</sub> &middot; cos&nbsp;&phi;</code>.
+              The <code>cos&nbsp;&phi;</code> term is the <em>power factor</em> &mdash; reactive loads
+              (motors, transformers, LED drivers) need it explicitly.
+            </li>
+            <li>
+              <strong>KCL and KVL hold rigorously at low frequencies.</strong>
+              At RF, parasitic capacitance and inductance blur the &ldquo;node&rdquo; and
+              &ldquo;loop&rdquo; abstractions; above ~10&nbsp;MHz on a hand-drawn schematic, treat
+              them as approximations and reach for transmission-line or S-parameter models.
+            </li>
+            <li>
+              <strong>Series/parallel formulas assume ideal parts.</strong>
+              Real resistors carry parasitic inductance; real capacitors carry equivalent
+              series resistance (<var>ESR</var>) and inductance (<var>ESL</var>). Above a
+              few MHz, swap the textbook equations for an RLC equivalent circuit.
+            </li>
+            <li>
+              <strong>Capacitor formulas are the opposite of resistors.</strong>
+              Reciprocals add in <em>series</em> for caps; values add in <em>parallel</em>.
+              Mnemonic: caps store energy in dielectric area, so adding plate area in
+              parallel &equals; more capacitance.
+            </li>
+          </ul>
+        </div>
+      </details>
     </section>
 
     {%- comment -%} ========== Section 3: Interactive Calculators ========== {%- endcomment -%}

@@ -616,6 +616,34 @@
     });
 
     // ----------------------------------------------------------------------
+    // External API — other sections (e.g. the Formulas "Try it" buttons) can
+    // load a preset by calling EF.widgets[…].setValues({V: 9, R: 100}).
+    //
+    // Resets state entirely so any computed fields don't masquerade as user
+    // input, then writes the supplied 1-2 known values and recomputes. By
+    // default scrolls the wheel into view so the visitor sees the result;
+    // pass { scroll: false } to suppress.
+    // ----------------------------------------------------------------------
+    function setExternalValues(values, opts) {
+      opts = opts || {};
+      if (!values || typeof values !== 'object') return;
+      userOrder = [];
+      userValues = {};
+      QTY.forEach(function (n) { inputs[n].value = ''; });
+      Object.keys(values).forEach(function (n) {
+        if (!inputs[n]) return;
+        var num = parseFloat(values[n]);
+        if (!isFinite(num)) return;
+        inputs[n].value = String(num);
+        trackUserInput(n, num);
+      });
+      recompute();
+      if (opts.scroll !== false && section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // ----------------------------------------------------------------------
     // Widget registration — the central theme/resize plumbing handles the
     // rest, so the chart re-skins on theme toggle and resizes with viewport
     // changes without per-widget listeners.
@@ -623,17 +651,102 @@
     EF.widgets.push({
       name: 'quick-reference-wheel',
       onResize: function () { if (chart) chart.resize(); },
-      onThemeChange: applyChartTheme
+      onThemeChange: applyChartTheme,
+      setValues: setExternalValues
     });
 
     // Initial state
     recompute();
   }
 
-  function initFormulas() {
+  // ==========================================================================
+  // Section 2 — Core Formulas & Laws
+  //   Wires the "Try it" button on every formula card to the Quick Reference
+  //   Wheel. Each button declares its preset via data-try-* attributes
+  //   (data-try-v / data-try-i / data-try-r / data-try-p); the click handler
+  //   reads them, hands the resulting object to the wheel widget's
+  //   setValues() method, and lets the wheel handle the recompute + scroll.
+  //
+  //   Falls back to a direct DOM-event dispatch when the wheel widget hasn't
+  //   registered yet (e.g. if Chart.js fails to load and the wheel exits
+  //   early), so Try-it remains useful even in degraded states.
+  // ==========================================================================
+  function initFormulasSection() {
     var grid = document.getElementById('electronics-formulas-grid');
     if (!grid) return;
-    // TODO: Batch 5 will render formula cards from EF.data.formulas here.
+
+    var buttons = grid.querySelectorAll('button[data-try-button]');
+    if (!buttons.length) return;
+
+    var QTY = ['V', 'I', 'R', 'P'];
+
+    function findWheelWidget() {
+      for (var i = 0; i < EF.widgets.length; i++) {
+        if (EF.widgets[i].name === 'quick-reference-wheel') return EF.widgets[i];
+      }
+      return null;
+    }
+
+    function readPreset(btn) {
+      var out = {};
+      for (var i = 0; i < QTY.length; i++) {
+        var raw = btn.getAttribute('data-try-' + QTY[i].toLowerCase());
+        if (raw === null || raw === '') continue;
+        var num = parseFloat(raw);
+        if (isFinite(num)) out[QTY[i]] = num;
+      }
+      return out;
+    }
+
+    function fallbackFill(values) {
+      // Direct DOM path — fire input events so the wheel's own listeners
+      // rebuild userOrder / userValues correctly.
+      QTY.forEach(function (n) {
+        var input = document.getElementById('ef-wheel-' + n);
+        if (!input) return;
+        input.value = '';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      Object.keys(values).forEach(function (n) {
+        var input = document.getElementById('ef-wheel-' + n);
+        if (!input) return;
+        input.value = String(values[n]);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      var wheelSection = document.getElementById('electronics-quick-reference');
+      if (wheelSection) wheelSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function handleClick(btn) {
+      var label = btn.getAttribute('data-try-label') || btn.textContent.trim();
+      var preset = readPreset(btn);
+      var keys = Object.keys(preset);
+
+      if (keys.length < 2) {
+        // eslint-disable-next-line no-console
+        console.warn('🧮 Try-it: "' + label + '" needs at least two of V/I/R/P; got', preset);
+        return;
+      }
+
+      var wheel = findWheelWidget();
+      if (wheel && typeof wheel.setValues === 'function') {
+        wheel.setValues(preset, { scroll: true });
+      } else {
+        fallbackFill(preset);
+      }
+
+      // eslint-disable-next-line no-console
+      console.log('🧮 Try-it: loaded "' + label + '" into the Quick Wheel →', preset);
+    }
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () { handleClick(btn); });
+    });
+
+    // Future hook: if formula cards ever need theme-aware rendering (e.g.
+    // syntax-highlighted equations), the registry-based theme listener is
+    // already in place. For now the cards rely on CSS variables only, so no
+    // onThemeChange is needed.
   }
 
   function initCalculators() {
@@ -669,7 +782,7 @@
   // ==========================================================================
   function boot() {
     initQuickReferenceWheel();
-    initFormulas();
+    initFormulasSection();
     initCalculators();
     initComponentCharts();
     initDesignGuides();
