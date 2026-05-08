@@ -844,6 +844,18 @@ DATE: 2026-04-02
     return s;
   });
 
+  // Wrap each h2's children in a span so .is-stuck can shrink the title via
+  // `transform: scale()` without changing the h2's box height. Shrinking
+  // font-size on the h2 itself reflows every sentinel below it; on a tight
+  // boundary that can push the next sentinel across the threshold and cause
+  // the stuck banner to flicker between two h2s.
+  headings.forEach(function (h) {
+    var span = document.createElement('span');
+    span.className = 'sticky-h2-content';
+    while (h.firstChild) span.appendChild(h.firstChild);
+    h.appendChild(span);
+  });
+
   var passedSet = new Set();
 
   function applyState() {
