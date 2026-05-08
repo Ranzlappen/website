@@ -220,17 +220,22 @@
 }
 
 /* ---- Table ---- */
-/* The wrapper is the scroll container for both axes — `overflow: auto` plus
-   a `max-height` cap. With `position: sticky` on the thead's <th> elements,
-   the thead pins to the wrapper's top while the user scrolls within. Trying
-   to make the thead pin to the page viewport instead requires the wrapper
-   to NOT be a sticky-y container, but Chromium treats `overflow-x: auto;
-   overflow-y: clip` as a y-axis sticky container too — which then reads
-   `top: <value>` as an inset constraint and shifts the thead down from its
-   natural position by that amount, dropping it below the first row. */
+/* The wrapper is the scroll container for both axes (`overflow: auto` plus
+   a `max-height` cap), AND is itself `position: sticky` so it pins to the
+   page viewport below the header + controls bar. The thead inside is
+   `position: sticky; top: 0` relative to the wrapper, so once the wrapper
+   pins, the thead visually pins to the viewport just below the pills —
+   matching the requested "thead sticky like the pills" behaviour.
+
+   We deliberately don't try `overflow-x: auto; overflow-y: clip` to make
+   the thead resolve against the viewport directly: Chromium still treats
+   that combo as a y-axis sticky container and reads `top: <offset>` as an
+   inset, shifting the thead DOWN below the first data row (see PR #220
+   revert acf6923). The wrapper-sticky pattern sidesteps that bug. */
 .spectrum-table-wrapper {
-  position: relative;
-  max-height: calc(100vh - 16rem);
+  position: sticky;
+  top: calc(var(--header-height, 3.75rem) + 3.25rem);
+  max-height: calc(100vh - var(--header-height, 3.75rem) - 4.25rem);
   overflow: auto;
   border: 1px solid var(--c-border);
   border-radius: var(--border-radius);
@@ -253,6 +258,9 @@
 
 .spectrum-table thead th {
   position: sticky;
+  /* `top: 0` relative to the wrapper. The wrapper itself is sticky to the
+     viewport (see `.spectrum-table-wrapper`), so once the wrapper pins,
+     the thead visually pins to the viewport just below the controls bar. */
   top: 0;
   z-index: 2;
   background: var(--c-surface-alt);
@@ -264,7 +272,7 @@
   text-transform: uppercase;
   padding: 1.15rem 1rem 0.95rem;
   border-bottom: 2px solid var(--c-border);
-  white-space: nowrap;
+  white-space: normal;
   /* Subtle drop-shadow gives the pinned header depth as you scroll the table. */
   box-shadow: 0 2px 6px var(--c-card-shadow);
 }
@@ -304,8 +312,15 @@
 /* Frequency-Range thead label has a desktop-only full form and a mobile-only
    ν (Greek nu, the physics symbol for frequency) abbreviation. The visible
    variant swaps via the @media block below; both stay accessible because the
-   full label is sr-clipped on mobile rather than display:none'd. */
-.spectrum-table .col-freq__short { display: none; }
+   full label is sr-clipped on mobile rather than display:none'd.
+
+   `text-transform: none` overrides the thead's uppercase rule — uppercasing
+   ν (U+03BD) yields Ν (U+039D, capital nu), which renders identically to a
+   Latin "N" and loses the physics symbolism. */
+.spectrum-table .col-freq__short {
+  display: none;
+  text-transform: none;
+}
 
 /* Per-column widths */
 .spectrum-table .col-freq   { min-width: 9rem; width: 9rem; }
@@ -487,7 +502,10 @@
      table-layout: fixed so per-column widths are actually enforced (auto
      mode treats them as hints and reflates columns to fit content).        */
   .spectrum-table-wrapper {
-    max-height: calc(100vh - 12rem);
+    /* Mobile controls stack vertically (pills row + search row), so the
+       wrapper's sticky top + max-height need more clearance than desktop. */
+    top: calc(var(--header-height, 3.75rem) + 5.25rem);
+    max-height: calc(100vh - var(--header-height, 3.75rem) - 6.25rem);
     scroll-snap-type: x mandatory;
     scroll-padding-left: 5.5rem;             /* matches col-freq width */
   }
