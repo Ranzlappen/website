@@ -460,6 +460,53 @@
       setWarning('Mini-chart unavailable (Chart.js blocked or offline). Decoder still works.');
     });
 
+    // Batch 8 — common-values preset row. Each button carries a comma-
+    // separated `data-rcd-preset` of color keys (4 or 5 colors). Clicking
+    // applies the preset by setting the band-mode radio, swapping colors,
+    // rebuilding bands, and recomputing.
+    var presetRoot = document.getElementById('electronics-rcd-presets');
+    if (presetRoot) {
+      var presetBtns = presetRoot.querySelectorAll('.electronics-rcd-presets__btn');
+      function syncPresetActive() {
+        var current = bandColors.join(',');
+        Array.prototype.forEach.call(presetBtns, function (b) {
+          var match = (b.getAttribute('data-rcd-preset') || '') === current;
+          b.classList.toggle('is-active', match);
+          b.setAttribute('aria-pressed', match ? 'true' : 'false');
+        });
+      }
+      Array.prototype.forEach.call(presetBtns, function (btn) {
+        btn.setAttribute('aria-pressed', 'false');
+        btn.addEventListener('click', function () {
+          var seq = (btn.getAttribute('data-rcd-preset') || '').split(',')
+            .map(function (s) { return s.trim(); }).filter(Boolean);
+          if (seq.length !== 4 && seq.length !== 5) return;
+          // Validate every color exists in COLORS — drop the apply silently
+          // if the data island doesn't define one of them (defensive).
+          for (var i = 0; i < seq.length; i++) {
+            if (!COLORS[seq[i]]) {
+              setWarning('Preset references unknown color "' + seq[i] + '".');
+              return;
+            }
+          }
+          bandCount = seq.length;
+          bandColors = seq.slice();
+          // Sync the band-count radio so the rest of the widget agrees.
+          Array.prototype.forEach.call(modeRadios, function (r) {
+            r.checked = (r.value === String(bandCount));
+          });
+          buildBands();
+          recompute();
+          syncPresetActive();
+        });
+      });
+      // Wrap recompute to keep the active highlight in sync after every
+      // change (manual swatch click, reset, restoreState, etc.).
+      var _origRecompute = recompute;
+      recompute = function () { _origRecompute(); syncPresetActive(); };
+      syncPresetActive();
+    }
+
     EF.widgets.push({
       name: 'resistor-color-decoder',
       onResize: function () { if (chart) chart.resize(); },
@@ -845,14 +892,27 @@
     if (!btn) return;
     var hero = document.querySelector('.electronics-hero');
     var observer = null;
+    var firstReveal = true;
+    function reveal(visible) {
+      // The hero observer reports "visible" while the hero IS on-screen, so
+      // we hide the pill in that case and reveal otherwise.
+      btn.hidden = visible;
+      if (!visible && firstReveal) {
+        firstReveal = false;
+        // Subtle pulse the FIRST time the pill appears so the user notices
+        // the new global control without it being annoying. CSS handles the
+        // animation (.is-pulsing) and respects prefers-reduced-motion.
+        btn.classList.add('is-pulsing');
+        setTimeout(function () { btn.classList.remove('is-pulsing'); }, 3200);
+      }
+    }
     if (!hero || typeof IntersectionObserver === 'undefined') {
       // Fallback: always visible so the button isn't lost.
-      btn.hidden = false;
+      reveal(false);
     } else {
       observer = new IntersectionObserver(function (entries) {
-        // Hero out of viewport → show the pill, otherwise hide it.
         var visible = entries[0] ? entries[0].isIntersecting : true;
-        btn.hidden = visible;
+        reveal(visible);
       }, { threshold: 0 });
       observer.observe(hero);
     }
@@ -891,9 +951,13 @@
   function initBookmarkInjector() {
     // Map: actions row → widget name. We discover the widget name by walking
     // up to the nearest [id^="electronics-"] container and matching against
-    // EF.widgets entries. Falls back to the container's id otherwise.
-    var actionRows = document.querySelectorAll('.electronics-ohms-actions');
-    if (!actionRows.length) return;
+    // EF.widgets entries. Falls back to the container's id otherwise. We
+    // accept BOTH `.electronics-ohms-actions` (the 5 calculator cards) and
+    // `.electronics-wheel-actions` (the Quick Wheel) so the wheel also gets
+    // bookmark + share buttons.
+    var actionRows = document.querySelectorAll(
+      '.electronics-ohms-actions, .electronics-wheel-actions'
+    );
 
     // Container DOM ids ↔ EF.widgets entry names. Kept as an explicit map
     // because the two namespaces don't share clean substrings (e.g. the wheel
@@ -909,6 +973,18 @@
       'electronics-calc-rc':         'rc-timer-calculator',
       'electronics-rcd-card':        'resistor-color-decoder'
     };
+
+    // Pre-register every widget's container with EF.Bookmark so
+    // restoreFromHash can scroll to it even when no bookmark button got
+    // injected (e.g. the wheel before this batch).
+    if (typeof EF.Bookmark.registerContainer === 'function') {
+      Object.keys(ID_TO_WIDGET).forEach(function (id) {
+        var card = document.getElementById(id);
+        if (card) EF.Bookmark.registerContainer(ID_TO_WIDGET[id], card);
+      });
+    }
+
+    if (!actionRows.length) return;
 
     function widgetNameForRow(row) {
       var node = row;
@@ -974,14 +1050,14 @@
       });
       row.appendChild(btn);
 
-      // ----- 🔗 Share — saves AND copies the resulting URL to clipboard.
-      // Different from Bookmark: this is the "send-to-a-friend" flow, while
-      // Bookmark is the "I'll come back to this on my own" flow.
+      // ----- 🔗 Share — Batch 8: opens a popup with the URL pre-selected
+      // for copy-paste AND a small QR code. Bookmark stays the "I'll come
+      // back to this myself" flow; Share is "send to a friend / phone".
       var shareBtn = document.createElement('button');
       shareBtn.type = 'button';
       shareBtn.className = 'electronics-calculator__reset electronics-share-btn';
       shareBtn.textContent = '🔗 Share';
-      shareBtn.setAttribute('aria-label', 'Copy a shareable URL with the current ' + name + ' state');
+      shareBtn.setAttribute('aria-label', 'Share current ' + name + ' state — copy URL or scan QR');
       shareBtn.addEventListener('click', function () {
         var entry = findWidgetEntry(name);
         if (!entry || typeof entry.getState !== 'function') return;
@@ -993,10 +1069,66 @@
           setTimeout(function () { shareBtn.textContent = '🔗 Share'; }, 2200);
           return;
         }
-        EF.copyToClipboard(window.location.href).then(function (ok) {
-          shareBtn.textContent = ok ? '✓ URL copied' : '⚠ Copy failed';
-          setTimeout(function () { shareBtn.textContent = '🔗 Share'; }, 2200);
+        var url = window.location.href;
+        // Body content for the modal: pre-selected URL input + QR canvas.
+        var body = document.createElement('div');
+        body.className = 'electronics-share-popup';
+
+        var popupRow = document.createElement('div');
+        popupRow.className = 'electronics-share-popup__row';
+
+        // QR — falls back to a "scan via URL" hint if generation fails
+        // (e.g. URL too long for v1-9 byte mode).
+        var qrWrap = document.createElement('div');
+        qrWrap.className = 'electronics-share-popup__qr';
+        var qr = null;
+        try { qr = EF.makeQrCanvas(url, 4); } catch (_) { qr = null; }
+        if (qr) qrWrap.appendChild(qr);
+        else    qrWrap.textContent = 'QR unavailable for this URL length';
+
+        var urlBox = document.createElement('div');
+        urlBox.className = 'electronics-share-popup__url';
+        var urlInput = document.createElement('input');
+        urlInput.type = 'text';
+        urlInput.readOnly = true;
+        urlInput.value = url;
+        urlInput.setAttribute('aria-label', 'Shareable URL');
+        urlInput.addEventListener('focus', function () { urlInput.select(); });
+
+        var copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'electronics-calculator__reset';
+        copyBtn.textContent = 'Copy';
+        copyBtn.addEventListener('click', function () {
+          EF.copyToClipboard(url).then(function (ok) {
+            copyBtn.textContent = ok ? '✓ Copied' : '⚠ Copy failed';
+            setTimeout(function () { copyBtn.textContent = 'Copy'; }, 1600);
+          });
         });
+        urlBox.appendChild(urlInput);
+        urlBox.appendChild(copyBtn);
+
+        popupRow.appendChild(qrWrap);
+        popupRow.appendChild(urlBox);
+        body.appendChild(popupRow);
+
+        var hint = document.createElement('p');
+        hint.className = 'electronics-share-popup__hint';
+        hint.textContent = qr
+          ? 'Scan the QR with a phone, or copy the URL above. The state is encoded in the # of the URL — bookmarks and history capture it automatically.'
+          : 'Copy the URL above to share. The state is encoded in the # of the URL.';
+        body.appendChild(hint);
+
+        EF.confirmModal({
+          title: '🔗 Share this ' + name.replace(/-/g, ' '),
+          bodyNode: body,
+          variant: 'info',
+          confirmText: 'Done',
+          hideCancel: true
+        });
+        // Auto-select the URL on open so the user can hit ⌘C / Ctrl+C
+        // without an extra click.
+        setTimeout(function () { try { urlInput.select(); } catch (_) {} }, 50);
       });
       row.appendChild(shareBtn);
     });
@@ -1186,6 +1318,84 @@
     });
   }
 
+  // --------------------------------------------------------------------------
+  // initHelpTrigger — Batch 8 delight. Reveals the "?" help button in the
+  // hero (kept hidden in HTML so it only appears when JS is alive) and
+  // opens a keyboard-shortcuts overlay via EF.confirmModal({ variant:'info',
+  // hideCancel:true, bodyNode }). Keyboard short-cut: Shift+? from anywhere
+  // outside an editable element.
+  // --------------------------------------------------------------------------
+  function initHelpTrigger() {
+    var trigger = document.getElementById('electronics-help-trigger');
+    if (!trigger) return;
+    trigger.hidden = false;
+
+    function buildShortcutList() {
+      // Document the user-facing shortcuts that already exist on this page,
+      // plus the new Shift+? to reopen this overlay. Keep the list small and
+      // accurate — listing nothing is better than listing wrong shortcuts.
+      var entries = [
+        { keys: ['Shift', '?'],         desc: 'Open this shortcut overlay' },
+        { keys: ['Tab'],                desc: 'Cycle through inputs / wheel quadrants / buttons' },
+        { keys: ['Enter', 'Space'],     desc: 'Activate the focused button or wheel quadrant' },
+        { keys: ['Esc'],                desc: 'Dismiss any open dialog (this overlay, Reset All confirm)' },
+        { keys: ['1', '2', '3', '4'],   desc: 'Resistor decoder — focus the corresponding band when one is focused' }
+      ];
+      var dl = document.createElement('dl');
+      dl.className = 'electronics-shortcut-list';
+      entries.forEach(function (e) {
+        var dt = document.createElement('dt');
+        e.keys.forEach(function (k, idx) {
+          if (idx > 0) dt.appendChild(document.createTextNode(' '));
+          var kbd = document.createElement('kbd');
+          kbd.textContent = k;
+          dt.appendChild(kbd);
+        });
+        var dd = document.createElement('dd');
+        dd.textContent = e.desc;
+        dl.appendChild(dt);
+        dl.appendChild(dd);
+      });
+      var hint = document.createElement('p');
+      hint.style.margin = '1rem 0 0';
+      hint.style.fontSize = '0.85rem';
+      hint.style.color = 'var(--c-text-muted)';
+      hint.textContent = 'Tip — every calculator has Bookmark, Share, and Reset buttons; ' +
+        'a global "Reset all" pill appears at the bottom-right after you scroll past the hero.';
+      var wrap = document.createElement('div');
+      wrap.appendChild(dl);
+      wrap.appendChild(hint);
+      return wrap;
+    }
+
+    function openOverlay() {
+      EF.confirmModal({
+        title: 'Keyboard shortcuts & tips',
+        bodyNode: buildShortcutList(),
+        variant: 'info',
+        confirmText: 'Got it',
+        hideCancel: true
+      });
+    }
+
+    trigger.addEventListener('click', openOverlay);
+
+    // Global Shift+? — only when the user isn't typing in an input.
+    function onKey(e) {
+      if (e.key !== '?' || !e.shiftKey) return;
+      var t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      e.preventDefault();
+      openOverlay();
+    }
+    document.addEventListener('keydown', onKey);
+
+    EF.widgets.push({
+      name: 'help-trigger',
+      destroy: function () { document.removeEventListener('keydown', onKey); }
+    });
+  }
+
   EF._registerSection('resistor-color-decoder',  initResistorColorDecoder);
   EF._registerSection('e-series-explorer',       initESeriesExplorer);
   EF._registerSection('design-guides-section',   initDesignGuides);
@@ -1196,4 +1406,5 @@
   EF._registerSection('sticky-toc',              initStickyToc);
   EF._registerSection('floating-reset-all',      initFloatingResetAll);
   EF._registerSection('bookmark-injector',       initBookmarkInjector);
+  EF._registerSection('help-trigger',            initHelpTrigger);
 })();

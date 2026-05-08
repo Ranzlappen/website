@@ -48,6 +48,12 @@ widgets should subclass EF.CalculatorKernel directly.
   <div class="electronics-container">
 
     <header class="electronics-hero">
+      <button type="button"
+              class="electronics-help-trigger"
+              id="electronics-help-trigger"
+              aria-label="Keyboard shortcuts and help"
+              aria-haspopup="dialog"
+              hidden>?</button>
       <p class="electronics-eyebrow">Reference</p>
       <h1 class="electronics-title">Electronics Fundamentals</h1>
       <p class="electronics-lede">
@@ -1188,6 +1194,30 @@ widgets should subclass EF.CalculatorKernel directly.
               <label><input type="radio" name="rcd-bands" value="4" checked><span>4-band</span></label>
               <label><input type="radio" name="rcd-bands" value="5"><span>5-band</span></label>
             </fieldset>
+          </div>
+
+          {%- comment -%}
+            Batch 8: common-values preset row. Each button preloads the
+            decoder bands for a frequently encountered hobby resistor so
+            visitors can hit the value they recognise in one click instead
+            of clicking through bands. Click handler lives in
+            initResistorColorDecoder (electronics-components.js).
+          {%- endcomment -%}
+          <div class="electronics-rcd-presets" id="electronics-rcd-presets"
+               role="group" aria-label="Common resistor presets">
+            <span class="electronics-rcd-presets__label">Quick presets:</span>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="brown,black,red,gold">1 kΩ ±5%</button>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="yellow,violet,red,gold">4.7 kΩ ±5%</button>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="brown,black,orange,gold">10 kΩ ±5%</button>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="brown,black,black,red,brown">10 kΩ ±1%</button>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="red,red,brown,gold">220 Ω ±5%</button>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="brown,black,green,gold">1 MΩ ±5%</button>
           </div>
 
           <div class="electronics-rcd-bands"

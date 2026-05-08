@@ -97,6 +97,14 @@
   //   to `true` (confirmed) or `false` (cancelled / dismissed via Esc /
   //   backdrop click). Used by the floating Reset All button.
   //
+  //   Visual styling re-uses the existing `.electronics-disclaimer` class
+  //   (warm-amber bordered card) plus the `.electronics-calculator__reset`
+  //   button class — no new CSS needed; the modal automatically picks up
+  //   light/dark theme variables.
+  //
+  //   Options: { title, message, confirmText, cancelText, dangerous,
+  //              variant ('alert' | 'info'), bodyNode (override message) }
+  //
   //   Falls back to window.confirm() if document.body is unavailable for
   //   any reason (very early boot, ancient browser quirks).
   // ==========================================================================
@@ -107,6 +115,9 @@
     var confirmText = opts.confirmText || 'Confirm';
     var cancelText  = opts.cancelText  || 'Cancel';
     var dangerous   = !!opts.dangerous;
+    var variant     = opts.variant || (dangerous ? 'alert' : 'info');
+    var bodyNode    = opts.bodyNode || null;
+    var hideCancel  = !!opts.hideCancel;
     if (!document.body) {
       return Promise.resolve(window.confirm(title + (message ? '\n\n' + message : '')));
     }
@@ -115,82 +126,57 @@
       var titleId = 'ef-modal-title-' + Math.random().toString(36).slice(2, 9);
       var descId  = 'ef-modal-desc-'  + Math.random().toString(36).slice(2, 9);
 
-      // Inline styles: the page's CSS file is intentionally not extended in
-      // this batch. We use just enough inline styling that the modal looks
-      // intentional in both light and dark themes (CSS variables resolve
-      // against [data-theme]).
       var backdrop = document.createElement('div');
       backdrop.className = 'electronics-modal-backdrop';
       backdrop.setAttribute('role', 'presentation');
-      backdrop.style.cssText = [
-        'position:fixed', 'inset:0', 'z-index:9999',
-        'background:rgba(0,0,0,0.55)',
-        'display:flex', 'align-items:center', 'justify-content:center',
-        'padding:1rem',
-        'animation:none'
-      ].join(';');
 
       var dialog = document.createElement('div');
-      dialog.className = 'electronics-modal';
+      dialog.className = 'electronics-modal electronics-modal--' + variant;
       dialog.setAttribute('role', 'dialog');
       dialog.setAttribute('aria-modal', 'true');
       dialog.setAttribute('aria-labelledby', titleId);
-      if (message) dialog.setAttribute('aria-describedby', descId);
-      dialog.style.cssText = [
-        'background:var(--c-bg, #1a1a1a)',
-        'color:var(--c-fg, #f5f5f5)',
-        'border:1px solid var(--c-border, rgba(255,255,255,0.15))',
-        'border-radius:var(--border-radius, 0.5rem)',
-        'padding:1.25rem 1.5rem',
-        'max-width:30rem', 'width:100%',
-        'box-shadow:0 12px 32px rgba(0,0,0,0.45)',
-        'font-family:var(--f-body, system-ui, sans-serif)'
-      ].join(';');
+      if (message || bodyNode) dialog.setAttribute('aria-describedby', descId);
 
-      var h = document.createElement('h2');
+      var h = document.createElement('h3');
       h.id = titleId;
       h.className = 'electronics-modal__title';
       h.textContent = title;
-      h.style.cssText = 'margin:0 0 0.5rem;font-size:1.1rem;line-height:1.3';
 
-      var p = null;
-      if (message) {
-        p = document.createElement('p');
-        p.id = descId;
-        p.className = 'electronics-modal__message';
-        p.textContent = message;
-        p.style.cssText = 'margin:0 0 1rem;font-size:0.95rem;line-height:1.45;opacity:0.9';
+      var bodyEl = null;
+      if (bodyNode) {
+        bodyEl = document.createElement('div');
+        bodyEl.id = descId;
+        bodyEl.className = 'electronics-modal__body';
+        bodyEl.appendChild(bodyNode);
+      } else if (message) {
+        bodyEl = document.createElement('p');
+        bodyEl.id = descId;
+        bodyEl.className = 'electronics-modal__message';
+        bodyEl.textContent = message;
       }
 
       var actions = document.createElement('div');
       actions.className = 'electronics-modal__actions';
-      actions.style.cssText = 'display:flex;justify-content:flex-end;gap:0.5rem;flex-wrap:wrap';
 
-      // Reuse the calculator button styling that's already in the CSS so
-      // these look at home with the rest of the page.
-      var btnBase = 'padding:0.5rem 1rem;border-radius:var(--border-radius-sm,0.35rem);' +
-                    'border:1px solid var(--c-border, rgba(255,255,255,0.15));' +
-                    'cursor:pointer;font:inherit;line-height:1;';
-      var cancelBtn = document.createElement('button');
-      cancelBtn.type = 'button';
-      cancelBtn.className = 'electronics-calculator__reset';
-      cancelBtn.textContent = cancelText;
-      cancelBtn.style.cssText = btnBase +
-        'background:transparent;color:var(--c-fg, #f5f5f5);';
+      var cancelBtn = null;
+      if (!hideCancel) {
+        cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'electronics-calculator__reset electronics-modal__btn';
+        cancelBtn.textContent = cancelText;
+      }
 
       var confirmBtn = document.createElement('button');
       confirmBtn.type = 'button';
-      confirmBtn.className = 'electronics-calculator__reset';
+      confirmBtn.className = 'electronics-calculator__reset electronics-modal__btn ' +
+        (dangerous ? 'electronics-modal__btn--danger' : 'electronics-modal__btn--primary');
       confirmBtn.textContent = confirmText;
-      confirmBtn.style.cssText = btnBase + (dangerous
-        ? 'background:var(--c-warn, #c0392b);color:#fff;border-color:transparent;'
-        : 'background:var(--c-accent, #2c7be5);color:#fff;border-color:transparent;');
 
-      actions.appendChild(cancelBtn);
+      if (cancelBtn) actions.appendChild(cancelBtn);
       actions.appendChild(confirmBtn);
 
       dialog.appendChild(h);
-      if (p) dialog.appendChild(p);
+      if (bodyEl) dialog.appendChild(bodyEl);
       dialog.appendChild(actions);
       backdrop.appendChild(dialog);
       document.body.appendChild(backdrop);
@@ -233,15 +219,16 @@
         resolve(value);
       }
 
-      cancelBtn.addEventListener('click',  function () { done(false); });
+      if (cancelBtn) cancelBtn.addEventListener('click', function () { done(false); });
       confirmBtn.addEventListener('click', function () { done(true);  });
       backdrop.addEventListener('click', onBackdropClick);
       document.addEventListener('keydown', onKeyDown, true);
 
       // Default focus: cancel for safety on dangerous actions, confirm
-      // otherwise so Enter accepts.
+      // otherwise so Enter accepts. Falls back to confirm if cancel hidden.
       setTimeout(function () {
-        (dangerous ? cancelBtn : confirmBtn).focus();
+        var initial = (dangerous && cancelBtn) ? cancelBtn : confirmBtn;
+        try { initial.focus(); } catch (_) { /* ignore */ }
       }, 0);
     });
   };
