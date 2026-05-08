@@ -159,6 +159,19 @@
     <span class="abbr-link" data-abbr="QAM">QAM</span> and
     <span class="abbr-link" data-abbr="OFDM">OFDM</span> subcarriers.
 
+- term: "c"
+  full_form: "Speed of light in vacuum"
+  explanation: >-
+    Universal constant c = 299,792,458 m/s (≈ 3 × 10⁸ m/s — handy for
+    quick frequency-to-<span class="abbr-link" data-abbr="λ">λ</span>
+    conversions in your head). Together with frequency
+    <span class="abbr-link" data-abbr="ν">ν</span> and Planck's constant
+    <span class="abbr-link" data-abbr="h">h</span> it sits in the two
+    formulas every spectrum reader needs:
+    <span class="abbr-link" data-abbr="λ">λ</span> = c/<span class="abbr-link"
+    data-abbr="ν">ν</span> and E = <span class="abbr-link"
+    data-abbr="h">h</span><span class="abbr-link" data-abbr="ν">ν</span>.
+
 - term: "C4FM"
   full_form: "4-level FSK (Yaesu System Fusion)"
   explanation: >-
@@ -210,6 +223,15 @@
     through QRM where <span class="abbr-link" data-abbr="SSB">SSB</span>
     voice can't.
 
+- term: "D-STAR"
+  full_form: "Digital Smart Technology for Amateur Radio"
+  explanation: >-
+    ICOM's GMSK digital-voice mode for ham 2 m / 70 cm / 23 cm. Routed via
+    internet-linked reflectors (REF, XRF, XLX); competes with
+    <span class="abbr-link" data-abbr="DMR">DMR</span> and
+    <span class="abbr-link" data-abbr="C4FM">C4FM</span> in the digital-voice
+    space.
+
 - term: "DAB"
   full_form: "Digital Audio Broadcasting"
   explanation: >-
@@ -236,6 +258,47 @@
     over the 23 cm, 13 cm, and 3.4 GHz ham bands. Needs a small dish, a
     Minitiouner-style receiver, and a few watts of power; British BATC
     operates the QO-100 wideband transponder for satellite DATV.
+
+- term: "dB"
+  full_form: "decibel — logarithmic ratio"
+  explanation: >-
+    A relative power ratio expressed logarithmically: 10·log₁₀(P₁/P₂).
+    +10 dB ≈ 10× more power, +3 dB ≈ 2×, −3 dB ≈ ½. dB on its own is a
+    pure ratio (gain, loss, signal-to-noise); attach a reference and it
+    becomes an absolute level — see
+    <span class="abbr-link" data-abbr="dBi">dBi</span> (antenna gain),
+    <span class="abbr-link" data-abbr="dBm">dBm</span> (vs 1 mW), and
+    <span class="abbr-link" data-abbr="dBW">dBW</span> (vs 1 W).
+
+- term: "dBi"
+  full_form: "decibels relative to isotropic radiator"
+  explanation: >-
+    Antenna gain expressed against a perfect omnidirectional source. A
+    1/4-wave whip ≈ 2 dBi, a Yagi 8–14 dBi, a 1 m parabolic at L-band
+    ~22 dBi, a 60 cm Ka-band dish 38–40 dBi. dBi adds directly to TX
+    power in <span class="abbr-link" data-abbr="dBm">dBm</span> /
+    <span class="abbr-link" data-abbr="dBW">dBW</span> to give
+    <span class="abbr-link" data-abbr="EIRP">EIRP</span>.
+
+- term: "dBm"
+  full_form: "decibels relative to 1 milliwatt"
+  explanation: >-
+    Absolute RF power against a 1 mW reference. 0 dBm = 1 mW, 30 dBm =
+    1 W, 60 dBm = 1 kW; −90 dBm ≈ a typical mobile-phone receive level.
+    Many radios spec output as e.g. "23 dBm conducted" (≈ 200 mW) or
+    "−110 dBm sensitivity" — that 133 <span class="abbr-link"
+    data-abbr="dB">dB</span> span is why receivers need so much dynamic
+    range.
+
+- term: "dBW"
+  full_form: "decibels relative to 1 watt"
+  explanation: >-
+    Absolute power against 1 W. 0 dBW = 1 W = 30 <span class="abbr-link"
+    data-abbr="dBm">dBm</span>; broadcasters and satellite operators
+    typically quote ERP / <span class="abbr-link"
+    data-abbr="EIRP">EIRP</span> in dBW (an FM tower at 50 dBW =
+    100 kW, a <span class="abbr-link" data-abbr="GPS">GPS</span>
+    satellite ≈ 27 dBW = 500 W). Subtract 30 to convert to dBm.
 
 - term: "DCF77"
   full_form: "DCF77 (German LF time signal)"
@@ -271,15 +334,6 @@
     standard widely used on commercial and amateur trunked networks
     (MotoTRBO, BrandMeister, TGIF). Cheap import HTs ($60) put hams onto
     worldwide talkgroups via internet-linked repeaters.
-
-- term: "D-STAR"
-  full_form: "Digital Smart Technology for Amateur Radio"
-  explanation: >-
-    ICOM's GMSK digital-voice mode for ham 2 m / 70 cm / 23 cm. Routed via
-    internet-linked reflectors (REF, XRF, XLX); competes with
-    <span class="abbr-link" data-abbr="DMR">DMR</span> and
-    <span class="abbr-link" data-abbr="C4FM">C4FM</span> in the digital-voice
-    space.
 
 - term: "DSSS"
   full_form: "Direct-Sequence Spread Spectrum"
@@ -373,6 +427,19 @@
     license-free transmission. National regulators like
     <span class="abbr-link" data-abbr="BNetzA">BNetzA</span> and
     <span class="abbr-link" data-abbr="Ofcom">Ofcom</span> enforce them.
+
+- term: "eV"
+  full_form: "electron volt — photon-energy unit"
+  explanation: >-
+    Energy gained by one electron crossing a 1-volt potential difference
+    (≈ 1.602 × 10⁻¹⁹ J). The natural unit for photon energy from
+    infrared upward: visible light ≈ 1.65–3.26 eV, UV ≈ 3–125 eV,
+    X-rays ≈ 100 eV – 100 keV, gamma > 100 keV. Multiples scale by
+    1000: <span class="abbr-link" data-abbr="μeV">μeV</span> (micro) <
+    <span class="abbr-link" data-abbr="meV">meV</span> (milli) < eV <
+    <span class="abbr-link" data-abbr="keV">keV</span> (kilo) <
+    <span class="abbr-link" data-abbr="MeV">MeV</span> (mega) <
+    <span class="abbr-link" data-abbr="GeV">GeV</span> (giga).
 
 - term: "FCC"
   full_form: "Federal Communications Commission"
@@ -482,6 +549,17 @@
     higher integrity and accuracy than free
     <span class="abbr-link" data-abbr="GPS">GPS</span>.
 
+- term: "GeV"
+  full_form: "giga-electron-volt (10⁹ eV)"
+  explanation: >-
+    Photon-energy unit at the very top of the EM spectrum — TeV / PeV
+    gamma rays from blazars, galactic-centre sources, and cosmic-ray air
+    showers tracked by HESS / VERITAS / MAGIC / CTA observatories sit
+    here. 1 GeV = 10⁹ <span class="abbr-link" data-abbr="eV">eV</span>;
+    particle-physics colliders measure beam energy in GeV / TeV. See
+    also <span class="abbr-link" data-abbr="MeV">MeV</span>,
+    <span class="abbr-link" data-abbr="keV">keV</span>.
+
 - term: "GLONASS"
   full_form: "Globalnaya Navigatsionnaya Sputnikovaya Sistema"
   explanation: >-
@@ -530,6 +608,17 @@
     1900 in the US. Still operational in some networks; sniffable with an
     <span class="abbr-link" data-abbr="SDR">SDR</span> + gr-gsm if you have
     your own SIM.
+
+- term: "h"
+  full_form: "Planck constant"
+  explanation: >-
+    Universal constant h ≈ 6.626 × 10⁻³⁴ J·s, defined exactly as
+    6.62607015 × 10⁻³⁴ J·s since the 2019 SI redefinition. It links
+    photon energy to frequency: E = h·<span class="abbr-link"
+    data-abbr="ν">ν</span> = h·<span class="abbr-link"
+    data-abbr="c">c</span>/<span class="abbr-link"
+    data-abbr="λ">λ</span>. The constant whose presence distinguishes
+    quantum from classical physics.
 
 - term: "HAARP"
   full_form: "High-frequency Active Auroral Research Program"
@@ -678,6 +767,16 @@
     <span class="abbr-link" data-abbr="FT8">FT8</span> on HF but still common
     on <span class="abbr-link" data-abbr="EME">EME</span> and meteor scatter.
 
+- term: "keV"
+  full_form: "kilo-electron-volt (10³ eV)"
+  explanation: >-
+    Photon-energy unit for soft to hard X-rays: medical CT 80–140 keV,
+    diagnostic X-ray 30–80 keV, soft X-ray astronomy 0.1–10 keV, hard
+    X-ray 10–100 keV. Above ~100 keV photons cross the conventional
+    "X-ray to gamma-ray" boundary. See
+    <span class="abbr-link" data-abbr="eV">eV</span>,
+    <span class="abbr-link" data-abbr="MeV">MeV</span>.
+
 - term: "KNX-RF"
   full_form: "KNX-RF (wireless KNX)"
   explanation: >-
@@ -756,6 +855,26 @@
     <span class="abbr-link" data-abbr="ISM">ISM</span>. The protocol used
     behind much European
     <span class="abbr-link" data-abbr="AMR">AMR</span> infrastructure.
+
+- term: "MeV"
+  full_form: "mega-electron-volt (10⁶ eV)"
+  explanation: >-
+    Photon-energy unit for nuclear and gamma-ray spectra: ⁶⁰Co decay
+    emits 1.17 / 1.33 MeV gammas, ¹³¹I emits 364 keV (just below the
+    MeV range), pair-production threshold ≈ 1.022 MeV. PET imaging uses
+    511 keV annihilation pairs. See
+    <span class="abbr-link" data-abbr="eV">eV</span>,
+    <span class="abbr-link" data-abbr="GeV">GeV</span>.
+
+- term: "meV"
+  full_form: "milli-electron-volt (10⁻³ eV)"
+  explanation: >-
+    Photon-energy unit for the millimetre / sub-THz / far-infrared range.
+    A 60 GHz mmWave photon ≈ 0.25 meV; thermal energy at room temperature
+    kT ≈ 26 meV (so RF photons are sub-thermal — they don't ionise
+    anything, they only heat). See <span class="abbr-link"
+    data-abbr="μeV">μeV</span> below and <span class="abbr-link"
+    data-abbr="eV">eV</span> above.
 
 - term: "MF"
   full_form: "Medium Frequency (300 kHz – 3 MHz)"
@@ -909,6 +1028,15 @@
     into <span class="abbr-link" data-abbr="FR1">FR1</span> and
     <span class="abbr-link" data-abbr="FR2">FR2</span>.
 
+- term: "Ofcom"
+  full_form: "Office of Communications"
+  explanation: >-
+    The UK's wireless regulator — UK equivalent of the
+    <span class="abbr-link" data-abbr="FCC">FCC</span> and
+    <span class="abbr-link" data-abbr="BNetzA">BNetzA</span>. Licenses
+    spectrum, runs the ham exam (with the RSGB), and enforces
+    <span class="abbr-link" data-abbr="ETSI">ETSI</span> rules.
+
 - term: "OFDM"
   full_form: "Orthogonal Frequency-Division Multiplexing"
   explanation: >-
@@ -928,15 +1056,6 @@
     groups assigned per-user instead of all-to-one — lets a base station
     serve many low-rate clients simultaneously. Standard downlink in LTE,
     5G, and Wi-Fi 6.
-
-- term: "Ofcom"
-  full_form: "Office of Communications"
-  explanation: >-
-    The UK's wireless regulator — UK equivalent of the
-    <span class="abbr-link" data-abbr="FCC">FCC</span> and
-    <span class="abbr-link" data-abbr="BNetzA">BNetzA</span>. Licenses
-    spectrum, runs the ham exam (with the RSGB), and enforces
-    <span class="abbr-link" data-abbr="ETSI">ETSI</span> rules.
 
 - term: "OTH"
   full_form: "Over-The-Horizon radar"
@@ -971,6 +1090,24 @@
     Pc5 (150–600 s), Pc4 (45–150 s), Pc3 (10–45 s), Pc2 (5–10 s),
     Pc1 (0.2–5 s). Driven by solar wind and magnetospheric resonances;
     receivable with a DIY induction-coil magnetometer.
+
+- term: "Photon Energy"
+  full_form: "Energy carried by a single photon (E = hν = hc/λ)"
+  explanation: >-
+    A photon's energy is set entirely by its frequency: E =
+    <span class="abbr-link" data-abbr="h">h</span>·<span class="abbr-link"
+    data-abbr="ν">ν</span> = <span class="abbr-link"
+    data-abbr="h">h</span>·<span class="abbr-link"
+    data-abbr="c">c</span>/<span class="abbr-link"
+    data-abbr="λ">λ</span>. Useful hobbyist short-form: E[<span
+    class="abbr-link" data-abbr="eV">eV</span>] ≈ 1240 / λ[nm] —
+    so visible 380 nm ≈ 3.26 eV, 700 nm ≈ 1.77 eV. RF photons sit at
+    sub-thermal <span class="abbr-link" data-abbr="μeV">μeV</span> /
+    <span class="abbr-link" data-abbr="meV">meV</span> levels (no
+    chemistry); X-ray <span class="abbr-link"
+    data-abbr="keV">keV</span> and gamma <span class="abbr-link"
+    data-abbr="MeV">MeV</span> photons are ionising — that boundary is
+    why this column matters for safety.
 
 - term: "PLC"
   full_form: "Power-Line Communication / PowerLAN"
@@ -1247,6 +1384,18 @@
     soundcard — popular for low-budget propagation experiments and recording
     natural whistlers.
 
+- term: "Wavelength"
+  full_form: "λ — distance between successive wave peaks"
+  explanation: >-
+    The spatial period of an EM wave: <span class="abbr-link"
+    data-abbr="λ">λ</span> = <span class="abbr-link"
+    data-abbr="c">c</span>/<span class="abbr-link"
+    data-abbr="ν">ν</span>. Antenna sizes (1/4-wave whip = λ/4, dipole
+    = λ/2), patch-array pitch (λ/2), Fresnel zones, and beam
+    diffraction all scale with λ. This column shows the canonical λ
+    for each band so you can sanity-check antenna dimensions and
+    aperture-vs-frequency intuition at a glance.
+
 - term: "Wi-Fi"
   full_form: "Wi-Fi (IEEE 802.11)"
   explanation: >-
@@ -1295,6 +1444,14 @@
     <span class="abbr-link" data-abbr="ROSAT">ROSAT</span> and
     <span class="abbr-link" data-abbr="CHANDRA">CHANDRA</span>.
 
+- term: "Z-Wave"
+  full_form: "Z-Wave sub-GHz home-automation mesh"
+  explanation: >-
+    Low-power 868 MHz EU / 908 MHz US protocol used by smart locks, sensors,
+    dimmers, and switches. Mesh of up to 232 nodes; simpler and less
+    crowded than 2.4 GHz alternatives like
+    <span class="abbr-link" data-abbr="Zigbee">Zigbee</span>.
+
 - term: "ZEVS"
   full_form: "ZEVS (Russian ELF transmitter)"
   explanation: >-
@@ -1311,10 +1468,45 @@
     Matter ecosystem. Up to ~65k nodes per network with very long battery
     life.
 
-- term: "Z-Wave"
-  full_form: "Z-Wave sub-GHz home-automation mesh"
+- term: "λ"
+  full_form: "wavelength symbol (Greek lower-case lambda)"
   explanation: >-
-    Low-power 868 MHz EU / 908 MHz US protocol used by smart locks, sensors,
-    dimmers, and switches. Mesh of up to 232 nodes; simpler and less
-    crowded than 2.4 GHz alternatives like
-    <span class="abbr-link" data-abbr="Zigbee">Zigbee</span>.
+    The physical distance between two adjacent wave peaks. Linked to
+    frequency by λ = <span class="abbr-link" data-abbr="c">c</span>/<span
+    class="abbr-link" data-abbr="ν">ν</span>: 1 GHz → 30 cm, 100 MHz →
+    3 m, 100 THz → 3 μm, 500 nm = green light. Antenna dimensions,
+    diffraction limits, and rain-fade onset all scale with λ — it's the
+    ruler the whole spectrum is measured with. See also
+    <span class="abbr-link" data-abbr="Wavelength">Wavelength</span>.
+
+- term: "μ"
+  full_form: "micro / Greek lower-case mu (SI prefix 10⁻⁶)"
+  explanation: >-
+    As an SI prefix it means one-millionth: μm = micrometre, μs =
+    microsecond, μW = microwatt, <span class="abbr-link"
+    data-abbr="μeV">μeV</span> = micro-electron-volt. Visible light
+    wavelengths are 0.38–0.78 μm, mid-<span class="abbr-link"
+    data-abbr="IR">IR</span> 3–8 μm, thermal-imaging long-wave infrared
+    8–14 μm.
+
+- term: "μeV"
+  full_form: "micro-electron-volt (10⁻⁶ eV)"
+  explanation: >-
+    Photon-energy unit at radio / microwave frequencies. The
+    <span class="abbr-link" data-abbr="HI">HI</span> 21 cm line
+    (1420 MHz) photon carries ≈ 5.87 μeV — a hyperfine spin-flip
+    transition, not an electronic one. Even lower: 1 kHz audio-band RF
+    ≈ 4 × 10⁻¹² eV. See <span class="abbr-link"
+    data-abbr="meV">meV</span>, <span class="abbr-link"
+    data-abbr="eV">eV</span>.
+
+- term: "ν"
+  full_form: "frequency symbol (Greek lower-case nu)"
+  explanation: >-
+    The physics symbol for frequency, used wherever electrical engineers
+    would write f. ν is in hertz (cycles per second); multiplied by
+    Planck's constant <span class="abbr-link" data-abbr="h">h</span> it
+    gives photon energy E = hν, and it pairs with wavelength via
+    <span class="abbr-link" data-abbr="λ">λ</span> = <span
+    class="abbr-link" data-abbr="c">c</span>/ν. Used as the column
+    header on narrow screens because "Frequency Range" doesn't fit.
