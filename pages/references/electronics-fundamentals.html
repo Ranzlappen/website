@@ -642,14 +642,302 @@ Styles live in /assets/css/electronics-fundamentals.css and behaviour in
     </section>
 
     {%- comment -%} ========== Section 3: Interactive Calculators ========== {%- endcomment -%}
-    <section class="electronics-section" id="electronics-calculators">
-      <h2 class="electronics-section__title">Interactive Calculators</h2>
+    <section class="electronics-section" id="electronics-calculators" aria-labelledby="electronics-calculators-heading">
+      <h2 class="electronics-section__title" id="electronics-calculators-heading">Interactive Calculators</h2>
       <p class="electronics-section__intro">
-        Plug in any two values and the rest follow: Ohm's law, voltage dividers,
-        LED current-limiting, RC time constants, and more.
+        Plug in any two values and the rest follow. The first calculator is a
+        deeper dive on Ohm&rsquo;s law &mdash; with sliders, V&ndash;I curves, and a
+        power-vs-resistance plot &mdash; so you can see <em>why</em> the numbers move,
+        not just <em>what</em> they are. More calculators (LED current-limiting,
+        voltage divider, RC time constant&hellip;) land in later batches.
       </p>
+
+      {%- comment -%}
+        Inline scoped styles for this section only — keeps single-section
+        flourishes out of the shared electronics-fundamentals.css.
+      {%- endcomment -%}
+      <style>
+        .electronics-ohms-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+          gap: var(--space-lg);
+          align-items: start;
+        }
+        @media (min-width: 880px) {
+          .electronics-ohms-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+        }
+        .electronics-ohms-fields { display: grid; gap: var(--space-md); min-width: 0; }
+        .electronics-ohms-field {
+          display: grid;
+          grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr);
+          gap: var(--space-sm);
+          align-items: center;
+        }
+        .electronics-ohms-field__label {
+          font-size: 0.85rem;
+          color: var(--c-text);
+          font-weight: 500;
+          line-height: 1.2;
+        }
+        .electronics-ohms-field__label small {
+          display: block;
+          font-size: 0.72rem;
+          color: var(--c-text-muted);
+          margin-top: 0.1rem;
+          font-weight: 400;
+        }
+        .electronics-ohms-field__row {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+          gap: 0.45rem;
+          min-width: 0;
+        }
+        .electronics-ohms-field--computed input[type="number"] {
+          color: var(--c-accent);
+          font-weight: 600;
+        }
+        .electronics-ohms-slider {
+          appearance: none;
+          -webkit-appearance: none;
+          width: 100%;
+          height: 18px;
+          background: transparent;
+          cursor: pointer;
+        }
+        .electronics-ohms-slider::-webkit-slider-runnable-track {
+          height: 4px; background: var(--c-border); border-radius: 2px;
+        }
+        .electronics-ohms-slider::-moz-range-track {
+          height: 4px; background: var(--c-border); border-radius: 2px;
+        }
+        .electronics-ohms-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 14px; height: 14px;
+          margin-top: -5px;
+          border-radius: 50%;
+          background: var(--c-accent);
+          border: 2px solid var(--c-bg-alt);
+          transition: box-shadow var(--transition-fast);
+        }
+        .electronics-ohms-slider::-moz-range-thumb {
+          width: 14px; height: 14px;
+          border-radius: 50%;
+          background: var(--c-accent);
+          border: 2px solid var(--c-bg-alt);
+          transition: box-shadow var(--transition-fast);
+        }
+        .electronics-ohms-slider:focus-visible::-webkit-slider-thumb {
+          box-shadow: 0 0 0 3px var(--c-accent-bg);
+        }
+        .electronics-ohms-slider:focus-visible::-moz-range-thumb {
+          box-shadow: 0 0 0 3px var(--c-accent-bg);
+        }
+
+        .electronics-ohms-charts { display: grid; gap: var(--space-md); min-width: 0; }
+        @media (min-width: 1280px) {
+          .electronics-ohms-charts { grid-template-columns: 1fr 1fr; }
+        }
+        .electronics-ohms-chart-wrapper {
+          position: relative;
+          height: 240px;
+          background: var(--c-bg-alt);
+          border: 1px solid var(--c-border-light);
+          border-radius: var(--border-radius-sm);
+          padding: var(--space-sm);
+        }
+        .electronics-ohms-chart-label {
+          margin: 0.25rem 0 0;
+          text-align: center;
+          font-size: 0.72rem;
+          color: var(--c-text-muted);
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+        }
+
+        .electronics-ohms-result {
+          font-family: var(--f-mono);
+          font-size: 0.92rem;
+          line-height: 1.6;
+          font-variant-numeric: tabular-nums;
+          padding: var(--space-sm) var(--space-md);
+          background: var(--c-surface-alt);
+          border: 1px solid var(--c-border);
+          border-radius: var(--border-radius-sm);
+          color: var(--c-text);
+          overflow-wrap: anywhere;
+        }
+        .electronics-ohms-result--ok { border-color: var(--c-accent-border); }
+
+        .electronics-ohms-warning {
+          font-size: 0.85rem;
+          padding: 0.6rem 0.9rem;
+          border-radius: var(--border-radius-sm);
+          background: rgba(245, 158, 11, 0.12);
+          border: 1px solid rgba(245, 158, 11, 0.35);
+          color: #fbbf24;
+          line-height: 1.5;
+        }
+        [data-theme="light"] .electronics-ohms-warning { color: #b45309; }
+
+        .electronics-ohms-actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+        .electronics-ohms-actions button { font-size: 0.85rem; }
+
+        @media print {
+          .electronics-ohms-actions,
+          .electronics-ohms-slider { display: none; }
+        }
+      </style>
+
       <div class="electronics-calculators" id="electronics-calculators-grid">
-        {%- comment -%} TODO: Batch 6 will fill the calculators here. {%- endcomment -%}
+        <article class="electronics-calculator electronics-ohms"
+                 id="electronics-calc-ohms"
+                 data-calculator="ohms-law"
+                 aria-labelledby="electronics-calc-ohms-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-ohms-title">
+            Calculator 1 &mdash; Ohm&rsquo;s Law / Power
+          </h3>
+          <p class="electronics-calculator__hint">
+            Enter or drag any two of <strong>V</strong>, <strong>I</strong>,
+            <strong>R</strong>, or <strong>P</strong> and the rest are computed live.
+            The chart on the left plots your operating point against a family of
+            resistance lines; the chart on the right shows how power scales with
+            resistance at the current voltage.
+          </p>
+
+          <div class="electronics-ohms-grid">
+
+            {%- comment -%} ----- Inputs (number + slider) ----- {%- endcomment -%}
+            <div class="electronics-ohms-fields" role="group" aria-label="Calculator inputs">
+              <div class="electronics-ohms-field" data-field="V">
+                <span class="electronics-ohms-field__label" id="ef-calc-V-label">
+                  Voltage (V)
+                  <small>volts</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-calc-V" data-quantity="V"
+                         step="any" inputmode="decimal" placeholder="0.0"
+                         autocomplete="off" aria-labelledby="ef-calc-V-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-calc-V-slider" data-quantity="V"
+                         min="0" max="24" step="0.1" value="0"
+                         aria-label="Voltage slider, 0 to 24 volts">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="I">
+                <span class="electronics-ohms-field__label" id="ef-calc-I-label">
+                  Current (I)
+                  <small>amperes</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-calc-I" data-quantity="I"
+                         step="any" inputmode="decimal" placeholder="0.0"
+                         autocomplete="off" aria-labelledby="ef-calc-I-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-calc-I-slider" data-quantity="I"
+                         min="0" max="5" step="0.01" value="0"
+                         aria-label="Current slider, 0 to 5 amperes">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="R">
+                <span class="electronics-ohms-field__label" id="ef-calc-R-label">
+                  Resistance (R)
+                  <small>ohms (&Omega;)</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-calc-R" data-quantity="R"
+                         step="any" inputmode="decimal" placeholder="0.0"
+                         autocomplete="off" aria-labelledby="ef-calc-R-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-calc-R-slider" data-quantity="R"
+                         min="1" max="10000" step="1" value="100"
+                         aria-label="Resistance slider, 1 to 10 000 ohms">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="P">
+                <span class="electronics-ohms-field__label" id="ef-calc-P-label">
+                  Power (P)
+                  <small>watts</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-calc-P" data-quantity="P"
+                         step="any" inputmode="decimal" placeholder="0.0"
+                         autocomplete="off" aria-labelledby="ef-calc-P-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-calc-P-slider" data-quantity="P"
+                         min="0" max="50" step="0.1" value="0"
+                         aria-label="Power slider, 0 to 50 watts">
+                </div>
+              </div>
+            </div>
+
+            {%- comment -%} ----- Charts ----- {%- endcomment -%}
+            <div class="electronics-ohms-charts">
+              <div>
+                <div class="electronics-ohms-chart-wrapper">
+                  <canvas id="electronics-calc-vi-chart"
+                          role="img"
+                          aria-label="V-I characteristic curves with operating point"></canvas>
+                </div>
+                <p class="electronics-ohms-chart-label">V&ndash;I Characteristic Curves</p>
+              </div>
+              <div>
+                <div class="electronics-ohms-chart-wrapper">
+                  <canvas id="electronics-calc-pr-chart"
+                          role="img"
+                          aria-label="Power versus resistance curve at the current voltage"></canvas>
+                </div>
+                <p class="electronics-ohms-chart-label">Power vs Resistance</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="electronics-calc-result"
+               class="electronics-ohms-result"
+               role="status" aria-live="polite">
+            Enter any two values to solve.
+          </div>
+
+          <div id="electronics-calc-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-calc-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-calc-copy">
+              Copy results
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-calc-open-wheel">
+              Open in Quick Wheel &uarr;
+            </button>
+          </div>
+
+          {%- comment -%}
+            Default values + V-I curve resistances + slider ranges. Read by
+            initOhmsLawCalculator on first paint so the charts have a sensible
+            operating point even before the visitor types anything.
+          {%- endcomment -%}
+          <script type="application/json" id="electronics-calc-ohms-data">
+            {
+              "defaults": { "V": 12, "R": 100 },
+              "viCurves": [10, 100, 1000, 10000],
+              "ranges": {
+                "V": { "min": 0, "max": 24,    "step": 0.1 },
+                "I": { "min": 0, "max": 5,     "step": 0.01 },
+                "R": { "min": 1, "max": 10000, "step": 1 },
+                "P": { "min": 0, "max": 50,    "step": 0.1 }
+              }
+            }
+          </script>
+        </article>
       </div>
     </section>
 
