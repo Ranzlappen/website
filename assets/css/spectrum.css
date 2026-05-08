@@ -828,13 +828,18 @@
 }
 
 /* Inline abbreviation cross-references inside modal bodies. Look like links,
-   click to open another modal stacked on top of the current one. */
+   click to open another modal stacked on top of the current one.
+
+   `white-space: nowrap` keeps multi-word terms ("Photon Energy",
+   "COSPAS-SARSAT", "Ka-band") on a single line — without it the underline
+   breaks across line wraps and the term reads like two separate links. */
 .abbr-link {
   color: var(--c-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
   cursor: pointer;
+  white-space: nowrap;
   transition: color var(--transition-fast),
               background var(--transition-fast);
   border-radius: 2px;
@@ -844,6 +849,10 @@
   color: var(--c-text);
   background: var(--c-accent-bg);
   outline: none;
+}
+.abbr-link:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
 }
 
 /* Lock background scrolling while any abbreviation modal is open so the

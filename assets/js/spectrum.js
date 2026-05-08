@@ -164,7 +164,24 @@
     m.querySelector('.spectrum-abbr-modal__expansion').textContent = def.expansion || '';
     // body uses innerHTML so embedded <span class="abbr-link"> markup renders
     // and the document-level click handler picks up clicks on those spans.
-    m.querySelector('.spectrum-abbr-modal__body').innerHTML = def.body || '';
+    var bodyEl = m.querySelector('.spectrum-abbr-modal__body');
+    bodyEl.innerHTML = def.body || '';
+    // Make every embedded .abbr-link keyboard-activatable so the recursive
+    // modal flow is reachable without a mouse. The YAML doesn't ship these
+    // attributes (the spans are author-friendly bare markup), and the
+    // document-level keydown handler only fires on Enter/Space when e.target
+    // is one of these — so they need tabindex to be focusable in the first
+    // place.
+    var links = bodyEl.querySelectorAll('.abbr-link');
+    for (var i = 0; i < links.length; i++) {
+      var a = links[i];
+      if (!a.hasAttribute('tabindex')) a.setAttribute('tabindex', '0');
+      if (!a.hasAttribute('role')) a.setAttribute('role', 'link');
+      if (!a.hasAttribute('aria-label')) {
+        var t = a.getAttribute('data-abbr') || a.textContent.trim();
+        a.setAttribute('aria-label', t + ' — click or press Enter for explanation');
+      }
+    }
     m.querySelector('.spectrum-abbr-modal__backdrop').addEventListener('click', function () { closeModal(m); });
     m.querySelector('.spectrum-abbr-modal__close').addEventListener('click', function () { closeModal(m); });
     return m;
