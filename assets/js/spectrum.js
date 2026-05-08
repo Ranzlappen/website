@@ -10,21 +10,6 @@
   const blurb  = document.getElementById('spectrum-batch-blurb');
   const dataEl = document.getElementById('spectrum-batch-data');
 
-  // Publish the rendered height of the sticky pills + search bar so the
-  // table thead can pin to the page viewport just below it. The CSS uses
-  // `top: calc(var(--header-height) + var(--spectrum-controls-h, 3.5rem))`
-  // — the JS-measured value replaces the fallback once the page paints
-  // and stays in sync with breakpoint / orientation / zoom changes.
-  const controls = document.querySelector('.spectrum-controls');
-  if (controls && 'ResizeObserver' in window) {
-    const setControlsH = () => {
-      const h = controls.getBoundingClientRect().height;
-      document.documentElement.style.setProperty('--spectrum-controls-h', h + 'px');
-    };
-    setControlsH();
-    new ResizeObserver(setControlsH).observe(controls);
-  }
-
   let batchInfo = {};
   try { batchInfo = JSON.parse(dataEl.textContent || '{}'); } catch (_) { batchInfo = {}; }
 
