@@ -395,7 +395,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 200 },
+          animation: EF.prefersReducedMotion() ? false : { duration: 200 },
           parsing: false,
           plugins: {
             legend: { position: 'bottom', labels: { color: t.label, font: { size: 11 }, boxWidth: 14, padding: 8 } },
@@ -460,7 +460,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 200 },
+          animation: EF.prefersReducedMotion() ? false : { duration: 200 },
           parsing: false,
           plugins: {
             legend: { position: 'bottom', labels: { color: t.label, font: { size: 11 }, boxWidth: 14, padding: 8 } },
@@ -592,17 +592,44 @@
       });
     }
 
+    // Apply defaults + run text-only recompute immediately so the page
+    // shows live values even before the charts paint.
+    applyDefaults();
+    recompute();
+
     EF.ensureChartJs().then(function () {
-      buildVIChart();
-      buildPRChart();
-      applyDefaults();
-      recompute();
+      // Lazy-build via EF.LazyChartManager. Both VI and PR charts share one
+      // registration against their common parent (.electronics-ohms-charts)
+      // so they activate together — avoids the LRU ping-pong that two
+      // separate registrations would cause when the user is looking at the
+      // Ohm's section.
+      var wrapper = card.querySelector('.electronics-ohms-charts');
+      if (!wrapper || !EF.LazyChartManager || typeof EF.LazyChartManager.register !== 'function') {
+        buildVIChart(); buildPRChart(); recompute();
+        return;
+      }
+      EF.LazyChartManager.register('ohms-law-charts', wrapper, {
+        build: function () {
+          buildVIChart();
+          buildPRChart();
+          recompute();
+          return viChart || prChart;
+        },
+        pause: function () {
+          if (viChart && typeof viChart.destroy === 'function') { viChart.destroy(); viChart = null; }
+          if (prChart && typeof prChart.destroy === 'function') { prChart.destroy(); prChart = null; }
+        },
+        resume: function () {
+          buildVIChart();
+          buildPRChart();
+          recompute();
+          return viChart || prChart;
+        }
+      });
     }, function () {
       // Charts couldn't load (offline / consent withheld). Calculations still
-      // work — apply defaults and run text-only.
+      // work — text-only mode already booted above.
       setWarning('Charts unavailable (Chart.js blocked or offline). Calculations still work.');
-      applyDefaults();
-      recompute();
     });
 
     EF.widgets.push({

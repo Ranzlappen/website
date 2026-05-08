@@ -394,7 +394,7 @@
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 200 },
+          animation: EF.prefersReducedMotion() ? false : { duration: 200 },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -455,14 +455,27 @@
       chart.update('none');
     }
 
+    // Build the bands picker + run text-only recompute immediately so the
+    // value / tolerance / range readouts and the CSS tolerance bar work
+    // even before Chart.js / the mini-chart appears.
+    buildBands();
+    recompute();
+
     EF.ensureChartJs().then(function () {
-      buildChart();
-      buildBands();
-      recompute();
+      var wrapper = canvas && canvas.parentElement;
+      if (!wrapper || !EF.LazyChartManager || typeof EF.LazyChartManager.register !== 'function') {
+        buildChart(); recompute();
+        return;
+      }
+      EF.LazyChartManager.register('resistor-tolerance-chart', wrapper, {
+        build: function () { buildChart(); recompute(); return chart; },
+        pause: function () {
+          if (chart && typeof chart.destroy === 'function') { chart.destroy(); chart = null; }
+        },
+        resume: function () { buildChart(); recompute(); return chart; }
+      });
     }, function () {
       setWarning('Mini-chart unavailable (Chart.js blocked or offline). Decoder still works.');
-      buildBands();
-      recompute();
     });
 
     EF.widgets.push({
@@ -1012,14 +1025,20 @@
         } else {
           x = bodyX + startGap + step * i - (stripeW / 2);
         }
-        return '<rect x="' + x.toFixed(1) + '" y="6" width="' + stripeW +
+        // Stripes (y=16, height=28 → 16…44) sit centred on viewBox y=30,
+        // matching the body and lead-line midline.
+        return '<rect x="' + x.toFixed(1) + '" y="16" width="' + stripeW +
                '" height="28" fill="' + fill + '" />';
       }).join('');
 
+      // Geometry (Batch 5 centring fix). The SVG viewBox is 0 0 300 60.
+      //   * Lead lines run along the vertical midline at y=30.
+      //   * Resistor body is y=14…46 (height 32, centred on y=30).
+      //   * Stripes are y=16…44 (height 28, centred on y=30, see above).
       preview.innerHTML =
-        '<line x1="0"   y1="20" x2="50"  y2="20" stroke="currentColor" stroke-width="2" />' +
-        '<line x1="250" y1="20" x2="300" y2="20" stroke="currentColor" stroke-width="2" />' +
-        '<rect x="50" y="4" width="200" height="32" rx="4" ry="4" fill="#d6c19a" stroke="rgba(0,0,0,0.35)" stroke-width="1" />' +
+        '<line x1="0"   y1="30" x2="50"  y2="30" stroke="currentColor" stroke-width="2" />' +
+        '<line x1="250" y1="30" x2="300" y2="30" stroke="currentColor" stroke-width="2" />' +
+        '<rect x="50" y="14" width="200" height="32" rx="4" ry="4" fill="#d6c19a" stroke="rgba(0,0,0,0.35)" stroke-width="1" />' +
         stripes;
     }
 

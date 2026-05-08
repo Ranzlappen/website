@@ -311,7 +311,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 250 },
+          animation: EF.prefersReducedMotion() ? false : { duration: 250 },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -360,8 +360,25 @@
     }
 
     EF.ensureChartJs().then(function () {
-      buildChart();
-      recompute();
+      // Lazy-build via EF.LazyChartManager so the chart only paints when its
+      // wrapper actually enters the viewport. Off-screen / LRU-evicted →
+      // chart.destroy() frees the WebGL/Canvas2D context; resume → rebuild.
+      var wrapper = canvas && canvas.parentElement;
+      if (!wrapper || !EF.LazyChartManager || typeof EF.LazyChartManager.register !== 'function') {
+        buildChart();
+        recompute();
+        return;
+      }
+      EF.LazyChartManager.register('quick-reference-wheel-chart', wrapper, {
+        build: function () { buildChart(); recompute(); return chart; },
+        pause: function () {
+          if (chart && typeof chart.destroy === 'function') {
+            chart.destroy();
+            chart = null;
+          }
+        },
+        resume: function () { buildChart(); recompute(); return chart; }
+      });
     }, function () {
       setStatus('Power-Triangle chart unavailable (Chart.js blocked or offline). Calculations still work.', 'warn');
     });

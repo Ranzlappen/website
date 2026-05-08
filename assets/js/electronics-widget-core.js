@@ -80,6 +80,18 @@
   };
 
   // ==========================================================================
+  // Reduced-motion helper
+  //   Single source of truth for `prefers-reduced-motion: reduce` so every
+  //   chart / animation loop in the bundle reads the same boolean. Returns
+  //   false on engines without matchMedia (no harm in animating).
+  // ==========================================================================
+  EF.prefersReducedMotion = function () {
+    if (!window.matchMedia) return false;
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+    catch (_) { return false; }
+  };
+
+  // ==========================================================================
   // Widget base class
   // ==========================================================================
   function _inherit(Child, Parent) {

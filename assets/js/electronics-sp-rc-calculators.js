@@ -383,7 +383,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 200 },
+          animation: EF.prefersReducedMotion() ? false : { duration: 200 },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -442,16 +442,26 @@
       updateChart(values, lastTotal);
     }
 
+    // Boot text-only mode immediately so rows + total work even before chart.
+    clearAndSeed();
+    updateOpenWheelEnabled();
+    recompute();
+
     EF.ensureChartJs().then(function () {
-      buildChart();
-      clearAndSeed();
-      updateOpenWheelEnabled();
-      recompute();
+      var wrapper = canvas && canvas.parentElement;
+      if (!wrapper || !EF.LazyChartManager || typeof EF.LazyChartManager.register !== 'function') {
+        buildChart(); recompute();
+        return;
+      }
+      EF.LazyChartManager.register('series-parallel-chart', wrapper, {
+        build: function () { buildChart(); recompute(); return chart; },
+        pause: function () {
+          if (chart && typeof chart.destroy === 'function') { chart.destroy(); chart = null; }
+        },
+        resume: function () { buildChart(); recompute(); return chart; }
+      });
     }, function () {
       setWarning('Chart unavailable (Chart.js blocked or offline). Calculations still work.');
-      clearAndSeed();
-      updateOpenWheelEnabled();
-      recompute();
     });
 
     EF.widgets.push({
@@ -919,6 +929,18 @@
         setWarning('Enter valid values before pressing Play.');
         return;
       }
+      // Honour prefers-reduced-motion: snap the cursor straight to the
+      // 5τ end-state instead of animating the rAF loop. The visitor
+      // still sees the curve and the V(t) stat pill at full charge.
+      if (EF.prefersReducedMotion()) {
+        cursorT = lastResult.fullTime;
+        updateCursor();
+        if (playBtn) {
+          playBtn.textContent = '▶ Play';
+          playBtn.setAttribute('aria-pressed', 'false');
+        }
+        return;
+      }
       isPlaying = true;
       animationStart = 0;
       if (playBtn) {
@@ -951,14 +973,29 @@
       });
     }
 
+    // Boot text-only mode immediately so τ / 5τ / f_c stat pills update
+    // even before the chart paints.
+    applyDefaults();
+    recompute();
+
     EF.ensureChartJs().then(function () {
-      buildChart();
-      applyDefaults();
-      recompute();
+      var wrapper = canvas && canvas.parentElement;
+      if (!wrapper || !EF.LazyChartManager || typeof EF.LazyChartManager.register !== 'function') {
+        buildChart(); recompute();
+        return;
+      }
+      EF.LazyChartManager.register('rc-timer-chart', wrapper, {
+        build: function () { buildChart(); recompute(); return chart; },
+        pause: function () {
+          // Off-screen → kill the animation loop too, otherwise rAF keeps
+          // ticking on a destroyed chart.
+          if (typeof pause === 'function') { try { pause(); } catch (_) {} }
+          if (chart && typeof chart.destroy === 'function') { chart.destroy(); chart = null; }
+        },
+        resume: function () { buildChart(); recompute(); return chart; }
+      });
     }, function () {
       setWarning('Chart unavailable (Chart.js blocked or offline). Calculations still work.');
-      applyDefaults();
-      recompute();
     });
 
     EF.widgets.push({

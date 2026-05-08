@@ -369,7 +369,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 200 },
+          animation: EF.prefersReducedMotion() ? false : { duration: 200 },
           parsing: false,
           plugins: {
             legend: { position: 'bottom', labels: { color: t.label, font: { size: 11 }, boxWidth: 14, padding: 8 } },
@@ -457,14 +457,26 @@
       }
     }
 
+    // Apply defaults + run text-only recompute immediately so the page
+    // shows live values even before the chart paints.
+    applyDefaults();
+    recompute();
+
     EF.ensureChartJs().then(function () {
-      buildChart();
-      applyDefaults();
-      recompute();
+      var wrapper = canvas && canvas.parentElement;
+      if (!wrapper || !EF.LazyChartManager || typeof EF.LazyChartManager.register !== 'function') {
+        buildChart(); recompute();
+        return;
+      }
+      EF.LazyChartManager.register('led-resistor-chart', wrapper, {
+        build: function () { buildChart(); recompute(); return chart; },
+        pause: function () {
+          if (chart && typeof chart.destroy === 'function') { chart.destroy(); chart = null; }
+        },
+        resume: function () { buildChart(); recompute(); return chart; }
+      });
     }, function () {
       setWarning('Chart unavailable (Chart.js blocked or offline). Calculations still work.');
-      applyDefaults();
-      recompute();
     });
 
     EF.widgets.push({
@@ -786,7 +798,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 200 },
+          animation: EF.prefersReducedMotion() ? false : { duration: 200 },
           parsing: false,
           plugins: {
             legend: { position: 'bottom', labels: { color: t.label, font: { size: 11 }, boxWidth: 14, padding: 8 } },
@@ -876,14 +888,24 @@
       });
     }
 
+    applyDefaults();
+    recompute();
+
     EF.ensureChartJs().then(function () {
-      buildChart();
-      applyDefaults();
-      recompute();
+      var wrapper = canvas && canvas.parentElement;
+      if (!wrapper || !EF.LazyChartManager || typeof EF.LazyChartManager.register !== 'function') {
+        buildChart(); recompute();
+        return;
+      }
+      EF.LazyChartManager.register('voltage-divider-chart', wrapper, {
+        build: function () { buildChart(); recompute(); return chart; },
+        pause: function () {
+          if (chart && typeof chart.destroy === 'function') { chart.destroy(); chart = null; }
+        },
+        resume: function () { buildChart(); recompute(); return chart; }
+      });
     }, function () {
       setWarning('Chart unavailable (Chart.js blocked or offline). Calculations still work.');
-      applyDefaults();
-      recompute();
     });
 
     EF.widgets.push({
