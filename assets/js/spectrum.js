@@ -76,22 +76,42 @@
     try { DICT = JSON.parse(abbrDataEl.textContent || '{}'); } catch (_) { DICT = {}; }
   }
 
-  // Sort longest first so 'FR2' is matched before 'FR', etc.
+  // Sort longest first so 'ADS-B' is matched before 'ADS', 'Ka-band' before
+  // 'K-band', 'FR2' before 'FR', etc.
   var TERMS = Object.keys(DICT).sort(function (a, b) { return b.length - a.length; });
   if (TERMS.length === 0) return;
-  var WORD_RE = new RegExp('\\b(' + TERMS.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')\\b', 'g');
+  // Unicode-aware "word" boundaries: lookaround that excludes letters, digits,
+  // and underscore (using \p{L}\p{N}_, which requires the `u` flag). This is
+  // what lets terms whose first or last character is a Greek letter (λ, μ, ν,
+  // μeV…) match against table-cell text, AND prevents 'eV' from matching
+  // inside 'μeV' (the ASCII \b boundary couldn't tell those apart, since μ is
+  // a non-word char in legacy regex semantics).
+  var WORD_RE = new RegExp(
+    '(?<![\\p{L}\\p{N}_])(' +
+      TERMS.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') +
+    ')(?![\\p{L}\\p{N}_])',
+    'gu'
+  );
 
   // Walk text nodes inside the table body and wrap matches in clickable spans.
   function decorate(root) {
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: function (node) {
-        // Skip nodes already inside an .abbr-trigger or inside a script/style.
+        // Skip nodes already inside an .abbr-trigger or .abbr-link (the
+        // latter only appears inside modal bodies today, but reject defensively
+        // in case future markup ever embeds them in the table cells), or
+        // inside a script/style.
         var p = node.parentNode;
         while (p && p !== root) {
-          if (p.classList && p.classList.contains('abbr-trigger')) return NodeFilter.FILTER_REJECT;
+          if (p.classList && (p.classList.contains('abbr-trigger') ||
+                              p.classList.contains('abbr-link'))) {
+            return NodeFilter.FILTER_REJECT;
+          }
           if (p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return NodeFilter.FILTER_REJECT;
           p = p.parentNode;
         }
+        // Reset lastIndex because WORD_RE is /g/ and .test() advances it.
+        WORD_RE.lastIndex = 0;
         return WORD_RE.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
       }
     });
@@ -144,7 +164,24 @@
     m.querySelector('.spectrum-abbr-modal__expansion').textContent = def.expansion || '';
     // body uses innerHTML so embedded <span class="abbr-link"> markup renders
     // and the document-level click handler picks up clicks on those spans.
-    m.querySelector('.spectrum-abbr-modal__body').innerHTML = def.body || '';
+    var bodyEl = m.querySelector('.spectrum-abbr-modal__body');
+    bodyEl.innerHTML = def.body || '';
+    // Make every embedded .abbr-link keyboard-activatable so the recursive
+    // modal flow is reachable without a mouse. The YAML doesn't ship these
+    // attributes (the spans are author-friendly bare markup), and the
+    // document-level keydown handler only fires on Enter/Space when e.target
+    // is one of these — so they need tabindex to be focusable in the first
+    // place.
+    var links = bodyEl.querySelectorAll('.abbr-link');
+    for (var i = 0; i < links.length; i++) {
+      var a = links[i];
+      if (!a.hasAttribute('tabindex')) a.setAttribute('tabindex', '0');
+      if (!a.hasAttribute('role')) a.setAttribute('role', 'link');
+      if (!a.hasAttribute('aria-label')) {
+        var t = a.getAttribute('data-abbr') || a.textContent.trim();
+        a.setAttribute('aria-label', t + ' — click or press Enter for explanation');
+      }
+    }
     m.querySelector('.spectrum-abbr-modal__backdrop').addEventListener('click', function () { closeModal(m); });
     m.querySelector('.spectrum-abbr-modal__close').addEventListener('click', function () { closeModal(m); });
     return m;

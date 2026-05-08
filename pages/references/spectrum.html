@@ -190,6 +190,7 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
               <span class="col-freq__full">Frequency Range</span>
               <span class="col-freq__short" aria-hidden="true">&nu;</span>
             </th>
+            <th scope="col" class="col-wave">Wavelength</th>
             <th scope="col" class="col-key">Key Frequencies / Channels</th>
             <th scope="col" class="col-band">Band Name / Designation</th>
             <th scope="col" class="col-uses">Primary Uses &amp; Hobbyist Relevance</th>
@@ -201,6 +202,7 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
             <th scope="col" class="col-safety">Safety / Exposure Limits</th>
             <th scope="col" class="col-tech">Technologies &amp; Example Devices</th>
             <th scope="col" class="col-projects">Hobbyist Project Ideas</th>
+            <th scope="col" class="col-energy">Photon Energy</th>
             <th scope="col" class="col-sources">Sources / Citations</th>
             <th scope="col" class="col-badge">Usability Badge</th>
           </tr>
@@ -224,6 +226,7 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
                     {{ band.frequency_range }}
                   {%- endif -%}
                 </td>
+                <td class="col-wave">{{ band.wavelength }}</td>
                 <td class="col-key">{{ band.key_frequencies_channels }}</td>
                 <td class="col-band">{{ band.band_name_designation }}</td>
                 <td class="col-uses">{{ band.primary_uses_hobbyist_relevance }}</td>
@@ -235,6 +238,7 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
                 <td class="col-safety">{{ band.safety_exposure_limits }}</td>
                 <td class="col-tech">{{ band.technologies_example_devices }}</td>
                 <td class="col-projects">{{ band.hobbyist_project_ideas }}</td>
+                <td class="col-energy">{{ band.photon_energy }}</td>
                 <td class="col-sources">{{ band.sources_citations }}</td>
                 <td class="col-badge"><span class="usability-badge">{{ band.usability_badge }}</span></td>
               </tr>
