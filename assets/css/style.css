@@ -3072,9 +3072,18 @@ main#main-content {
    Sticky h2 in long-form content (posts + .md pages)
    Scoped via [itemprop="articleBody"] so the reused .post-body
    wrappers (tags, post-nav, related-posts, giscus) are excluded.
-   The .is-stuck class is toggled by main.js via an
-   IntersectionObserver — see the Sticky h2 stuck-state IIFE.
+   `position: sticky` does NOT auto-replace sibling stickies, so
+   main.js observes a 1px sentinel before each h2 and applies
+   .is-stuck only to the latest scrolled-past one. Earlier h2s
+   get .is-passed (position: relative) so they fall out of sticky
+   and don't pile up at the top. See the IIFE in main.js.
    ============================================================ */
+.sticky-h2-sentinel {
+  height: 1px;
+  margin-bottom: -1px; /* don't add visible space above the heading */
+  pointer-events: none;
+}
+
 .post-body[itemprop="articleBody"] h2,
 .page-body h2 {
   position: sticky;
@@ -3112,6 +3121,13 @@ main#main-content {
 
 .post-body[itemprop="articleBody"] h2.is-stuck {
   border-top-color: transparent;
+}
+
+/* Already-scrolled-past h2s drop out of sticky so only the latest pins.
+   They stay in normal flow and scroll out of view above the viewport. */
+.post-body[itemprop="articleBody"] h2.is-passed,
+.page-body h2.is-passed {
+  position: relative;
 }
 
 /* Opt-out paths:
