@@ -55,14 +55,259 @@ Styles live in /assets/css/electronics-fundamentals.css and behaviour in
     </header>
 
     {%- comment -%} ========== Section 1: Hero / Quick Reference Wheel ========== {%- endcomment -%}
-    <section class="electronics-section" id="electronics-quick-reference">
-      <h2 class="electronics-section__title">Quick Reference Wheel</h2>
-      <p class="electronics-section__intro">
-        At-a-glance navigation: every formula, calculator, and chart on the page,
-        arranged radially around the four core quantities (V, I, R, P).
+    <section class="electronics-section" id="electronics-quick-reference" aria-labelledby="electronics-wheel-heading">
+      <h2 class="electronics-section__title" id="electronics-wheel-heading" style="text-align: center;">
+        Ohm&rsquo;s Law &amp; Power Quick Wheel
+      </h2>
+      <p class="electronics-section__intro" style="text-align: center; margin-left: auto; margin-right: auto;">
+        Type any two of the four quantities — voltage <em>V</em>, current <em>I</em>,
+        resistance <em>R</em>, or power <em>P</em> — and the wheel solves for the rest in
+        real time. Click a quadrant to jump to its input, or load an example to see
+        the math in action.
       </p>
-      <div class="electronics-wheel" id="electronics-wheel">
-        {%- comment -%} TODO: Batch 4 will fill the wheel here. {%- endcomment -%}
+
+      {%- comment -%}
+        Inline scoped styles for this section only — keeps the rest of
+        electronics-fundamentals.css free of single-section flourishes.
+      {%- endcomment -%}
+      <style>
+        .electronics-wheel-layout {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+          gap: var(--space-xl);
+          align-items: center;
+        }
+        .electronics-wheel-svg { width: 100%; height: 100%; display: block; }
+        .electronics-wheel__quadrant { cursor: pointer; transition: opacity var(--transition-fast); }
+        .electronics-wheel__quadrant:hover { opacity: 0.9; }
+        .electronics-wheel__quadrant:focus { outline: none; }
+        .electronics-wheel__quadrant-bg {
+          fill: transparent;
+          stroke: transparent;
+          stroke-width: 2;
+          transition: fill var(--transition-fast), stroke var(--transition-fast);
+        }
+        .electronics-wheel__quadrant:hover .electronics-wheel__quadrant-bg,
+        .electronics-wheel__quadrant.is-focused .electronics-wheel__quadrant-bg {
+          fill: var(--c-accent-bg);
+        }
+        .electronics-wheel__quadrant:focus-visible .electronics-wheel__quadrant-bg {
+          stroke: var(--c-accent);
+          fill: var(--c-accent-bg);
+        }
+        .electronics-wheel__symbol {
+          font-size: 2.4rem;
+          font-weight: 700;
+          fill: var(--c-text);
+          transition: fill var(--transition-fast);
+        }
+        .electronics-wheel__quadrant.is-focused .electronics-wheel__symbol { fill: var(--c-accent); }
+        .electronics-wheel__formula {
+          font-size: 0.78rem;
+          font-family: var(--f-mono);
+          fill: var(--c-text-muted);
+        }
+        .electronics-wheel__divider { stroke: var(--c-border); stroke-width: 1; opacity: 0.6; }
+
+        .electronics-wheel-fields {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: var(--space-sm);
+        }
+        .electronics-wheel-field--computed input {
+          color: var(--c-accent);
+          font-weight: 600;
+        }
+        .electronics-wheel-field--computed label::after {
+          content: " · solved";
+          font-size: 0.7rem;
+          color: var(--c-accent);
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          margin-left: 0.25rem;
+        }
+
+        .electronics-wheel-status {
+          font-size: 0.85rem;
+          padding: var(--space-sm) var(--space-md);
+          border: 1px solid var(--c-border);
+          border-radius: var(--border-radius-sm);
+          background: var(--c-surface-alt);
+          color: var(--c-text-muted);
+          line-height: 1.5;
+          font-variant-numeric: tabular-nums;
+        }
+        .electronics-wheel-status--ok { color: var(--c-text); border-color: var(--c-accent-border); }
+        .electronics-wheel-status--warn {
+          background: rgba(245, 158, 11, 0.12);
+          border-color: rgba(245, 158, 11, 0.35);
+          color: #fbbf24;
+        }
+        [data-theme="light"] .electronics-wheel-status--warn { color: #b45309; }
+
+        .electronics-wheel-chart-wrapper {
+          position: relative;
+          height: 220px;
+          background: var(--c-bg-alt);
+          border: 1px solid var(--c-border-light);
+          border-radius: var(--border-radius-sm);
+          padding: var(--space-sm);
+        }
+        .electronics-wheel-chart-label {
+          margin: 0;
+          text-align: center;
+          font-size: 0.75rem;
+          color: var(--c-text-muted);
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+
+        .electronics-wheel-examples { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+        .electronics-wheel-example {
+          appearance: none;
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
+          color: var(--c-text);
+          border-radius: 999px;
+          padding: 0.4rem 0.85rem;
+          font: inherit;
+          font-size: 0.82rem;
+          cursor: pointer;
+          transition: border-color var(--transition-fast),
+                      color var(--transition-fast),
+                      background var(--transition-fast);
+        }
+        .electronics-wheel-example:hover,
+        .electronics-wheel-example:focus-visible {
+          border-color: var(--c-accent-border);
+          color: var(--c-accent);
+          background: var(--c-accent-bg);
+          outline: none;
+        }
+        .electronics-wheel-actions { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+      </style>
+
+      <div class="electronics-wheel-layout">
+
+        {%- comment -%} ----- SVG wheel: 4 quadrants for V / I / R / P ----- {%- endcomment -%}
+        <div class="electronics-wheel" id="electronics-wheel" style="margin: 0; max-width: 30rem; justify-self: center;">
+          <svg class="electronics-wheel-svg"
+               viewBox="0 0 400 400"
+               xmlns="http://www.w3.org/2000/svg"
+               role="group"
+               aria-label="Ohm's Law Quick Wheel — click any of the four quadrants to focus the matching input.">
+            <line class="electronics-wheel__divider" x1="200" y1="40"  x2="200" y2="360"/>
+            <line class="electronics-wheel__divider" x1="40"  y1="200" x2="360" y2="200"/>
+
+            {%- comment -%} V — top-left {%- endcomment -%}
+            <g class="electronics-wheel__quadrant" data-quantity="V"
+               tabindex="0" role="button"
+               aria-label="Voltage (V) — click to focus the voltage input">
+              <circle class="electronics-wheel__quadrant-bg" cx="120" cy="120" r="80"/>
+              <text class="electronics-wheel__symbol"  x="120" y="105" text-anchor="middle">V</text>
+              <text class="electronics-wheel__formula" x="120" y="135" text-anchor="middle">I &middot; R</text>
+              <text class="electronics-wheel__formula" x="120" y="150" text-anchor="middle">&radic;(P &middot; R)</text>
+              <text class="electronics-wheel__formula" x="120" y="165" text-anchor="middle">P &divide; I</text>
+            </g>
+
+            {%- comment -%} I — top-right {%- endcomment -%}
+            <g class="electronics-wheel__quadrant" data-quantity="I"
+               tabindex="0" role="button"
+               aria-label="Current (I) — click to focus the current input">
+              <circle class="electronics-wheel__quadrant-bg" cx="280" cy="120" r="80"/>
+              <text class="electronics-wheel__symbol"  x="280" y="105" text-anchor="middle">I</text>
+              <text class="electronics-wheel__formula" x="280" y="135" text-anchor="middle">V &divide; R</text>
+              <text class="electronics-wheel__formula" x="280" y="150" text-anchor="middle">P &divide; V</text>
+              <text class="electronics-wheel__formula" x="280" y="165" text-anchor="middle">&radic;(P &divide; R)</text>
+            </g>
+
+            {%- comment -%} R — bottom-right {%- endcomment -%}
+            <g class="electronics-wheel__quadrant" data-quantity="R"
+               tabindex="0" role="button"
+               aria-label="Resistance (R) — click to focus the resistance input">
+              <circle class="electronics-wheel__quadrant-bg" cx="280" cy="280" r="80"/>
+              <text class="electronics-wheel__symbol"  x="280" y="265" text-anchor="middle">R</text>
+              <text class="electronics-wheel__formula" x="280" y="295" text-anchor="middle">V &divide; I</text>
+              <text class="electronics-wheel__formula" x="280" y="310" text-anchor="middle">V&sup2; &divide; P</text>
+              <text class="electronics-wheel__formula" x="280" y="325" text-anchor="middle">P &divide; I&sup2;</text>
+            </g>
+
+            {%- comment -%} P — bottom-left {%- endcomment -%}
+            <g class="electronics-wheel__quadrant" data-quantity="P"
+               tabindex="0" role="button"
+               aria-label="Power (P) — click to focus the power input">
+              <circle class="electronics-wheel__quadrant-bg" cx="120" cy="280" r="80"/>
+              <text class="electronics-wheel__symbol"  x="120" y="265" text-anchor="middle">P</text>
+              <text class="electronics-wheel__formula" x="120" y="295" text-anchor="middle">V &middot; I</text>
+              <text class="electronics-wheel__formula" x="120" y="310" text-anchor="middle">V&sup2; &divide; R</text>
+              <text class="electronics-wheel__formula" x="120" y="325" text-anchor="middle">I&sup2; &middot; R</text>
+            </g>
+          </svg>
+        </div>
+
+        {%- comment -%} ----- Right column: inputs / status / chart / examples ----- {%- endcomment -%}
+        <div style="display: flex; flex-direction: column; gap: var(--space-md); min-width: 0;">
+
+          <div class="electronics-wheel-fields" role="group" aria-label="Ohm's Law inputs — enter any two">
+            <div class="electronics-calculator__field" data-field="V">
+              <label for="ef-wheel-V">Voltage (V)</label>
+              <input class="electronics-calculator__input" type="number"
+                     id="ef-wheel-V" data-quantity="V"
+                     step="any" inputmode="decimal" placeholder="0.0"
+                     autocomplete="off" aria-label="Voltage in volts">
+            </div>
+            <div class="electronics-calculator__field" data-field="I">
+              <label for="ef-wheel-I">Current (A)</label>
+              <input class="electronics-calculator__input" type="number"
+                     id="ef-wheel-I" data-quantity="I"
+                     step="any" inputmode="decimal" placeholder="0.0"
+                     autocomplete="off" aria-label="Current in amperes">
+            </div>
+            <div class="electronics-calculator__field" data-field="R">
+              <label for="ef-wheel-R">Resistance (&Omega;)</label>
+              <input class="electronics-calculator__input" type="number"
+                     id="ef-wheel-R" data-quantity="R"
+                     step="any" inputmode="decimal" placeholder="0.0"
+                     autocomplete="off" aria-label="Resistance in ohms">
+            </div>
+            <div class="electronics-calculator__field" data-field="P">
+              <label for="ef-wheel-P">Power (W)</label>
+              <input class="electronics-calculator__input" type="number"
+                     id="ef-wheel-P" data-quantity="P"
+                     step="any" inputmode="decimal" placeholder="0.0"
+                     autocomplete="off" aria-label="Power in watts">
+            </div>
+          </div>
+
+          <div class="electronics-wheel-status" id="electronics-wheel-status" role="status" aria-live="polite">
+            Enter any two values to solve for the rest.
+          </div>
+
+          <div class="electronics-wheel-chart-wrapper">
+            <canvas id="electronics-power-chart"
+                    role="img"
+                    aria-label="Power Triangle — radar visualization of voltage, current, resistance, and power magnitudes"></canvas>
+          </div>
+          <p class="electronics-wheel-chart-label">Power Triangle &middot; relative magnitude (log&#8321;&#8320;)</p>
+
+          <div class="electronics-wheel-examples" role="group" aria-label="Example circuits">
+            <button type="button" class="electronics-wheel-example" data-example="battery">
+              12&nbsp;V Battery + 100&nbsp;&Omega;
+            </button>
+            <button type="button" class="electronics-wheel-example" data-example="led">
+              5&nbsp;V LED Circuit
+            </button>
+            <button type="button" class="electronics-wheel-example" data-example="usb">
+              USB 5&nbsp;V 2&nbsp;A
+            </button>
+          </div>
+
+          <div class="electronics-wheel-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-wheel-clear">
+              Clear all
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
