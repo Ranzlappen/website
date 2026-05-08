@@ -807,10 +807,15 @@ DATE: 2026-04-02
 })();
 
 /* --------------------------------------------------------------
-   Sticky h2 stuck-state observer.
-   Toggles .is-stuck on every targeted h2 while it is pinned, so
-   CSS can apply the scaled-down banner styling. The pure-CSS
-   `position: sticky` already handles the pinning + replacement.
+   Sticky h2 single-active observer.
+   `position: sticky` does NOT auto-replace sibling stickies that
+   share a containing block — they all pin and overlap. To get the
+   "current section banner" effect, observe a 1px sentinel placed
+   immediately before each h2 (sentinels don't change size when the
+   h2 toggles .is-stuck, so the observer never feedback-loops on
+   itself) and apply .is-stuck only to the latest scrolled-past h2.
+   Earlier h2s get .is-passed → position: relative so they fall out
+   of sticky and don't stack at the top.
    See the matching CSS in assets/css/style.css.
    -------------------------------------------------------------- */
 (function () {
@@ -826,19 +831,42 @@ DATE: 2026-04-02
   });
   if (!headings.length || !('IntersectionObserver' in window)) return;
 
-  var rootEl   = document.documentElement;
+  var rootEl    = document.documentElement;
   var headerRem = parseFloat(getComputedStyle(rootEl).getPropertyValue('--header-height')) || 3.75;
   var rootFont  = parseFloat(getComputedStyle(rootEl).fontSize) || 16;
   var headerPx  = Math.round(headerRem * rootFont);
 
+  var sentinels = headings.map(function (h) {
+    var s = document.createElement('div');
+    s.className = 'sticky-h2-sentinel';
+    s.setAttribute('aria-hidden', 'true');
+    h.parentNode.insertBefore(s, h);
+    return s;
+  });
+
+  var passedSet = new Set();
+
+  function applyState() {
+    var lastPassedIdx = -1;
+    for (var i = 0; i < sentinels.length; i++) {
+      if (passedSet.has(sentinels[i])) lastPassedIdx = i;
+    }
+    headings.forEach(function (h, i) {
+      h.classList.toggle('is-stuck',  i === lastPassedIdx);
+      h.classList.toggle('is-passed', i <  lastPassedIdx);
+    });
+  }
+
   var observer = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
-      entry.target.classList.toggle('is-stuck', entry.intersectionRatio < 1);
+      if (entry.intersectionRatio < 1) passedSet.add(entry.target);
+      else passedSet.delete(entry.target);
     });
+    applyState();
   }, {
     threshold: [1],
     rootMargin: '-' + (headerPx + 1) + 'px 0px 0px 0px'
   });
 
-  headings.forEach(function (h) { observer.observe(h); });
+  sentinels.forEach(function (s) { observer.observe(s); });
 })();
