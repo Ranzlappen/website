@@ -19,6 +19,32 @@
 # alive.
 # =============================================================================
 
+- term: "ACC"
+  full_form: "Adaptive Cruise Control"
+  explanation: >-
+    Driver-assistance feature that maintains a set following distance
+    behind the car ahead, modulating throttle + brake automatically.
+    Implemented with a 76–77 GHz long-range radar (<span
+    class="abbr-link" data-abbr="LRR">LRR</span>), often fused with a
+    forward camera. Foundation feature of every modern <span
+    class="abbr-link" data-abbr="ADAS">ADAS</span> suite and the
+    canonical "Level 1" automation per SAE J3016.
+
+- term: "ADAS"
+  full_form: "Advanced Driver-Assistance Systems"
+  explanation: >-
+    Umbrella for the camera + radar + ultrasound + (sometimes)
+    <span class="abbr-link" data-abbr="LiDAR">LiDAR</span> features
+    on modern cars: <span class="abbr-link"
+    data-abbr="ACC">ACC</span>, <span class="abbr-link"
+    data-abbr="AEB">AEB</span>, <span class="abbr-link"
+    data-abbr="BSD">BSD</span>, <span class="abbr-link"
+    data-abbr="LCA">LCA</span>, lane-keep assist, traffic-sign
+    recognition. Required for top safety ratings (Euro <span
+    class="abbr-link" data-abbr="NCAP">NCAP</span> 5★, US <span
+    class="abbr-link" data-abbr="IIHS">IIHS</span> Top Safety
+    Pick+) since the early 2020s.
+
 - term: "ADS"
   full_form: "Active Denial System"
   explanation: >-
@@ -42,6 +68,17 @@
     the standard hobby setup; flightradar24 and ADS-B Exchange are fed by
     thousands of these.
 
+- term: "AEB"
+  full_form: "Autonomous Emergency Braking"
+  explanation: >-
+    ADAS feature that applies the brakes automatically when the radar
+    + camera detect an imminent forward collision and the driver
+    isn't reacting. Operates at city speeds (pedestrian / cyclist
+    detection) and highway speeds (vehicle-to-vehicle). Mandatory
+    on new EU passenger cars under GSR2 (2024) and on US new vehicles
+    by 2029 per the <span class="abbr-link"
+    data-abbr="NHTSA">NHTSA</span> 2024 final rule.
+
 - term: "AGN"
   full_form: "Active Galactic Nucleus"
   explanation: >-
@@ -52,6 +89,16 @@
     data-abbr="VLBI">VLBI</span> + <span class="abbr-link"
     data-abbr="ALMA">ALMA</span>; also bright in X-ray and gamma-ray.
     Used by amateurs as calibration sources for 1.4 GHz dishes.
+
+- term: "AiP"
+  full_form: "Antenna-in-Package"
+  explanation: >-
+    Antenna integrated inside the same plastic / ceramic package as
+    the radar / mmWave RFIC. Standard on TI IWR / AWR series 60 / 77
+    GHz radar chips and on 5G FR2 mmWave UE modules (Qualcomm QTM575
+    / 577). Distinct from <span class="abbr-link"
+    data-abbr="AoP">AoP</span> (antenna on top of, but not inside,
+    the package).
 
 - term: "AIS"
   full_form: "Automatic Identification System"
@@ -119,12 +166,29 @@
     <span class="abbr-link" data-abbr="BLE">BLE</span>, but Garmin and
     Wahoo gear still ship dual ANT+/BLE radios.
 
+- term: "AoP"
+  full_form: "Antenna-on-Package"
+  explanation: >-
+    Antenna-array PCB or substrate placed on top of (and electrically
+    bonded to) the RFIC package, usually via solder bumps and a
+    matched dielectric. Common in 60 / 77 GHz automotive radar — gives
+    near-AiP integration with a bit more layout freedom.
+
 - term: "APRS"
   full_form: "Automatic Packet Reporting System"
   explanation: >-
     Amateur-radio packet network on 144.39 MHz (US) / 144.800 MHz (EU) for
     live position beacons, weather, and short messages. Most modern handhelds
     decode it natively; aprs.fi shows the worldwide map.
+
+- term: "ARIB"
+  full_form: "Association of Radio Industries and Businesses (Japan)"
+  explanation: >-
+    Japanese standardisation body for radio communications. Publishes
+    ARIB STD-T-* series — STD-T48 covers 76–81 GHz automotive radar
+    (Japanese harmonisation with <span class="abbr-link"
+    data-abbr="ETSI">ETSI</span> EN 302 264). Also responsible for
+    Japanese DTV (ISDB-T), B-CAS, and digital-radio standards.
 
 - term: "ARRL"
   full_form: "American Radio Relay League"
@@ -133,6 +197,15 @@
     <span class="abbr-link" data-abbr="FCC">FCC</span>, runs the
     incoming/outgoing QSL bureau, and publishes the ARRL Handbook (the
     canonical hobby reference).
+
+- term: "ASIL"
+  full_form: "Automotive Safety Integrity Level (ISO 26262)"
+  explanation: >-
+    Functional-safety classification for road vehicles, A < B < C < D
+    by hazard severity, exposure, and controllability. ADAS radar
+    chips ship with ASIL-B/D ratings (TI AWR2944, Infineon BGT60ATR24,
+    NXP TEF82xx); the rating is a contractual + tooling requirement
+    for OEMs. A separate concept from cybersecurity (ISO/SAE 21434).
 
 - term: "ATC"
   full_form: "Air Traffic Control"
@@ -210,6 +283,17 @@
     <span class="abbr-link" data-abbr="QAM">QAM</span> and
     <span class="abbr-link" data-abbr="OFDM">OFDM</span> subcarriers.
 
+- term: "BSD"
+  full_form: "Blind-Spot Detection"
+  explanation: >-
+    Short-range 77–81 GHz radar (or rear-corner camera) that warns
+    when a vehicle is in the driver's blind spot. Radar implementation
+    typically uses bumper-mounted <span class="abbr-link"
+    data-abbr="SRR">SRR</span> modules with ±60–75° field of view.
+    Often paired with <span class="abbr-link"
+    data-abbr="LCA">LCA</span> + <span class="abbr-link"
+    data-abbr="RCTA">RCTA</span>.
+
 - term: "c"
   full_form: "Speed of light in vacuum"
   explanation: >-
@@ -232,6 +316,16 @@
     <span class="abbr-link" data-abbr="DMR">DMR</span> and
     <span class="abbr-link" data-abbr="D-STAR">D-STAR</span> on the 2 m and
     70 cm bands.
+
+- term: "CAN"
+  full_form: "Controller Area Network (ISO 11898)"
+  explanation: >-
+    The dominant in-vehicle network bus, twisted-pair differential
+    serial, 1 Mbps classic / 5–8 Mbps CAN-FD. Used to glue together
+    body, chassis, powertrain, and ADAS ECUs — including how radar
+    modules report tracked targets to the steering / braking
+    controller. Hobbyists decode junkyard radar with SocketCAN +
+    candump + a USB-CAN dongle (Lawicel CANUSB, Innomaker GS-USB).
 
 - term: "CBRS"
   full_form: "Citizens Broadband Radio Service"
@@ -295,6 +389,16 @@
     <span class="abbr-link" data-abbr="HF">HF</span> bands; CW signals punch
     through QRM where <span class="abbr-link" data-abbr="SSB">SSB</span>
     voice can't.
+
+- term: "D-band"
+  full_form: "D-band waveguide (~110–170 GHz)"
+  explanation: >-
+    Sub-THz waveguide band (WR-6) used for fixed-service backhaul
+    130–174.8 GHz and current 6G research test-beds. Commercial
+    sources use multiplied 12 / 24 GHz chains (×6 / ×8) into Schottky
+    or GaAs MMICs. Aperture-efficient at moderate distances despite
+    high atmospheric attenuation around water-vapour lines (<span
+    class="abbr-link" data-abbr="λ">λ</span> ≈ 1.7 – 2.7 mm).
 
 - term: "D-STAR"
   full_form: "Digital Smart Technology for Amateur Radio"
@@ -424,6 +528,16 @@
     powers <span class="abbr-link" data-abbr="DAB">DAB</span>; the receiver
     chip from these cheap dongles is the basis of the iconic
     <span class="abbr-link" data-abbr="RTL-SDR">RTL-SDR</span>.
+
+- term: "E-band"
+  full_form: "E-band (~60–90 GHz, telecom 71–76 / 81–86 GHz)"
+  explanation: >-
+    The "light-licensed" telecom backhaul band — paired duplex
+    71–76 / 81–86 GHz used by carriers for multi-Gb/s point-to-point
+    radio links (Siklu, BridgeWave, Aviat, Ericsson MINI-LINK, Nokia
+    UBT). US registration via <span class="abbr-link"
+    data-abbr="FCC">FCC</span> 70/80/90 GHz (free, ~10 minutes); EU
+    per-link licensed. Waveguide convention WR-12.
 
 - term: "EAR"
   full_form: "Export Administration Regulations (US Department of Commerce)"
@@ -592,6 +706,16 @@
     walkie-talkies (<span class="abbr-link" data-abbr="PMR446">PMR446</span>,
     <span class="abbr-link" data-abbr="FRS">FRS</span>,
     <span class="abbr-link" data-abbr="GMRS">GMRS</span>).
+
+- term: "FMCW"
+  full_form: "Frequency-Modulated Continuous-Wave radar"
+  explanation: >-
+    Radar architecture that transmits a continuous chirp swept across
+    a wide bandwidth; the round-trip delay shows up as a beat
+    frequency proportional to range, while Doppler shift between
+    chirps gives velocity. Range resolution Δr = c/(2·BW); a 4 GHz
+    chirp at 77 GHz buys ≈ 4 cm. The dominant architecture for 77 GHz
+    automotive radar — far smaller and cheaper than pulse Doppler.
 
 - term: "FPV"
   full_form: "First-Person View"
@@ -902,6 +1026,16 @@
     observations from a hobby u-blox receiver, IGS lets you do
     cm-level post-processed positioning anywhere on Earth.
 
+- term: "IIHS"
+  full_form: "Insurance Institute for Highway Safety (USA)"
+  explanation: >-
+    US non-profit funded by auto insurers that crash-tests new
+    vehicles and rates ADAS performance — the "Top Safety Pick" and
+    "Top Safety Pick+" awards. Their <span class="abbr-link"
+    data-abbr="AEB">AEB</span> + headlight + side-impact tests have
+    driven much of the radar / camera adoption in US-market vehicles
+    over the past decade.
+
 - term: "ILS"
   full_form: "Instrument Landing System"
   explanation: >-
@@ -1007,6 +1141,27 @@
     <span class="abbr-link" data-abbr="FT8">FT8</span> on HF but still common
     on <span class="abbr-link" data-abbr="EME">EME</span> and meteor scatter.
 
+- term: "K-band"
+  full_form: "K-band (~18–26.5 GHz)"
+  explanation: >-
+    Microwave waveguide band (WR-42) — sandwiched between
+    <span class="abbr-link" data-abbr="Ku-band">Ku-band</span> (below)
+    and <span class="abbr-link" data-abbr="Ka-band">Ka-band</span>
+    (above). Used by police radar (24.125 GHz "K-band radar guns"),
+    legacy automotive 24 GHz <span class="abbr-link"
+    data-abbr="SRR">SRR</span> (now phased out), <span
+    class="abbr-link" data-abbr="VLBI">VLBI</span> standard at
+    22 GHz, and the H₂O maser radio-astronomy line at 22.235 GHz.
+
+- term: "Ka-band"
+  full_form: "Ka-band (~26.5–40 GHz)"
+  explanation: >-
+    Microwave band (WR-28) for satellite uplink (FSS 27.5–30 GHz —
+    Inmarsat, Viasat, SES, Starlink Gateway), satellite downlink
+    (17.7–21.2 GHz — note this is Ku/Ka boundary terminology),
+    cellular 5G FR2 (n257 / n258 / n261 mmWave), and
+    microwave backhaul. Heavy rain-fade, line-of-sight only.
+
 - term: "keV"
   full_form: "kilo-electron-volt (10³ eV)"
   explanation: >-
@@ -1023,6 +1178,17 @@
     Wireless variant of the KNX building-automation standard — runs at
     868 MHz <span class="abbr-link" data-abbr="ISM">ISM</span> in Europe.
     Used for retrofitting KNX into buildings without pulling new wires.
+
+- term: "Ku-band"
+  full_form: "Ku-band (~12–18 GHz)"
+  explanation: >-
+    The dominant satellite-TV downlink band (10.7–12.75 GHz, e.g.
+    SES / Eutelsat / Astra) plus VSAT terminal uplink (14 GHz).
+    Smaller dishes than C-band (60–90 cm typical), some rain-fade,
+    widely deployed worldwide. Hobbyists repurpose offset Ku dishes
+    as 1.4 GHz <span class="abbr-link" data-abbr="HI">HI</span>-line
+    radio telescopes (the dish geometry is the same; only the feed
+    changes).
 
 - term: "L1"
   full_form: "GNSS L1 band (1575.42 MHz)"
@@ -1062,6 +1228,15 @@
     signal, and the path to triple-frequency
     <span class="abbr-link" data-abbr="RTK">RTK</span>.
     <span class="abbr-link" data-abbr="λ">λ</span> ≈ 25.48 cm.
+
+- term: "LCA"
+  full_form: "Lane-Change Assist"
+  explanation: >-
+    Short-range radar feature that warns of approaching vehicles in
+    the adjacent lane during a lane-change manoeuvre — typically
+    paired with <span class="abbr-link" data-abbr="BSD">BSD</span>
+    and turn-signal logic. Uses bumper-corner 77–81 GHz <span
+    class="abbr-link" data-abbr="SRR">SRR</span> modules.
 
 - term: "LF"
   full_form: "Low Frequency (30–300 kHz)"
@@ -1127,6 +1302,16 @@
     <span class="abbr-link" data-abbr="TheThingsNetwork">TheThingsNetwork</span>
     runs the largest community deployment.
 
+- term: "LRR"
+  full_form: "Long-Range Radar (76–77 GHz automotive)"
+  explanation: >-
+    Front-mounted radar covering 200–250 m at ±10° field of view.
+    Provides the range + velocity input for <span class="abbr-link"
+    data-abbr="ACC">ACC</span> and forward <span class="abbr-link"
+    data-abbr="AEB">AEB</span>. Distinct band slice (76–77 GHz, ITU
+    footnote 5.559) from the wider 77–81 GHz <span class="abbr-link"
+    data-abbr="UWB">UWB</span> short-range allocation.
+
 - term: "LTE"
   full_form: "Long-Term Evolution (4G cellular)"
   explanation: >-
@@ -1184,6 +1369,16 @@
     <span class="abbr-link" data-abbr="NR">NR</span>; massive-MIMO base
     stations have 64+ elements.
 
+- term: "MMIC"
+  full_form: "Monolithic Microwave Integrated Circuit"
+  explanation: >-
+    Single-chip RF / microwave circuit on a III-V (GaAs, GaN, InP) or
+    SiGe / CMOS substrate, integrating amplifiers, mixers, oscillators,
+    and switches above ~1 GHz. Modern automotive 77 GHz radar SoCs
+    (TI AWR / IWR, Infineon BGT, NXP TEF82xx) are CMOS MMICs;
+    cryogenic LNAs use GaAs / InP HEMT MMICs. The reason a
+    commercial 77 GHz radar fits on a fingernail.
+
 - term: "mmWave"
   full_form: "Millimeter-wave (≈30–300 GHz)"
   explanation: >-
@@ -1199,6 +1394,15 @@
     retained messages, last-will. The de facto messaging layer over
     <span class="abbr-link" data-abbr="LoRaWAN">LoRaWAN</span>,
     <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span>, and cellular IoT.
+
+- term: "MRR"
+  full_form: "Mid-Range Radar (77–81 GHz automotive)"
+  explanation: >-
+    Intermediate-range automotive radar, 50–100 m at ±30–45° field
+    of view — fills the gap between front <span class="abbr-link"
+    data-abbr="LRR">LRR</span> and corner <span class="abbr-link"
+    data-abbr="SRR">SRR</span>. Used for traffic-jam assist and
+    Level 2+ highway pilot features.
 
 - term: "MSAS"
   full_form: "MTSAT Satellite Augmentation System (Japan)"
@@ -1260,6 +1464,17 @@
     <span class="abbr-link" data-abbr="LoRaWAN">LoRaWAN</span> and
     <span class="abbr-link" data-abbr="Sigfox">Sigfox</span>.
 
+- term: "NCAP"
+  full_form: "New Car Assessment Programme"
+  explanation: >-
+    Family of independent crash- and ADAS-test programmes — Euro NCAP
+    (Europe), ASEAN NCAP, ANCAP (Australasia), Latin NCAP, KNCAP
+    (Korea), JNCAP (Japan), C-NCAP (China). 5★ ratings effectively
+    require functional <span class="abbr-link"
+    data-abbr="AEB">AEB</span> + lane-keep + automatic-emergency-call
+    in Europe since 2018 — the regulatory engine behind universal
+    ADAS adoption.
+
 - term: "NDB"
   full_form: "Non-Directional Beacon"
   explanation: >-
@@ -1285,6 +1500,17 @@
     13.56 MHz inductive link with a few-cm range — tap-to-pay, transit
     cards, hotel keys, access badges, and the NFC reader built into every
     modern phone. Subset of <span class="abbr-link" data-abbr="RFID">RFID</span>.
+
+- term: "NHTSA"
+  full_form: "National Highway Traffic Safety Administration (USA)"
+  explanation: >-
+    US Department of Transportation regulator for vehicle safety.
+    Sets Federal Motor Vehicle Safety Standards (FMVSS), runs the
+    US <span class="abbr-link" data-abbr="NCAP">NCAP</span> star-rating
+    programme, and recalls non-compliant vehicles. The 2024 final
+    rule mandating <span class="abbr-link" data-abbr="AEB">AEB</span>
+    on all light vehicles by 2029 is the most consequential US
+    regulatory ADAS push to date.
 
 - term: "NIST"
   full_form: "National Institute of Standards and Technology"
@@ -1566,6 +1792,17 @@
     class="abbr-link" data-abbr="BNetzA">BNetzA</span> / <span
     class="abbr-link" data-abbr="Ofcom">Ofcom</span>.
 
+- term: "RCTA"
+  full_form: "Rear Cross-Traffic Alert"
+  explanation: >-
+    Bumper-corner short-range radar feature that warns of vehicles
+    approaching from the side while reversing out of a parking spot.
+    Same 77–81 GHz <span class="abbr-link"
+    data-abbr="SRR">SRR</span> hardware as
+    <span class="abbr-link" data-abbr="BSD">BSD</span> /
+    <span class="abbr-link" data-abbr="LCA">LCA</span>, just a
+    different sensor-fusion mode and FOV.
+
 - term: "RDS"
   full_form: "Radio Data System"
   explanation: >-
@@ -1772,6 +2009,18 @@
     Karoo, South Africa). When complete it will be the world's largest
     radio telescope and produce ~700 PB of science data per year.
 
+- term: "SRR"
+  full_form: "Short-Range Radar (77–81 GHz automotive UWB)"
+  explanation: >-
+    Bumper-mounted automotive radar covering 30–60 m at ±60° or
+    wider, used for blind-spot detection (<span class="abbr-link"
+    data-abbr="BSD">BSD</span>), <span class="abbr-link"
+    data-abbr="LCA">LCA</span>, <span class="abbr-link"
+    data-abbr="RCTA">RCTA</span>, parking, and pedestrian / cyclist
+    detection. <span class="abbr-link" data-abbr="UWB">UWB</span>
+    chirps in 77–81 GHz (per ETSI EN 302 264 / FCC Part 95.4002)
+    replaced the legacy 24 GHz K-band SRR phased out 2018–2022.
+
 - term: "SSB"
   full_form: "Single Sideband"
   explanation: >-
@@ -1873,6 +2122,17 @@
     platform for academic and military signal-processing research; runs on
     GNU Radio.
 
+- term: "UWB"
+  full_form: "Ultra-WideBand"
+  explanation: >-
+    Radio that uses ≥ 500 MHz instantaneous bandwidth (or ≥ 20%
+    fractional bandwidth) — typically pulsed 3.1–10.6 GHz or chirped
+    77–81 GHz. Three big classes today: indoor positioning &
+    proximity (Apple U1/U2 / NXP Trimension / IEEE 802.15.4z, used
+    in AirTags, Find My, car-key access — UWB digital key), 77–81
+    GHz automotive <span class="abbr-link"
+    data-abbr="SRR">SRR</span>, and ground-penetrating radar.
+
 - term: "VHF"
   full_form: "Very High Frequency (30–300 MHz)"
   explanation: >-
@@ -1928,6 +2188,16 @@
     GaN-based generation under DoD R&D. Same ITAR / weapons-law
     restrictions apply.
 
+- term: "W-band"
+  full_form: "W-band (~75–110 GHz)"
+  explanation: >-
+    Waveguide band (WR-10) covering automotive 76–81 GHz radar,
+    94 GHz airport / military mmWave imaging, the 95 GHz
+    <span class="abbr-link" data-abbr="ADS">ADS</span> directed-
+    energy band, and 81–86 GHz E-band backhaul (sometimes called
+    upper E or low W). Atmospheric window between water-vapour
+    absorption peaks at 60 / 119 / 183 GHz.
+
 - term: "WAAS"
   full_form: "Wide Area Augmentation System (USA)"
   explanation: >-
@@ -1961,6 +2231,16 @@
     <span class="abbr-link" data-abbr="OFDMA">OFDMA</span>, Wi-Fi 6E added
     the <span class="abbr-link" data-abbr="UNII">UNII</span>-5/6/7/8 6 GHz
     tiers, and Wi-Fi 7 (be) adds 320 MHz channels and 4096-QAM.
+
+- term: "WiGig"
+  full_form: "Wireless Gigabit (60 GHz / 802.11ad / ay)"
+  explanation: >-
+    Worldwide-unlicensed 57–66 GHz Wi-Fi at multi-Gb/s rates over
+    short range, four channels of 2.16 GHz. Original IEEE 802.11ad
+    (WiGig 1.0); 802.11ay extends to ~40 Gb/s with channel bonding
+    + MIMO. Commercial gear: TP-Link Talon AD7200 (discontinued,
+    secondhand), Mikrotik wAP 60G / cnWave V3000 (license-free P2P
+    & P2MP), some VR streaming kits.
 
 - term: "WSJT-X"
   full_form: "WSJT-X (weak-signal modes software)"
