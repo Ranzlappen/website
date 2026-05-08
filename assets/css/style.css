@@ -1645,7 +1645,9 @@ main#main-content {
   background: var(--c-surface);
   border-top: 1px solid var(--c-border);
   padding: var(--space-sm) var(--space-md);
-  z-index: 50;
+  /* Sits above the sticky h2 banner (z-index: 50) so the persistent vote
+     controls always cover an h2 that pins close to the bottom edge. */
+  z-index: 60;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
@@ -3099,24 +3101,32 @@ main#main-content {
   padding-left: calc(50vw - 50%);
   padding-right: calc(50vw - 50%);
   transition: background-color var(--transition-fast),
-              padding var(--transition-fast),
-              font-size var(--transition-fast),
               box-shadow var(--transition-fast);
 }
 
-/* Stuck-state: shrink via font-size rather than `transform: scale()`. Scale
-   shrinks the box (background included) and leaves a gap on the side opposite
-   the transform-origin, which defeats the full-bleed bar. Font-size reflows
-   only the text and keeps the background spanning the viewport. The natural
-   size is published per scope as --h2-natural-size so this single rule covers
-   both .post-body (1.5rem) and .page-body (1.35rem). */
+/* Stuck-state: keep the h2 box at its natural size in flow (any change to
+   font-size or padding here would reflow every sentinel below and let the
+   stuck-banner swap flicker between adjacent h2s). The visible shrink
+   happens on the inner .sticky-h2-content span via `transform: scale()`,
+   which is purely visual — see the rule below and the wrapping logic in
+   main.js. */
 .post-body[itemprop="articleBody"] h2.is-stuck,
 .page-body h2.is-stuck {
   background: var(--c-bg);
-  font-size: calc(var(--h2-natural-size) * 0.85);
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
   box-shadow: 0 1px 0 var(--c-border-light);
+}
+
+/* Inner wrapper added by main.js around each sticky h2's content. Scaling
+   the span (not the h2) keeps the full-bleed background spanning the
+   viewport edge-to-edge while the title text shrinks. */
+.sticky-h2-content {
+  display: inline-block;
+  transform-origin: left center;
+  transition: transform var(--transition-fast);
+}
+.post-body[itemprop="articleBody"] h2.is-stuck .sticky-h2-content,
+.page-body h2.is-stuck .sticky-h2-content {
+  transform: scale(0.85);
 }
 
 .post-body[itemprop="articleBody"] h2.is-stuck {
@@ -3160,6 +3170,7 @@ main#main-content {
   .page-body h2 { transition: none; }
   /* Keep the heading at its natural size when stuck — matches the original
      reduced-motion intent of skipping the shrink-down visual change. */
-  .post-body[itemprop="articleBody"] h2.is-stuck,
-  .page-body h2.is-stuck { font-size: var(--h2-natural-size); }
+  .sticky-h2-content { transition: none; }
+  .post-body[itemprop="articleBody"] h2.is-stuck .sticky-h2-content,
+  .page-body h2.is-stuck .sticky-h2-content { transform: none; }
 }
