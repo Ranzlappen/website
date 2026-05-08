@@ -4,7 +4,8 @@ import { requireRole } from "../utils/adminOnly";
 import { Octokit } from "@octokit/rest";
 import matter from "gray-matter";
 
-export const githubToken = defineSecret("GITHUB_PAT");
+export const githubToken: ReturnType<typeof defineSecret> =
+  defineSecret("GITHUB_PAT");
 
 export const REPO_OWNER = "ranzlappen";
 export const REPO_NAME = "website";
