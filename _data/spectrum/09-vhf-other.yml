@@ -26,7 +26,7 @@ batch:
     land mobile, VHF-Hi TV (channels 7 – 13), DAB+ Band III, and the
     225 – 300 MHz military UHF air band. Most of this is receive-only for
     hobbyists with an RTL-SDR plus a discone or band-tuned vertical.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "30 MHz – 50 MHz"
@@ -41,6 +41,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; ambient levels at hobbyist RX sites are negligible"
     technologies_example_devices: "Project 25 (P25) low-band, MotoTRBO, EDACS legacy, RC aircraft / cars, Family Radio toys at 49 MHz, baby monitors"
     hobbyist_project_ideas: "Build a low-band discone and listen for sporadic-E DX from rural fire dispatchers; log RC-model carriers during a model-airplane meet"
+    wavelength: "λ = c/ν ≈ 6 – 10 m"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), FCC Part 90 / Part 95, CEPT / ETSI EN 300 220, ARRL Operating Manual (2026)"
     usability_badge: "🟡 Licensed / Public receive (some services)"
 
@@ -56,6 +58,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines"
     technologies_example_devices: "Legacy NTSC/PAL TV channels 2–6 (mostly off-air), OIRT FM stations, RC aircraft TX, vintage wireless mics. Analog TV (phased out globally 2025–2026; now mostly digital — DVB-T/T2 in EU/UK, ATSC 1.0/3.0 in US, ISDB-T in Japan/Brazil)"
     hobbyist_project_ideas: "Chase OIRT FM DX during sporadic-E season; log surviving low-VHF analog TV translators in remote regions; build a 75 MHz dipole for vintage RC monitoring"
+    wavelength: "λ = c/ν ≈ 3.4 – 5.55 m"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), FCC Part 73 (TV), CEPT ECC / ETSI EN 300 220, ARRL Antenna Book (2026)"
     usability_badge: "🟡 Licensed / Public receive (some services)"
 
@@ -71,6 +75,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 MPE limits; near broadcast antennas keep well outside the rated controlled-environment exclusion zone"
     technologies_example_devices: "Standard FM stereo + RDS, HD Radio (NRSC-5), DRM+ (rare), commercial FM transmitters by Nautel / RVR, low-power community FM"
     hobbyist_project_ideas: "Build an FM Yagi and chase sporadic-E DX in June–July; decode RDS with RTL-SDR + redsea / SDR# RDS plugin; map local FM coverage with a logging receiver in a moving car"
+    wavelength: "λ = c/ν ≈ 2.78 – 3.41 m (FM broadcast band, half-wave dipole ≈ 1.4 m)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), FCC Part 73 Subpart B (FM), Ofcom Tech Parameters, NRSC-5 HD Radio standard, World DX Club (2026)"
     usability_badge: "🟡 Licensed / Public receive (some services)"
 
@@ -86,6 +92,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines"
     technologies_example_devices: "ATC voice (analog AM), VOR / ILS, ATIS, AWOS / ASOS automated weather, DATIS, ACARS in adjacent UHF, ELTs"
     hobbyist_project_ideas: "Plug an RTL-SDR + airband filter into your laptop and listen to your nearest tower; combine VHF voice with dump1090 ADS-B at 1090 MHz to follow individual flights; build a discone covering 108–800 MHz"
+    wavelength: "λ = c/ν ≈ 2.19 – 2.78 m (1/4-wave whip ≈ 60 cm)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), ICAO Annex 10, FCC Part 87, EUROCONTROL 8.33 kHz docs, Eurocontrol VATSIM resources (2026)"
     usability_badge: "🟡 Licensed / Public receive (some services)"
 
@@ -101,6 +109,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines"
     technologies_example_devices: "NOAA-15/18/19 APT (still operational in 2026 era), Meteor M2-3/M2-4 LRPT, AIS class A/B transponders, P25 Phase I/II, DMR Tier II/III, NXDN, MotoTRBO, NOAA SAME alerts, FRS adjacent in UHF"
     hobbyist_project_ideas: "Build a QFH antenna and decode NOAA APT or Meteor LRPT with WXtoImg / SatDump; receive AIS with an RTL-SDR and feed MarineTraffic; log NOAA WX SAME alerts to a Raspberry Pi; map local LMR with SDRTrunk (legal, unencrypted only)"
+    wavelength: "λ = c/ν ≈ 1.72 – 2.19 m (137 MHz weather sats ≈ 2.19 m, marine 156 MHz ≈ 1.92 m, NOAA WX 162 MHz ≈ 1.85 m)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R M.1371 (AIS), FCC Part 80 / Part 90 / Part 95, NOAA NESDIS APT/LRPT specs, NOAA NWR All-Hazards (2026)"
     usability_badge: "🟡 Licensed / Public receive (some services)"
 
@@ -116,5 +126,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines"
     technologies_example_devices: "DAB+ (ETSI TS 102 563), ATSC 1.0 / 3.0, DVB-T / T2, FLTSATCOM, UFO satellite system, P25 / DMR repeaters in adjacent UHF. Analog TV (phased out globally 2025–2026; now mostly digital — only a handful of low-power translators / overseas territories still on the air)"
     hobbyist_project_ideas: "Build a Yagi for Band III and chase tropo DAB+ DX; receive FLTSATCOM downlinks with a small handheld Yagi (note: not for re-transmission); decode legacy POCSAG paging traffic with PDW or multimon-ng"
+    wavelength: "λ = c/ν ≈ 1.0 – 1.72 m (Band III DAB+ ≈ 1.4 m; military 250 MHz ≈ 1.2 m)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), FCC Part 73 (TV) / Part 90, ETSI TS 102 563 (DAB+), STANAG 4205 (mil-air), UHF Satcom community (2026)"
     usability_badge: "🟡 Licensed / Public receive (some services)"

@@ -34,7 +34,7 @@ batch:
     regulation; governed by ICNIRP optical / non-ionising guidelines
     (UV) and IAEA / ICRP / national radiation-protection bodies
     (X-ray, gamma).
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "750 THz – 30 PHz (400 – 10 nm; UV-A / UV-B / UV-C / EUV)"
@@ -49,6 +49,8 @@ bands:
     safety_exposure_limits: "ICNIRP 2004 UV exposure limits: 30 J/m<sup>2</sup> (3 mJ/cm<sup>2</sup>) UV-C / UV-B / UV-A 8-hour maximum. UV-C 254 nm at 1 mW/cm<sup>2</sup> → 30-second exposure exceeds limit. UV protection: UV-blocking safety glasses (polycarbonate blocks UV-A/B/C below ~380 nm), face shields, lab coats. Far-UVC 222 nm has reduced skin / eye penetration (KrCl excimer absorbed in dead skin layer + tear film) — basis of 'eye-safer' germicidal disinfection in occupied spaces"
     technologies_example_devices: "EUV ASML scanners (TWINSCAN NXE:3600D / EXE:5000 — every advanced-node chip on Earth), UV-resin SLA printers (Anycubic, Elegoo, Phrozen), UV-C germicidal lamps and HVAC sterilisation, far-UVC 222 nm KrCl 'occupied-space' germicidal (Ushio Care222, Bolb fixtures), forensic UV photography, fluorescence microscopy, semiconductor lithography (i-line 365 nm, KrF 248 nm, ArF 193 nm + immersion), tanning beds, phototherapy (PUVA UV-A, narrowband UV-B 311 nm)"
     hobbyist_project_ideas: "Build a 365 nm UV-A counterfeit-detection / mineral-fluorescence rig with high-power UV LEDs + UV-passing filter; SLA-print resin models on an Anycubic Photon (385 / 405 nm masking LCD); modify a DSLR for full-spectrum + UV photography (Lifepixel / Kolari conversion + Baader U-filter); build a UV-C sterilisation cabinet for tools (with proper interlocks); experiment with UV-induced fluorescence of common materials (tonic water quinine, banana skins, scorpion exoskeletons, white paper optical brighteners)"
+    wavelength: "λ ≈ 10 – 400 nm (UV-A 315–400 nm, UV-B 280–315 nm, UV-C 100–280 nm, EUV 13.5 nm)"
+    photon_energy: "E = hc/λ ≈ 3.1 – 124 eV (365 nm ≈ 3.4 eV, 254 nm ≈ 4.88 eV, 222 nm ≈ 5.58 eV, 13.5 nm EUV ≈ 91.8 eV; ionising threshold ~10 eV — UV-C and EUV cause direct DNA damage and are formally ionising)"
     sources_citations: "ICNIRP 2004 UV guidelines, IEC 62471 photobiological safety, ACGIH TLV 2024 (far-UVC update), ISO 21348 solar irradiance bands, EAR Cat. 6A002 / ITAR Cat. XII (UV / EUV controls), ASML / Cymer EUV publications, Optica / SPIE photonics publications (2026)"
     usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
 
@@ -64,6 +66,8 @@ bands:
     safety_exposure_limits: "ICRP 103 (2007 + ongoing updates), IAEA Basic Safety Standards (GSR Part 3), national equivalents (10 CFR 20 USA, EURATOM 2013/59 EU, IRR17 UK). Effective dose limits: 20 mSv/year occupational averaged (50 mSv/year max), 1 mSv/year public. Always use TLD / OSL / electronic dosimeters for active work; shielding, distance, time as fundamental controls (ALARA principle)"
     technologies_example_devices: "Medical / dental X-ray (Siemens / GE / Philips / Canon), CT scanners, mammography, fluoroscopy, X-ray crystallography (Rigaku, Bruker D8), pXRF guns (Bruker, Olympus, Hitachi), industrial radiography (NDT for pipelines, weld inspection), security CT (Smiths, L3Harris airport baggage), X-ray astronomy (Chandra, XMM-Newton, NuSTAR, eXTP, XRISM), synchrotron light sources (ESRF-EBS, APS-U, NSLS-II)"
     hobbyist_project_ideas: "Build a passive X-ray / gamma spectroscopy rig with Theremino MCA + NaI(Tl) scintillator + PMT and identify radioisotopes (Cs-137 662 keV, Co-60 1.17 / 1.33 MeV, K-40 1.46 MeV in bananas, Th-232 chain in old camera lenses, Am-241 60 keV in smoke detectors); build a cloud chamber to visualise cosmic-ray + radon-decay tracks; analyse archival Chandra X-ray observatory data (public archive at CXC / CIAO software) for galactic-source-finding; use a pXRF gun rental for thrift-store metal-art-deco lead-paint analysis; Geiger-counter monitoring of background + medical X-ray dosing in everyday environments"
+    wavelength: "λ ≈ 0.01 – 10 nm (Cu Kα ≈ 0.154 nm, Mo Kα ≈ 0.071 nm, dental ≈ 0.02 nm)"
+    photon_energy: "E = hc/λ ≈ 124 eV – 124 keV (Cu Kα 8.04 keV, Mo Kα 17.5 keV, W Kα 59.3 keV, dental 30–80 keV, CT 80–120 keV; deeply ionising — basis of medical imaging contrast and crystallographic diffraction)"
     sources_citations: "ICRP 103 (2007), IAEA GSR Part 3 (2014), 10 CFR 20 (USA), EURATOM Directive 2013/59, NIST X-ray attenuation tables, Amptek detector datasheets, Chandra Source Catalog 2.1, ESRF / APS publications, Bruker / Olympus pXRF docs (2026)"
     usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
 
@@ -79,5 +83,7 @@ bands:
     safety_exposure_limits: "ICRP 103 (2007), IAEA GSR Part 3, national equivalents. Effective dose limits as in X-ray row (20 mSv/year occupational averaged, 1 mSv/year public). ALARA principle: shielding (Pb / concrete), distance (inverse-square law), time (limit exposure). Always use a calibrated dosimeter and survey meter for any source work; hobbyist sealed-source work at exempt-quantity levels poses no measurable risk if stored correctly"
     technologies_example_devices: "Cs-137 / Co-60 industrial irradiators (Sterigenics, Nordion), Tc-99m gamma cameras / SPECT (Siemens Symbia, GE Discovery), F-18 PET scanners (Siemens Biograph, GE PET/CT), industrial gamma radiography (Ir-192, Co-60 NDT for welds and pressure vessels), gamma-knife radiosurgery (Co-60), gamma-ray astronomy missions (INTEGRAL, Swift, Fermi LAT in next file), border / port radiation portal monitors (RPMs)"
     hobbyist_project_ideas: "Build a NaI(Tl) + PMT gamma-spectrometer with Theremino MCA software and identify Cs-137 / Co-60 / K-40 / Th-232-chain isotopes from common samples (banana, salt-substitute KCl, Brazil-nut Ra, granite countertops, antique uranium glass, Cold-War-era radium watches with proper handling); contribute background-radiation maps to citizen-science platforms (SafeCast); analyse archival Fermi-LAT / Swift-BAT public data (Fermi Science Tools); experiment with a cloud-chamber demo for educational outreach; build a Geiger-counter with Mightyohm / Theremino kits and learn basic statistics (Poisson counting, dead-time correction)"
+    wavelength: "λ ≈ 1 pm – 10 pm (Cs-137 661.7 keV ≈ 1.87 pm, Co-60 1.33 MeV ≈ 0.93 pm)"
+    photon_energy: "E = hc/λ ≈ 124 keV – 1.24 MeV (Cs-137 662 keV, Co-60 1173 + 1332 keV, K-40 1460 keV, Tc-99m 140 keV, F-18 annihilation 511 keV, Am-241 59.5 keV; high-energy ionising — Compton scattering and pair-production above 1.022 MeV)"
     sources_citations: "ICRP 103 (2007), IAEA GSR Part 3 (2014), 10 CFR 20 (USA), EURATOM Directive 2013/59, NIST gamma attenuation tables, Theremino MCA documentation, Kromek / Mirion / ORTEC detector datasheets, NUDAT / Brookhaven nuclear-data tables, Fermi-LAT / Swift-BAT public archives (2026)"
     usability_badge: "🔴 Restricted / Scientific only"

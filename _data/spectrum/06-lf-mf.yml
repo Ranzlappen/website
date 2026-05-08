@@ -22,7 +22,7 @@ batch:
     AM broadcast band with strong night-time skywave DX, plus marine
     and aeronautical voice and the 630 m and 160 m amateur allocations.
     Both are receive-friendly with simple ferrite-rod or loop antennas.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "30 kHz – 300 kHz"
@@ -37,6 +37,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP low-frequency RF guidelines; ambient field strengths at hobbyist sites are far below public-exposure limits"
     technologies_example_devices: "DCF77 (77.5 kHz), WWVB (60 kHz), MSF (60 kHz), JJY (40/60 kHz), HBG (75 kHz, decommissioned), historical LORAN-C 100 kHz, European long-wave broadcasters (BBC R4 198 kHz historical, France Inter 162 kHz historical), aeronautical NDBs"
     hobbyist_project_ideas: "Build a DCF77 / WWVB time-signal decoder with an Arduino + ferrite-rod module; chase long-wave AM DX with a tuned loop; log NDB carriers across a continent; experiment on the 2200 m band as a licensed amateur with a small kite/balloon antenna"
+    wavelength: "λ = c/ν ≈ 1 – 10 km (longwave / 'kilometric' waves; 2200 m amateur band sits near 2.2 km)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, NIST WWVB documentation, PTB DCF77, NPL MSF, EBU long-wave coordination, ARRL Operating Manual, IEEE Trans. Broadcasting (2026)"
     usability_badge: "🟢 Public / Broadcast (receive-only)"
 
@@ -52,5 +54,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP low-frequency RF guidelines for general public and occupational exposure"
     technologies_example_devices: "Clear-channel AM stations (WSM 650 kHz, WBBM 780 kHz, BBC Radio 5 Live 693/909 kHz historical), historical LORAN-C 100 kHz, NDBs across the 200–500 kHz region, marine SSB on 2 MHz, amateur WSPR/FT8 on 630 m and 160 m"
     hobbyist_project_ideas: "Build a long-wave / medium-wave DX station with a magnetic loop in a quiet rural site; run an AM broadcast band scanner that logs every audible station overnight; chase 160 m FT8 with a basic dipole; build a portable Si4735-based AM receiver with an Arduino UI"
+    wavelength: "λ = c/ν ≈ 100 m – 1 km (hectometric waves; 160 m amateur band ≈ 160 m, MW broadcast carriers ~200–600 m)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, NIST WWVB / WWV, EBU medium-wave coordination, ARRL Antenna Book and Operating Manual, IEEE Trans. Broadcasting (2026)"
     usability_badge: "🟢 Public / Broadcast (receive-only)"

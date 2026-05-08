@@ -25,7 +25,7 @@ batch:
     over-the-horizon (OTH) radar. Conditions track the ~11-year solar
     cycle — a quiet rural site, a wire dipole, and a sound-card-class SDR
     are enough to start working the world.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "3 MHz – 10 MHz"
@@ -40,6 +40,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; reference levels in the MPE table apply. At 100 W into a wire dipole the controlled-environment safe distance is typically a few meters"
     technologies_example_devices: "Shortwave broadcasters (BBC WS, Voice of America, Radio Romania International), WWV / WWVH / CHU / RWM time stations, OTH radar (ROTHR, JORN), HFDL / HF-ACARS, ALE / STANAG-4538, amateur SSB / CW / FT8 / FT4 / WSPR / JS8Call, Power-Line Communication (PLC) / PowerLAN — data over electrical wiring (2–30 MHz narrowband, IEEE 1901, HomePlug AV2, G.hn) — a major HF noise source in residential areas"
     hobbyist_project_ideas: "Hang a 40 m dipole and chase your first DX on FT8; build an EFHW with a toroidal 49:1 unun for portable POTA / SOTA; decode HFDL aircraft messages with PC-HFDL; log WWV/CHU for ionospheric monitoring; try a (tr)uSDX QRP rig on 40/20 m"
+    wavelength: "λ = c/ν ≈ 30 – 100 m (80 m / 60 m / 40 m amateur bands sit at their nominal wavelengths)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, IARU Region 1 / 2 / 3 band plans, ARRL Operating Manual & Antenna Book, FCC Part 97, RSGB Yearbook, NIST WWV publications (2026)"
     usability_badge: "🔵 Amateur / Public broadcast (receive)"
 
@@ -55,6 +57,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 MPE limits. At 100 W into a beam, keep beyond ~3–5 m of the radiator in the main lobe"
     technologies_example_devices: "BBC World Service / RFI / Radio Habana, WWV / WWVH / BPM time stations, OTH radar (ROTHR, JORN, NEXTRAD-OTH), HFDL / SELCAL, military ALE / STANAG, amateur SSB / CW / FT8 / FT4 / WSPR / RTTY"
     hobbyist_project_ideas: "Earn DXCC on 20 m FT8 with 5 W and a wire; build a Hexbeam tri-bander; chase grids on 17 m WSPR; run a personal KiwiSDR for the global community; start a CWops Academy CW course"
+    wavelength: "λ = c/ν ≈ 15 – 30 m (30 m / 20 m / 17 m amateur bands)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), IARU Region 1 / 2 / 3 band plans, ARRL Antenna Book, FCC Part 97, IEEE Trans. Antennas & Propagation, NIST WWV (2026)"
     usability_badge: "🔵 Amateur / Public broadcast (receive)"
 
@@ -70,5 +74,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 MPE limits. CB-class power levels are well within limits at typical antenna distances; amateur 1.5 kW into a beam needs the usual main-lobe stand-off"
     technologies_example_devices: "Citizens Band (27 MHz, AM/SSB/FM depending on country), 10 m FM repeaters in some regions, FT8 worldwide DX with 5 W during solar peaks, Russian RWM 4.996/9.996/14.996 MHz time signals (edge), OTH radar systems"
     hobbyist_project_ideas: "Hang a simple 10 m dipole and watch the band come alive at solar max; run CB SSB DX during a sporadic-E opening; build a Si4735-based handheld SW receiver; chase grid squares on 10 m FT8 with 5 W; rebuild a 1970s CB rig with modern modulator"
+    wavelength: "λ = c/ν ≈ 10 – 15 m (15 m / 12 m / 10 m amateur bands; CB ~11 m)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), IARU Region 1 / 2 / 3 band plans, FCC Part 95 (CB) and Part 97 (amateur), CEPT ECC Decisions on 27 MHz CB, ARRL Operating Manual, RSGB / DARC band plans (2026)"
     usability_badge: "🔵 Amateur / Public broadcast (receive)"

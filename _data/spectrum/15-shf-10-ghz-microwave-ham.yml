@@ -28,7 +28,7 @@ batch:
     weather radar, fixed-satellite downlinks, and licensed microwave
     backhaul — important context for any 10 GHz ham who shares the
     spectrum and antenna sky with these services.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "10.000 GHz – 10.500 GHz (3 cm Amateur Band)"
@@ -43,6 +43,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. Higher-frequency surface absorption — keep clear of dish main lobe at any practical TX power. At 10 W into a 60 cm dish → ~30 dBi → ~10 kW EIRP, controlled-environment safe distance is several meters in the main lobe. Never look down a fed waveguide or horn under TX"
     technologies_example_devices: "FT8 / FT4 / JT65 (WSJT-X) on 10 GHz, narrow-band SSB / CW QSOs, IARU 10 GHz beacons, DATV (DVB-S2 narrow-band-amateur-TV using BATC PortsDown / DATV-Express), EME (moonbounce), commercial transverters (Kuhne, DB6NT, DEMI, SG Labs), repurposed satellite-TV LNBs for RX-only"
     hobbyist_project_ideas: "Build a 10 GHz portable station with a Kuhne MKU 10 G4 transverter + Pluto SDR + 60 cm offset dish and chase the next 10 GHz contest; modify a standard satellite-TV LNB for 10.368 GHz RX with a CW beacon; experiment with rainscatter QSOs during a summer thunderstorm; attempt your first 10 GHz EME during a Moon perigee weekend (90 cm dish + 10 W minimum); decode IARU 10 GHz beacons across Europe with a portable rig"
+    wavelength: "λ = c/ν ≈ 2.86 – 3.0 cm (the '3 cm' band; half-wave dipole ≈ 1.45 cm at 10.368 GHz — antennas are dishes / horns at this scale)"
+    photon_energy: "N/A (RF — E = hν ≈ 43 μeV)"
     sources_citations: "IARU Region 1 / 2 / 3 microwave band plans, ARRL Operating Manual & ARRL UHF / Microwave Manual, FCC Part 97.301 / 97.303, RSGB / DARC / REF microwave handbooks, AMSAT / EME papers (2026)"
     usability_badge: "🔵 Ham-only"
 
@@ -58,5 +60,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. Hobbyist receive-only setups have no exposure issue; do not stand in front of an active microwave-link dish (typical 1–10 W TX into 38 dBi → 4–40 kW EIRP)"
     technologies_example_devices: "DVB-S / DVB-S2 / DVB-S2X satellite TV (Astra 19.2°E, Hot Bird 13°E, Eutelsat, SES, AMC, Galaxy, Asiasat), QO-100 / Es'hail-2 narrow-band amateur transponder (uplink 2.4 GHz, downlink 10.489 GHz — receive at 10.4895 GHz with a Bullseye LNB + RTL-SDR), Starlink user terminal (Ku-band 10.7–12.7 GHz downlink + 14.0–14.5 GHz uplink, phased-array tracking ~12 LEO satellites/min), police X-band speed radar (10.525 GHz), NEXRAD-X weather radar"
     hobbyist_project_ideas: "Receive QO-100 / Es'hail-2 narrow-band transponder downlink (10.4895 GHz) with a 60 cm dish + Bullseye LNB + RTL-SDR — the only geostationary amateur transponder; build an FTA Ku-band satellite TV station with a motorized 90 cm dish and Octagon SF8008; monitor satellite beacon stability over a year for ionospheric / atmospheric studies; build a wide-band Ku-band spectrum analyzer with a 1.2 m dish + LNB + Pluto SDR + downconverter"
+    wavelength: "λ = c/ν ≈ 2.4 – 2.86 cm (Ku-band; police 10.525 GHz ≈ 2.85 cm; Starlink Ku ≈ 2.5 cm)"
+    photon_energy: "N/A (RF — E = hν ≈ 45–52 μeV)"
     sources_citations: "ITU-R Radio Regulations RR Article 5, FCC Part 25 (FSS) / Part 90 (radar), ETSI EN 302 307 (DVB-S2), AMSAT QO-100 documentation, BATC (British Amateur TV Club) docs, satellite-TV directories (Lyngsat, KingofSat) (2026)"
     usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"

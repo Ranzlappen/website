@@ -30,7 +30,7 @@ batch:
     proximity sensors, and night-vision goggles. Mostly outside ITU
     radio regulation — governed by optical standards and product-
     safety directives instead.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "300 GHz – 3 THz (1 mm – 100 μm; Far-Infrared / THz gap / sub-mm)"
@@ -45,6 +45,8 @@ bands:
     safety_exposure_limits: "ICNIRP 2020 and IEEE C95.1-2019 general-public power-density limit 10 W/m<sup>2</sup> (1 mW/cm<sup>2</sup>) above 30 GHz, with stricter local-incident-power-density (LIPD) limit at the surface. Energy is deposited in outer skin / cornea (μm-mm depth) — never look down a fed waveguide or active QCL aperture"
     technologies_example_devices: "THz time-domain spectrometers (Toptica TeraFlash, Menlo TERA K15, TeraView TPS), quantum cascade lasers (Daylight Solutions, IRsweep), airport mmWave / THz body scanners (L3Harris ProVision), ALMA / IRAM / SMA / SOFIA radio astronomy, 6G research links (140 / 220 / 300 GHz)"
     hobbyist_project_ideas: "Read and analyse public ALMA / IRAM / SOFIA archive data (millimeter-wave spectroscopy of star-forming regions); follow 6G D-band / sub-THz research papers (3GPP TR 38.820, IEEE 802.15.3d, ETSI ISG mWT); experiment with VDI WR-3 sources and Schottky-diode detectors at the high-end-hobbyist level (single-digit-thousand-USD budget for entry-level); read THz-TDS pharmaceutical case studies for material-science context"
+    wavelength: "λ = c/ν ≈ 100 μm – 1 mm (300 GHz ≈ 1 mm, 1 THz ≈ 300 μm, 3 THz ≈ 100 μm)"
+    photon_energy: "E = hν ≈ 1.24 – 12.4 meV (sub-thermal at 300 K; corresponds to molecular rotational + soft phonon modes — basis of THz spectroscopy)"
     sources_citations: "ITU-R Radio Regulations RR 5.149 / 5.340 / 5.564A / 5.565, FCC Spectrum Horizons NPRM (95–275 GHz), 3GPP TR 38.820 (6G), IEEE 802.15.3d (THz), ALMA / IRAM publications, ICNIRP 2020 guidelines, Virginia Diodes Inc. application notes (2026)"
     usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
 
@@ -60,6 +62,8 @@ bands:
     safety_exposure_limits: "ICNIRP 2020 / IEC 60825 laser-safety standards; CO₂ laser cutters mandate full enclosure interlocks. Thermal imaging itself is passive and safe. Eye safety: MPE depends on wavelength and exposure time — corneal absorption dominates above 1.4 μm"
     technologies_example_devices: "Microbolometer thermal cameras (FLIR, Seek, Hti, InfiRay, Topdon), cooled MWIR / LWIR cameras (Teledyne FLIR Tau 2, ThermoVision Sentry), FTIR spectrometers, CO₂ laser cutters (40 W K40 hobbyist → 150 W Glowforge → 4 kW industrial), NDIR CO₂ / CO / CH₄ gas sensors (Sensirion SCD41, MH-Z19, Senseair S8), thermal-imaging satellites (Landsat-9 TIRS, Sentinel-3 SLSTR), pyroelectric motion sensors (PIR 'passive infrared'), security PIR alarms"
     hobbyist_project_ideas: "Build an Arduino + AMG8833 (8×8 thermal sensor) or Seek Thermal SDK app for live thermography; use a Topdon TC001 + smartphone to inspect home insulation and find heat leaks; build a CO₂ NDIR meter with Sensirion SCD41 + ESP32 + InfluxDB / Grafana; experiment with CO₂ laser engraving on the K40 hobbyist platform (with proper Class-4 enclosure and ventilation); decode Sentinel-3 SLSTR thermal-IR data with Python + xarray for an Earth-observation project"
+    wavelength: "λ ≈ 3 – 100 μm (LWIR thermal 8–14 μm, MWIR 3–8 μm, CO₂ laser 10.6 μm)"
+    photon_energy: "E = hc/λ ≈ 12.4 meV – 0.41 eV (10 μm ≈ 124 meV; matches molecular vibrational mode energies — basis of FTIR fingerprint spectroscopy and CO₂ laser stimulated emission)"
     sources_citations: "ICNIRP 2020 + IEC 60825 (laser safety), EAR Cat. 6A003 / ITAR Cat. XII (thermal imaging export controls), FLIR / Teledyne datasheets, Sensirion / MH-Z19 / Senseair NDIR app notes, ESA Sentinel-3 SLSTR docs, NIST FTIR reference data, Optica / SPIE publications (2026)"
     usability_badge: "🟢 Public / Natural"
 
@@ -75,5 +79,7 @@ bands:
     safety_exposure_limits: "IEC 60825 laser-safety + ICNIRP 2013 NIR exposure limits. Most commercial fiber transceivers are Class 1 / 1M (eye-safe under normal use). LiDAR is engineered for Class 1 by pulse / averaging. Never look directly into a powered SFP+ or DWDM transponder — even Class 1 sources can damage the retina if focused by an objective lens (Class 1M)"
     technologies_example_devices: "Fiber-optic Internet (FTTH GPON / XGS-PON, datacenter 10G/25G/100G/400G, terrestrial DWDM long-haul, transatlantic submarine cables), TV remotes (NEC, RC-5, RC-6 IR protocols), smartphone proximity / face-ID, IR night-vision (illuminator + CCD/CMOS without IR-cut filter), LiDAR (Waymo, Cruise, Tesla 'HW4' camera-only is the exception, Velodyne Alpha Prime), pulse oximetry, hyperspectral imaging (PRISMA, EnMAP)"
     hobbyist_project_ideas: "Decode IR remote codes with a 38 kHz TSOP4838 + Arduino + IRremote library; build a learning IR remote with an ESP32 + IR LED + smartphone web UI; attempt building-to-building FSO with a 1550 nm collimated laser + photodiode (5–50 m hobbyist range); set up an SFP fiber loopback test rig for OTDR practice; mod a webcam to remove the IR-cut filter for cheap NIR photography; build a pulse oximeter with a MAX30102 + ESP32; survey reflectance at 940 nm to map biological 'visible to IR' anomalies (Wood-effect photography)"
+    wavelength: "λ ≈ 750 nm – 3 μm (telecom 1310 / 1550 nm, IR remotes 940 nm, multimode 850 nm; 1240 nm conversion: E[eV] = 1240 / λ[nm])"
+    photon_energy: "E = hc/λ ≈ 0.41 – 1.65 eV (1550 nm ≈ 0.80 eV, 1310 nm ≈ 0.95 eV, 940 nm ≈ 1.32 eV; near silicon bandgap 1.12 eV — basis of Si vs InGaAs detector choice)"
     sources_citations: "ITU-T G.652 / G.654 / G.657 (single-mode fiber), IEC 60825 (laser safety), ICNIRP 2013 NIR exposure guidelines, IEEE 802.3 (Ethernet over fiber), ANSI Z136 laser safety, Hamamatsu / Sony / Vishay datasheets, Optica / SPIE publications, ITU-T G.989 (NG-PON2) (2026)"
     usability_badge: "🟢 Public / Natural"

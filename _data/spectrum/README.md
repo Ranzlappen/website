@@ -43,15 +43,28 @@ bands:
     safety_exposure_limits: "..."
     technologies_example_devices: "..."
     hobbyist_project_ideas: "..."
+    wavelength: "λ = c/ν ≈ 12.4 cm at 2.4 GHz"
+    photon_energy: "N/A (RF — E = hν ≈ 10 μeV)"
     sources_citations: "..."
     usability_badge: "🟢 Public / ISM / Unlicensed"
 ```
 
 ### Required band fields
 
-All 14 fields below are rendered as columns in the same order. **Fill every field** — empty strings render as empty cells but are still part of the table:
+All 16 fields below are rendered as columns in the same order. **Fill every field** — empty strings render as empty cells but are still part of the table:
 
-`frequency_range`, `key_frequencies_channels`, `band_name_designation`, `primary_uses_hobbyist_relevance`, `hardware_modules`, `antenna_diy_considerations`, `legal_licensing_notes`, `max_power_restrictions_eirp`, `propagation_interference_notes`, `safety_exposure_limits`, `technologies_example_devices`, `hobbyist_project_ideas`, `sources_citations`, `usability_badge`.
+`frequency_range`, `key_frequencies_channels`, `band_name_designation`, `primary_uses_hobbyist_relevance`, `hardware_modules`, `antenna_diy_considerations`, `legal_licensing_notes`, `max_power_restrictions_eirp`, `propagation_interference_notes`, `safety_exposure_limits`, `technologies_example_devices`, `hobbyist_project_ideas`, `wavelength`, `photon_energy`, `sources_citations`, `usability_badge`.
+
+### `wavelength` and `photon_energy` formatting
+
+Use proper technical notation in these two columns:
+
+- **Greek letters**: `λ` for wavelength, `ν` for frequency, `μ` for micro (μm, μeV).
+- **HTML sub/superscripts** for powers and units: `10<sup>9</sup> Hz`, `W/m<sup>2</sup>`, `λ ≈ 10<sup>−27</sup> m`.
+- **Equation form** where it adds clarity: `λ = c/ν ≈ X` and `E = hν ≈ X` or `E = hc/λ ≈ X`.
+- **Photon energy unit ladder**: `meV` (sub-IR, far-IR), `eV` (IR / visible / UV-A/B), `keV` (UV-C / X-ray), `MeV` (gamma).
+- **For radio bands** (≤ 300 GHz, files 01–17), use `"N/A (RF)"` or `"N/A (RF / mmWave — E = hν ≈ X μeV)"` — RF photons sit far below any chemical / biological energy threshold.
+- The associated column headers should preserve case (e.g. "Wavelength (λ)", "Photon Energy") rather than being forced to all-caps, because Greek letters do not have a meaningful uppercase form in this context.
 
 ### `frequency_range` formatting
 
@@ -118,7 +131,7 @@ The runtime renders these as link-styled clickable spans; clicking opens a new m
 
 ### Add a new row to an existing batch
 
-Open the relevant `NN-*.yml`, add a new entry under `bands:` keeping the 14-field schema, bump `batch.last_updated`, push.
+Open the relevant `NN-*.yml`, add a new entry under `bands:` keeping the 16-field schema, bump `batch.last_updated`, push.
 
 ### Add a new batch
 

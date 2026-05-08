@@ -23,7 +23,7 @@ batch:
     contest hilltops, packet / APRS, satellite uplinks/downlinks, and
     EME. Region 1 has a narrower 50.0–52.0 MHz / 144.0–146.0 MHz
     allocation; Region 2 enjoys the full 50–54 / 144–148 MHz.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "50 MHz – 54 MHz (Region 2) / 50.0 MHz – 52.0 MHz (Region 1)"
@@ -38,6 +38,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. At 100 W PEP into a Yagi, controlled-environment safe distance is typically a few meters in the main lobe"
     technologies_example_devices: "FT8 / FT4 / MSK144 (WSJT-X), JS8Call, beacon networks (e.g., 50.000–50.100 MHz IARU beacon segment), 6 m FM repeaters (R2 only), satellite operations (limited), DX clusters (DXSummit, PSK Reporter)"
     hobbyist_project_ideas: "Build a 3-element 6 m Yagi from aluminium tubing and chase sporadic-E openings on FT8; set up a beacon-monitoring receiver to catch the band opening before everyone else; try meteor-scatter MSK144 during the Perseids"
+    wavelength: "λ = c/ν ≈ 5.55 – 6.0 m (the '6 m' band, half-wave dipole ≈ 2.85 m)"
+    photon_energy: "N/A (RF)"
     sources_citations: "IARU Region 1 / 2 / 3 band plans, ARRL Operating Manual & Antenna Book, FCC Part 97, RSGB / DARC band plans, ITU Radio Regulations RR Article 5 (2026)"
     usability_badge: "🔵 Ham-only"
 
@@ -53,5 +55,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. Handheld 5 W FM exposure is well-controlled; stay outside the main lobe of higher-power Yagis"
     technologies_example_devices: "FM repeaters worldwide, EchoLink / IRLP / AllStar nodes, D-STAR / DMR / C4FM digital voice, APRS (worldwide igate network), satellite QSOs (SO-50, RS-44, ISS APRS digipeater), MSK144 meteor scatter, EME on 2 m"
     hobbyist_project_ideas: "Build a 2 m ground-plane from coat-hangers / copper wire and work local repeaters; assemble a 6-element Yagi for SSB DX from a hilltop; set up an APRS digipeater or igate with a Raspberry Pi + Direwolf; work an FM satellite with a handheld and an Arrow / dual-band Yagi"
+    wavelength: "λ = c/ν ≈ 2.03 – 2.08 m (the '2 m' band; half-wave dipole ≈ 1 m)"
+    photon_energy: "N/A (RF)"
     sources_citations: "IARU Region 1 / 2 / 3 band plans, ARRL Operating Manual & Antenna Book, FCC Part 97, RSGB / DARC band plans, AMSAT satellite frequency lists, ITU Radio Regulations (2026)"
     usability_badge: "🔵 Ham-only"
