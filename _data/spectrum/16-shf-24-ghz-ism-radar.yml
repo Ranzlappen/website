@@ -28,7 +28,7 @@ batch:
     with rain fade and atmospheric absorption manageable for short-range
     work — accessible to hobbyists with off-the-shelf K-band radar
     modules or transverters built from surplus microwave parts.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "24.000 GHz – 24.250 GHz (ISM band, worldwide; K-band radar; SRDs)"
@@ -43,6 +43,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. Higher-frequency surface absorption (skin depth ~1 mm at 24 GHz) → power deposits in skin and eye lens. ICNIRP general public limit at 24 GHz is 10 W/m<sup>2</sup> (1 mW/cm<sup>2</sup>) averaged over 6 minutes; consumer hobby modules at 10 dBm are safe at any practical distance. Never look down a fed waveguide or horn under TX"
     technologies_example_devices: "K-band police speed radar (Stalker, Decatur Genesis II Select, Kustom Falcon HR), legacy automotive SRR (Continental ARS-3, Hella RTS), tank-level FMCW gauges (Endress+Hauser, Vega), motion sensors / door openers, microwave-oven leakage detectors (some), traffic-monitoring radar (Wavetronix, RTMS)"
     hobbyist_project_ideas: "Build a Doppler speed-detector with an RFbeam K-LC2 + Arduino + audio amp and clock cars on your street; build a simple FMCW range-finder with an IPM-165 module + sound-card ADC + Python FFT (Sparkfun / Hackaday tutorials); reverse-engineer a junkyard 24 GHz SRR module; pair an SDR + downconverter for spectrum analysis of your local 24 GHz environment"
+    wavelength: "λ = c/ν ≈ 1.24 cm (the '1.25 cm' band; half-wave dipole ≈ 6 mm — antennas are patch arrays / horns)"
+    photon_energy: "N/A (RF — E = hν ≈ 100 μeV; below molecular bond / ionisation thresholds)"
     sources_citations: "ITU-R Radio Regulations RR 5.150 (ISM), FCC Part 15.245 / 15.249, ETSI EN 300 440 / EN 302 858 (24 GHz SRR), RFbeam K-LC datasheets, InnoSenT IPM / IVS application notes, IEEE Trans. Microwave Theory & Techniques (2026)"
     usability_badge: "🟢 Public / ISM + 🔵 Ham-only"
 
@@ -58,5 +60,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. At 24 GHz, surface absorption is significant (skin depth ~1 mm) — keep clear of dish main lobe under TX. At 5 W into a 60 cm dish → ~42 dBi → ~80 kW EIRP, controlled-environment safe distance is several meters in main lobe"
     technologies_example_devices: "FT8 / FT4 / JT65 (WSJT-X) on 24 GHz, narrow-band SSB / CW QSOs, IARU 24 GHz beacons, EME, commercial transverters (Kuhne, DB6NT, DEMI), DATV (DVB-S2 narrow-band-amateur-TV via BATC PortsDown / DATV-Express)"
     hobbyist_project_ideas: "Build a 24 GHz portable station with a Kuhne MKU 24 G3 transverter + Pluto SDR + 30 cm offset dish for contesting; experiment with rainscatter on 24 GHz (more lossy than 10 GHz but possible); set up a 24 GHz beacon in your garden and study local propagation; attempt your first 24 GHz QSO at a microwave hilltop event with another local ham"
+    wavelength: "λ = c/ν ≈ 1.247 cm at 24.048 GHz calling frequency"
+    photon_energy: "N/A (RF — E = hν ≈ 100 μeV)"
     sources_citations: "IARU Region 1 / 2 / 3 microwave band plans, ARRL UHF / Microwave Manual, FCC Part 97.301 / 97.303, RSGB / DARC / REF microwave handbooks, AMSAT / EME papers (2026)"
     usability_badge: "🔵 Ham-only"

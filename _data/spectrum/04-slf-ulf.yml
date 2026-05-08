@@ -22,7 +22,7 @@ batch:
     geophysics. Both bands are receive-only for hobbyists — passive coil and
     long-wire setups can monitor power-line harmonics, lightning sferics,
     and natural ULF emissions tied to seismic and auroral activity.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "30 Hz – 300 Hz"
@@ -37,6 +37,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP ELF/SLF exposure guidelines (reference levels ~100 μT magnetic / 5 kV/m electric at 50/60 Hz for general public). Ambient mains fields are well below limits in normal homes"
     technologies_example_devices: "Russian ZEVS, decommissioned U.S. Navy ELF, magnetotelluric (MT) stations, airborne EM survey aircraft, medical ELF exposure test rigs, SQUID gradiometers"
     hobbyist_project_ideas: "Monitor 50/60 Hz mains harmonics with a coil + sound-card ADC; map power-line interference around your neighborhood; log GIC surrogates during geomagnetic storms; build a portable MT-style two-channel logger"
+    wavelength: "λ = c/ν ≈ 1,000 – 10,000 km (continental scale)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, ARRL ELF/VLF resources, IEEE Trans. Power Delivery and EMC, ICNIRP ELF guidelines (2026)"
     usability_badge: "🔵 Scientific / Receive-only for hobbyists"
 
@@ -52,5 +54,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP ELF/low-frequency guidelines for general-public and occupational exposure"
     technologies_example_devices: "ZEVS, audio-magnetotelluric (AMT) field gear, research aircraft with ULF sensors, university natural-radio observatories, INTERMAGNET stations"
     hobbyist_project_ideas: "Record natural ULF sferics and tweeks with a sound-card receiver; build a two-channel B/E-field logger to study earthquake-precursor candidates; correlate ULF amplitude with auroral activity"
+    wavelength: "λ = c/ν ≈ 100 – 1,000 km"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, ARRL VLF/ULF resources, IEEE Trans. Geoscience and Remote Sensing, USGS magnetotelluric publications (2026)"
     usability_badge: "🔵 Scientific / Receive-only for hobbyists"

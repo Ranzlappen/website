@@ -29,7 +29,7 @@ batch:
     (ITU Region 2) splits the 900 MHz region cleanly — projects shipped
     worldwide need separate hardware SKUs (e.g., LoRa SX1276 EU868 vs
     RFM95W US915 modules).
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "863 MHz – 870 MHz (SRD, Europe/Germany — ITU Region 1 / EU)"
@@ -44,6 +44,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; 25 mW ERP is many orders of magnitude below all general-public limits"
     technologies_example_devices: "LoRaWAN EU868 (TTN, Helium, Chirpstack), Z-Wave 700 / 800-series, Sigfox EU, Wireless M-Bus (smart meters), KNX-RF, Homematic, FS20, ELV ESA / wireless alarm sensors"
     hobbyist_project_ideas: "Build a TTN gateway with a Raspberry Pi + RAK2245 / RAK2287 hat; deploy a solar-powered LoRa weather station that uplinks once an hour; sniff Z-Wave traffic with a Z-Stick + Zniffer; build a Meshtastic node on EU868"
+    wavelength: "λ = c/ν ≈ 34.5 cm at 868 MHz (1/4-wave whip ≈ 8.6 cm)"
+    photon_energy: "N/A (RF — E = hν ≈ 3.6 μeV)"
     sources_citations: "ETSI EN 300 220, ERC/REC 70-03 (Annex 1 + Annex 13), ITU-R Radio Regulations RR 5.150 (ISM), Semtech LoRa AN1200.13 (regional parameters), Z-Wave Alliance specs, Sigfox Technology page (2026)"
     usability_badge: "🟢 Public / ISM / Unlicensed"
 
@@ -59,6 +61,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; even 1 W is well below MPE at typical antenna distances"
     technologies_example_devices: "LoRaWAN US915, Helium Network IoT, Z-Wave 700 / 800-series US, Sigfox RC4, AMR utility meters (Itron ERT, Landis+Gyr), legacy 900 MHz analog video transmitters, wireless rangefinders, RC telemetry"
     hobbyist_project_ideas: "Build a Helium / TTN US915 gateway with a Raspberry Pi + RAK2287; sniff your local utility AMR with rtl_433 to read your own meter; deploy Meshtastic across a city in US915; build a 25 km point-to-point LoRa link with two Yagis"
+    wavelength: "λ = c/ν ≈ 32 – 33 cm at 902–928 MHz (1/4-wave whip ≈ 8 cm, 1/2-wave dipole ≈ 16 cm)"
+    photon_energy: "N/A (RF — E = hν ≈ 3.8 μeV)"
     sources_citations: "FCC Part 15.247 / 15.249, ITU-R Radio Regulations RR 5.150 / 5.282 (ISM), Semtech LoRa AN1200.13 (US915 parameters), Z-Wave Alliance specs, AS/NZS 4268, ARRL RFI Book, rtl_433 wiki (2026)"
     usability_badge: "🟢 Public / ISM / Unlicensed"
 
@@ -74,5 +78,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; SAR-tested for phones and tablets. Wi-Fi APs at 100 mW are well below MPE limits at any practical distance. Microwave ovens have separate appliance-leakage limits (5 mW/cm<sup>2</sup> at 5 cm per FDA 21 CFR 1030.10)"
     technologies_example_devices: "Wi-Fi 4 / 5 / 6 / 6E (2.4 GHz portion), Bluetooth Classic + BLE (5.x), Zigbee 3.0 / Thread / Matter, ANT+, IEEE 802.15.4, FHSS RC links (FrSky D8 / D16, Spektrum DSMX, TBS Crossfire 2.4), MJPEG 2.4 GHz video transmitters, Logitech Unifying receivers, microwave ovens"
     hobbyist_project_ideas: "Build an ESP32 BLE / Wi-Fi IoT sensor that posts to MQTT; deploy a Zigbee-Home-Assistant network with a ConBee II + zigbee2mqtt; build a 20+ km point-to-point Wi-Fi link with two Ubiquiti dishes; sniff BLE advertisements with nRF52840 + Wireshark; build a long-range RC link with TBS Crossfire on 2.4 GHz; experiment with WiFi CSI sensing — through-wall motion/breathing detection using existing WiFi signals (open-source ESP32 projects, e.g., ESP32-CSI-Tool, Atheros CSI Tool)"
+    wavelength: "λ = c/ν ≈ 12.2 – 12.5 cm at 2.4 GHz (1/4-wave whip ≈ 3.1 cm; PCB IFA antennas ~3 cm; microwave-oven λ matched for water-molecule rotation)"
+    photon_energy: "N/A (RF — E = hν ≈ 10 μeV, far below molecular bond energies)"
     sources_citations: "ITU-R Radio Regulations RR 5.150 (ISM), FCC Part 15.247 / 15.249, ETSI EN 300 328, IEEE 802.11 / 802.15.1 / 802.15.4 standards, Bluetooth SIG Core Specification 5.x, Zigbee Alliance / CSA Matter spec, Wi-Fi Alliance docs, FDA 21 CFR 1030.10 (microwave ovens) (2026)"
     usability_badge: "🟢 Public / ISM / Unlicensed"

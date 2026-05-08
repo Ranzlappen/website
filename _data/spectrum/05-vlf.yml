@@ -24,7 +24,7 @@ batch:
     naval VLF transmitters. The whole band fits in an audio bandwidth, so
     a sound-card-based SDR plus a loop antenna is enough to start decoding
     time signals and recording natural whistlers and sferics.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "3 kHz – 30 kHz"
@@ -39,5 +39,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP low-frequency RF guidelines. Ambient power density at hobbyist receive sites is many orders of magnitude below limits"
     technologies_example_devices: "U.S. Navy Cutler (Maine), Jim Creek (Washington), NPM Lualualei (Hawaii), Anthorn (UK), ALPHA/RSDN-20 (Russia), historical Omega navigation, WWVB (60 kHz, edge), DCF77 (77.5 kHz, edge), WWLLN lightning network"
     hobbyist_project_ideas: "Build a VLF loop + sound-card SDR and decode WWVB / DCF77 / MSF time signals; record whistlers and dawn chorus during quiet rural nights; log naval MSK transmitters for ionospheric sounding; correlate sferic rate with thunderstorm activity"
+    wavelength: "λ = c/ν ≈ 10 – 100 km (longwave / 'myriametric' waves)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ITU Radio Regulations (RR Article 5), ITU-R V.431, NIST time-service publications (WWVB), PTB DCF77 docs, NPL MSF, ARRL VLF resources, IEEE Trans. Antennas & Propagation (2026)"
     usability_badge: "🟢 Public / Receive-only (time signals) + 🔵 Military"

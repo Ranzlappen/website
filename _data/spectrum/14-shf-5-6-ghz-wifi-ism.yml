@@ -28,7 +28,7 @@ batch:
     opened in the US (2020), Europe (UNII-5 only, 2021), and many other
     countries. The 5.850–5.925 GHz slice is increasingly C-V2X / ITS-G5
     automotive instead of Wi-Fi.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "5.150 GHz – 5.725 GHz (UNII-1 + UNII-2A + UNII-2C / Extended; 5G NR n79 lower edge)"
@@ -43,6 +43,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 / IEC 62209 RF-exposure guidelines; routers at 1 W EIRP have controlled-environment exclusion zones of <1 m"
     technologies_example_devices: "Wi-Fi 4 / 5 (802.11n / ac), Wi-Fi 6 (802.11ax HE-5), Wi-Fi 7 (802.11be EHT-5 with 320 MHz channels using 5+6 GHz aggregation), 5G NR n79 industrial private campus, weather radar (NEXRAD-S adjacent at 2.7 GHz, but C-band weather radar at 5.6 GHz coexists with UNII-2C), military / maritime navigation radars"
     hobbyist_project_ideas: "Set up a Wi-Fi 6 / 7 mesh with band-steering (legacy 2.4 GHz, modern 5 / 6 GHz); flash OpenWrt on a Mikrotik hAP ax3 and force DFS-channel use; build a 10 km outdoor Wi-Fi 6 P2P link with two Ubiquiti AirFiber dishes; survey your apartment block with Wi-Spy + Ekahau; experiment with WiFi CSI sensing on 5 GHz — through-wall motion/breathing detection using existing WiFi signals (open-source ESP32 / Atheros CSI projects, plus IEEE 802.11bf 'WiFi Sensing' standardisation)"
+    wavelength: "λ = c/ν ≈ 5.2 – 5.8 cm (1/4-wave whip ≈ 1.3–1.4 cm; half-wave dipole ≈ 2.7 cm)"
+    photon_energy: "N/A (RF — E = hν ≈ 22 μeV)"
     sources_citations: "FCC Part 15.407 (UNII), ETSI EN 301 893, ITU-R Radio Regulations RR Article 5, IEEE 802.11ac / 802.11ax / 802.11be, Wi-Fi Alliance Wi-Fi 6 / 6E / 7 specs, 3GPP TS 38.101-1 (n79), Wi-Fi Alliance Wi-Fi 7 cert program (2026)"
     usability_badge: "🟢 Public / ISM / Unlicensed (with DFS notes)"
 
@@ -58,6 +60,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; consumer 25–600 mW FPV TXs are below MPE limits at antenna-to-body distances of >5 cm. Higher-power amateur transmitters need standoff (typical 1–3 m main lobe at 2 W EIRP)"
     technologies_example_devices: "5.8 GHz analog FPV (NTSC / PAL CVBS over 27 MHz FM), digital FPV (DJI O3 / O4, HDZero, Walksnail, ExpressLRS WiFi link), Wi-Fi UNII-3 (channels 149-165), 5.8 GHz RFID, amateur 9 cm SSB / FT8 / EME, 5.8 GHz police speed-radar (limited)"
     hobbyist_project_ideas: "Build an FPV race quad with a 25 mW VTX and learn to read your bandplan to avoid interfering with other pilots; build a long-range FPV link with a 600 mW (amateur-licensed) VTX + 14 dBi crosshair RX; deploy a Wi-Fi 6 / 7 mesh exclusively on UNII-3 to avoid DFS interruptions; experiment on amateur 9 cm with a parabolic dish and a transverter"
+    wavelength: "λ = c/ν ≈ 5.1 – 5.2 cm (the '5 cm' microwave region; 1/4-wave whip ≈ 1.3 cm)"
+    photon_energy: "N/A (RF — E = hν ≈ 24 μeV)"
     sources_citations: "ITU-R Radio Regulations RR 5.150 (ISM), FCC Part 15.247 / 15.249 / 15.407, FCC Part 97 (amateur), ETSI EN 300 440 / EN 301 893, IARU R1 / R2 9 cm band plans, Wi-Fi Alliance UNII-3 specs, AMA FPV technical info, FPV community wiki (RotorBuilds, BetaFPV) (2026)"
     usability_badge: "🟢 Public / ISM / Unlicensed (with DFS notes)"
 
@@ -73,5 +77,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 / IEC 62209 RF-exposure guidelines; LPI 1 W EIRP indoor is well below MPE; outdoor SP 4 W EIRP needs typical macrocell-class standoff"
     technologies_example_devices: "Wi-Fi 6E (802.11ax HE-6), Wi-Fi 7 (802.11be EHT-6, MLO across 5+6 GHz), ITS-G5 (ETSI EN 302 663) cooperative ITS, C-V2X PC5 sidelink (3GPP), incumbent 6 GHz fixed-service microwave backhaul"
     hobbyist_project_ideas: "Upgrade your home network to Wi-Fi 7 with TP-Link BE900 or Ubiquiti U7-Pro Max and benchmark single-stream throughput on a 320 MHz channel; build a Wi-Fi 6E AFC client demo (US); compare Wi-Fi 6E latency vs Wi-Fi 5 / 6 in a noisy apartment; passively observe 6 GHz beacon frames with a USRP / BladeRF when paired with appropriate front-end filtering; extend WiFi CSI sensing experiments into 6 GHz Wi-Fi 6E / 7 (open-source ESP32-C5 / Atheros CSI projects, IEEE 802.11bf 'WiFi Sensing' standardisation)"
+    wavelength: "λ = c/ν ≈ 4.2 – 5.1 cm (1/4-wave whip ≈ 1.1 cm at 6.5 GHz; half-wave dipole ≈ 2.3 cm)"
+    photon_energy: "N/A (RF — E = hν ≈ 25–29 μeV)"
     sources_citations: "FCC Order 20-51 (6 GHz unlicensed), FCC Part 15.407 (UNII rules) updated 2020, ETSI EN 303 687 (6 GHz WAS / RLAN), IEEE 802.11ax / 802.11be, Wi-Fi Alliance Wi-Fi 6E / 7 cert programs, ETSI EN 302 663 (ITS-G5), 3GPP TR 22.886 (V2X), AFC system providers (e.g. Federated Wireless, RED Technologies) (2026)"
     usability_badge: "🟢 Public / ISM / Unlicensed (with DFS notes)"

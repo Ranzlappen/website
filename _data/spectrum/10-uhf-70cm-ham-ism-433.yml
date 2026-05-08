@@ -26,7 +26,7 @@ batch:
     band (Europe/Germany — ITU Region 1) sits inside 70 cm and hosts
     low-power LoRa, weather stations, garage-door openers, doorbells,
     and car key fobs — a license-free playground for makers.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "430 MHz – 440 MHz (Europe/Germany — ITU Region 1 / 3) and 420 MHz – 450 MHz (United States — ITU Region 2)"
@@ -41,6 +41,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. At 50 W into a Yagi, controlled-environment safe distance is typically 1–2 m in the main lobe; HT-class 5 W is essentially safe at any practical distance from the body except direct skin contact"
     technologies_example_devices: "FM repeaters worldwide, EchoLink / IRLP / AllStar / Brandmeister DMR, D-STAR / DMR / C4FM digital voice, MMDVM hot-spots, AMSAT linear birds (RS-44, AO-73, FOX-1B/C/D), FM birds (SO-50), ATV via Reduced Bandwidth Television (RB-TV) / DATV"
     hobbyist_project_ideas: "Hang a 70 cm J-pole on a fence post and work the local repeater network; build an Arrow-style dual-band Yagi and work SO-50 with a handheld; build an MMDVM hot-spot and link to Brandmeister DMR talkgroups; chase satellite grids on RS-44; experiment with DATV using DigiThin / BATC PortsDown"
+    wavelength: "λ = c/ν ≈ 67 – 71 cm (the '70 cm' band; 1/4-wave whip ≈ 17 cm)"
+    photon_energy: "N/A (RF)"
     sources_citations: "IARU Region 1 / 2 / 3 band plans, ARRL Operating Manual & Antenna Book, FCC Part 97, RSGB / DARC / REF / IARU-MS band plans, AMSAT satellite frequency lists, ITU Radio Regulations RR Article 5 (2026)"
     usability_badge: "🔵 Ham-only"
 
@@ -56,5 +58,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; 10 mW ERP is many orders of magnitude below all general-public limits"
     technologies_example_devices: "LoRa / LoRaWAN EU433 (less common than EU868), Meshtastic on 433 MHz, generic ASK/OOK key fobs, weather stations, smart doorbells, RC switches, low-cost outdoor temperature/humidity sensors"
     hobbyist_project_ideas: "Build a LoRa weather station with an SX1276 + ESP32 + DHT22; sniff and decode your wireless thermometer with rtl_433; deploy a Meshtastic node on EU433 for off-grid messaging; reverse-engineer a generic 433.92 MHz remote with HackRF + Universal Radio Hacker (your own equipment only); build a long-range LoRa link with a 5-element Yagi"
+    wavelength: "λ = c/ν ≈ 69 cm at 433.92 MHz (1/4-wave whip ≈ 17.3 cm)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ETSI EN 300 220 (Short-Range Devices), ERC/REC 70-03 Annex 1, ITU-R Radio Regulations RR 5.280 (ISM), IARU R1 band plan (70 cm), Semtech SX1276 datasheet, FCC Part 15 + Part 97 (for U.S. context), rtl_433 wiki (2026)"
     usability_badge: "🟢 ISM (low power)"

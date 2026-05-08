@@ -25,11 +25,13 @@ batch:
     Tier III) at 380–470 / 700 / 800 MHz; cellular LTE / 5G NR low-band
     600–1000 MHz (n5 / n8 / n12 / n14 / n20 / n28 / n71); cellular mid-
     band 1.4–2.7 GHz (n1 / n2 / n3 / n7 / n40 / n41 / n66); and 5G NR
-    C-band 3.3–4.2 GHz (n77 / n78 / n79). Hobbyists are receive-only —
-    use an SDR or modem to map coverage, decode signalling (where legal
-    and unencrypted), and learn the PHY-layer behaviour of modern
-    cellular and public-safety networks.
-  last_updated: "2026-05-07"
+    C-band 3.3–4.2 GHz (n77 / n78 / n79). Also hosts the L-band GNSS
+    allocations (GPS L1 / L2 / L5, Galileo, GLONASS, BeiDou) and the
+    1.4 GHz HI-line radio-astronomy primary allocation. Hobbyists are
+    receive-only — use an SDR or modem to map coverage, decode
+    signalling (where legal and unencrypted), and learn the PHY-layer
+    behaviour of modern cellular, GNSS, and radio-astronomy spectrum.
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "380 MHz – 470 MHz (Public-Safety / PMR / TETRA / DMR)"
@@ -44,6 +46,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines"
     technologies_example_devices: "TETRA / TETRAPOL (BOS / public-safety in DE / FR / UK ESN transition / NL C2000), P25 Phase 1 / 2, DMR Tier II / III, NXDN, dPMR, Project 25 trunked systems, PMR446 consumer FM / digital, COSPAS-SARSAT 406 MHz beacons"
     hobbyist_project_ideas: "Build an SDRTrunk receiver to follow your local trunked public-safety system (legally and unencrypted only); decode DMR voice with DSDPlus and an RTL-SDR; map TETRA coverage in your city; build a 406 MHz beacon-monitoring station feeding the SARNET community"
+    wavelength: "λ = c/ν ≈ 64 – 79 cm (1/4-wave whip ≈ 16 cm at 460 MHz)"
+    photon_energy: "N/A (RF)"
     sources_citations: "ETSI EN 300 392 (TETRA), ETSI TS 102 361 (DMR), TIA-102 (P25), ITU-R Radio Regulations, FCC Part 90, BNetzA / Ofcom national tables, COSPAS-SARSAT documentation (2026)"
     usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
 
@@ -59,6 +63,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines; modern smartphones SAR-tested per IEC 62209; macrocell base-stations have published exclusion zones (typically 1–10 m in main lobe at 60 W EIRP)"
     technologies_example_devices: "LTE Cat-1 / Cat-4 / Cat-M / NB-IoT, 5G NR FR1 SA / NSA, FirstNet (US) on Band 14, ESN (UK) on Band 20 / 28, P25 Phase 2 trunked, DMR Tier III, FRS / GMRS handhelds"
     hobbyist_project_ideas: "Use an Android phone in engineering mode (NetMonster) to map your local n71 / n28 cell IDs and signal strength; decode LTE PCI / TAC with srsRAN + RTL-SDR; build a small directional antenna and locate a weak 700 MHz repeater; run a GMRS repeater (US license required)"
+    wavelength: "λ = c/ν ≈ 30 – 50 cm (n71 600 MHz ≈ 50 cm; 900 MHz ≈ 33 cm; 1/4-wave whip ≈ 8 cm at 900 MHz)"
+    photon_energy: "N/A (RF)"
     sources_citations: "3GPP TS 38.101-1 / 36.101 (NR / LTE bands), ITU-R Radio Regulations, FCC Part 27 / Part 90 / Part 95, ETSI / 3GPP Release 15 – 18, BNetzA national table, Ofcom UK ESN docs (2026)"
     usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
 
@@ -74,6 +80,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 / IEC 62209 RF-exposure guidelines; modern smartphones SAR-tested for body / head"
     technologies_example_devices: "LTE Cat-1 through Cat-20, LTE-A carrier aggregation, LAA / LTE-U (in 5 GHz), 5G NR FR1 SA / NSA, NB-IoT (in-band on existing LTE carriers), private 5G on n40 / n41 (industrial)"
     hobbyist_project_ideas: "Run srsRAN on a USRP B210 inside a Faraday cage to learn LTE / 5G NR PHY end-to-end; build a 5G NR site-survey rig with a Quectel RM520N-GL on a Raspberry Pi CM4; profile your home cellular coverage with NetMonster across all bands"
+    wavelength: "λ = c/ν ≈ 11 – 21 cm (1/4-wave whip ≈ 4 cm at 1.9 GHz; n41 2.5 GHz ≈ 12 cm)"
+    photon_energy: "N/A (RF)"
     sources_citations: "3GPP TS 38.101-1 / 36.101 (NR / LTE bands), ITU-R Radio Regulations, FCC Part 22 / Part 24 / Part 27, ETSI / 3GPP Release 15 – 18, BNetzA / Ofcom / FCC band tables, GSMA Spectrum Tracker (2026)"
     usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
 
@@ -89,5 +97,41 @@ bands:
     safety_exposure_limits: "Follow ICNIRP 2020 / FCC OET-65 RF-exposure guidelines; small-cell EIRP and sector EIRP have published exclusion zones. Higher public scrutiny in densely populated areas — operators routinely publish coverage / exposure maps"
     technologies_example_devices: "5G NR FR1 SA / NSA on n77 / n78 / n79, FWA (T-Mobile Home Internet, Vodafone GigaCube), CBRS PAL / GAA on n48, German Industrie-4.0 5G campus networks, Japan private 5G NR on n79"
     hobbyist_project_ideas: "Run a Quectel RM520N-GL on a Pi CM4 with QMI / MBIM and log per-cell metrics across n77 / n78 / n79; build a passive 5G monitor with USRP B210 + srsRAN to learn the PHY frame structure; deploy a CBRS LTE/NR small cell in your home (US, Cat-A AP + SAS account)"
+    wavelength: "λ = c/ν ≈ 7.1 – 9.1 cm (n78 3.5 GHz ≈ 8.6 cm; 1/4-wave whip ≈ 2 cm — directional gain dominates)"
+    photon_energy: "N/A (RF)"
     sources_citations: "3GPP TS 38.101-1 (NR FR1 bands), ITU-R Radio Regulations, FCC Part 96 (CBRS) and Auction 107 (US C-band) docs, BNetzA 3.7–3.8 GHz industrial license rules, Ofcom 5G C-band auctions, ETSI / 3GPP Release 15 – 18, GSMA 5G Spectrum Tracker (2026)"
     usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"
+
+  - frequency_range: "1176.45 MHz – 1575.42 MHz (GNSS L-band: GPS L5 / L2 / L1, Galileo E5 / E6 / E1, GLONASS, BeiDou)"
+    key_frequencies_channels: "GPS L1 1575.42 MHz (C/A + P(Y) + M-code), L2 1227.60 MHz (P(Y) + L2C + M-code), L5 1176.45 MHz (safety-of-life, modernised); Galileo E1 1575.42 MHz (interoperable with GPS L1), E5a 1176.45 MHz (= L5), E5b 1207.14 MHz, E6 1278.75 MHz; GLONASS L1 1598.0625–1605.375 MHz (FDMA legacy) + L1OC 1600.995 MHz (CDMA), L2 1242.9375–1248.625 MHz; BeiDou B1I 1561.098, B1C 1575.42, B2a 1176.45, B2b 1207.14, B3I 1268.52 MHz; SBAS / WAAS / EGNOS / MSAS / GAGAN co-channel with L1; QZSS L1 / L2 / L5 / L6 (Japan); IRNSS / NavIC L5 + S-band 2492.028 MHz"
+    band_name_designation: "GNSS L-band — GPS / Galileo / GLONASS / BeiDou navigation"
+    primary_uses_hobbyist_relevance: "Position, velocity, and time (PVT) for billions of devices. Hobbyist applications: HAB / drone / robot navigation, RTK survey-grade positioning (cm-level), GPSDO frequency references for ham / lab use, NTP stratum-1 time servers, ionospheric TEC mapping, GNSS jamming / spoofing detection, satellite spectrum observation"
+    hardware_modules: "u-blox NEO-6 / 7 / 8 / 9 / M10 (single- and multi-band consumer modules); u-blox ZED-F9P / F9R multi-constellation multi-band L1+L2+L5 RTK receivers (~$200, cm accuracy with base station); Trimble / Leica survey receivers; Septentrio mosaic-X5 / Mosaic-H multi-band; SimpleRTK2B (ArduSimple); Quectel LC79H / LC76G; SDR-based: RTL-SDR + GNSS-SDR / GPS-SDR-SIM / gnss-sdrlib for software-defined GPS L1 reception; GPSDO modules (Leo Bodnar, Trimble Thunderbolt-E for 10 MHz / 1 PPS reference); chipscale-atomic-clock (CSAC SA.45s) holdover. Limitation: civilian receivers do not decode P(Y) / M-code (encrypted military signals)"
+    antenna_diy_considerations: "Active patch antenna (right-hand circular polarisation, RHCP) is the canonical GNSS antenna — built into virtually every consumer device. Survey-grade choke-ring antennas (Trimble Zephyr, NovAtel GNSS-750, Topcon CR-G5) reject ground multipath. Helical / quadrifilar helix for handheld. 1/4-wave whip ≈ 4.7 cm at L1 (rarely used due to polarisation mismatch). Patch dimensions ~30 mm at L1; multi-band patches stack L1+L2+L5 layers. Skyview matters: keep a clear hemisphere above 10° elevation"
+    legal_licensing_notes: "ITU radio-navigation-satellite service (RNSS) primary in 1164–1300 MHz and 1559–1610 MHz, protected internationally. Receive-only is unlicensed everywhere. GNSS jamming and spoofing are illegal in nearly all jurisdictions (US: Communications Act, FCC enforcement; EU: national radio acts; criminal penalties). Personal-privacy GPS jammers sold online are illegal to import / operate in most countries"
+    max_power_restrictions_eirp: "Satellite EIRP toward Earth: GPS L1 C/A ≈ 27 dBW (500 W) into space-vehicle hemispherical antenna → received signal at Earth's surface ≈ −130 dBm (weaker than thermal noise — recovered via spread-spectrum processing gain ~43 dB). Galileo / GLONASS / BeiDou similar order. RTK base stations: typically 1–10 W on 410–470 MHz UHF backhaul or NTRIP over IP. Hobbyists are RX-only — TX on these frequencies is illegal (jamming offence)"
+    propagation_interference_notes: "Line-of-sight to GNSS satellites; signal is below the noise floor and recovered by despreading. Multipath (urban canyons, water surfaces) is the dominant accuracy degrader for consumer receivers; RTK + SBAS + dual-/triple-frequency reduce errors to cm. Ionospheric delay scales as 1/ν<sup>2</sup> — multi-band receivers cancel it directly. Local interference: in-band jamming, intentional spoofing (a real and growing threat near conflict zones), LightSquared / Ligado L-band terrestrial proposals (US, controversial)"
+    safety_exposure_limits: "Follow ICNIRP / FCC OET-65 RF-exposure guidelines. GNSS receive-only setups have zero exposure issue; the satellite signal arrives at ~−130 dBm, far below detection without a low-noise antenna"
+    technologies_example_devices: "Every smartphone, car nav, fitness watch, and drone uses GNSS. Survey: Trimble R12i, Leica GS18, Topcon HiPer VR; ag/auto: John Deere StarFire, Trimble TMX-2050; aviation: ADS-B / WAAS / SBAS-augmented; maritime: ECDIS chart plotters; time: NTP stratum-1 servers (Meinberg, Microsemi); autonomous vehicles use multi-frequency RTK + IMU + LiDAR fusion"
+    hobbyist_project_ideas: "Build a u-blox ZED-F9P RTK rover + base station for cm-level positioning (under $500); set up a Raspberry Pi NTP stratum-1 server with a u-blox + PPS GPIO; log raw RINEX observations and post-process with RTKLIB; correlate ionospheric TEC with solar activity using dual-frequency carrier-phase; build a GPSDO 10 MHz reference for your shack with a Leo Bodnar mini-precision; experiment with software-defined GPS reception (GNSS-SDR + RTL-SDR + active patch); drive-test for cellular-network spoofing detection along motorway corridors"
+    wavelength: "λ = c/ν ≈ 19.04 cm (L1 1575.42 MHz), 24.42 cm (L2 1227.60 MHz), 25.48 cm (L5 1176.45 MHz)"
+    photon_energy: "N/A (RF — E = hν ≈ 6.5 μeV at L1)"
+    sources_citations: "ITU-R Radio Regulations RR Article 5 (RNSS allocations), GPS Interface Specification IS-GPS-200N (L1/L2) / IS-GPS-705 (L5), Galileo OS SIS ICD, GLONASS ICD, BeiDou ICD-OS, RTCM-104 SSR + RTK standards, u-blox ZED-F9P integration manual, RTKLIB documentation, IGS (International GNSS Service) data archives (2026)"
+    usability_badge: "🟡 Licensed / Public receive-only"
+
+  - frequency_range: "1.420 GHz (HI line) + 22.235 GHz (H₂O maser) + protected radio-astronomy / VLBI windows"
+    key_frequencies_channels: "Neutral-hydrogen 21 cm line at 1420.4057517667 MHz (the 'HI line', cornerstone of galactic radio astronomy and SETI's 'water hole' between HI and OH at 1612–1720 MHz); H₂O maser at 22.23508 GHz (star-forming regions, AGN); OH lines 1612 / 1665 / 1667 / 1720 MHz; methanol maser CH₃OH 6.668 / 12.178 GHz; CO J=1→0 at 115.271 GHz, J=2→1 at 230.538 GHz (mm-wave CO surveys); ammonia NH₃ at 23.694 / 23.722 / 23.870 GHz; CMB observation band ~30–300 GHz (Planck, LiteBIRD); VLBI standard frequencies 1.4 / 2.3 / 5 / 8.4 / 22 / 43 / 86 GHz (S/X/K/Q-band) coordinated globally via IVS"
+    band_name_designation: "Radio-astronomy / VLBI key allocations — HI line, H₂O maser, OH/CH₃OH masers, mm-wave molecular lines"
+    primary_uses_hobbyist_relevance: "Galactic structure mapping via 21 cm line (THE accessible amateur radio-astronomy target — measure galactic rotation curves with a 1 m dish), pulsar timing, SETI, VLBI Earth-orientation / geodesy (IVS), CMB cosmology, molecular-cloud spectroscopy of star-forming regions; the 21 cm line is the canonical 'first radio-astronomy project' for serious hobbyists"
+    hardware_modules: "21 cm: 1.0–1.5 m parabolic dish (offset Ku-band TV dish works with retuned feed) or 2-element helix array, 1420 MHz LNA (Mini-Circuits ZX60-P162LN+, custom GaAs HEMT, ~0.3 dB NF), bandpass filter (1390–1450 MHz cavity), RTL-SDR / Airspy / SDRplay / HackRF + virtinst gnuradio H-line scripts, JPL / GBT 'Open Source Radio Telescope' designs; 22 GHz H₂O maser: Kuhne MKU 24 G LNA + 60 cm dish + transverter (much harder — typically university-level); VLBI: hydrogen-maser frequency reference + GNSS time-tag (very advanced); SETI tools (SETI@home archive, Breakthrough Listen public data)"
+    antenna_diy_considerations: "21 cm: 1.0–1.5 m offset / prime-focus parabolic dish (gain ~22–26 dBi, beamwidth ~10°), helical antenna (10–14 turn, RHCP), Yagi-Uda 8–12 element, horn antenna. 22 GHz H₂O maser: 60 cm – 1.2 m parabolic with Cassegrain feed (gain ~38–42 dBi). VLBI: needs precise pointing + time + position metrology (cm-class GNSS, hydrogen maser). Side note: backyard 1 m dish + cooled LNA is enough to detect H I in ~30 minutes integration"
+    legal_licensing_notes: "ITU radio-astronomy service (RAS) primary allocation at 1400–1427 MHz (HI line) and 22.21–22.5 GHz (H₂O), with footnotes RR 5.149 / 5.340 / 5.341 protecting passive observation. Adjacent allocations are under-pressure (Iridium / SpaceX out-of-band emissions into 1610.6–1613.8 MHz OH band have caused real interference incidents). Receive-only by hobbyists is unrestricted everywhere. Active TX into RAS bands is heavily coordinated via national bodies (NSF / FCC, BNetzA, Ofcom)"
+    max_power_restrictions_eirp: "Receive-only — astronomical sources are typically −180 to −250 dBW per Hz, requiring large dishes + cryogenic LNAs for professional work. RAS protection thresholds: ITU-R RA.769 sets harmful-interference levels at −255 dBW/m<sup>2</sup>/Hz at 1.4 GHz (extraordinarily strict). Hobbyists are RX-only — observation power is N/A"
+    propagation_interference_notes: "21 cm: clear-air propagation, sky background 5–10 K, galactic plane 30–100 K above the cold sky; major terrestrial QRM from cellular L-band (Iridium 1610–1626 MHz adjacent), SatCom, FAA radar harmonics. 22 GHz H₂O: significant atmospheric water-vapour absorption + emission — the line is broadened by terrestrial water vapour, requiring high dry sites for clean spectra. Both bands have dedicated 'radio-quiet zones' (Green Bank WV USA, Pickles WA AU, Effelsberg DE)"
+    safety_exposure_limits: "Receive-only — no TX exposure. Cryogenic LNA handling: standard cryogenic safety (LN₂ / He, oxygen-deficient atmosphere awareness)"
+    technologies_example_devices: "Professional: Arecibo (decommissioned), FAST (China 500 m), Effelsberg (100 m), Green Bank Telescope (100 m), Parkes 64 m, ALMA (mm/sub-mm), VLBA / EVN / VLBI Global Observing System, Square Kilometre Array (SKAO under construction). Amateur: SARA (Society of Amateur Radio Astronomers) members run 1–4 m dishes for 21 cm; Open Source Radio Telescope (OSRT) and ESA / NRAO educational kits"
+    hobbyist_project_ideas: "Build a 1.2 m offset dish + 1420 MHz LNA + RTL-SDR and detect the galactic HI line in your backyard (~30 min integration time, 2–3 km/s velocity resolution); map the galactic rotation curve along the Milky Way (Doppler shift across the galactic plane); contribute observations to the SARA database; analyse public Breakthrough Listen + Green Bank data for SETI candidates; correlate H I emission with hydrogen-deficient regions of the galactic disk; observe the radio sun at 1.4 GHz during a coronal mass ejection"
+    wavelength: "λ ≈ 21.106 cm (HI line, 1420.4 MHz), λ ≈ 1.348 cm (H₂O maser, 22.235 GHz)"
+    photon_energy: "N/A (RF — E = hν ≈ 5.87 μeV at HI line, 92 μeV at 22 GHz; hyperfine spin-flip transitions, not electronic)"
+    sources_citations: "ITU-R Radio Regulations RR 5.149 / 5.340 / 5.341 / 5.563A (RAS protection), ITU-R RA.769 (RAS interference levels), IVS (International VLBI Service) frequency standards, NRAO / ALMA / SKAO publications, SARA Journal of Amateur Radio Astronomy, Open Source Radio Telescope project, Breakthrough Listen archive (2026)"
+    usability_badge: "🔴 Restricted / Scientific (receive-only for hobbyists)"

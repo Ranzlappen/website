@@ -20,7 +20,7 @@ batch:
     particle regime — UHE gamma rays, cosmic rays, and accelerator-scale
     particle energies — that sit above the conventional radio and gamma-ray
     bands. Effectively inaccessible to hobbyists; included for completeness.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "Beyond gamma rays (> 300 EHz / > 1.24 MeV)"
@@ -35,5 +35,7 @@ bands:
     safety_exposure_limits: "Ionizing radiation hazards — extreme caution required"
     technologies_example_devices: "Gamma-ray astronomy, CERN/LHC detectors, neutrino observatories"
     hobbyist_project_ideas: "Citizen science cosmic-ray detection with smartphone apps or simple Geiger counters (limited to lower energies)"
+    wavelength: "λ < 1 pm (sub-picometre; smaller than atomic nuclei at the highest cosmic-ray energies, λ ≈ 10<sup>−27</sup> m for ~10<sup>20</sup> eV particles)"
+    photon_energy: "E = hν > 1.24 MeV (extending through GeV — Fermi-LAT 0.02–300 GeV, IACT 50 GeV–100 TeV — into PeV / EeV cosmic-ray regime; well above any electronic / nuclear bound-state energy)"
     sources_citations: "NASA/ESA astrophysics data, Particle Data Group, CERN publications (2026)"
     usability_badge: "🔴 Restricted / Scientific only"

@@ -26,7 +26,7 @@ batch:
     governed by laser-safety standards (IEC 60825 / ANSI Z136), display
     standards (sRGB / Rec. 709 / Rec. 2020 / DCI-P3), and photometric
     units (lumens, candela, nits) instead of RF power densities.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "600 THz – 750 THz (500 – 380 nm; Violet / Blue / Cyan)"
@@ -41,6 +41,8 @@ bands:
     safety_exposure_limits: "IEC 60825 + ANSI Z136 laser MPE; ICNIRP 2013 broadband-light exposure guidelines. Blue-light retinal photochemical hazard (440–500 nm) — basis of 'blue-light filter' marketing for screens; actual photochemical injury thresholds are well above any consumer-display output. UV-A boundary at 380 nm has additional skin / lens-of-eye concerns"
     technologies_example_devices: "Blu-ray drives (405 nm AlInGaN), white LEDs (blue InGaN + YAG:Ce phosphor downconversion → broadband white), 4K / 8K projectors with blue laser engines (Hisense L9G, BenQ V7050i), UV-resin printers (Anycubic, Elegoo, Phrozen), fluorescence microscopy, semiconductor photolithography (i-line 365 nm UV-A boundary, KrF 248 nm), forensic 'CSI' alternate-light sources, cyanotype photography 365–420 nm"
     hobbyist_project_ideas: "Build an Arduino + LED PWM mood-light cube with RGB 5050 / WS2812 (Neopixel) strips; safely experiment with a Class 3R 405 nm violet laser pointer for fluorescence demos (UV-resin gloss, tonic-water quinine, lab-grade fluorescent dyes); print SLA models on an Anycubic Photon (365–405 nm); image deep-sky O III with a CMOS astrocamera + 5 nm narrowband filter; modify a webcam to remove the IR-cut filter and capture near-UV with a 365 nm illuminator (Wood-effect / forensics)"
+    wavelength: "λ ≈ 380 – 500 nm (Blu-ray 405 nm, 'Nakamura' blue InGaN 450 nm, OPSL 488 nm, O III 500.7 nm)"
+    photon_energy: "E = hc/λ ≈ 2.48 – 3.26 eV (405 nm ≈ 3.06 eV, 450 nm ≈ 2.76 eV; sufficient to break some C–H / C–C bonds → photochemistry, UV-resin polymerisation, blue-light retinal photochemical hazard)"
     sources_citations: "IEC 60825-1 / ANSI Z136.1 (laser safety), CIE 1931 standard observer / photopic V(λ), FDA CDRH 21 CFR 1040 (laser products), ICNIRP 2013 broadband, Optica / SPIE publications, Nichia / Osram / Cree datasheets, sRGB / Rec. 2020 color-space standards (2026)"
     usability_badge: "🟢 Public / Natural"
 
@@ -56,6 +58,8 @@ bands:
     safety_exposure_limits: "IEC 60825 + ANSI Z136 laser MPE. Photopic-weighted hazard analyses use V(λ) curve. ICNIRP 2013 broadband. Sodium 'D-line' frequency-doubling can cause unexpected UV emission in some setups — verify with a UV card. Avoid all eye-contact with Class 3B / 4"
     technologies_example_devices: "DPSS / direct-diode green laser pointers, RGB laser projectors, sodium-vapor lamps (street lighting, decommissioning in favor of LEDs), sodium guide-star adaptive optics (Keck, VLT, ELT), traffic signals, telescope finder lasers, green astronomy filters (UHC narrowband for nebulae)"
     hobbyist_project_ideas: "Build a 532 nm telescope finder/pointer with proper IR-blocking filter and Class 2 power for safe outreach; experiment with the V(λ) photopic curve using a luxmeter and color-tunable RGB LED (the same lumens / luminance feels brightest at 555 nm); set up sodium-vapor lamp + spectroscope for a free physics demo; image green / Hα / O III narrowband nebulae with a CMOS astrocam; build a cheap DIY laser show with a Galvanometer Pair (closed-loop) + RGB module + ILDA software"
+    wavelength: "λ ≈ 500 – 590 nm (532 nm DPSS green, 555 nm CIE V(λ) peak, 589 nm Na D-line)"
+    photon_energy: "E = hc/λ ≈ 2.10 – 2.48 eV (532 nm ≈ 2.33 eV, 589 nm ≈ 2.10 eV; matches Nd:YAG 2nd-harmonic and Na 3p→3s transition)"
     sources_citations: "IEC 60825-1 / ANSI Z136.1 (laser safety), CIE 1931 photopic V(λ), 18 USC §39A (US laser-aircraft strikes), FAA Laser Strike Reporting, FDA CDRH 21 CFR 1040, Nichia / Osram NDG7475 datasheets, ESO sodium-guide-star papers, Optica / SPIE publications (2026)"
     usability_badge: "🟢 Public / Natural"
 
@@ -71,5 +75,7 @@ bands:
     safety_exposure_limits: "IEC 60825 + ANSI Z136 laser MPE. Red lasers feel less bright than equivalent-power green (V(λ) sensitivity drops to 10 % at 650 nm) — same eye-hazard, less subjective brightness, hence dangerous false sense of safety with high-power red modules"
     technologies_example_devices: "Consumer red laser pointers, HeNe 632.8 nm laboratory lasers, CD audio (780 nm IR), red LED indicators / displays / traffic signals / brake lights, photosynthesis grow lights (660 / 730 nm), pulse oximetry (660 + 940 nm), barcode scanners, supermarket scanners, Hα solar telescopes (Coronado SolarMax, Lunt LS50/60/100 with sub-Å filters), narrowband nebula photography (Hα the most-imaged line in amateur astro)"
     hobbyist_project_ideas: "Build a Hα solar telescope using a Coronado / Lunt narrowband module + DSLR / planetary camera and image solar prominences daily; image the Heart / Soul / Cocoon / NGC 6960 nebulae with a CMOS astrocam + Hα 3 nm filter; build a DIY pulse oximeter with MAX30102 + ESP32 and stream to MQTT; image the 'NDVI' (Normalized Difference Vegetation Index) using a modified IR-cut webcam + red filter; build a basic supermarket-style barcode reader with a 650 nm laser + photodiode + microcontroller"
+    wavelength: "λ ≈ 590 – 750 nm (HeNe 632.8 nm, red diode 635 / 650 nm, Hα 656.3 nm, ruby 694.3 nm)"
+    photon_energy: "E = hc/λ ≈ 1.65 – 2.10 eV (656 nm Hα ≈ 1.89 eV, 632.8 nm HeNe ≈ 1.96 eV; matches H I n=3→2 Balmer-α atomic transition)"
     sources_citations: "IEC 60825-1 / ANSI Z136.1 (laser safety), CIE 1931 photopic V(λ), FAA Laser Strike Reporting, FDA CDRH 21 CFR 1040, Coronado / Lunt solar telescope docs, Hamamatsu / Sony / Vishay datasheets, Stark Hα-line atomic data, NDVI / vegetation-index ESA Sentinel-2 docs (2026)"
     usability_badge: "🟢 Public / Natural"

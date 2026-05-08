@@ -31,7 +31,7 @@ batch:
     2.5 GHz (n41 / n7 / n38, BRS/EBS in the US) carry significant 4G LTE
     and 5G NR mid-band traffic. Hobbyists work the ISM band hands-on with
     routers, ESP32, and SDR; the licensed bands are receive-only.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "2.400 GHz – 2.4835 GHz (ISM, Wi-Fi 2.4 GHz / Bluetooth / Zigbee deep-dive)"
@@ -46,6 +46,8 @@ bands:
     safety_exposure_limits: "Follow ICNIRP / FCC OET-65 / IEC 62209 RF-exposure guidelines; SAR-tested for phones / tablets. Wi-Fi APs at 100 mW EIRP are well below MPE limits at any practical distance"
     technologies_example_devices: "Wi-Fi 4 / 5 / 6 / 6E / 7 (2.4 GHz portion), Bluetooth Classic + BLE 5.x, Zigbee 3.0 / Thread / Matter, ANT+, IEEE 802.15.4, FHSS RC links (FrSky D8 / D16, Spektrum DSMX, TBS Crossfire 2.4 GHz), legacy 2.4 GHz analog FPV video"
     hobbyist_project_ideas: "Set up a Wi-Fi 6 / 7 mesh with band-steering (legacy clients on 2.4, modern on 5/6); flash OpenWrt on a TP-Link AX23 and run Network Time Server + AdGuard; build a 2.4 GHz spectrum scanner with HackRF + GQRX + spectrum painter; survey your apartment with Wi-Spy / Ekahau / kismet; build a long-range 2.4 GHz LoRa-style FSK link with nRF24L01+; experiment with WiFi CSI sensing — through-wall motion/breathing detection using existing WiFi signals (open-source ESP32 projects, e.g., ESP32-CSI-Tool, Atheros CSI Tool)"
+    wavelength: "λ = c/ν ≈ 12.2 – 12.5 cm at 2.4 GHz (1/4-wave whip ≈ 3.1 cm; PCB inverted-F antennas ~3 cm long)"
+    photon_energy: "N/A (RF — E = hν ≈ 10 μeV)"
     sources_citations: "ITU-R Radio Regulations RR 5.150 (ISM), FCC Part 15.247 / 15.249, ETSI EN 300 328, IEEE 802.11-2020 / 802.11ax / 802.11be drafts, IEEE 802.15.1 / 802.15.4, Bluetooth SIG Core Specification 5.x / 6.0, Zigbee Alliance / Connectivity Standards Alliance Matter 1.x, Wi-Fi Alliance Wi-Fi 6 / 6E / 7 specs (2026)"
     usability_badge: "🟢 Public / ISM (Wi-Fi/Bluetooth) + 🟡 Licensed (5G)"
 
@@ -61,5 +63,7 @@ bands:
     safety_exposure_limits: "Follow ICNIRP 2020 / FCC OET-65 / IEC 62209 RF-exposure guidelines; modern smartphones SAR-tested for body / head"
     technologies_example_devices: "LTE Cat-1 through Cat-20 on n7 / n38 / n40 / n41, LTE-A carrier aggregation, LAA / LTE-U (in 5 GHz adjacent), 5G NR FR1 SA / NSA on n7 / n38 / n40 / n41, T-Mobile US 5G UC (n41 + n2 + n66 carrier aggregation), private 5G campus networks on n40 in some countries"
     hobbyist_project_ideas: "Run a Quectel RM520N-GL on a Raspberry Pi CM4 with QMI / MBIM and log per-cell metrics across n40 / n41; build a passive 5G monitor with USRP B210 + srsRAN to learn the NR PHY frame structure (TDD on n41 is the standard demo); profile T-Mobile US 5G UC across a city with NetMonster"
+    wavelength: "λ = c/ν ≈ 11.2 – 13.0 cm (n40 2.35 GHz ≈ 12.8 cm; n41 2.6 GHz ≈ 11.5 cm)"
+    photon_energy: "N/A (RF — E = hν ≈ 10 μeV)"
     sources_citations: "3GPP TS 38.101-1 (NR FR1 bands), 3GPP TS 36.101 (LTE bands), ITU-R Radio Regulations, FCC Part 27 (BRS/EBS), Auction 65 / 96 / 102 / 108 docs, ETSI / 3GPP Release 15 – 18, BNetzA / Ofcom / FCC band tables, GSMA Spectrum Tracker (2026)"
     usability_badge: "🟡 Licensed / Mobile (receive-only for hobbyists)"

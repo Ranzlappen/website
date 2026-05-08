@@ -19,7 +19,7 @@ batch:
     magnetic fields — DC power, geomagnetic fields, power-line harmonics, and
     natural atmospheric electricity — that sit below the conventional radio
     spectrum and require no radio licensing.
-  last_updated: "2026-05-07"
+  last_updated: "2026-05-08"
 
 bands:
   - frequency_range: "Below DC / Static fields (0 Hz and below)"
@@ -34,5 +34,7 @@ bands:
     safety_exposure_limits: "High-voltage DC hazards; follow ICNIRP/FCC guidelines for static electric/magnetic fields"
     technologies_example_devices: "MRI magnets, geomagnetic sensors in smartphones, power-grid monitoring"
     hobbyist_project_ideas: "Build a simple magnetometer to detect Earth’s field or power-line harmonics with Arduino"
+    wavelength: "λ → ∞ (DC / static fields, no propagating wave)"
+    photon_energy: "N/A (static / quasi-static fields)"
     sources_citations: "ITU, IEEE, NASA geomagnetic data, ICNIRP static field guidelines (2026)"
     usability_badge: "🟢 Public / Natural"
