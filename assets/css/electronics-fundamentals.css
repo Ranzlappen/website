@@ -1,0 +1,712 @@
+/* ============================================================================
+   Electronics Fundamentals Reference — scoped styles
+   Uses site-wide CSS variables (--c-bg, --c-surface, --c-text, --c-accent…)
+   defined in assets/css/style.css, so dark/light theme switching is automatic.
+
+   Mirrors the structural patterns of assets/css/spectrum.css so the page
+   reads as a sibling reference. BEM with the "electronics-" prefix.
+   ========================================================================== */
+
+.electronics-page {
+  padding: var(--space-2xl) 0 var(--space-3xl);
+}
+
+.electronics-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+/* ---- Hero ---- */
+.electronics-hero { margin-bottom: var(--space-xl); }
+.electronics-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  color: var(--c-accent);
+  margin: 0 0 var(--space-sm);
+  font-weight: 600;
+}
+.electronics-title {
+  font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.75rem);
+  margin: 0 0 var(--space-md);
+  line-height: 1.15;
+  color: var(--c-text);
+}
+.electronics-lede {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--c-text);
+  margin: 0 0 var(--space-md);
+  max-width: 60rem;
+}
+.electronics-howto {
+  font-size: 0.95rem;
+  color: var(--c-text-muted);
+  margin: 0 0 var(--space-lg);
+  max-width: 60rem;
+}
+.electronics-howto strong { color: var(--c-text); }
+.electronics-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  font-size: 0.85rem;
+  color: var(--c-text-muted);
+}
+.electronics-meta__item strong {
+  color: var(--c-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Safety disclaimer ---- */
+.electronics-disclaimer {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-left: 4px solid #f59e0b;
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-lg) 0;
+  color: var(--c-text);
+}
+[data-theme="light"] .electronics-disclaimer {
+  background: #fff8e1;
+  border-color: rgba(180, 83, 9, 0.35);
+  border-left-color: #d97706;
+  color: #5c4500;
+}
+.electronics-disclaimer h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+[data-theme="light"] .electronics-disclaimer h3 {
+  color: #b45309;
+}
+.electronics-disclaimer p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  color: inherit;
+}
+
+/* ============================================================================
+   Generic section scaffold — every locked section uses .electronics-section
+   so headings, intros, and bottom margins stay consistent without per-section
+   tweaks.
+   ========================================================================== */
+.electronics-section {
+  margin-top: var(--space-2xl);
+  scroll-margin-top: calc(var(--header-height, 3.75rem) + var(--space-md));
+}
+.electronics-section + .electronics-section {
+  border-top: 1px solid var(--c-border-light);
+  padding-top: var(--space-2xl);
+}
+.electronics-section__title {
+  font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.65rem);
+  margin: 0 0 var(--space-sm);
+  color: var(--c-text);
+  letter-spacing: -0.005em;
+}
+.electronics-section__intro {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--c-text-muted);
+  margin: 0 0 var(--space-lg);
+  max-width: 56rem;
+}
+
+/* ============================================================================
+   Reusable card primitive — formula cards, calculator cards, component cards,
+   and design-guide cards all share .electronics-card so future content batches
+   only need to fill markup.
+   ========================================================================== */
+.electronics-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  box-shadow: 0 4px 16px var(--c-card-shadow);
+  transition: border-color var(--transition-fast),
+              transform var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+.electronics-card:hover {
+  border-color: var(--c-accent-border);
+}
+.electronics-card__title {
+  margin: 0 0 var(--space-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.electronics-card__subtitle {
+  margin: -0.25rem 0 var(--space-sm);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+.electronics-card__body {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--c-text);
+}
+.electronics-card__footer {
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--c-border-light);
+  font-size: 0.82rem;
+  color: var(--c-text-muted);
+}
+
+/* ============================================================================
+   Section 1 — Quick Reference Wheel
+   Square-aspect container that holds the interactive radial nav. Sized
+   responsively so the inscribed wheel always has equal room top/bottom.
+   ========================================================================== */
+.electronics-wheel {
+  position: relative;
+  width: 100%;
+  max-width: 36rem;
+  margin: 0 auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center,
+      var(--c-surface) 0%,
+      var(--c-surface) 55%,
+      var(--c-surface-alt) 100%);
+  border: 1px solid var(--c-border);
+  box-shadow: 0 8px 28px var(--c-card-shadow);
+}
+.electronics-wheel__hub {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: 38%;
+  height: 38%;
+  border-radius: 50%;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  font-size: 0.9rem;
+}
+.electronics-wheel__spoke {
+  position: absolute;
+  width: 28%;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--c-text);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: 0.5rem 0.75rem;
+  transition: border-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+.electronics-wheel__spoke:hover {
+  border-color: var(--c-accent-border);
+  color: var(--c-accent);
+}
+
+/* ============================================================================
+   Section 2 — Core Formulas & Laws
+   A simple responsive grid of formula cards. Each card centers its formula
+   and uses a monospace font for the equation itself.
+   ========================================================================== */
+.electronics-formulas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-md);
+}
+.electronics-formula-card {
+  /* Inherits from .electronics-card; this class adds formula-specific layout. */
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  box-shadow: 0 4px 16px var(--c-card-shadow);
+  transition: border-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+.electronics-formula-card:hover {
+  border-color: var(--c-accent-border);
+}
+.electronics-formula-card__name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.electronics-formula-card__equation {
+  font-family: var(--f-mono);
+  font-size: 1.1rem;
+  text-align: center;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--c-code-bg);
+  border: 1px solid var(--c-border-light);
+  border-radius: var(--border-radius-sm);
+  color: var(--c-accent);
+  font-variant-numeric: tabular-nums;
+  overflow-x: auto;
+}
+.electronics-formula-card__legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  color: var(--c-text-muted);
+  display: grid;
+  gap: 0.2rem;
+}
+.electronics-formula-card__legend li {
+  display: flex;
+  gap: 0.4rem;
+}
+.electronics-formula-card__legend strong {
+  color: var(--c-text);
+  font-family: var(--f-mono);
+  min-width: 1.5rem;
+}
+
+/* ============================================================================
+   Section 3 — Interactive Calculators
+   Card grid where each card holds inputs, a result line, and a tiny "reset"
+   affordance. Dark-only by default, light-theme overrides via [data-theme].
+   ========================================================================== */
+.electronics-calculators {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-lg);
+}
+.electronics-calculator {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  box-shadow: 0 4px 16px var(--c-card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.electronics-calculator__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.electronics-calculator__hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--c-text-muted);
+  line-height: 1.5;
+}
+.electronics-calculator__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--c-text-muted);
+}
+.electronics-calculator__field label {
+  font-weight: 500;
+}
+.electronics-calculator__input {
+  appearance: none;
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--c-text);
+  font: inherit;
+  font-family: var(--f-mono);
+  font-size: 0.92rem;
+  padding: 0.45rem 0.65rem;
+  transition: border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+.electronics-calculator__input:focus {
+  outline: none;
+  border-color: var(--c-accent-border);
+  box-shadow: 0 0 0 3px var(--c-accent-bg);
+}
+.electronics-calculator__select {
+  appearance: none;
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--c-text);
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}
+.electronics-calculator__result {
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--c-accent-bg);
+  border: 1px solid var(--c-accent-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--c-accent);
+  font-family: var(--f-mono);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.electronics-calculator__reset {
+  align-self: flex-start;
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  color: var(--c-text-muted);
+  padding: 0.25rem 0.7rem;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: border-color var(--transition-fast),
+              color var(--transition-fast);
+}
+.electronics-calculator__reset:hover {
+  color: var(--c-text);
+  border-color: var(--c-accent-border);
+}
+
+/* ============================================================================
+   Section 4 — Component References & Charts
+   Resistor color codes, capacitor markings, etc. Two-column grid on desktop;
+   a generic chart container holds anything that needs an aspect-locked area.
+   ========================================================================== */
+.electronics-components {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-lg);
+}
+.electronics-component-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  box-shadow: 0 4px 16px var(--c-card-shadow);
+}
+.electronics-component-card__title {
+  margin: 0 0 var(--space-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.electronics-component-card__caption {
+  margin: var(--space-sm) 0 0;
+  font-size: 0.82rem;
+  color: var(--c-text-muted);
+  line-height: 1.5;
+}
+
+.electronics-chart-container {
+  position: relative;
+  width: 100%;
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-border-light);
+  border-radius: var(--border-radius-sm);
+  padding: var(--space-md);
+  overflow: auto;
+}
+.electronics-chart-container--square { aspect-ratio: 1 / 1; }
+.electronics-chart-container--wide   { aspect-ratio: 16 / 9; }
+
+/* Resistor color-band swatches, used by the resistor color-code chart. */
+.electronics-color-band {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+}
+.electronics-color-band--black  { background: #111111; }
+.electronics-color-band--brown  { background: #8b4513; }
+.electronics-color-band--red    { background: #d42d2d; }
+.electronics-color-band--orange { background: #ff8c00; color: #111111; text-shadow: none; }
+.electronics-color-band--yellow { background: #ffd400; color: #111111; text-shadow: none; }
+.electronics-color-band--green  { background: #3aa14b; }
+.electronics-color-band--blue   { background: #2563eb; }
+.electronics-color-band--violet { background: #8b5cf6; }
+.electronics-color-band--gray   { background: #6b7280; }
+.electronics-color-band--white  { background: #f9fafb; color: #111111; text-shadow: none; }
+.electronics-color-band--gold   { background: linear-gradient(135deg, #d4a017, #f0c957); color: #3a2a00; text-shadow: none; }
+.electronics-color-band--silver { background: linear-gradient(135deg, #9aa0a6, #d0d4d8); color: #1a1a1a; text-shadow: none; }
+
+/* ============================================================================
+   Section 5 — Circuit Design Guides & Practical Tips
+   Tip cards stacked in a single column on mobile, two columns on wider
+   screens. Each tip carries an optional "callout" tag for severity/category.
+   ========================================================================== */
+.electronics-guides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-lg);
+}
+.electronics-guide {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-accent);
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  box-shadow: 0 4px 16px var(--c-card-shadow);
+}
+.electronics-guide__tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  border: 1px solid var(--c-accent-border);
+  margin-bottom: var(--space-sm);
+}
+.electronics-guide__tag--warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+[data-theme="light"] .electronics-guide__tag--warning {
+  color: #b45309;
+}
+.electronics-guide__tag--danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+.electronics-guide__title {
+  margin: 0 0 var(--space-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.electronics-guide__body {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--c-text);
+}
+.electronics-guide__body p { margin: 0 0 var(--space-sm); }
+.electronics-guide__body p:last-child { margin-bottom: 0; }
+
+/* ============================================================================
+   Section 6 — Reference Tables
+   SI prefixes, conversions, schematic symbols. Wrapper provides horizontal
+   scroll on small viewports while keeping desktop tables flush.
+   ========================================================================== */
+.electronics-tables {
+  display: grid;
+  gap: var(--space-lg);
+}
+.electronics-table-wrapper {
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  background: var(--c-surface);
+  box-shadow: 0 4px 16px var(--c-card-shadow);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.electronics-table-wrapper:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+.electronics-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+  color: var(--c-text);
+}
+.electronics-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--c-surface-alt);
+  color: var(--c-text);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.85rem 1rem 0.7rem;
+  border-bottom: 2px solid var(--c-border);
+}
+.electronics-table tbody td {
+  padding: 0.7rem 1rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--c-border-light);
+  line-height: 1.5;
+}
+.electronics-table tbody tr:hover td { background: var(--c-surface-alt); }
+.electronics-table tbody tr:last-child td { border-bottom: 0; }
+.electronics-table .mono,
+.electronics-table .col-mono {
+  font-family: var(--f-mono);
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-text);
+}
+
+/* Caption / heading row used inside reference-table containers. */
+.electronics-table-caption {
+  caption-side: top;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  color: var(--c-text-muted);
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--c-border-light);
+  background: var(--c-surface-alt);
+}
+
+/* ============================================================================
+   Collapsibles (used by formula derivations, calculator hints, etc.)
+   Mirrors the .cell-collapse pattern from spectrum.css.
+   ========================================================================== */
+.electronics-collapse { font-size: inherit; }
+.electronics-collapse > summary {
+  list-style: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  color: var(--c-text);
+  user-select: none;
+}
+.electronics-collapse > summary::-webkit-details-marker { display: none; }
+.electronics-collapse > summary::marker { display: none; content: ""; }
+.electronics-collapse__label { color: var(--c-text-muted); }
+.electronics-collapse__more {
+  font-size: 0.75rem;
+  color: var(--c-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+.electronics-collapse[open] > summary .electronics-collapse__more::after { content: " (collapse)"; }
+
+/* ============================================================================
+   Utilities
+   ========================================================================== */
+.electronics-mono {
+  font-family: var(--f-mono);
+  font-size: 0.84rem;
+  color: var(--c-text);
+  font-variant-numeric: tabular-nums;
+}
+.electronics-pill {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-muted);
+}
+.electronics-pill--accent {
+  background: var(--c-accent-bg);
+  border-color: var(--c-accent-border);
+  color: var(--c-accent);
+}
+
+/* ============================================================================
+   Responsive — small screens
+   ========================================================================== */
+@media (max-width: 640px) {
+  .electronics-container { padding: 0 var(--space-md); }
+  .electronics-section { margin-top: var(--space-xl); }
+  .electronics-section + .electronics-section { padding-top: var(--space-xl); }
+  .electronics-formulas,
+  .electronics-calculators,
+  .electronics-components,
+  .electronics-guides {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  .electronics-card,
+  .electronics-formula-card,
+  .electronics-calculator,
+  .electronics-component-card,
+  .electronics-guide {
+    padding: var(--space-md);
+  }
+  .electronics-wheel { max-width: 100%; }
+}
+
+/* ============================================================================
+   Reduced motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .electronics-card,
+  .electronics-formula-card,
+  .electronics-calculator__input,
+  .electronics-calculator__reset,
+  .electronics-wheel__spoke {
+    transition: none;
+  }
+}
+
+/* ============================================================================
+   Print
+   Strip backgrounds, drop shadows, and force single-column layout so the
+   reference reads as a clean cheat sheet on paper.
+   ========================================================================== */
+@media print {
+  .electronics-page { padding: 0; }
+  .electronics-container { max-width: none; padding: 0; }
+  .electronics-hero,
+  .electronics-section { break-inside: avoid; }
+  .electronics-card,
+  .electronics-formula-card,
+  .electronics-calculator,
+  .electronics-component-card,
+  .electronics-guide,
+  .electronics-table-wrapper,
+  .electronics-wheel {
+    box-shadow: none;
+    border-color: #999;
+    background: #ffffff;
+    color: #111111;
+  }
+  .electronics-formulas,
+  .electronics-calculators,
+  .electronics-components,
+  .electronics-guides {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .electronics-disclaimer {
+    background: #fff8e1;
+    color: #5c4500;
+    border-color: #d97706;
+  }
+  .electronics-formula-card__equation {
+    background: #f4f4f4;
+    color: #111111;
+    border-color: #ccc;
+  }
+}
