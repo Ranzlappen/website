@@ -1779,14 +1779,394 @@ Styles live in /assets/css/electronics-fundamentals.css and behaviour in
     </section>
 
     {%- comment -%} ========== Section 4: Component References & Charts ========== {%- endcomment -%}
-    <section class="electronics-section" id="electronics-components">
-      <h2 class="electronics-section__title">Component References &amp; Charts</h2>
+    <section class="electronics-section" id="electronics-components" aria-labelledby="electronics-components-heading">
+      <h2 class="electronics-section__title" id="electronics-components-heading">Component References &amp; Charts</h2>
       <p class="electronics-section__intro">
-        Resistor color codes, capacitor markings, standard E-series values,
-        wire-gauge tables, and other lookup-style references.
+        Decode resistor color bands interactively, look up standard E-series
+        values with a built-in closest-match finder, and compare tolerance
+        grades visually. Both panels stay in sync with the dark/light theme
+        and feed the Quick Wheel above when you find a value worth playing with.
       </p>
+
+      <style>
+        .electronics-rcd-bands {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+          gap: var(--space-sm);
+          margin: var(--space-md) 0;
+        }
+        .electronics-rcd-band {
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+          min-width: 0;
+        }
+        .electronics-rcd-band__legend {
+          font-size: 0.7rem;
+          color: var(--c-text-muted);
+          text-align: center;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          font-weight: 500;
+        }
+        .electronics-rcd-band__select {
+          appearance: none;
+          -webkit-appearance: none;
+          width: 100%;
+          height: 3.5rem;
+          border-radius: var(--border-radius-sm);
+          border: 2px solid var(--c-border);
+          background-color: var(--c-surface-alt);
+          color: var(--c-text);
+          text-align: center;
+          font: inherit;
+          font-weight: 700;
+          font-size: 1.05rem;
+          cursor: pointer;
+          padding: 0.25rem;
+          transition: border-color var(--transition-fast),
+                      box-shadow var(--transition-fast);
+        }
+        .electronics-rcd-band__select:focus-visible {
+          outline: none;
+          border-color: var(--c-accent);
+          box-shadow: 0 0 0 3px var(--c-accent-bg);
+        }
+        .electronics-rcd-band__caption {
+          font-size: 0.78rem;
+          color: var(--c-text-muted);
+          text-align: center;
+          font-family: var(--f-mono);
+          font-variant-numeric: tabular-nums;
+        }
+
+        .electronics-rcd-result {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: baseline;
+          gap: var(--space-md);
+          padding: var(--space-md);
+          background: var(--c-surface-alt);
+          border: 1px solid var(--c-border);
+          border-radius: var(--border-radius-sm);
+          font-family: var(--f-mono);
+          margin: var(--space-md) 0;
+        }
+        .electronics-rcd-result__value {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--c-accent);
+          font-variant-numeric: tabular-nums;
+        }
+        .electronics-rcd-result__tolerance {
+          font-size: 0.95rem;
+          color: var(--c-text-muted);
+          font-variant-numeric: tabular-nums;
+        }
+        .electronics-rcd-result__range {
+          width: 100%;
+          font-size: 0.82rem;
+          color: var(--c-text-muted);
+          font-variant-numeric: tabular-nums;
+        }
+
+        .electronics-rcd-tolerance-bar {
+          position: relative;
+          height: 3rem;
+          margin: var(--space-md) 0 calc(var(--space-md) + 0.4rem);
+        }
+        .electronics-rcd-tolerance-bar__track {
+          position: absolute;
+          top: 1rem;
+          left: 0; right: 0;
+          height: 6px;
+          background: var(--c-border);
+          border-radius: 3px;
+        }
+        .electronics-rcd-tolerance-bar__fill {
+          position: absolute;
+          top: 0.6rem;
+          height: 1.4rem;
+          background: var(--c-accent-bg);
+          border: 1px solid var(--c-accent-border);
+          border-radius: 4px;
+          transition: left 0.2s ease, width 0.2s ease;
+        }
+        .electronics-rcd-tolerance-bar__nominal {
+          position: absolute;
+          top: 0.4rem;
+          width: 3px;
+          height: 1.85rem;
+          background: var(--c-accent);
+          border-radius: 1px;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+        .electronics-rcd-tolerance-bar__label {
+          position: absolute;
+          top: 2.1rem;
+          font-size: 0.72rem;
+          font-family: var(--f-mono);
+          font-variant-numeric: tabular-nums;
+          color: var(--c-text-muted);
+          white-space: nowrap;
+          transform: translateX(-50%);
+        }
+        .electronics-rcd-tolerance-bar__label--nominal {
+          color: var(--c-accent);
+          font-weight: 600;
+          left: 50%;
+        }
+        .electronics-rcd-tolerance-bar__label--min { left: 0; transform: none; }
+        .electronics-rcd-tolerance-bar__label--max { right: 0; left: auto; transform: none; text-align: right; }
+
+        .electronics-rcd-chart-wrapper {
+          position: relative;
+          height: 220px;
+          background: var(--c-bg-alt);
+          border: 1px solid var(--c-border-light);
+          border-radius: var(--border-radius-sm);
+          padding: var(--space-sm);
+          margin-bottom: var(--space-md);
+        }
+
+        /* E-series card */
+        .electronics-eseries-tabs {
+          display: flex; flex-wrap: wrap; gap: 0.4rem;
+          margin-bottom: var(--space-md);
+        }
+        .electronics-eseries-tab {
+          appearance: none;
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
+          color: var(--c-text-muted);
+          border-radius: 999px;
+          padding: 0.4rem 0.85rem;
+          font: inherit;
+          font-size: 0.82rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background var(--transition-fast),
+                      color var(--transition-fast),
+                      border-color var(--transition-fast);
+        }
+        .electronics-eseries-tab:hover {
+          color: var(--c-text);
+          border-color: var(--c-accent-border);
+        }
+        .electronics-eseries-tab.is-active {
+          background: var(--c-accent-bg);
+          color: var(--c-accent);
+          border-color: var(--c-accent-border);
+        }
+        .electronics-eseries-tab:focus-visible {
+          outline: 2px solid var(--c-accent);
+          outline-offset: 2px;
+        }
+        .electronics-eseries-finder {
+          display: flex; flex-wrap: wrap; gap: var(--space-sm);
+          align-items: center;
+          margin-bottom: var(--space-md);
+        }
+        .electronics-eseries-finder label {
+          display: inline-flex; align-items: center; gap: 0.5rem;
+          font-size: 0.85rem; color: var(--c-text-muted);
+        }
+        .electronics-eseries-finder input[type="number"] { width: 9rem; }
+        .electronics-eseries-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+          gap: 0.3rem;
+          max-height: 260px;
+          overflow-y: auto;
+          padding: 0.35rem;
+          background: var(--c-bg-alt);
+          border: 1px solid var(--c-border-light);
+          border-radius: var(--border-radius-sm);
+          margin-top: var(--space-sm);
+        }
+        .electronics-eseries-value {
+          padding: 0.4rem 0.5rem;
+          background: var(--c-surface);
+          border: 1px solid var(--c-border);
+          border-radius: var(--border-radius-sm);
+          font-family: var(--f-mono);
+          font-size: 0.82rem;
+          font-variant-numeric: tabular-nums;
+          text-align: center;
+          color: var(--c-text);
+        }
+        .electronics-eseries-value.is-closest {
+          background: var(--c-accent-bg);
+          color: var(--c-accent);
+          border-color: var(--c-accent-border);
+          font-weight: 700;
+          box-shadow: 0 0 0 1px var(--c-accent-border);
+        }
+        .electronics-eseries-empty {
+          text-align: center;
+          padding: var(--space-md);
+          color: var(--c-text-muted);
+          font-size: 0.85rem;
+        }
+
+        @media print {
+          .electronics-eseries-tabs,
+          .electronics-eseries-finder { break-inside: avoid; }
+          .electronics-eseries-grid { max-height: none; overflow: visible; }
+        }
+      </style>
+
       <div class="electronics-components" id="electronics-components-grid">
-        {%- comment -%} TODO: Batch 7 will fill the component charts here. {%- endcomment -%}
+
+        {%- comment -%} ----- Card 1: Resistor Color-Code Decoder ----- {%- endcomment -%}
+        <article class="electronics-component-card" id="electronics-rcd-card">
+          <h3 class="electronics-component-card__title">Resistor Color-Code Decoder</h3>
+          <p class="electronics-component-card__caption">
+            Pick the color of each band &mdash; the value, tolerance, and tolerance
+            bar update live. The mini-chart below compares this nominal value
+            across every common tolerance grade so you can <em>see</em> how much
+            tighter each step gets.
+          </p>
+
+          <div class="electronics-sp-modes">
+            <fieldset>
+              <legend>Number of bands</legend>
+              <label><input type="radio" name="rcd-bands" value="4" checked><span>4-band</span></label>
+              <label><input type="radio" name="rcd-bands" value="5"><span>5-band</span></label>
+            </fieldset>
+          </div>
+
+          <div class="electronics-rcd-bands"
+               id="electronics-rcd-bands"
+               role="group" aria-label="Resistor color bands"></div>
+
+          <div class="electronics-rcd-result" role="status" aria-live="polite">
+            <span class="electronics-rcd-result__value" id="electronics-rcd-value">1 kΩ</span>
+            <span class="electronics-rcd-result__tolerance" id="electronics-rcd-tolerance">±5%</span>
+            <span class="electronics-rcd-result__range" id="electronics-rcd-range">950 Ω &ndash; 1.05 kΩ</span>
+          </div>
+
+          <div class="electronics-rcd-tolerance-bar" aria-hidden="true">
+            <div class="electronics-rcd-tolerance-bar__track"></div>
+            <div class="electronics-rcd-tolerance-bar__fill" id="electronics-rcd-bar-fill"></div>
+            <div class="electronics-rcd-tolerance-bar__nominal"></div>
+            <span class="electronics-rcd-tolerance-bar__label electronics-rcd-tolerance-bar__label--min" id="electronics-rcd-bar-min">—</span>
+            <span class="electronics-rcd-tolerance-bar__label electronics-rcd-tolerance-bar__label--nominal" id="electronics-rcd-bar-nominal">—</span>
+            <span class="electronics-rcd-tolerance-bar__label electronics-rcd-tolerance-bar__label--max" id="electronics-rcd-bar-max">—</span>
+          </div>
+
+          <div class="electronics-rcd-chart-wrapper">
+            <canvas id="electronics-component-chart"
+                    role="img"
+                    aria-label="Tolerance class comparison: floating-bar chart for ±20%, ±10%, ±5%, ±2%, ±1%"></canvas>
+          </div>
+
+          <div id="electronics-rcd-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-rcd-reset">Reset</button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-rcd-copy">Copy value</button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-rcd-open-wheel">Open in Quick Wheel &uarr;</button>
+          </div>
+
+          <script type="application/json" id="electronics-rcd-data">
+            {
+              "defaults": {
+                "4": ["brown", "black", "red", "gold"],
+                "5": ["brown", "black", "black", "brown", "brown"]
+              },
+              "colors": {
+                "black":  { "digit": 0,    "multiplier": 1,        "tolerance": null,  "hex": "#111111", "text": "#ffffff" },
+                "brown":  { "digit": 1,    "multiplier": 10,       "tolerance": 1,     "hex": "#8b4513", "text": "#ffffff" },
+                "red":    { "digit": 2,    "multiplier": 100,      "tolerance": 2,     "hex": "#d42d2d", "text": "#ffffff" },
+                "orange": { "digit": 3,    "multiplier": 1000,     "tolerance": null,  "hex": "#ff8c00", "text": "#111111" },
+                "yellow": { "digit": 4,    "multiplier": 10000,    "tolerance": null,  "hex": "#ffd400", "text": "#111111" },
+                "green":  { "digit": 5,    "multiplier": 100000,   "tolerance": 0.5,   "hex": "#3aa14b", "text": "#ffffff" },
+                "blue":   { "digit": 6,    "multiplier": 1000000,  "tolerance": 0.25,  "hex": "#2563eb", "text": "#ffffff" },
+                "violet": { "digit": 7,    "multiplier": 10000000, "tolerance": 0.1,   "hex": "#8b5cf6", "text": "#ffffff" },
+                "gray":   { "digit": 8,    "multiplier": null,     "tolerance": 0.05,  "hex": "#6b7280", "text": "#ffffff" },
+                "white":  { "digit": 9,    "multiplier": null,     "tolerance": null,  "hex": "#f9fafb", "text": "#111111" },
+                "gold":   { "digit": null, "multiplier": 0.1,      "tolerance": 5,     "hex": "#d4a017", "text": "#3a2a00" },
+                "silver": { "digit": null, "multiplier": 0.01,     "tolerance": 10,    "hex": "#c0c0c0", "text": "#1a1a1a" }
+              },
+              "toleranceClasses": [
+                { "label": "±20%", "value": 20, "color": "#94a3b8" },
+                { "label": "±10%", "value": 10, "color": "#c0c0c0" },
+                { "label": "±5%",  "value": 5,  "color": "#d4a017" },
+                { "label": "±2%",  "value": 2,  "color": "#d42d2d" },
+                { "label": "±1%",  "value": 1,  "color": "#8b4513" }
+              ]
+            }
+          </script>
+        </article>
+
+        {%- comment -%} ----- Card 2: E-Series Standard Values ----- {%- endcomment -%}
+        <article class="electronics-component-card" id="electronics-eseries-card">
+          <h3 class="electronics-component-card__title">E-Series Standard Values</h3>
+          <p class="electronics-component-card__caption">
+            Manufacturers don&rsquo;t make every possible resistor &mdash; they ship
+            preferred values from the IEC&nbsp;60063 E-series. Each step doubles
+            the previous: <strong>E6</strong> for ±20% parts, <strong>E12</strong>
+            for ±10%, <strong>E24</strong> for ±5%, <strong>E96</strong> for ±1%.
+            Type a target value to find the closest preferred match in the
+            active series.
+          </p>
+
+          <div class="electronics-eseries-tabs" role="tablist" aria-label="E-series">
+            <button type="button" class="electronics-eseries-tab" data-series="E6"  role="tab" aria-selected="false">E6 &middot; 6 / decade</button>
+            <button type="button" class="electronics-eseries-tab" data-series="E12" role="tab" aria-selected="false">E12 &middot; 12 / decade</button>
+            <button type="button" class="electronics-eseries-tab is-active" data-series="E24" role="tab" aria-selected="true">E24 &middot; 24 / decade</button>
+            <button type="button" class="electronics-eseries-tab" data-series="E96" role="tab" aria-selected="false">E96 &middot; 96 / decade</button>
+          </div>
+
+          <div class="electronics-eseries-finder">
+            <label>
+              Find closest to:
+              <input type="number" class="electronics-calculator__input"
+                     id="electronics-eseries-target"
+                     step="any" inputmode="decimal"
+                     placeholder="e.g. 4700"
+                     aria-label="Target resistance value">
+              <span aria-hidden="true">Ω</span>
+            </label>
+            <span id="electronics-eseries-closest"
+                  class="electronics-pill electronics-pill--accent"
+                  aria-live="polite">—</span>
+          </div>
+
+          <label class="electronics-tables-search">
+            <span aria-hidden="true">🔍</span>
+            <input type="search" id="electronics-eseries-search"
+                   placeholder="Filter mantissa values…"
+                   autocomplete="off" spellcheck="false"
+                   aria-label="Filter E-series values">
+            <span class="electronics-tables-search__count" id="electronics-eseries-count" aria-live="polite"></span>
+          </label>
+
+          <div class="electronics-eseries-grid"
+               id="electronics-eseries-grid"
+               role="list" aria-label="E-series values"></div>
+
+          <p class="electronics-eseries-empty"
+             id="electronics-eseries-empty" hidden>
+            No values match your filter.
+          </p>
+
+          <script type="application/json" id="electronics-eseries-data">
+            {
+              "active": "E24",
+              "series": {
+                "E6":  [1.0, 1.5, 2.2, 3.3, 4.7, 6.8],
+                "E12": [1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2],
+                "E24": [1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1],
+                "E96": [1.00, 1.02, 1.05, 1.07, 1.10, 1.13, 1.15, 1.18, 1.21, 1.24, 1.27, 1.30, 1.33, 1.37, 1.40, 1.43, 1.47, 1.50, 1.54, 1.58, 1.62, 1.65, 1.69, 1.74, 1.78, 1.82, 1.87, 1.91, 1.96, 2.00, 2.05, 2.10, 2.15, 2.21, 2.26, 2.32, 2.37, 2.43, 2.49, 2.55, 2.61, 2.67, 2.74, 2.80, 2.87, 2.94, 3.01, 3.09, 3.16, 3.24, 3.32, 3.40, 3.48, 3.57, 3.65, 3.74, 3.83, 3.92, 4.02, 4.12, 4.22, 4.32, 4.42, 4.53, 4.64, 4.75, 4.87, 4.99, 5.11, 5.23, 5.36, 5.49, 5.62, 5.76, 5.90, 6.04, 6.19, 6.34, 6.49, 6.65, 6.81, 6.98, 7.15, 7.32, 7.50, 7.68, 7.87, 8.06, 8.25, 8.45, 8.66, 8.87, 9.09, 9.31, 9.53, 9.76]
+              }
+            }
+          </script>
+        </article>
       </div>
     </section>
 

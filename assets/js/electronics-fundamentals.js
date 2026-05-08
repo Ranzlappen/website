@@ -3121,11 +3121,541 @@
   }
 
   function initComponentCharts() {
-    var grid = document.getElementById('electronics-components-grid');
+    initComponentReferences();
+  }
+
+  // ==========================================================================
+  // Section 4 — Component References & Charts
+  //   Two interactive cards living inside #electronics-components-grid:
+  //     1. Resistor Color-Code Decoder — 4-band / 5-band picker, live value
+  //        + tolerance, CSS tolerance bar, and a Chart.js floating-bar chart
+  //        that compares the nominal across every common tolerance grade.
+  //     2. E-Series Standard Values — tabs for E6/E12/E24/E96, a closest-
+  //        match calculator that snaps any target to the active series, and
+  //        a debounced search filter.
+  // ==========================================================================
+  function initComponentReferences() {
+    initResistorColorDecoder();
+    initESeriesExplorer();
+  }
+
+  // --------------------------------------------------------------------------
+  // Card 1: Resistor Color-Code Decoder
+  // --------------------------------------------------------------------------
+  function initResistorColorDecoder() {
+    var card = document.getElementById('electronics-rcd-card');
+    if (!card) return;
+
+    var data = EF.readDataIsland('electronics-rcd-data');
+    if (!data || !data.colors) return;
+
+    var COLORS   = data.colors;
+    var DEFAULTS = data.defaults || {
+      '4': ['brown', 'black', 'red', 'gold'],
+      '5': ['brown', 'black', 'black', 'brown', 'brown']
+    };
+    var CLASSES = data.toleranceClasses || [
+      { label: '±20%', value: 20, color: '#94a3b8' },
+      { label: '±10%', value: 10, color: '#c0c0c0' },
+      { label: '±5%',  value: 5,  color: '#d4a017' },
+      { label: '±2%',  value: 2,  color: '#d42d2d' },
+      { label: '±1%',  value: 1,  color: '#8b4513' }
+    ];
+
+    var bandsEl     = document.getElementById('electronics-rcd-bands');
+    var modeRadios  = card.querySelectorAll('input[name="rcd-bands"]');
+    var valueEl     = document.getElementById('electronics-rcd-value');
+    var toleranceEl = document.getElementById('electronics-rcd-tolerance');
+    var rangeEl     = document.getElementById('electronics-rcd-range');
+    var resetBtn    = document.getElementById('electronics-rcd-reset');
+    var copyBtn     = document.getElementById('electronics-rcd-copy');
+    var openWheelBtn = document.getElementById('electronics-rcd-open-wheel');
+    var canvas      = document.getElementById('electronics-component-chart');
+    var warningEl   = document.getElementById('electronics-rcd-warning');
+    var barFill     = document.getElementById('electronics-rcd-bar-fill');
+    var barMin      = document.getElementById('electronics-rcd-bar-min');
+    var barNominal  = document.getElementById('electronics-rcd-bar-nominal');
+    var barMax      = document.getElementById('electronics-rcd-bar-max');
+    if (!bandsEl) return;
+
+    var bandCount = 4;
+    var bandColors = DEFAULTS['4'].slice();
+    var chart = null;
+
+    function setWarning(msg) {
+      if (!warningEl) return;
+      if (!msg) { warningEl.hidden = true; warningEl.textContent = ''; return; }
+      warningEl.hidden = false;
+      warningEl.textContent = '⚠ ' + msg;
+    }
+
+    // Each band position has a role: digit (first 2 of 4-band, first 3 of
+    // 5-band), multiplier (penultimate), or tolerance (last). Returns the
+    // array of color keys that are valid in that role.
+    function rolesFor(count) {
+      return count === 4
+        ? ['digit', 'digit', 'multiplier', 'tolerance']
+        : ['digit', 'digit', 'digit', 'multiplier', 'tolerance'];
+    }
+    function legendsFor(count) {
+      return count === 4
+        ? ['1st digit', '2nd digit', 'Multiplier', 'Tolerance']
+        : ['1st digit', '2nd digit', '3rd digit', 'Multiplier', 'Tolerance'];
+    }
+    function validColorsForRole(role) {
+      return Object.keys(COLORS).filter(function (k) {
+        var c = COLORS[k];
+        if (role === 'digit')      return c.digit !== null;
+        if (role === 'multiplier') return c.multiplier !== null;
+        if (role === 'tolerance')  return c.tolerance !== null;
+        return false;
+      });
+    }
+
+    function applySelectColor(select, colorKey) {
+      var c = COLORS[colorKey];
+      if (!c) return;
+      select.style.backgroundColor = c.hex;
+      select.style.color = c.text;
+      // Add a subtle outline so light-coloured chips (white, yellow) keep a
+      // visible edge on light backgrounds.
+      var lightChip = (colorKey === 'white' || colorKey === 'yellow' || colorKey === 'silver');
+      select.style.borderColor = lightChip ? 'rgba(0, 0, 0, 0.35)' : 'transparent';
+    }
+
+    function captionFor(colorKey, role) {
+      var c = COLORS[colorKey];
+      if (!c) return '';
+      var label = colorKey.charAt(0).toUpperCase() + colorKey.slice(1);
+      var detail = '';
+      if (role === 'digit')           detail = String(c.digit);
+      else if (role === 'multiplier') detail = '× ' + c.multiplier;
+      else if (role === 'tolerance')  detail = '± ' + c.tolerance + '%';
+      return label + ' · ' + detail;
+    }
+
+    function buildBands() {
+      bandsEl.innerHTML = '';
+      var roles   = rolesFor(bandCount);
+      var legends = legendsFor(bandCount);
+      for (var i = 0; i < bandCount; i++) {
+        var role  = roles[i];
+        var legend = legends[i];
+        var valid  = validColorsForRole(role);
+
+        // If we just toggled bandCount and an old colour isn't valid in this
+        // slot anymore, snap it back to the first valid option silently.
+        if (valid.indexOf(bandColors[i]) === -1) bandColors[i] = valid[0];
+
+        var wrap = document.createElement('div');
+        wrap.className = 'electronics-rcd-band';
+        wrap.setAttribute('data-position', i);
+
+        var legendEl = document.createElement('span');
+        legendEl.className = 'electronics-rcd-band__legend';
+        legendEl.textContent = legend;
+        wrap.appendChild(legendEl);
+
+        var select = document.createElement('select');
+        select.className = 'electronics-rcd-band__select';
+        select.setAttribute('data-position', i);
+        select.setAttribute('aria-label', legend + ' color');
+        valid.forEach(function (k) {
+          var opt = document.createElement('option');
+          opt.value = k;
+          opt.textContent = k.charAt(0).toUpperCase() + k.slice(1);
+          select.appendChild(opt);
+        });
+        select.value = bandColors[i];
+        applySelectColor(select, bandColors[i]);
+
+        var caption = document.createElement('span');
+        caption.className = 'electronics-rcd-band__caption';
+        caption.textContent = captionFor(bandColors[i], role);
+
+        select.addEventListener('change', (function (idx, roleAtIdx, capEl) {
+          return function (e) {
+            var key = e.target.value;
+            if (!COLORS[key]) {
+              setWarning('Unrecognised color "' + key + '"; falling back to default.');
+              key = bandColors[idx];
+              e.target.value = key;
+              return;
+            }
+            bandColors[idx] = key;
+            applySelectColor(e.target, key);
+            capEl.textContent = captionFor(key, roleAtIdx);
+            recompute();
+          };
+        })(i, role, caption));
+
+        wrap.appendChild(select);
+        wrap.appendChild(caption);
+        bandsEl.appendChild(wrap);
+      }
+    }
+
+    function compute() {
+      var roles = rolesFor(bandCount);
+      var digits = '';
+      var multiplier = 1;
+      var tolerance = null;
+      for (var i = 0; i < bandCount; i++) {
+        var c = COLORS[bandColors[i]];
+        if (!c) return null;
+        if (roles[i] === 'digit')           digits += String(c.digit);
+        else if (roles[i] === 'multiplier') multiplier = c.multiplier;
+        else if (roles[i] === 'tolerance')  tolerance  = c.tolerance;
+      }
+      var nominal = parseInt(digits, 10) * multiplier;
+      if (!isFinite(nominal) || nominal <= 0 || tolerance === null) return null;
+      return {
+        nominal: nominal,
+        tolerance: tolerance,
+        min: nominal * (1 - tolerance / 100),
+        max: nominal * (1 + tolerance / 100)
+      };
+    }
+
+    function renderTolBar(r) {
+      if (!barFill) return;
+      // Track represents ±20% of nominal. The fill spans the actual ±tol
+      // window centered on 50%. Tighter tolerances → narrower fill, which
+      // intuitively conveys "this part is more precisely binned".
+      var halfWidthPct = Math.min(50, (r.tolerance / 20) * 50);
+      var leftPct  = 50 - halfWidthPct;
+      var widthPct = halfWidthPct * 2;
+      barFill.style.left  = leftPct  + '%';
+      barFill.style.width = widthPct + '%';
+
+      // Position min/max labels at the fill edges so they hug the actual
+      // bounds rather than the outer ±20% reference.
+      if (barMin) {
+        barMin.style.left = leftPct + '%';
+        barMin.style.transform = 'translateX(-50%)';
+        barMin.textContent = EF.formatNumberWithUnits(r.min, 'Ω');
+      }
+      if (barMax) {
+        barMax.style.left = (leftPct + widthPct) + '%';
+        barMax.style.right = 'auto';
+        barMax.style.transform = 'translateX(-50%)';
+        barMax.textContent = EF.formatNumberWithUnits(r.max, 'Ω');
+      }
+      if (barNominal) {
+        barNominal.style.left = '50%';
+        barNominal.textContent = EF.formatNumberWithUnits(r.nominal, 'Ω');
+      }
+    }
+
+    function recompute() {
+      var r = compute();
+      if (!r) {
+        if (valueEl)     valueEl.textContent = '—';
+        if (toleranceEl) toleranceEl.textContent = '';
+        if (rangeEl)     rangeEl.textContent = '';
+        setWarning('This band combination doesn\'t resolve to a valid resistor value.');
+        updateChart(null);
+        return;
+      }
+      setWarning('');
+      if (valueEl)     valueEl.textContent     = EF.formatNumberWithUnits(r.nominal, 'Ω');
+      if (toleranceEl) toleranceEl.textContent = '±' + r.tolerance + '%';
+      if (rangeEl)     rangeEl.textContent     = EF.formatNumberWithUnits(r.min, 'Ω') + '  to  ' + EF.formatNumberWithUnits(r.max, 'Ω');
+      renderTolBar(r);
+      updateChart(r);
+    }
+
+    Array.prototype.forEach.call(modeRadios, function (rad) {
+      rad.addEventListener('change', function () {
+        if (!rad.checked) return;
+        bandCount = parseInt(rad.value, 10);
+        bandColors = DEFAULTS[String(bandCount)].slice();
+        buildBands();
+        recompute();
+      });
+    });
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        bandColors = DEFAULTS[String(bandCount)].slice();
+        buildBands();
+        recompute();
+      });
+    }
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        var r = compute();
+        if (!r) {
+          setWarning('Nothing to copy — pick valid colors first.');
+          return;
+        }
+        var text = EF.formatNumberWithUnits(r.nominal, 'Ω') +
+                   '  ±' + r.tolerance + '%  (' +
+                   EF.formatNumberWithUnits(r.min, 'Ω') + '  to  ' +
+                   EF.formatNumberWithUnits(r.max, 'Ω') + ')\n' +
+                   'Bands: ' + bandColors.join(' · ');
+        EF.copyToClipboard(text).then(function (ok) {
+          if (ok) {
+            var prev = copyBtn.textContent;
+            copyBtn.textContent = 'Copied ✓';
+            setTimeout(function () { copyBtn.textContent = prev; }, 1400);
+          } else {
+            setWarning('Clipboard copy failed — your browser may block it on insecure pages.');
+          }
+        });
+      });
+    }
+    if (openWheelBtn) {
+      openWheelBtn.addEventListener('click', function () {
+        var r = compute();
+        if (!r) {
+          setWarning('Pick valid colors before opening in the Quick Wheel.');
+          return;
+        }
+        var values = { R: r.nominal };
+        for (var w = 0; w < EF.widgets.length; w++) {
+          if (EF.widgets[w].name === 'quick-reference-wheel' &&
+              typeof EF.widgets[w].setValues === 'function') {
+            EF.widgets[w].setValues(values, { scroll: true });
+            // eslint-disable-next-line no-console
+            console.log('🎨 Color decoder → Quick Wheel:', values);
+            return;
+          }
+        }
+      });
+    }
+
+    // ----- Mini chart: tolerance-grade comparison -----
+    function chartTheme() {
+      var styles = getComputedStyle(document.documentElement);
+      var dark = EF.theme !== 'light';
+      function v(name, fb) { return styles.getPropertyValue(name).trim() || fb; }
+      return {
+        grid:   dark ? 'rgba(220, 232, 226, 0.10)' : 'rgba(26, 42, 34, 0.10)',
+        ticks:  v('--c-text-muted', dark ? '#7e948a' : '#5a7068'),
+        label:  v('--c-text',       dark ? '#dce8e2' : '#1a2a22'),
+        accent: v('--c-accent',     '#4ade80')
+      };
+    }
+
+    function buildChart() {
+      if (!window.Chart || !canvas) return;
+      var t = chartTheme();
+      chart = new window.Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: CLASSES.map(function (c) { return c.label; }),
+          datasets: [{
+            label: 'Tolerance range',
+            data: [],
+            backgroundColor: CLASSES.map(function (c) { return c.color; }),
+            borderColor: CLASSES.map(function () { return 'transparent'; }),
+            borderWidth: 2,
+            borderRadius: 4,
+            barPercentage: 0.7
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 200 },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function (ctx) {
+                  var d = ctx.raw;
+                  if (!d || d.length !== 2) return '';
+                  return EF.formatNumberWithUnits(d[0], 'Ω') + '  to  ' + EF.formatNumberWithUnits(d[1], 'Ω');
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Resistance (Ω)', color: t.label, font: { size: 11 } },
+              grid: { color: t.grid },
+              ticks: { color: t.ticks, font: { size: 10 } }
+            },
+            y: {
+              grid: { color: t.grid },
+              ticks: { color: t.ticks, font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    function updateChart(r) {
+      if (!chart) return;
+      var nominal = r ? r.nominal : 1000;
+      var data = CLASSES.map(function (c) {
+        var f = c.value / 100;
+        return [nominal * (1 - f), nominal * (1 + f)];
+      });
+      chart.data.datasets[0].data = data;
+      // Highlight whichever class matches the current selection with an outline.
+      var t = chartTheme();
+      var borders = CLASSES.map(function (c) {
+        return r && c.value === r.tolerance ? t.accent : 'transparent';
+      });
+      chart.data.datasets[0].borderColor = borders;
+      chart.update('none');
+    }
+
+    function applyChartTheme() {
+      if (!chart) return;
+      var t = chartTheme();
+      chart.options.scales.x.title.color = t.label;
+      chart.options.scales.x.grid.color  = t.grid;
+      chart.options.scales.y.grid.color  = t.grid;
+      chart.options.scales.x.ticks.color = t.ticks;
+      chart.options.scales.y.ticks.color = t.ticks;
+      var r = compute();
+      var borders = CLASSES.map(function (c) {
+        return r && c.value === r.tolerance ? t.accent : 'transparent';
+      });
+      chart.data.datasets[0].borderColor = borders;
+      chart.update('none');
+    }
+
+    EF.ensureChartJs().then(function () {
+      buildChart();
+      buildBands();
+      recompute();
+    }, function () {
+      setWarning('Mini-chart unavailable (Chart.js blocked or offline). Decoder still works.');
+      buildBands();
+      recompute();
+    });
+
+    EF.widgets.push({
+      name: 'resistor-color-decoder',
+      onResize: function () { if (chart) chart.resize(); },
+      onThemeChange: applyChartTheme
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // Card 2: E-Series Explorer
+  // --------------------------------------------------------------------------
+  function initESeriesExplorer() {
+    var card = document.getElementById('electronics-eseries-card');
+    if (!card) return;
+
+    var data = EF.readDataIsland('electronics-eseries-data');
+    if (!data || !data.series) return;
+
+    var SERIES = data.series;
+    var activeKey = data.active && SERIES[data.active] ? data.active : 'E24';
+
+    var tabs       = Array.prototype.slice.call(card.querySelectorAll('.electronics-eseries-tab'));
+    var grid       = document.getElementById('electronics-eseries-grid');
+    var search     = document.getElementById('electronics-eseries-search');
+    var countEl    = document.getElementById('electronics-eseries-count');
+    var emptyEl    = document.getElementById('electronics-eseries-empty');
+    var targetIn   = document.getElementById('electronics-eseries-target');
+    var closestOut = document.getElementById('electronics-eseries-closest');
     if (!grid) return;
-    // TODO: Batch 7 will render the resistor color-code chart, capacitor
-    //       markings, and E-series tables here. Charts that need Chart.js
-    //       should call EF.ensureChartJs().then(...).
+
+    var closestMantissa = null;
+
+    function format(value, key) {
+      var decimals = key === 'E96' ? 2 : 1;
+      return value.toFixed(decimals);
+    }
+
+    function findClosest(target, key) {
+      if (!isFinite(target) || target <= 0) return null;
+      var s = SERIES[key];
+      if (!s || !s.length) return null;
+      var decade = Math.pow(10, Math.floor(Math.log10(target)));
+      var mantissa = target / decade;
+      var best = s[0], bestDiff = Math.abs(mantissa - s[0]);
+      for (var i = 1; i < s.length; i++) {
+        var diff = Math.abs(mantissa - s[i]);
+        if (diff < bestDiff) { best = s[i]; bestDiff = diff; }
+      }
+      // Cross-decade rollover: 9.5 in this decade rounds to 10 in the next.
+      if (Math.abs(mantissa - 10) < bestDiff) {
+        return { value: decade * 10, mantissa: s[0], decade: decade * 10 };
+      }
+      return { value: decade * best, mantissa: best, decade: decade };
+    }
+
+    function renderGrid() {
+      var values = SERIES[activeKey] || [];
+      var q = search ? (search.value || '').trim().toLowerCase() : '';
+      grid.innerHTML = '';
+      var visible = 0;
+      values.forEach(function (v) {
+        var label = format(v, activeKey);
+        if (q && label.indexOf(q) === -1) return;
+        visible++;
+        var chip = document.createElement('div');
+        chip.className = 'electronics-eseries-value';
+        chip.setAttribute('role', 'listitem');
+        chip.textContent = label;
+        if (closestMantissa !== null && Math.abs(v - closestMantissa) < 1e-4) {
+          chip.classList.add('is-closest');
+          chip.setAttribute('aria-label', label + ' (closest match)');
+        }
+        grid.appendChild(chip);
+      });
+      if (emptyEl) emptyEl.hidden = visible !== 0;
+      if (countEl) {
+        var total = values.length;
+        countEl.textContent = q ? (visible + ' / ' + total) : (total + ' values');
+      }
+    }
+
+    function recomputeClosest() {
+      if (!targetIn) return;
+      var raw = (targetIn.value || '').trim();
+      if (raw === '') {
+        closestMantissa = null;
+        if (closestOut) closestOut.textContent = '—';
+        renderGrid();
+        return;
+      }
+      var target = parseFloat(raw);
+      if (!isFinite(target) || target <= 0) {
+        closestMantissa = null;
+        if (closestOut) closestOut.textContent = 'invalid';
+        renderGrid();
+        return;
+      }
+      var c = findClosest(target, activeKey);
+      if (!c) {
+        closestMantissa = null;
+        if (closestOut) closestOut.textContent = '—';
+      } else {
+        closestMantissa = c.mantissa;
+        // Snapped value with E-series tag so the visitor can copy it directly.
+        if (closestOut) {
+          closestOut.textContent = activeKey + ': ' + EF.formatNumberWithUnits(c.value, 'Ω');
+        }
+      }
+      renderGrid();
+    }
+
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        activeKey = t.getAttribute('data-series');
+        tabs.forEach(function (tt) {
+          var on = tt === t;
+          tt.classList.toggle('is-active', on);
+          tt.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        recomputeClosest();
+      });
+    });
+
+    if (search)   search.addEventListener('input',   EF.debounce(renderGrid,        60));
+    if (targetIn) targetIn.addEventListener('input', EF.debounce(recomputeClosest,  80));
+
+    renderGrid();
   }
 
   // ==========================================================================
