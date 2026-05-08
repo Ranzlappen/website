@@ -859,7 +859,10 @@ DATE: 2026-04-02
 
   var observer = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
-      if (entry.intersectionRatio < 1) passedSet.add(entry.target);
+      // intersectionRatio < 1 is true for elements both above AND below the
+      // adjusted root, so it can't tell us which side. Use the sentinel's
+      // viewport-relative top: < threshold = scrolled past, otherwise not.
+      if (entry.boundingClientRect.top < headerPx + 1) passedSet.add(entry.target);
       else passedSet.delete(entry.target);
     });
     applyState();
