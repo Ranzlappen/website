@@ -404,6 +404,18 @@
       }
     });
     EF.syncAllWidgetThemes();
+    // Batch 9 — auto-wire soft input-range warnings on every numeric
+    // calculator input. Each calc still owns its own setWarning text;
+    // this layer adds non-blocking aria-invalid + native-tooltip warnings
+    // so the visitor catches "1000 V" / "100 MΩ" typos in any calc on
+    // the page without having to thread soft-max checks through every
+    // closure.
+    if (typeof EF.attachAllSoftWarnings === 'function') {
+      try { EF.attachAllSoftWarnings(); } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('attachAllSoftWarnings failed', e);
+      }
+    }
   };
 
   EF.syncAllWidgetThemes = function () {
@@ -722,4 +734,78 @@
     api.lastResult = null;
     return api;
   })();
+
+  // ==========================================================================
+  // Soft input-range warning auto-wirer (Batch 9)
+  //   Walks every numeric calculator input on the page and attaches a
+  //   debounced `input` listener that flags out-of-range values via
+  //   aria-invalid="true" + a native HTML `title` tooltip. Doesn't touch
+  //   the calculator's own warning element so per-calc setWarning() flows
+  //   keep working unchanged. The visible signal is the browser's default
+  //   focus-ring + tooltip, which mirrors the existing result-warning
+  //   pattern without needing any new CSS.
+  //
+  //   Quantity is read from `data-quantity` (set on every calc input in
+  //   the HTML via Batch 4) — that single attribute names V/I/R/P/Vsupply/
+  //   Vf/Vin/R1/R2/RL/C, and EF.softLimitFor maps each to a threshold and
+  //   a "Most circuits use…" message. Inputs without data-quantity (e.g.
+  //   the dynamically-built Series/Parallel rows + the E-Series target)
+  //   can opt in by passing an explicit quantity to attachInputSoftWarning.
+  // ==========================================================================
+
+  /** Attach a soft-warning watcher to a single input. `getQuantity` resolves
+   *  the quantity name on every check so dynamic rows that swap mode
+   *  (Series/Parallel resistor↔capacitor) pick up the new threshold without
+   *  re-attaching. Returns the listener so callers can detach if needed. */
+  EF.attachInputSoftWarning = function (input, getQuantity, opts) {
+    if (!input || typeof input.addEventListener !== 'function') return null;
+    if (input.__efSoftWarning) return input.__efSoftWarning;
+    opts = opts || {};
+    var resolveValue = typeof opts.readValue === 'function'
+      ? opts.readValue
+      : function () { return EF.sanitizeInput(input.value); };
+    var resolveQty = typeof getQuantity === 'function'
+      ? getQuantity
+      : function () { return getQuantity || input.getAttribute('data-quantity'); };
+    var basePlaceholder = input.getAttribute('title') || '';
+
+    function check() {
+      var qty = resolveQty();
+      var v = resolveValue();
+      var msg = (qty && Number.isFinite(v))
+        ? (typeof EF.softLimitWarning === 'function' ? EF.softLimitWarning(qty, v) : '')
+        : '';
+      if (msg) {
+        input.setAttribute('aria-invalid', 'true');
+        input.setAttribute('title', '⚠ ' + msg);
+        input.setAttribute('data-soft-warning', msg);
+      } else {
+        input.removeAttribute('aria-invalid');
+        input.removeAttribute('data-soft-warning');
+        if (basePlaceholder) input.setAttribute('title', basePlaceholder);
+        else                 input.removeAttribute('title');
+      }
+    }
+    var debounced = EF.debounce(check, 80);
+    input.addEventListener('input', debounced);
+    input.addEventListener('change', check);
+    // Run once at mount so an out-of-range default value is flagged.
+    check();
+    var entry = { check: check, listener: debounced };
+    input.__efSoftWarning = entry;
+    return entry;
+  };
+
+  /** Walk the whole page and auto-attach soft-warning watchers to every
+   *  `[data-quantity]` numeric input. Idempotent — if mountAllWidgets is
+   *  called twice, the per-input cache short-circuits the duplicate wire. */
+  EF.attachAllSoftWarnings = function () {
+    if (typeof document === 'undefined') return;
+    var inputs = document.querySelectorAll(
+      'input.electronics-calculator__input[data-quantity]'
+    );
+    Array.prototype.forEach.call(inputs, function (input) {
+      EF.attachInputSoftWarning(input);
+    });
+  };
 })();

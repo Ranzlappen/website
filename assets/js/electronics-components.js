@@ -466,6 +466,18 @@
     // rebuilding bands, and recomputing.
     var presetRoot = document.getElementById('electronics-rcd-presets');
     if (presetRoot) {
+      // Batch 9 — replace the duplicate "10 kΩ ±5 %" preset with a
+      // "100 kΩ ±5 %" entry so the canonical six values cover six distinct
+      // magnitudes (220 Ω, 1 kΩ, 4.7 kΩ, 10 kΩ, 100 kΩ, 1 MΩ) instead of
+      // doubling-up at 10 kΩ. The HTML still ships the original markup;
+      // we mutate in place so visitors with cached HTML pick up the swap.
+      var dupBtn = presetRoot.querySelector(
+        '.electronics-rcd-presets__btn[data-rcd-preset="brown,black,orange,gold"]'
+      );
+      if (dupBtn && /\b10\s*k.+5\s*%/.test(dupBtn.textContent || '')) {
+        dupBtn.setAttribute('data-rcd-preset', 'brown,black,yellow,gold');
+        dupBtn.textContent = '100 kΩ ±5%';
+      }
       var presetBtns = presetRoot.querySelectorAll('.electronics-rcd-presets__btn');
       function syncPresetActive() {
         var current = bandColors.join(',');
@@ -652,6 +664,12 @@
 
     if (search)   search.addEventListener('input',   EF.debounce(renderGrid,        60));
     if (targetIn) targetIn.addEventListener('input', EF.debounce(recomputeClosest,  80));
+
+    // Soft input-range warning on the E-Series target — same R thresholds
+    // as every other resistance input on the page (1 Ω – 10 MΩ).
+    if (targetIn && typeof EF.attachInputSoftWarning === 'function') {
+      EF.attachInputSoftWarning(targetIn, 'R');
+    }
 
     renderGrid();
   }

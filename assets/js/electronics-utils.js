@@ -369,6 +369,83 @@
     }
   }
 
+  // ==========================================================================
+  // Capacitor unit display helpers (Batch 9)
+  //   The Series/Parallel + RC Timer calcs store capacitance in farads
+  //   internally (the math wants SI units), but humans pick capacitors in
+  //   µF / nF / pF. These helpers swap between the two so an input shows
+  //   "10" with a "µF" suffix instead of "0.00001" + "farads".
+  // ==========================================================================
+
+  /** Pick the friendliest µF / nF / pF unit for a capacitance in farads.
+   *  Threshold is the floor of each prefix — a value of exactly 1e-6 maps
+   *  to µF, 1e-9 maps to nF, anything below 1 nF (and finite/positive) maps
+   *  to pF. Zero / NaN / negative values default to µF so the input is
+   *  still parseable; the caller is responsible for the empty-display case. */
+  function capUnitForValue(farads) {
+    if (!Number.isFinite(farads) || farads <= 0) return { factor: 1e-6, label: 'µF' };
+    if (farads >= 1e-6) return { factor: 1e-6, label: 'µF' };
+    if (farads >= 1e-9) return { factor: 1e-9, label: 'nF' };
+    return { factor: 1e-12, label: 'pF' };
+  }
+
+  /** Format a farads value as the visible string the input should display
+   *  in the given unit (auto-picked when not supplied). 3 significant
+   *  digits matches formatNumberWithUnits. Returns '' for non-finite. */
+  function formatCapacitorValue(farads, unit) {
+    if (!Number.isFinite(farads) || farads <= 0) return '';
+    var u = unit || capUnitForValue(farads);
+    var scaled = farads / u.factor;
+    return String(Number(scaled.toPrecision(3)));
+  }
+
+  /** Parse the raw text from a capacitor input back into farads, given the
+   *  unit currently displayed alongside it. Returns NaN for empty / bad
+   *  input so the caller's existing isFinite guards keep working. */
+  function parseCapacitorInput(raw, unit) {
+    var n = sanitizeInput(raw);
+    if (!Number.isFinite(n)) return NaN;
+    var factor = (unit && Number.isFinite(unit.factor)) ? unit.factor : 1e-6;
+    return n * factor;
+  }
+
+  // ==========================================================================
+  // Soft input-range warnings (Batch 9)
+  //   Most circuits live inside a narrow band of physically-reasonable
+  //   values (R: 1 Ω – 10 MΩ, V: ≤ 60 V hobby, …). When a user types a
+  //   value far outside that band — usually a typo or a unit confusion —
+  //   we surface a non-blocking warning string so they catch it before it
+  //   drives a confusing result. Returns '' when the value is in range.
+  //
+  //   Centralising the thresholds here means every calculator uses the
+  //   same range and the same wording.
+  // ==========================================================================
+  var SOFT_LIMITS = {
+    V:       { max: 1000,   min: 0,     msg: 'Most hobby circuits use 1 V – 60 V; verify isolation above 50 V.' },
+    Vsupply: { max: 60,     min: 0,     msg: 'Most hobby supplies are 1 V – 48 V.' },
+    Vin:     { max: 60,     min: 0,     msg: 'Most hobby supplies are 1 V – 48 V.' },
+    Vf:      { max: 12,     min: 0,     msg: 'LED forward voltage is typically 1.6 V – 4 V.' },
+    I:       { max: 10,     min: 0,     msg: 'Most circuits use 1 µA – 10 A; verify wire gauge above 10 A.' },
+    R:       { max: 10e6,   min: 1,     msg: 'Most circuits use 1 Ω – 10 MΩ.' },
+    R1:      { max: 10e6,   min: 1,     msg: 'Most divider resistors live in the 1 Ω – 10 MΩ range.' },
+    R2:      { max: 10e6,   min: 1,     msg: 'Most divider resistors live in the 1 Ω – 10 MΩ range.' },
+    RL:      { max: 100e6,  min: 1,     msg: 'Loads above 100 MΩ are unusual outside meter inputs.' },
+    P:       { max: 100,    min: 0,     msg: 'Most hobby circuits dissipate < 100 W; verify heatsinking above this.' },
+    C:       { max: 1,      min: 1e-13, msg: 'Most capacitors are 1 pF – 10 mF; values above 1 F are supercaps.' }
+  };
+
+  /** Look up the soft-limit message string for a quantity at a given value.
+   *  Returns '' when in range or the quantity is unknown. */
+  function softLimitWarning(quantity, value) {
+    if (!quantity || !Number.isFinite(value)) return '';
+    var lim = SOFT_LIMITS[quantity];
+    if (!lim) return '';
+    if (value > lim.max || (lim.min !== undefined && value > 0 && value < lim.min)) {
+      return lim.msg;
+    }
+    return '';
+  }
+
 
   // ==========================================================================
   // EF namespace bootstrap
@@ -392,6 +469,10 @@
   EF.describeSvg           = describeSvg;
   EF.wireInputDescription  = wireInputDescription;
   EF.autoWireUnitHints     = autoWireUnitHints;
+  EF.capUnitForValue       = capUnitForValue;
+  EF.formatCapacitorValue  = formatCapacitorValue;
+  EF.parseCapacitorInput   = parseCapacitorInput;
+  EF.softLimitWarning      = softLimitWarning;
   if (!Array.isArray(EF.widgets)) EF.widgets = [];
   window.ElectronicsFundamentals = EF;
 

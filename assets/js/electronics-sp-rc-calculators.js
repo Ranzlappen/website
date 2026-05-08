@@ -83,6 +83,16 @@
     function recipSum(acc, x) { return acc + (1 / x); }
     function unitFor(type)    { return type === 'capacitor' ? 'F' : 'Ω'; }
     function symbolFor(type)  { return type === 'capacitor' ? 'C' : 'R'; }
+
+    // Pick the friendliest µF / nF / pF unit for a capacitance in farads.
+    // For resistor mode the unit info is unused; we still return a stub so
+    // entry.unit is always shaped { factor, label }.
+    function unitForRow(farads) {
+      if (state.type === 'capacitor' && typeof EF.capUnitForValue === 'function') {
+        return EF.capUnitForValue(Number.isFinite(farads) && farads > 0 ? farads : 1e-6);
+      }
+      return { factor: 1, label: 'Ω' };
+    }
     var subscriptDigits = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'];
     function subscriptOf(n) {
       var s = String(n), out = '';
@@ -124,19 +134,44 @@
       btn.textContent = '×';
       row.appendChild(btn);
 
-      var entry = { row: row, label: label, num: num, slider: slider, btn: btn };
+      var entry = {
+        row: row, label: label, num: num, slider: slider, btn: btn,
+        // Per-row capacitor unit (µF / nF / pF) — fixed while the user is
+        // typing so a partial entry like "1." doesn't flip units mid-keystroke.
+        // Re-picked whenever the slider, mode toggle, or restoreState writes
+        // a new farads value into the row.
+        unit: { factor: 1, label: 'Ω' }
+      };
 
       // Wire events
       num.addEventListener('input', function () {
-        var n = parseFloat(num.value);
-        if (isFinite(n)) {
+        // Capacitor mode: typed value is in entry.unit (µF / nF / pF), so
+        // multiply back to farads for the slider and the recompute pipeline.
+        var raw = parseFloat(num.value);
+        var farads;
+        if (state.type === 'capacitor' && entry.unit && Number.isFinite(entry.unit.factor)) {
+          farads = isFinite(raw) ? raw * entry.unit.factor : NaN;
+        } else {
+          farads = raw;
+        }
+        if (isFinite(farads)) {
           var min = parseFloat(slider.min), max = parseFloat(slider.max);
-          slider.value = String(Math.max(min, Math.min(max, n)));
+          slider.value = String(Math.max(min, Math.min(max, farads)));
         }
         debouncedRecompute();
       });
       slider.addEventListener('input', function () {
-        num.value = slider.value;
+        // Slider always emits farads (capacitor) or ohms (resistor). When
+        // capacitor, re-pick the friendly unit so 47 µF, 470 nF, and 22 pF
+        // each show as "47" / "470" / "22" with the matching label tag.
+        var farads = parseFloat(slider.value);
+        if (state.type === 'capacitor') {
+          entry.unit = unitForRow(farads);
+          num.value = EF.formatCapacitorValue(farads, entry.unit);
+          relabel();
+        } else {
+          num.value = slider.value;
+        }
         debouncedRecompute();
       });
       btn.addEventListener('click', function () { removeRow(entry); });
@@ -145,6 +180,25 @@
       rowsEl.appendChild(row);
       state.rows.push(entry);
       relabel();
+      // Auto-attach a soft input-range warning. The quantity name follows the
+      // active mode so the threshold tracks resistor↔capacitor swaps without
+      // needing to detach/reattach the listener.
+      if (typeof EF.attachInputSoftWarning === 'function') {
+        EF.attachInputSoftWarning(num, function () {
+          return state.type === 'capacitor' ? 'C' : 'R';
+        }, {
+          // Read the value as farads/ohms regardless of the displayed unit so
+          // the threshold check sees the same number recompute() sees.
+          readValue: function () {
+            var n = EF.sanitizeInput(num.value);
+            if (!Number.isFinite(n)) return NaN;
+            if (state.type === 'capacitor' && entry.unit && Number.isFinite(entry.unit.factor)) {
+              return n * entry.unit.factor;
+            }
+            return n;
+          }
+        });
+      }
       return entry;
     }
 
@@ -154,10 +208,27 @@
       entry.slider.max  = String(r.max);
       entry.slider.step = String(r.step);
       if (isFinite(value)) {
-        entry.num.value = String(value);
+        // Capacitor mode: pick the friendly unit, then format the typed
+        // display as "47" while the slider stores raw farads.
+        if (state.type === 'capacitor') {
+          entry.unit = unitForRow(value);
+          entry.num.value = EF.formatCapacitorValue(value, entry.unit);
+        } else {
+          entry.unit = { factor: 1, label: 'Ω' };
+          entry.num.value = String(value);
+        }
         var clamped = Math.max(r.min, Math.min(r.max, value));
         entry.slider.value = String(clamped);
       } else {
+        if (state.type === 'capacitor') {
+          // Empty value: keep the previously-picked unit so the (µF) / (nF)
+          // tag in the label doesn't whip back to a default mid-edit.
+          if (!entry.unit || !Number.isFinite(entry.unit.factor)) {
+            entry.unit = { factor: 1e-6, label: 'µF' };
+          }
+        } else {
+          entry.unit = { factor: 1, label: 'Ω' };
+        }
         entry.num.value = '';
         entry.slider.value = String(r.min);
       }
@@ -165,15 +236,30 @@
 
     function relabel() {
       // Unit suffix for the accessible name so screen readers announce
-      // "R1 value in ohms" / "C2 value in farads".
-      var unitName = state.type === 'capacitor' ? 'farads' : 'ohms';
+      // "R1 value in ohms" / "C2 value in microfarads".
       for (var i = 0; i < state.rows.length; i++) {
-        var label = symbolFor(state.type) + subscriptOf(i + 1);
-        state.rows[i].label.textContent = label;
-        state.rows[i].num.setAttribute('aria-label', label + ' value in ' + unitName);
-        state.rows[i].slider.setAttribute('aria-label', label + ' slider, ' + unitName);
-        state.rows[i].btn.setAttribute('aria-label', 'Remove ' + label);
-        state.rows[i].btn.disabled = state.rows.length <= MIN_ROWS;
+        var entry = state.rows[i];
+        var sym = symbolFor(state.type) + subscriptOf(i + 1);
+        // Capacitor rows append the per-row unit tag (µF / nF / pF) to the
+        // visible label so the visitor knows what their typed number means.
+        // Resistor rows keep their original "R₁" label unchanged.
+        var unitTag = '';
+        var ariaUnit;
+        if (state.type === 'capacitor') {
+          var label = (entry.unit && entry.unit.label) ? entry.unit.label : 'µF';
+          unitTag = ' (' + label + ')';
+          ariaUnit = label === 'µF' ? 'microfarads'
+                   : label === 'nF' ? 'nanofarads'
+                   : label === 'pF' ? 'picofarads'
+                   : 'farads';
+        } else {
+          ariaUnit = 'ohms';
+        }
+        entry.label.textContent = sym + unitTag;
+        entry.num.setAttribute('aria-label', sym + ' value in ' + ariaUnit);
+        entry.slider.setAttribute('aria-label', sym + ' slider, ' + ariaUnit);
+        entry.btn.setAttribute('aria-label', 'Remove ' + sym);
+        entry.btn.disabled = state.rows.length <= MIN_ROWS;
       }
       addBtn.disabled = state.rows.length >= MAX_ROWS;
     }
@@ -261,9 +347,16 @@
     function readValues() {
       return state.rows.map(function (r) {
         // EF.sanitizeInput already returns NaN for empty / non-numeric /
-        // Infinity inputs; this single-line read replaces the prior
-        // parseFloat + isFinite pair.
-        return EF.sanitizeInput(r && r.num ? r.num.value : '');
+        // Infinity inputs. Capacitor rows multiply through the per-row
+        // unit factor (µF / nF / pF → farads) so the combine() math sees
+        // SI units, regardless of which unit the input is currently
+        // displaying.
+        var n = EF.sanitizeInput(r && r.num ? r.num.value : '');
+        if (!Number.isFinite(n)) return NaN;
+        if (state.type === 'capacitor' && r.unit && Number.isFinite(r.unit.factor)) {
+          return n * r.unit.factor;
+        }
+        return n;
       });
     }
 
@@ -276,8 +369,22 @@
       var combined = combine(values);
       lastTotal = combined.total;
 
+      // Soft input-range warning — "Most circuits use 1 Ω – 10 MΩ" / cap
+      // equivalent. Pulled from EF.softLimitWarning so every calc on the
+      // page uses the same threshold + wording.
+      var qty = state.type === 'capacitor' ? 'C' : 'R';
+      var softWarn = '';
+      for (var k = 0; k < values.length; k++) {
+        var w = (typeof EF.softLimitWarning === 'function')
+          ? EF.softLimitWarning(qty, values[k])
+          : '';
+        if (w) { softWarn = w; break; }
+      }
+
       if (negativeOrZero) {
-        setWarning('Component values must be positive.');
+        setWarning('Component values must be positive.' + (softWarn ? ' · ' + softWarn : ''));
+      } else if (softWarn) {
+        setWarning(softWarn);
       } else {
         setWarning('');
       }
@@ -489,17 +596,28 @@
           removeRow(last);
         }
         // 3) Inject the saved values into each row's input + slider.
+        //    Values are persisted as SI (farads / ohms); capacitor rows
+        //    re-pick a friendly µF / nF / pF unit + format the displayed
+        //    text accordingly while the slider stores raw farads.
         for (var i = 0; i < state.rows.length; i++) {
           var v = EF.sanitizeInput(values[i]);
           if (!Number.isFinite(v) || v <= 0) continue;
-          state.rows[i].num.value = String(v);
-          var slider = state.rows[i].slider;
+          var entry = state.rows[i];
+          if (state.type === 'capacitor') {
+            entry.unit = unitForRow(v);
+            entry.num.value = EF.formatCapacitorValue(v, entry.unit);
+          } else {
+            entry.unit = { factor: 1, label: 'Ω' };
+            entry.num.value = String(v);
+          }
+          var slider = entry.slider;
           if (slider) {
             var min = parseFloat(slider.min);
             var max = parseFloat(slider.max);
             slider.value = String(Math.max(min, Math.min(max, v)));
           }
         }
+        relabel();
         recompute();
       }
     });
@@ -559,11 +677,54 @@
     var lastResult = null;
     var chart = null;
 
+    // Capacitance unit (µF / nF / pF) currently displayed by the C input.
+    // The math in compute() always works in farads; this just controls how
+    // the typed value is scaled and which suffix the small label shows.
+    // Re-picked whenever the slider, defaults, or restoreState writes a new
+    // farads value into the C field; held steady while the visitor is
+    // mid-keystroke so a partial entry doesn't flip units under them.
+    var capUnit = (typeof EF.capUnitForValue === 'function')
+      ? EF.capUnitForValue(DEFAULTS.C)
+      : { factor: 1e-6, label: 'µF' };
+
+    // The HTML carries `<small>farads</small>` next to the C input as the
+    // unit hint. Find it once and keep a ref so we can flip it to µF / nF /
+    // pF as the magnitude shifts. Falls back gracefully if the markup
+    // changes shape — the input still works, it just won't relabel.
+    var capUnitSmall = null;
+    if (fields.C) {
+      capUnitSmall = fields.C.querySelector('.electronics-ohms-field__label small') ||
+                     fields.C.querySelector('small');
+    }
+    function applyCapUnitLabel() {
+      if (capUnitSmall) capUnitSmall.textContent = capUnit.label;
+      // ARIA label tracks the friendly unit so screen readers announce
+      // "Capacitance value in microfarads" instead of "in farads".
+      var ariaUnit = capUnit.label === 'µF' ? 'microfarads'
+                   : capUnit.label === 'nF' ? 'nanofarads'
+                   : capUnit.label === 'pF' ? 'picofarads'
+                   : 'farads';
+      inputs.C.setAttribute('aria-label', 'Capacitance in ' + ariaUnit);
+      // Refresh the placeholder so the hint matches the active unit
+      // (the static "0.000001" was farads-coded; now it's "1" µF / "100" nF).
+      var hint = capUnit.label === 'µF' ? '1'
+               : capUnit.label === 'nF' ? '100'
+               : capUnit.label === 'pF' ? '470'
+               : '';
+      if (hint) inputs.C.setAttribute('placeholder', hint);
+    }
+
     // Slider clamp delegated to EF.syncSliderToValue (Batch 6).
     function syncSlider(name, value) { EF.syncSliderToValue(sliders[name], value); }
     function readNumber(name) {
-      var num = parseFloat(inputs[name].value);
-      return isFinite(num) ? num : NaN;
+      // C field is displayed in capUnit; parse-time we multiply back to
+      // farads so compute()'s τ = R·C math sees SI units. V/R stay raw.
+      var raw = parseFloat(inputs[name].value);
+      if (!isFinite(raw)) return NaN;
+      if (name === 'C' && capUnit && Number.isFinite(capUnit.factor)) {
+        return raw * capUnit.factor;
+      }
+      return raw;
     }
     function setResult(text, ok) {
       if (!resultEl) return;
@@ -642,6 +803,13 @@
       var msgs = [];
       if (r.tau < 1e-6)  msgs.push('Time constant ' + EF.formatNumberWithUnits(r.tau, 's') + ' is below 1 µs — typical microcontroller GPIO can\'t toggle this fast.');
       if (r.tau > 60)    msgs.push('Time constant exceeds 1 minute — measurement / animation will feel sluggish.');
+      // Per-input soft range warnings — same thresholds and wording as
+      // every other calc on the page.
+      if (typeof EF.softLimitWarning === 'function') {
+        var vWarn = EF.softLimitWarning('V', r.V); if (vWarn) msgs.push(vWarn);
+        var rWarn = EF.softLimitWarning('R', r.R); if (rWarn) msgs.push(rWarn);
+        var cWarn = EF.softLimitWarning('C', r.C); if (cWarn) msgs.push(cWarn);
+      }
       setWarning(msgs.join(' · '));
       renderStats(r);
       rebuildCurve(r);
@@ -651,17 +819,52 @@
     // ---- Inputs / sliders --------------------------------------------------
     QTY.forEach(function (name) {
       inputs[name].addEventListener('input', function () {
-        var num = parseFloat(inputs[name].value);
-        if (isFinite(num)) syncSlider(name, num);
+        var raw = parseFloat(inputs[name].value);
+        if (!isFinite(raw)) { debouncedRecompute(); return; }
+        // C input is in capUnit; sliders are in farads. Multiply through so
+        // the slider thumb tracks the typed value across the same physical
+        // range. V and R go straight through.
+        var sliderValue = raw;
+        if (name === 'C' && capUnit && Number.isFinite(capUnit.factor)) {
+          sliderValue = raw * capUnit.factor;
+        }
+        syncSlider(name, sliderValue);
         debouncedRecompute();
       });
       if (sliders[name]) {
         sliders[name].addEventListener('input', function () {
-          inputs[name].value = sliders[name].value;
+          if (name === 'C') {
+            // Slider always emits farads. Re-pick the friendly unit, then
+            // format the typed display + relabel the small unit hint.
+            var farads = parseFloat(sliders[name].value);
+            if (typeof EF.capUnitForValue === 'function') {
+              capUnit = EF.capUnitForValue(farads);
+            }
+            applyCapUnitLabel();
+            inputs[name].value = EF.formatCapacitorValue(farads, capUnit);
+          } else {
+            inputs[name].value = sliders[name].value;
+          }
           debouncedRecompute();
         });
       }
     });
+
+    // Auto-attach soft input-range warnings for V / R / C. The C reader
+    // converts the displayed unit back to farads so the threshold check
+    // matches the SI value the math sees.
+    if (typeof EF.attachInputSoftWarning === 'function') {
+      EF.attachInputSoftWarning(inputs.V, 'V');
+      EF.attachInputSoftWarning(inputs.R, 'R');
+      EF.attachInputSoftWarning(inputs.C, 'C', {
+        readValue: function () {
+          var n = EF.sanitizeInput(inputs.C.value);
+          if (!Number.isFinite(n)) return NaN;
+          if (capUnit && Number.isFinite(capUnit.factor)) return n * capUnit.factor;
+          return n;
+        }
+      });
+    }
 
     // ---- Mode toggle -------------------------------------------------------
     function setMode(next) {
@@ -937,7 +1140,13 @@
       QTY.forEach(function (name) {
         var val = DEFAULTS[name];
         if (!isFinite(val)) return;
-        inputs[name].value = String(val);
+        if (name === 'C') {
+          if (typeof EF.capUnitForValue === 'function') capUnit = EF.capUnitForValue(val);
+          applyCapUnitLabel();
+          inputs[name].value = EF.formatCapacitorValue(val, capUnit);
+        } else {
+          inputs[name].value = String(val);
+        }
         syncSlider(name, val);
       });
     }
@@ -995,7 +1204,13 @@
         QTY.forEach(function (n) {
           var v = EF.sanitizeInput(snap[n]);
           if (!Number.isFinite(v) || v < 0) return;
-          inputs[n].value = String(v);
+          if (n === 'C') {
+            if (typeof EF.capUnitForValue === 'function') capUnit = EF.capUnitForValue(v);
+            applyCapUnitLabel();
+            inputs[n].value = EF.formatCapacitorValue(v, capUnit);
+          } else {
+            inputs[n].value = String(v);
+          }
           syncSlider(n, v);
         });
         recompute();
