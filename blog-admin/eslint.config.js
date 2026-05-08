@@ -14,6 +14,8 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      // setState in effects for fetch-on-mount and one-shot loads is legitimate
+      'react-hooks/set-state-in-effect': 'warn',
     },
   },
   {
