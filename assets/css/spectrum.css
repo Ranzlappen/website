@@ -220,14 +220,18 @@
 }
 
 /* ---- Table ---- */
-/* overflow-x: auto + overflow-y: clip — wrapper is a horizontal-only scroll
-   container, so position: sticky on <thead th> resolves `top` against the
-   page viewport (asymmetric pinning: thead pins vertically to the page, but
-   rides horizontal scroll with the columns underneath it).                  */
+/* The wrapper is the scroll container for both axes — `overflow: auto` plus
+   a `max-height` cap. With `position: sticky` on the thead's <th> elements,
+   the thead pins to the wrapper's top while the user scrolls within. Trying
+   to make the thead pin to the page viewport instead requires the wrapper
+   to NOT be a sticky-y container, but Chromium treats `overflow-x: auto;
+   overflow-y: clip` as a y-axis sticky container too — which then reads
+   `top: <value>` as an inset constraint and shifts the thead down from its
+   natural position by that amount, dropping it below the first row. */
 .spectrum-table-wrapper {
   position: relative;
-  overflow-x: auto;
-  overflow-y: clip;
+  max-height: calc(100vh - 16rem);
+  overflow: auto;
   border: 1px solid var(--c-border);
   border-radius: var(--border-radius);
   background: var(--c-surface);
@@ -249,12 +253,7 @@
 
 .spectrum-table thead th {
   position: sticky;
-  /* Pin to the page viewport, just below the sticky pills + search bar.
-     --spectrum-controls-h is published by spectrum.js via ResizeObserver
-     so it tracks the controls bar's actual rendered height across
-     breakpoints / orientation / font-loading. The 3.5rem fallback covers
-     the first paint before JS runs (matches single-row desktop layout). */
-  top: calc(var(--header-height) + var(--spectrum-controls-h, 3.5rem));
+  top: 0;
   z-index: 2;
   background: var(--c-surface-alt);
   color: var(--c-text);
@@ -301,6 +300,12 @@
   z-index: 3;
   background: var(--c-surface-alt);
 }
+
+/* Frequency-Range thead label has a desktop-only full form and a mobile-only
+   ν (Greek nu, the physics symbol for frequency) abbreviation. The visible
+   variant swaps via the @media block below; both stay accessible because the
+   full label is sr-clipped on mobile rather than display:none'd. */
+.spectrum-table .col-freq__short { display: none; }
 
 /* Per-column widths */
 .spectrum-table .col-freq   { min-width: 9rem; width: 9rem; }
@@ -464,10 +469,9 @@
 /* Small screens */
 @media (max-width: 640px) {
   .spectrum-container { padding: 0 var(--space-md); }
-  /* Tight stack on mobile: pills, search, and the table header sit only a
-     few pixels apart. The thead's sticky `top` is driven by the controls'
-     measured height (see spectrum.js), so reducing the gap/padding here
-     also pulls the pinned thead up to match.                              */
+  /* Tight stack on mobile: pills + search collapse to a column with minimal
+     gap/padding so the table area immediately below them has more vertical
+     room before the wrapper's max-height kicks in.                          */
   .spectrum-controls {
     flex-direction: column;
     align-items: stretch;
@@ -483,6 +487,7 @@
      table-layout: fixed so per-column widths are actually enforced (auto
      mode treats them as hints and reflates columns to fit content).        */
   .spectrum-table-wrapper {
+    max-height: calc(100vh - 12rem);
     scroll-snap-type: x mandatory;
     scroll-padding-left: 5.5rem;             /* matches col-freq width */
   }
@@ -492,6 +497,25 @@
     min-width: 0;                            /* override the desktop 1800px floor */
   }
   .spectrum-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
+
+  /* Mobile col-freq is 5.5rem wide — too narrow for "Frequency Range" even
+     abbreviated. Swap to ν (visible) while keeping the full label sr-only
+     so screen readers and table-summary tools still announce it correctly. */
+  .spectrum-table thead th.col-freq .col-freq__full {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+  .spectrum-table thead th.col-freq .col-freq__short {
+    display: inline;
+    font-size: 1.05rem;
+    line-height: 1;
+  }
   .spectrum-table tbody td { padding: 0.65rem 0.6rem; overflow-wrap: anywhere; }
 
   /* Sticky frequency column — wide enough for the descriptive first-batch

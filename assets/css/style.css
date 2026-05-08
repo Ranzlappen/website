@@ -1203,7 +1203,8 @@ main#main-content {
 
 .post-body h2 {
   font-family: var(--f-heading);
-  font-size: 1.5rem;
+  --h2-natural-size: 1.5rem;
+  font-size: var(--h2-natural-size);
   font-weight: 700;
   letter-spacing: -0.02em;
   margin-top: var(--space-2xl);
@@ -1728,7 +1729,8 @@ main#main-content {
   padding: 0 var(--space-lg) var(--space-3xl);
 }
 .page-body h2 {
-  font-size: 1.35rem;
+  --h2-natural-size: 1.35rem;
+  font-size: var(--h2-natural-size);
   font-weight: 700;
   margin-top: var(--space-xl);
   margin-bottom: var(--space-sm);
@@ -3079,26 +3081,30 @@ main#main-content {
   top: var(--header-height);
   z-index: 50;
   background: transparent;
-  /* Anchor the scale to the top edge so the bounding rect's top stays
-     pinned at `--header-height`. With `left center` the visual top moves
-     downward as `is-stuck` applies `scale(0.85)`, which crosses the
-     IntersectionObserver's rootMargin threshold and toggles `is-stuck`
-     back off — producing a visible wiggle as the class flip-flops. */
-  transform-origin: left top;
-  transition: transform var(--transition-base),
-              background-color var(--transition-fast),
+  /* Full-bleed: margins pull the box out to the viewport edges (works
+     whether the parent fills the viewport or is centered within
+     content-width); padding pushes the text content back to the body's
+     normal inset so headings still align with paragraphs underneath. */
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-left: calc(50vw - 50%);
+  padding-right: calc(50vw - 50%);
+  transition: background-color var(--transition-fast),
               padding var(--transition-fast),
+              font-size var(--transition-fast),
               box-shadow var(--transition-fast);
-  margin-left: calc(var(--space-md) * -1);
-  margin-right: calc(var(--space-md) * -1);
-  padding-left: var(--space-md);
-  padding-right: var(--space-md);
 }
 
+/* Stuck-state: shrink via font-size rather than `transform: scale()`. Scale
+   shrinks the box (background included) and leaves a gap on the side opposite
+   the transform-origin, which defeats the full-bleed bar. Font-size reflows
+   only the text and keeps the background spanning the viewport. The natural
+   size is published per scope as --h2-natural-size so this single rule covers
+   both .post-body (1.5rem) and .page-body (1.35rem). */
 .post-body[itemprop="articleBody"] h2.is-stuck,
 .page-body h2.is-stuck {
   background: var(--c-bg);
-  transform: scale(0.85);
+  font-size: calc(var(--h2-natural-size) * 0.85);
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   box-shadow: 0 1px 0 var(--c-border-light);
@@ -3136,6 +3142,8 @@ main#main-content {
 @media (prefers-reduced-motion: reduce) {
   .post-body[itemprop="articleBody"] h2,
   .page-body h2 { transition: none; }
+  /* Keep the heading at its natural size when stuck — matches the original
+     reduced-motion intent of skipping the shrink-down visual change. */
   .post-body[itemprop="articleBody"] h2.is-stuck,
-  .page-body h2.is-stuck { transform: none; }
+  .page-body h2.is-stuck { font-size: var(--h2-natural-size); }
 }
