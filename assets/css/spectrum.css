@@ -587,9 +587,14 @@
   .spectrum-table .col-badge {
     width: calc(100vw - 7.5rem);
   }
+  /* `scroll-snap-stop: always` forces each swipe to land on the next column
+     instead of letting inertial flicks skate past several at once. Combined
+     with `scroll-snap-type: x mandatory` on the wrapper, every horizontal
+     gesture commits to exactly one column step.                            */
   .spectrum-table thead th:not(.col-freq),
   .spectrum-table tbody td:not(.col-freq) {
     scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 }
 
