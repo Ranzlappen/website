@@ -169,6 +169,20 @@
     channels. Pilots tune in for current wind/visibility/altimeter; SDR
     listeners get free weather coverage of their nearest small airport.
 
+- term: "BeiDou"
+  full_form: "BeiDou Navigation Satellite System (China, BDS)"
+  explanation: >-
+    Chinese global navigation satellite system, fully operational
+    globally since 2020. Frequencies: B1I 1561.098 MHz, B1C 1575.42 MHz
+    (interoperable with <span class="abbr-link"
+    data-abbr="L1">L1</span>), B2a 1176.45 MHz (= <span
+    class="abbr-link" data-abbr="L5">L5</span>), B2b 1207.14 MHz, B3I
+    1268.52 MHz. Multi-constellation receivers combine BeiDou with
+    <span class="abbr-link" data-abbr="GPS">GPS</span>, <span
+    class="abbr-link" data-abbr="Galileo">Galileo</span>, <span
+    class="abbr-link" data-abbr="GLONASS">GLONASS</span> for better
+    sky coverage and faster fixes.
+
 - term: "BLE"
   full_form: "Bluetooth Low Energy"
   explanation: >-
@@ -250,6 +264,19 @@
     Simons Observatory. Its tiny anisotropies (ΔT / T ≈ 10⁻⁵) encode
     the geometry, age, and composition of the universe. Strictly a
     receive-only target and only at high-altitude or space.
+
+- term: "CSAC"
+  full_form: "Chip-Scale Atomic Clock"
+  explanation: >-
+    Tiny rubidium / caesium-vapour atomic clock the size of a postage
+    stamp (Microsemi SA.45s, ADI MAC-SA5X). Holdover stability ~1 ×
+    10⁻¹¹ over an hour — orders of magnitude better than a TCXO,
+    enough to ride out brief <span class="abbr-link"
+    data-abbr="GPS">GPS</span> outages on a <span class="abbr-link"
+    data-abbr="GPSDO">GPSDO</span>. Used in handheld defence radios,
+    autonomous-vehicle <span class="abbr-link"
+    data-abbr="IMU">IMU</span> fusion, and undersea / underground
+    deployments where GNSS is unavailable.
 
 - term: "CSI"
   full_form: "Channel State Information"
@@ -422,6 +449,19 @@
     Alliance of European public-service broadcasters (BBC, ARD, ZDF, RAI…).
     Coordinates Eurovision, runs technical standards, and operates the
     backbone satellite distribution most national broadcasters share.
+
+- term: "EGNOS"
+  full_form: "European Geostationary Navigation Overlay Service"
+  explanation: >-
+    European <span class="abbr-link" data-abbr="SBAS">SBAS</span>
+    correction system, three GEO satellites broadcasting on the same
+    <span class="abbr-link" data-abbr="L1">L1</span> frequency as
+    <span class="abbr-link" data-abbr="GPS">GPS</span> /
+    <span class="abbr-link" data-abbr="Galileo">Galileo</span>.
+    Improves civilian fix accuracy from ~5 m down to ~1.5 m, with
+    integrity monitoring used for aviation approach. EGNOS-V3
+    (in deployment) extends to <span class="abbr-link"
+    data-abbr="L5">L5</span>.
 
 - term: "EHF"
   full_form: "Extremely High Frequency (30–300 GHz)"
@@ -617,6 +657,18 @@
     cycles, ~50 bits per QSO, decodes down to roughly –20 dB SNR — currently
     the most-popular mode on <span class="abbr-link" data-abbr="HF">HF</span>.
 
+- term: "GAGAN"
+  full_form: "GPS Aided GEO Augmented Navigation (India)"
+  explanation: >-
+    Indian <span class="abbr-link" data-abbr="SBAS">SBAS</span>
+    operated by ISRO + AAI, three GEO satellites (GSAT-8/-10/-15)
+    broadcasting differential <span class="abbr-link"
+    data-abbr="GPS">GPS</span> corrections on
+    <span class="abbr-link" data-abbr="L1">L1</span>. Coverage centred
+    on the Indian sub-continent for civil-aviation use; first SBAS
+    over the equatorial ionosphere, where TEC variations make
+    corrections harder.
+
 - term: "Galileo"
   full_form: "Galileo (EU GNSS constellation)"
   explanation: >-
@@ -689,6 +741,17 @@
     medium Earth orbit, civilian L1 carrier on 1575.42 MHz. Now one of four
     <span class="abbr-link" data-abbr="GNSS">GNSS</span> systems most
     receivers fuse together.
+
+- term: "GPSDO"
+  full_form: "GPS-Disciplined Oscillator"
+  explanation: >-
+    Crystal or rubidium oscillator continuously corrected against the
+    1 PPS pulse from a GNSS receiver. Output: a 10 MHz reference of
+    long-term stability ≤ 1 × 10⁻¹² (limited by the 1 PPS),
+    short-term phase-noise of the underlying oscillator. The
+    standard frequency reference for SDR labs, ham EME / weak-signal
+    work, and timing distribution. Common units: Leo Bodnar mini-
+    precision GPSDO, Trimble Thunderbolt-E, Bodnar GPSDO.
 
 - term: "GSM"
   full_form: "Global System for Mobile Communications"
@@ -827,6 +890,18 @@
     <span class="abbr-link" data-abbr="DME">DME</span>, and the
     <span class="abbr-link" data-abbr="ATC">ATC</span> radio infrastructure.
 
+- term: "IGS"
+  full_form: "International GNSS Service"
+  explanation: >-
+    Voluntary federation of ~500 worldwide tracking stations producing
+    high-precision <span class="abbr-link" data-abbr="GNSS">GNSS</span>
+    products: precise satellite orbits + clocks (mm-level), Earth-
+    orientation parameters, ionosphere TEC maps, troposphere zenith
+    delays. All data and products are public; combined with
+    <span class="abbr-link" data-abbr="RINEX">RINEX</span> raw
+    observations from a hobby u-blox receiver, IGS lets you do
+    cm-level post-processed positioning anywhere on Earth.
+
 - term: "ILS"
   full_form: "Instrument Landing System"
   explanation: >-
@@ -835,6 +910,17 @@
     (lateral guidance) plus a 329–335 MHz
     <span class="abbr-link" data-abbr="UHF">UHF</span> glideslope (vertical).
     Tunable on a regular SDR.
+
+- term: "IMU"
+  full_form: "Inertial Measurement Unit"
+  explanation: >-
+    Bundle of accelerometers + gyroscopes (and usually magnetometers)
+    that estimates orientation and short-term motion in 6 or 9 degrees
+    of freedom. Fused with <span class="abbr-link"
+    data-abbr="GNSS">GNSS</span> in autonomous vehicles, drones, and
+    smartphones, an IMU lets the system "coast" through GPS dropouts
+    (urban canyons, tunnels) by integrating sensed motion. Common
+    parts: Bosch BMI270, ICM-42688-P, MPU-6500, ADIS16505.
 
 - term: "IRAM"
   full_form: "Institut de Radioastronomie Millimétrique"
@@ -845,6 +931,16 @@
     partner in <span class="abbr-link" data-abbr="VLBI">VLBI</span>
     networks and the Event Horizon Telescope; archive is publicly
     accessible.
+
+- term: "IRNSS"
+  full_form: "Indian Regional Navigation Satellite System / NavIC"
+  explanation: >-
+    Indian regional GNSS, 7 satellites + augmentation, with primary
+    coverage over the Indian subcontinent. Civilian signals on <span
+    class="abbr-link" data-abbr="L5">L5</span> 1176.45 MHz and S-band
+    2492.028 MHz; the S-band coupling makes it unique among GNSSes.
+    Multi-constellation receivers (u-blox NEO-M9N, ZED-F9P, Quectel
+    LC79H) include NavIC support for users in the region.
 
 - term: "ISM"
   full_form: "Industrial, Scientific, Medical"
@@ -928,6 +1024,45 @@
     868 MHz <span class="abbr-link" data-abbr="ISM">ISM</span> in Europe.
     Used for retrofitting KNX into buildings without pulling new wires.
 
+- term: "L1"
+  full_form: "GNSS L1 band (1575.42 MHz)"
+  explanation: >-
+    The legacy civilian GNSS frequency, carrying GPS C/A + P(Y) +
+    M-code, <span class="abbr-link" data-abbr="Galileo">Galileo</span>
+    E1, BeiDou B1C, and <span class="abbr-link"
+    data-abbr="QZSS">QZSS</span> L1. The single-frequency band almost
+    every smartphone, fitness watch, and car nav uses.
+    <span class="abbr-link" data-abbr="λ">λ</span> ≈ 19.04 cm, photon
+    energy ≈ 6.5 <span class="abbr-link" data-abbr="μeV">μeV</span>.
+    See also <span class="abbr-link" data-abbr="L2">L2</span> /
+    <span class="abbr-link" data-abbr="L5">L5</span>.
+
+- term: "L2"
+  full_form: "GNSS L2 band (1227.60 MHz)"
+  explanation: >-
+    Second GPS frequency, carrying P(Y) + L2C + M-code; also legacy
+    <span class="abbr-link" data-abbr="GLONASS">GLONASS</span> L2 +
+    BeiDou B3I 1268.52 MHz. Pairing L1+L2 lets dual-frequency
+    receivers cancel ionospheric delay directly (it scales as 1/<span
+    class="abbr-link" data-abbr="ν">ν</span>²) — the basis of survey-
+    grade <span class="abbr-link" data-abbr="RTK">RTK</span>
+    positioning. <span class="abbr-link" data-abbr="λ">λ</span> ≈
+    24.42 cm.
+
+- term: "L5"
+  full_form: "GNSS L5 band (1176.45 MHz)"
+  explanation: >-
+    Modernised GPS "safety-of-life" frequency, also <span
+    class="abbr-link" data-abbr="Galileo">Galileo</span> E5a,
+    <span class="abbr-link" data-abbr="BeiDou">BeiDou</span> B2a,
+    <span class="abbr-link" data-abbr="IRNSS">IRNSS</span> / NavIC,
+    and <span class="abbr-link" data-abbr="QZSS">QZSS</span> L5. Wider
+    bandwidth + higher TX power + sits in the protected aeronautical
+    radio-navigation band — best multipath rejection of any GNSS
+    signal, and the path to triple-frequency
+    <span class="abbr-link" data-abbr="RTK">RTK</span>.
+    <span class="abbr-link" data-abbr="λ">λ</span> ≈ 25.48 cm.
+
 - term: "LF"
   full_form: "Low Frequency (30–300 kHz)"
   explanation: >-
@@ -937,6 +1072,18 @@
     <span class="abbr-link" data-abbr="JJY">JJY</span> time signals,
     aeronautical <span class="abbr-link" data-abbr="NDB">NDB</span>s, and the
     2200 m amateur band.
+
+- term: "LiDAR"
+  full_form: "Light Detection And Ranging"
+  explanation: >-
+    Optical equivalent of radar — a pulsed or amplitude-modulated
+    laser (905 / 1550 nm typically) measures range to objects via
+    time-of-flight or coherent FMCW. Used in self-driving cars
+    (Velodyne, Innoviz, Luminar Iris), aerial topographic surveys,
+    archaeology, ARKit / depth sensing on phones, and autonomous-
+    drone obstacle avoidance. Complementary to 77 GHz <span
+    class="abbr-link" data-abbr="LRR">LRR</span> radar — LiDAR is
+    higher resolution, radar penetrates fog / rain better.
 
 - term: "LimeSDR"
   full_form: "LimeSDR (open-source SDR)"
@@ -1052,6 +1199,17 @@
     retained messages, last-will. The de facto messaging layer over
     <span class="abbr-link" data-abbr="LoRaWAN">LoRaWAN</span>,
     <span class="abbr-link" data-abbr="Wi-Fi">Wi-Fi</span>, and cellular IoT.
+
+- term: "MSAS"
+  full_form: "MTSAT Satellite Augmentation System (Japan)"
+  explanation: >-
+    Japanese <span class="abbr-link" data-abbr="SBAS">SBAS</span>
+    operated by JCAB on MTSAT-1R / -2 (now QZSS-augmented). Broadcasts
+    differential corrections on <span class="abbr-link"
+    data-abbr="L1">L1</span> for civil aviation in Japan + parts of
+    East Asia. Being superseded as <span class="abbr-link"
+    data-abbr="QZSS">QZSS</span> rolls out full SBAS-equivalent
+    payloads.
 
 - term: "MSF"
   full_form: "MSF (UK LF time signal)"
@@ -1184,6 +1342,30 @@
     data-abbr="SARA">SARA</span>, <span class="abbr-link"
     data-abbr="OSRT">OSRT</span>).
 
+- term: "NTP"
+  full_form: "Network Time Protocol"
+  explanation: >-
+    Internet protocol for synchronising clocks (RFC 5905), in continuous
+    use since 1985. A stratum-1 NTP server is one with a directly-
+    attached primary reference clock — typically <span
+    class="abbr-link" data-abbr="GPS">GPS</span> + <span
+    class="abbr-link" data-abbr="PPS">PPS</span>, occasionally a
+    <span class="abbr-link" data-abbr="CSAC">CSAC</span> or rubidium.
+    A Raspberry Pi + u-blox + PPS-pinned chrony gives sub-microsecond
+    accuracy for a few hundred dollars — the canonical hobbyist
+    timing project.
+
+- term: "NTRIP"
+  full_form: "Networked Transport of RTCM via Internet Protocol"
+  explanation: >-
+    HTTP-based protocol (RFC-style spec by BKG) for streaming
+    <span class="abbr-link" data-abbr="RTK">RTK</span> base-station
+    corrections over the public internet. NTRIP casters serve
+    thousands of base streams; clients subscribe with credentials and
+    receive RTCM 3.x messages in real time. Backbone of national
+    CORS networks, agricultural fleet correction services, and
+    DIY RTK setups.
+
 - term: "Ofcom"
   full_form: "Office of Communications"
   explanation: >-
@@ -1303,6 +1485,17 @@
     bps; trivially decoded with multimon-ng + an
     <span class="abbr-link" data-abbr="SDR">SDR</span>.
 
+- term: "PPS"
+  full_form: "Pulse Per Second"
+  explanation: >-
+    A 1 Hz logic-level pulse aligned to UTC seconds, output by GNSS
+    receivers and atomic clocks. Used to discipline oscillators
+    (<span class="abbr-link" data-abbr="GPSDO">GPSDO</span>), trigger
+    SDR sample-aligned captures, and pin
+    <span class="abbr-link" data-abbr="NTP">NTP</span> servers to
+    sub-microsecond accuracy. The 1 PPS edge sets the timing precision
+    floor (~10 ns at the receiver).
+
 - term: "PSK"
   full_form: "Phase-Shift Keying"
   explanation: >-
@@ -1320,6 +1513,17 @@
     workhorse HF chat mode before <span class="abbr-link" data-abbr="FT8">FT8</span>
     took over.
 
+- term: "PVT"
+  full_form: "Position, Velocity, Time"
+  explanation: >-
+    The three quantities a GNSS receiver computes from
+    pseudo-range + Doppler measurements to ≥ 4 satellites: 3-D
+    position, 3-D velocity, and a clock offset (corrected to
+    sub-100 ns). Every consumer "GPS chip" produces a PVT solution
+    once per second; survey-grade and self-driving fusion runs PVT at
+    10–20 Hz with <span class="abbr-link" data-abbr="RTK">RTK</span>
+    + <span class="abbr-link" data-abbr="IMU">IMU</span> coupling.
+
 - term: "QAM"
   full_form: "Quadrature Amplitude Modulation"
   explanation: >-
@@ -1334,6 +1538,20 @@
     excellent for receiving LEO weather satellites (NOAA APT, Meteor MN-2)
     on 137 MHz <span class="abbr-link" data-abbr="VHF">VHF</span>.
     Easily home-built from PVC pipe and copper wire.
+
+- term: "QZSS"
+  full_form: "Quasi-Zenith Satellite System (Japan)"
+  explanation: >-
+    Japanese regional GNSS, four satellites in inclined geo-
+    synchronous orbits that always have one near zenith over
+    Japan / Oceania. Broadcasts <span class="abbr-link"
+    data-abbr="L1">L1</span> / <span class="abbr-link"
+    data-abbr="L2">L2</span> / <span class="abbr-link"
+    data-abbr="L5">L5</span> / L6 — interoperable with
+    <span class="abbr-link" data-abbr="GPS">GPS</span> for added
+    capacity in urban canyons. L6 carries cm-level CLAS corrections
+    (a regional <span class="abbr-link" data-abbr="RTK">RTK</span>
+    alternative).
 
 - term: "RAS"
   full_form: "Radio Astronomy Service (ITU-defined)"
@@ -1365,6 +1583,43 @@
     variants cover everything from livestock chips and inventory tags to
     passport pages and toll transponders.
 
+- term: "RHCP"
+  full_form: "Right-Hand Circular Polarisation"
+  explanation: >-
+    EM-wave polarisation that rotates clockwise as seen from behind
+    the wave. The standard for <span class="abbr-link"
+    data-abbr="GPS">GPS</span> + most GNSS, weather-satellite APT /
+    LRPT, and <span class="abbr-link" data-abbr="AMSAT">AMSAT</span>
+    LEO satellites. A linearly-polarised antenna takes a 3 dB hit
+    against an RHCP source — the reason GNSS antennas use patches /
+    helices. Opposite hand: LHCP (left-hand), used on some satellite
+    services + downlink reuse pairs.
+
+- term: "RINEX"
+  full_form: "Receiver Independent Exchange Format"
+  explanation: >-
+    Plain-text format (versions 2.x / 3.x / 4.x) for raw GNSS
+    observation data: pseudo-ranges, carrier-phase, signal-strength
+    per satellite per epoch. The interchange standard for
+    <span class="abbr-link" data-abbr="IGS">IGS</span>, post-processed
+    surveying, and academic research. Save RINEX from your
+    u-blox ZED-F9P, post-process with RTKLIB or PRIDE-PPPAR, get
+    cm-level positions days later — without needing an
+    <span class="abbr-link" data-abbr="RTK">RTK</span> base.
+
+- term: "RNSS"
+  full_form: "Radio-Navigation Satellite Service"
+  explanation: >-
+    The <span class="abbr-link" data-abbr="ITU">ITU</span> radiocom-
+    munication service for GNSS signals. Allocated primary at
+    1164–1300 MHz (covers <span class="abbr-link"
+    data-abbr="L2">L2</span>, <span class="abbr-link"
+    data-abbr="L5">L5</span>, Galileo E5/E6, BeiDou B2/B3) and
+    1559–1610 MHz (<span class="abbr-link" data-abbr="L1">L1</span>,
+    Galileo E1, BeiDou B1, GLONASS L1). Protected internationally;
+    jamming or spoofing is a criminal offence in nearly every
+    jurisdiction.
+
 - term: "ROSAT"
   full_form: "Röntgen Satellite (X-ray)"
   explanation: >-
@@ -1383,6 +1638,20 @@
     <span class="abbr-link" data-abbr="IARU">IARU</span>; runs the Foundation
     / Intermediate / Full UK ham licence syllabus with
     <span class="abbr-link" data-abbr="Ofcom">Ofcom</span>.
+
+- term: "RTK"
+  full_form: "Real-Time Kinematic positioning"
+  explanation: >-
+    GNSS technique that uses carrier-phase measurements (not just
+    pseudo-ranges) plus a nearby base station of known coordinates
+    to resolve ambiguities and reach cm-level fix accuracy in real
+    time. Modern multi-band (<span class="abbr-link"
+    data-abbr="L1">L1</span>+<span class="abbr-link"
+    data-abbr="L2">L2</span>+<span class="abbr-link"
+    data-abbr="L5">L5</span>) receivers like the u-blox ZED-F9P
+    deliver this for ≤ $200 — survey-grade accuracy is now a hobby
+    purchase. See <span class="abbr-link"
+    data-abbr="NTRIP">NTRIP</span> for streaming corrections.
 
 - term: "RTL-SDR"
   full_form: "RTL2832U USB SDR dongle"
@@ -1429,6 +1698,21 @@
     Navy radar, <span class="abbr-link" data-abbr="PAL">PAL</span> licensees,
     and General Authorized Access. Devices ask the SAS for a channel before
     transmitting.
+
+- term: "SBAS"
+  full_form: "Satellite-Based Augmentation System"
+  explanation: >-
+    Family of geostationary-satellite overlays that broadcast
+    differential <span class="abbr-link" data-abbr="GNSS">GNSS</span>
+    corrections + integrity messages on the
+    <span class="abbr-link" data-abbr="L1">L1</span> frequency.
+    Regional flavours: <span class="abbr-link"
+    data-abbr="WAAS">WAAS</span> (US),
+    <span class="abbr-link" data-abbr="EGNOS">EGNOS</span> (EU),
+    <span class="abbr-link" data-abbr="MSAS">MSAS</span> (Japan),
+    <span class="abbr-link" data-abbr="GAGAN">GAGAN</span> (India).
+    Improves civilian fix accuracy from ~5 m to ~1–1.5 m; the integrity
+    bound is what makes SBAS aviation-approach-rated.
 
 - term: "Schumann"
   full_form: "Schumann resonances"
@@ -1515,6 +1799,20 @@
     <span class="abbr-link" data-abbr="n78">n78</span>, n79). Contrast with
     <span class="abbr-link" data-abbr="FDD">FDD</span> where UL and DL use
     paired separate frequencies.
+
+- term: "TEC"
+  full_form: "Total Electron Content (ionosphere)"
+  explanation: >-
+    Integrated electron column-density along a ray-path through the
+    ionosphere, in TECU = 10¹⁶ electrons/m². TEC sets ionospheric
+    delay on GNSS — scales as 1/<span class="abbr-link"
+    data-abbr="ν">ν</span>², which is why dual-frequency receivers
+    (<span class="abbr-link" data-abbr="L1">L1</span>+<span
+    class="abbr-link" data-abbr="L2">L2</span>) cancel it directly.
+    Maps published by <span class="abbr-link"
+    data-abbr="IGS">IGS</span>, NASA JPL, NOAA SWPC every 15 min;
+    correlates strongly with solar activity, geomagnetic storms, and
+    the equatorial anomaly.
 
 - term: "TETRA"
   full_form: "Terrestrial Trunked Radio"
@@ -1629,6 +1927,18 @@
     is a smaller ~30 kW palletised version; Solid-State ADS is a
     GaN-based generation under DoD R&D. Same ITAR / weapons-law
     restrictions apply.
+
+- term: "WAAS"
+  full_form: "Wide Area Augmentation System (USA)"
+  explanation: >-
+    US <span class="abbr-link" data-abbr="SBAS">SBAS</span> operated
+    by the FAA, with three geostationary satellites broadcasting
+    differential <span class="abbr-link" data-abbr="GPS">GPS</span>
+    corrections + integrity on the <span class="abbr-link"
+    data-abbr="L1">L1</span> frequency. Provides aviation LPV-200
+    approaches (~3 m vertical accuracy) and lifts general civilian
+    accuracy below 2 m. Free and unlicensed — every consumer GPS chip
+    can use it with a firmware tick-box.
 
 - term: "Wavelength"
   full_form: "λ — distance between successive wave peaks"
