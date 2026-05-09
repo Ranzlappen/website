@@ -1,0 +1,140 @@
+# Builds main at the site root + a `test` branch under /website/test/
+# into a single GitHub Pages artifact, then deploys.
+# Production deploy logic in jekyll-gh-pages.yml is untouched: that workflow
+# still triggers on push to main and produces an identical artifact when no
+# preview is in play. Pages "source" stays on "GitHub Actions".
+name: Build and Deploy Preview to GitHub Pages
+
+on:
+  push:
+    branches: ["test"]
+    paths-ignore:
+      # Docs / meta (never affect the built site)
+      - 'README.md'
+      - 'CLAUDE.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'polyvote/README.md'
+      - 'polyvote/.gitignore'
+      - 'polyvote/.prettierrc'
+      - 'blog-admin/README.md'
+      - 'blog-admin/.gitignore'
+      # Firebase resources (deployed by firebase-deploy.yml, not bundled into the site)
+      - 'polyvote/.firebaserc'
+      - 'polyvote/firebase.json'
+      - 'polyvote/firestore.rules'
+      - 'polyvote/firestore.indexes.json'
+      - 'polyvote/database.rules.json'
+      - 'polyvote/functions/**'
+      # Sibling workflows + Dependabot config (don't affect Pages)
+      - '.github/dependabot.yml'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/firebase-deploy.yml'
+      - '.github/workflows/firebase-deploy-manual.yml'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or ref to preview at /website/test/'
+        required: false
+        default: 'test'
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Shares the `pages` group with jekyll-gh-pages.yml so the two never overlap.
+# cancel-in-progress: false → they queue, no half-deploys.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # ---- Production build (from main) into _site/ root ----
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Build main with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: |
+            polyvote/package-lock.json
+            blog-admin/package-lock.json
+
+      - name: PolyVote – Install dependencies
+        working-directory: polyvote
+        run: npm ci
+
+      - name: PolyVote – Build
+        working-directory: polyvote
+        run: npm run build
+
+      - name: Blog Admin – Install dependencies
+        working-directory: blog-admin
+        run: npm ci
+
+      - name: Blog Admin – Build
+        working-directory: blog-admin
+        run: npm run build
+
+      - name: Copy PolyVote into _site
+        run: |
+          sudo chown -R $(whoami) _site
+          cp -r polyvote/dist _site/polyvote
+
+      - name: Copy Blog Admin into _site
+        run: cp -r blog-admin/dist _site/blog-admin
+
+      # ---- Preview build (test branch / dispatch ref) into _site/test/ ----
+      # actions/jekyll-build-pages@v1 doesn't expose --baseurl, so we run
+      # Jekyll directly via Bundler against a separate working tree.
+      - name: Checkout preview ref
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || 'test' }}
+          path: _preview-source
+
+      - name: Setup Ruby for preview Jekyll build
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: _preview-source
+
+      - name: Build preview with Jekyll (--baseurl /website/test)
+        working-directory: _preview-source
+        run: |
+          bundle exec jekyll build \
+            --baseurl "/website/test" \
+            --destination "${{ github.workspace }}/_site/test"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
