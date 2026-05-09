@@ -1,5 +1,8 @@
-# Builds main at the site root + a `test` branch under /website/test/
+# Builds main at the site root + a `test` branch under /test/
 # into a single GitHub Pages artifact, then deploys.
+# The custom domain (www.ranzlappen.com via CNAME) serves the artifact
+# root, so the preview lives at https://www.ranzlappen.com/test/ — no
+# /<repo>/ prefix in the URL.
 # Production deploy logic in jekyll-gh-pages.yml is untouched: that workflow
 # still triggers on push to main and produces an identical artifact when no
 # preview is in play. Pages "source" stays on "GitHub Actions".
@@ -34,7 +37,7 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Branch or ref to preview at /website/test/'
+        description: 'Branch name (e.g. main, claude/foo) or commit SHA to preview at /test/. Defaults to test.'
         required: false
         default: 'test'
         type: string
@@ -118,11 +121,11 @@ jobs:
           bundler-cache: true
           working-directory: _preview-source
 
-      - name: Build preview with Jekyll (--baseurl /website/test)
+      - name: Build preview with Jekyll (--baseurl /test)
         working-directory: _preview-source
         run: |
           bundle exec jekyll build \
-            --baseurl "/website/test" \
+            --baseurl "/test" \
             --destination "${{ github.workspace }}/_site/test"
 
       - name: Upload artifact
