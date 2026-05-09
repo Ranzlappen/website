@@ -64,28 +64,31 @@ Production deploys of `castBlogVote`, the Blog Admin callables (`blogSaveDraft`,
 
 ## Deployment & CI/CD
 
-Four GitHub Actions workflows live in `.github/workflows/`. The three auto-trigger workflows are each scoped with `paths` / `paths-ignore` filters so they only fire when their inputs change; the fourth is manual-only.
+Five GitHub Actions workflows live in `.github/workflows/`. The three auto-trigger workflows are each scoped with `paths` / `paths-ignore` filters so they only fire when their inputs change; the other two are manual-trigger-capable.
 
 | Workflow | Trigger | Scope | Deploys |
 |---|---|---|---|
 | `ci.yml` | PR → `main` | Per-app jobs gated by `dorny/paths-filter` — only changed apps run lint/test/build. | Nothing (validation only). |
 | `jekyll-gh-pages.yml` | Push → `main` | Skips docs, Firebase configs, Cloud Functions, and Firestore/RTDB rules. | Full site to GitHub Pages (Jekyll + PolyVote + Blog Admin). |
+| `feature-preview.yml` | Push → `test` + manual `workflow_dispatch` (with optional `ref` input, defaults to `test`) | Same `paths-ignore` as `jekyll-gh-pages.yml`. | Combined GitHub Pages artifact: main rebuilt at root (Jekyll + PolyVote + Blog Admin, identical to `jekyll-gh-pages.yml`'s output) plus the `test` branch (or dispatch `ref`) rebuilt **Jekyll-only** under `/website/test/` via `bundle exec jekyll build --baseurl /website/test`. Shares the `pages` concurrency group with `jekyll-gh-pages.yml` so the two queue, never overlap. |
 | `firebase-deploy.yml` | Push → `main` (Firebase/Functions paths) + manual | Builds Cloud Functions, then deploys. | Firestore rules + indexes, RTDB rules, `castBlogVote`, all Blog Admin callables, and admin user-management callables (`setUserRole`, `adminListUsers`, `adminBanUser`, `adminUnbanUser`). |
 | `firebase-deploy-manual.yml` | Manual only (`workflow_dispatch`) | Accepts a `target` input passed straight to `firebase deploy --only`. Default `functions` redeploys every function in `polyvote/functions/src/index.ts` — future-proof for newly added functions. Shares the `firebase-deploy` concurrency group with the auto-deploy. | Whatever the `target` input specifies (default: all Cloud Functions). |
 
+**Preview limitations**: `feature-preview.yml` ships **Jekyll-only** under `/website/test/`. PolyVote and Blog Admin are not rebuilt at the preview subpath because their Vite `base` and React Router `basename` are hardcoded to `/polyvote/` and `/blog-admin/`. Navbar links to those apps will 404 inside the preview tree. To enable SPA previews later, make `base` env-driven in `polyvote/vite.config.ts`, `blog-admin/vite.config.ts`, both `main.tsx` files, PolyVote's `ShareButton.tsx`, and PolyVote's PWA manifest (defaults preserve current paths exactly).
+
 **What fires on a given change:**
 
-| Change | CI (on PR) | Pages (on merge) | Firebase (on merge) |
-|---|:---:|:---:|:---:|
-| Blog post / Jekyll page | — | ✓ | — |
-| `polyvote/src/**` | polyvote | ✓ | — |
-| `blog-admin/src/**` | blog-admin | ✓ | — |
-| `polyvote/functions/**` | functions | — | ✓ |
-| `firestore.rules` / `firestore.indexes.json` | — | — | ✓ |
-| `database.rules.json` | — | — | ✓ |
-| `CLAUDE.md` / `README.md` / `LICENSE` | — | — | — |
+| Change | CI (on PR to `main`) | Pages prod (push → `main`) | Pages preview (push → `test`) | Firebase (push → `main`) |
+|---|:---:|:---:|:---:|:---:|
+| Blog post / Jekyll page | — | ✓ | ✓ | — |
+| `polyvote/src/**` | polyvote | ✓ | ✓ (rebuilt from main only) | — |
+| `blog-admin/src/**` | blog-admin | ✓ | ✓ (rebuilt from main only) | — |
+| `polyvote/functions/**` | functions | — | — | ✓ |
+| `firestore.rules` / `firestore.indexes.json` | — | — | — | ✓ |
+| `database.rules.json` | — | — | — | ✓ |
+| `CLAUDE.md` / `README.md` / `LICENSE` | — | — | — | — |
 
-**Concurrency**: CI cancels superseded runs per PR branch. Pages and Firebase deploys **queue** (no cancel) to avoid half-applied state.
+**Concurrency**: CI cancels superseded runs per PR branch. Pages deploys (both `jekyll-gh-pages.yml` and `feature-preview.yml`) and Firebase deploys **queue** (no cancel) to avoid half-applied state.
 
 **Node version**: All JS jobs (CI + Pages build) run on Node 22.
 
@@ -128,9 +131,11 @@ Four GitHub Actions workflows live in `.github/workflows/`. The three auto-trigg
 ├── .github/
 │   ├── dependabot.yml          # Weekly dependency updates
 │   └── workflows/
-│       ├── ci.yml              # PR validation (per-app jobs)
-│       ├── jekyll-gh-pages.yml # Build + deploy site to Pages
-│       └── firebase-deploy.yml # Deploy Firestore/RTDB rules + castBlogVote + Blog Admin callables
+│       ├── ci.yml                      # PR validation (per-app jobs)
+│       ├── jekyll-gh-pages.yml         # Build + deploy prod site to Pages
+│       ├── feature-preview.yml         # Build + deploy main + `test` preview to Pages
+│       ├── firebase-deploy.yml         # Deploy Firestore/RTDB rules + castBlogVote + Blog Admin callables
+│       └── firebase-deploy-manual.yml  # Manual Cloud Functions deploys (workflow_dispatch)
 ├── blog-admin/
 │   ├── src/
 │   │   ├── components/         # Editor UI, auth, dialogs
