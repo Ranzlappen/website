@@ -423,6 +423,17 @@
         console.error('attachAllSoftWarnings failed', e);
       }
     }
+    // Dedup EF.widgets last-write-wins. A re-mount (HMR, repeated boot, a
+    // section IIFE that re-runs) used to leave stale entries with the same
+    // name behind, which made resetAllWidgets / restoreFromHash hit the wrong
+    // closure. Walking from the end keeps the most-recently-pushed entry.
+    var seen = {};
+    for (var j = EF.widgets.length - 1; j >= 0; j--) {
+      var ent = EF.widgets[j];
+      if (!ent || !ent.name) continue;
+      if (seen[ent.name]) EF.widgets.splice(j, 1);
+      else                seen[ent.name] = true;
+    }
   };
 
   EF.syncAllWidgetThemes = function () {
