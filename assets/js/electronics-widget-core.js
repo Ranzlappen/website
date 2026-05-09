@@ -623,6 +623,11 @@
   EF.Bookmark = (function () {
     var STORAGE_PREFIX = 'ef:state:';
     var HASH_PREFIX    = '#ef=';
+    // Bumped whenever the persisted payload shape changes incompatibly.
+    // Unknown versions are rejected on restore so a future format can't be
+    // mis-interpreted by an older page; pre-versioned (v: undefined) payloads
+    // are accepted as legacy { name, state } envelopes for back-compat.
+    var SCHEMA_VERSION = 1;
     var api = {};
 
     function safeStringify(obj) { try { return JSON.stringify(obj); } catch (_) { return null; } }
@@ -633,7 +638,8 @@
     function save(name, state) {
       api.lastResult = { ok: false, persisted: false, hashed: false, quotaExceeded: false };
       if (!name || !state) return false;
-      var json = safeStringify(state);
+      var envelope = { v: SCHEMA_VERSION, name: name, state: state };
+      var json = safeStringify(envelope);
       if (!json) { api.lastResult.ok = false; return false; }
       try {
         localStorage.setItem(STORAGE_PREFIX + name, json);
@@ -663,7 +669,13 @@
       try {
         var raw = localStorage.getItem(STORAGE_PREFIX + name);
         if (!raw) return null;
-        return safeParse(raw);
+        var parsed = safeParse(raw);
+        if (!parsed) return null;
+        // Versioned envelope { v, name, state } — accept matching SCHEMA_VERSION.
+        if (parsed.v === SCHEMA_VERSION && parsed.state) return parsed.state;
+        // Legacy pre-v1 payloads were the bare state object.
+        if (parsed.v === undefined) return parsed;
+        return null;
       } catch (_) { return null; }
     }
 
@@ -677,13 +689,21 @@
       var rest = h.slice(HASH_PREFIX.length);
       var sep = rest.indexOf(':');
       if (sep < 1) return null;
-      var name = decodeURIComponent(rest.slice(0, sep));
+      var hashName = decodeURIComponent(rest.slice(0, sep));
       var b64 = rest.slice(sep + 1);
       var json = b64Decode(b64);
       if (!json) return null;
-      var state = safeParse(json);
-      if (!state) return null;
-      return { name: name, state: state };
+      var parsed = safeParse(json);
+      if (!parsed) return null;
+      // Versioned envelope { v, name, state }: trust the envelope's name only
+      // when the version matches; reject unknown versions outright.
+      if (parsed.v === SCHEMA_VERSION) {
+        if (!parsed.state) return null;
+        return { name: parsed.name || hashName, state: parsed.state };
+      }
+      // Legacy pre-v1 hashes embedded the bare state under the hash name.
+      if (parsed.v === undefined) return { name: hashName, state: parsed };
+      return null;
     }
 
     /** Look up the DOM container associated with a widget name. We try a
@@ -738,6 +758,7 @@
     api.findContainer = findContainer;
     api.STORAGE_PREFIX = STORAGE_PREFIX;
     api.HASH_PREFIX    = HASH_PREFIX;
+    api.SCHEMA_VERSION = SCHEMA_VERSION;
     api.lastResult = null;
     return api;
   })();
