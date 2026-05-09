@@ -987,9 +987,11 @@
       '.electronics-ohms-actions, .electronics-wheel-actions'
     );
 
-    // Container DOM ids ↔ EF.widgets entry names. Kept as an explicit map
-    // because the two namespaces don't share clean substrings (e.g. the wheel
-    // sits in #electronics-quick-reference but registers as "quick-reference-
+    // Container DOM ids ↔ EF.widgets entry names. Retained as a legacy
+    // fallback for any card that hasn't migrated to the data-ef-widget
+    // attribute yet. The attribute is the canonical source of truth — the
+    // two namespaces don't share clean substrings (e.g. the wheel sits in
+    // #electronics-quick-reference but registers as "quick-reference-
     // wheel"), so a heuristic substring search would miss the wheel and
     // mis-match neighbours.
     var ID_TO_WIDGET = {
@@ -1002,13 +1004,32 @@
       'electronics-rcd-card':        'resistor-color-decoder'
     };
 
+    function widgetNameForCard(node) {
+      if (!node || node.getAttribute === undefined) return null;
+      var attr = node.getAttribute('data-ef-widget');
+      if (attr) return attr;
+      if (node.id && ID_TO_WIDGET[node.id]) return ID_TO_WIDGET[node.id];
+      return null;
+    }
+
     // Pre-register every widget's container with EF.Bookmark so
     // restoreFromHash can scroll to it even when no bookmark button got
-    // injected (e.g. the wheel before this batch).
+    // injected (e.g. the wheel before this batch). Prefers data-ef-widget
+    // attrs and falls back to the legacy id map.
     if (typeof EF.Bookmark.registerContainer === 'function') {
+      var efAttrCards = document.querySelectorAll('[data-ef-widget]');
+      var seenAttrNames = {};
+      Array.prototype.forEach.call(efAttrCards, function (card) {
+        var name = card.getAttribute('data-ef-widget');
+        if (!name) return;
+        seenAttrNames[name] = true;
+        EF.Bookmark.registerContainer(name, card);
+      });
       Object.keys(ID_TO_WIDGET).forEach(function (id) {
+        var name = ID_TO_WIDGET[id];
+        if (seenAttrNames[name]) return;
         var card = document.getElementById(id);
-        if (card) EF.Bookmark.registerContainer(ID_TO_WIDGET[id], card);
+        if (card) EF.Bookmark.registerContainer(name, card);
       });
     }
 
@@ -1017,7 +1038,8 @@
     function widgetNameForRow(row) {
       var node = row;
       while (node && node !== document.body) {
-        if (node.id && ID_TO_WIDGET[node.id]) return ID_TO_WIDGET[node.id];
+        var name = widgetNameForCard(node);
+        if (name) return name;
         node = node.parentNode;
       }
       return null;

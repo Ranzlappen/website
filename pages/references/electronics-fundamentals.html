@@ -93,7 +93,7 @@ widget"):
     </button>
 
     {%- comment -%} ========== Section 1: Hero / Quick Reference Wheel ========== {%- endcomment -%}
-    <section class="electronics-section" id="electronics-quick-reference" aria-labelledby="electronics-wheel-heading">
+    <section class="electronics-section" id="electronics-quick-reference" data-ef-widget="quick-reference-wheel" aria-labelledby="electronics-wheel-heading">
       <h2 class="electronics-section__title" id="electronics-wheel-heading" style="text-align: center;">
         Ohm&rsquo;s Law &amp; Power Quick Wheel
       </h2>
@@ -481,6 +481,7 @@ widget"):
         <article class="electronics-calculator electronics-ohms"
                  id="electronics-calc-ohms"
                  data-calculator="ohms-law"
+                 data-ef-widget="ohms-law-calculator"
                  aria-labelledby="electronics-calc-ohms-title">
           <h3 class="electronics-calculator__title" id="electronics-calc-ohms-title">
             Calculator 1 &mdash; Ohm&rsquo;s Law / Power
@@ -632,6 +633,7 @@ widget"):
         <article class="electronics-calculator electronics-led"
                  id="electronics-calc-led"
                  data-calculator="led-resistor"
+                 data-ef-widget="led-resistor-calculator"
                  aria-labelledby="electronics-calc-led-title">
           <h3 class="electronics-calculator__title" id="electronics-calc-led-title">
             Calculator 2 &mdash; LED Resistor
@@ -791,6 +793,7 @@ widget"):
         <article class="electronics-calculator electronics-divider"
                  id="electronics-calc-divider"
                  data-calculator="voltage-divider"
+                 data-ef-widget="voltage-divider-calculator"
                  aria-labelledby="electronics-calc-divider-title">
           <h3 class="electronics-calculator__title" id="electronics-calc-divider-title">
             Calculator 3 &mdash; Voltage Divider
@@ -924,6 +927,7 @@ widget"):
         <article class="electronics-calculator electronics-sp"
                  id="electronics-calc-sp"
                  data-calculator="series-parallel"
+                 data-ef-widget="series-parallel-calculator"
                  aria-labelledby="electronics-calc-sp-title">
           <h3 class="electronics-calculator__title" id="electronics-calc-sp-title">
             Calculator 4 &mdash; Series / Parallel
@@ -1008,6 +1012,7 @@ widget"):
         <article class="electronics-calculator electronics-rc"
                  id="electronics-calc-rc"
                  data-calculator="rc-timer"
+                 data-ef-widget="rc-timer-calculator"
                  aria-labelledby="electronics-calc-rc-title">
           <h3 class="electronics-calculator__title" id="electronics-calc-rc-title">
             Calculator 5 &mdash; RC Timer / Time Constant
@@ -1162,7 +1167,7 @@ widget"):
       <div class="electronics-components" id="electronics-components-grid">
 
         {%- comment -%} ----- Card 1: Resistor Color-Code Decoder ----- {%- endcomment -%}
-        <article class="electronics-component-card" id="electronics-rcd-card">
+        <article class="electronics-component-card" id="electronics-rcd-card" data-ef-widget="resistor-color-decoder">
           <h3 class="electronics-component-card__title">Resistor Color-Code Decoder</h3>
           <p class="electronics-component-card__caption">
             Pick the color of each band &mdash; the value, tolerance, and tolerance
