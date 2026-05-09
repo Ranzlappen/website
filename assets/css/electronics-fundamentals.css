@@ -678,12 +678,21 @@
 @media print {
   .electronics-page { padding: 0; }
   .electronics-container { max-width: none; padding: 0; }
+  /* Keep cards intact across page breaks. The legacy `page-break-inside`
+     alias is paired with the modern `break-inside` so older WebKit /
+     Blink renderers (Chromium pre-83, Safari pre-15) honour the rule
+     when they're driving a print job. */
   .electronics-hero,
   .electronics-section,
   .electronics-card,
   .electronics-formula-card,
+  .electronics-component-card,
   .electronics-guide,
-  .electronics-calculator { break-inside: avoid; }
+  .electronics-calculator,
+  .electronics-table-wrapper {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
   .electronics-card,
   .electronics-formula-card,
   .electronics-calculator,
