@@ -2393,6 +2393,137 @@
 }
 .electronics-hero { position: relative; }
 
+/* ---- 8.2b — Mobile TOC trigger + drawer ----
+   The desktop sticky aside (.electronics-toc) hides itself below
+   1280 px; this trigger + drawer pair give those viewports a
+   bottom-sheet equivalent so the section index isn't lost on mobile.
+   Trigger sits opposite the help "?" so they don't collide. */
+.electronics-toc-trigger {
+  position: absolute;
+  top: var(--space-md);
+  left: var(--space-md);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-muted);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px var(--c-card-shadow);
+  transition: color var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+.electronics-toc-trigger:hover {
+  color: var(--c-accent);
+  border-color: var(--c-accent-border);
+  transform: scale(1.05);
+}
+.electronics-toc-trigger:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+@media (max-width: 1279px) {
+  .electronics-toc-trigger:not([hidden]) { display: inline-flex; }
+}
+
+.electronics-toc-drawer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.electronics-toc-drawer[hidden] { display: none; }
+.electronics-toc-drawer__sheet {
+  width: 100%;
+  max-width: 32rem;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-bottom: 0;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-md) var(--space-lg);
+  box-shadow: 0 -8px 24px var(--c-card-shadow);
+}
+.electronics-toc-drawer__title {
+  margin: 0 0 var(--space-sm);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+  font-weight: 600;
+}
+.electronics-toc-drawer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.electronics-toc-drawer__list a {
+  display: block;
+  padding: 0.65rem 0.6rem;
+  border-left: 2px solid transparent;
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  color: var(--c-text);
+  text-decoration: none;
+  transition: background var(--transition-fast),
+              border-color var(--transition-fast),
+              color var(--transition-fast);
+}
+.electronics-toc-drawer__list a:hover,
+.electronics-toc-drawer__list a:focus-visible {
+  color: var(--c-accent);
+  background: var(--c-surface-alt);
+  border-left-color: var(--c-accent);
+  outline: none;
+}
+.electronics-toc-drawer__close {
+  margin-top: var(--space-sm);
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius-sm);
+  padding: 0.5rem 0.9rem;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  width: 100%;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+.electronics-toc-drawer__close:hover {
+  color: var(--c-accent);
+  border-color: var(--c-accent-border);
+}
+.electronics-toc-drawer__close:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .electronics-toc-drawer__sheet {
+    animation: electronics-drawer-slide 220ms ease-out;
+  }
+  @keyframes electronics-drawer-slide {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0);    }
+  }
+}
+
 /* ---- 8.3 — Resistor decoder common-values preset row ---- */
 .electronics-rcd-presets {
   display: flex;

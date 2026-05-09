@@ -911,6 +911,94 @@
   }
 
   // --------------------------------------------------------------------------
+  // initMobileTocDrawer — hamburger button in the hero opens a bottom-sheet
+  //   drawer that lists the same sections as the desktop sticky aside, for
+  //   viewports below the sticky breakpoint where the aside is hidden.
+  //   Implements focus trap + ESC + backdrop-click + close-on-link to match
+  //   the existing modal a11y conventions on this page.
+  // --------------------------------------------------------------------------
+  function initMobileTocDrawer() {
+    var trigger  = document.getElementById('electronics-toc-trigger');
+    var drawer   = document.getElementById('electronics-toc-drawer');
+    if (!trigger || !drawer) return;
+    var sheet    = drawer.querySelector('.electronics-toc-drawer__sheet');
+    var closeBtn = drawer.querySelector('.electronics-toc-drawer__close');
+    var prevFocus = null;
+
+    function focusables() {
+      if (!sheet) return [];
+      return sheet.querySelectorAll(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+    }
+    function open() {
+      prevFocus = document.activeElement;
+      drawer.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      // Defer to next tick so the dialog is in the DOM tree before we
+      // try to move focus into it.
+      setTimeout(function () {
+        var f = focusables();
+        if (f.length) f[0].focus();
+        else if (closeBtn) closeBtn.focus();
+      }, 0);
+      document.addEventListener('keydown', onKey, true);
+      drawer.addEventListener('click', onBackdrop);
+    }
+    function close() {
+      drawer.hidden = true;
+      trigger.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('keydown', onKey, true);
+      drawer.removeEventListener('click', onBackdrop);
+      if (prevFocus && typeof prevFocus.focus === 'function') {
+        try { prevFocus.focus(); } catch (_) { /* ignore */ }
+      }
+    }
+    function onKey(e) {
+      if (e.key === 'Escape' || e.keyCode === 27) {
+        e.preventDefault();
+        close();
+        return;
+      }
+      if ((e.key === 'Tab' || e.keyCode === 9)) {
+        var f = focusables();
+        if (!f.length) return;
+        var first = f[0];
+        var last  = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+    function onBackdrop(e) {
+      if (e.target === drawer) close();
+    }
+
+    trigger.hidden = false;
+    trigger.addEventListener('click', open);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    // Close when a section link is followed so the drawer doesn't linger
+    // over the target section after navigation.
+    if (sheet) {
+      sheet.addEventListener('click', function (e) {
+        var t = e.target;
+        if (t && t.tagName === 'A') close();
+      });
+    }
+    EF.widgets.push({
+      name: 'mobile-toc-drawer',
+      destroy: function () {
+        document.removeEventListener('keydown', onKey, true);
+        drawer.removeEventListener('click', onBackdrop);
+      }
+    });
+  }
+
+  // --------------------------------------------------------------------------
   // initFloatingResetAll — bottom-right pill that triggers EF.resetAllWidgets().
   //   Shown only after the visitor scrolls past the hero so it doesn't
   //   compete with the disclaimer / "How to use" text.
@@ -1398,6 +1486,7 @@
   EF._registerSection('eseries-value-cloud',     initESeriesValueCloud);
   EF._registerSection('tolerance-chart-toggle',  initToleranceChartToggle);
   EF._registerSection('sticky-toc',              initStickyToc);
+  EF._registerSection('mobile-toc-drawer',       initMobileTocDrawer);
   EF._registerSection('floating-reset-all',      initFloatingResetAll);
   EF._registerSection('bookmark-injector',       initBookmarkInjector);
   EF._registerSection('help-trigger',            initHelpTrigger);

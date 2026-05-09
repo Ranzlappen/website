@@ -32,6 +32,14 @@ widget"):
 
     <header class="electronics-hero">
       <button type="button"
+              class="electronics-toc-trigger"
+              id="electronics-toc-trigger"
+              aria-label="Open table of contents"
+              aria-haspopup="dialog"
+              aria-controls="electronics-toc-drawer"
+              aria-expanded="false"
+              hidden>☰</button>
+      <button type="button"
               class="electronics-help-trigger"
               id="electronics-help-trigger"
               aria-label="Keyboard shortcuts and help"
@@ -84,6 +92,30 @@ widget"):
         <li><a href="#electronics-tables">Reference Tables</a></li>
       </ol>
     </aside>
+
+    {%- comment -%}
+      Mobile-only TOC drawer. Same link list as the desktop sticky aside;
+      shown via a hamburger trigger in the hero on viewports below the
+      sticky-aside breakpoint. Hidden on print + on desktop.
+    {%- endcomment -%}
+    <div class="electronics-toc-drawer" id="electronics-toc-drawer"
+         role="dialog" aria-modal="true"
+         aria-labelledby="electronics-toc-drawer-title"
+         hidden>
+      <div class="electronics-toc-drawer__sheet" role="document">
+        <h4 class="electronics-toc-drawer__title" id="electronics-toc-drawer-title">On this page</h4>
+        <ol class="electronics-toc-drawer__list">
+          <li><a href="#electronics-quick-reference">Quick Wheel</a></li>
+          <li><a href="#electronics-formulas">Formulas &amp; Laws</a></li>
+          <li><a href="#electronics-calculators">Calculators</a></li>
+          <li><a href="#electronics-components">Component Lab</a></li>
+          <li><a href="#electronics-design-guides">Design Guides</a></li>
+          <li><a href="#electronics-tables">Reference Tables</a></li>
+        </ol>
+        <button type="button" class="electronics-toc-drawer__close"
+                aria-label="Close table of contents">Close</button>
+      </div>
+    </div>
 
     <button type="button"
             class="electronics-floating-reset"
