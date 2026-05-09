@@ -312,7 +312,17 @@
 
     if (resetBtn) {
       resetBtn.addEventListener('click', function () {
-        bandColors = DEFAULTS[String(bandCount)].slice();
+        // Reset returns the decoder to its true default — 4 bands with
+        // the canonical default sequence. Snapping the radio back to "4"
+        // keeps the visible mode in sync with the band count we're about
+        // to render; otherwise pressing Reset while in 5-band mode left
+        // the radio on "5" but the bands fell back to a 4-band default
+        // sequence.
+        bandCount = 4;
+        Array.prototype.forEach.call(modeRadios, function (r) {
+          r.checked = (r.value === '4');
+        });
+        bandColors = DEFAULTS['4'].slice();
         buildBands();
         recompute();
       });
