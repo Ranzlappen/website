@@ -1051,10 +1051,28 @@
         setTimeout(function () { btn.textContent = prev; }, 1100);
       });
     });
-    if (observer) {
+    // Stow the pill while the page footer is in view so the two don't
+    // overlap on short pages. The pill animates out via CSS opacity +
+    // transform; pointer-events: none on .is-stowed lets the user click
+    // the underlying GitHub link in the footer.
+    var footer = document.querySelector('.electronics-footer');
+    var footerObserver = null;
+    if (footer && typeof IntersectionObserver !== 'undefined') {
+      footerObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          btn.classList.toggle('is-stowed', e.isIntersecting && e.intersectionRatio > 0);
+        });
+      }, { threshold: [0, 0.01, 0.25, 1] });
+      footerObserver.observe(footer);
+    }
+
+    if (observer || footerObserver) {
       EF.widgets.push({
         name: 'floating-reset-observer',
-        destroy: function () { try { observer.disconnect(); } catch (_) { /* ignore */ } }
+        destroy: function () {
+          try { if (observer) observer.disconnect(); } catch (_) { /* ignore */ }
+          try { if (footerObserver) footerObserver.disconnect(); } catch (_) { /* ignore */ }
+        }
       });
     }
   }

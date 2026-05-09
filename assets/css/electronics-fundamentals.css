@@ -791,8 +791,11 @@
       .electronics-floating-reset {
         position: fixed;
         /* Lift above the page footer so they don't overlap on short
-           pages where both compete for the bottom-right corner. */
-        bottom: 1.5rem;
+           pages where both compete for the bottom-right corner. The
+           env(safe-area-inset-bottom) addition keeps clearance under
+           iOS Safari's home-bar overlay. JS additionally adds the
+           .is-stowed modifier when the footer is on-screen. */
+        bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
         right: var(--space-md);
         z-index: 60;
         appearance: none;
@@ -809,7 +812,13 @@
         transition: background var(--transition-fast),
                     color var(--transition-fast),
                     border-color var(--transition-fast),
-                    transform var(--transition-fast);
+                    transform var(--transition-fast),
+                    opacity var(--transition-fast);
+      }
+      .electronics-floating-reset.is-stowed {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(0.5rem);
       }
       .electronics-floating-reset:hover {
         color: var(--c-accent);
@@ -868,7 +877,7 @@
 
       .electronics-footer {
         margin-top: var(--space-2xl);
-        padding: var(--space-lg) 0;
+        padding: var(--space-lg) 0 var(--space-2xl);
         border-top: 1px solid var(--c-border-light);
         display: flex;
         flex-wrap: wrap;
