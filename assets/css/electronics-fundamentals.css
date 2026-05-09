@@ -1047,11 +1047,19 @@
       }
 
       @media print {
-        /* Hide interactive chrome that doesn't print well. */
+        /* Hide interactive chrome that doesn't print well. The mobile TOC
+           trigger + drawer, the share button, and the help-trigger join
+           the existing toc / floating-reset / chart-toggle / bookmark
+           hides so the paper copy is read-only content. */
         .electronics-toc,
+        .electronics-toc-trigger,
+        .electronics-toc-drawer,
         .electronics-floating-reset,
         .electronics-rcd-chart-toggle,
         .electronics-bookmark-btn,
+        .electronics-share-btn,
+        .electronics-help-trigger,
+        .electronics-modal-backdrop,
         canvas.electronics-rcd-resistor-preview,
         .electronics-rcd-chart-wrapper canvas,
         .electronics-ohms-chart-wrapper canvas,
@@ -2603,6 +2611,18 @@
 
 /* ---- 8.5 — Print: hide volatile chrome ---- */
 @media print {
+  /* Final sweep: redundantly hide every dialog / overlay class for
+     paper output. Several of these are also hidden by Section 7's
+     print block above; restating them at the bottom keeps the print
+     contract self-contained and survives selector-order accidents. */
   .electronics-help-trigger,
-  .electronics-modal-backdrop { display: none !important; }
+  .electronics-toc-trigger,
+  .electronics-toc-drawer,
+  .electronics-modal-backdrop,
+  .electronics-modal,
+  .electronics-floating-reset { display: none !important; }
+  /* Belt-and-braces against the new is-stowed transform leaving a
+     subtle translateY visible if the browser renders any animation
+     during print preview. */
+  .electronics-floating-reset.is-stowed { display: none !important; }
 }
