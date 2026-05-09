@@ -328,14 +328,51 @@
       userOrder = [];
       userValues = {};
       QTY.forEach(function (n) { inputs[n].value = ''; });
+      var changed = [];
       Object.keys(values).forEach(function (n) {
         if (!inputs[n]) return;
         var num = parseFloat(values[n]);
         if (!isFinite(num)) return;
         inputs[n].value = String(num);
         trackUserInput(n, num);
+        changed.push(n);
       });
       recompute();
+
+      // Per-quadrant flash — visually signals which quantities just changed
+      // when the wheel was driven from another widget (e.g. "Open in Quick
+      // Wheel" on a formula card). Without this, the wheel updates silently
+      // even though the user-visible focus has just moved to it.
+      if (changed.length && wheelSvg) {
+        changed.forEach(function (n) {
+          var q = wheelSvg.querySelector('.electronics-wheel__quadrant[data-quantity="' + n + '"]');
+          if (!q) return;
+          q.classList.remove('is-flash');
+          // Force a reflow so re-adding the class restarts the keyframe
+          // when the wheel is hit twice in quick succession.
+          // eslint-disable-next-line no-unused-expressions
+          q.getBoundingClientRect && q.getBoundingClientRect();
+          q.classList.add('is-flash');
+          setTimeout(function () { q.classList.remove('is-flash'); }, 720);
+        });
+      }
+      // ARIA announcement so screen-reader users hear the wheel changed under
+      // them. Reuses the existing #electronics-wheel-status live region —
+      // recompute() will overwrite the message immediately afterwards with
+      // its own summary, so we deliberately skip status if recompute already
+      // produced an "ok" status (it announces the same data more usefully).
+      if (statusEl && changed.length) {
+        var prev = statusEl.textContent;
+        statusEl.textContent = 'Quick Wheel updated: ' + changed.join(', ');
+        // Restore whatever recompute() decided after a beat so SR users
+        // don't lose the running result text.
+        setTimeout(function () {
+          if (statusEl.textContent.indexOf('Quick Wheel updated') === 0) {
+            statusEl.textContent = prev;
+          }
+        }, 1400);
+      }
+
       if (opts.scroll !== false && section) {
         EF.scrollIntoView(section, { block: 'start' });
       }

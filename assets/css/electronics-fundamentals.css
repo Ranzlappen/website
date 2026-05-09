@@ -1106,6 +1106,26 @@
         }
         .electronics-wheel__divider { stroke: var(--c-border); stroke-width: 1; opacity: 0.6; }
 
+        /* Brief accent-coloured flash to signal a quadrant whose value
+           was just driven by setExternalValues (e.g. "Open in Quick
+           Wheel" from a formula card). The keyframe animates the
+           quadrant background from a soft accent fill back to
+           transparent so the wheel returns to its neutral resting
+           state without a hard pop. */
+        .electronics-wheel__quadrant.is-flash .electronics-wheel__quadrant-bg {
+          animation: electronics-wheel-flash 700ms ease-out;
+        }
+        @keyframes electronics-wheel-flash {
+          0%   { fill: var(--c-accent-bg); stroke: var(--c-accent); }
+          60%  { fill: var(--c-accent-bg); stroke: var(--c-accent); }
+          100% { fill: transparent;        stroke: transparent;     }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .electronics-wheel__quadrant.is-flash .electronics-wheel__quadrant-bg {
+            animation-duration: 1ms;
+          }
+        }
+
         .electronics-wheel-fields {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
