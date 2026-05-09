@@ -728,9 +728,42 @@
       api._containers[name] = el;
     }
 
+    // One-time visible banner shown when the URL hash starts with #ef= but
+    // restoreFromHash returns false (unknown widget, future schema, corrupt
+    // base64, etc.). Without this, the previous behaviour was a silent revert
+    // to defaults — the user got stale calculators with no explanation.
+    var _restoreFailureAnnounced = false;
+    function surfaceRestoreFailure(reason) {
+      if (_restoreFailureAnnounced) return;
+      _restoreFailureAnnounced = true;
+      var container = document.querySelector('.electronics-page .electronics-container')
+                   || document.querySelector('.electronics-page')
+                   || document.body;
+      if (!container) return;
+      var banner = document.createElement('div');
+      banner.className = 'electronics-ohms-warning electronics-restore-warning';
+      banner.setAttribute('role', 'alert');
+      banner.textContent = '⚠ Couldn\'t restore your bookmark — using defaults. The shared link may be from an older or newer version of this page.';
+      // Insert after the hero so it sits above the first section without
+      // disrupting the disclaimer.
+      var hero = container.querySelector('.electronics-hero');
+      if (hero && hero.parentNode === container) {
+        container.insertBefore(banner, hero.nextSibling);
+      } else {
+        container.insertBefore(banner, container.firstChild);
+      }
+      // eslint-disable-next-line no-console
+      if (reason) console.warn('EF.Bookmark.restoreFromHash failed:', reason);
+    }
+
     function restoreFromHash() {
+      var rawHash = window.location.hash || '';
+      var hasPrefix = rawHash.indexOf(HASH_PREFIX) === 0;
       var parsed = parseHash();
-      if (!parsed) return false;
+      if (!parsed) {
+        if (hasPrefix) surfaceRestoreFailure('parseHash returned null');
+        return false;
+      }
       for (var i = 0; i < EF.widgets.length; i++) {
         var entry = EF.widgets[i];
         if (entry && entry.name === parsed.name && typeof entry.restoreState === 'function') {
@@ -743,9 +776,13 @@
               setTimeout(function () { EF.scrollIntoView(container, { block: 'start' }); }, 0);
             }
             return true;
-          } catch (_) { return false; }
+          } catch (e) {
+            surfaceRestoreFailure(e);
+            return false;
+          }
         }
       }
+      surfaceRestoreFailure('no widget named "' + parsed.name + '"');
       return false;
     }
 
