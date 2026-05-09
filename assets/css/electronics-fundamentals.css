@@ -922,11 +922,13 @@
       }
       /* Light-theme contrast fix for white / yellow / silver chips —
          their backgrounds are too pale to read against the light
-         page, so swap to the themed --c-border for a visible edge. */
+         page, so use a darker, thicker themed border + a faint inset
+         shadow to reach AA contrast against the surrounding card. */
       [data-theme="light"] .electronics-rcd-swatch[data-color="white"],
       [data-theme="light"] .electronics-rcd-swatch[data-color="yellow"],
       [data-theme="light"] .electronics-rcd-swatch[data-color="silver"] {
-        border-color: var(--c-border);
+        border: 1.5px solid var(--c-text);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.10);
       }
 
       /* E-series "value cloud" — popularity-derived font sizes. JS adds
