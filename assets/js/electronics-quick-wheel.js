@@ -186,9 +186,14 @@
     });
 
     var EXAMPLES = {
-      battery: { V: 12,  R: 100 },
-      led:     { V: 5,   I: 0.02 },
-      usb:     { V: 5,   I: 2 }
+      battery:    { V: 12,  R: 100 },
+      led:        { V: 5,   I: 0.02 },
+      usb:        { V: 5,   I: 2 },
+      battery9v:  { V: 9,   R: 1000 },
+      mcu33:      { V: 3.3, I: 0.05 },
+      'aa-led':   { V: 1.5, R: 220 },
+      laptop:     { V: 19,  I: 3.42 },
+      ledstrip:   { V: 12,  I: 1 }
     };
     function loadExample(key) {
       var preset = EXAMPLES[key];
