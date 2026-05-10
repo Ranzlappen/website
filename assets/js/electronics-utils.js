@@ -430,8 +430,10 @@
     R1:      { max: 10e6,   min: 1,     msg: 'Most divider resistors live in the 1 Ω – 10 MΩ range.' },
     R2:      { max: 10e6,   min: 1,     msg: 'Most divider resistors live in the 1 Ω – 10 MΩ range.' },
     RL:      { max: 100e6,  min: 1,     msg: 'Loads above 100 MΩ are unusual outside meter inputs.' },
-    P:       { max: 100,    min: 0,     msg: 'Most hobby circuits dissipate < 100 W; verify heatsinking above this.' },
-    C:       { max: 1,      min: 1e-13, msg: 'Most capacitors are 1 pF – 10 mF; values above 1 F are supercaps.' }
+    P:        { max: 100,    min: 0,     msg: 'Most hobby circuits dissipate < 100 W; verify heatsinking above this.' },
+    C:        { max: 1,      min: 1e-13, msg: 'Most capacitors are 1 pF – 10 mF; values above 1 F are supercaps.' },
+    Capacity: { max: 200000, min: 50,    msg: 'Hobby battery capacities span ~50 mAh (coin cell) to 200 Ah (UPS / EV); values outside this range are unusual.' },
+    LoadPower:{ max: 5000,   min: 0.001, msg: 'Hobby battery loads span ~1 mW (sleeping MCU) to 5 kW (welder / EV charger).' }
   };
 
   /** Look up the soft-limit message string for a quantity at a given value.

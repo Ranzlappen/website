@@ -1766,6 +1766,53 @@
               .electronics-rc-controls { display: none; }
             }
 
+/* ---- 7.8b — Section 3 / Calculator 6: Battery Charge & Capacity ----
+   Reuses .electronics-sp-modes for the radio cluster, .electronics-rcd-presets
+   for the preset pill row, .electronics-ohms-fields for the input grid, and
+   .electronics-ohms-result for the live result region. Only the panel visibility
+   toggle and the SOC progress bar are new. */
+            .electronics-bat-panel[hidden] {
+              display: none;
+            }
+            .electronics-bat-soc-bar {
+              position: relative;
+              margin: var(--space-md) 0 var(--space-sm);
+              height: 1.6rem;
+            }
+            .electronics-bat-soc-bar__track {
+              position: absolute;
+              top: 0.6rem;
+              left: 0; right: 0;
+              height: 6px;
+              background: var(--c-border);
+              border-radius: 3px;
+            }
+            .electronics-bat-soc-bar__fill {
+              position: absolute;
+              top: 0.4rem;
+              left: 0;
+              width: 0;
+              height: 1rem;
+              background: var(--c-accent-bg);
+              border: 1px solid var(--c-accent-border);
+              border-radius: 4px;
+              transition: left 0.2s ease, width 0.2s ease;
+            }
+            .electronics-bat-soc-bar__label {
+              position: absolute;
+              top: 1.6rem;
+              font-size: 0.72rem;
+              font-family: var(--f-mono);
+              font-variant-numeric: tabular-nums;
+              color: var(--c-text-muted);
+              white-space: nowrap;
+            }
+            .electronics-bat-soc-bar__label--start { left: 0; }
+            .electronics-bat-soc-bar__label--end   { right: 0; }
+            @media print {
+              .electronics-bat-soc-bar__fill { transition: none; }
+            }
+
 /* ---- 7.9 — Section 4: Visual Component Lab ---- */
         .electronics-rcd-bands {
           display: grid;

@@ -1215,6 +1215,357 @@ widget"):
           </script>
         </article>
 
+        {%- comment -%} ========== Calculator 6 — Battery Charge & Capacity ========== {%- endcomment -%}
+        <article class="electronics-calculator"
+                 id="electronics-calc-battery"
+                 data-calculator="battery"
+                 data-ef-widget="battery-calculator"
+                 aria-labelledby="electronics-calc-battery-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-battery-title">
+            Calculator 6 &mdash; Battery Charge &amp; Capacity
+          </h3>
+          <p class="electronics-calculator__hint">
+            Real-world battery math: charge time, runtime, capacity from a discharge
+            test, and a voltage&nbsp;&rarr;&nbsp;<span class="abbr-link" data-abbr="SOC">SOC</span> estimator.
+            Linear approximation (skips the <span class="abbr-link" data-abbr="LDO">CC/CV</span> taper above ~80&nbsp;%);
+            use the efficiency knob to fold in switching / heat losses.
+          </p>
+
+          {%- comment -%} Real-world preset pills — load each mode's defaults from the matching scenario. {%- endcomment -%}
+          <div class="electronics-rcd-presets" id="electronics-calc-battery-presets"
+               role="group" aria-label="Battery preset scenarios">
+            <span class="electronics-rcd-presets__label">Quick presets:</span>
+            <button type="button" class="electronics-rcd-presets__btn" data-bat-preset="phone">
+              Phone fast charge (5000&nbsp;mAh @ 15&nbsp;W)
+            </button>
+            <button type="button" class="electronics-rcd-presets__btn" data-bat-preset="laptop">
+              USB-C PD laptop (14&nbsp;Ah @ 60&nbsp;W)
+            </button>
+            <button type="button" class="electronics-rcd-presets__btn" data-bat-preset="18650">
+              18650 cell @ 1C (3000&nbsp;mAh, 3&nbsp;A)
+            </button>
+            <button type="button" class="electronics-rcd-presets__btn" data-bat-preset="powerbank">
+              Power bank (10&nbsp;Ah @ 10&nbsp;W)
+            </button>
+            <button type="button" class="electronics-rcd-presets__btn" data-bat-preset="car">
+              Car battery (50&nbsp;Ah @ 10&nbsp;A)
+            </button>
+          </div>
+
+          {%- comment -%} Mode toggle (radio cluster — same pattern as Calc 4 S/P + RCD bands). {%- endcomment -%}
+          <div class="electronics-sp-modes">
+            <fieldset>
+              <legend>What are you calculating?</legend>
+              <label><input type="radio" name="bat-mode" value="charge" checked><span>Charge time</span></label>
+              <label><input type="radio" name="bat-mode" value="runtime"><span>Runtime</span></label>
+              <label><input type="radio" name="bat-mode" value="capacity"><span>Capacity from test</span></label>
+              <label><input type="radio" name="bat-mode" value="soc"><span>Voltage &rarr; SOC</span></label>
+            </fieldset>
+          </div>
+
+          {%- comment -%}
+            One panel per mode. JS toggles `[hidden]` on the others when the
+            radio changes. Shared inputs (capacity, voltage) auto-mirror so
+            switching modes preserves context.
+          {%- endcomment -%}
+
+          {%- comment -%} ----- Mode A: Charge time ----- {%- endcomment -%}
+          <div class="electronics-bat-panel" data-bat-mode="charge">
+            <div class="electronics-ohms-fields" role="group" aria-label="Charge time inputs">
+              <div class="electronics-ohms-field" data-field="Capacity">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-cap-label">
+                  Battery capacity
+                  <small>mAh</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-cap" data-quantity="Capacity"
+                       step="any" inputmode="decimal" placeholder="5000"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-cap-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="StartPct">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-start-label">
+                  Start charge
+                  <small>%</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-start" min="0" max="100"
+                       step="any" inputmode="decimal" placeholder="0"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-start-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="TargetPct">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-target-label">
+                  Target charge
+                  <small>%</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-target" min="0" max="100"
+                       step="any" inputmode="decimal" placeholder="100"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-target-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="ChargeInputKind">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-kind-label">
+                  Charger spec given as
+                  <small>pick one</small>
+                </span>
+                <select class="electronics-calculator__input"
+                        id="ef-bat-charge-kind"
+                        aria-labelledby="ef-bat-charge-kind-label">
+                  <option value="current">Current (A) at battery voltage</option>
+                  <option value="power">Power (W) + battery voltage</option>
+                </select>
+              </div>
+              <div class="electronics-ohms-field" data-field="ChargeI">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-I-label">
+                  Charge current
+                  <small>amperes</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-I" data-quantity="I"
+                       step="any" inputmode="decimal" placeholder="3"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-I-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="ChargeP" hidden>
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-P-label">
+                  Charge power
+                  <small>watts</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-P" data-quantity="LoadPower"
+                       step="any" inputmode="decimal" placeholder="15"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-P-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="V">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-V-label">
+                  Battery voltage
+                  <small>volts (per pack)</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-V" data-quantity="V"
+                       step="any" inputmode="decimal" placeholder="3.7"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-V-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="Eff">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-eff-label">
+                  Efficiency
+                  <small>% (default 85)</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-eff" min="10" max="100"
+                       step="any" inputmode="decimal" placeholder="85"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-eff-label">
+              </div>
+            </div>
+
+            <div class="electronics-bat-soc-bar" aria-hidden="true">
+              <div class="electronics-bat-soc-bar__track"></div>
+              <div class="electronics-bat-soc-bar__fill" id="ef-bat-charge-bar"></div>
+              <span class="electronics-bat-soc-bar__label electronics-bat-soc-bar__label--start"
+                    id="ef-bat-charge-bar-start">0%</span>
+              <span class="electronics-bat-soc-bar__label electronics-bat-soc-bar__label--end"
+                    id="ef-bat-charge-bar-end">100%</span>
+            </div>
+
+            <div id="electronics-bat-charge-result"
+                 class="electronics-ohms-result"
+                 role="status" aria-live="polite">
+              Enter capacity, target, charger spec to see how long charging takes.
+            </div>
+          </div>
+
+          {%- comment -%} ----- Mode B: Runtime ----- {%- endcomment -%}
+          <div class="electronics-bat-panel" data-bat-mode="runtime" hidden>
+            <div class="electronics-ohms-fields" role="group" aria-label="Runtime inputs">
+              <div class="electronics-ohms-field" data-field="Capacity">
+                <span class="electronics-ohms-field__label" id="ef-bat-run-cap-label">
+                  Battery capacity
+                  <small>mAh</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-run-cap" data-quantity="Capacity"
+                       step="any" inputmode="decimal" placeholder="10000"
+                       autocomplete="off" aria-labelledby="ef-bat-run-cap-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="V">
+                <span class="electronics-ohms-field__label" id="ef-bat-run-V-label">
+                  Battery voltage
+                  <small>volts</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-run-V" data-quantity="V"
+                       step="any" inputmode="decimal" placeholder="3.7"
+                       autocomplete="off" aria-labelledby="ef-bat-run-V-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="LoadInputKind">
+                <span class="electronics-ohms-field__label" id="ef-bat-run-kind-label">
+                  Load given as
+                  <small>pick one</small>
+                </span>
+                <select class="electronics-calculator__input"
+                        id="ef-bat-run-kind"
+                        aria-labelledby="ef-bat-run-kind-label">
+                  <option value="current">Current (A)</option>
+                  <option value="power">Power (W)</option>
+                </select>
+              </div>
+              <div class="electronics-ohms-field" data-field="LoadI">
+                <span class="electronics-ohms-field__label" id="ef-bat-run-I-label">
+                  Load current
+                  <small>amperes</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-run-I" data-quantity="I"
+                       step="any" inputmode="decimal" placeholder="0.5"
+                       autocomplete="off" aria-labelledby="ef-bat-run-I-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="LoadP" hidden>
+                <span class="electronics-ohms-field__label" id="ef-bat-run-P-label">
+                  Load power
+                  <small>watts</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-run-P" data-quantity="LoadPower"
+                       step="any" inputmode="decimal" placeholder="2"
+                       autocomplete="off" aria-labelledby="ef-bat-run-P-label">
+              </div>
+            </div>
+
+            <div id="electronics-bat-run-result"
+                 class="electronics-ohms-result"
+                 role="status" aria-live="polite">
+              Enter capacity, voltage, and load to see how long it lasts.
+            </div>
+          </div>
+
+          {%- comment -%} ----- Mode C: Capacity from test ----- {%- endcomment -%}
+          <div class="electronics-bat-panel" data-bat-mode="capacity" hidden>
+            <p class="electronics-calculator__hint">
+              Discharge a charged cell at a known constant load and time how long it
+              lasts to its cutoff voltage. <code>capacity_mAh = current_mA &times; time_h</code>
+              gives the actual usable capacity at that current — measured capacity falls at
+              higher discharge currents (Peukert effect).
+            </p>
+            <div class="electronics-ohms-fields" role="group" aria-label="Capacity test inputs">
+              <div class="electronics-ohms-field" data-field="LoadI">
+                <span class="electronics-ohms-field__label" id="ef-bat-cap-I-label">
+                  Test load current
+                  <small>milliamperes (mA)</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-cap-I" data-quantity="I"
+                       step="any" inputmode="decimal" placeholder="500"
+                       autocomplete="off" aria-labelledby="ef-bat-cap-I-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="Runtime">
+                <span class="electronics-ohms-field__label" id="ef-bat-cap-time-label">
+                  Observed runtime
+                  <small>hours</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-cap-time"
+                       step="any" inputmode="decimal" placeholder="6"
+                       autocomplete="off" aria-labelledby="ef-bat-cap-time-label">
+              </div>
+            </div>
+
+            <div id="electronics-bat-cap-result"
+                 class="electronics-ohms-result"
+                 role="status" aria-live="polite">
+              Run the cell flat at a known current to back-calculate its capacity.
+            </div>
+          </div>
+
+          {%- comment -%} ----- Mode D: Voltage → SOC ----- {%- endcomment -%}
+          <div class="electronics-bat-panel" data-bat-mode="soc" hidden>
+            <p class="electronics-calculator__hint">
+              Estimate <span class="abbr-link" data-abbr="SOC">state of charge</span>
+              from a per-cell voltage reading. Accuracy depends on chemistry —
+              <span class="abbr-link" data-abbr="Li-ion">Li-ion</span>'s flat
+              middle-of-curve gives ±10 % under no load; lead-acid is ±5 %.
+              For multi-cell packs, divide pack voltage by cell count first.
+            </p>
+            <div class="electronics-ohms-fields" role="group" aria-label="SOC estimator inputs">
+              <div class="electronics-ohms-field" data-field="Chemistry">
+                <span class="electronics-ohms-field__label" id="ef-bat-soc-chem-label">
+                  Chemistry
+                  <small>per cell</small>
+                </span>
+                <select class="electronics-calculator__input"
+                        id="ef-bat-soc-chem"
+                        aria-labelledby="ef-bat-soc-chem-label">
+                  <option value="alkaline">Alkaline AA / AAA</option>
+                  <option value="nimh">NiMH AA / AAA</option>
+                  <option value="lead">Lead-acid (per cell)</option>
+                  <option value="lifepo4">LiFePO₄</option>
+                  <option value="liion" selected>Li-ion</option>
+                  <option value="lipo">Li-Po</option>
+                </select>
+              </div>
+              <div class="electronics-ohms-field" data-field="V">
+                <span class="electronics-ohms-field__label" id="ef-bat-soc-V-label">
+                  Measured cell voltage
+                  <small>volts</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-soc-V" data-quantity="V"
+                       step="any" inputmode="decimal" placeholder="3.7"
+                       autocomplete="off" aria-labelledby="ef-bat-soc-V-label">
+              </div>
+            </div>
+
+            <div class="electronics-bat-soc-bar" aria-hidden="true">
+              <div class="electronics-bat-soc-bar__track"></div>
+              <div class="electronics-bat-soc-bar__fill" id="ef-bat-soc-bar"></div>
+              <span class="electronics-bat-soc-bar__label electronics-bat-soc-bar__label--start">0%</span>
+              <span class="electronics-bat-soc-bar__label electronics-bat-soc-bar__label--end">100%</span>
+            </div>
+
+            <div id="electronics-bat-soc-result"
+                 class="electronics-ohms-result"
+                 role="status" aria-live="polite">
+              Pick a chemistry and enter the measured voltage to estimate SOC.
+            </div>
+          </div>
+
+          <div id="electronics-bat-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-bat-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-bat-copy">
+              Copy results
+            </button>
+          </div>
+
+          <script type="application/json" id="electronics-calc-battery-data">
+            {
+              "defaults": {
+                "charge":   { "capacity_mAh": 5000,  "start_pct": 0,  "target_pct": 100, "kind": "current", "I_A": 3,   "P_W": 15, "V": 3.7, "eff_pct": 85 },
+                "runtime":  { "capacity_mAh": 10000, "V": 3.7,        "kind": "current", "I_A": 0.5, "P_W": 2 },
+                "capacity": { "I_mA": 500, "time_h": 6 },
+                "soc":      { "chemistry": "liion", "V": 3.7 }
+              },
+              "presets": {
+                "phone":     { "mode": "charge", "capacity_mAh": 5000,  "start_pct": 0,  "target_pct": 100, "kind": "power",   "I_A": 3,    "P_W": 15,  "V": 3.7,  "eff_pct": 85 },
+                "laptop":    { "mode": "charge", "capacity_mAh": 14000, "start_pct": 0,  "target_pct": 100, "kind": "power",   "I_A": 3,    "P_W": 60,  "V": 3.7,  "eff_pct": 88 },
+                "18650":     { "mode": "charge", "capacity_mAh": 3000,  "start_pct": 0,  "target_pct": 100, "kind": "current", "I_A": 3,    "P_W": 12.6, "V": 4.2, "eff_pct": 90 },
+                "powerbank": { "mode": "charge", "capacity_mAh": 10000, "start_pct": 0,  "target_pct": 100, "kind": "power",   "I_A": 2,    "P_W": 10,  "V": 3.7,  "eff_pct": 80 },
+                "car":       { "mode": "charge", "capacity_mAh": 50000, "start_pct": 50, "target_pct": 100, "kind": "current", "I_A": 10,   "P_W": 120, "V": 12,   "eff_pct": 80 }
+              },
+              "soc_curves": {
+                "alkaline": { "label": "Alkaline AA / AAA", "v0": 0.9,  "v50": 1.3,  "v100": 1.6,  "accuracy": "±5 %", "load_note": "Drops sharply under load — measure unloaded for best accuracy." },
+                "nimh":     { "label": "NiMH AA / AAA",     "v0": 1.0,  "v50": 1.2,  "v100": 1.4,  "accuracy": "±10 %", "load_note": "Flat curve in middle 80 %; coulomb counting is more reliable." },
+                "lead":     { "label": "Lead-acid",         "v0": 1.75, "v50": 2.0,  "v100": 2.1,  "accuracy": "±5 %", "load_note": "Multiply by 6 for a 12 V pack. Most accurate after a 4 h rest." },
+                "lifepo4":  { "label": "LiFePO₄",           "v0": 2.5,  "v50": 3.2,  "v100": 3.65, "accuracy": "±15 %", "load_note": "Notoriously flat curve — don't rely on voltage alone for SOC." },
+                "liion":    { "label": "Li-ion",            "v0": 3.0,  "v50": 3.7,  "v100": 4.2,  "accuracy": "±10 %", "load_note": "Flat middle of curve; SOC from voltage is rough between 20 % and 80 %." },
+                "lipo":     { "label": "Li-Po",             "v0": 3.0,  "v50": 3.7,  "v100": 4.2,  "accuracy": "±10 %", "load_note": "Identical chemistry to Li-ion; same caveats." }
+              }
+            }
+          </script>
+        </article>
+
       </div>
     </section>
 
@@ -2241,5 +2592,6 @@ widget"):
 <script src="{{ '/assets/js/electronics-ohms-calculator.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/electronics-led-divider-calculators.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/electronics-sp-rc-calculators.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-battery-calculator.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/electronics-components.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/electronics-fundamentals.js' | relative_url }}" defer></script>

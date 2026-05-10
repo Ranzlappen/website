@@ -25,19 +25,20 @@ If you're looking to **add a new calculator or widget**, jump to
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│ assets/js/electronics-*.js (nine files, IIFE-isolated, defer-loaded)│
+│ assets/js/electronics-*.js (ten files, IIFE-isolated, defer-loaded) │
 │                                                                     │
-│   1. electronics-utils.js            — utilities + EF namespace     │
-│   2. electronics-widget-core.js      — Widget / Kernel / registry / │
-│                                        LazyChart / Bookmark /       │
-│                                        Chart.js loader / soft warns │
-│   3. electronics-quick-wheel.js      — Section 1 widget             │
-│   4. electronics-formulas.js         — Section 2 widget             │
-│   5. electronics-ohms-calculator.js  — Section 3 / Calc 1           │
-│   6. electronics-led-divider-calcs.js— Section 3 / Calcs 2 & 3      │
-│   7. electronics-sp-rc-calculators.js— Section 3 / Calcs 4 & 5      │
-│   8. electronics-components.js       — Sections 4 / 5 / 6 + chrome  │
-│   9. electronics-fundamentals.js     — entry: mount + restore       │
+│    1. electronics-utils.js            — utilities + EF namespace    │
+│    2. electronics-widget-core.js      — Widget / Kernel / registry /│
+│                                         LazyChart / Bookmark /      │
+│                                         Chart.js loader / soft warns│
+│    3. electronics-quick-wheel.js      — Section 1 widget            │
+│    4. electronics-formulas.js         — Section 2 widget            │
+│    5. electronics-ohms-calculator.js  — Section 3 / Calc 1          │
+│    6. electronics-led-divider-calcs.js— Section 3 / Calcs 2 & 3     │
+│    7. electronics-sp-rc-calculators.js— Section 3 / Calcs 4 & 5     │
+│    8. electronics-battery-calculator.js— Section 3 / Calc 6         │
+│    9. electronics-components.js       — Sections 4 / 5 / 6 + chrome │
+│   10. electronics-fundamentals.js     — entry: mount + restore      │
 └─────────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -213,6 +214,7 @@ defaults.
 | `electronics-calc-divider-data` | Voltage Divider calculator. |
 | `electronics-calc-sp-data` | Series / Parallel calculator (min/max rows, defaults, slider ranges). |
 | `electronics-calc-rc-data` | RC Timer calculator. |
+| `electronics-calc-battery-data` | Battery Charge & Capacity calculator (per-mode defaults, real-world preset scenarios, per-chemistry SOC voltage curves). |
 | `electronics-rcd-data` | Resistor color decoder (color table, presets metadata). |
 | `electronics-eseries-data` | E-series explorer (E12/E24/E48/E96/E192 mantissa tables). |
 

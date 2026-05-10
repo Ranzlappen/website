@@ -56,6 +56,18 @@
     base–emitter drop (~0.7 V for silicon), and are still preferred for
     low-noise analog amplifier stages.
 
+- term: "BMS"
+  full_form: "Battery Management System"
+  explanation: >-
+    The protection circuitry inside (or around) a Li-ion / Li-Po /
+    LiFePO₄ pack that monitors per-cell voltages, charge / discharge
+    currents, and temperature, and disconnects the pack on
+    over-voltage / under-voltage / over-current / over-temperature
+    faults. Required for any multi-cell Li chemistry — without one a
+    single weak cell over-charges or over-discharges first and the
+    whole pack fails (or catches fire). Standalone BMS modules for
+    DIY 3S–14S packs are a few dollars.
+
 - term: "BOM"
   full_form: "Bill of Materials"
   explanation: >-
@@ -113,6 +125,17 @@
     transported by one <span class="abbr-link" data-abbr="Ampere">ampere</span>
     flowing for one second: <code>Q = I·t</code>. A typical AA battery
     delivers around 9 000 coulombs over its life.
+
+- term: "C-rate"
+  full_form: "C-rate"
+  explanation: >-
+    Discharge or charge current normalised to a battery's
+    <span class="abbr-link" data-abbr="C">capacity</span>. 1 C means a
+    current that fully charges or discharges the cell in 1 hour
+    (a 3000 mAh cell at 1 C = 3 A). 2 C halves the time, 0.5 C doubles
+    it. Manufacturers spec a maximum continuous C-rate; exceeding it
+    shortens cycle life or triggers the
+    <span class="abbr-link" data-abbr="BMS">BMS</span> cutoff.
 
 - term: "Crystal oscillator"
   full_form: "Crystal Oscillator (XTAL)"
@@ -479,6 +502,19 @@
     <span class="abbr-link" data-abbr="Resistor">resistor</span> sized so
     I_F ≈ 10–20 mA, never directly across a voltage source.
 
+- term: "Li-ion"
+  full_form: "Lithium-Ion Cell"
+  explanation: >-
+    Rechargeable cell chemistry — nominal 3.7 V, full 4.2 V, cutoff
+    3.0 V — found in phones, laptops, e-bikes, and 18650 / 21700 form
+    factors. High energy density, but requires a
+    <span class="abbr-link" data-abbr="BMS">BMS</span> to prevent
+    over-charge / over-discharge / cell imbalance. Voltage-based
+    <span class="abbr-link" data-abbr="SOC">SOC</span> estimation is rough
+    in the middle of the discharge curve (3.6–3.85 V covers ~20–80 % SOC);
+    serious capacity tracking uses coulomb counting. Li-Po is the same
+    chemistry in a soft pouch.
+
 - term: "Logic level"
   full_form: "Logic Level"
   explanation: >-
@@ -804,6 +840,19 @@
     <span class="abbr-link" data-abbr="THT">THT</span>; the dominant
     construction style for modern boards.
 
+- term: "SOC"
+  full_form: "State of Charge"
+  explanation: >-
+    The percentage of full
+    <span class="abbr-link" data-abbr="C">capacity</span> remaining in a
+    cell or pack — 100 % means freshly charged, 0 % means at the discharge
+    cutoff. Cheap estimators interpolate from open-circuit voltage; accurate
+    estimators use coulomb counting (integrating current over time, possibly
+    re-anchored at full-charge events). Voltage-based SOC is roughly accurate
+    for lead-acid (±5 %) but only ~±10 % for
+    <span class="abbr-link" data-abbr="Li-ion">Li-ion</span> because of the
+    flat middle of its discharge curve.
+
 - term: "Snubber"
   full_form: "Snubber"
   explanation: >-
@@ -954,6 +1003,16 @@
     one <span class="abbr-link" data-abbr="Ampere">ampere</span>. Hobby
     ranges: µW (sleeping MCU), mW (LED, idle logic), W (motors, regulators),
     tens of W (laptops, soldering irons).
+
+- term: "Wh"
+  full_form: "Watt-hour (Wh)"
+  explanation: >-
+    Energy in capacity-equivalent units: <code>Wh = V × Ah</code>. A
+    laptop battery rated "53 Wh @ 3.7 V" stores 53 / 3.7 ≈ 14.3 Ah
+    (≈ 14 300 <span class="abbr-link" data-abbr="C">mAh</span>). Useful
+    for comparing packs at different voltages on the same energy footing —
+    a 12 V × 50 Ah car battery (600 Wh) stores about as much energy as
+    sixteen 18650 cells (~37 Wh each) wired in series-parallel.
 
 - term: "Zener diode"
   full_form: "Zener Diode"
