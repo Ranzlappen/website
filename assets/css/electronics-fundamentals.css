@@ -731,9 +731,15 @@
    ============================================================================ */
 
 /* ---- 7.1 — Top-of-page chrome (TOC / floating reset / footer / Section-4 chrome) ---- */
+      /* z-index ladder for top-of-page chrome:
+         site header (global)        — topmost
+         TOC right-rail              — 11
+         help `?` / mobile `≡`       — 10
+         abbreviations sticky summary — 9 (in abbreviations.css)
+         Keep TOC > summary so the rail is never obscured. */
       .electronics-toc {
         position: fixed;
-        top: calc(var(--header-height, 3.75rem) + var(--space-md));
+        top: calc(var(--header-height, 3.75rem) + 0.5rem);
         right: var(--space-md);
         width: 12rem;
         max-height: calc(100vh - var(--header-height, 3.75rem) - 2 * var(--space-md));
@@ -744,7 +750,7 @@
         border-radius: var(--border-radius);
         box-shadow: 0 4px 16px var(--c-card-shadow);
         font-size: 0.85rem;
-        z-index: 5;
+        z-index: 11;
         display: none;
       }
       @media (min-width: 1280px) {
@@ -2375,11 +2381,16 @@
 }
 .electronics-shortcut-list kbd + kbd { margin-left: 0.25rem; }
 
-/* ---- 8.2 — "?" help trigger in the hero ---- */
+/* ---- 8.2 — "?" help trigger pinned below the site top-bar ----
+   Fixed (not absolute-in-hero) so it stays visible during scroll.
+   At ≥1280 px the desktop right-rail TOC takes the right side, so flip
+   the trigger to the left for that breakpoint — the mobile `≡` is
+   hidden there so the left side is free. */
 .electronics-help-trigger {
-  position: absolute;
-  top: var(--space-md);
+  position: fixed;
+  top: calc(var(--header-height, 3.75rem) + 0.5rem);
   right: var(--space-md);
+  z-index: 10;
   width: 2rem;
   height: 2rem;
   border-radius: 999px;
@@ -2399,6 +2410,12 @@
               border-color var(--transition-fast),
               transform var(--transition-fast);
 }
+@media (min-width: 1280px) {
+  .electronics-help-trigger {
+    right: auto;
+    left: var(--space-md);
+  }
+}
 .electronics-help-trigger:hover {
   color: var(--c-accent);
   border-color: var(--c-accent-border);
@@ -2416,9 +2433,10 @@
    bottom-sheet equivalent so the section index isn't lost on mobile.
    Trigger sits opposite the help "?" so they don't collide. */
 .electronics-toc-trigger {
-  position: absolute;
-  top: var(--space-md);
+  position: fixed;
+  top: calc(var(--header-height, 3.75rem) + 0.5rem);
   left: var(--space-md);
+  z-index: 10;
   width: 2rem;
   height: 2rem;
   border-radius: 999px;
