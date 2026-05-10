@@ -3,15 +3,17 @@
 # Spectrum Abbreviations & Glossary
 # =============================================================================
 # Beginner-friendly explanations for every acronym, named entity, and
-# technical short-form used in the spectrum reference table. Rendered as the
-# alphabetical "Abbreviations & Quick Reference" section in
-# pages/references/spectrum.html, and consumed by assets/js/spectrum.js (via
-# the #spectrum-abbr-data JSON island) to drive the in-table modal.
+# technical short-form used in the spectrum reference table. Consumed by the
+# shared abbreviations utility — markup in _includes/abbreviations-section.html,
+# styles in /assets/css/abbreviations.css, behaviour in /assets/js/abbreviations.js
+# (which reads the rendered #abbreviations-data JSON island emitted by the
+# include). pages/references/spectrum.html passes this dataset to the include
+# and opts the table tbody into in-cell decoration via `data-abbr-decorate`.
 #
 # Schema: array of { term, full_form, explanation }. Sorted alphabetically by
 # `term`. Keep `explanation` to 1–3 sentences. Cross-references to other
 # entries are wrapped in <span class="abbr-link" data-abbr="X">X</span> so
-# spectrum.js can stack a new modal on top of the current one when the user
+# the modal stack opens a new modal on top of the current one when the user
 # clicks them.
 #
 # When adding a term, also reach back through earlier explanations and wrap

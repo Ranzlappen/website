@@ -137,6 +137,12 @@ a chart rebuild. **No Tailwind** — this stylesheet is independent of the
 PolyVote / Blog Admin builds and uses the same conventions as the rest of
 the blog's custom CSS.
 
+The page also pulls in **`assets/css/abbreviations.css`** (the shared
+glossary utility's stylesheet) at the top of `electronics-fundamentals.html`,
+above this stylesheet. If you fork the page or split it into a new
+reference page, both stylesheets must be loaded — see the Abbreviations
+integration section below.
+
 ### `assets/js/electronics-utils.js` (1)
 
 Creates the `EF` namespace, seeds it with utilities, and starts the theme +
@@ -321,6 +327,37 @@ Charts pick up the change via `EF.chartTheme()`, which re-reads the live
 CSS custom properties on `<html>`. Sections that want to re-skin their
 chart implement an `onThemeChange` that updates colours and calls
 `chart.update('none')`.
+
+---
+
+## Abbreviations / glossary integration
+
+The page consumes the **shared site-wide abbreviations utility** rather
+than rolling its own glossary. The contract:
+
+- **Dataset**: `_data/abbreviations/electronics.yml` — array of
+  `{ term, full_form, explanation }` maps. Add new terms directly here;
+  no JS or HTML edits required, the include regenerates the JSON island
+  on every build.
+- **Markup**: `pages/references/electronics-fundamentals.html` includes
+  `_includes/abbreviations-section.html` near the top of the page, just
+  below the hero, passing `data=site.data.abbreviations.electronics`.
+- **Styles**: `/assets/css/abbreviations.css` is loaded at the top of
+  the page **alongside** `electronics-fundamentals.css`.
+- **Behaviour**: `/assets/js/abbreviations.js` is loaded at the bottom
+  **before** the EF bundle. It owns the modal stack, keyboard
+  activation, and the in-content auto-decoration walker.
+- **Auto-decoration opt-in**: the design-guides container carries
+  `data-abbr-decorate`, so glossary terms inside guide bodies become
+  click-to-explain triggers automatically. Add the attribute to any
+  other content area you want decorated.
+
+Cross-references between glossary entries use
+`<span class="abbr-link" data-abbr="X">X</span>` inside `explanation`;
+clicking opens a stacked modal on top of the current one (Escape
+unwinds the stack). Datasets are page-scoped: the same key (e.g.
+`ADC`) can have a completely different definition in
+`_data/abbreviations/spectrum.yml` with no conflict.
 
 ---
 

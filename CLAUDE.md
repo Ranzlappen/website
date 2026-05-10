@@ -61,7 +61,7 @@ Production deploys of `castBlogVote`, the Blog Admin callables (`blogSaveDraft`,
 - **Server-validated writes**: All client writes go through Cloud Functions (`httpsCallable`), never direct Firestore SDK writes. This applies to PolyVote user actions (votes, comments, requests) **and** to Blog Admin operations (drafts, publishing). Keep `blog-admin/src/firebase.ts` free of `addDoc`/`setDoc`/`updateDoc`/`deleteDoc`.
 - **Blog import flow**: Importing an existing `_posts/` file from Blog Admin offers two explicit modes — **Edit** (links the draft to the GitHub file via `blogDrafts.sourceFilename`, so re-imports reopen the same draft and publish updates in place) and **Copy** (unlinked draft seeded with a `-copy` slug for creating a new post). `blogPublishToGitHub` requires `confirmOverwrite: true` when a draft would silently overwrite an unlinked GitHub file.
 - **Privacy-first**: No Google Analytics. Cookie consent is GDPR-compliant with functional category.
-- **Theme**: Dark mode is default across all three modules. The blog (CSS custom properties) and PolyVote (Tailwind + CSS variables, persisted via Zustand/localStorage) support a dark/light toggle. Blog Admin is dark-only by design — it has no theme toggle and no `.light` CSS variant.
+- **Theme**: Dark mode is default across all three modules. The blog and reference pages (Spectrum, Electronics Fundamentals) share one dark/light toggle driven by CSS custom properties on `<html data-theme>`. PolyVote uses Tailwind + CSS variables persisted via Zustand/localStorage. Blog Admin is dark-only by design — it has no theme toggle and no `.light` CSS variant.
 
 ## Deployment & CI/CD
 
@@ -109,7 +109,7 @@ Five GitHub Actions workflows live in `.github/workflows/`. The three auto-trigg
 | Layer | Blog | PolyVote | Blog Admin |
 |-------|------|----------|------------|
 | Framework | Jekyll (Ruby) | React 19 + TypeScript | React 19 + TypeScript |
-| Styling | Custom CSS (~2970 lines) | Tailwind CSS v3 + Framer Motion | Tailwind CSS v4 (via `@tailwindcss/vite`) |
+| Styling | Custom CSS — main `style.css` (~3,200 lines) plus per-page stylesheets (`spectrum.css`, `electronics-fundamentals.css`) and the shared `abbreviations.css`; ~7,000 lines total across the blog | Tailwind CSS v3 + Framer Motion | Tailwind CSS v4 (via `@tailwindcss/vite`) |
 | Router | — | react-router-dom v6 | react-router-dom v7 |
 | State | Vanilla JS | Zustand | Zustand |
 | Backend | GitHub Pages (static) | Firebase (Firestore, Auth, Functions) | Firebase (Firestore, Auth) |
@@ -121,12 +121,31 @@ Five GitHub Actions workflows live in `.github/workflows/`. The three auto-trigg
 
 ```
 ├── _config.yml                 # Jekyll configuration
-├── _data/pages.yml             # Navigation registry
-├── _includes/                  # Jekyll partials (head, header, footer, etc.)
+├── _data/
+│   ├── pages.yml               # Navigation registry (nav + footer)
+│   ├── projects.yml            # External app + reference-page favicons (footer strip)
+│   ├── abbreviations/          # Per-page glossary datasets (shared utility)
+│   │   ├── electronics.yml
+│   │   └── spectrum.yml
+│   ├── spectrum/               # EM spectrum band data + maintenance README
+│   └── references/electronics/ # Architecture / maintenance README for the EF page
+├── _includes/                  # Jekyll partials (head, header, footer…)
+│   └── abbreviations-section.html  # Shared glossary partial — see Key Conventions
 ├── _layouts/                   # Page templates (default, home, post, page)
 ├── _posts/                     # Blog content (Markdown)
-├── assets/                     # CSS, JS, images
-├── pages/                      # Static pages (about, contact, privacy, etc.)
+├── assets/
+│   ├── css/
+│   │   ├── style.css                    # Main blog stylesheet
+│   │   ├── abbreviations.css            # Shared glossary styling
+│   │   ├── spectrum.css                 # Spectrum reference page
+│   │   ├── electronics-fundamentals.css # Electronics reference page
+│   │   └── cookie-consent.css
+│   ├── js/
+│   │   ├── abbreviations.js             # Shared glossary modal + decoration
+│   │   ├── spectrum.js                  # Spectrum table filters / batch tabs
+│   │   └── electronics-*.js             # 9-file EF widget bundle
+│   └── images/favicons/                 # Local copies of external app + reference page favicons
+├── pages/                      # Static pages (about, contact, privacy, references/*…)
 ├── feed.xml                    # Atom feed (custom, status-filtered)
 ├── sitemap.xml                 # Sitemap (custom, status-filtered)
 ├── .github/
