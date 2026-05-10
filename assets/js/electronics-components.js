@@ -263,23 +263,16 @@
       barFill.style.left  = leftPct  + '%';
       barFill.style.width = widthPct + '%';
 
-      // Position min/max labels at the fill edges so they hug the actual
-      // bounds rather than the outer ±20% reference.
-      if (barMin) {
-        barMin.style.left = leftPct + '%';
-        barMin.style.transform = 'translateX(-50%)';
-        barMin.textContent = EF.formatNumberWithUnits(r.min, 'Ω');
-      }
-      if (barMax) {
-        barMax.style.left = (leftPct + widthPct) + '%';
-        barMax.style.right = 'auto';
-        barMax.style.transform = 'translateX(-50%)';
-        barMax.textContent = EF.formatNumberWithUnits(r.max, 'Ω');
-      }
-      if (barNominal) {
-        barNominal.style.left = '50%';
-        barNominal.textContent = EF.formatNumberWithUnits(r.nominal, 'Ω');
-      }
+      // Min/max labels stay anchored to the OUTER ±20% reference edges
+      // (CSS defaults: min flush-left, max flush-right). An earlier
+      // version repositioned them to hug the fill bounds, but at tight
+      // tolerances (≤±5%) all three labels collapsed onto each other and
+      // their text overlapped illegibly. The precise min/max values
+      // remain readable in the #electronics-rcd-range element above the
+      // bar; the fill itself still visualises the actual ±tol window.
+      if (barMin)     barMin.textContent     = EF.formatNumberWithUnits(r.min, 'Ω');
+      if (barMax)     barMax.textContent     = EF.formatNumberWithUnits(r.max, 'Ω');
+      if (barNominal) barNominal.textContent = EF.formatNumberWithUnits(r.nominal, 'Ω');
     }
 
     function recompute() {
