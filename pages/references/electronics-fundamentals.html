@@ -25,6 +25,7 @@ widget"):
 =================================================================================
 {%- endcomment -%}
 
+<link rel="stylesheet" href="{{ '/assets/css/abbreviations.css' | relative_url }}">
 <link rel="stylesheet" href="{{ '/assets/css/electronics-fundamentals.css' | relative_url }}">
 
 <section class="electronics-page">
@@ -123,6 +124,18 @@ widget"):
             hidden>
       ↻ Reset all
     </button>
+
+    {%- comment -%}
+      ========== Abbreviations & Glossary ==========
+      Shared utility — see _includes/abbreviations-section.html. Dataset is
+      _data/abbreviations/electronics.yml. The matching CSS + JS are pulled
+      in alongside electronics-fundamentals' own assets at the top + bottom
+      of this page.
+    {%- endcomment -%}
+    {% include abbreviations-section.html
+       data=site.data.abbreviations.electronics
+       heading="Abbreviations & Terminology"
+       intro="Click any term to see a beginner-friendly explanation. Cross-references inside an explanation open in a stacked modal — Escape closes them one at a time." %}
 
     {%- comment -%} ========== Section 1: Hero / Quick Reference Wheel ========== {%- endcomment -%}
     <section class="electronics-section" id="electronics-quick-reference" data-ef-widget="quick-reference-wheel" aria-labelledby="electronics-wheel-heading">
@@ -1457,7 +1470,7 @@ widget"):
         </label>
       </div>
 
-      <div class="electronics-guides" id="electronics-guides-grid">
+      <div class="electronics-guides" id="electronics-guides-grid" data-abbr-decorate>
 
         <article class="electronics-guide" data-tier="best-practice" data-topic="decoupling capacitors bypass">
           <span class="electronics-guide__tag">Best practice</span>
@@ -1996,6 +2009,7 @@ widget"):
   (register their widgets) → entry (mounts everything). See
   _data/references/electronics/README.md for the full architecture guide.
 {%- endcomment -%}
+<script src="{{ '/assets/js/abbreviations.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/electronics-utils.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/electronics-widget-core.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/electronics-quick-wheel.js' | relative_url }}" defer></script>

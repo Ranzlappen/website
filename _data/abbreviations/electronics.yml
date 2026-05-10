@@ -1,0 +1,316 @@
+---
+# =============================================================================
+# Electronics Fundamentals Abbreviations & Glossary
+# =============================================================================
+# Beginner-friendly explanations for the acronyms and named concepts that show
+# up across the Electronics Fundamentals reference page. Consumed by the shared
+# abbreviations utility — markup in _includes/abbreviations-section.html,
+# styles in /assets/css/abbreviations.css, behaviour in /assets/js/abbreviations.js.
+#
+# Schema: array of { term, full_form, explanation }. Sorted alphabetically by
+# `term`. Keep `explanation` to 1–3 sentences. Cross-references to other entries
+# use <span class="abbr-link" data-abbr="X">X</span> so the modal stack opens a
+# new modal on top of the current one when the user clicks them.
+# =============================================================================
+
+- term: "BJT"
+  full_form: "Bipolar Junction Transistor"
+  explanation: >-
+    Three-terminal current-controlled active component (base, collector,
+    emitter). A small base current steers a much larger collector–emitter
+    current. Common variants: NPN (2N3904, BC547) and PNP (2N3906, BC557).
+    Compared to a <span class="abbr-link" data-abbr="MOSFET">MOSFET</span>,
+    BJTs need continuous base drive current, have a roughly constant
+    base–emitter drop (~0.7 V for silicon), and are still preferred for
+    low-noise analog amplifier stages.
+
+- term: "BOM"
+  full_form: "Bill of Materials"
+  explanation: >-
+    The parts list for a circuit or product. Includes part numbers,
+    quantities, reference designators (R1, C3, U7…), and usually a
+    manufacturer + distributor link per row. CAD tools generate the BOM from
+    the schematic; an accurate one is what lets a contract assembler build
+    your board without guessing.
+
+- term: "CMOS"
+  full_form: "Complementary Metal-Oxide Semiconductor"
+  explanation: >-
+    Logic family built from complementary pairs of N-channel and P-channel
+    <span class="abbr-link" data-abbr="MOSFET">MOSFETs</span>. Draws almost
+    zero static current (only switches dissipate), is high-impedance on
+    inputs, and tolerates a wide supply range. Dominates modern digital
+    silicon and most discrete logic chips you'll encounter (74HC*, 4000-series).
+
+- term: "Duty cycle"
+  full_form: "Duty Cycle"
+  explanation: >-
+    For a periodic on/off signal, the fraction of each period spent in the
+    "on" state, usually expressed as a percentage. A 25 % duty cycle on a
+    1 kHz square wave means 250 µs high, 750 µs low. Used to control
+    average power delivered to a load via <span class="abbr-link"
+    data-abbr="PWM">PWM</span> — LEDs, motors, heaters.
+
+- term: "EMF"
+  full_form: "Electromotive Force"
+  explanation: >-
+    The "open-circuit" voltage a source would produce with no current
+    flowing. A 9 V battery has a nominal EMF of 9 V; the voltage you measure
+    at its terminals when delivering current is lower because of the
+    battery's internal resistance (the <span class="abbr-link"
+    data-abbr="IR drop">IR drop</span> across that internal R).
+
+- term: "ESD"
+  full_form: "Electrostatic Discharge"
+  explanation: >-
+    A sudden, high-voltage current pulse caused by a static charge equalising
+    through a circuit — the spark you feel after walking on carpet. Easily
+    destroys exposed semiconductor inputs (especially MOSFET gates and
+    high-impedance op-amp inputs). Mitigated with a wrist strap, an
+    ESD-safe mat, and on-board protection diodes / TVS / MOV components.
+
+- term: "ESR"
+  full_form: "Equivalent Series Resistance"
+  explanation: >-
+    The lumped series resistance of a real capacitor (or inductor), modelled
+    as if a separate resistor were sitting in line with an ideal cap. ESR
+    causes voltage ripple under load, self-heating at high ripple current,
+    and a high-frequency rolloff in the cap's impedance. Low-ESR
+    electrolytics and ceramic caps are essential at switching-supply outputs.
+
+- term: "FET"
+  full_form: "Field-Effect Transistor"
+  explanation: >-
+    Three-terminal voltage-controlled active component (gate, drain, source).
+    The gate's electric field modulates a conductive channel between drain
+    and source — almost no gate current flows in steady state. Two common
+    sub-families: <span class="abbr-link" data-abbr="MOSFET">MOSFET</span>
+    (insulated gate, dominant in switching and digital) and <span
+    class="abbr-link" data-abbr="JFET">JFET</span> (junction gate, niche
+    in low-noise analog).
+
+- term: "GPIO"
+  full_form: "General-Purpose Input/Output"
+  explanation: >-
+    A microcontroller pin that firmware can configure as either an input
+    (read a button or sensor) or an output (drive an LED, relay, or another
+    chip). Each pin has independent direction, pull-up/down, and drive-strength
+    bits. GPIOs sit behind ESD diodes and have absolute max input voltage
+    limits — exceed them and you damage the silicon.
+
+- term: "Ground"
+  full_form: "Ground / Reference Node"
+  explanation: >-
+    The 0 V node every other voltage in a circuit is measured against. May
+    be earth ground (mains safety), chassis ground (enclosure), signal
+    ground (return path for low-level signals), or simply the negative
+    terminal of a battery — the labels matter most when you mix them. A
+    <span class="abbr-link" data-abbr="ground loop">ground loop</span> is
+    what happens when two grounds end up at slightly different potentials.
+
+- term: "Ground loop"
+  full_form: "Ground Loop"
+  explanation: >-
+    Unintended current flowing through a "ground" path because two points
+    you assumed were 0 V actually sit at slightly different potentials. The
+    classic symptom is 50/60 Hz hum injected into audio, or sporadic
+    digital glitches in mixed-signal systems. Cure: a single star-ground
+    point, or galvanic isolation between subsystems.
+
+- term: "Impedance"
+  full_form: "Impedance (Z)"
+  explanation: >-
+    The frequency-dependent generalisation of resistance, including resistive
+    R and reactive X parts: Z = R + jX. A pure resistor's impedance is just
+    R. A capacitor's is 1 / (jωC) — falls with frequency. An inductor's is
+    jωL — rises with frequency. Measured in ohms (Ω); used everywhere AC,
+    RF, and audio analysis happens.
+
+- term: "IR drop"
+  full_form: "IR Drop (V = I·R)"
+  explanation: >-
+    The voltage drop across any resistor equal to its current times its
+    resistance — the most direct expression of <span class="abbr-link"
+    data-abbr="Ohm's Law">Ohm's Law</span>. The reason 5 V at the regulator
+    output isn't 5 V at the far end of a long thin trace; the reason a fresh
+    battery's terminal voltage sags under heavy load.
+
+- term: "JFET"
+  full_form: "Junction Field-Effect Transistor"
+  explanation: >-
+    A <span class="abbr-link" data-abbr="FET">FET</span> whose gate is a
+    reverse-biased PN junction (rather than the insulated gate of a
+    <span class="abbr-link" data-abbr="MOSFET">MOSFET</span>). Normally
+    "on" with zero gate-source voltage; pinches off as V_GS goes negative
+    (for N-channel). Found in high-impedance, low-noise analog input
+    stages — phono preamps, electrometer amplifiers.
+
+- term: "KCL"
+  full_form: "Kirchhoff's Current Law"
+  explanation: >-
+    The sum of currents flowing into any <span class="abbr-link"
+    data-abbr="Node">node</span> equals the sum of currents flowing out
+    (charge can't accumulate at a node). The fundamental tool for solving
+    parallel branch currents — write KCL at each node, get N-1 equations
+    for an N-node circuit.
+
+- term: "KVL"
+  full_form: "Kirchhoff's Voltage Law"
+  explanation: >-
+    The sum of all voltage rises and drops around any closed
+    <span class="abbr-link" data-abbr="Loop">loop</span> in a circuit equals
+    zero (energy is conserved). The fundamental tool for solving series
+    voltage drops — pick a loop, sum the EMFs and IR drops with consistent
+    sign, set to zero.
+
+- term: "LDO"
+  full_form: "Low-Dropout Regulator"
+  explanation: >-
+    A linear voltage regulator that needs only a small headroom (often
+    100–500 mV) between its input and output to regulate. Useful when
+    Vin is only slightly higher than Vout and you don't want a switcher's
+    complexity / noise. The flip side: any voltage difference × output
+    current is dissipated as heat in the LDO.
+
+- term: "LED"
+  full_form: "Light-Emitting Diode"
+  explanation: >-
+    A semiconductor diode that emits light when forward-biased. Each color
+    has a characteristic forward voltage (red ~2 V, green ~2.2 V, blue ~3.2 V,
+    white ~3.4 V). LEDs are current-driven devices — drive them through a
+    series resistor sized so I_F ≈ 10–20 mA, never directly across a voltage
+    source.
+
+- term: "Loop"
+  full_form: "Loop (closed circuit path)"
+  explanation: >-
+    Any closed path around a circuit you can trace, returning to the starting
+    <span class="abbr-link" data-abbr="Node">node</span>. The basis for
+    <span class="abbr-link" data-abbr="KVL">KVL</span> analysis — sum the
+    voltages around a loop, equate to zero. A loop containing exactly one
+    closed path through unique branches is called a "mesh".
+
+- term: "MCU"
+  full_form: "Microcontroller Unit"
+  explanation: >-
+    A complete computer-on-a-chip: CPU + RAM + flash + peripherals
+    (<span class="abbr-link" data-abbr="GPIO">GPIO</span>, ADC, timers, UART,
+    SPI, I²C). Common families: Atmel/Microchip AVR (Arduino Uno),
+    ARM Cortex-M (STM32, RP2040, nRF52), ESP32, PIC. Picked over a Raspberry
+    Pi when you need real-time response, low power, or hard determinism.
+
+- term: "MOSFET"
+  full_form: "Metal-Oxide-Semiconductor Field-Effect Transistor"
+  explanation: >-
+    A <span class="abbr-link" data-abbr="FET">FET</span> with an oxide-insulated
+    gate. N-channel turns on when V_GS exceeds the threshold (positive); P-channel
+    turns on when V_GS is sufficiently negative. Dominates power switching
+    (low R_DS(on) — milliohms in a logic-level part) and digital logic
+    (every <span class="abbr-link" data-abbr="CMOS">CMOS</span> gate is
+    a complementary MOSFET pair).
+
+- term: "MOV"
+  full_form: "Metal-Oxide Varistor"
+  explanation: >-
+    A surge-protection component that conducts heavily above a clamping
+    voltage, shunting transient over-voltages (lightning, ESD, inductive
+    spikes) to ground. Sacrificial — repeated big surges degrade it, so
+    they're often paired with a thermal fuse and replaced after a major
+    event. Common in mains-side surge strips.
+
+- term: "Node"
+  full_form: "Node (circuit topology)"
+  explanation: >-
+    A point in a circuit where two or more components meet. All wires
+    connecting that point are at the same potential (assuming ideal wires).
+    The fundamental building block for <span class="abbr-link"
+    data-abbr="KCL">KCL</span> analysis — one equation per node minus
+    one (the reference) gives a solvable system.
+
+- term: "NTC"
+  full_form: "Negative Temperature Coefficient (thermistor)"
+  explanation: >-
+    A thermistor whose resistance falls as temperature rises. Used as a
+    cheap, accurate temperature sensor (read with a voltage divider into
+    an ADC) and as an inrush limiter on AC-line equipment (cold = high R
+    limits surge, then self-heats to low R for normal operation). Compare
+    <span class="abbr-link" data-abbr="PTC">PTC</span>.
+
+- term: "Ohm's Law"
+  full_form: "Ohm's Law (V = I · R)"
+  explanation: >-
+    The defining relationship for resistors: voltage equals current times
+    resistance. Rearranges as I = V / R or R = V / I. The first equation
+    you'll ever write in circuit analysis; the foundation for everything
+    on this page including the Quick Wheel.
+
+- term: "PCB"
+  full_form: "Printed Circuit Board"
+  explanation: >-
+    The fibreglass-with-copper substrate that holds and connects components.
+    Two-layer boards (top + bottom copper) are the hobbyist baseline; four-
+    or six-layer boards add dedicated power and ground planes for cleaner
+    high-speed designs. A finished PCB needs a populated <span
+    class="abbr-link" data-abbr="BOM">BOM</span> to become a working board.
+
+- term: "PTC"
+  full_form: "Positive Temperature Coefficient (resettable fuse)"
+  explanation: >-
+    A polymer device whose resistance rises sharply above a "trip current",
+    effectively cutting power. Unlike a regular fuse it self-resets when it
+    cools — handy for repeated mild over-current events on USB ports,
+    speakers, motor drivers. Compare <span class="abbr-link"
+    data-abbr="NTC">NTC</span>.
+
+- term: "PWM"
+  full_form: "Pulse-Width Modulation"
+  explanation: >-
+    A digital "always full-on or full-off" output whose <span
+    class="abbr-link" data-abbr="Duty cycle">duty cycle</span> encodes an
+    analog level. Average power delivered to a load = duty × peak. Used to
+    dim LEDs, control DC motor speed, drive heaters, and synthesise audio
+    via a downstream filter. Choose frequency above audible range (>20 kHz)
+    for motors and lighting unless the buzz is the goal.
+
+- term: "RMS"
+  full_form: "Root Mean Square"
+  explanation: >-
+    The DC-equivalent value of a time-varying signal — i.e. the DC voltage
+    that would dissipate the same power into a resistor. For a sine wave,
+    V_RMS = V_peak / √2 ≈ 0.707 × V_peak. Mains "230 V AC" is 230 V RMS;
+    the actual peak is ~325 V. Multimeters in AC mode default to RMS.
+
+- term: "SMD"
+  full_form: "Surface-Mount Device"
+  explanation: >-
+    Components with no leads — soldered flat onto pads on the PCB surface
+    rather than through holes. Sizes range from hand-solderable 1206 / 0805
+    down to 0402 / 0201 (visible only with magnification). The opposite of
+    <span class="abbr-link" data-abbr="THT">THT</span>; the dominant
+    construction style for modern boards.
+
+- term: "TTL"
+  full_form: "Transistor-Transistor Logic"
+  explanation: >-
+    The classic 5 V bipolar logic family (74-series chips originally).
+    Logic high ≥ 2.4 V, logic low ≤ 0.4 V on outputs; inputs sink ~1.6 mA
+    when low. Largely supplanted by <span class="abbr-link"
+    data-abbr="CMOS">CMOS</span> and 3.3 V variants, but the term still
+    shows up to mean "5 V single-ended logic levels" on hobby modules.
+
+- term: "THT"
+  full_form: "Through-Hole Technology"
+  explanation: >-
+    Components with leads that pass through holes in the PCB and are
+    soldered on the opposite side. Mechanically robust, easy to hand-solder,
+    bulky compared to <span class="abbr-link" data-abbr="SMD">SMD</span>.
+    Still preferred for connectors, large electrolytics, and prototyping.
+
+- term: "Vpp"
+  full_form: "Peak-to-Peak Voltage"
+  explanation: >-
+    The full vertical span of a waveform from its minimum to its maximum.
+    A sine wave whose peak is +5 V and trough is -5 V has Vpp = 10 V (and
+    V_peak = 5 V, V_RMS ≈ 3.54 V). Oscilloscopes typically display Vpp; a
+    multimeter in AC mode displays <span class="abbr-link"
+    data-abbr="RMS">RMS</span>.
