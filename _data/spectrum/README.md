@@ -102,10 +102,18 @@ Flat alphabetical array. Each entry is one card in the "Abbreviations & Quick Re
     EN 300 220) are written in EIRP, not transmitter watts.
 ```
 
-Adding a term here automatically:
+> **Note:** the abbreviations data file lives at `_data/abbreviations/spectrum.yml`
+> (it was extracted from this directory when the abbreviations system became a
+> shared site-wide utility). Markup is in `_includes/abbreviations-section.html`,
+> styles in `/assets/css/abbreviations.css`, behaviour in
+> `/assets/js/abbreviations.js`. The schema described above is unchanged.
+
+Adding a term to `_data/abbreviations/spectrum.yml` automatically:
 
 1. Renders an alphabetised card under "Show all abbreviations".
-2. Adds the term to the in-table click-to-explain regex (`assets/js/spectrum.js` reads `#spectrum-abbr-data` at runtime).
+2. Adds the term to the in-table click-to-explain regex (the spectrum tbody opts
+   in via `data-abbr-decorate`; `/assets/js/abbreviations.js` reads the JSON
+   island emitted by the include at runtime).
 
 **Use the `>-` folded scalar** for `explanation` so embedded HTML doesn't need quote-escaping and the value lands in JSON as a clean single-line string.
 
@@ -142,7 +150,7 @@ Open the relevant `NN-*.yml`, add a new entry under `bands:` keeping the 16-fiel
 
 ### Add or edit an abbreviation
 
-Append to `abbreviations.yml` (keeping alphabetical order). No JS or HTML edits required — the JSON island in `pages/references/spectrum.html` is regenerated on each build, and `assets/js/spectrum.js` reads the dictionary at runtime.
+Append to `_data/abbreviations/spectrum.yml` (keeping alphabetical order). No JS or HTML edits required — the include regenerates the JSON island on each build, and `/assets/js/abbreviations.js` reads the dictionary at runtime.
 
 ### Reorder batches
 
@@ -166,10 +174,12 @@ pages/references/spectrum.html
 ├── {%- assign batches = site.data.spectrum | sort -%}
 │   └── iterates every YAML file alphabetically, skipping non-batch
 │       entries via {% if entry[1].batch %} guards
-├── {%- assign abbreviations = site.data.spectrum.abbreviations -%}
-│   └── powers the alphabetical card grid + #spectrum-abbr-data island
-├── assets/css/spectrum.css   ← all styling
-└── assets/js/spectrum.js     ← search, batch tabs, modal, decorator regex
+├── {%- assign abbreviations = site.data.abbreviations.spectrum -%}
+│   └── passed into {% include abbreviations-section.html data=abbreviations … %}
+├── /assets/css/spectrum.css        ← spectrum-specific styling
+├── /assets/css/abbreviations.css   ← shared glossary styling
+├── /assets/js/spectrum.js          ← search, batch tabs (spectrum-specific)
+└── /assets/js/abbreviations.js     ← shared modal + tbody decorator
 ```
 
 If a change to this data needs a corresponding template/style/script change, scope the PR to include all three so the page never lands in a half-broken state.

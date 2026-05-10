@@ -27,3 +27,7 @@
 - name: "EM Spectrum Reference"
   url: /references/spectrum/
   favicon: /assets/images/favicons/spectrum.svg
+
+- name: "Electronics Fundamentals"
+  url: /references/electronics-fundamentals/
+  favicon: /assets/images/favicons/electronics-fundamentals.svg

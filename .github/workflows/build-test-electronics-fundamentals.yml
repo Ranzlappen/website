@@ -1,0 +1,43 @@
+name: Build Test - Electronics Fundamentals Reference
+
+on:
+  push:
+    branches:
+      - claude/create-electronics-reference-gE23D
+  pull_request:
+    branches:
+      - claude/create-electronics-reference-gE23D
+    paths:
+      - 'pages/references/electronics-fundamentals.html'
+      - 'assets/css/electronics-fundamentals.css'
+      - 'assets/js/electronics-fundamentals.js'
+      - '_data/references/electronics/**'
+      - '.github/workflows/build-test-electronics-fundamentals.yml'
+
+permissions:
+  contents: read
+  pages: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'  # matches typical Jekyll GitHub Pages environment
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Build Jekyll site (test mode)
+        run: bundle exec jekyll build --verbose
+
+      - name: Test - Electronics Fundamentals page exists and is valid
+        run: |
+          test -f _site/references/electronics-fundamentals/index.html && echo "✅ Electronics fundamentals page built successfully" || echo "❌ Page missing"
+          echo "Build completed at $(date)"

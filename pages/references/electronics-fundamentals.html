@@ -1,0 +1,2599 @@
+---
+layout: default
+title: Electronics Fundamentals Reference
+description: Interactive cheat sheet for volts, amps, ohms, watts, circuit design, calculators, and practical EE references.
+permalink: /references/electronics-fundamentals/
+---
+
+{%- comment -%}
+=================================================================================
+Electronics Fundamentals Reference Page
+---------------------------------------------------------------------------------
+Interactive cheat sheet for volts, amps, ohms, watts, circuit design,
+calculators, and practical EE references. Six locked sections: quick-reference
+wheel, formulas, five calculators (Ohm's Law, LED Resistor, Voltage Divider,
+Series/Parallel, RC Timer), component references (color-code decoder + E-series
+explorer), circuit design guides, and reference tables.
+
+Styles live in /assets/css/electronics-fundamentals.css; behaviour in the
+nine-file modular JS bundle loaded at the bottom of this page.
+
+📖 Architecture & maintenance guide (Widget lifecycle, registry, lazy chart
+manager, bookmark persistence, soft warnings, data islands, "how to add a new
+widget"):
+       _data/references/electronics/README.md
+=================================================================================
+{%- endcomment -%}
+
+<link rel="stylesheet" href="{{ '/assets/css/abbreviations.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/css/electronics-fundamentals.css' | relative_url }}">
+
+<section class="electronics-page">
+  <div class="electronics-container">
+
+    <header class="electronics-hero">
+      <button type="button"
+              class="electronics-toc-trigger"
+              id="electronics-toc-trigger"
+              aria-label="Open table of contents"
+              aria-haspopup="dialog"
+              aria-controls="electronics-toc-drawer"
+              aria-expanded="false"
+              hidden>☰</button>
+      <button type="button"
+              class="electronics-help-trigger"
+              id="electronics-help-trigger"
+              aria-label="Keyboard shortcuts and help"
+              aria-haspopup="dialog"
+              hidden>?</button>
+      <p class="electronics-eyebrow">Reference</p>
+      <h1 class="electronics-title">Electronics Fundamentals</h1>
+      <p class="electronics-lede">
+        Volts, amps, ohms, watts — the four quantities that govern every circuit
+        you'll ever build. This page collects the formulas, calculators, component
+        charts, and design rules of thumb that turn those four quantities into
+        working hardware, in one searchable cheat sheet.
+      </p>
+      <section class="electronics-disclaimer">
+        <h3>⚠️ Safety Disclaimer &amp; Important Notes</h3>
+        <p>This reference is for educational and hobbyist purposes only. Working with electricity carries real risks — shock, burns, fire, and damage to equipment. Mains voltage (110&nbsp;V / 230&nbsp;V AC) and stored energy in capacitors and inductors can be lethal even after a circuit is unpowered. Always verify component ratings, follow local electrical codes, and consult a qualified electrician for anything connected to mains. The site owner is not liable for any injury, damage, or loss arising from the use of this reference.</p>
+      </section>
+      <p class="electronics-howto">
+        <strong>How to use:</strong> jump to a section from the quick-reference
+        wheel, plug numbers into the interactive calculators, or scroll the
+        component charts and reference tables for at-a-glance values. Every
+        formula links back to the underlying law so you can derive the rest
+        yourself.
+      </p>
+      <div class="electronics-meta">
+        <span class="electronics-meta__item">
+          <strong>6</strong> sections
+        </span>
+        <span class="electronics-meta__item">
+          Last updated <time datetime="2026-05-08"><strong>2026-05-08</strong></time>
+        </span>
+      </div>
+    </header>
+
+    {%- comment -%}
+      ========== Page-level chrome ==========
+      Sticky table of contents (right side, desktop-only), floating Reset All
+      pill (bottom-right, post-hero), and a last-updated footer at the very
+      bottom of the page. All driven by the EF.Widget lifecycle.
+    {%- endcomment -%}
+
+    <aside class="electronics-toc" id="electronics-toc" role="navigation" aria-label="On this page">
+      <h4 class="electronics-toc__title">On this page</h4>
+      <ol>
+        <li><a href="#electronics-quick-reference">Quick Wheel</a></li>
+        <li><a href="#electronics-formulas">Formulas &amp; Laws</a></li>
+        <li><a href="#electronics-calculators">Calculators</a></li>
+        <li><a href="#electronics-components">Component Lab</a></li>
+        <li><a href="#electronics-design-guides">Design Guides</a></li>
+        <li><a href="#electronics-tables">Reference Tables</a></li>
+      </ol>
+    </aside>
+
+    {%- comment -%}
+      Mobile-only TOC drawer. Same link list as the desktop sticky aside;
+      shown via a hamburger trigger in the hero on viewports below the
+      sticky-aside breakpoint. Hidden on print + on desktop.
+    {%- endcomment -%}
+    <div class="electronics-toc-drawer" id="electronics-toc-drawer"
+         role="dialog" aria-modal="true"
+         aria-labelledby="electronics-toc-drawer-title"
+         hidden>
+      <div class="electronics-toc-drawer__sheet" role="document">
+        <h4 class="electronics-toc-drawer__title" id="electronics-toc-drawer-title">On this page</h4>
+        <ol class="electronics-toc-drawer__list">
+          <li><a href="#electronics-quick-reference">Quick Wheel</a></li>
+          <li><a href="#electronics-formulas">Formulas &amp; Laws</a></li>
+          <li><a href="#electronics-calculators">Calculators</a></li>
+          <li><a href="#electronics-components">Component Lab</a></li>
+          <li><a href="#electronics-design-guides">Design Guides</a></li>
+          <li><a href="#electronics-tables">Reference Tables</a></li>
+        </ol>
+        <button type="button" class="electronics-toc-drawer__close"
+                aria-label="Close table of contents">Close</button>
+      </div>
+    </div>
+
+    <button type="button"
+            class="electronics-floating-reset"
+            id="electronics-reset-all-floating"
+            hidden>
+      ↻ Reset all
+    </button>
+
+    {%- comment -%}
+      ========== Abbreviations & Glossary ==========
+      Shared utility — see _includes/abbreviations-section.html. Dataset is
+      _data/abbreviations/electronics.yml. The matching CSS + JS are pulled
+      in alongside electronics-fundamentals' own assets at the top + bottom
+      of this page.
+    {%- endcomment -%}
+    {% include abbreviations-section.html
+       data=site.data.abbreviations.electronics
+       heading="Abbreviations & Terminology"
+       intro="Click any term to see a beginner-friendly explanation. Cross-references inside an explanation open in a stacked modal — Escape closes them one at a time." %}
+
+    {%- comment -%} ========== Section 1: Hero / Quick Reference Wheel ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-quick-reference" data-ef-widget="quick-reference-wheel" aria-labelledby="electronics-wheel-heading">
+      <h2 class="electronics-section__title" id="electronics-wheel-heading" style="text-align: center;">
+        Ohm&rsquo;s Law &amp; Power Quick Wheel
+      </h2>
+      <p class="electronics-section__intro" style="text-align: center; margin-left: auto; margin-right: auto;">
+        Type any two of the four quantities — voltage <em>V</em>, current <em>I</em>,
+        resistance <em>R</em>, or power <em>P</em> — and the wheel solves for the rest in
+        real time. Click a quadrant to jump to its input, or load an example to see
+        the math in action.
+      </p>
+
+
+      <div class="electronics-wheel-layout">
+
+        {%- comment -%} ----- SVG wheel: 4 quadrants for V / I / R / P ----- {%- endcomment -%}
+        <div class="electronics-wheel" id="electronics-wheel" style="margin: 0; max-width: 30rem; justify-self: center;">
+          <svg class="electronics-wheel-svg"
+               viewBox="0 0 400 400"
+               xmlns="http://www.w3.org/2000/svg"
+               role="group"
+               aria-label="Ohm's Law Quick Wheel — click any of the four quadrants to focus the matching input.">
+            <line class="electronics-wheel__divider" x1="200" y1="40"  x2="200" y2="360"/>
+            <line class="electronics-wheel__divider" x1="40"  y1="200" x2="360" y2="200"/>
+
+            {%- comment -%} V — top-left {%- endcomment -%}
+            <g class="electronics-wheel__quadrant" data-quantity="V"
+               tabindex="0" role="button"
+               aria-label="Voltage (V) — click to focus the voltage input">
+              <circle class="electronics-wheel__quadrant-bg" cx="120" cy="120" r="80"/>
+              <text class="electronics-wheel__symbol"  x="120" y="105" text-anchor="middle">V</text>
+              <text class="electronics-wheel__formula" x="120" y="135" text-anchor="middle">I &middot; R</text>
+              <text class="electronics-wheel__formula" x="120" y="150" text-anchor="middle">&radic;(P &middot; R)</text>
+              <text class="electronics-wheel__formula" x="120" y="165" text-anchor="middle">P &divide; I</text>
+            </g>
+
+            {%- comment -%} I — top-right {%- endcomment -%}
+            <g class="electronics-wheel__quadrant" data-quantity="I"
+               tabindex="0" role="button"
+               aria-label="Current (I) — click to focus the current input">
+              <circle class="electronics-wheel__quadrant-bg" cx="280" cy="120" r="80"/>
+              <text class="electronics-wheel__symbol"  x="280" y="105" text-anchor="middle">I</text>
+              <text class="electronics-wheel__formula" x="280" y="135" text-anchor="middle">V &divide; R</text>
+              <text class="electronics-wheel__formula" x="280" y="150" text-anchor="middle">P &divide; V</text>
+              <text class="electronics-wheel__formula" x="280" y="165" text-anchor="middle">&radic;(P &divide; R)</text>
+            </g>
+
+            {%- comment -%} R — bottom-right {%- endcomment -%}
+            <g class="electronics-wheel__quadrant" data-quantity="R"
+               tabindex="0" role="button"
+               aria-label="Resistance (R) — click to focus the resistance input">
+              <circle class="electronics-wheel__quadrant-bg" cx="280" cy="280" r="80"/>
+              <text class="electronics-wheel__symbol"  x="280" y="265" text-anchor="middle">R</text>
+              <text class="electronics-wheel__formula" x="280" y="295" text-anchor="middle">V &divide; I</text>
+              <text class="electronics-wheel__formula" x="280" y="310" text-anchor="middle">V&sup2; &divide; P</text>
+              <text class="electronics-wheel__formula" x="280" y="325" text-anchor="middle">P &divide; I&sup2;</text>
+            </g>
+
+            {%- comment -%} P — bottom-left {%- endcomment -%}
+            <g class="electronics-wheel__quadrant" data-quantity="P"
+               tabindex="0" role="button"
+               aria-label="Power (P) — click to focus the power input">
+              <circle class="electronics-wheel__quadrant-bg" cx="120" cy="280" r="80"/>
+              <text class="electronics-wheel__symbol"  x="120" y="265" text-anchor="middle">P</text>
+              <text class="electronics-wheel__formula" x="120" y="295" text-anchor="middle">V &middot; I</text>
+              <text class="electronics-wheel__formula" x="120" y="310" text-anchor="middle">V&sup2; &divide; R</text>
+              <text class="electronics-wheel__formula" x="120" y="325" text-anchor="middle">I&sup2; &middot; R</text>
+            </g>
+          </svg>
+        </div>
+
+        {%- comment -%} ----- Right column: inputs / status / chart / examples ----- {%- endcomment -%}
+        <div style="display: flex; flex-direction: column; gap: var(--space-md); min-width: 0;">
+
+          {%- comment -%}
+            Field DOM order is V, I, P, R so the 2-column CSS grid mirrors
+            the wheel quadrant layout (V top-left, I top-right, P bottom-left,
+            R bottom-right) on visual scan. JS looks up fields by
+            data-field attribute, so DOM order has no behavioural effect.
+          {%- endcomment -%}
+          <div class="electronics-wheel-fields" role="group" aria-label="Ohm's Law inputs — enter any two">
+            <div class="electronics-calculator__field" data-field="V">
+              <label for="ef-wheel-V">Voltage (V)</label>
+              <input class="electronics-calculator__input" type="number"
+                     id="ef-wheel-V" data-quantity="V"
+                     step="any" inputmode="decimal" placeholder="0.0"
+                     autocomplete="off" aria-label="Voltage in volts">
+            </div>
+            <div class="electronics-calculator__field" data-field="I">
+              <label for="ef-wheel-I">Current (A)</label>
+              <input class="electronics-calculator__input" type="number"
+                     id="ef-wheel-I" data-quantity="I"
+                     step="any" inputmode="decimal" placeholder="0.0"
+                     autocomplete="off" aria-label="Current in amperes">
+            </div>
+            <div class="electronics-calculator__field" data-field="P">
+              <label for="ef-wheel-P">Power (W)</label>
+              <input class="electronics-calculator__input" type="number"
+                     id="ef-wheel-P" data-quantity="P"
+                     step="any" inputmode="decimal" placeholder="0.0"
+                     autocomplete="off" aria-label="Power in watts">
+            </div>
+            <div class="electronics-calculator__field" data-field="R">
+              <label for="ef-wheel-R">Resistance (&Omega;)</label>
+              <input class="electronics-calculator__input" type="number"
+                     id="ef-wheel-R" data-quantity="R"
+                     step="any" inputmode="decimal" placeholder="0.0"
+                     autocomplete="off" aria-label="Resistance in ohms">
+            </div>
+          </div>
+
+          <div class="electronics-wheel-status" id="electronics-wheel-status" role="status" aria-live="polite">
+            Enter any two values to solve for the rest.
+          </div>
+
+          <div class="electronics-wheel-chart-wrapper">
+            <canvas id="electronics-power-chart"
+                    role="img"
+                    aria-label="Quantity magnitudes — radar visualization of voltage, current, resistance, and power on a log₁₀ scale"></canvas>
+          </div>
+          <p class="electronics-wheel-chart-label">Quantity Magnitudes &middot; V &middot; I &middot; R &middot; P (log&#8321;&#8320;)</p>
+
+          <div class="electronics-wheel-examples" role="group" aria-label="Example circuits">
+            <button type="button" class="electronics-wheel-example" data-example="battery">
+              12&nbsp;V Battery + 100&nbsp;&Omega;
+            </button>
+            <button type="button" class="electronics-wheel-example" data-example="led">
+              5&nbsp;V LED Circuit
+            </button>
+            <button type="button" class="electronics-wheel-example" data-example="usb">
+              USB 5&nbsp;V 2&nbsp;A
+            </button>
+            <button type="button" class="electronics-wheel-example" data-example="battery9v">
+              9&nbsp;V Battery + 1&nbsp;k&Omega;
+            </button>
+            <button type="button" class="electronics-wheel-example" data-example="mcu33">
+              3.3&nbsp;V MCU @ 50&nbsp;mA
+            </button>
+            <button type="button" class="electronics-wheel-example" data-example="aa-led">
+              AA 1.5&nbsp;V + 220&nbsp;&Omega; LED
+            </button>
+            <button type="button" class="electronics-wheel-example" data-example="laptop">
+              Laptop 19&nbsp;V @ 3.42&nbsp;A
+            </button>
+            <button type="button" class="electronics-wheel-example" data-example="ledstrip">
+              12&nbsp;V LED strip @ 1&nbsp;A
+            </button>
+          </div>
+
+          <div class="electronics-wheel-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-wheel-clear">
+              Clear all
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {%- comment -%} ========== Section 2: Core Formulas & Laws ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-formulas" aria-labelledby="electronics-formulas-heading">
+      <h2 class="electronics-section__title" id="electronics-formulas-heading">Core Formulas &amp; Laws</h2>
+      <p class="electronics-section__intro">
+        The algebra behind every circuit on this page. Click <em>Try it</em> on any
+        card to load that formula&rsquo;s example into the Quick Wheel above.
+      </p>
+
+
+      <div class="electronics-formulas" id="electronics-formulas-grid">
+
+        {%- comment -%} ----- Card 1: Ohm's Law ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="ohms-law">
+          <h3 class="electronics-formula-card__name">Ohm&rsquo;s Law</h3>
+          <div class="electronics-formula-card__equation">
+            V = I &middot; R
+            <span class="alt">I = V &divide; R</span>
+            <span class="alt">R = V &divide; I</span>
+          </div>
+          <p class="electronics-formula-card__description">
+            The foundational DC relationship — voltage, current, and resistance lock each
+            other in. Every other formula on this page builds on it.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> A 9&nbsp;V battery across 100&nbsp;&Omega; drives 90&nbsp;mA through the wire.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Ohm&rsquo;s Law"
+                  data-try-v="9" data-try-r="100"
+                  aria-label="Load Ohm's Law example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 2: Electrical Power ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="power">
+          <h3 class="electronics-formula-card__name">Electrical Power</h3>
+          <div class="electronics-formula-card__equation">
+            P = V &middot; I
+            <span class="alt">P = I<sup>2</sup> &middot; R</span>
+            <span class="alt">P = V<sup>2</sup> &divide; R</span>
+          </div>
+          <p class="electronics-formula-card__description">
+            How fast a circuit converts electrical energy into heat, light, or motion. One
+            watt is one joule per second.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> A USB port at 5&nbsp;V supplying 2&nbsp;A delivers 10&nbsp;W &mdash; enough to warm a small heater.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Electrical Power"
+                  data-try-v="5" data-try-i="2"
+                  aria-label="Load Electrical Power example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 3: KCL ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="kcl">
+          <h3 class="electronics-formula-card__name">Kirchhoff&rsquo;s Current Law (KCL)</h3>
+          <div class="electronics-formula-card__equation">
+            &Sigma; I<sub>in</sub> = &Sigma; I<sub>out</sub>
+            <span class="alt">at every node</span>
+          </div>
+          <p class="electronics-formula-card__description">
+            Charge can&rsquo;t accumulate at a node, so all the current entering must leave it.
+            The accounting trick that lets you solve any branched circuit.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> A node fed by 100&nbsp;mA from one branch and 50&nbsp;mA from another has 150&nbsp;mA flowing out the third leg.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="KCL node"
+                  data-try-v="12" data-try-i="0.15"
+                  aria-label="Load KCL example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 4: KVL ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="kvl">
+          <h3 class="electronics-formula-card__name">Kirchhoff&rsquo;s Voltage Law (KVL)</h3>
+          <div class="electronics-formula-card__equation">
+            &Sigma; V<sub>loop</sub> = 0
+            <span class="alt">&Sigma; V<sub>rises</sub> = &Sigma; V<sub>drops</sub></span>
+          </div>
+          <p class="electronics-formula-card__description">
+            Walk a closed loop and the voltage rises must equal the voltage drops. Pick a
+            direction, sum the signs &mdash; the loop closes back on itself.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> In a 9&nbsp;V battery + 6&nbsp;&Omega; + 3&nbsp;&Omega; series loop, the resistors drop 6&nbsp;V and 3&nbsp;V respectively, summing to the 9&nbsp;V supply.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="KVL loop"
+                  data-try-v="9" data-try-r="9"
+                  aria-label="Load KVL example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 5: Resistors in Series ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="resistors-series">
+          <h3 class="electronics-formula-card__name">Resistors in Series</h3>
+          <div class="electronics-formula-card__equation">
+            R<sub>total</sub> = R<sub>1</sub> + R<sub>2</sub> + &hellip; + R<sub>n</sub>
+          </div>
+          <p class="electronics-formula-card__description">
+            Resistors in series share the same current; their resistances add. Voltages
+            divide proportionally to each resistance.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> 100&nbsp;&Omega; + 200&nbsp;&Omega; in series with a 12&nbsp;V supply equals 300&nbsp;&Omega; total &rarr; 40&nbsp;mA through the chain.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Series resistors"
+                  data-try-v="12" data-try-r="300"
+                  aria-label="Load series-resistor example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 6: Resistors in Parallel ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="resistors-parallel">
+          <h3 class="electronics-formula-card__name">Resistors in Parallel</h3>
+          <div class="electronics-formula-card__equation">
+            1 &divide; R<sub>total</sub> = 1&divide;R<sub>1</sub> + 1&divide;R<sub>2</sub> + &hellip;
+            <span class="alt">two-resistor: R = (R<sub>1</sub> &middot; R<sub>2</sub>) &divide; (R<sub>1</sub> + R<sub>2</sub>)</span>
+          </div>
+          <p class="electronics-formula-card__description">
+            Resistors in parallel share the same voltage; reciprocals add. Currents split
+            inversely with each resistance &mdash; the smaller resistor carries more.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> 100&nbsp;&Omega; &Vert; 200&nbsp;&Omega; = 66.7&nbsp;&Omega;. At 5&nbsp;V the parallel pair draws 75&nbsp;mA total.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Parallel resistors"
+                  data-try-v="5" data-try-r="66.67"
+                  aria-label="Load parallel-resistor example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 7: Capacitors in Series ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="capacitors-series">
+          <h3 class="electronics-formula-card__name">Capacitors in Series</h3>
+          <div class="electronics-formula-card__equation">
+            1 &divide; C<sub>total</sub> = 1&divide;C<sub>1</sub> + 1&divide;C<sub>2</sub> + &hellip;
+            <span class="alt">opposite of resistors</span>
+          </div>
+          <p class="electronics-formula-card__description">
+            Series caps store the same charge but split the voltage; their reciprocals add.
+            Useful for raising the working voltage when you only have low-V parts.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> Two 100&nbsp;&micro;F caps in series &asymp; 50&nbsp;&micro;F. Charging through 10&nbsp;k&Omega; from 12&nbsp;V draws 1.2&nbsp;mA at <var>t</var>=0.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Series capacitors RC"
+                  data-try-v="12" data-try-r="10000"
+                  aria-label="Load series-capacitor RC example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+        {%- comment -%} ----- Card 8: Capacitors in Parallel ----- {%- endcomment -%}
+        <article class="electronics-formula-card" data-formula="capacitors-parallel">
+          <h3 class="electronics-formula-card__name">Capacitors in Parallel</h3>
+          <div class="electronics-formula-card__equation">
+            C<sub>total</sub> = C<sub>1</sub> + C<sub>2</sub> + &hellip; + C<sub>n</sub>
+          </div>
+          <p class="electronics-formula-card__description">
+            Parallel caps share the voltage and accumulate capacitance &mdash; the canonical
+            decoupling stack on every PCB power rail.
+          </p>
+          <p class="electronics-formula-card__example">
+            <strong>Example</strong> 10&nbsp;&micro;F + 100&nbsp;nF + 1&nbsp;nF in parallel covers low- to high-frequency noise on a single 5&nbsp;V supply.
+          </p>
+          <button type="button"
+                  class="electronics-formula-card__try electronics-calculator__reset"
+                  data-try-button data-try-label="Parallel capacitors decoupling"
+                  data-try-v="5" data-try-r="100"
+                  aria-label="Load parallel-capacitor decoupling example into the Quick Wheel">
+            Try it
+          </button>
+        </article>
+
+      </div>
+
+      <details class="electronics-formulas-notes">
+        <summary>Derivations &amp; Notes</summary>
+        <div class="electronics-formulas-notes__body">
+          <ul>
+            <li>
+              <strong>Ohm&rsquo;s Law assumes linear, &ldquo;ohmic&rdquo; components.</strong>
+              Diodes, LEDs, transistors, and most semiconductors don&rsquo;t follow it &mdash;
+              their <var>V/I</var> curves are non-linear. Treat them with their datasheet
+              equations or a piecewise model instead.
+            </li>
+            <li>
+              <strong>The DC power formulas need RMS values for AC.</strong>
+              For AC loads, use <code>P<sub>avg</sub> = V<sub>rms</sub> &middot; I<sub>rms</sub> &middot; cos&nbsp;&phi;</code>.
+              The <code>cos&nbsp;&phi;</code> term is the <em>power factor</em> &mdash; reactive loads
+              (motors, transformers, LED drivers) need it explicitly.
+            </li>
+            <li>
+              <strong>KCL and KVL hold rigorously at low frequencies.</strong>
+              At RF, parasitic capacitance and inductance blur the &ldquo;node&rdquo; and
+              &ldquo;loop&rdquo; abstractions; above ~10&nbsp;MHz on a hand-drawn schematic, treat
+              them as approximations and reach for transmission-line or S-parameter models.
+            </li>
+            <li>
+              <strong>Series/parallel formulas assume ideal parts.</strong>
+              Real resistors carry parasitic inductance; real capacitors carry equivalent
+              series resistance (<var>ESR</var>) and inductance (<var>ESL</var>). Above a
+              few MHz, swap the textbook equations for an RLC equivalent circuit.
+            </li>
+            <li>
+              <strong>Capacitor formulas are the opposite of resistors.</strong>
+              Reciprocals add in <em>series</em> for caps; values add in <em>parallel</em>.
+              Mnemonic: caps store energy in dielectric area, so adding plate area in
+              parallel &equals; more capacitance.
+            </li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    {%- comment -%} ========== Section 3: Interactive Calculators ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-calculators" aria-labelledby="electronics-calculators-heading">
+      <h2 class="electronics-section__title" id="electronics-calculators-heading">Interactive Calculators</h2>
+      <p class="electronics-section__intro">
+        Plug in any two values and the rest follow. The first calculator is a
+        deeper dive on Ohm&rsquo;s law &mdash; with sliders, V&ndash;I curves, and a
+        power-vs-resistance plot &mdash; so you can see <em>why</em> the numbers move,
+        not just <em>what</em> they are. More calculators (LED current-limiting,
+        voltage divider, RC time constant&hellip;) land in later batches.
+      </p>
+
+
+      <div class="electronics-calculators" id="electronics-calculators-grid">
+        <article class="electronics-calculator electronics-ohms"
+                 id="electronics-calc-ohms"
+                 data-calculator="ohms-law"
+                 data-ef-widget="ohms-law-calculator"
+                 aria-labelledby="electronics-calc-ohms-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-ohms-title">
+            Calculator 1 &mdash; Ohm&rsquo;s Law / Power
+          </h3>
+          <p class="electronics-calculator__hint">
+            Enter or drag any two of <strong>V</strong>, <strong>I</strong>,
+            <strong>R</strong>, or <strong>P</strong> and the rest are computed live.
+            The chart on the left plots your operating point against a family of
+            resistance lines; the chart on the right shows how power scales with
+            resistance at the current voltage.
+          </p>
+
+          <div class="electronics-ohms-grid">
+
+            {%- comment -%} ----- Inputs (number + slider) ----- {%- endcomment -%}
+            <div class="electronics-ohms-fields" role="group" aria-label="Calculator inputs">
+              <div class="electronics-ohms-field" data-field="V">
+                <span class="electronics-ohms-field__label" id="ef-calc-V-label">
+                  Voltage (V)
+                  <small>volts</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-calc-V" data-quantity="V"
+                         step="any" inputmode="decimal" placeholder="0.0"
+                         autocomplete="off" aria-labelledby="ef-calc-V-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-calc-V-slider" data-quantity="V"
+                         min="0" max="24" step="0.1" value="0"
+                         aria-label="Voltage slider, 0 to 24 volts">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="I">
+                <span class="electronics-ohms-field__label" id="ef-calc-I-label">
+                  Current (I)
+                  <small>amperes</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-calc-I" data-quantity="I"
+                         step="any" inputmode="decimal" placeholder="0.0"
+                         autocomplete="off" aria-labelledby="ef-calc-I-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-calc-I-slider" data-quantity="I"
+                         min="0" max="5" step="0.01" value="0"
+                         aria-label="Current slider, 0 to 5 amperes">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="R">
+                <span class="electronics-ohms-field__label" id="ef-calc-R-label">
+                  Resistance (R)
+                  <small>ohms (&Omega;)</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-calc-R" data-quantity="R"
+                         step="any" inputmode="decimal" placeholder="0.0"
+                         autocomplete="off" aria-labelledby="ef-calc-R-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-calc-R-slider" data-quantity="R"
+                         min="1" max="10000" step="1" value="100"
+                         aria-label="Resistance slider, 1 to 10 000 ohms">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="P">
+                <span class="electronics-ohms-field__label" id="ef-calc-P-label">
+                  Power (P)
+                  <small>watts</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-calc-P" data-quantity="P"
+                         step="any" inputmode="decimal" placeholder="0.0"
+                         autocomplete="off" aria-labelledby="ef-calc-P-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-calc-P-slider" data-quantity="P"
+                         min="0" max="50" step="0.1" value="0"
+                         aria-label="Power slider, 0 to 50 watts">
+                </div>
+              </div>
+            </div>
+
+            {%- comment -%} ----- Charts ----- {%- endcomment -%}
+            <div class="electronics-ohms-charts">
+              <div>
+                <div class="electronics-ohms-chart-wrapper">
+                  <canvas id="electronics-calc-vi-chart"
+                          role="img"
+                          aria-label="V-I characteristic curves with operating point"></canvas>
+                </div>
+                <p class="electronics-ohms-chart-label">V&ndash;I Characteristic Curves</p>
+              </div>
+              <div>
+                <div class="electronics-ohms-chart-wrapper">
+                  <canvas id="electronics-calc-pr-chart"
+                          role="img"
+                          aria-label="Power versus resistance curve at the current voltage"></canvas>
+                </div>
+                <p class="electronics-ohms-chart-label">Power vs Resistance</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="electronics-calc-result"
+               class="electronics-ohms-result"
+               role="status" aria-live="polite">
+            Enter any two values to solve.
+          </div>
+
+          <div id="electronics-calc-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-calc-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-calc-copy">
+              Copy results
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-calc-open-wheel">
+              Open in Quick Wheel &uarr;
+            </button>
+          </div>
+
+          {%- comment -%}
+            Default values + V-I curve resistances + slider ranges. Read by
+            initOhmsLawCalculator on first paint so the charts have a sensible
+            operating point even before the visitor types anything.
+          {%- endcomment -%}
+          <script type="application/json" id="electronics-calc-ohms-data">
+            {
+              "defaults": { "V": 12, "R": 100 },
+              "viCurves": [10, 100, 1000, 10000],
+              "ranges": {
+                "V": { "min": 0, "max": 24,    "step": 0.1 },
+                "I": { "min": 0, "max": 5,     "step": 0.01 },
+                "R": { "min": 1, "max": 10000, "step": 1 },
+                "P": { "min": 0, "max": 50,    "step": 0.1 }
+              }
+            }
+          </script>
+        </article>
+
+        {%- comment -%} ----- Calculator 2: LED Resistor ----- {%- endcomment -%}
+        <article class="electronics-calculator electronics-led"
+                 id="electronics-calc-led"
+                 data-calculator="led-resistor"
+                 data-ef-widget="led-resistor-calculator"
+                 aria-labelledby="electronics-calc-led-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-led-title">
+            Calculator 2 &mdash; LED Resistor
+          </h3>
+          <p class="electronics-calculator__hint">
+            Pick a supply voltage, an LED color, and the desired forward current.
+            The calculator returns the series resistor you need, snapped to the
+            nearest standard E-series value, and shows the operating point on
+            the LED&rsquo;s I&ndash;V curve.
+          </p>
+
+
+          <div class="electronics-led-grid">
+            <div class="electronics-ohms-fields" role="group" aria-label="LED resistor inputs">
+
+              <div class="electronics-ohms-field" data-field="Vsupply">
+                <span class="electronics-ohms-field__label" id="ef-led-vsupply-label">
+                  Supply (V<sub>S</sub>)
+                  <small>volts</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-led-Vsupply" data-quantity="Vsupply"
+                         step="any" inputmode="decimal" placeholder="5.0"
+                         autocomplete="off" aria-labelledby="ef-led-vsupply-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-led-Vsupply-slider" data-quantity="Vsupply"
+                         min="0" max="24" step="0.1" value="5"
+                         aria-label="Supply voltage slider, 0 to 24 volts">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="color">
+                <span class="electronics-ohms-field__label" id="ef-led-color-label">
+                  LED color
+                  <small>quick preset</small>
+                </span>
+                <select class="electronics-calculator__select"
+                        id="ef-led-color"
+                        aria-labelledby="ef-led-color-label">
+                  <option value="red">Red &mdash; V&fnof; &asymp; 2.0&nbsp;V</option>
+                  <option value="yellow">Yellow &mdash; V&fnof; &asymp; 2.1&nbsp;V</option>
+                  <option value="green">Green &mdash; V&fnof; &asymp; 2.2&nbsp;V</option>
+                  <option value="blue">Blue &mdash; V&fnof; &asymp; 3.2&nbsp;V</option>
+                  <option value="white">White &mdash; V&fnof; &asymp; 3.2&nbsp;V</option>
+                  <option value="ir">IR &mdash; V&fnof; &asymp; 1.2&nbsp;V</option>
+                  <option value="uv">UV &mdash; V&fnof; &asymp; 3.5&nbsp;V</option>
+                  <option value="custom">Custom &mdash; set V&fnof; below</option>
+                </select>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="Vf">
+                <span class="electronics-ohms-field__label" id="ef-led-vf-label">
+                  Forward (V<sub>f</sub>)
+                  <small>LED voltage drop</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-led-Vf" data-quantity="Vf"
+                         step="any" inputmode="decimal" placeholder="2.0"
+                         autocomplete="off" aria-labelledby="ef-led-vf-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-led-Vf-slider" data-quantity="Vf"
+                         min="0.5" max="5" step="0.05" value="2"
+                         aria-label="Forward voltage slider, 0.5 to 5 volts">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="I">
+                <span class="electronics-ohms-field__label" id="ef-led-i-label">
+                  Target (I<sub>LED</sub>)
+                  <small>amperes</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-led-I" data-quantity="I"
+                         step="any" inputmode="decimal" placeholder="0.020"
+                         autocomplete="off" aria-labelledby="ef-led-i-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-led-I-slider" data-quantity="I"
+                         min="0.001" max="0.05" step="0.001" value="0.02"
+                         aria-label="LED current slider, 1 to 50 milliamps">
+                </div>
+              </div>
+
+              <div class="electronics-led-eseries" id="electronics-led-eseries" aria-live="polite">
+                <div class="electronics-led-eseries__pill" data-pill="calc">
+                  <small>Calculated R</small>
+                  <strong id="ef-led-R-calc">&mdash;</strong>
+                </div>
+                <div class="electronics-led-eseries__pill" data-pill="e12">
+                  <small>Nearest E12</small>
+                  <strong id="ef-led-R-e12">&mdash;</strong>
+                </div>
+                <div class="electronics-led-eseries__pill" data-pill="e24">
+                  <small>Nearest E24</small>
+                  <strong id="ef-led-R-e24">&mdash;</strong>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="electronics-led-chart-wrapper">
+                <canvas id="electronics-calc-led-chart"
+                        role="img"
+                        aria-label="LED I-V curve with operating point and power-dissipation shading"></canvas>
+              </div>
+              <p class="electronics-led-chart-label">LED I&ndash;V Curve &middot; operating point &middot; power shading</p>
+            </div>
+          </div>
+
+          <div id="electronics-led-result"
+               class="electronics-ohms-result"
+               role="status" aria-live="polite">
+            Set a supply voltage, color, and target current.
+          </div>
+
+          <div id="electronics-led-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-led-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-led-copy">
+              Copy results
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-led-open-wheel">
+              Open in Quick Wheel &uarr;
+            </button>
+          </div>
+
+          <script type="application/json" id="electronics-calc-led-data">
+            {
+              "defaults": { "Vsupply": 5, "color": "red", "Vf": 2.0, "I": 0.02 },
+              "presets": {
+                "red":    { "label": "Red",    "vf": 2.0 },
+                "yellow": { "label": "Yellow", "vf": 2.1 },
+                "green":  { "label": "Green",  "vf": 2.2 },
+                "blue":   { "label": "Blue",   "vf": 3.2 },
+                "white":  { "label": "White",  "vf": 3.2 },
+                "ir":     { "label": "IR",     "vf": 1.2 },
+                "uv":     { "label": "UV",     "vf": 3.5 }
+              },
+              "ranges": {
+                "Vsupply": { "min": 0,     "max": 24,   "step": 0.1 },
+                "Vf":      { "min": 0.5,   "max": 5,    "step": 0.05 },
+                "I":       { "min": 0.001, "max": 0.05, "step": 0.001 }
+              },
+              "safeCurrentMa": { "ok": 30, "caution": 50 }
+            }
+          </script>
+        </article>
+
+        {%- comment -%} ----- Calculator 3: Voltage Divider ----- {%- endcomment -%}
+        <article class="electronics-calculator electronics-divider"
+                 id="electronics-calc-divider"
+                 data-calculator="voltage-divider"
+                 data-ef-widget="voltage-divider-calculator"
+                 aria-labelledby="electronics-calc-divider-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-divider-title">
+            Calculator 3 &mdash; Voltage Divider
+          </h3>
+          <p class="electronics-calculator__hint">
+            Two resistors in series across a supply pull a fraction of the input
+            voltage out at their midpoint. Set V<sub>in</sub>, R<sub>1</sub>, and
+            R<sub>2</sub> to see the unloaded V<sub>out</sub>; add an optional load
+            to see how the output sags under real-world current draw.
+          </p>
+
+
+          <div class="electronics-divider-grid">
+            <div class="electronics-ohms-fields" role="group" aria-label="Voltage divider inputs">
+
+              <div class="electronics-ohms-field" data-field="Vin">
+                <span class="electronics-ohms-field__label" id="ef-div-vin-label">
+                  Input (V<sub>in</sub>)
+                  <small>volts</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-div-Vin" data-quantity="Vin"
+                         step="any" inputmode="decimal" placeholder="12.0"
+                         autocomplete="off" aria-labelledby="ef-div-vin-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-div-Vin-slider" data-quantity="Vin"
+                         min="0" max="24" step="0.1" value="12"
+                         aria-label="Input voltage slider, 0 to 24 volts">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="R1">
+                <span class="electronics-ohms-field__label" id="ef-div-r1-label">
+                  R<sub>1</sub> (top)
+                  <small>ohms</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-div-R1" data-quantity="R1"
+                         step="any" inputmode="decimal" placeholder="1000"
+                         autocomplete="off" aria-labelledby="ef-div-r1-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-div-R1-slider" data-quantity="R1"
+                         min="1" max="100000" step="1" value="1000"
+                         aria-label="R1 slider, 1 to 100 000 ohms">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="R2">
+                <span class="electronics-ohms-field__label" id="ef-div-r2-label">
+                  R<sub>2</sub> (bottom)
+                  <small>ohms</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-div-R2" data-quantity="R2"
+                         step="any" inputmode="decimal" placeholder="1000"
+                         autocomplete="off" aria-labelledby="ef-div-r2-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-div-R2-slider" data-quantity="R2"
+                         min="1" max="100000" step="1" value="1000"
+                         aria-label="R2 slider, 1 to 100 000 ohms">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="RL">
+                <span class="electronics-ohms-field__label" id="ef-div-rl-label">
+                  R<sub>load</sub> <em>(optional)</em>
+                  <small>0 = unloaded</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-div-RL" data-quantity="RL"
+                         step="any" inputmode="decimal" placeholder="0"
+                         autocomplete="off" aria-labelledby="ef-div-rl-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-div-RL-slider" data-quantity="RL"
+                         min="0" max="1000000" step="100" value="0"
+                         aria-label="Load resistance slider, 0 to 1 megohm">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="electronics-divider-chart-wrapper">
+                <canvas id="electronics-calc-divider-chart"
+                        role="img"
+                        aria-label="V_out vs R2 curve with optional load-effect overlay"></canvas>
+              </div>
+              <p class="electronics-divider-chart-label">V<sub>out</sub> vs R<sub>2</sub> &middot; load overlay when R<sub>load</sub> &gt; 0</p>
+            </div>
+          </div>
+
+          <div id="electronics-div-result"
+               class="electronics-ohms-result"
+               role="status" aria-live="polite">
+            Set V<sub>in</sub>, R<sub>1</sub>, and R<sub>2</sub> to see V<sub>out</sub>.
+          </div>
+
+          <div id="electronics-div-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-div-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-div-copy">
+              Copy results
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-div-open-wheel">
+              Open in Quick Wheel &uarr;
+            </button>
+          </div>
+
+          <script type="application/json" id="electronics-calc-divider-data">
+            {
+              "defaults": { "Vin": 12, "R1": 1000, "R2": 1000, "RL": 0 },
+              "ranges": {
+                "Vin": { "min": 0, "max": 24,      "step": 0.1 },
+                "R1":  { "min": 1, "max": 100000,  "step": 1 },
+                "R2":  { "min": 1, "max": 100000,  "step": 1 },
+                "RL":  { "min": 0, "max": 1000000, "step": 100 }
+              }
+            }
+          </script>
+        </article>
+
+        {%- comment -%} ----- Calculator 4: Series / Parallel Resistors & Capacitors ----- {%- endcomment -%}
+        <article class="electronics-calculator electronics-sp"
+                 id="electronics-calc-sp"
+                 data-calculator="series-parallel"
+                 data-ef-widget="series-parallel-calculator"
+                 aria-labelledby="electronics-calc-sp-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-sp-title">
+            Calculator 4 &mdash; Series / Parallel
+          </h3>
+          <p class="electronics-calculator__hint">
+            Combine two or more resistors or capacitors and read the equivalent
+            value. Resistors and capacitors follow opposite rules: resistors
+            <em>add</em> in series and <em>reciprocate</em> in parallel; capacitors
+            do the reverse.
+          </p>
+
+
+          <div class="electronics-sp-modes">
+            <fieldset>
+              <legend>Component type</legend>
+              <label><input type="radio" name="sp-type" value="resistor" checked><span>Resistors</span></label>
+              <label><input type="radio" name="sp-type" value="capacitor"><span>Capacitors</span></label>
+            </fieldset>
+            <fieldset>
+              <legend>Topology</legend>
+              <label><input type="radio" name="sp-topology" value="series" checked><span>Series</span></label>
+              <label><input type="radio" name="sp-topology" value="parallel"><span>Parallel</span></label>
+            </fieldset>
+          </div>
+
+          <div class="electronics-sp-grid">
+            <div>
+              <div class="electronics-sp-rows" id="electronics-sp-rows" role="group" aria-label="Component values"></div>
+              <button type="button" class="electronics-sp-add" id="electronics-sp-add"
+                      aria-label="Add another component">+ Add component</button>
+            </div>
+
+            <div>
+              <div class="electronics-sp-chart-wrapper">
+                <canvas id="electronics-calc-sp-chart"
+                        role="img"
+                        aria-label="Bar chart of individual component values vs total equivalent"></canvas>
+              </div>
+              <p class="electronics-sp-chart-label">Individual values vs equivalent total</p>
+            </div>
+          </div>
+
+          <div id="electronics-sp-result"
+               class="electronics-ohms-result"
+               role="status" aria-live="polite">
+            Pick a type and topology, then enter component values.
+          </div>
+
+          <div id="electronics-sp-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-sp-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-sp-copy">
+              Copy results
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-sp-open-wheel">
+              Open in Quick Wheel &uarr;
+            </button>
+          </div>
+
+          <script type="application/json" id="electronics-calc-sp-data">
+            {
+              "minRows": 2,
+              "maxRows": 8,
+              "defaults": {
+                "resistor": [1000, 2200],
+                "capacitor": [0.000010, 0.000022]
+              },
+              "ranges": {
+                "resistor":  { "min": 1,     "max": 100000,  "step": 1 },
+                "capacitor": { "min": 1e-12, "max": 0.0001,  "step": 1e-9 }
+              }
+            }
+          </script>
+        </article>
+
+        {%- comment -%} ----- Calculator 5: RC Timer / Time Constant ----- {%- endcomment -%}
+        <article class="electronics-calculator electronics-rc"
+                 id="electronics-calc-rc"
+                 data-calculator="rc-timer"
+                 data-ef-widget="rc-timer-calculator"
+                 aria-labelledby="electronics-calc-rc-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-rc-title">
+            Calculator 5 &mdash; RC Timer / Time Constant
+          </h3>
+          <p class="electronics-calculator__hint">
+            A resistor charging a capacitor follows V(t)=V&middot;(1&minus;e<sup>&minus;t/&tau;</sup>),
+            where <strong>&tau; = R&middot;C</strong>. After 5&tau; the cap is essentially
+            full (99.3 %). Drag the sliders, hit Play, and watch the curve fill in.
+          </p>
+
+
+          <div class="electronics-rc-grid">
+
+            <div class="electronics-ohms-fields" role="group" aria-label="RC timer inputs">
+              <div class="electronics-ohms-field" data-field="V">
+                <span class="electronics-ohms-field__label" id="ef-rc-v-label">
+                  Supply (V)
+                  <small>volts</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-rc-V" data-quantity="V"
+                         step="any" inputmode="decimal" placeholder="5.0"
+                         autocomplete="off" aria-labelledby="ef-rc-v-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-rc-V-slider" data-quantity="V"
+                         min="0" max="24" step="0.1" value="5"
+                         aria-label="Supply voltage, 0 to 24 volts">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="R">
+                <span class="electronics-ohms-field__label" id="ef-rc-r-label">
+                  Resistance (R)
+                  <small>ohms (&Omega;)</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-rc-R" data-quantity="R"
+                         step="any" inputmode="decimal" placeholder="10000"
+                         autocomplete="off" aria-labelledby="ef-rc-r-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-rc-R-slider" data-quantity="R"
+                         min="1" max="1000000" step="1" value="10000"
+                         aria-label="Resistance, 1 to 1 megohm">
+                </div>
+              </div>
+
+              <div class="electronics-ohms-field" data-field="C">
+                <span class="electronics-ohms-field__label" id="ef-rc-c-label">
+                  Capacitance (C)
+                  <small>farads</small>
+                </span>
+                <div class="electronics-ohms-field__row">
+                  <input type="number" class="electronics-calculator__input"
+                         id="ef-rc-C" data-quantity="C"
+                         step="any" inputmode="decimal" placeholder="0.000001"
+                         autocomplete="off" aria-labelledby="ef-rc-c-label">
+                  <input type="range" class="electronics-ohms-slider"
+                         id="ef-rc-C-slider" data-quantity="C"
+                         min="1e-9" max="0.001" step="1e-9" value="0.000001"
+                         aria-label="Capacitance, 1 nanofarad to 1 millifarad">
+                </div>
+              </div>
+
+              <div class="electronics-rc-stats">
+                <div class="electronics-rc-stats__pill">
+                  <small>Time constant &tau;</small>
+                  <strong id="ef-rc-tau">&mdash;</strong>
+                </div>
+                <div class="electronics-rc-stats__pill">
+                  <small>5&tau; (full)</small>
+                  <strong id="ef-rc-fullTime">&mdash;</strong>
+                </div>
+                <div class="electronics-rc-stats__pill">
+                  <small>Cutoff freq f<sub>c</sub></small>
+                  <strong id="ef-rc-fc">&mdash;</strong>
+                </div>
+                <div class="electronics-rc-stats__pill">
+                  <small>V(t) at cursor</small>
+                  <strong id="ef-rc-vt">&mdash;</strong>
+                </div>
+              </div>
+
+              <div class="electronics-rc-controls" role="group" aria-label="Animation controls">
+                <button type="button" id="electronics-rc-play" aria-pressed="false">▶ Play</button>
+                <button type="button" id="electronics-rc-mode-charge" class="is-active" aria-pressed="true">Charging</button>
+                <button type="button" id="electronics-rc-mode-discharge" aria-pressed="false">Discharging</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="electronics-rc-chart-wrapper">
+                <canvas id="electronics-calc-rc-chart"
+                        role="img"
+                        aria-label="Exponential charge or discharge curve with time-constant markers"></canvas>
+              </div>
+              <p class="electronics-rc-chart-label">V(t) &middot; markers at &tau; (63.2 %) and 5&tau; (99.3 %)</p>
+            </div>
+          </div>
+
+          <div id="electronics-rc-result"
+               class="electronics-ohms-result"
+               role="status" aria-live="polite">
+            Set R, C, and V to see the time constant.
+          </div>
+
+          <div id="electronics-rc-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-rc-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-rc-copy">
+              Copy results
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-rc-open-wheel">
+              Open in Quick Wheel &uarr;
+            </button>
+          </div>
+
+          <script type="application/json" id="electronics-calc-rc-data">
+            {
+              "defaults": { "V": 5, "R": 10000, "C": 0.000001 },
+              "ranges": {
+                "V": { "min": 0,     "max": 24,      "step": 0.1 },
+                "R": { "min": 1,     "max": 1000000, "step": 1 },
+                "C": { "min": 1e-9,  "max": 0.001,   "step": 1e-9 }
+              },
+              "animationMs": 3000
+            }
+          </script>
+        </article>
+
+        {%- comment -%} ========== Calculator 6 — Battery Charge & Capacity ========== {%- endcomment -%}
+        <article class="electronics-calculator"
+                 id="electronics-calc-battery"
+                 data-calculator="battery"
+                 data-ef-widget="battery-calculator"
+                 aria-labelledby="electronics-calc-battery-title">
+          <h3 class="electronics-calculator__title" id="electronics-calc-battery-title">
+            Calculator 6 &mdash; Battery Charge &amp; Capacity
+          </h3>
+          <p class="electronics-calculator__hint">
+            Real-world battery math: charge time, runtime, capacity from a discharge
+            test, and a voltage&nbsp;&rarr;&nbsp;<span class="abbr-link" data-abbr="SOC">SOC</span> estimator.
+            Linear approximation (skips the <span class="abbr-link" data-abbr="LDO">CC/CV</span> taper above ~80&nbsp;%);
+            use the efficiency knob to fold in switching / heat losses.
+          </p>
+
+          {%- comment -%} Real-world preset pills — load each mode's defaults from the matching scenario. {%- endcomment -%}
+          <div class="electronics-rcd-presets" id="electronics-calc-battery-presets"
+               role="group" aria-label="Battery preset scenarios">
+            <span class="electronics-rcd-presets__label">Quick presets:</span>
+            <button type="button" class="electronics-rcd-presets__btn" data-bat-preset="phone">
+              Phone fast charge (5000&nbsp;mAh @ 15&nbsp;W)
+            </button>
+            <button type="button" class="electronics-rcd-presets__btn" data-bat-preset="laptop">
+              USB-C PD laptop (14&nbsp;Ah @ 60&nbsp;W)
+            </button>
+            <button type="button" class="electronics-rcd-presets__btn" data-bat-preset="18650">
+              18650 cell @ 1C (3000&nbsp;mAh, 3&nbsp;A)
+            </button>
+            <button type="button" class="electronics-rcd-presets__btn" data-bat-preset="powerbank">
+              Power bank (10&nbsp;Ah @ 10&nbsp;W)
+            </button>
+            <button type="button" class="electronics-rcd-presets__btn" data-bat-preset="car">
+              Car battery (50&nbsp;Ah @ 10&nbsp;A)
+            </button>
+          </div>
+
+          {%- comment -%} Mode toggle (radio cluster — same pattern as Calc 4 S/P + RCD bands). {%- endcomment -%}
+          <div class="electronics-sp-modes">
+            <fieldset>
+              <legend>What are you calculating?</legend>
+              <label><input type="radio" name="bat-mode" value="charge" checked><span>Charge time</span></label>
+              <label><input type="radio" name="bat-mode" value="runtime"><span>Runtime</span></label>
+              <label><input type="radio" name="bat-mode" value="capacity"><span>Capacity from test</span></label>
+              <label><input type="radio" name="bat-mode" value="soc"><span>Voltage &rarr; SOC</span></label>
+            </fieldset>
+          </div>
+
+          {%- comment -%}
+            One panel per mode. JS toggles `[hidden]` on the others when the
+            radio changes. Each mode owns its inputs independently — switching
+            modes preserves your last values per mode rather than copying
+            across, so e.g. Mode A's capacity and Mode B's capacity are
+            tracked separately.
+          {%- endcomment -%}
+
+          {%- comment -%} ----- Mode A: Charge time ----- {%- endcomment -%}
+          <div class="electronics-bat-panel" data-bat-mode="charge">
+            <div class="electronics-ohms-fields" role="group" aria-label="Charge time inputs">
+              <div class="electronics-ohms-field" data-field="Capacity">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-cap-label">
+                  Battery capacity
+                  <small>mAh</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-cap" data-quantity="Capacity"
+                       step="any" inputmode="decimal" placeholder="5000"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-cap-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="StartPct">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-start-label">
+                  Start charge
+                  <small>%</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-start" min="0" max="100"
+                       step="any" inputmode="decimal" placeholder="0"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-start-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="TargetPct">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-target-label">
+                  Target charge
+                  <small>%</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-target" min="0" max="100"
+                       step="any" inputmode="decimal" placeholder="100"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-target-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="ChargeInputKind">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-kind-label">
+                  Charger spec given as
+                  <small>pick one</small>
+                </span>
+                <select class="electronics-calculator__input"
+                        id="ef-bat-charge-kind"
+                        aria-labelledby="ef-bat-charge-kind-label">
+                  <option value="current">Current (A) at battery voltage</option>
+                  <option value="power">Power (W) + battery voltage</option>
+                </select>
+              </div>
+              <div class="electronics-ohms-field" data-field="ChargeI">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-I-label">
+                  Charge current
+                  <small>amperes</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-I" data-quantity="I"
+                       step="any" inputmode="decimal" placeholder="3"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-I-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="ChargeP" hidden>
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-P-label">
+                  Charge power
+                  <small>watts</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-P" data-quantity="LoadPower"
+                       step="any" inputmode="decimal" placeholder="15"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-P-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="V">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-V-label">
+                  Battery voltage
+                  <small>volts (per pack)</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-V" data-quantity="V"
+                       step="any" inputmode="decimal" placeholder="3.7"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-V-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="Eff">
+                <span class="electronics-ohms-field__label" id="ef-bat-charge-eff-label">
+                  Efficiency
+                  <small>% (default 85)</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-charge-eff" min="10" max="100"
+                       step="any" inputmode="decimal" placeholder="85"
+                       autocomplete="off" aria-labelledby="ef-bat-charge-eff-label">
+              </div>
+            </div>
+
+            <div class="electronics-bat-soc-bar" aria-hidden="true">
+              <div class="electronics-bat-soc-bar__track"></div>
+              <div class="electronics-bat-soc-bar__fill" id="ef-bat-charge-bar"></div>
+              <span class="electronics-bat-soc-bar__label electronics-bat-soc-bar__label--start"
+                    id="ef-bat-charge-bar-start">0%</span>
+              <span class="electronics-bat-soc-bar__label electronics-bat-soc-bar__label--end"
+                    id="ef-bat-charge-bar-end">100%</span>
+            </div>
+
+            <div id="electronics-bat-charge-result"
+                 class="electronics-ohms-result"
+                 role="status" aria-live="polite">
+              Enter capacity, target, charger spec to see how long charging takes.
+            </div>
+          </div>
+
+          {%- comment -%} ----- Mode B: Runtime ----- {%- endcomment -%}
+          <div class="electronics-bat-panel" data-bat-mode="runtime" hidden>
+            <div class="electronics-ohms-fields" role="group" aria-label="Runtime inputs">
+              <div class="electronics-ohms-field" data-field="Capacity">
+                <span class="electronics-ohms-field__label" id="ef-bat-run-cap-label">
+                  Battery capacity
+                  <small>mAh</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-run-cap" data-quantity="Capacity"
+                       step="any" inputmode="decimal" placeholder="10000"
+                       autocomplete="off" aria-labelledby="ef-bat-run-cap-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="V">
+                <span class="electronics-ohms-field__label" id="ef-bat-run-V-label">
+                  Battery voltage
+                  <small>volts</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-run-V" data-quantity="V"
+                       step="any" inputmode="decimal" placeholder="3.7"
+                       autocomplete="off" aria-labelledby="ef-bat-run-V-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="LoadInputKind">
+                <span class="electronics-ohms-field__label" id="ef-bat-run-kind-label">
+                  Load given as
+                  <small>pick one</small>
+                </span>
+                <select class="electronics-calculator__input"
+                        id="ef-bat-run-kind"
+                        aria-labelledby="ef-bat-run-kind-label">
+                  <option value="current">Current (A)</option>
+                  <option value="power">Power (W)</option>
+                </select>
+              </div>
+              <div class="electronics-ohms-field" data-field="LoadI">
+                <span class="electronics-ohms-field__label" id="ef-bat-run-I-label">
+                  Load current
+                  <small>amperes</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-run-I" data-quantity="I"
+                       step="any" inputmode="decimal" placeholder="0.5"
+                       autocomplete="off" aria-labelledby="ef-bat-run-I-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="LoadP" hidden>
+                <span class="electronics-ohms-field__label" id="ef-bat-run-P-label">
+                  Load power
+                  <small>watts</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-run-P" data-quantity="LoadPower"
+                       step="any" inputmode="decimal" placeholder="2"
+                       autocomplete="off" aria-labelledby="ef-bat-run-P-label">
+              </div>
+            </div>
+
+            <div id="electronics-bat-run-result"
+                 class="electronics-ohms-result"
+                 role="status" aria-live="polite">
+              Enter capacity, voltage, and load to see how long it lasts.
+            </div>
+          </div>
+
+          {%- comment -%} ----- Mode C: Capacity from test ----- {%- endcomment -%}
+          <div class="electronics-bat-panel" data-bat-mode="capacity" hidden>
+            <p class="electronics-calculator__hint">
+              Discharge a charged cell at a known constant load and time how long it
+              lasts to its cutoff voltage. <code>capacity_mAh = current_mA &times; time_h</code>
+              gives the actual usable capacity at that current — measured capacity falls at
+              higher discharge currents (Peukert effect).
+            </p>
+            <div class="electronics-ohms-fields" role="group" aria-label="Capacity test inputs">
+              <div class="electronics-ohms-field" data-field="CapI">
+                <span class="electronics-ohms-field__label" id="ef-bat-cap-I-label">
+                  Test load current
+                  <small>milliamperes (mA)</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-cap-I" data-quantity="I"
+                       step="any" inputmode="decimal" placeholder="500"
+                       autocomplete="off" aria-labelledby="ef-bat-cap-I-label">
+              </div>
+              <div class="electronics-ohms-field" data-field="CapTime">
+                <span class="electronics-ohms-field__label" id="ef-bat-cap-time-label">
+                  Observed runtime
+                  <small>hours</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-cap-time"
+                       step="any" inputmode="decimal" placeholder="6"
+                       autocomplete="off" aria-labelledby="ef-bat-cap-time-label">
+              </div>
+            </div>
+
+            <div id="electronics-bat-cap-result"
+                 class="electronics-ohms-result"
+                 role="status" aria-live="polite">
+              Run the cell flat at a known current to back-calculate its capacity.
+            </div>
+          </div>
+
+          {%- comment -%} ----- Mode D: Voltage → SOC ----- {%- endcomment -%}
+          <div class="electronics-bat-panel" data-bat-mode="soc" hidden>
+            <p class="electronics-calculator__hint">
+              Estimate <span class="abbr-link" data-abbr="SOC">state of charge</span>
+              from a per-cell voltage reading. Accuracy depends on chemistry —
+              <span class="abbr-link" data-abbr="Li-ion">Li-ion</span>'s flat
+              middle-of-curve gives ±10 % under no load; lead-acid is ±5 %.
+              For multi-cell packs, divide pack voltage by cell count first.
+            </p>
+            <div class="electronics-ohms-fields" role="group" aria-label="SOC estimator inputs">
+              <div class="electronics-ohms-field" data-field="Chemistry">
+                <span class="electronics-ohms-field__label" id="ef-bat-soc-chem-label">
+                  Chemistry
+                  <small>per cell</small>
+                </span>
+                <select class="electronics-calculator__input"
+                        id="ef-bat-soc-chem"
+                        aria-labelledby="ef-bat-soc-chem-label">
+                  <option value="alkaline">Alkaline AA / AAA</option>
+                  <option value="nimh">NiMH AA / AAA</option>
+                  <option value="lead">Lead-acid (per cell)</option>
+                  <option value="lifepo4">LiFePO₄</option>
+                  <option value="liion" selected>Li-ion</option>
+                  <option value="lipo">Li-Po</option>
+                </select>
+              </div>
+              <div class="electronics-ohms-field" data-field="V">
+                <span class="electronics-ohms-field__label" id="ef-bat-soc-V-label">
+                  Measured cell voltage
+                  <small>volts</small>
+                </span>
+                <input type="number" class="electronics-calculator__input"
+                       id="ef-bat-soc-V" data-quantity="V"
+                       step="any" inputmode="decimal" placeholder="3.7"
+                       autocomplete="off" aria-labelledby="ef-bat-soc-V-label">
+              </div>
+            </div>
+
+            <div class="electronics-bat-soc-bar" aria-hidden="true">
+              <div class="electronics-bat-soc-bar__track"></div>
+              <div class="electronics-bat-soc-bar__fill" id="ef-bat-soc-bar"></div>
+              <span class="electronics-bat-soc-bar__label electronics-bat-soc-bar__label--start">0%</span>
+              <span class="electronics-bat-soc-bar__label electronics-bat-soc-bar__label--end">100%</span>
+            </div>
+
+            <div id="electronics-bat-soc-result"
+                 class="electronics-ohms-result"
+                 role="status" aria-live="polite">
+              Pick a chemistry and enter the measured voltage to estimate SOC.
+            </div>
+          </div>
+
+          <div id="electronics-bat-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-bat-clear">
+              Clear
+            </button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-bat-copy">
+              Copy results
+            </button>
+          </div>
+
+          <script type="application/json" id="electronics-calc-battery-data">
+            {
+              "defaults": {
+                "charge":   { "capacity_mAh": 5000,  "start_pct": 0,  "target_pct": 100, "kind": "current", "I_A": 3,   "P_W": 15, "V": 3.7, "eff_pct": 85 },
+                "runtime":  { "capacity_mAh": 10000, "V": 3.7,        "kind": "current", "I_A": 0.5, "P_W": 2 },
+                "capacity": { "I_mA": 500, "time_h": 6 },
+                "soc":      { "chemistry": "liion", "V": 3.7 }
+              },
+              "presets": {
+                "phone":     { "mode": "charge", "capacity_mAh": 5000,  "start_pct": 0,  "target_pct": 100, "kind": "power",   "I_A": 3,    "P_W": 15,  "V": 3.7,  "eff_pct": 85 },
+                "laptop":    { "mode": "charge", "capacity_mAh": 14000, "start_pct": 0,  "target_pct": 100, "kind": "power",   "I_A": 3,    "P_W": 60,  "V": 3.7,  "eff_pct": 88 },
+                "18650":     { "mode": "charge", "capacity_mAh": 3000,  "start_pct": 0,  "target_pct": 100, "kind": "current", "I_A": 3,    "P_W": 12.6, "V": 4.2, "eff_pct": 90 },
+                "powerbank": { "mode": "charge", "capacity_mAh": 10000, "start_pct": 0,  "target_pct": 100, "kind": "power",   "I_A": 2,    "P_W": 10,  "V": 3.7,  "eff_pct": 80 },
+                "car":       { "mode": "charge", "capacity_mAh": 50000, "start_pct": 50, "target_pct": 100, "kind": "current", "I_A": 10,   "P_W": 120, "V": 12,   "eff_pct": 80 }
+              },
+              "soc_curves": {
+                "alkaline": { "label": "Alkaline AA / AAA", "v0": 0.9,  "v50": 1.3,  "v100": 1.6,  "accuracy": "±5 %", "load_note": "Drops sharply under load — measure unloaded for best accuracy." },
+                "nimh":     { "label": "NiMH AA / AAA",     "v0": 1.0,  "v50": 1.2,  "v100": 1.4,  "accuracy": "±10 %", "load_note": "Flat curve in middle 80 %; coulomb counting is more reliable." },
+                "lead":     { "label": "Lead-acid",         "v0": 1.75, "v50": 2.0,  "v100": 2.1,  "accuracy": "±5 %", "load_note": "Multiply by 6 for a 12 V pack. Most accurate after a 4 h rest." },
+                "lifepo4":  { "label": "LiFePO₄",           "v0": 2.5,  "v50": 3.2,  "v100": 3.65, "accuracy": "±15 %", "load_note": "Notoriously flat curve — don't rely on voltage alone for SOC." },
+                "liion":    { "label": "Li-ion",            "v0": 3.0,  "v50": 3.7,  "v100": 4.2,  "accuracy": "±10 %", "load_note": "Flat middle of curve; SOC from voltage is rough between 20 % and 80 %." },
+                "lipo":     { "label": "Li-Po",             "v0": 3.0,  "v50": 3.7,  "v100": 4.2,  "accuracy": "±10 %", "load_note": "Identical chemistry to Li-ion; same caveats." }
+              }
+            }
+          </script>
+        </article>
+
+      </div>
+    </section>
+
+    {%- comment -%} ========== Section 4: Visual Component Lab ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-components" aria-labelledby="electronics-components-heading">
+      <h2 class="electronics-section__title" id="electronics-components-heading">Visual Component Lab</h2>
+      <p class="electronics-section__intro">
+        A hands-on bench: pick colors on a live resistor preview, scan an
+        E-series value cloud sized by popularity, and toggle the tolerance
+        chart on demand. Every panel stays in sync with the dark/light theme
+        and feeds the Quick Wheel above when you find a value worth playing
+        with.
+      </p>
+
+
+      <div class="electronics-components" id="electronics-components-grid">
+
+        {%- comment -%} ----- Card 1: Resistor Color-Code Decoder ----- {%- endcomment -%}
+        <article class="electronics-component-card" id="electronics-rcd-card" data-ef-widget="resistor-color-decoder">
+          <h3 class="electronics-component-card__title">Resistor Color-Code Decoder</h3>
+          <p class="electronics-component-card__caption">
+            Pick the color of each band &mdash; the value, tolerance, and tolerance
+            bar update live. The mini-chart below compares this nominal value
+            across every common tolerance grade so you can <em>see</em> how much
+            tighter each step gets.
+          </p>
+
+          <div class="electronics-sp-modes">
+            <fieldset>
+              <legend>Number of bands</legend>
+              <label><input type="radio" name="rcd-bands" value="4" checked><span>4-band</span></label>
+              <label><input type="radio" name="rcd-bands" value="5"><span>5-band</span></label>
+            </fieldset>
+          </div>
+
+          {%- comment -%}
+            Common-values preset row. Each button preloads the decoder
+            bands for a frequently encountered hobby resistor so visitors
+            can hit the value they recognise in one click instead of
+            clicking through bands. Click handler lives in
+            initResistorColorDecoder (electronics-components.js).
+          {%- endcomment -%}
+          <div class="electronics-rcd-presets" id="electronics-rcd-presets"
+               role="group" aria-label="Common resistor presets">
+            <span class="electronics-rcd-presets__label">Quick presets:</span>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="brown,black,red,gold">1 kΩ ±5%</button>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="yellow,violet,red,gold">4.7 kΩ ±5%</button>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="brown,black,orange,gold">10 kΩ ±5%</button>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="brown,black,black,red,brown">10 kΩ ±1%</button>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="red,red,brown,gold">220 Ω ±5%</button>
+            <button type="button" class="electronics-rcd-presets__btn"
+                    data-rcd-preset="brown,black,green,gold">1 MΩ ±5%</button>
+          </div>
+
+          <div class="electronics-rcd-bands"
+               id="electronics-rcd-bands"
+               role="group" aria-label="Resistor color bands"></div>
+
+          {%- comment -%}
+            Live resistor preview. The SVG is populated by the
+            initLiveResistorPreview widget — which watches the bands
+            container via MutationObserver — so it doesn't need to reach
+            inside the decoder's closure.
+          {%- endcomment -%}
+          <figure class="electronics-rcd-resistor-preview" aria-hidden="true">
+            <svg id="electronics-rcd-resistor-svg" viewBox="0 0 300 60"
+                 xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+          </figure>
+
+          <div class="electronics-rcd-result" role="status" aria-live="polite">
+            <span class="electronics-rcd-result__value" id="electronics-rcd-value">1 kΩ</span>
+            <span class="electronics-rcd-result__tolerance" id="electronics-rcd-tolerance">±5%</span>
+            <span class="electronics-rcd-result__range" id="electronics-rcd-range">950 Ω &ndash; 1.05 kΩ</span>
+          </div>
+
+          <div class="electronics-rcd-tolerance-bar" aria-hidden="true">
+            <div class="electronics-rcd-tolerance-bar__track"></div>
+            <div class="electronics-rcd-tolerance-bar__fill" id="electronics-rcd-bar-fill"></div>
+            <div class="electronics-rcd-tolerance-bar__nominal"></div>
+            <span class="electronics-rcd-tolerance-bar__label electronics-rcd-tolerance-bar__label--min" id="electronics-rcd-bar-min">—</span>
+            <span class="electronics-rcd-tolerance-bar__label electronics-rcd-tolerance-bar__label--nominal" id="electronics-rcd-bar-nominal">—</span>
+            <span class="electronics-rcd-tolerance-bar__label electronics-rcd-tolerance-bar__label--max" id="electronics-rcd-bar-max">—</span>
+          </div>
+
+          {%- comment -%}
+            CSS fallback bar. Always rendered; hidden via .is-hidden when
+            the user opts to show the Chart.js comparison. Bars are sized
+            at run-time by initToleranceChartToggle to scale against ±20%.
+          {%- endcomment -%}
+          <button type="button"
+                  class="electronics-rcd-chart-toggle"
+                  id="electronics-rcd-chart-toggle"
+                  aria-pressed="false">📊 Show chart</button>
+          <div class="electronics-rcd-chart-fallback" id="electronics-rcd-chart-fallback" aria-hidden="true">
+            <div class="electronics-rcd-chart-fallback__row">
+              <span class="electronics-rcd-chart-fallback__label">±20%</span>
+              <div class="electronics-rcd-chart-fallback__bar">
+                <div class="electronics-rcd-chart-fallback__fill" style="left: 0%; width: 100%; --fallback-color: #94a3b8;"></div>
+              </div>
+            </div>
+            <div class="electronics-rcd-chart-fallback__row">
+              <span class="electronics-rcd-chart-fallback__label">±10%</span>
+              <div class="electronics-rcd-chart-fallback__bar">
+                <div class="electronics-rcd-chart-fallback__fill" style="left: 25%; width: 50%; --fallback-color: #c0c0c0;"></div>
+              </div>
+            </div>
+            <div class="electronics-rcd-chart-fallback__row">
+              <span class="electronics-rcd-chart-fallback__label">±5%</span>
+              <div class="electronics-rcd-chart-fallback__bar">
+                <div class="electronics-rcd-chart-fallback__fill" style="left: 37.5%; width: 25%; --fallback-color: #d4a017;"></div>
+              </div>
+            </div>
+            <div class="electronics-rcd-chart-fallback__row">
+              <span class="electronics-rcd-chart-fallback__label">±2%</span>
+              <div class="electronics-rcd-chart-fallback__bar">
+                <div class="electronics-rcd-chart-fallback__fill" style="left: 45%; width: 10%; --fallback-color: #d42d2d;"></div>
+              </div>
+            </div>
+            <div class="electronics-rcd-chart-fallback__row">
+              <span class="electronics-rcd-chart-fallback__label">±1%</span>
+              <div class="electronics-rcd-chart-fallback__bar">
+                <div class="electronics-rcd-chart-fallback__fill" style="left: 47.5%; width: 5%; --fallback-color: #8b4513;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="electronics-rcd-chart-wrapper">
+            <canvas id="electronics-component-chart"
+                    role="img"
+                    aria-label="Tolerance class comparison: floating-bar chart for ±20%, ±10%, ±5%, ±2%, ±1%"></canvas>
+          </div>
+
+          <div id="electronics-rcd-warning"
+               class="electronics-ohms-warning"
+               role="alert" hidden></div>
+
+          <div class="electronics-ohms-actions">
+            <button type="button" class="electronics-calculator__reset" id="electronics-rcd-reset">Reset</button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-rcd-copy">Copy value</button>
+            <button type="button" class="electronics-calculator__reset" id="electronics-rcd-open-wheel">Open in Quick Wheel &uarr;</button>
+          </div>
+
+          <script type="application/json" id="electronics-rcd-data">
+            {
+              "defaults": {
+                "4": ["brown", "black", "red", "gold"],
+                "5": ["brown", "black", "black", "brown", "brown"]
+              },
+              "colors": {
+                "black":  { "digit": 0,    "multiplier": 1,        "tolerance": null,  "hex": "#111111", "text": "#ffffff" },
+                "brown":  { "digit": 1,    "multiplier": 10,       "tolerance": 1,     "hex": "#8b4513", "text": "#ffffff" },
+                "red":    { "digit": 2,    "multiplier": 100,      "tolerance": 2,     "hex": "#d42d2d", "text": "#ffffff" },
+                "orange": { "digit": 3,    "multiplier": 1000,     "tolerance": null,  "hex": "#ff8c00", "text": "#111111" },
+                "yellow": { "digit": 4,    "multiplier": 10000,    "tolerance": null,  "hex": "#ffd400", "text": "#111111" },
+                "green":  { "digit": 5,    "multiplier": 100000,   "tolerance": 0.5,   "hex": "#3aa14b", "text": "#ffffff" },
+                "blue":   { "digit": 6,    "multiplier": 1000000,  "tolerance": 0.25,  "hex": "#2563eb", "text": "#ffffff" },
+                "violet": { "digit": 7,    "multiplier": 10000000, "tolerance": 0.1,   "hex": "#8b5cf6", "text": "#ffffff" },
+                "gray":   { "digit": 8,    "multiplier": null,     "tolerance": 0.05,  "hex": "#6b7280", "text": "#ffffff" },
+                "white":  { "digit": 9,    "multiplier": null,     "tolerance": null,  "hex": "#f9fafb", "text": "#111111" },
+                "gold":   { "digit": null, "multiplier": 0.1,      "tolerance": 5,     "hex": "#d4a017", "text": "#3a2a00" },
+                "silver": { "digit": null, "multiplier": 0.01,     "tolerance": 10,    "hex": "#c0c0c0", "text": "#1a1a1a" }
+              },
+              "toleranceClasses": [
+                { "label": "±20%", "value": 20, "color": "#94a3b8" },
+                { "label": "±10%", "value": 10, "color": "#c0c0c0" },
+                { "label": "±5%",  "value": 5,  "color": "#d4a017" },
+                { "label": "±2%",  "value": 2,  "color": "#d42d2d" },
+                { "label": "±1%",  "value": 1,  "color": "#8b4513" }
+              ]
+            }
+          </script>
+        </article>
+
+        {%- comment -%} ----- Card 2: E-Series Standard Values ----- {%- endcomment -%}
+        <article class="electronics-component-card" id="electronics-eseries-card">
+          <h3 class="electronics-component-card__title">E-Series Standard Values</h3>
+          <p class="electronics-component-card__caption">
+            Manufacturers don&rsquo;t make every possible resistor &mdash; they ship
+            preferred values from the IEC&nbsp;60063 E-series. Each step doubles
+            the previous: <strong>E6</strong> for ±20% parts, <strong>E12</strong>
+            for ±10%, <strong>E24</strong> for ±5%, <strong>E96</strong> for ±1%.
+            Type a target value to find the closest preferred match in the
+            active series.
+          </p>
+
+          <div class="electronics-eseries-tabs" role="tablist" aria-label="E-series">
+            <button type="button" class="electronics-eseries-tab" data-series="E6"  role="tab" aria-selected="false">E6 &middot; 6 / decade</button>
+            <button type="button" class="electronics-eseries-tab" data-series="E12" role="tab" aria-selected="false">E12 &middot; 12 / decade</button>
+            <button type="button" class="electronics-eseries-tab is-active" data-series="E24" role="tab" aria-selected="true">E24 &middot; 24 / decade</button>
+            <button type="button" class="electronics-eseries-tab" data-series="E96" role="tab" aria-selected="false">E96 &middot; 96 / decade</button>
+          </div>
+
+          <div class="electronics-eseries-finder">
+            <label>
+              Find closest to:
+              <input type="number" class="electronics-calculator__input"
+                     id="electronics-eseries-target"
+                     step="any" inputmode="decimal"
+                     placeholder="e.g. 4700"
+                     aria-label="Target resistance value">
+              <span aria-hidden="true">Ω</span>
+            </label>
+            <span id="electronics-eseries-closest"
+                  class="electronics-pill electronics-pill--accent"
+                  aria-live="polite">—</span>
+          </div>
+
+          <label class="electronics-tables-search">
+            <span aria-hidden="true">🔍</span>
+            <input type="search" id="electronics-eseries-search"
+                   placeholder="Filter mantissa values…"
+                   autocomplete="off" spellcheck="false"
+                   aria-label="Filter E-series values">
+            <span class="electronics-tables-search__count" id="electronics-eseries-count" aria-live="polite"></span>
+          </label>
+
+          <div class="electronics-eseries-grid"
+               id="electronics-eseries-grid"
+               role="list" aria-label="E-series values"></div>
+
+          <p class="electronics-eseries-empty"
+             id="electronics-eseries-empty" hidden>
+            No values match your filter.
+          </p>
+
+          <script type="application/json" id="electronics-eseries-data">
+            {
+              "active": "E24",
+              "series": {
+                "E6":  [1.0, 1.5, 2.2, 3.3, 4.7, 6.8],
+                "E12": [1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2],
+                "E24": [1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1],
+                "E96": [1.00, 1.02, 1.05, 1.07, 1.10, 1.13, 1.15, 1.18, 1.21, 1.24, 1.27, 1.30, 1.33, 1.37, 1.40, 1.43, 1.47, 1.50, 1.54, 1.58, 1.62, 1.65, 1.69, 1.74, 1.78, 1.82, 1.87, 1.91, 1.96, 2.00, 2.05, 2.10, 2.15, 2.21, 2.26, 2.32, 2.37, 2.43, 2.49, 2.55, 2.61, 2.67, 2.74, 2.80, 2.87, 2.94, 3.01, 3.09, 3.16, 3.24, 3.32, 3.40, 3.48, 3.57, 3.65, 3.74, 3.83, 3.92, 4.02, 4.12, 4.22, 4.32, 4.42, 4.53, 4.64, 4.75, 4.87, 4.99, 5.11, 5.23, 5.36, 5.49, 5.62, 5.76, 5.90, 6.04, 6.19, 6.34, 6.49, 6.65, 6.81, 6.98, 7.15, 7.32, 7.50, 7.68, 7.87, 8.06, 8.25, 8.45, 8.66, 8.87, 9.09, 9.31, 9.53, 9.76]
+              }
+            }
+          </script>
+        </article>
+      </div>
+    </section>
+
+    {%- comment -%} ========== Section 5: Circuit Design Guides & Practical Tips ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-design-guides" aria-labelledby="electronics-design-guides-heading">
+      <h2 class="electronics-section__title" id="electronics-design-guides-heading">Circuit Design Guides &amp; Practical Tips</h2>
+      <p class="electronics-section__intro">
+        Decoupling, pull-ups vs.&nbsp;pull-downs, choosing the right transistor,
+        protecting inputs &mdash; the practical rules of thumb that aren&rsquo;t in a
+        textbook. Filter by tier, or search for a specific topic.
+      </p>
+
+
+      <div class="electronics-guides-controls">
+        <div class="electronics-guides-tabs" role="tablist" aria-label="Design-guide tier filters">
+          <button type="button" class="electronics-guides-filter is-active"
+                  data-filter="all" role="tab" aria-selected="true">All</button>
+          <button type="button" class="electronics-guides-filter"
+                  data-filter="best-practice" role="tab" aria-selected="false">Best practices</button>
+          <button type="button" class="electronics-guides-filter"
+                  data-filter="warning" role="tab" aria-selected="false">⚠ Warnings</button>
+          <button type="button" class="electronics-guides-filter"
+                  data-filter="danger" role="tab" aria-selected="false">⛔ Hazards</button>
+        </div>
+        <label class="electronics-guides-search">
+          <span class="spectrum-search__icon" aria-hidden="true">🔍</span>
+          <input type="search" id="electronics-guides-search"
+                 placeholder="Filter by topic, technique, part…"
+                 autocomplete="off" spellcheck="false"
+                 aria-label="Search design guides">
+          <span class="electronics-guides-search__count" id="electronics-guides-count" aria-live="polite"></span>
+        </label>
+      </div>
+
+      <div class="electronics-guides" id="electronics-guides-grid" data-abbr-decorate>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="decoupling capacitors bypass">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">Decoupling capacitors are non-negotiable</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Place a <code>100&nbsp;nF</code> ceramic + <code>10&nbsp;µF</code> bulk
+              capacitor as close as possible to every IC&rsquo;s power pin. The
+              100&nbsp;nF handles fast transients; the 10&nbsp;µF holds the rail
+              steady during current spikes. Skipping decoupling is the #1 cause
+              of mysterious &ldquo;random&rdquo; bugs that vanish when you press a
+              finger on the board.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> An ATmega328P needs decoupling within
+              10&nbsp;mm of V<sub>CC</sub>; otherwise EMI couples into the ADC and
+              you&rsquo;ll see noisy readings.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="pull-up pull-down resistor gpio input">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">Pull-ups vs.&nbsp;pull-downs</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Floating MCU inputs read random values &mdash; you must define a
+              default. <strong>Pull-up</strong>: input idles high, switch pulls
+              it low. <strong>Pull-down</strong>: input idles low, switch pulls
+              it high. Use <code>10&nbsp;kΩ</code> for general logic,
+              <code>4.7&nbsp;kΩ</code> for I²C / 1-Wire (datasheet-specified),
+              <code>100&nbsp;kΩ</code> when you need ultra-low quiescent current.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> AVR / ESP32 / RP2040 all expose internal
+              pull-ups (~30&ndash;50&nbsp;kΩ). Toggle them in software instead of
+              soldering external resistors when the value isn&rsquo;t critical.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="warning" data-topic="power supply sequencing fpga ddr">
+          <span class="electronics-guide__tag electronics-guide__tag--warning">Warning</span>
+          <h3 class="electronics-guide__title">Power-supply sequencing</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Some ICs (FPGAs, DDR memory, mixed-signal chips) require core / IO
+              rails to come up in a specific order &mdash; typically core before
+              IO. Wrong order can latch up the chip permanently. Read the
+              <em>Power Sequencing</em> section of every datasheet before you
+              design the supply rails.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Xilinx 7-series FPGAs require V<sub>CCINT</sub>
+              before V<sub>CCAUX</sub> before V<sub>CCO</sub>. Violating that order
+              is silent until you ship 100 units that all fail in the field.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="danger" data-topic="esd protection tvs static discharge">
+          <span class="electronics-guide__tag electronics-guide__tag--danger">Hazard</span>
+          <h3 class="electronics-guide__title">ESD protection on exposed pins</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Anything connected to a connector or human-touchable surface
+              (USB, audio jacks, switches, buttons) needs ESD protection. A
+              25&nbsp;kV finger-zap into a bare GPIO will kill the IC every
+              time. Use TVS diodes (e.g.&nbsp;<code>PESD5V0S2UT</code>,
+              <code>USBLC6-2SC6</code>) inline with each exposed signal &mdash;
+              5&nbsp;V / 8&nbsp;V / 12&nbsp;V variants per logic level.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> USB ports without ESD diodes blow MCUs
+              the first time someone shuffles across carpet and plugs in a
+              cable.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="bjt mosfet transistor switching">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">BJT vs.&nbsp;MOSFET &mdash; which switch?</h3>
+          <div class="electronics-guide__body">
+            <p>
+              BJTs (<code>2N3904</code>, <code>BC547</code>) are
+              <em>current-controlled</em> &mdash; drive the base with a few mA via
+              a series resistor. MOSFETs (<code>IRLZ44N</code>, <code>AO3401</code>)
+              are <em>voltage-controlled</em> &mdash; drive the gate above
+              V<sub>GS(th)</sub>. For switching loads above ~500&nbsp;mA, prefer
+              MOSFETs: lower R<sub>DS(on)</sub> means less heat. For analog gain
+              stages, BJTs still rule.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Switching a 12&nbsp;V relay at 50&nbsp;mA:
+              a <code>2N7000</code> logic-level MOSFET works at a 3.3&nbsp;V gate.
+              A <code>2N3904</code> BJT needs ~1&nbsp;mA base current via a
+              <code>1&nbsp;kΩ</code> resistor.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="warning" data-topic="reverse polarity protection schottky pmos">
+          <span class="electronics-guide__tag electronics-guide__tag--warning">Warning</span>
+          <h3 class="electronics-guide__title">Reverse-polarity protection</h3>
+          <div class="electronics-guide__body">
+            <p>
+              If your circuit might be plugged in backwards (battery clips,
+              screw terminals, barrel jacks), add reverse protection or risk
+              magic smoke. <strong>Schottky in series</strong>: simple,
+              ~0.3&nbsp;V drop, fine for low-current loads.
+              <strong>P-channel MOSFET</strong> (gate to ground via a Zener):
+              near-zero drop, perfect for battery-powered designs.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> A barrel-jack 12&nbsp;V supply reversed
+              across an LM7805 instantly cooks the regulator unless you have a
+              <code>1N5819</code> or P-FET in the path.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="switch debounce contact bounce">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">Switch debouncing</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Mechanical contacts bounce 5&ndash;20&nbsp;ms when toggled,
+              generating dozens of false edges per press. Two clean fixes:
+              <strong>RC filter</strong> &mdash; <code>10&nbsp;kΩ + 100&nbsp;nF</code>
+              gives a ~1&nbsp;ms time constant, smooth in hardware.
+              <strong>Software debounce</strong> &mdash; track the last edge
+              time, ignore changes within 20&nbsp;ms. SPDT switches with a
+              cross-coupled NAND latch produce a perfect bounce-free signal.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> An Arduino &ldquo;count button presses&rdquo;
+              sketch without debouncing will register 5&ndash;15 counts for one
+              physical press.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="warning" data-topic="thermal heatsink junction temperature">
+          <span class="electronics-guide__tag electronics-guide__tag--warning">Warning</span>
+          <h3 class="electronics-guide__title">Heat dissipation &amp; thermal resistance</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Power dissipated in a part raises its junction temperature:
+              <code>T<sub>J</sub> = T<sub>A</sub> + (P × θ<sub>JA</sub>)</code>.
+              For a TO-220 package, θ<sub>JA</sub> &asymp; 50&nbsp;°C/W
+              <em>without</em> a heatsink. Drop 2&nbsp;W into one and the
+              junction hits 100&nbsp;°C above ambient &mdash; over T<sub>J(max)</sub>=150&nbsp;°C
+              if your room is over 50&nbsp;°C. Use heatsinks, copper pours, or
+              larger packages above ~1&nbsp;W.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> An <code>LM317</code> dropping 5&nbsp;V
+              at 1&nbsp;A dissipates 5&nbsp;W. Without a heatsink it would hit
+              250&nbsp;°C above ambient &mdash; instant smoke. Add a TO-220
+              heatsink (θ<sub>HS</sub>&asymp;10&nbsp;°C/W) and it stabilises at
+              50&ndash;60&nbsp;°C above ambient.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="pcb trace width current ipc-2221">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">PCB trace width for current</h3>
+          <div class="electronics-guide__body">
+            <p>
+              PCB traces aren&rsquo;t superconductors. IPC-2221 rule of thumb
+              (1&nbsp;oz copper, 10&nbsp;°C rise): <code>1&nbsp;A → 10&nbsp;mil</code>,
+              <code>3&nbsp;A → 30&nbsp;mil</code>,
+              <code>5&nbsp;A → 60&nbsp;mil</code>,
+              <code>10&nbsp;A → 200&nbsp;mil</code>. For internal layers, double
+              the width. KiCad&rsquo;s <em>Calculator Tools</em> has IPC-2221 built
+              in.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Routing a 5&nbsp;A motor supply on a
+              10&nbsp;mil trace: temperature-rise calc says 60&nbsp;°C &mdash;
+              trace warms enough to melt solder mask near connectors.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="warning" data-topic="gpio input protection clamping diode tvs">
+          <span class="electronics-guide__tag electronics-guide__tag--warning">Warning</span>
+          <h3 class="electronics-guide__title">Input protection on MCU GPIO</h3>
+          <div class="electronics-guide__body">
+            <p>
+              GPIOs typically tolerate <code>V<sub>CC</sub> + 0.3&nbsp;V</code>
+              max. Connecting them to higher-voltage signals or noisy
+              real-world inputs (sensors, motor encoders, automotive busses)
+              requires clamping. Standard recipe: <code>1&nbsp;kΩ</code> series
+              resistor + Schottky diodes to V<sub>CC</sub> and GND. The diodes
+              shunt over- and under-shoots; the resistor limits current
+              through them to safe values (typically &le;&nbsp;1&nbsp;mA into
+              the ESD structure).
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Reading a 12&nbsp;V automotive signal
+              directly into a 3.3&nbsp;V GPIO blows the input the first time
+              the alternator spikes to 18&nbsp;V.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="i2c spi uart serial pull-up signal integrity termination communication">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">I²C / SPI / UART signal integrity</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Each digital interface has its own gotchas. <strong>I²C</strong> is
+              open-drain — both SDA and SCL <em>must</em> have pull-ups (typically
+              <code>2.2&nbsp;kΩ</code>–<code>10&nbsp;kΩ</code>; smaller for fast-mode
+              + long buses, larger for low-power); without them the bus floats
+              and reads garbage. <strong>SPI</strong> is push-pull, so no
+              pull-ups, but keep CLK runs short (&lt;&nbsp;15&nbsp;cm at
+              4&nbsp;MHz+) and route MISO/MOSI as a balanced pair; for noisy
+              environments add a <code>22&nbsp;Ω</code> series resistor near the
+              driver to round the edges. <strong>UART</strong> tolerates long
+              wires but breaks if the two endpoints don&rsquo;t share a common
+              ground; a return-current path through chassis or USB shield
+              counts.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> An I²C bus that works on the bench but
+              flakes once you add a third sensor needs the pull-ups dropped
+              from <code>10&nbsp;kΩ</code> to <code>4.7&nbsp;kΩ</code> — the
+              extra device capacitance has slowed the rise time below spec.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="ldo linear switching regulator buck boost selection efficiency">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">Linear vs.&nbsp;switching regulator</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Pick a <strong>linear regulator</strong> (LDO) when the input
+              voltage is only a little above the output, the load current is
+              modest (&lt;&nbsp;500&nbsp;mA), and you need clean low-noise rails
+              (analog, RF, audio). Efficiency is just
+              <code>V<sub>out</sub> / V<sub>in</sub></code> — drop 12&nbsp;V to
+              3.3&nbsp;V at 1&nbsp;A and you dissipate 8.7&nbsp;W as heat. Pick a
+              <strong>switching regulator</strong> (buck for step-down, boost for
+              step-up) when the conversion ratio is large, current is high, or
+              battery life matters; expect 85–95 % efficiency but more
+              switching-noise hygiene (input/output caps, layout, inductor
+              choice).
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> A 5&nbsp;V → 3.3&nbsp;V rail at 100&nbsp;mA
+              is fine on an LDO (170&nbsp;mW dissipated). A 12&nbsp;V → 3.3&nbsp;V
+              rail at 500&nbsp;mA on the same LDO would dissipate 4.35&nbsp;W
+              — switch to a buck converter.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="warning" data-topic="inductor relay motor flyback diode kickback snubber back-emf">
+          <span class="electronics-guide__tag">⚠ Warning</span>
+          <h3 class="electronics-guide__title">Inductive kickback — always clamp it</h3>
+          <div class="electronics-guide__body">
+            <p>
+              When current through any inductor (relay coil, solenoid, motor,
+              transformer) is suddenly interrupted, the collapsing magnetic
+              field generates a high-voltage spike of <em>opposite</em> polarity
+              to the supply — easily hundreds of volts from a 12&nbsp;V coil.
+              That spike will instantly destroy the switching transistor or MCU
+              pin that turned the load off. The fix is a flyback diode (e.g.
+              <code>1N4148</code> for small coils, <code>1N4007</code> for
+              relays) reverse-biased across the inductor — anode to the
+              load&rsquo;s low side, cathode to the supply rail. For PWM motor
+              drive add an RC snubber across the switch as well.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Driving a 12&nbsp;V automotive relay
+              coil from an MCU through a 2N7000 MOSFET <em>requires</em> a
+              diode across the coil; without it the MOSFET fails on the first
+              switch-off and takes the GPIO with it.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="ldo dropout headroom regulator quiescent current ripple rejection">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">LDO selection: dropout, headroom, and Iq</h3>
+          <div class="electronics-guide__body">
+            <p>
+              An LDO needs a minimum
+              <code>V<sub>in</sub> − V<sub>out</sub></code> headroom (the
+              &ldquo;dropout&rdquo; spec) to regulate; below that, the output
+              just follows the input minus the dropout. Classic 7805 needs
+              ~2&nbsp;V; modern LDOs (e.g. AMS1117 ~1.1&nbsp;V, MCP1700
+              ~178&nbsp;mV at 250&nbsp;mA) are far better for battery use.
+              Watch <strong>quiescent current</strong> (Iq) for always-on
+              battery designs — an LDO drawing 5&nbsp;mA Iq drains a coin cell
+              dead in days, while a low-Iq part (1&nbsp;µA Iq) lasts years.
+              Always-confirm output capacitor type; many low-quiescent LDOs
+              specifically require a low-ESR ceramic cap to stay stable.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Powering an MCU sleeping at 5&nbsp;µA
+              from a 7805 (Iq = 5&nbsp;mA) means the regulator wastes
+              1000&times; more current than the load. Replace with a low-Iq
+              LDO (e.g. TPS7A02) and battery life jumps from days to years.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="crystal oscillator load capacitance cl xtal frequency stability">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">Crystal load capacitance (C<sub>L</sub>)</h3>
+          <div class="electronics-guide__body">
+            <p>
+              A crystal&rsquo;s rated frequency is only achieved at its
+              specified <strong>load capacitance</strong> (C<sub>L</sub>,
+              typically 8–22&nbsp;pF). The MCU oscillator pins see two caps to
+              ground (C<sub>1</sub>, C<sub>2</sub>) plus stray board
+              capacitance (C<sub>stray</sub>, ~3–5&nbsp;pF for a clean
+              two-layer board). Standard formula:
+              <code>C<sub>L</sub> = (C<sub>1</sub>·C<sub>2</sub>) / (C<sub>1</sub>+C<sub>2</sub>) + C<sub>stray</sub></code>.
+              Pick C<sub>1</sub> = C<sub>2</sub> = 2·(C<sub>L</sub> − C<sub>stray</sub>)
+              as a starting point. Wrong C<sub>L</sub> shifts the actual
+              frequency tens of ppm — fine for blinking an LED, fatal for
+              precision timing or radio.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> A 16&nbsp;MHz crystal spec&rsquo;d for
+              C<sub>L</sub>&nbsp;=&nbsp;18&nbsp;pF on a board with
+              C<sub>stray</sub>&nbsp;≈&nbsp;3&nbsp;pF needs
+              C<sub>1</sub>&nbsp;=&nbsp;C<sub>2</sub>&nbsp;=&nbsp;2&nbsp;×&nbsp;(18&nbsp;−&nbsp;3)&nbsp;=&nbsp;30&nbsp;pF.
+              Using the wrong 22&nbsp;pF caps from another design pulls the
+              frequency off by ~30&nbsp;ppm and your USB serial drifts.
+            </p>
+          </div>
+        </article>
+
+      </div>
+
+      <p class="electronics-guides-empty" id="electronics-guides-empty" hidden>
+        No design guides match your filter.
+      </p>
+    </section>
+
+    {%- comment -%} ========== Section 6: Reference Tables ========== {%- endcomment -%}
+    <section class="electronics-section" id="electronics-tables" aria-labelledby="electronics-tables-heading">
+      <h2 class="electronics-section__title" id="electronics-tables-heading">Reference Tables</h2>
+      <p class="electronics-section__intro">
+        SI prefixes, resistor and capacitor markings, wire-gauge ratings, logic
+        thresholds, and battery-cell voltages &mdash; the lookup tables that round
+        out the cheat sheet. Switch tables with the tabs, or filter rows live
+        with the search box.
+      </p>
+
+
+      <div class="electronics-tables-controls">
+        <nav class="electronics-tables-tabs" role="tablist" aria-label="Reference table tabs">
+          <button type="button" class="electronics-tables-tab is-active"
+                  data-table="si" role="tab" aria-selected="true">SI Prefixes</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="resistor" role="tab" aria-selected="false">Resistor Codes</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="capacitor" role="tab" aria-selected="false">Capacitor Codes</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="awg" role="tab" aria-selected="false">Wire Gauge (AWG)</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="logic" role="tab" aria-selected="false">Logic Levels</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="battery" role="tab" aria-selected="false">Battery Cells</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="led-vf" role="tab" aria-selected="false">LED Forward V<sub>F</sub></button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="smd" role="tab" aria-selected="false">SMD Packages</button>
+        </nav>
+        <label class="electronics-tables-search">
+          <span aria-hidden="true">🔍</span>
+          <input type="search" id="electronics-tables-search"
+                 placeholder="Filter rows in the active table…"
+                 autocomplete="off" spellcheck="false"
+                 aria-label="Search rows in the active reference table">
+          <span class="electronics-tables-search__count" id="electronics-tables-count" aria-live="polite"></span>
+        </label>
+      </div>
+
+      <div class="electronics-tables" id="electronics-tables-grid">
+
+        {%- comment -%} ----- 1. SI Prefixes ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="si" tabindex="0"
+             role="region" aria-label="SI prefixes table">
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              SI prefixes from yotta (10<sup>24</sup>) down to yocto (10<sup>&minus;24</sup>) &mdash; the units every electrical quantity gets multiplied by.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Prefix</th>
+                <th scope="col">Symbol</th>
+                <th scope="col">Factor</th>
+                <th scope="col">Hobby example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>yotta</td><td class="mono">Y</td><td class="mono">10<sup>24</sup></td><td>(astrophysics scale)</td></tr>
+              <tr><td>zetta</td><td class="mono">Z</td><td class="mono">10<sup>21</sup></td><td>&mdash;</td></tr>
+              <tr><td>exa</td><td class="mono">E</td><td class="mono">10<sup>18</sup></td><td>&mdash;</td></tr>
+              <tr><td>peta</td><td class="mono">P</td><td class="mono">10<sup>15</sup></td><td>&mdash;</td></tr>
+              <tr><td>tera</td><td class="mono">T</td><td class="mono">10<sup>12</sup></td><td>1&nbsp;TΩ insulation resistance</td></tr>
+              <tr><td>giga</td><td class="mono">G</td><td class="mono">10<sup>9</sup></td><td>5&nbsp;GHz Wi-Fi, 1&nbsp;GHz scope</td></tr>
+              <tr><td>mega</td><td class="mono">M</td><td class="mono">10<sup>6</sup></td><td>16&nbsp;MHz crystal, 10&nbsp;MΩ multimeter input</td></tr>
+              <tr><td>kilo</td><td class="mono">k</td><td class="mono">10<sup>3</sup></td><td>1&nbsp;kΩ pull-up, 1&nbsp;kV insulation tester</td></tr>
+              <tr><td>(none)</td><td class="mono">&mdash;</td><td class="mono">10<sup>0</sup></td><td>1&nbsp;V, 1&nbsp;A, 1&nbsp;Ω &mdash; the base units</td></tr>
+              <tr><td>milli</td><td class="mono">m</td><td class="mono">10<sup>&minus;3</sup></td><td>1&nbsp;mA LED current, 100&nbsp;mV ripple</td></tr>
+              <tr><td>micro</td><td class="mono">µ</td><td class="mono">10<sup>&minus;6</sup></td><td>100&nbsp;µF bulk cap, 10&nbsp;µA leakage</td></tr>
+              <tr><td>nano</td><td class="mono">n</td><td class="mono">10<sup>&minus;9</sup></td><td>100&nbsp;nF decoupling, ns timing</td></tr>
+              <tr><td>pico</td><td class="mono">p</td><td class="mono">10<sup>&minus;12</sup></td><td>22&nbsp;pF crystal load cap</td></tr>
+              <tr><td>femto</td><td class="mono">f</td><td class="mono">10<sup>&minus;15</sup></td><td>fs laser pulses</td></tr>
+              <tr><td>atto</td><td class="mono">a</td><td class="mono">10<sup>&minus;18</sup></td><td>&mdash;</td></tr>
+              <tr><td>zepto</td><td class="mono">z</td><td class="mono">10<sup>&minus;21</sup></td><td>&mdash;</td></tr>
+              <tr><td>yocto</td><td class="mono">y</td><td class="mono">10<sup>&minus;24</sup></td><td>&mdash;</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 2. Resistor Color Codes ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="resistor" tabindex="0"
+             role="region" aria-label="Resistor color code table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              4-band axial resistors: <strong>digit</strong> · <strong>digit</strong> · <strong>multiplier</strong> · <strong>tolerance</strong>. Read with the tolerance band on your right.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Color</th>
+                <th scope="col">Digit</th>
+                <th scope="col">Multiplier</th>
+                <th scope="col">Tolerance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--black" aria-hidden="true"></span>Black</span></td>
+                <td class="mono">0</td><td class="mono">×1</td><td>&mdash;</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--brown" aria-hidden="true"></span>Brown</span></td>
+                <td class="mono">1</td><td class="mono">×10</td><td>±1%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--red" aria-hidden="true"></span>Red</span></td>
+                <td class="mono">2</td><td class="mono">×100</td><td>±2%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--orange" aria-hidden="true"></span>Orange</span></td>
+                <td class="mono">3</td><td class="mono">×1k</td><td>&mdash;</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--yellow" aria-hidden="true"></span>Yellow</span></td>
+                <td class="mono">4</td><td class="mono">×10k</td><td>&mdash;</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--green" aria-hidden="true"></span>Green</span></td>
+                <td class="mono">5</td><td class="mono">×100k</td><td>±0.5%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--blue" aria-hidden="true"></span>Blue</span></td>
+                <td class="mono">6</td><td class="mono">×1M</td><td>±0.25%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--violet" aria-hidden="true"></span>Violet</span></td>
+                <td class="mono">7</td><td class="mono">×10M</td><td>±0.1%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--gray" aria-hidden="true"></span>Gray</span></td>
+                <td class="mono">8</td><td>&mdash;</td><td>±0.05%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--white" aria-hidden="true"></span>White</span></td>
+                <td class="mono">9</td><td>&mdash;</td><td>&mdash;</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--gold" aria-hidden="true"></span>Gold</span></td>
+                <td>&mdash;</td><td class="mono">×0.1</td><td>±5%</td>
+              </tr>
+              <tr>
+                <td><span class="electronics-color-swatch"><span class="electronics-color-swatch__chip electronics-color-band--silver" aria-hidden="true"></span>Silver</span></td>
+                <td>&mdash;</td><td class="mono">×0.01</td><td>±10%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 3. Capacitor 3-Digit Codes ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="capacitor" tabindex="0"
+             role="region" aria-label="Capacitor 3-digit code table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              Three-digit code on ceramic disc/MLCC parts: first two digits + N trailing zeros = picofarads. So <strong>104</strong> = 10 × 10<sup>4</sup> pF = 100 nF.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Code</th>
+                <th scope="col">Picofarads</th>
+                <th scope="col">Conventional</th>
+                <th scope="col">Common use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">100</td><td class="mono">10 pF</td><td class="mono">10 pF</td><td>RF tuning, crystal load</td></tr>
+              <tr><td class="mono">220</td><td class="mono">22 pF</td><td class="mono">22 pF</td><td>Crystal load cap</td></tr>
+              <tr><td class="mono">471</td><td class="mono">470 pF</td><td class="mono">470 pF</td><td>RF coupling</td></tr>
+              <tr><td class="mono">102</td><td class="mono">1,000 pF</td><td class="mono">1 nF</td><td>EMI filter</td></tr>
+              <tr><td class="mono">222</td><td class="mono">2,200 pF</td><td class="mono">2.2 nF</td><td>Audio coupling</td></tr>
+              <tr><td class="mono">472</td><td class="mono">4,700 pF</td><td class="mono">4.7 nF</td><td>Snubber, audio</td></tr>
+              <tr><td class="mono">103</td><td class="mono">10,000 pF</td><td class="mono">10 nF</td><td>Local bypass</td></tr>
+              <tr><td class="mono">223</td><td class="mono">22,000 pF</td><td class="mono">22 nF</td><td>Audio</td></tr>
+              <tr><td class="mono">473</td><td class="mono">47,000 pF</td><td class="mono">47 nF</td><td>Mid-frequency bypass</td></tr>
+              <tr><td class="mono">104</td><td class="mono">100,000 pF</td><td class="mono">100 nF (0.1 µF)</td><td>Decoupling — the workhorse</td></tr>
+              <tr><td class="mono">224</td><td class="mono">220,000 pF</td><td class="mono">220 nF (0.22 µF)</td><td>Decoupling, audio</td></tr>
+              <tr><td class="mono">474</td><td class="mono">470,000 pF</td><td class="mono">470 nF (0.47 µF)</td><td>Bulk decoupling</td></tr>
+              <tr><td class="mono">105</td><td class="mono">1,000,000 pF</td><td class="mono">1 µF</td><td>Bulk decoupling, audio</td></tr>
+              <tr><td class="mono">106</td><td class="mono">10,000,000 pF</td><td class="mono">10 µF</td><td>Bulk filtering, MLCC</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 4. Wire Gauge (AWG) ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="awg" tabindex="0"
+             role="region" aria-label="AWG wire gauge table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              American Wire Gauge — the smaller the AWG number, the thicker the wire. Cross-section in mm² is given for European spec sheets. Currents below are conservative free-air values for short hobby runs; derate by ~30 % in bundles or long runs.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">AWG</th>
+                <th scope="col">Diameter</th>
+                <th scope="col">Cross-section</th>
+                <th scope="col">Resistance</th>
+                <th scope="col">Max current</th>
+                <th scope="col">Common use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">30</td><td class="mono">0.255 mm</td><td class="mono">0.0507 mm²</td><td class="mono">339 mΩ/m</td><td class="mono">~0.86 A</td><td>Wire-wrap, fine signal</td></tr>
+              <tr><td class="mono">26</td><td class="mono">0.405 mm</td><td class="mono">0.129 mm²</td><td class="mono">134 mΩ/m</td><td class="mono">~2.2 A</td><td>Ribbon cable, sensor leads</td></tr>
+              <tr><td class="mono">24</td><td class="mono">0.511 mm</td><td class="mono">0.205 mm²</td><td class="mono">84.2 mΩ/m</td><td class="mono">~3.5 A</td><td>USB power, hookup wire</td></tr>
+              <tr><td class="mono">22</td><td class="mono">0.644 mm</td><td class="mono">0.326 mm²</td><td class="mono">53.0 mΩ/m</td><td class="mono">~7 A</td><td>General hobby, breadboard</td></tr>
+              <tr><td class="mono">20</td><td class="mono">0.812 mm</td><td class="mono">0.518 mm²</td><td class="mono">33.3 mΩ/m</td><td class="mono">~11 A</td><td>Speaker wire, low-power motors</td></tr>
+              <tr><td class="mono">18</td><td class="mono">1.024 mm</td><td class="mono">0.823 mm²</td><td class="mono">21.0 mΩ/m</td><td class="mono">~16 A</td><td>Power leads, DC supplies</td></tr>
+              <tr><td class="mono">16</td><td class="mono">1.291 mm</td><td class="mono">1.31 mm²</td><td class="mono">13.2 mΩ/m</td><td class="mono">~22 A</td><td>Small battery cables</td></tr>
+              <tr><td class="mono">14</td><td class="mono">1.628 mm</td><td class="mono">2.08 mm²</td><td class="mono">8.28 mΩ/m</td><td class="mono">~32 A</td><td>Mains household wiring (1.5–2.5 mm² typical EU)</td></tr>
+              <tr><td class="mono">12</td><td class="mono">2.053 mm</td><td class="mono">3.31 mm²</td><td class="mono">5.21 mΩ/m</td><td class="mono">~41 A</td><td>High-current power</td></tr>
+              <tr><td class="mono">10</td><td class="mono">2.588 mm</td><td class="mono">5.26 mm²</td><td class="mono">3.28 mΩ/m</td><td class="mono">~55 A</td><td>Battery banks, EVs (4–6 mm² typical EU)</td></tr>
+              <tr><td class="mono">8</td><td class="mono">3.264 mm</td><td class="mono">8.37 mm²</td><td class="mono">2.06 mΩ/m</td><td class="mono">~73 A</td><td>Inverter feeds, 50 A circuits</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 5. Logic Voltage Levels ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="logic" tabindex="0"
+             role="region" aria-label="Logic family voltage levels table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              Input/output voltage thresholds for common logic families. <code>V<sub>IL</sub></code>/<code>V<sub>IH</sub></code> are valid input ranges; <code>V<sub>OL</sub></code>/<code>V<sub>OH</sub></code> are guaranteed output ranges.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Family</th>
+                <th scope="col">V<sub>CC</sub></th>
+                <th scope="col">V<sub>IL,max</sub></th>
+                <th scope="col">V<sub>IH,min</sub></th>
+                <th scope="col">V<sub>OL,max</sub></th>
+                <th scope="col">V<sub>OH,min</sub></th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>5 V TTL (74xx, 74LSxx)</td>
+                <td class="mono">5.0 V</td><td class="mono">0.8 V</td><td class="mono">2.0 V</td>
+                <td class="mono">0.4 V</td><td class="mono">2.4 V</td>
+                <td>Tolerates 5 V inputs into 5 V chips</td>
+              </tr>
+              <tr>
+                <td>5 V CMOS (74HCxx)</td>
+                <td class="mono">5.0 V</td><td class="mono">1.5 V</td><td class="mono">3.5 V</td>
+                <td class="mono">0.05 V</td><td class="mono">4.95 V</td>
+                <td>Higher noise margin than TTL</td>
+              </tr>
+              <tr>
+                <td>3.3 V LVTTL</td>
+                <td class="mono">3.3 V</td><td class="mono">0.8 V</td><td class="mono">2.0 V</td>
+                <td class="mono">0.4 V</td><td class="mono">2.4 V</td>
+                <td>Compatible with 5 V TTL inputs</td>
+              </tr>
+              <tr>
+                <td>3.3 V CMOS (74LVCxx)</td>
+                <td class="mono">3.3 V</td><td class="mono">0.99 V</td><td class="mono">2.31 V</td>
+                <td class="mono">0.1 V</td><td class="mono">3.2 V</td>
+                <td>Common on Arduino, ESP32, RPi</td>
+              </tr>
+              <tr>
+                <td>1.8 V CMOS</td>
+                <td class="mono">1.8 V</td><td class="mono">0.54 V</td><td class="mono">1.26 V</td>
+                <td class="mono">0.1 V</td><td class="mono">1.7 V</td>
+                <td>Modern SoCs, FPGAs core IO</td>
+              </tr>
+              <tr>
+                <td>RS-232</td>
+                <td class="mono">±5 to ±15 V</td><td class="mono">+3 V</td><td class="mono">&minus;3 V</td>
+                <td class="mono">+5 V</td><td class="mono">&minus;5 V</td>
+                <td>Inverted; mark/space at ±voltages</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 6. Battery Cell Voltages ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="battery" tabindex="0"
+             role="region" aria-label="Battery cell voltage table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              Per-cell voltages, typical capacities, and rechargeability for common chemistries. Multiply nominal × series count to get pack voltage (e.g.&nbsp;3S Li-ion = 3 × 3.7 V = 11.1 V nominal).
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Cell type</th>
+                <th scope="col">Nominal</th>
+                <th scope="col">Fully charged</th>
+                <th scope="col">Discharged (cutoff)</th>
+                <th scope="col">Typical capacity</th>
+                <th scope="col">Rechargeable</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Alkaline AA</td><td class="mono">1.5 V</td><td class="mono">1.6 V</td><td class="mono">0.9 V</td><td class="mono">~2500 mAh</td><td>No</td><td>High internal resistance; sags hard at high current</td></tr>
+              <tr><td>Alkaline AAA</td><td class="mono">1.5 V</td><td class="mono">1.6 V</td><td class="mono">0.9 V</td><td class="mono">~1200 mAh</td><td>No</td><td>Same chemistry as AA, smaller cell</td></tr>
+              <tr><td>NiMH AA</td><td class="mono">1.2 V</td><td class="mono">1.4 V</td><td class="mono">1.0 V</td><td class="mono">2000–2500 mAh</td><td>Yes</td><td>Low-self-discharge (LSD) variants hold charge for years</td></tr>
+              <tr><td>NiMH AAA</td><td class="mono">1.2 V</td><td class="mono">1.4 V</td><td class="mono">1.0 V</td><td class="mono">800–1000 mAh</td><td>Yes</td><td>Same chemistry as NiMH AA</td></tr>
+              <tr><td>Lead-acid (per cell)</td><td class="mono">2.0 V</td><td class="mono">2.1 V</td><td class="mono">1.75 V</td><td class="mono">7 Ah – 200 Ah</td><td>Yes</td><td>6 cells = 12 V SLA / car battery</td></tr>
+              <tr><td>LiFePO<sub>4</sub> (18650)</td><td class="mono">3.2 V</td><td class="mono">3.65 V</td><td class="mono">2.5 V</td><td class="mono">~1500 mAh</td><td>Yes</td><td>Safer Li chemistry; flat discharge curve; long cycle life</td></tr>
+              <tr><td>Li-ion (LiCoO<sub>2</sub>, 18650)</td><td class="mono">3.7 V</td><td class="mono">4.2 V</td><td class="mono">3.0 V</td><td class="mono">2500–3500 mAh</td><td>Yes</td><td>Phones, laptops, e-bikes; needs BMS</td></tr>
+              <tr><td>Li-Po (pouch)</td><td class="mono">3.7 V</td><td class="mono">4.2 V</td><td class="mono">3.0 V</td><td class="mono">100–10000 mAh</td><td>Yes</td><td>Drones, RC; identical chemistry to Li-ion in pouch form</td></tr>
+              <tr><td>CR2032 coin</td><td class="mono">3.0 V</td><td class="mono">3.3 V</td><td class="mono">2.0 V</td><td class="mono">220–240 mAh</td><td>No</td><td>RTC backup, remote controls, key fobs</td></tr>
+              <tr><td>9 V (PP3, alkaline)</td><td class="mono">9.0 V</td><td class="mono">9.6 V</td><td class="mono">5.4 V</td><td class="mono">~600 mAh</td><td>No</td><td>Six 1.5 V cells in series internally</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 7. LED Forward Voltage by Color ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="led-vf" tabindex="0"
+             role="region" aria-label="LED forward voltage by color table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              Typical forward voltage (V<sub>F</sub>) and forward current (I<sub>F</sub>) by LED color. Pair with the LED Resistor calculator above to size the series resistor: <code>R = (V<sub>supply</sub> − V<sub>F</sub>) / I<sub>F</sub></code>. Always check the datasheet for the specific part — high-power and high-brightness variants drift outside these ranges.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Color</th>
+                <th scope="col">V<sub>F</sub> typical</th>
+                <th scope="col">V<sub>F</sub> range</th>
+                <th scope="col">I<sub>F</sub> typical</th>
+                <th scope="col">Wavelength</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Infrared (IR)</td><td class="mono">1.4 V</td><td class="mono">1.2 – 1.6 V</td><td class="mono">20 – 100 mA</td><td class="mono">850 – 940 nm</td><td>Remote controls, IR proximity sensors</td></tr>
+              <tr><td>Red</td><td class="mono">2.0 V</td><td class="mono">1.8 – 2.2 V</td><td class="mono">10 – 20 mA</td><td class="mono">620 – 660 nm</td><td>Indicator LEDs, classic 5 mm</td></tr>
+              <tr><td>Orange</td><td class="mono">2.1 V</td><td class="mono">2.0 – 2.2 V</td><td class="mono">10 – 20 mA</td><td class="mono">600 – 620 nm</td><td>Status indicators</td></tr>
+              <tr><td>Yellow / Amber</td><td class="mono">2.1 V</td><td class="mono">2.0 – 2.3 V</td><td class="mono">10 – 20 mA</td><td class="mono">580 – 600 nm</td><td>Indicator, automotive</td></tr>
+              <tr><td>Green (standard)</td><td class="mono">2.2 V</td><td class="mono">2.0 – 2.4 V</td><td class="mono">10 – 20 mA</td><td class="mono">555 – 570 nm</td><td>Older AlGaInP green</td></tr>
+              <tr><td>Green (pure / high-brightness)</td><td class="mono">3.2 V</td><td class="mono">3.0 – 3.5 V</td><td class="mono">10 – 20 mA</td><td class="mono">~525 nm</td><td>InGaN green; brighter, higher V<sub>F</sub></td></tr>
+              <tr><td>Blue</td><td class="mono">3.2 V</td><td class="mono">3.0 – 3.5 V</td><td class="mono">10 – 20 mA</td><td class="mono">460 – 475 nm</td><td>Backlights, accents</td></tr>
+              <tr><td>White</td><td class="mono">3.4 V</td><td class="mono">3.0 – 3.6 V</td><td class="mono">10 – 20 mA</td><td>broadband</td><td>Blue die + yellow phosphor — drives like a blue LED</td></tr>
+              <tr><td>Ultraviolet (UV)</td><td class="mono">3.5 V</td><td class="mono">3.2 – 4.0 V</td><td class="mono">20 mA</td><td class="mono">380 – 410 nm</td><td>Blacklight, curing, counterfeit detection</td></tr>
+              <tr><td>RGB (per channel)</td><td>—</td><td>see R / G / B above</td><td class="mono">10 – 20 mA / ch</td><td>per channel</td><td>Three independent dies; each needs its own resistor</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 8. SMD Package Sizes ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="smd" tabindex="0"
+             role="region" aria-label="SMD package sizes table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              Common surface-mount passive package sizes. The imperial code (0805 = 0.08 × 0.05 inch) is the dominant labeling on distributors; the metric code (2012 = 2.0 × 1.2 mm) is what datasheets cite. Power ratings are nominal for resistors at 70 °C; capacitors and inductors usually share the same footprint family.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Imperial</th>
+                <th scope="col">Metric</th>
+                <th scope="col">L × W</th>
+                <th scope="col">Power (R)</th>
+                <th scope="col">Hand-solder</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">0201</td><td class="mono">0603</td><td class="mono">0.6 × 0.3 mm</td><td class="mono">⅒ W (50 mW)</td><td>Very hard</td><td>Phone-grade density; needs microscope + paste</td></tr>
+              <tr><td class="mono">0402</td><td class="mono">1005</td><td class="mono">1.0 × 0.5 mm</td><td class="mono">⅒ W (62 mW)</td><td>Hard</td><td>Common on dense hobby boards; tweezers + flux + practice</td></tr>
+              <tr><td class="mono">0603</td><td class="mono">1608</td><td class="mono">1.6 × 0.8 mm</td><td class="mono">⅒ W (100 mW)</td><td>Medium</td><td>Sweet spot for hobby SMD; visible without magnification</td></tr>
+              <tr><td class="mono">0805</td><td class="mono">2012</td><td class="mono">2.0 × 1.25 mm</td><td class="mono">⅛ W (125 mW)</td><td>Easy</td><td>Beginner-friendly SMD entry size</td></tr>
+              <tr><td class="mono">1206</td><td class="mono">3216</td><td class="mono">3.2 × 1.6 mm</td><td class="mono">¼ W (250 mW)</td><td>Easy</td><td>Common for higher-power resistors and bulk caps</td></tr>
+              <tr><td class="mono">1210</td><td class="mono">3225</td><td class="mono">3.2 × 2.5 mm</td><td class="mono">½ W (500 mW)</td><td>Easy</td><td>Wider variant of 1206; bulk MLCCs (10 µF+)</td></tr>
+              <tr><td class="mono">2010</td><td class="mono">5025</td><td class="mono">5.0 × 2.5 mm</td><td class="mono">¾ W (750 mW)</td><td>Very easy</td><td>Power resistors, current-sense</td></tr>
+              <tr><td class="mono">2512</td><td class="mono">6432</td><td class="mono">6.4 × 3.2 mm</td><td class="mono">1 W</td><td>Very easy</td><td>Power resistors; high-current sense</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="electronics-tables-empty" id="electronics-tables-empty" hidden>
+          No rows match your filter.
+        </p>
+      </div>
+    </section>
+
+    {%- comment -%} ========== Last-updated footer ========== {%- endcomment -%}
+    <footer class="electronics-footer" role="contentinfo">
+      <span>
+        Last updated <time datetime="2026-05-08"><strong>2026-05-08</strong></time>
+      </span>
+      <span class="electronics-footer__version">Electronics Fundamentals v1.0 · 12 widgets</span>
+      <span>Bug or correction? Open an issue on <a href="https://github.com/Ranzlappen/website/issues" rel="noopener">GitHub</a>.</span>
+    </footer>
+
+  </div>
+</section>
+
+{%- comment -%}
+  Modular bundle. Each file is its own IIFE that bails silently on any
+  page without `.electronics-page`, so loading them site-wide is safe.
+  Order matters: utils → widget-core (creates EF) → per-section files
+  (register their widgets) → entry (mounts everything). See
+  _data/references/electronics/README.md for the full architecture guide.
+{%- endcomment -%}
+<script src="{{ '/assets/js/abbreviations.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-utils.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-widget-core.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-quick-wheel.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-formulas.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-ohms-calculator.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-led-divider-calculators.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-sp-rc-calculators.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-battery-calculator.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-components.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/electronics-fundamentals.js' | relative_url }}" defer></script>
