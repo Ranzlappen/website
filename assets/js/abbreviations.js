@@ -35,18 +35,27 @@
   );
 
   // ---- Auto-decoration (opt-in) -------------------------------------------
+  // Ancestor tag names whose text content must never be rewrapped: replacing
+  // text inside SVG <text> with HTML <span>s breaks SVG rendering; <code>
+  // contains part numbers / unit values that collide with future glossary
+  // terms; form controls have no prose-text descendants worth touching.
+  var SKIP_TAGS = { SCRIPT: 1, STYLE: 1, CODE: 1, INPUT: 1, TEXTAREA: 1,
+                    SELECT: 1, BUTTON: 1, SVG: 1 };
+
   function decorate(root) {
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: function (node) {
-        // Skip nodes already inside an .abbr-trigger or .abbr-link, or inside
-        // a script/style.
+        // Skip nodes already inside an .abbr-trigger / .abbr-link / .abbr-section,
+        // inside a SKIP_TAGS element, or inside an SVG namespace subtree.
         var p = node.parentNode;
         while (p && p !== root) {
           if (p.classList && (p.classList.contains('abbr-trigger') ||
-                              p.classList.contains('abbr-link'))) {
+                              p.classList.contains('abbr-link') ||
+                              p.classList.contains('abbr-section'))) {
             return NodeFilter.FILTER_REJECT;
           }
-          if (p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return NodeFilter.FILTER_REJECT;
+          if (p.tagName && SKIP_TAGS[p.tagName.toUpperCase()]) return NodeFilter.FILTER_REJECT;
+          if (p.namespaceURI === 'http://www.w3.org/2000/svg') return NodeFilter.FILTER_REJECT;
           p = p.parentNode;
         }
         WORD_RE.lastIndex = 0;
