@@ -211,6 +211,12 @@ widget"):
         {%- comment -%} ----- Right column: inputs / status / chart / examples ----- {%- endcomment -%}
         <div style="display: flex; flex-direction: column; gap: var(--space-md); min-width: 0;">
 
+          {%- comment -%}
+            Field DOM order is V, I, P, R so the 2-column CSS grid mirrors
+            the wheel quadrant layout (V top-left, I top-right, P bottom-left,
+            R bottom-right) on visual scan. JS looks up fields by
+            data-field attribute, so DOM order has no behavioural effect.
+          {%- endcomment -%}
           <div class="electronics-wheel-fields" role="group" aria-label="Ohm's Law inputs — enter any two">
             <div class="electronics-calculator__field" data-field="V">
               <label for="ef-wheel-V">Voltage (V)</label>
@@ -226,19 +232,19 @@ widget"):
                      step="any" inputmode="decimal" placeholder="0.0"
                      autocomplete="off" aria-label="Current in amperes">
             </div>
-            <div class="electronics-calculator__field" data-field="R">
-              <label for="ef-wheel-R">Resistance (&Omega;)</label>
-              <input class="electronics-calculator__input" type="number"
-                     id="ef-wheel-R" data-quantity="R"
-                     step="any" inputmode="decimal" placeholder="0.0"
-                     autocomplete="off" aria-label="Resistance in ohms">
-            </div>
             <div class="electronics-calculator__field" data-field="P">
               <label for="ef-wheel-P">Power (W)</label>
               <input class="electronics-calculator__input" type="number"
                      id="ef-wheel-P" data-quantity="P"
                      step="any" inputmode="decimal" placeholder="0.0"
                      autocomplete="off" aria-label="Power in watts">
+            </div>
+            <div class="electronics-calculator__field" data-field="R">
+              <label for="ef-wheel-R">Resistance (&Omega;)</label>
+              <input class="electronics-calculator__input" type="number"
+                     id="ef-wheel-R" data-quantity="R"
+                     step="any" inputmode="decimal" placeholder="0.0"
+                     autocomplete="off" aria-label="Resistance in ohms">
             </div>
           </div>
 
