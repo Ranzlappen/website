@@ -1733,6 +1733,10 @@ widget"):
                   data-table="logic" role="tab" aria-selected="false">Logic Levels</button>
           <button type="button" class="electronics-tables-tab"
                   data-table="battery" role="tab" aria-selected="false">Battery Cells</button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="led-vf" role="tab" aria-selected="false">LED Forward V<sub>F</sub></button>
+          <button type="button" class="electronics-tables-tab"
+                  data-table="smd" role="tab" aria-selected="false">SMD Packages</button>
         </nav>
         <label class="electronics-tables-search">
           <span aria-hidden="true">🔍</span>
@@ -1890,29 +1894,30 @@ widget"):
              role="region" aria-label="AWG wire gauge table" hidden>
           <table class="electronics-table">
             <caption class="electronics-table-caption">
-              American Wire Gauge — the smaller the AWG number, the thicker the wire. Currents below are conservative free-air values for short hobby runs; derate by ~30 % in bundles or long runs.
+              American Wire Gauge — the smaller the AWG number, the thicker the wire. Cross-section in mm² is given for European spec sheets. Currents below are conservative free-air values for short hobby runs; derate by ~30 % in bundles or long runs.
             </caption>
             <thead>
               <tr>
                 <th scope="col">AWG</th>
                 <th scope="col">Diameter</th>
+                <th scope="col">Cross-section</th>
                 <th scope="col">Resistance</th>
                 <th scope="col">Max current</th>
                 <th scope="col">Common use</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td class="mono">30</td><td class="mono">0.255 mm</td><td class="mono">339 mΩ/m</td><td class="mono">~0.86 A</td><td>Wire-wrap, fine signal</td></tr>
-              <tr><td class="mono">26</td><td class="mono">0.405 mm</td><td class="mono">134 mΩ/m</td><td class="mono">~2.2 A</td><td>Ribbon cable, sensor leads</td></tr>
-              <tr><td class="mono">24</td><td class="mono">0.511 mm</td><td class="mono">84.2 mΩ/m</td><td class="mono">~3.5 A</td><td>USB power, hookup wire</td></tr>
-              <tr><td class="mono">22</td><td class="mono">0.644 mm</td><td class="mono">53.0 mΩ/m</td><td class="mono">~7 A</td><td>General hobby, breadboard</td></tr>
-              <tr><td class="mono">20</td><td class="mono">0.812 mm</td><td class="mono">33.3 mΩ/m</td><td class="mono">~11 A</td><td>Speaker wire, low-power motors</td></tr>
-              <tr><td class="mono">18</td><td class="mono">1.024 mm</td><td class="mono">21.0 mΩ/m</td><td class="mono">~16 A</td><td>Power leads, DC supplies</td></tr>
-              <tr><td class="mono">16</td><td class="mono">1.291 mm</td><td class="mono">13.2 mΩ/m</td><td class="mono">~22 A</td><td>Small battery cables</td></tr>
-              <tr><td class="mono">14</td><td class="mono">1.628 mm</td><td class="mono">8.28 mΩ/m</td><td class="mono">~32 A</td><td>Mains household wiring</td></tr>
-              <tr><td class="mono">12</td><td class="mono">2.053 mm</td><td class="mono">5.21 mΩ/m</td><td class="mono">~41 A</td><td>High-current power</td></tr>
-              <tr><td class="mono">10</td><td class="mono">2.588 mm</td><td class="mono">3.28 mΩ/m</td><td class="mono">~55 A</td><td>Battery banks, EVs</td></tr>
-              <tr><td class="mono">8</td><td class="mono">3.264 mm</td><td class="mono">2.06 mΩ/m</td><td class="mono">~73 A</td><td>Inverter feeds, 50 A circuits</td></tr>
+              <tr><td class="mono">30</td><td class="mono">0.255 mm</td><td class="mono">0.0507 mm²</td><td class="mono">339 mΩ/m</td><td class="mono">~0.86 A</td><td>Wire-wrap, fine signal</td></tr>
+              <tr><td class="mono">26</td><td class="mono">0.405 mm</td><td class="mono">0.129 mm²</td><td class="mono">134 mΩ/m</td><td class="mono">~2.2 A</td><td>Ribbon cable, sensor leads</td></tr>
+              <tr><td class="mono">24</td><td class="mono">0.511 mm</td><td class="mono">0.205 mm²</td><td class="mono">84.2 mΩ/m</td><td class="mono">~3.5 A</td><td>USB power, hookup wire</td></tr>
+              <tr><td class="mono">22</td><td class="mono">0.644 mm</td><td class="mono">0.326 mm²</td><td class="mono">53.0 mΩ/m</td><td class="mono">~7 A</td><td>General hobby, breadboard</td></tr>
+              <tr><td class="mono">20</td><td class="mono">0.812 mm</td><td class="mono">0.518 mm²</td><td class="mono">33.3 mΩ/m</td><td class="mono">~11 A</td><td>Speaker wire, low-power motors</td></tr>
+              <tr><td class="mono">18</td><td class="mono">1.024 mm</td><td class="mono">0.823 mm²</td><td class="mono">21.0 mΩ/m</td><td class="mono">~16 A</td><td>Power leads, DC supplies</td></tr>
+              <tr><td class="mono">16</td><td class="mono">1.291 mm</td><td class="mono">1.31 mm²</td><td class="mono">13.2 mΩ/m</td><td class="mono">~22 A</td><td>Small battery cables</td></tr>
+              <tr><td class="mono">14</td><td class="mono">1.628 mm</td><td class="mono">2.08 mm²</td><td class="mono">8.28 mΩ/m</td><td class="mono">~32 A</td><td>Mains household wiring (1.5–2.5 mm² typical EU)</td></tr>
+              <tr><td class="mono">12</td><td class="mono">2.053 mm</td><td class="mono">3.31 mm²</td><td class="mono">5.21 mΩ/m</td><td class="mono">~41 A</td><td>High-current power</td></tr>
+              <tr><td class="mono">10</td><td class="mono">2.588 mm</td><td class="mono">5.26 mm²</td><td class="mono">3.28 mΩ/m</td><td class="mono">~55 A</td><td>Battery banks, EVs (4–6 mm² typical EU)</td></tr>
+              <tr><td class="mono">8</td><td class="mono">3.264 mm</td><td class="mono">8.37 mm²</td><td class="mono">2.06 mΩ/m</td><td class="mono">~73 A</td><td>Inverter feeds, 50 A circuits</td></tr>
             </tbody>
           </table>
         </div>
@@ -1981,7 +1986,7 @@ widget"):
              role="region" aria-label="Battery cell voltage table" hidden>
           <table class="electronics-table">
             <caption class="electronics-table-caption">
-              Per-cell voltages for common chemistries. Multiply by series count to get pack voltage (e.g.&nbsp;3S Li-ion = 3 × 3.7 V = 11.1 V nominal).
+              Per-cell voltages, typical capacities, and rechargeability for common chemistries. Multiply nominal × series count to get pack voltage (e.g.&nbsp;3S Li-ion = 3 × 3.7 V = 11.1 V nominal).
             </caption>
             <thead>
               <tr>
@@ -1989,18 +1994,84 @@ widget"):
                 <th scope="col">Nominal</th>
                 <th scope="col">Fully charged</th>
                 <th scope="col">Discharged (cutoff)</th>
+                <th scope="col">Typical capacity</th>
+                <th scope="col">Rechargeable</th>
                 <th scope="col">Notes</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td>Alkaline AA / AAA</td><td class="mono">1.5 V</td><td class="mono">1.6 V</td><td class="mono">0.9 V</td><td>Single-use; high internal resistance</td></tr>
-              <tr><td>NiMH AA / AAA</td><td class="mono">1.2 V</td><td class="mono">1.4 V</td><td class="mono">1.0 V</td><td>Rechargeable; low self-discharge variants exist</td></tr>
-              <tr><td>Lead-acid (per cell)</td><td class="mono">2.0 V</td><td class="mono">2.1 V</td><td class="mono">1.75 V</td><td>6 cells = 12 V SLA pack</td></tr>
-              <tr><td>LiFePO<sub>4</sub></td><td class="mono">3.2 V</td><td class="mono">3.65 V</td><td class="mono">2.5 V</td><td>Safer Li chemistry; flat discharge curve</td></tr>
-              <tr><td>Li-ion (LiCoO<sub>2</sub>)</td><td class="mono">3.7 V</td><td class="mono">4.2 V</td><td class="mono">3.0 V</td><td>Phones, laptops; needs BMS</td></tr>
-              <tr><td>Li-Po</td><td class="mono">3.7 V</td><td class="mono">4.2 V</td><td class="mono">3.0 V</td><td>Drones, RC; identical chemistry to Li-ion</td></tr>
-              <tr><td>CR2032 coin</td><td class="mono">3.0 V</td><td class="mono">3.3 V</td><td class="mono">2.0 V</td><td>RTC backup, remote controls</td></tr>
-              <tr><td>9 V (PP3)</td><td class="mono">9.0 V</td><td class="mono">9.6 V</td><td class="mono">5.4 V</td><td>Six 1.5 V cells in series internally</td></tr>
+              <tr><td>Alkaline AA</td><td class="mono">1.5 V</td><td class="mono">1.6 V</td><td class="mono">0.9 V</td><td class="mono">~2500 mAh</td><td>No</td><td>High internal resistance; sags hard at high current</td></tr>
+              <tr><td>Alkaline AAA</td><td class="mono">1.5 V</td><td class="mono">1.6 V</td><td class="mono">0.9 V</td><td class="mono">~1200 mAh</td><td>No</td><td>Same chemistry as AA, smaller cell</td></tr>
+              <tr><td>NiMH AA</td><td class="mono">1.2 V</td><td class="mono">1.4 V</td><td class="mono">1.0 V</td><td class="mono">2000–2500 mAh</td><td>Yes</td><td>Low-self-discharge (LSD) variants hold charge for years</td></tr>
+              <tr><td>NiMH AAA</td><td class="mono">1.2 V</td><td class="mono">1.4 V</td><td class="mono">1.0 V</td><td class="mono">800–1000 mAh</td><td>Yes</td><td>Same chemistry as NiMH AA</td></tr>
+              <tr><td>Lead-acid (per cell)</td><td class="mono">2.0 V</td><td class="mono">2.1 V</td><td class="mono">1.75 V</td><td class="mono">7 Ah – 200 Ah</td><td>Yes</td><td>6 cells = 12 V SLA / car battery</td></tr>
+              <tr><td>LiFePO<sub>4</sub> (18650)</td><td class="mono">3.2 V</td><td class="mono">3.65 V</td><td class="mono">2.5 V</td><td class="mono">~1500 mAh</td><td>Yes</td><td>Safer Li chemistry; flat discharge curve; long cycle life</td></tr>
+              <tr><td>Li-ion (LiCoO<sub>2</sub>, 18650)</td><td class="mono">3.7 V</td><td class="mono">4.2 V</td><td class="mono">3.0 V</td><td class="mono">2500–3500 mAh</td><td>Yes</td><td>Phones, laptops, e-bikes; needs BMS</td></tr>
+              <tr><td>Li-Po (pouch)</td><td class="mono">3.7 V</td><td class="mono">4.2 V</td><td class="mono">3.0 V</td><td class="mono">100–10000 mAh</td><td>Yes</td><td>Drones, RC; identical chemistry to Li-ion in pouch form</td></tr>
+              <tr><td>CR2032 coin</td><td class="mono">3.0 V</td><td class="mono">3.3 V</td><td class="mono">2.0 V</td><td class="mono">220–240 mAh</td><td>No</td><td>RTC backup, remote controls, key fobs</td></tr>
+              <tr><td>9 V (PP3, alkaline)</td><td class="mono">9.0 V</td><td class="mono">9.6 V</td><td class="mono">5.4 V</td><td class="mono">~600 mAh</td><td>No</td><td>Six 1.5 V cells in series internally</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 7. LED Forward Voltage by Color ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="led-vf" tabindex="0"
+             role="region" aria-label="LED forward voltage by color table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              Typical forward voltage (V<sub>F</sub>) and forward current (I<sub>F</sub>) by LED color. Pair with the LED Resistor calculator above to size the series resistor: <code>R = (V<sub>supply</sub> − V<sub>F</sub>) / I<sub>F</sub></code>. Always check the datasheet for the specific part — high-power and high-brightness variants drift outside these ranges.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Color</th>
+                <th scope="col">V<sub>F</sub> typical</th>
+                <th scope="col">V<sub>F</sub> range</th>
+                <th scope="col">I<sub>F</sub> typical</th>
+                <th scope="col">Wavelength</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Infrared (IR)</td><td class="mono">1.4 V</td><td class="mono">1.2 – 1.6 V</td><td class="mono">20 – 100 mA</td><td class="mono">850 – 940 nm</td><td>Remote controls, IR proximity sensors</td></tr>
+              <tr><td>Red</td><td class="mono">2.0 V</td><td class="mono">1.8 – 2.2 V</td><td class="mono">10 – 20 mA</td><td class="mono">620 – 660 nm</td><td>Indicator LEDs, classic 5 mm</td></tr>
+              <tr><td>Orange</td><td class="mono">2.1 V</td><td class="mono">2.0 – 2.2 V</td><td class="mono">10 – 20 mA</td><td class="mono">600 – 620 nm</td><td>Status indicators</td></tr>
+              <tr><td>Yellow / Amber</td><td class="mono">2.1 V</td><td class="mono">2.0 – 2.3 V</td><td class="mono">10 – 20 mA</td><td class="mono">580 – 600 nm</td><td>Indicator, automotive</td></tr>
+              <tr><td>Green (standard)</td><td class="mono">2.2 V</td><td class="mono">2.0 – 2.4 V</td><td class="mono">10 – 20 mA</td><td class="mono">555 – 570 nm</td><td>Older AlGaInP green</td></tr>
+              <tr><td>Green (pure / high-brightness)</td><td class="mono">3.2 V</td><td class="mono">3.0 – 3.5 V</td><td class="mono">10 – 20 mA</td><td class="mono">~525 nm</td><td>InGaN green; brighter, higher V<sub>F</sub></td></tr>
+              <tr><td>Blue</td><td class="mono">3.2 V</td><td class="mono">3.0 – 3.5 V</td><td class="mono">10 – 20 mA</td><td class="mono">460 – 475 nm</td><td>Backlights, accents</td></tr>
+              <tr><td>White</td><td class="mono">3.4 V</td><td class="mono">3.0 – 3.6 V</td><td class="mono">10 – 20 mA</td><td>broadband</td><td>Blue die + yellow phosphor — drives like a blue LED</td></tr>
+              <tr><td>Ultraviolet (UV)</td><td class="mono">3.5 V</td><td class="mono">3.2 – 4.0 V</td><td class="mono">20 mA</td><td class="mono">380 – 410 nm</td><td>Blacklight, curing, counterfeit detection</td></tr>
+              <tr><td>RGB (per channel)</td><td>—</td><td>see R / G / B above</td><td class="mono">10 – 20 mA / ch</td><td>per channel</td><td>Three independent dies; each needs its own resistor</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {%- comment -%} ----- 8. SMD Package Sizes ----- {%- endcomment -%}
+        <div class="electronics-table-wrapper" data-table="smd" tabindex="0"
+             role="region" aria-label="SMD package sizes table" hidden>
+          <table class="electronics-table">
+            <caption class="electronics-table-caption">
+              Common surface-mount passive package sizes. The imperial code (0805 = 0.08 × 0.05 inch) is the dominant labeling on distributors; the metric code (2012 = 2.0 × 1.2 mm) is what datasheets cite. Power ratings are nominal for resistors at 70 °C; capacitors and inductors usually share the same footprint family.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Imperial</th>
+                <th scope="col">Metric</th>
+                <th scope="col">L × W</th>
+                <th scope="col">Power (R)</th>
+                <th scope="col">Hand-solder</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">0201</td><td class="mono">0603</td><td class="mono">0.6 × 0.3 mm</td><td class="mono">⅒ W (50 mW)</td><td>Very hard</td><td>Phone-grade density; needs microscope + paste</td></tr>
+              <tr><td class="mono">0402</td><td class="mono">1005</td><td class="mono">1.0 × 0.5 mm</td><td class="mono">⅒ W (62 mW)</td><td>Hard</td><td>Common on dense hobby boards; tweezers + flux + practice</td></tr>
+              <tr><td class="mono">0603</td><td class="mono">1608</td><td class="mono">1.6 × 0.8 mm</td><td class="mono">⅒ W (100 mW)</td><td>Medium</td><td>Sweet spot for hobby SMD; visible without magnification</td></tr>
+              <tr><td class="mono">0805</td><td class="mono">2012</td><td class="mono">2.0 × 1.25 mm</td><td class="mono">⅛ W (125 mW)</td><td>Easy</td><td>Beginner-friendly SMD entry size</td></tr>
+              <tr><td class="mono">1206</td><td class="mono">3216</td><td class="mono">3.2 × 1.6 mm</td><td class="mono">¼ W (250 mW)</td><td>Easy</td><td>Common for higher-power resistors and bulk caps</td></tr>
+              <tr><td class="mono">1210</td><td class="mono">3225</td><td class="mono">3.2 × 2.5 mm</td><td class="mono">½ W (500 mW)</td><td>Easy</td><td>Wider variant of 1206; bulk MLCCs (10 µF+)</td></tr>
+              <tr><td class="mono">2010</td><td class="mono">5025</td><td class="mono">5.0 × 2.5 mm</td><td class="mono">¾ W (750 mW)</td><td>Very easy</td><td>Power resistors, current-sense</td></tr>
+              <tr><td class="mono">2512</td><td class="mono">6432</td><td class="mono">6.4 × 3.2 mm</td><td class="mono">1 W</td><td>Very easy</td><td>Power resistors; high-current sense</td></tr>
             </tbody>
           </table>
         </div>
