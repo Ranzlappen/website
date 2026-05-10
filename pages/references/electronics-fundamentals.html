@@ -1701,6 +1701,138 @@ widget"):
           </div>
         </article>
 
+        <article class="electronics-guide" data-tier="best-practice" data-topic="i2c spi uart serial pull-up signal integrity termination communication">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">I²C / SPI / UART signal integrity</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Each digital interface has its own gotchas. <strong>I²C</strong> is
+              open-drain — both SDA and SCL <em>must</em> have pull-ups (typically
+              <code>2.2&nbsp;kΩ</code>–<code>10&nbsp;kΩ</code>; smaller for fast-mode
+              + long buses, larger for low-power); without them the bus floats
+              and reads garbage. <strong>SPI</strong> is push-pull, so no
+              pull-ups, but keep CLK runs short (&lt;&nbsp;15&nbsp;cm at
+              4&nbsp;MHz+) and route MISO/MOSI as a balanced pair; for noisy
+              environments add a <code>22&nbsp;Ω</code> series resistor near the
+              driver to round the edges. <strong>UART</strong> tolerates long
+              wires but breaks if the two endpoints don&rsquo;t share a common
+              ground; a return-current path through chassis or USB shield
+              counts.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> An I²C bus that works on the bench but
+              flakes once you add a third sensor needs the pull-ups dropped
+              from <code>10&nbsp;kΩ</code> to <code>4.7&nbsp;kΩ</code> — the
+              extra device capacitance has slowed the rise time below spec.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="ldo linear switching regulator buck boost selection efficiency">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">Linear vs.&nbsp;switching regulator</h3>
+          <div class="electronics-guide__body">
+            <p>
+              Pick a <strong>linear regulator</strong> (LDO) when the input
+              voltage is only a little above the output, the load current is
+              modest (&lt;&nbsp;500&nbsp;mA), and you need clean low-noise rails
+              (analog, RF, audio). Efficiency is just
+              <code>V<sub>out</sub> / V<sub>in</sub></code> — drop 12&nbsp;V to
+              3.3&nbsp;V at 1&nbsp;A and you dissipate 8.7&nbsp;W as heat. Pick a
+              <strong>switching regulator</strong> (buck for step-down, boost for
+              step-up) when the conversion ratio is large, current is high, or
+              battery life matters; expect 85–95 % efficiency but more
+              switching-noise hygiene (input/output caps, layout, inductor
+              choice).
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> A 5&nbsp;V → 3.3&nbsp;V rail at 100&nbsp;mA
+              is fine on an LDO (170&nbsp;mW dissipated). A 12&nbsp;V → 3.3&nbsp;V
+              rail at 500&nbsp;mA on the same LDO would dissipate 4.35&nbsp;W
+              — switch to a buck converter.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="warning" data-topic="inductor relay motor flyback diode kickback snubber back-emf">
+          <span class="electronics-guide__tag">⚠ Warning</span>
+          <h3 class="electronics-guide__title">Inductive kickback — always clamp it</h3>
+          <div class="electronics-guide__body">
+            <p>
+              When current through any inductor (relay coil, solenoid, motor,
+              transformer) is suddenly interrupted, the collapsing magnetic
+              field generates a high-voltage spike of <em>opposite</em> polarity
+              to the supply — easily hundreds of volts from a 12&nbsp;V coil.
+              That spike will instantly destroy the switching transistor or MCU
+              pin that turned the load off. The fix is a flyback diode (e.g.
+              <code>1N4148</code> for small coils, <code>1N4007</code> for
+              relays) reverse-biased across the inductor — anode to the
+              load&rsquo;s low side, cathode to the supply rail. For PWM motor
+              drive add an RC snubber across the switch as well.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Driving a 12&nbsp;V automotive relay
+              coil from an MCU through a 2N7000 MOSFET <em>requires</em> a
+              diode across the coil; without it the MOSFET fails on the first
+              switch-off and takes the GPIO with it.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="ldo dropout headroom regulator quiescent current ripple rejection">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">LDO selection: dropout, headroom, and Iq</h3>
+          <div class="electronics-guide__body">
+            <p>
+              An LDO needs a minimum
+              <code>V<sub>in</sub> − V<sub>out</sub></code> headroom (the
+              &ldquo;dropout&rdquo; spec) to regulate; below that, the output
+              just follows the input minus the dropout. Classic 7805 needs
+              ~2&nbsp;V; modern LDOs (e.g. AMS1117 ~1.1&nbsp;V, MCP1700
+              ~178&nbsp;mV at 250&nbsp;mA) are far better for battery use.
+              Watch <strong>quiescent current</strong> (Iq) for always-on
+              battery designs — an LDO drawing 5&nbsp;mA Iq drains a coin cell
+              dead in days, while a low-Iq part (1&nbsp;µA Iq) lasts years.
+              Always-confirm output capacitor type; many low-quiescent LDOs
+              specifically require a low-ESR ceramic cap to stay stable.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> Powering an MCU sleeping at 5&nbsp;µA
+              from a 7805 (Iq = 5&nbsp;mA) means the regulator wastes
+              1000&times; more current than the load. Replace with a low-Iq
+              LDO (e.g. TPS7A02) and battery life jumps from days to years.
+            </p>
+          </div>
+        </article>
+
+        <article class="electronics-guide" data-tier="best-practice" data-topic="crystal oscillator load capacitance cl xtal frequency stability">
+          <span class="electronics-guide__tag">Best practice</span>
+          <h3 class="electronics-guide__title">Crystal load capacitance (C<sub>L</sub>)</h3>
+          <div class="electronics-guide__body">
+            <p>
+              A crystal&rsquo;s rated frequency is only achieved at its
+              specified <strong>load capacitance</strong> (C<sub>L</sub>,
+              typically 8–22&nbsp;pF). The MCU oscillator pins see two caps to
+              ground (C<sub>1</sub>, C<sub>2</sub>) plus stray board
+              capacitance (C<sub>stray</sub>, ~3–5&nbsp;pF for a clean
+              two-layer board). Standard formula:
+              <code>C<sub>L</sub> = (C<sub>1</sub>·C<sub>2</sub>) / (C<sub>1</sub>+C<sub>2</sub>) + C<sub>stray</sub></code>.
+              Pick C<sub>1</sub> = C<sub>2</sub> = 2·(C<sub>L</sub> − C<sub>stray</sub>)
+              as a starting point. Wrong C<sub>L</sub> shifts the actual
+              frequency tens of ppm — fine for blinking an LED, fatal for
+              precision timing or radio.
+            </p>
+            <p class="electronics-guide__example">
+              <strong>Example</strong> A 16&nbsp;MHz crystal spec&rsquo;d for
+              C<sub>L</sub>&nbsp;=&nbsp;18&nbsp;pF on a board with
+              C<sub>stray</sub>&nbsp;≈&nbsp;3&nbsp;pF needs
+              C<sub>1</sub>&nbsp;=&nbsp;C<sub>2</sub>&nbsp;=&nbsp;2&nbsp;×&nbsp;(18&nbsp;−&nbsp;3)&nbsp;=&nbsp;30&nbsp;pF.
+              Using the wrong 22&nbsp;pF caps from another design pulls the
+              frequency off by ~30&nbsp;ppm and your USB serial drifts.
+            </p>
+          </div>
+        </article>
+
       </div>
 
       <p class="electronics-guides-empty" id="electronics-guides-empty" hidden>
