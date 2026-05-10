@@ -1,0 +1,261 @@
+/* ============================================================================
+ * Abbreviations / Glossary — shared site-wide utility
+ * ----------------------------------------------------------------------------
+ * Paired with _includes/abbreviations-section.html and assets/js/abbreviations.js.
+ * Each consuming page passes its own dataset; CSS is dataset-agnostic.
+ *
+ * BEM-ish prefixes:
+ *   .abbr-section* — collapsible summary + body
+ *   .abbr-grid      — responsive 2+ column card grid
+ *   .abbr-card*     — individual term card
+ *   .abbr-trigger   — auto-decorated inline term in body content
+ *   .abbr-link      — author-marked inline term inside a modal body
+ *   .abbr-modal*    — modal stack rendered into <body>
+ * ============================================================================ */
+
+/* ---- Inline triggers (auto-decorated or author-marked) ------------------- */
+.abbr-trigger {
+  border-bottom: 1px dotted var(--c-accent);
+  cursor: help;
+  text-decoration: none;
+  color: inherit;
+}
+.abbr-trigger:hover,
+.abbr-trigger:focus-visible {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  outline: none;
+}
+
+/* ---- Collapsible section -------------------------------------------------- */
+.abbr-section {
+  margin-bottom: var(--space-md);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  background: var(--c-surface);
+}
+.abbr-section__summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  color: var(--c-text);
+  user-select: none;
+  border-radius: var(--border-radius);
+  transition: background var(--transition-fast);
+}
+.abbr-section__summary::-webkit-details-marker { display: none; }
+.abbr-section__summary::marker { display: none; content: ""; }
+.abbr-section__summary:hover { background: var(--c-surface-alt); }
+.abbr-section__summary:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+/* When open, pin the summary just below the site header so users can collapse
+   without scrolling back to the top. */
+.abbr-section[open] > .abbr-section__summary {
+  position: sticky;
+  top: var(--header-height, 3.75rem);
+  z-index: 9;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  backdrop-filter: blur(6px);
+}
+
+.abbr-section__title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.abbr-section__count {
+  font-size: 0.78rem;
+  color: var(--c-text-muted);
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border);
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.abbr-section__toggle {
+  margin-left: auto;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--c-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.abbr-section__toggle::after {
+  content: "▾";
+  font-size: 0.7rem;
+  transition: transform var(--transition-fast);
+}
+.abbr-section[open] > .abbr-section__summary .abbr-section__toggle::after {
+  transform: rotate(180deg);
+}
+.abbr-section__toggle [data-toggle-hide] { display: none; }
+.abbr-section[open] > .abbr-section__summary .abbr-section__toggle [data-toggle-show] { display: none; }
+.abbr-section[open] > .abbr-section__summary .abbr-section__toggle [data-toggle-hide] { display: inline; }
+
+.abbr-section__body {
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+}
+.abbr-section__intro {
+  margin: 0 0 var(--space-md);
+  font-size: 0.9rem;
+  color: var(--c-text-muted);
+}
+
+/* ---- Card grid ----------------------------------------------------------- */
+.abbr-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+.abbr-grid > li { margin: 0; }
+.abbr-grid .abbr-card { width: 100%; }
+
+@media (max-width: 640px) {
+  .abbr-section__summary { padding: var(--space-sm) var(--space-md); }
+  .abbr-section__body { padding: var(--space-sm) var(--space-md) var(--space-md); }
+  .abbr-grid { grid-template-columns: 1fr; }
+}
+
+.abbr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font: inherit;
+  transition: background var(--transition-fast),
+              border-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+.abbr-card:hover,
+.abbr-card:focus-visible {
+  background: var(--c-surface-alt);
+  border-color: var(--c-accent-border);
+  outline: none;
+}
+.abbr-card:active { transform: translateY(1px); }
+.abbr-card__term {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--c-accent);
+  letter-spacing: 0.02em;
+}
+.abbr-card__expansion {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.abbr-card__hint {
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+  line-height: 1.4;
+}
+
+/* ---- Modal stack --------------------------------------------------------- */
+.abbr-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-md);
+}
+.abbr-modal[hidden] { display: none; }
+.abbr-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+.abbr-modal__panel {
+  position: relative;
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-lg);
+  max-width: 32rem;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+.abbr-modal__term {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  color: var(--c-accent);
+}
+.abbr-modal__expansion {
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.abbr-modal__body {
+  margin: 0;
+  line-height: 1.55;
+  color: var(--c-text-muted);
+}
+.abbr-modal__body p {
+  margin: 0;
+}
+.abbr-modal__close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  background: transparent;
+  border: 0;
+  color: var(--c-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+.abbr-modal__close:hover { color: var(--c-text); }
+
+/* Inline cross-references inside modal bodies. `white-space: nowrap` keeps
+   multi-word terms ("Photon Energy", "COSPAS-SARSAT", "Ka-band") on a single
+   line so the underline doesn't break across line wraps. */
+.abbr-link {
+  color: var(--c-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--transition-fast),
+              background var(--transition-fast);
+  border-radius: 2px;
+}
+.abbr-link:hover,
+.abbr-link:focus-visible {
+  color: var(--c-text);
+  background: var(--c-accent-bg);
+  outline: none;
+}
+.abbr-link:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+/* Lock background scrolling while any abbreviation modal is open. */
+body.abbr-modal-open {
+  overflow: hidden;
+}

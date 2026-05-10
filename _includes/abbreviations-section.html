@@ -1,0 +1,59 @@
+{%- comment -%}
+  Reusable abbreviations + glossary section.
+
+  Renders a collapsible <details> with a grid of abbreviation cards plus a
+  hidden JSON data island that assets/js/abbreviations.js consumes for the
+  modal flow + optional in-content decoration.
+
+  Parameters:
+    include.data    — array of { term, full_form, explanation } maps
+                      (typically site.data.abbreviations.<page_key>).
+    include.heading — optional section heading text (defaults below).
+    include.intro   — optional <p> shown above the grid.
+
+  Pair with (per page):
+    <link rel="stylesheet" href="{{ '/assets/css/abbreviations.css' | relative_url }}">
+    <script src="{{ '/assets/js/abbreviations.js' | relative_url }}" defer></script>
+
+  Auto-decoration: any element on the page carrying a `data-abbr-decorate`
+  attribute will have its text-node descendants scanned and matched terms
+  wrapped in <span class="abbr-trigger"> spans (opt-in, page chooses where).
+{%- endcomment -%}
+
+{%- assign abbr_heading = include.heading | default: "Abbreviations & Glossary" -%}
+
+<details class="abbr-section" id="abbreviations-section">
+  <summary class="abbr-section__summary">
+    <span class="abbr-section__title">{{ abbr_heading }}</span>
+    <span class="abbr-section__count">{{ include.data.size }} terms</span>
+    <span class="abbr-section__toggle" aria-hidden="true">
+      <span data-toggle-show>Show all</span>
+      <span data-toggle-hide>Collapse</span>
+    </span>
+  </summary>
+  <div class="abbr-section__body">
+    {% if include.intro %}<p class="abbr-section__intro">{{ include.intro }}</p>{% endif %}
+    <ul class="abbr-grid">
+      {% for entry in include.data %}
+      <li>
+        <button type="button" class="abbr-card" data-abbr="{{ entry.term | escape }}">
+          <span class="abbr-card__term">{{ entry.term }}</span>
+          <span class="abbr-card__expansion">{{ entry.full_form }}</span>
+          <span class="abbr-card__hint">{{ entry.explanation }}</span>
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</details>
+
+<script type="application/json" id="abbreviations-data" data-abbr-source>
+  {
+    {% for entry in include.data %}
+      {{ entry.term | jsonify }}: {
+        "expansion": {{ entry.full_form | jsonify }},
+        "body": {{ entry.explanation | jsonify }}
+      }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  }
+</script>

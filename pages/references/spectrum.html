@@ -16,17 +16,16 @@ Each YAML file has a `batch` map (id, order, name, short_name, description,
 last_updated) and a `bands` array. Every entry in `bands` is one row.
 
 Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
+
+The abbreviations / glossary system is shared site-wide:
+  data:   _data/abbreviations/spectrum.yml
+  markup: _includes/abbreviations-section.html
+  styles: /assets/css/abbreviations.css
+  script: /assets/js/abbreviations.js
 =================================================================================
 {%- endcomment -%}
-
-{%- comment -%}
-  site.data.spectrum.* covers both the per-batch band files (01-…, 02-…, etc.)
-  and abbreviations.yml. The batch loops below skip any entry whose value
-  doesn't carry a `batch` map, so the abbreviations data is naturally ignored
-  by the table machinery.
-{%- endcomment -%}
 {%- assign batches = site.data.spectrum | sort -%}
-{%- assign abbreviations = site.data.spectrum.abbreviations -%}
+{%- assign abbreviations = site.data.abbreviations.spectrum -%}
 
 {%- comment -%} Find the most recent last_updated across all batches. {%- endcomment -%}
 {%- assign latest_update = "" -%}
@@ -48,6 +47,7 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
   {%- endif -%}
 {%- endfor -%}
 
+<link rel="stylesheet" href="{{ '/assets/css/abbreviations.css' | relative_url }}">
 <link rel="stylesheet" href="{{ '/assets/css/spectrum.css' | relative_url }}">
 
 <section class="spectrum-page">
@@ -99,45 +99,10 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
       </ul>
     </section>
 
-    <details class="spectrum-abbr-section" id="abbreviations-section">
-      <summary class="spectrum-abbr-section__summary">
-        <span class="spectrum-abbr-section__title">Abbreviations &amp; Quick Reference</span>
-        <span class="spectrum-abbr-section__count">{{ abbreviations.size }} terms</span>
-        <span class="spectrum-abbr-section__toggle" aria-hidden="true">
-          <span data-toggle-show>Show all abbreviations</span>
-          <span data-toggle-hide>Collapse</span>
-        </span>
-      </summary>
-      <div class="spectrum-abbr-section__body">
-        <p class="spectrum-abbr-section__intro">
-          Click or tap any abbreviation in the table — or any card below — to see its explanation.
-          Every term used in the table is listed here alphabetically.
-        </p>
-        <ul class="abbr-grid">
-          {% for entry in abbreviations %}
-          <li>
-            <button type="button" class="abbr-card" data-abbr="{{ entry.term | escape }}">
-              <span class="abbr-card__term">{{ entry.term }}</span>
-              <span class="abbr-card__expansion">{{ entry.full_form }}</span>
-              <span class="abbr-card__hint">{{ entry.explanation }}</span>
-            </button>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </details>
-
-    {%- comment -%} Abbreviation lookup table consumed by assets/js/spectrum.js for the in-table modal. {%- endcomment -%}
-    <script type="application/json" id="spectrum-abbr-data">
-      {
-        {% for entry in abbreviations %}
-          {{ entry.term | jsonify }}: {
-            "expansion": {{ entry.full_form | jsonify }},
-            "body": {{ entry.explanation | jsonify }}
-          }{% unless forloop.last %},{% endunless %}
-        {% endfor %}
-      }
-    </script>
+    {% include abbreviations-section.html
+       data=abbreviations
+       heading="Abbreviations & Quick Reference"
+       intro="Click or tap any abbreviation in the table — or any card below — to see its explanation. Every term used in the table is listed here alphabetically." %}
 
     <div class="spectrum-controls">
       <nav class="spectrum-tabs" role="tablist" aria-label="Spectrum batches">
@@ -207,7 +172,7 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
             <th scope="col" class="col-badge">Usability Badge</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody data-abbr-decorate>
           {% for entry in batches %}
             {% assign batch_key = entry[0] %}
             {% assign batch_data = entry[1] %}
@@ -256,4 +221,5 @@ Styles live in /assets/css/spectrum.css and behaviour in /assets/js/spectrum.js.
   </div>
 </section>
 
+<script src="{{ '/assets/js/abbreviations.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/spectrum.js' | relative_url }}" defer></script>
