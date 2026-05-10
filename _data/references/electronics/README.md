@@ -20,7 +20,7 @@ If you're looking to **add a new calculator or widget**, jump to
 │   • Jekyll page with permalink /references/electronics-fundamentals/│
 │   • Renders all six sections as static HTML for SEO + zero-JS users │
 │   • Embeds per-section <script type="application/json"> data islands│
-│   • Loads the nine-file JS bundle at the bottom of the page         │
+│   • Loads the ten-file JS bundle at the bottom of the page          │
 └─────────────────────────────────────────────────────────────────────┘
                               │
                               ▼

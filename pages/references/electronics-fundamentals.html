@@ -1265,8 +1265,10 @@ widget"):
 
           {%- comment -%}
             One panel per mode. JS toggles `[hidden]` on the others when the
-            radio changes. Shared inputs (capacity, voltage) auto-mirror so
-            switching modes preserves context.
+            radio changes. Each mode owns its inputs independently — switching
+            modes preserves your last values per mode rather than copying
+            across, so e.g. Mode A's capacity and Mode B's capacity are
+            tracked separately.
           {%- endcomment -%}
 
           {%- comment -%} ----- Mode A: Charge time ----- {%- endcomment -%}
@@ -1445,7 +1447,7 @@ widget"):
               higher discharge currents (Peukert effect).
             </p>
             <div class="electronics-ohms-fields" role="group" aria-label="Capacity test inputs">
-              <div class="electronics-ohms-field" data-field="LoadI">
+              <div class="electronics-ohms-field" data-field="CapI">
                 <span class="electronics-ohms-field__label" id="ef-bat-cap-I-label">
                   Test load current
                   <small>milliamperes (mA)</small>
@@ -1455,7 +1457,7 @@ widget"):
                        step="any" inputmode="decimal" placeholder="500"
                        autocomplete="off" aria-labelledby="ef-bat-cap-I-label">
               </div>
-              <div class="electronics-ohms-field" data-field="Runtime">
+              <div class="electronics-ohms-field" data-field="CapTime">
                 <span class="electronics-ohms-field__label" id="ef-bat-cap-time-label">
                   Observed runtime
                   <small>hours</small>

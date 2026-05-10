@@ -45,6 +45,19 @@
     (sleeping MCU), tens of mA (LEDs and logic), hundreds of mA to a few A
     (motors and rails).
 
+- term: "Anode"
+  full_form: "Anode"
+  explanation: >-
+    The terminal where conventional current <em>enters</em> a polarised device
+    in normal operation. For a forward-biased
+    <span class="abbr-link" data-abbr="Diode">diode</span> or
+    <span class="abbr-link" data-abbr="LED">LED</span>, the anode is the
+    "+" lead — connect it toward the positive supply. Mirror of the
+    <span class="abbr-link" data-abbr="Cathode">cathode</span>; getting the
+    two backwards is the #1 reason an LED won't light or a
+    <span class="abbr-link" data-abbr="Forward bias">forward-bias</span>
+    measurement reads zero.
+
 - term: "BJT"
   full_form: "Bipolar Junction Transistor"
   explanation: >-
@@ -108,6 +121,32 @@
     audio), tantalum (compact, sensitive to reverse voltage). Pair a 100 nF
     ceramic with a 10 µF bulk for proper
     <span class="abbr-link" data-abbr="Decoupling capacitor">decoupling</span>.
+
+- term: "Cathode"
+  full_form: "Cathode"
+  explanation: >-
+    The terminal where conventional current <em>exits</em> a polarised device
+    in normal operation. For a forward-biased
+    <span class="abbr-link" data-abbr="Diode">diode</span> or
+    <span class="abbr-link" data-abbr="LED">LED</span>, the cathode is the
+    "−" lead, marked by a band on the body or the shorter LED leg. Mirror of
+    the <span class="abbr-link" data-abbr="Anode">anode</span>;
+    <span class="abbr-link" data-abbr="Zener diode">Zener</span> regulators
+    deliberately operate in <span class="abbr-link" data-abbr="Reverse bias">reverse
+    bias</span> with current flowing the "wrong" way at a controlled voltage.
+
+- term: "CC/CV"
+  full_form: "Constant-Current / Constant-Voltage Charging"
+  explanation: >-
+    The standard <span class="abbr-link" data-abbr="Li-ion">Li-ion</span> /
+    <span class="abbr-link" data-abbr="LiFePO4">LiFePO₄</span> charge profile.
+    The charger first holds a constant current (CC) at the spec'd rate while
+    the cell voltage climbs — typically ~70 % of the cycle. Once the cell
+    reaches its full-charge voltage (4.2 V/cell for Li-ion), the charger
+    switches to constant voltage (CV) and lets current taper to a small
+    cutoff. The CV phase is why real charging takes about 25 % longer than
+    the linear approximation Calc 6 above uses, and why fast chargers slow
+    down past ~80 %.
 
 - term: "CMOS"
   full_form: "Complementary Metal-Oxide Semiconductor"
@@ -502,11 +541,24 @@
     <span class="abbr-link" data-abbr="Resistor">resistor</span> sized so
     I_F ≈ 10–20 mA, never directly across a voltage source.
 
+- term: "LiFePO4"
+  full_form: "Lithium Iron Phosphate Cell (LiFePO₄)"
+  explanation: >-
+    Rechargeable lithium chemistry — nominal 3.2
+    <span class="abbr-link" data-abbr="V">V</span>, full 3.65 V, cutoff 2.5 V
+    — chosen over <span class="abbr-link" data-abbr="Li-ion">Li-ion</span> for
+    its safer thermal behaviour, much longer cycle life (2 000–5 000 cycles
+    vs 500–1 000 for Li-ion), and very flat discharge curve. Slightly lower
+    energy density than Li-ion, so packs are bulkier for the same
+    <span class="abbr-link" data-abbr="Wh">Wh</span>. Common in solar storage,
+    e-bikes, RV house batteries, and 12 V replacement packs (4 cells in
+    series ≈ 12.8 V nominal).
+
 - term: "Li-ion"
   full_form: "Lithium-Ion Cell"
   explanation: >-
-    Rechargeable cell chemistry — nominal 3.7 V, full 4.2 V, cutoff
-    3.0 V — found in phones, laptops, e-bikes, and 18650 / 21700 form
+    Rechargeable cell chemistry — nominal 3.7 <span class="abbr-link" data-abbr="V">V</span>,
+    full 4.2 V, cutoff 3.0 V — found in phones, laptops, e-bikes, and 18650 / 21700 form
     factors. High energy density, but requires a
     <span class="abbr-link" data-abbr="BMS">BMS</span> to prevent
     over-charge / over-discharge / cell imbalance. Voltage-based
@@ -518,8 +570,9 @@
 - term: "Logic level"
   full_form: "Logic Level"
   explanation: >-
-    The voltage range a digital chip uses to represent "0" or "1". Common
-    families: 5 V <span class="abbr-link" data-abbr="TTL">TTL</span>, 5 V
+    The <span class="abbr-link" data-abbr="V">voltage</span> range a digital
+    chip uses to represent "0" or "1". Common families: 5 V
+    <span class="abbr-link" data-abbr="TTL">TTL</span>, 5 V
     <span class="abbr-link" data-abbr="CMOS">CMOS</span>, 3.3 V LVCMOS, 1.8 V
     CMOS. Mixing families requires care — a 3.3 V LVCMOS output may not meet
     a 5 V TTL chip's V_IH threshold without level-shifting.
@@ -643,6 +696,19 @@
     or six-layer boards add dedicated power and ground planes for cleaner
     high-speed designs. A finished PCB needs a populated <span
     class="abbr-link" data-abbr="BOM">BOM</span> to become a working board.
+
+- term: "Polarity"
+  full_form: "Polarity"
+  explanation: >-
+    Which terminal of a component is the "+" and which is the "−". Critical
+    for polarised devices: <span class="abbr-link" data-abbr="Diode">diodes</span>
+    and <span class="abbr-link" data-abbr="LED">LEDs</span> only conduct when
+    the <span class="abbr-link" data-abbr="Anode">anode</span> is at higher
+    potential than the <span class="abbr-link" data-abbr="Cathode">cathode</span>;
+    electrolytic <span class="abbr-link" data-abbr="Capacitor">capacitors</span>
+    vent or explode if installed reversed; batteries leak or destroy what
+    they're powering. Non-polarised components (resistors, ceramic caps,
+    most inductors) don't care which way they're installed.
 
 - term: "Power factor"
   full_form: "Power Factor"
@@ -909,11 +975,12 @@
 - term: "TTL"
   full_form: "Transistor-Transistor Logic"
   explanation: >-
-    The classic 5 V bipolar logic family (74-series chips originally).
-    Logic high ≥ 2.4 V, logic low ≤ 0.4 V on outputs; inputs sink ~1.6 mA
-    when low. Largely supplanted by <span class="abbr-link"
-    data-abbr="CMOS">CMOS</span> and 3.3 V variants, but the term still
-    shows up to mean "5 V single-ended logic levels" on hobby modules.
+    The classic 5 <span class="abbr-link" data-abbr="V">V</span> bipolar logic
+    family (74-series chips originally). Logic high ≥ 2.4 V, logic low ≤ 0.4 V
+    on outputs; inputs sink ~1.6 mA when low. Largely supplanted by
+    <span class="abbr-link" data-abbr="CMOS">CMOS</span> and 3.3 V variants,
+    but the term still shows up to mean "5 V single-ended logic levels" on
+    hobby modules.
 
 - term: "TVS diode"
   full_form: "Transient Voltage Suppression Diode"
