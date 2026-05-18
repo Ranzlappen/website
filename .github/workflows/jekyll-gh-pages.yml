@@ -17,11 +17,14 @@ on:
       - 'polyvote/.prettierrc'
       - 'blog-admin/README.md'
       - 'blog-admin/.gitignore'
+      - 'inventory-manager/README.md'
+      - 'inventory-manager/.gitignore'
       # Firebase resources (deployed by firebase-deploy.yml, not bundled into the site)
       - 'polyvote/.firebaserc'
       - 'polyvote/firebase.json'
       - 'polyvote/firestore.rules'
       - 'polyvote/firestore.indexes.json'
+      - 'polyvote/storage.rules'
       - 'polyvote/database.rules.json'
       - 'polyvote/functions/**'
       # Sibling workflows + Dependabot config (don't affect Pages)
@@ -63,6 +66,7 @@ jobs:
           cache-dependency-path: |
             polyvote/package-lock.json
             blog-admin/package-lock.json
+            inventory-manager/package-lock.json
 
       - name: PolyVote – Install dependencies
         working-directory: polyvote
@@ -80,6 +84,14 @@ jobs:
         working-directory: blog-admin
         run: npm run build
 
+      - name: Inventory Manager – Install dependencies
+        working-directory: inventory-manager
+        run: npm ci
+
+      - name: Inventory Manager – Build
+        working-directory: inventory-manager
+        run: npm run build
+
       - name: Copy PolyVote into _site
         run: |
           sudo chown -R $(whoami) _site
@@ -87,6 +99,9 @@ jobs:
 
       - name: Copy Blog Admin into _site
         run: cp -r blog-admin/dist _site/blog-admin
+
+      - name: Copy Inventory Manager into _site
+        run: cp -r inventory-manager/dist _site/inventory
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5

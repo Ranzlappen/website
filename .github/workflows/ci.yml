@@ -7,13 +7,15 @@ on:
   pull_request:
     branches: ["main"]
     # Positive filter: CI only exists for the app modules. Anything outside
-    # polyvote/ and blog-admin/ (blog content, Jekyll config, other workflows,
-    # root docs) cannot affect these jobs, so it's excluded by omission.
-    # The `!` entries below carve out files inside the app dirs that also
-    # shouldn't trigger (docs, Firebase config, lint/format settings).
+    # polyvote/, blog-admin/, and inventory-manager/ (blog content, Jekyll
+    # config, other workflows, root docs) cannot affect these jobs, so it's
+    # excluded by omission. The `!` entries below carve out files inside the
+    # app dirs that also shouldn't trigger (docs, Firebase config,
+    # lint/format settings).
     paths:
       - 'polyvote/**'
       - 'blog-admin/**'
+      - 'inventory-manager/**'
       - '.github/workflows/ci.yml'
       - '!**/README.md'
       - '!**/.gitignore'
@@ -22,6 +24,7 @@ on:
       - '!polyvote/firestore.rules'
       - '!polyvote/firestore.indexes.json'
       - '!polyvote/database.rules.json'
+      - '!polyvote/storage.rules'
       - '!polyvote/.prettierrc'
 
 concurrency:
@@ -35,6 +38,7 @@ jobs:
       polyvote: ${{ steps.filter.outputs.polyvote }}
       functions: ${{ steps.filter.outputs.functions }}
       blog-admin: ${{ steps.filter.outputs.blog-admin }}
+      inventory-manager: ${{ steps.filter.outputs.inventory-manager }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -54,6 +58,7 @@ jobs:
               - '!polyvote/database.rules.json'
               - '!polyvote/firestore.rules'
               - '!polyvote/firestore.indexes.json'
+              - '!polyvote/storage.rules'
               - '.github/workflows/ci.yml'
             functions:
               - 'polyvote/functions/**'
@@ -63,6 +68,11 @@ jobs:
               - 'blog-admin/**'
               - '!blog-admin/.gitignore'
               - '!blog-admin/README.md'
+              - '.github/workflows/ci.yml'
+            inventory-manager:
+              - 'inventory-manager/**'
+              - '!inventory-manager/.gitignore'
+              - '!inventory-manager/README.md'
               - '.github/workflows/ci.yml'
 
   polyvote:
@@ -148,4 +158,31 @@ jobs:
 
       - name: Build
         working-directory: blog-admin
+        run: npm run build
+
+  inventory-manager:
+    needs: changes
+    if: needs.changes.outputs.inventory-manager == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: inventory-manager/package-lock.json
+
+      - name: Install dependencies
+        working-directory: inventory-manager
+        run: npm ci
+
+      - name: Lint
+        working-directory: inventory-manager
+        run: npm run lint
+
+      - name: Build
+        working-directory: inventory-manager
         run: npm run build
