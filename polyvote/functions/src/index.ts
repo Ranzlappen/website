@@ -91,3 +91,34 @@ export { createTopicRequest } from "./user/createTopicRequest";
 export { endorseTopicRequest } from "./user/endorseTopicRequest";
 export { createChangeRequest } from "./user/createChangeRequest";
 export { voteOnComment } from "./user/voteOnComment";
+
+// Inventory: folders
+export {
+  inventoryListFolders,
+  inventoryCreateFolder,
+  inventoryUpdateFolder,
+  inventoryDeleteFolder,
+} from "./inventory/folders";
+
+// Inventory: items
+export {
+  inventoryListItems,
+  inventoryGetItem,
+  inventoryCreateItem,
+  inventoryUpdateItem,
+  inventoryDeleteItem,
+  inventoryToggleEbaySync,
+} from "./inventory/items";
+
+// Inventory: photos
+export {
+  inventoryUploadPhoto,
+  inventoryDeletePhoto,
+  inventoryReorderPhotos,
+} from "./inventory/photos";
+
+// Inventory: import / export
+export { inventoryImport, inventoryExport } from "./inventory/importExport";
+
+// Inventory: eBay File Exchange CSV export
+export { inventoryExportEbayCsv } from "./inventory/ebayExport";

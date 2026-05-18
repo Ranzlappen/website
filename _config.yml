@@ -55,6 +55,7 @@ exclude:
   - vendor
   - polyvote
   - blog-admin
+  - inventory-manager
 
 # Plugins (GitHub Pages compatible)
 plugins:
