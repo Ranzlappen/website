@@ -31,9 +31,11 @@ app. Sign in with the same credentials you use for `/blog-admin/`.
 ## First-time setup (one-time)
 
 Before the Functions can save photos, **Firebase Storage must be enabled in
-the Firebase Console** for project `proven-concept-436717-q3`. The default
-bucket `proven-concept-436717-q3.appspot.com` is the one referenced by the
-functions and storage rules.
+the Firebase Console** for project `proven-concept-436717-q3`. Photos go to
+the bucket `proven-concept-436717-q3.firebasestorage.app` (the new-style
+Firebase Storage bucket) — this name is pinned explicitly in
+`polyvote/functions/src/inventory/photos.ts` and in the client config so
+the SPA and the Cloud Functions stay in lock-step.
 
 ## Project layout
 

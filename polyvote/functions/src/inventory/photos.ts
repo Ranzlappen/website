@@ -5,6 +5,12 @@ import { randomUUID } from "node:crypto";
 import { requireRole } from "../utils/adminOnly";
 import { appendAudit, type ItemDoc, type PhotoRef } from "./shared";
 
+// The project's Firebase Storage bucket. Pinned explicitly so we don't
+// depend on whichever bucket the Admin SDK picks as "default" — Firebase
+// projects created after the 2024 switchover use `.firebasestorage.app`
+// rather than the legacy `.appspot.com` naming.
+const INVENTORY_BUCKET = "proven-concept-436717-q3.firebasestorage.app";
+
 const ALLOWED_EXTENSIONS: Record<string, string> = {
   ".webp": "image/webp",
   ".png": "image/png",
@@ -74,7 +80,7 @@ export const inventoryUploadPhoto = onCall(async (request) => {
   }
 
   const storagePath = `inventory/${itemId}/${randomUUID()}${ext}`;
-  const bucket = getStorage().bucket();
+  const bucket = getStorage().bucket(INVENTORY_BUCKET);
   const file = bucket.file(storagePath);
 
   await file.save(buffer, {
@@ -148,7 +154,10 @@ export const inventoryDeletePhoto = onCall(async (request) => {
     .map((p, i) => ({ ...p, order: i }));
 
   try {
-    await getStorage().bucket().file(storagePath).delete({ ignoreNotFound: true });
+    await getStorage()
+      .bucket(INVENTORY_BUCKET)
+      .file(storagePath)
+      .delete({ ignoreNotFound: true });
   } catch (e) {
     // Best effort — even if the object is already gone, drop it from the doc.
     console.warn("storage delete failed", storagePath, e);
