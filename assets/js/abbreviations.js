@@ -97,28 +97,12 @@
   // current one. Escape / × / backdrop click close the topmost modal only.
   var modalStack = [];
 
-  function buildModal(term, def) {
-    var m = document.createElement('div');
-    m.className = 'abbr-modal';
-    m.setAttribute('role', 'dialog');
-    m.setAttribute('aria-modal', 'true');
-    m.innerHTML =
-      '<div class="abbr-modal__backdrop"></div>' +
-      '<div class="abbr-modal__panel" role="document">' +
-        '<button type="button" class="abbr-modal__close" aria-label="Close">×</button>' +
-        '<h3 class="abbr-modal__term"></h3>' +
-        '<p class="abbr-modal__expansion"></p>' +
-        '<div class="abbr-modal__body"></div>' +
-      '</div>';
-    m.querySelector('.abbr-modal__term').textContent = term;
-    m.querySelector('.abbr-modal__expansion').textContent = def.expansion || '';
-    // body uses innerHTML so embedded <span class="abbr-link"> markup renders.
-    var bodyEl = m.querySelector('.abbr-modal__body');
-    bodyEl.innerHTML = def.body || '';
-    // Make embedded .abbr-link spans keyboard-activatable (the YAML ships them
-    // as bare markup; tabindex/role/aria are added here so the recursive flow
-    // is reachable without a mouse).
-    var links = bodyEl.querySelectorAll('.abbr-link');
+  // Make embedded .abbr-link spans keyboard-activatable (the YAML ships them
+  // as bare markup; tabindex/role/aria are added here so the recursive flow
+  // is reachable without a mouse).
+  function wireAbbrLinks(root) {
+    if (!root) return;
+    var links = root.querySelectorAll('.abbr-link');
     for (var i = 0; i < links.length; i++) {
       var a = links[i];
       if (!a.hasAttribute('tabindex')) a.setAttribute('tabindex', '0');
@@ -128,8 +112,128 @@
         a.setAttribute('aria-label', t + ' — click or press Enter for explanation');
       }
     }
-    m.querySelector('.abbr-modal__backdrop').addEventListener('click', function () { closeModal(m); });
-    m.querySelector('.abbr-modal__close').addEventListener('click', function () { closeModal(m); });
+  }
+
+  function buildInterpretationTable(interp) {
+    var wrap = document.createElement('div');
+    wrap.className = 'abbr-interp-table-wrap';
+    var table = document.createElement('table');
+    table.className = 'abbr-interp-table';
+    var thead = document.createElement('thead');
+    var hrow = document.createElement('tr');
+    (interp.columns || []).forEach(function (c) {
+      var th = document.createElement('th');
+      th.textContent = c;
+      hrow.appendChild(th);
+    });
+    thead.appendChild(hrow);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    (interp.rows || []).forEach(function (row) {
+      var tr = document.createElement('tr');
+      (row || []).forEach(function (cell, idx) {
+        var td = document.createElement('td');
+        if (idx === 0) td.className = 'abbr-interp-table__head';
+        td.textContent = cell == null ? '' : String(cell);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
+  function buildModal(term, def) {
+    var m = document.createElement('div');
+    m.className = 'abbr-modal';
+    m.setAttribute('role', 'dialog');
+    m.setAttribute('aria-modal', 'true');
+
+    var hasPlain = !!(def.plain && def.plain.length);
+    var hasInterp = !!(def.interpretation && def.interpretation.columns && def.interpretation.rows);
+
+    var panel = document.createElement('div');
+    panel.className = 'abbr-modal__panel';
+    panel.setAttribute('role', 'document');
+
+    var backdrop = document.createElement('div');
+    backdrop.className = 'abbr-modal__backdrop';
+
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'abbr-modal__close';
+    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.textContent = '×';
+
+    var termEl = document.createElement('h3');
+    termEl.className = 'abbr-modal__term';
+    termEl.textContent = term;
+
+    var expansionEl = document.createElement('p');
+    expansionEl.className = 'abbr-modal__expansion';
+    expansionEl.textContent = def.expansion || '';
+
+    panel.appendChild(closeBtn);
+    panel.appendChild(termEl);
+    panel.appendChild(expansionEl);
+
+    // Plain-English section (beginner-first).
+    if (hasPlain) {
+      var plainWrap = document.createElement('div');
+      plainWrap.className = 'abbr-modal__plain';
+      var plainLabel = document.createElement('span');
+      plainLabel.className = 'abbr-modal__plain-label';
+      plainLabel.textContent = 'In plain English';
+      var plainBody = document.createElement('div');
+      plainBody.className = 'abbr-modal__plain-body';
+      plainBody.innerHTML = def.plain;
+      wireAbbrLinks(plainBody);
+      plainWrap.appendChild(plainLabel);
+      plainWrap.appendChild(plainBody);
+      panel.appendChild(plainWrap);
+    }
+
+    // Interpretation table (the beginner aid — open by default).
+    if (hasInterp) {
+      var interpDetails = document.createElement('details');
+      interpDetails.className = 'abbr-modal__interpretation';
+      interpDetails.open = true;
+      var interpSummary = document.createElement('summary');
+      interpSummary.textContent = def.interpretation.title || 'How to read it';
+      interpDetails.appendChild(interpSummary);
+      interpDetails.appendChild(buildInterpretationTable(def.interpretation));
+      if (def.interpretation.footnote) {
+        var footnote = document.createElement('p');
+        footnote.className = 'abbr-modal__footnote';
+        footnote.innerHTML = def.interpretation.footnote;
+        wireAbbrLinks(footnote);
+        interpDetails.appendChild(footnote);
+      }
+      panel.appendChild(interpDetails);
+    }
+
+    // Technical body. Collapsed by default when a plain blurb exists so
+    // beginners see the friendly text first; open by default otherwise so
+    // entries without a plain blurb behave identically to before.
+    var technicalDetails = document.createElement('details');
+    technicalDetails.className = 'abbr-modal__technical';
+    technicalDetails.open = !hasPlain;
+    var technicalSummary = document.createElement('summary');
+    technicalSummary.textContent = 'Technical detail';
+    technicalDetails.appendChild(technicalSummary);
+    var bodyEl = document.createElement('div');
+    bodyEl.className = 'abbr-modal__body';
+    bodyEl.innerHTML = def.body || '';
+    wireAbbrLinks(bodyEl);
+    technicalDetails.appendChild(bodyEl);
+    panel.appendChild(technicalDetails);
+
+    m.appendChild(backdrop);
+    m.appendChild(panel);
+
+    backdrop.addEventListener('click', function () { closeModal(m); });
+    closeBtn.addEventListener('click', function () { closeModal(m); });
     return m;
   }
 
