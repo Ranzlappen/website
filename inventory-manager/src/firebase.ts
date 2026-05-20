@@ -13,7 +13,7 @@ const firebaseConfig = {
   apiKey: 'AIzaSyByEwHUnausbBmyRT928uGTRw5ZvszjjiM',
   authDomain: 'proven-concept-436717-q3.firebaseapp.com',
   projectId: 'proven-concept-436717-q3',
-  storageBucket: 'proven-concept-436717-q3.appspot.com',
+  storageBucket: 'proven-concept-436717-q3.firebasestorage.app',
   messagingSenderId: '420991269376',
   appId: '1:420991269376:web:8b2d0bcac98ffd92abb6e5',
 };
