@@ -1,0 +1,13 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Inventory Manager photos are public-read so eBay (and other external
+    // listings) can fetch the URLs without auth. Writes only via Cloud
+    // Functions (admin SDK bypasses these rules), never directly from
+    // the client.
+    match /inventory/{itemId}/{filename} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

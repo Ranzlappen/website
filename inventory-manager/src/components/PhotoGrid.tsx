@@ -1,0 +1,189 @@
+import { useRef, useState } from 'react';
+import {
+  inventoryDeletePhotoFn,
+  inventoryReorderPhotosFn,
+  inventoryUploadPhotoFn,
+} from '../firebase';
+import { useStore } from '../store';
+import type { PhotoRef } from '../types';
+
+interface Props {
+  itemId: string;
+  photos: PhotoRef[];
+  onChange: (photos: PhotoRef[]) => void;
+}
+
+const MAX_SIZE = 10 * 1024 * 1024;
+const ALLOWED = ['.webp', '.png', '.jpg', '.jpeg'];
+
+function readAsBase64(file: File): Promise<{ base64: string; width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const dataUrl = fr.result as string;
+      const base64 = dataUrl.split(',')[1];
+      // Probe dimensions in parallel.
+      const img = new Image();
+      img.onload = () => resolve({ base64, width: img.naturalWidth, height: img.naturalHeight });
+      img.onerror = () => resolve({ base64, width: 0, height: 0 });
+      img.src = dataUrl;
+    };
+    fr.onerror = () => reject(fr.error);
+    fr.readAsDataURL(file);
+  });
+}
+
+export default function PhotoGrid({ itemId, photos, onChange }: Props) {
+  const addToast = useStore((s) => s.addToast);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  async function handleFiles(files: FileList | null) {
+    if (!files || !files.length) return;
+    setUploading(true);
+    try {
+      let next = photos.slice();
+      for (const file of Array.from(files)) {
+        const lower = file.name.toLowerCase();
+        const ext = lower.slice(lower.lastIndexOf('.'));
+        if (!ALLOWED.includes(ext)) {
+          addToast(`${file.name}: unsupported file type`, 'error');
+          continue;
+        }
+        if (file.size > MAX_SIZE) {
+          addToast(`${file.name}: too large (max 10MB)`, 'error');
+          continue;
+        }
+        try {
+          const { base64, width, height } = await readAsBase64(file);
+          const res = await inventoryUploadPhotoFn({
+            itemId,
+            filename: file.name.toLowerCase().replace(/[^a-z0-9._-]/g, '-'),
+            base64Data: base64,
+            width,
+            height,
+          });
+          next = [...next, res.data];
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : 'Upload failed';
+          addToast(`${file.name}: ${msg}`, 'error');
+        }
+      }
+      onChange(next);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
+
+  async function deletePhoto(photo: PhotoRef) {
+    if (!confirm(`Delete ${photo.filename}?`)) return;
+    try {
+      const res = await inventoryDeletePhotoFn({
+        itemId,
+        storagePath: photo.storagePath,
+      });
+      onChange(res.data.photos);
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Delete failed', 'error');
+    }
+  }
+
+  async function reorderTo(from: number, to: number) {
+    if (from === to) return;
+    const next = photos.slice();
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    onChange(next);
+    try {
+      const res = await inventoryReorderPhotosFn({
+        itemId,
+        photoOrder: next.map((p) => p.storagePath),
+      });
+      onChange(res.data.photos);
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Reorder failed', 'error');
+    }
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-sm uppercase tracking-wide text-[var(--text-muted)]">
+          Photos ({photos.length} / 24)
+        </h3>
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading || photos.length >= 24}
+          className="px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
+        >
+          {uploading ? 'Uploading…' : '+ Upload'}
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".webp,.png,.jpg,.jpeg"
+          multiple
+          className="hidden"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
+      </div>
+
+      <div
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 min-h-[120px] p-3 rounded border-2 border-dashed border-[var(--border)]"
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'copy';
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          if (e.dataTransfer.files?.length) handleFiles(e.dataTransfer.files);
+        }}
+      >
+        {photos.length === 0 && (
+          <div className="col-span-full text-center text-sm text-[var(--text-muted)] py-8">
+            Drop photos here or click Upload. The first photo is the primary
+            (used as the cover thumbnail in eBay exports).
+          </div>
+        )}
+        {photos.map((p, idx) => (
+          <div
+            key={p.storagePath}
+            draggable
+            onDragStart={() => setDragIndex(idx)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={() => {
+              if (dragIndex !== null) reorderTo(dragIndex, idx);
+              setDragIndex(null);
+            }}
+            className="relative group bg-[var(--bg)] rounded border border-[var(--border)] overflow-hidden cursor-move"
+          >
+            <img
+              src={p.downloadUrl}
+              alt={p.filename}
+              className="block w-full aspect-square object-cover"
+              loading="lazy"
+            />
+            {idx === 0 && (
+              <span className="absolute top-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent)] text-[var(--bg)] font-semibold">
+                Primary
+              </span>
+            )}
+            <div className="absolute inset-x-0 bottom-0 p-1 flex justify-between bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[10px] text-white truncate">{p.filename}</span>
+              <button
+                type="button"
+                onClick={() => deletePhoto(p)}
+                className="text-[10px] text-red-300 hover:text-red-100"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -1,20 +1,21 @@
-# ranzlappen.com — Blog + PolyVote + Blog Admin
+# ranzlappen.com — Blog + PolyVote + Blog Admin + Inventory Manager
 
-A hybrid static site: a dark-themed Jekyll blog, the PolyVote community voting SPA, and a Blog Admin publishing dashboard. The blog itself needs **no coding** — everything routine can be done from GitHub's website (works on your phone). The two React apps need a dev setup.
+A hybrid static site: a dark-themed Jekyll blog, the PolyVote community voting SPA, a Blog Admin publishing dashboard, and a private Inventory Manager. The blog itself needs **no coding** — everything routine can be done from GitHub's website (works on your phone). The three React apps need a dev setup.
 
-> **New here?** If you just want to run or write posts, jump to [Get Your Blog Online](#get-your-blog-online). If you're a developer working on PolyVote or Blog Admin, start with [Developer Setup](#developer-setup).
+> **New here?** If you just want to run or write posts, jump to [Get Your Blog Online](#get-your-blog-online). If you're a developer working on PolyVote, Blog Admin, or Inventory Manager, start with [Developer Setup](#developer-setup).
 
 ---
 
 ## Developer Setup
 
-The repo contains **three independent modules** plus a nested Cloud Functions module. Each has its own package manifest, lint/test/build/deploy path, and its own README. **Do not cross-import source between modules** — duplicate intentionally if sharing is required (see [`CLAUDE.md`](./CLAUDE.md)).
+The repo contains **four independent modules** plus a nested Cloud Functions module. Each has its own package manifest, lint/test/build/deploy path, and its own README. **Do not cross-import source between modules** — duplicate intentionally if sharing is required (see [`CLAUDE.md`](./CLAUDE.md)).
 
 | Module | Path | Role | Local dev | Docs |
 |---|---|---|---|---|
 | Jekyll blog | `./` (root) | Static site, posts, pages | `bundle exec jekyll serve` | this README |
 | PolyVote | [`polyvote/`](./polyvote) | React 19 voting SPA (served at `/polyvote/`) | `cd polyvote && npm run dev` | [`polyvote/README.md`](./polyvote/README.md) |
 | Blog Admin | [`blog-admin/`](./blog-admin) | React 19 publishing dashboard (served at `/blog-admin/`) | `cd blog-admin && npm run dev` | [`blog-admin/README.md`](./blog-admin/README.md) |
+| Inventory Manager | [`inventory-manager/`](./inventory-manager) | React 19 admin-only inventory tool with eBay CSV export (served at `/inventory/`, hidden from crawlers) | `cd inventory-manager && npm run dev` | [`inventory-manager/README.md`](./inventory-manager/README.md) |
 | Cloud Functions | [`polyvote/functions/`](./polyvote/functions) | Firebase callables/triggers (server-side writes) | `cd polyvote/functions && npm run serve` | [`polyvote/functions/README.md`](./polyvote/functions/README.md) |
 
 ### Prerequisites
@@ -34,8 +35,8 @@ Three GitHub Actions workflows live in [`.github/workflows/`](./.github/workflow
 | Workflow | Trigger | What it does |
 |---|---|---|
 | [`ci.yml`](./.github/workflows/ci.yml) | PR → `main` | Per-app lint/test/build, only for changed apps |
-| [`jekyll-gh-pages.yml`](./.github/workflows/jekyll-gh-pages.yml) | Push → `main` | Builds Jekyll + PolyVote + Blog Admin, deploys to GitHub Pages |
-| [`firebase-deploy.yml`](./.github/workflows/firebase-deploy.yml) | Push → `main` touching Firebase paths | Deploys Firestore rules, RTDB rules, `castBlogVote`, and all Blog Admin callables |
+| [`jekyll-gh-pages.yml`](./.github/workflows/jekyll-gh-pages.yml) | Push → `main` | Builds Jekyll + PolyVote + Blog Admin + Inventory Manager, deploys to GitHub Pages |
+| [`firebase-deploy.yml`](./.github/workflows/firebase-deploy.yml) | Push → `main` touching Firebase paths | Deploys Firestore rules, RTDB rules, Storage rules, `castBlogVote`, all Blog Admin callables, and all Inventory Manager callables |
 
 Required secret for Firebase deploys: `FIREBASE_SERVICE_ACCOUNT`.
 

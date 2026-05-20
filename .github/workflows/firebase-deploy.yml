@@ -10,6 +10,7 @@ on:
       - 'polyvote/database.rules.json'
       - 'polyvote/firestore.rules'
       - 'polyvote/firestore.indexes.json'
+      - 'polyvote/storage.rules'
       - 'polyvote/firebase.json'
       - 'polyvote/.firebaserc'
       - 'polyvote/functions/src/**'
@@ -59,14 +60,18 @@ jobs:
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-sa.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-sa.json" >> "$GITHUB_ENV"
 
-      - name: Deploy Firestore + Realtime Database rules + Cloud Functions
+      - name: Deploy Firestore + Realtime Database + Storage rules + Cloud Functions
         working-directory: polyvote
         run: |
-          TARGETS="database,firestore"
+          TARGETS="database,firestore,storage"
           TARGETS="$TARGETS,functions:castBlogVote"
           TARGETS="$TARGETS,functions:blogSaveDraft,functions:blogListDrafts,functions:blogGetDraft,functions:blogDeleteDraft"
           TARGETS="$TARGETS,functions:blogListExistingPosts,functions:blogFetchExistingPost,functions:blogImportPostForEdit"
           TARGETS="$TARGETS,functions:blogPublishToGitHub,functions:blogUploadImage"
           TARGETS="$TARGETS,functions:blogListSeriesUsage"
           TARGETS="$TARGETS,functions:setUserRole,functions:adminListUsers,functions:adminBanUser,functions:adminUnbanUser"
+          TARGETS="$TARGETS,functions:inventoryListFolders,functions:inventoryCreateFolder,functions:inventoryUpdateFolder,functions:inventoryDeleteFolder"
+          TARGETS="$TARGETS,functions:inventoryListItems,functions:inventoryGetItem,functions:inventoryCreateItem,functions:inventoryUpdateItem,functions:inventoryDeleteItem,functions:inventoryToggleEbaySync"
+          TARGETS="$TARGETS,functions:inventoryUploadPhoto,functions:inventoryDeletePhoto,functions:inventoryReorderPhotos"
+          TARGETS="$TARGETS,functions:inventoryImport,functions:inventoryExport,functions:inventoryExportEbayCsv"
           firebase deploy --only "$TARGETS" --non-interactive --force

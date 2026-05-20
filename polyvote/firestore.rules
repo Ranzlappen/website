@@ -146,5 +146,21 @@ service cloud.firestore {
       // Only Cloud Functions can write
       allow create, update, delete: if false;
     }
+
+    // ── Inventory Manager (admin-only, all writes via Cloud Functions) ──
+    match /inventoryFolders/{folderId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /inventoryItems/{itemId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /inventoryAuditLog/{logId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
   }
 }
