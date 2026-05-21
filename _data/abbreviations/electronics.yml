@@ -28,6 +28,11 @@
     <span class="abbr-link" data-abbr="I²C">I²C</span> it needs a
     <span class="abbr-link" data-abbr="Pull-up">pull-up</span> on the data line
     (4.7 kΩ is standard).
+  plain: >-
+    A simple way to talk to many sensors using just one signal wire. Famous
+    for the cheap waterproof temperature probes (DS18B20) on Arduino kits —
+    you can chain dozens together on a single pin because each has a unique
+    serial number burned in at the factory.
 
 - term: "AC"
   full_form: "Alternating Current"
@@ -37,6 +42,21 @@
     reported as <span class="abbr-link" data-abbr="RMS">RMS</span> values so
     they're directly comparable to <span class="abbr-link" data-abbr="DC">DC</span>
     in power calculations. Compare DC.
+  plain: >-
+    Electricity that flows back and forth many times per second — the kind
+    that comes out of your wall socket. Around the world, mains AC is
+    either ~120 V at 60 Hz (US) or ~230 V at 50 Hz (Europe and most of
+    the world). The opposite is DC, which flows in one direction (batteries).
+  interpretation:
+    title: "Mains AC around the world"
+    columns: ["Region", "Voltage", "Frequency"]
+    rows:
+      - ["USA, Canada, Mexico", "120 V", "60 Hz"]
+      - ["UK, Europe, Africa", "230 V", "50 Hz"]
+      - ["Japan", "100 V", "50 / 60 Hz (split country)"]
+      - ["China, India, Australia", "230 V", "50 Hz"]
+      - ["Brazil", "127 V or 220 V", "60 Hz"]
+    footnote: "Bringing a 120 V appliance to a 230 V country without a converter typically destroys it; the wrong frequency on a motor or clock changes its speed."
 
 - term: "ADC"
   full_form: "Analog-to-Digital Converter"
@@ -46,6 +66,11 @@
     code. Resolution (e.g. 10-bit, 12-bit) sets the smallest voltage step it
     can resolve; sampling rate sets how many samples per second. The inverse
     operation is performed by a <span class="abbr-link" data-abbr="DAC">DAC</span>.
+  plain: >-
+    The chip that turns a smoothly-changing voltage (like a sensor reading)
+    into numbers a computer can use. Higher "bits" means it can tell apart
+    smaller voltage steps; faster sample rate means it can capture quickly
+    changing signals.
 
 - term: "Alkaline"
   full_form: "Alkaline Battery"
@@ -58,6 +83,11 @@
     means poor performance under heavy load (cameras, motors). A fresh AA stores
     about 2.5–3
     <span class="abbr-link" data-abbr="Wh">Wh</span> (~14 kJ).
+  plain: >-
+    The classic disposable AA/AAA battery. Cheap, lasts years on a shelf,
+    fine for clocks, remotes, and low-power gadgets. Bad for cameras and
+    motors because the voltage sags fast under heavy load — that's what
+    rechargeable Li-ion or NiMH are for.
 
 - term: "Ampere"
   full_form: "Ampere (A)"
@@ -67,6 +97,11 @@
     of charge passing a point per second. Common hobby ranges: tens of µA
     (sleeping MCU), tens of mA (LEDs and logic), hundreds of mA to a few A
     (motors and rails).
+  plain: >-
+    The SI unit for electric current — how much electricity is flowing past
+    a point per second. An LED needs about 20 milliamps (mA); a phone
+    charger delivers 1–3 amps (A); a kitchen kettle pulls about 10 A. See
+    the `I` entry for safety thresholds.
 
 - term: "Anode"
   full_form: "Anode"
@@ -80,6 +115,10 @@
     two backwards is the #1 reason an LED won't light or a
     <span class="abbr-link" data-abbr="Forward bias">forward-bias</span>
     measurement reads zero.
+  plain: >-
+    The "plus" side of a diode or LED — the lead you connect to the more
+    positive part of the circuit. Mix up which end is which and the LED
+    just won't light. The opposite is the cathode (minus side).
 
 - term: "Arduino"
   full_form: "Arduino"
@@ -92,6 +131,11 @@
     span <span class="abbr-link" data-abbr="ESP32">ESP32</span>, SAMD, and ARM
     Cortex-M parts. The "Arduino" label today usually refers to the IDE /
     framework, not a specific chip.
+  plain: >-
+    The blue board that introduced millions of people to electronics. Plug
+    it into your laptop, write a few lines of beginner-friendly C++, and
+    you can blink an LED in 5 minutes. "Arduino" today usually means the
+    free programming environment rather than any specific chip.
 
 - term: "ATmega"
   full_form: "ATmega (Atmel/Microchip AVR family)"
@@ -103,6 +147,11 @@
     23 <span class="abbr-link" data-abbr="GPIO">GPIO</span>). Beloved for its
     simple peripherals, generous I/O voltage tolerance, and decade-stable
     toolchain.
+  plain: >-
+    The black square microchip in the middle of a classic Arduino Uno —
+    specifically the ATmega328P. Tiny by modern standards (32 KB of code
+    space, 16 MHz clock) but plenty for blinking lights, reading sensors,
+    and driving simple displays.
 
 - term: "AVR"
   full_form: "AVR (Atmel/Microchip 8-bit MCU architecture)"
@@ -115,6 +164,11 @@
     plenty of community libraries, but largely superseded by 32-bit ARM
     Cortex-M parts (STM32, <span class="abbr-link" data-abbr="RP2040">RP2040</span>,
     <span class="abbr-link" data-abbr="ESP32">ESP32</span>) for new designs.
+  plain: >-
+    The chip-architecture family the original Arduino microchips came from.
+    Old (1990s vintage), well-loved, easy to learn — but mostly replaced
+    today by faster, cheaper 32-bit ARM chips like the ones inside an ESP32
+    or Raspberry Pi Pico.
 
 - term: "Back-EMF"
   full_form: "Back Electromotive Force"
@@ -127,6 +181,11 @@
     clamp inductive loads with a
     <span class="abbr-link" data-abbr="Flyback diode">flyback diode</span> (or
     <span class="abbr-link" data-abbr="Snubber">snubber</span>).
+  plain: >-
+    The nasty voltage spike that happens when you suddenly cut current to
+    a coil (motor, relay, solenoid). A 12 V relay coil can produce a
+    several-hundred-volt reverse spike that instantly destroys the
+    transistor switching it. Cure: a flyback diode across the coil.
 
 - term: "Bandwidth"
   full_form: "Bandwidth"
@@ -137,6 +196,11 @@
     falls to ~70 % of the in-band level). An op-amp with 1 MHz unity-gain
     bandwidth at gain 100 is good only to ~10 kHz. In digital systems, the
     bandwidth required is roughly 0.35 / rise-time.
+  plain: >-
+    How wide a range of frequencies a circuit can handle cleanly before its
+    response starts falling off. An audio amplifier needs ~20 kHz of
+    bandwidth; a Wi-Fi radio needs hundreds of MHz. Wider bandwidth = faster
+    signals + more data, but harder to design and more expensive.
 
 - term: "BJT"
   full_form: "Bipolar Junction Transistor"
@@ -149,6 +213,12 @@
     base–emitter drop (~0.7 V for silicon), and are still preferred for
     low-noise analog amplifier stages
     (<span class="abbr-link" data-abbr="Linear region">linear region</span>).
+  plain: >-
+    The "classic" transistor — a tiny three-legged amplifier or switch. A
+    small current into its middle leg controls a much bigger current
+    through the other two. Building block of early radios and amplifiers;
+    mostly replaced by MOSFETs in power switching but still common in
+    audio and analog.
 
 - term: "BMS"
   full_form: "Battery Management System"
@@ -161,6 +231,11 @@
     single weak cell over-charges or over-discharges first and the
     whole pack fails (or catches fire). Standalone BMS modules for
     DIY 3S–14S packs are a few dollars.
+  plain: >-
+    The little protection board inside (or attached to) every lithium
+    battery pack. It watches each individual cell and disconnects power if
+    anything goes wrong — overcharge, deep discharge, short circuit. Without
+    a BMS, lithium packs can catch fire spectacularly.
 
 - term: "BOM"
   full_form: "Bill of Materials"
@@ -170,6 +245,10 @@
     manufacturer + distributor link per row. CAD tools generate the BOM from
     the schematic; an accurate one is what lets a contract assembler build
     your <span class="abbr-link" data-abbr="PCB">PCB</span> without guessing.
+  plain: >-
+    The shopping list for a circuit — every part you need, with quantities
+    and supplier links. Without an accurate BOM, getting boards built by a
+    factory turns into a guessing game.
 
 - term: "Boost"
   full_form: "Boost Converter (Step-Up Switching Regulator)"
@@ -182,6 +261,11 @@
     <span class="abbr-link" data-abbr="Diode">diode</span> to the output
     capacitor during off. Used to drive a 5 V USB rail from a 3.7 V Li-ion or
     a 12 V LED string from a 5 V supply. Typical efficiency 85–95 %.
+  plain: >-
+    A power supply chip that pushes a voltage <em>up</em> — for example,
+    taking the 3.7 V of a phone battery and turning it into the 5 V that
+    USB devices want. The opposite is a "buck" converter, which steps
+    voltage down.
 
 - term: "Breadboard"
   full_form: "Solderless Breadboard"
@@ -192,6 +276,11 @@
     five-hole columns down the centre. Excellent for quick logic and analog
     experiments; not suitable above ~10 MHz (parasitic capacitance) or for
     high-current loads (contacts only handle ~1 A).
+  plain: >-
+    A reusable prototyping board full of tiny spring contacts — push wires
+    and components in and they connect, no soldering needed. Perfect for
+    trying out an idea before committing to a real PCB. Not for anything
+    fast (above ~10 MHz) or high-current.
 
 - term: "Buck"
   full_form: "Buck Converter (Step-Down Switching Regulator)"
@@ -204,6 +293,11 @@
     to 5 / 3.3 V efficiently (85–95 %). Vastly better than an
     <span class="abbr-link" data-abbr="LDO">LDO</span> when the conversion
     ratio is large or current is high.
+  plain: >-
+    A power-supply chip that brings a voltage <em>down</em> efficiently —
+    say from 12 V to 5 V — by rapidly switching it on and off through a
+    small coil. Much more efficient than a linear regulator: instead of
+    burning the extra voltage as heat, it converts it.
 
 - term: "Buck-boost"
   full_form: "Buck-Boost Converter"
@@ -215,6 +309,11 @@
     <span class="abbr-link" data-abbr="Buck">buck</span> fails at low input,
     pure <span class="abbr-link" data-abbr="Boost">boost</span> fails at high
     input. Slightly less efficient than a single-direction converter (~80–90 %).
+  plain: >-
+    A power-supply chip that can step voltage both up and down — useful when
+    your battery voltage swings across the target output. Used to keep a
+    steady 3.3 V rail from a Li-ion battery that drifts between 3.0 V and
+    4.2 V as it discharges.
 
 - term: "Buffer"
   full_form: "Buffer / Driver"
@@ -226,6 +325,11 @@
     <span class="abbr-link" data-abbr="Op-amp">op-amps</span> in voltage-follower
     config, or as dedicated logic chips (74HC125, 74HC244). Without a buffer,
     a sensor's high-Z output droops the moment you attach a scope probe.
+  plain: >-
+    A "signal booster" that copies a signal exactly but drives it harder.
+    Useful when a sensor or chip can produce a voltage but can't supply
+    much current — the buffer in between handles the muscle work without
+    distorting the signal.
 
 - term: "C"
   full_form: "Capacitance (symbol C)"
@@ -237,6 +341,11 @@
     through nF (filter caps), µF (decoupling, bulk), to mF
     (<span class="abbr-link" data-abbr="Supercapacitor">supercapacitors</span>,
     energy storage).
+  plain: >-
+    How much electric charge a capacitor can hold — measured in farads.
+    Hobby parts come in tiny picofarads (pF), small nanofarads (nF), or
+    larger microfarads (µF). See the `F` entry for what each range is
+    typically used for.
 
 - term: "C_L"
   full_form: "Crystal Load Capacitance (C_L)"
@@ -250,6 +359,11 @@
     <code>C₁ = C₂ = 2·(C_L − C_stray)</code>. Wrong C_L shifts actual frequency
     by tens of <span class="abbr-link" data-abbr="ppm">ppm</span> — fine for
     blinking an LED, fatal for precision timing.
+  plain: >-
+    The little number on a crystal's datasheet (usually 8–22 pF) that tells
+    you what size matching capacitors to put next to it for accurate
+    timing. Get this wrong and your clock runs a tiny bit fast or slow —
+    fine for blinking an LED, terrible for a real-time clock.
 
 - term: "Capacity"
   full_form: "Battery Capacity (Ah / mAh)"
@@ -261,6 +375,11 @@
     <span class="abbr-link" data-abbr="C-rate">C-rates</span>). Multiply by
     nominal voltage to convert to energy: 2000 mAh × 3.7 V = 7.4
     <span class="abbr-link" data-abbr="Wh">Wh</span>.
+  plain: >-
+    The "fuel tank" size of a battery, measured in milliamp-hours (mAh)
+    or amp-hours (Ah). A 2000 mAh phone battery can deliver 2000 mA for 1
+    hour, or 200 mA for 10 hours. Bigger number = more runtime, but
+    bigger and heavier battery.
 
 - term: "Capacitive reactance"
   full_form: "Capacitive Reactance (X_C)"
@@ -272,6 +391,10 @@
     like an open at DC and a short at very high frequencies. The reactive
     counterpart for inductors is
     <span class="abbr-link" data-abbr="Inductive reactance">inductive reactance</span>.
+  plain: >-
+    A capacitor's "resistance" to AC, which gets smaller as frequency goes
+    up. That's why capacitors block DC but pass high-frequency noise —
+    handy for filters and audio circuits.
 
 - term: "Capacitor"
   full_form: "Capacitor"
@@ -285,6 +408,11 @@
     audio), tantalum (compact, sensitive to reverse voltage). Pair a 100 nF
     ceramic with a 10 µF bulk for proper
     <span class="abbr-link" data-abbr="Decoupling capacitor">decoupling</span>.
+  plain: >-
+    A "tiny rechargeable battery" component — stores a little electric
+    charge, then releases it quickly. Capacitors smooth out power supplies,
+    filter noise, time circuits, and remember bits in memory chips. The
+    second most common component (after resistors) on any circuit board.
 
 - term: "Cathode"
   full_form: "Cathode"
@@ -298,6 +426,11 @@
     <span class="abbr-link" data-abbr="Zener diode">Zener</span> regulators
     deliberately operate in <span class="abbr-link" data-abbr="Reverse bias">reverse
     bias</span> with current flowing the "wrong" way at a controlled voltage.
+  plain: >-
+    The "minus" side of a diode or LED — the lead that connects to the
+    more negative part of the circuit. On an LED, it's the shorter leg or
+    the side with a flat spot on the case. Opposite of the anode (plus
+    side).
 
 - term: "CC/CV"
   full_form: "Constant-Current / Constant-Voltage Charging"
@@ -311,6 +444,12 @@
     cutoff. The CV phase is why real charging takes about 25 % longer than
     the linear approximation Calc 6 above uses, and why fast chargers slow
     down past ~80 %.
+  plain: >-
+    The two-phase charging recipe for lithium batteries. First the charger
+    pumps in a steady current (CC) until the battery hits its full-voltage
+    target. Then it holds at that voltage (CV) while the current tapers off.
+    This is why your phone charges quickly to 80 % then slows down for the
+    last 20 %.
 
 - term: "CMOS"
   full_form: "Complementary Metal-Oxide Semiconductor"
@@ -320,6 +459,11 @@
     zero static current (only switches dissipate), is high-impedance on
     inputs, and tolerates a wide supply range. Dominates modern digital
     silicon and most discrete logic chips you'll encounter (74HC*, 4000-series).
+  plain: >-
+    The transistor recipe behind almost every modern chip — phone
+    processors, RAM, image sensors. Its superpower is sipping nearly zero
+    power when sitting idle, which is why phones can pack billions of
+    transistors and still last a day.
 
 - term: "Coin cell"
   full_form: "Coin Cell (Button Cell)"
@@ -330,6 +474,21 @@
     Match a coin-cell rail with a low-Iq
     <span class="abbr-link" data-abbr="LDO">LDO</span> and an MCU sleep mode
     measured in µA, otherwise battery life collapses from years to days.
+  plain: >-
+    Those flat round watch / motherboard batteries (the CR2032 is the
+    classic). 3 V, lots of total energy, but can only deliver a few
+    milliamps before sagging. Perfect for keeping a clock alive for years;
+    useless for driving anything that moves.
+  interpretation:
+    title: "Common coin cells at a glance"
+    columns: ["Cell", "Voltage", "Capacity", "Typical use"]
+    rows:
+      - ["CR2032", "3 V", "~225 mAh", "Motherboard RTC, key fobs, AirTags"]
+      - ["CR2025", "3 V", "~165 mAh", "Slim wallet electronics"]
+      - ["CR2016", "3 V", "~90 mAh", "Watches, very thin gadgets"]
+      - ["LR44 / SR44", "1.5 V", "~150 mAh", "Calculators, small toys"]
+      - ["LiR2032 (rechargeable)", "3.6 V", "~40 mAh", "Some BMS-protected devices"]
+    footnote: "Coin cells have high internal resistance — a CR2032 sags under load above ~10 mA. They're for keeping things alive, not driving motors or radios."
 
 - term: "Comparator"
   full_form: "Comparator"
@@ -342,6 +501,11 @@
     feedback (hysteresis) to turn it into a
     <span class="abbr-link" data-abbr="Schmitt trigger">Schmitt trigger</span>
     so noisy inputs don't cause output chatter.
+  plain: >-
+    A chip that asks "is voltage A higher than voltage B?" and outputs a
+    digital 1 or 0 accordingly. Used in low-battery indicators, temperature
+    alarms, and zero-crossing detectors — anywhere a circuit needs to react
+    to a threshold being crossed.
 
 - term: "Copper pour"
   full_form: "Copper Pour / Plane"
@@ -353,6 +517,11 @@
     dissipate heat from power components, and shields sensitive analog
     sections from EMI. Modern multi-layer boards dedicate a whole inner layer
     to a single ground plane.
+  plain: >-
+    A solid sheet of copper on a circuit board, usually connected to ground.
+    Helps high-speed signals find a quiet return path, sinks heat away from
+    chips, and shields sensitive parts from noise. The reason most PCBs look
+    mostly green-with-copper rather than green-with-thin-lines.
 
 - term: "Coulomb"
   full_form: "Coulomb (C)"
@@ -361,6 +530,11 @@
     transported by one <span class="abbr-link" data-abbr="Ampere">ampere</span>
     flowing for one second: <code>Q = I·t</code>. A typical AA battery
     delivers around 9 000 coulombs over its life.
+  plain: >-
+    The unit of total electric charge. One coulomb is what flows past a
+    point when one amp runs for one second. A fresh AA battery has about
+    9,000 coulombs of charge in it over its lifetime — but you rarely
+    think in coulombs directly; mAh and Wh are more useful in practice.
 
 - term: "C-rate"
   full_form: "C-rate"
@@ -372,6 +546,22 @@
     it. Manufacturers spec a maximum continuous C-rate; exceeding it
     shortens cycle life or triggers the
     <span class="abbr-link" data-abbr="BMS">BMS</span> cutoff.
+  plain: >-
+    A way of describing battery charge or discharge speed. "1 C" means
+    fully empty (or full) in one hour; "2 C" means half an hour; "0.5 C"
+    means two hours. Higher C-rates stress the battery more and shorten
+    its lifespan.
+  interpretation:
+    title: "C-rate examples"
+    columns: ["C-rate", "Time to charge/discharge", "Typical use"]
+    rows:
+      - ["0.1 C", "10 hours", "Gentle overnight charging, max battery life"]
+      - ["0.5 C", "2 hours", "Standard everyday Li-ion use"]
+      - ["1 C", "1 hour", "Brisk charging or discharge"]
+      - ["2 C", "30 minutes", "Fast-charging spec on many cells"]
+      - ["5–10 C", "6–12 minutes", "RC drone or power-tool battery under load"]
+      - ["30+ C", "≤ 2 minutes", "Specialist high-drain cells only"]
+    footnote: "Exceeding the cell's rated C-rate shortens cycle life, makes it heat up, or trips its built-in protection circuit (BMS)."
 
 - term: "Crystal oscillator"
   full_form: "Crystal Oscillator (XTAL)"
@@ -383,6 +573,11 @@
     <span class="abbr-link" data-abbr="C_L">load capacitance</span> —
     wrong cap values shift the actual frequency tens of
     <span class="abbr-link" data-abbr="ppm">ppm</span>.
+  plain: >-
+    A tiny slice of quartz that vibrates at a very precise frequency when
+    you push electricity through it — the timekeeping heart of almost
+    every digital device. Watches use 32.768 kHz crystals (a power-of-two
+    multiple, easy for counters); microcontrollers usually use 8 or 16 MHz.
 
 - term: "Crosstalk"
   full_form: "Crosstalk"
@@ -393,6 +588,11 @@
     (common return path). Symptoms: a fast clock edge appearing as a glitch
     on an adjacent quiet input. Mitigation: ground guard traces, separate
     sensitive signals from noisy ones, twisted pairs, shielded cables.
+  plain: >-
+    A signal on one wire accidentally leaking into a neighbouring wire —
+    like hearing someone else's phone call faintly on yours. Caused by
+    parallel wires or PCB traces too close together; fixed by adding
+    space, shielding, or twisting pairs.
 
 - term: "Cutoff frequency"
   full_form: "Cutoff Frequency (f_c, −3 dB)"
@@ -403,6 +603,11 @@
     formula governs an op-amp's gain rolloff and a transmission line's
     response. Below f_c the signal passes; above it, attenuates at 20 dB per
     decade per pole.
+  plain: >-
+    The frequency where a filter starts seriously killing the signal —
+    technically where the output drops to about 70 % of full strength.
+    Audio low-pass filters might have a cutoff around 20 kHz (above the
+    range we can hear); subwoofer crossovers usually cut off around 80 Hz.
 
 - term: "DAC"
   full_form: "Digital-to-Analog Converter"
@@ -413,6 +618,10 @@
     instrumentation. Resolution and
     <span class="abbr-link" data-abbr="Settling time">settling time</span>
     are the key specs.
+  plain: >-
+    The opposite of an ADC — turns digital numbers back into a smoothly
+    varying voltage. The DAC in your phone is what makes sound come out of
+    headphones; in instrumentation, DACs generate test waveforms.
 
 - term: "Datasheet"
   full_form: "Datasheet"
@@ -421,6 +630,11 @@
     characteristics (typ / min / max at specified conditions), pinouts,
     recommended operating ranges, and example circuits. The first answer to
     "is this part right for my circuit?" is always its datasheet.
+  plain: >-
+    The official spec sheet for an electronic part — pinout, voltage
+    limits, current ratings, example circuits, performance graphs. It's
+    free to download from the manufacturer's website, and reading
+    datasheets carefully is the difference between hobbyist and engineer.
 
 - term: "DC"
   full_form: "Direct Current"
@@ -431,6 +645,11 @@
     <span class="abbr-link" data-abbr="P">power</span> equations on this page
     apply directly to DC; for <span class="abbr-link" data-abbr="AC">AC</span>
     you usually work with RMS-equivalent values.
+  plain: >-
+    Current that flows in one steady direction, like out of a battery or
+    USB port. The opposite of AC (which switches direction many times per
+    second). All the chips and microcontrollers inside your gadgets run
+    on DC even when the wall socket they plug into is AC.
 
 - term: "DDR"
   full_form: "Double Data Rate (DDR Memory)"
@@ -441,6 +660,11 @@
     LPDDR4 in phones). Requires careful PCB layout — matched trace lengths,
     controlled impedance, dedicated power sequencing — well beyond hobbyist
     boards.
+  plain: >-
+    The fast RAM in your PC, phone, or graphics card. "Double data rate"
+    because the memory talks on every clock tick AND every tock, doubling
+    bandwidth. DDR4 and DDR5 are far too tricky to wire up on a hobbyist
+    board — they need very careful PCB design.
 
 - term: "Decibel"
   full_form: "Decibel (dB)"
@@ -450,6 +674,23 @@
     voltage or current. +3 dB ≈ 2× power, +10 dB = 10× power, +20 dB = 10×
     voltage. Showing up everywhere from amplifier gain to filter rolloff to
     radio link budgets.
+  plain: >-
+    A compact way to write very large or very small ratios. Rule of thumb:
+    +3 dB is "twice as much", +10 dB is "ten times as much", minus values
+    mean "less". So an amp with "+20 dB gain" makes signals 100× bigger;
+    a filter with "−40 dB stopband" kills the signal 10,000×.
+  interpretation:
+    title: "dB cheat sheet — how much bigger or smaller?"
+    columns: ["Change in dB", "Power ratio", "Voltage / amplitude ratio"]
+    rows:
+      - ["+20 dB", "100× more", "10× more"]
+      - ["+10 dB", "10× more", "≈ 3.16× more"]
+      - ["+6 dB", "≈ 4× more", "≈ 2× more"]
+      - ["+3 dB", "≈ 2× more", "≈ 1.4× more"]
+      - ["0 dB", "Same", "Same"]
+      - ["−3 dB", "≈ ½", "≈ 0.7×"]
+      - ["−20 dB", "100× less", "10× less"]
+    footnote: "Power uses 10 log, voltage uses 20 log — that's why doubling voltage is +6 dB but doubling power is +3 dB. Audio engineers usually think in voltage; RF engineers usually in power."
 
 - term: "Decoupling capacitor"
   full_form: "Decoupling / Bypass Capacitor"
@@ -463,6 +704,11 @@
     regulator. Standard recipe: a 100 nF ceramic in parallel with a 10 µF
     bulk per supply pin, mounted within ~10 mm of the pin. Skipping
     decoupling is the #1 cause of mystery "random" bugs.
+  plain: >-
+    A small capacitor placed right next to a chip's power pin to keep its
+    supply steady when it suddenly needs current. Skipping these is the
+    most common cause of "my circuit works on the breadboard but randomly
+    glitches on the PCB". Standard recipe: a 100 nF cap next to every chip.
 
 - term: "Diode"
   full_form: "Diode"
@@ -476,6 +722,11 @@
     (low V_F, fast switching), <span class="abbr-link" data-abbr="Zener diode">Zener</span>
     (controlled reverse breakdown), <span class="abbr-link" data-abbr="TVS diode">TVS</span>
     (transient suppression).
+  plain: >-
+    A one-way valve for electricity — lets current pass in one direction
+    but blocks it the other way. Used to protect circuits from reverse-
+    polarity wiring, convert AC to DC inside power supplies, and as the
+    light-emitting part of every LED.
 
 - term: "Dielectric"
   full_form: "Dielectric"
@@ -487,6 +738,12 @@
     polypropylene), tantalum oxide, electrolytic aluminum oxide. Different
     dielectrics trade off capacitance density, voltage rating, temperature
     stability, and DC-bias droop.
+  plain: >-
+    The insulating filling inside a capacitor — the material between the
+    two metal plates that actually stores the energy. Different fillings
+    (ceramic, plastic film, aluminium oxide) give you different capacitor
+    types with different trade-offs in size, voltage rating, and
+    stability.
 
 - term: "Dropout voltage"
   full_form: "Dropout Voltage"
@@ -497,6 +754,11 @@
     regulating. Below the dropout, the output simply follows the input minus
     the dropout — regulation collapses. A 7805 needs ~2 V; a modern LDO like
     the MCP1700 needs ~178 mV at 250 mA, much friendlier for battery use.
+  plain: >-
+    The minimum extra voltage a linear regulator needs above its target
+    output to work properly. If you want a 3.3 V rail from a regulator
+    with 200 mV dropout, your input has to stay above 3.5 V. Modern "LDO"
+    regulators have a small dropout and play nicely with batteries.
 
 - term: "Duty cycle"
   full_form: "Duty Cycle"
@@ -506,6 +768,22 @@
     1 kHz square wave means 250 µs high, 750 µs low. Used to control
     average power delivered to a load via <span class="abbr-link"
     data-abbr="PWM">PWM</span> — LEDs, motors, heaters.
+  plain: >-
+    For something that's switching rapidly on and off, the percentage of
+    time it spends in the "on" state. 50 % duty = on half the time;
+    25 % = on a quarter of the time. This is how you dim an LED or slow
+    a motor down using PWM — change the duty cycle.
+  interpretation:
+    title: "Duty cycle examples"
+    columns: ["Duty cycle", "Effect on an LED", "Effect on a DC motor"]
+    rows:
+      - ["100 %", "Full brightness", "Full speed"]
+      - ["75 %", "Slightly dimmed", "Just under full speed"]
+      - ["50 %", "Looks roughly half-bright", "About half speed (varies)"]
+      - ["25 %", "Clearly dim", "Slow"]
+      - ["10 %", "Faint glow", "Barely turns / chuggy"]
+      - ["0 %", "Off", "Off"]
+    footnote: "LEDs respond linearly to duty cycle (perceived brightness varies, but doubling duty doubles light output). Motors are less linear — at low duty cycle they may stall instead of spinning slowly."
 
 - term: "EMF"
   full_form: "Electromotive Force"
@@ -517,6 +795,11 @@
     <span class="abbr-link" data-abbr="Internal resistance">internal resistance</span>
     (the <span class="abbr-link" data-abbr="IR drop">IR drop</span> across that
     internal R).
+  plain: >-
+    The "ideal" voltage a battery (or any source) would provide if nothing
+    was connected. As soon as you draw current, the actual voltage at the
+    terminals sags a little because every real source has some internal
+    resistance.
 
 - term: "EMI"
   full_form: "Electromagnetic Interference (EMI / EMC)"
@@ -527,6 +810,12 @@
     discipline is EMC (Electromagnetic Compatibility) — designing so a device
     neither pollutes nor is polluted by its environment, which is what
     regulatory testing (FCC Part 15, CE) measures.
+  plain: >-
+    "Electronic noise pollution" — your circuit either emitting it (and
+    bothering neighbours) or picking it up (and misbehaving). It's why
+    your phone's speaker buzzes when a text message arrives, and why CE
+    / FCC certification exists to test that gear doesn't pollute the
+    airwaves.
 
 - term: "ESP32"
   full_form: "ESP32 (Espressif Wi-Fi/Bluetooth MCU)"
@@ -538,6 +827,10 @@
     (ESP32-WROOM, ESP32-S3, ESP32-C3). The default choice when a hobby project
     needs network connectivity. Programmable from the Arduino IDE, ESP-IDF, or
     PlatformIO.
+  plain: >-
+    The $3 chip that put Wi-Fi and Bluetooth into every hobbyist's toolbox.
+    More powerful than an Arduino, ridiculously cheap, and you can program
+    it from the same Arduino IDE. Behind countless smart-home projects.
 
 - term: "ESD"
   full_form: "Electrostatic Discharge"
@@ -550,6 +843,11 @@
     mat, and on-board protection diodes /
     <span class="abbr-link" data-abbr="TVS diode">TVS</span> /
     <span class="abbr-link" data-abbr="MOV">MOV</span> components.
+  plain: >-
+    The static-electricity "zap" you feel after shuffling across a carpet
+    in dry air. Painless to you, but enough to silently kill a sensitive
+    chip. The reason serious tinkerers wear a wrist strap when handling
+    bare chips, and why ICs ship in conductive foam.
 
 - term: "ESR"
   full_form: "Equivalent Series Resistance"
@@ -561,6 +859,12 @@
     ripple current, and a high-frequency rolloff in the cap's impedance.
     Low-ESR electrolytics and ceramic caps are essential at switching-supply
     outputs.
+  plain: >-
+    A spec for capacitors — how "lossy" a real cap is compared to a perfect
+    one. Low ESR is critical at switching-power-supply outputs: high ESR
+    causes the cap to heat up and the rail to be noisy. Bulging electrolytics
+    on dead motherboards are dried-out caps with ESR climbing through the
+    roof.
 
 - term: "f"
   full_form: "Frequency (symbol f)"
@@ -570,6 +874,11 @@
     the inverse: <code>T = 1/f</code>. Hobby ranges: tens of Hz (audio
     fundamentals), kHz (PWM, audio), MHz (MCU clocks, RF), GHz (Wi-Fi,
     mm-wave).
+  plain: >-
+    How many times per second something repeats — the engineering symbol
+    for frequency. The opposite of "period" (time per cycle); if something
+    happens 1000 times per second, frequency is 1000 Hz and period is
+    1 millisecond.
 
 - term: "Fall time"
   full_form: "Fall Time (t_f)"
@@ -581,6 +890,10 @@
     high clock rates. Driven by load capacitance and the
     <span class="abbr-link" data-abbr="Buffer">driver's</span> sink current.
     Mirror of <span class="abbr-link" data-abbr="Rise time">rise time</span>.
+  plain: >-
+    How quickly a digital signal can drop from a high voltage to a low one.
+    Faster fall time = the signal looks sharp on a scope, less power wasted,
+    higher clock speeds possible. The mirror image of rise time.
 
 - term: "Farad"
   full_form: "Farad (F)"
@@ -592,6 +905,21 @@
     capacitors are in pF, nF, or µF; one full farad is huge
     (<span class="abbr-link" data-abbr="Supercapacitor">supercapacitor</span>
     territory).
+  plain: >-
+    The SI unit for capacitance. One farad is an enormous amount —
+    real-world capacitors are usually in trillionths (pF), billionths (nF),
+    or millionths (µF) of a farad. A full 1-farad cap is supercapacitor
+    territory, the kind that can power a memory chip for hours.
+  interpretation:
+    title: "Capacitor value ranges"
+    columns: ["Range", "Order of magnitude", "Typical use"]
+    rows:
+      - ["1 – 999 pF", "10⁻¹² F", "RF tuning, oscillator load caps"]
+      - ["1 – 999 nF", "10⁻⁹ F", "Filters, decoupling (100 nF classic)"]
+      - ["1 – 999 µF", "10⁻⁶ F", "Power-supply bulk, audio coupling"]
+      - ["1 – 999 mF", "10⁻³ F", "Big PSU smoothing, energy storage"]
+      - ["1 F+", "10⁰ F", "Supercapacitors only"]
+    footnote: "A '100 nF ceramic next to every chip' is the universal decoupling recipe. A '1000 µF electrolytic' is the bulk cap behind a power supply."
 
 - term: "Feedback"
   full_form: "Feedback (Negative / Positive)"
@@ -602,6 +930,11 @@
     op-amp circuit. <strong>Positive feedback</strong> (output back to the
     non-inverting input) creates oscillators, latches, and the snap-action of
     a <span class="abbr-link" data-abbr="Schmitt trigger">Schmitt trigger</span>.
+  plain: >-
+    Sending part of a circuit's output back to its input. Negative feedback
+    settles a circuit down (most amplifiers and regulators) — positive
+    feedback makes things oscillate or snap (clocks, latches, the
+    "squeal" of a microphone too close to a speaker).
 
 - term: "FET"
   full_form: "Field-Effect Transistor"
@@ -613,6 +946,11 @@
     (insulated gate, dominant in switching and digital) and <span
     class="abbr-link" data-abbr="JFET">JFET</span> (junction gate, niche
     in low-noise analog).
+  plain: >-
+    A type of transistor controlled by voltage rather than current. Almost
+    every modern transistor — phone chips, power switches, computer CPUs —
+    is a FET (specifically a MOSFET). Much more efficient than the old
+    BJT for switching big loads on and off.
 
 - term: "Flyback diode"
   full_form: "Flyback / Freewheeling Diode"
@@ -625,6 +963,11 @@
     <span class="abbr-link" data-abbr="Back-EMF">back-EMF</span> spike kills
     the switching transistor on the first turn-off. Standard parts: 1N4148
     for small coils, 1N4007 for relays, ultrafast Schottkys for PWM motor drive.
+  plain: >-
+    A small protection diode wired across a relay coil, motor, or solenoid
+    to swallow the nasty voltage spike when you switch them off. Skipping
+    it means the spike destroys the transistor on the first turn-off.
+    1N4148 is the canonical part for small coils.
 
 - term: "Forward bias"
   full_form: "Forward Bias"
@@ -636,6 +979,12 @@
     diode. Once forward-biased above the ~0.7 V (Si) or ~0.3 V (Schottky)
     threshold, the junction conducts heavily. The opposite condition is
     <span class="abbr-link" data-abbr="Reverse bias">reverse bias</span>.
+  plain: >-
+    Connecting a diode the "right" way so it conducts — anode (plus) to
+    the higher voltage, cathode (minus) to the lower. Once the voltage
+    exceeds ~0.7 V (for silicon) the diode opens up and current flows.
+    The opposite condition is reverse bias, where the diode blocks
+    current.
 
 - term: "FPGA"
   full_form: "Field-Programmable Gate Array"
@@ -648,6 +997,12 @@
     toolchain via Yosys), Xilinx Spartan-7. Strict
     <strong>power-supply sequencing</strong> rules — get the rail order wrong
     and the chip latches up.
+  plain: >-
+    A chip full of "blank" logic gates that you wire up via software to
+    build whatever digital circuit you want — a custom CPU, a video
+    processor, a state machine. Steeper learning curve than an MCU
+    (you're designing hardware, not writing code), but blazing fast for
+    parallel tasks.
 
 - term: "Fuse"
   full_form: "Fuse"
@@ -659,6 +1014,11 @@
     <span class="abbr-link" data-abbr="Polyfuse">polyfuse</span> /
     <span class="abbr-link" data-abbr="PTC">PTC</span> resettable fuse is more
     practical.
+  plain: >-
+    A deliberately-weak link in a circuit — a tiny wire designed to melt
+    and break the connection when too much current flows. Saves the
+    expensive stuff downstream. Once blown, you replace it. The kind that
+    auto-resets is called a polyfuse or PTC.
 
 - term: "Gain"
   full_form: "Gain (A)"
@@ -671,6 +1031,10 @@
     open-loop gain is huge (10⁵–10⁶) but uncontrolled; closed-loop gain set
     by the <span class="abbr-link" data-abbr="Feedback">feedback</span>
     network is what actually matters.
+  plain: >-
+    How much an amplifier multiplies its input. Gain of 10 means a 1 V
+    input becomes a 10 V output. Often quoted in dB to keep the numbers
+    small — 20 dB means 10× voltage gain.
 
 - term: "GPIO"
   full_form: "General-Purpose Input/Output"
@@ -681,6 +1045,11 @@
     bits. GPIOs sit behind <span class="abbr-link" data-abbr="ESD">ESD</span>
     diodes and have absolute max input voltage limits — exceed them and you
     damage the silicon.
+  plain: >-
+    A microcontroller pin you can program from code to be either an
+    "input" (read a button or sensor) or an "output" (drive an LED, relay,
+    etc.). The thing you wire to from an MCU when you say "pin 13" on an
+    Arduino.
 
 - term: "Ground"
   full_form: "Ground / Reference Node"
@@ -692,6 +1061,11 @@
     labels matter most when you mix them. A
     <span class="abbr-link" data-abbr="Ground loop">ground loop</span> is
     what happens when two grounds end up at slightly different potentials.
+  plain: >-
+    The "0 V" reference everything else in a circuit is measured against —
+    often the minus terminal of a battery. Voltages are always relative;
+    saying "this pin is 5 V" really means "5 V above ground". The black
+    multimeter lead goes to ground.
 
 - term: "Ground loop"
   full_form: "Ground Loop"
@@ -702,6 +1076,12 @@
     potentials. The classic symptom is 50/60 Hz hum injected into audio, or
     sporadic digital glitches in mixed-signal systems. Cure: a single
     star-ground point, or galvanic isolation between subsystems.
+  plain: >-
+    When you've got two "grounds" that should be at 0 V but are
+    actually slightly different, current flows between them in a loop. The
+    classic symptom: a hum or buzz in audio gear that goes away when you
+    unplug something. Cure: connect each subsystem to ground at one point
+    only.
 
 - term: "Headroom"
   full_form: "Headroom (Regulator Input − Output)"
@@ -712,6 +1092,12 @@
     that, the output sags with the input. Excess headroom is wasted as heat:
     <code>P = (V_in − V_out) × I_out</code>. Switchers don't care about
     headroom but need a minimum input above their startup threshold.
+  plain: >-
+    How much extra voltage is left after subtracting what a regulator
+    needs. Too little and the regulator can't keep its output steady (it
+    "drops out"). Too much and the extra is wasted as heat. A 7805
+    regulator dropping 12 V to 5 V dissipates 7 V × the load current as
+    pure heat.
 
 - term: "Heatsink"
   full_form: "Heatsink"
@@ -724,6 +1110,11 @@
     to ambient (a TO-220 might drop from θ_JA = 50 °C/W bare to ~10 °C/W with
     a small heatsink). Pair with thermal compound or pad for the air gap;
     forced air (fan) drops resistance further.
+  plain: >-
+    The finned chunk of metal bolted to a hot chip — gives heat more
+    surface area to escape into the air. The big black thing on your CPU
+    is one. A small clip-on heatsink can drop a TO-220 regulator's
+    temperature dramatically.
 
 - term: "Henry"
   full_form: "Henry (H)"
@@ -735,6 +1126,20 @@
     (<span class="abbr-link" data-abbr="RF">RF</span> chokes), µH
     (<span class="abbr-link" data-abbr="Buck">buck</span> converter inductors),
     to mH (audio crossovers, motor windings).
+  plain: >-
+    The SI unit of inductance. A full henry is huge in hobby terms — real
+    inductors are usually billionths (nH), millionths (µH), or
+    thousandths (mH) of a henry.
+  interpretation:
+    title: "Inductor value ranges"
+    columns: ["Range", "Typical use"]
+    rows:
+      - ["1 – 100 nH", "RF tuning, PCB-trace parasitics"]
+      - ["100 nH – 10 µH", "Switching converter chokes (buck/boost)"]
+      - ["10 µH – 1 mH", "EMI filters, RF chokes, small motor windings"]
+      - ["1 mH – 100 mH", "Audio crossovers, large motor coils"]
+      - ["> 100 mH", "Mains transformers, big chokes"]
+    footnote: "Inductors are sized by both inductance value (henries) and saturation current — push too much current through one and its core saturates, after which it stops behaving like an inductor."
 
 - term: "Hertz"
   full_form: "Hertz (Hz)"
@@ -743,6 +1148,23 @@
     Hz. One hertz is one cycle per second. Multiples are kHz, MHz, GHz; the
     audio band tops out around 20 kHz, MCU clocks at tens of MHz, Wi-Fi
     radios at 2.4 / 5 / 6 GHz.
+  plain: >-
+    The SI unit of frequency — cycles per second. Audio you can hear tops
+    out around 20 kHz; a microcontroller runs at tens of MHz; a phone CPU
+    at several GHz; Wi-Fi at 2.4 / 5 / 6 GHz. Bigger number = more cycles
+    per second.
+  interpretation:
+    title: "Frequencies you'll meet in electronics"
+    columns: ["Range", "Where you'll see it"]
+    rows:
+      - ["1 Hz – 1 kHz", "Heart-rate, blinking LEDs, motor PWM"]
+      - ["1 – 20 kHz", "Audio (human hearing range)"]
+      - ["20 – 100 kHz", "Ultrasonic, switching-power-supply frequencies"]
+      - ["100 kHz – 30 MHz", "AM radio, shortwave, MCU clocks"]
+      - ["30 MHz – 1 GHz", "FM radio, TV broadcast, walkie-talkies"]
+      - ["1 – 6 GHz", "Wi-Fi, Bluetooth, cell phones"]
+      - ["6 – 100+ GHz", "Car radar, 5G mmWave, satellite links"]
+    footnote: "Above ~10 MHz, ordinary PCB and breadboard tricks stop working; designs need careful layout (controlled impedance, return paths, shielding)."
 
 - term: "Hold time"
   full_form: "Hold Time (t_h)"
@@ -752,6 +1174,10 @@
     <span class="abbr-link" data-abbr="Setup time">setup time</span>; together
     they define the timing window the data must respect or the captured value
     becomes unpredictable (the flip-flop goes metastable).
+  plain: >-
+    The shortest time after a clock tick that data must stay still on a
+    flip-flop's input so it gets captured cleanly. Violate it and the
+    flop captures an unpredictable value. Partner of "setup time".
 
 - term: "I"
   full_form: "Current (symbol I)"
@@ -763,6 +1189,23 @@
     = V·I. Convention: positive current flows from + to − through the
     external circuit (the opposite of electron flow, a quirk inherited from
     Franklin).
+  plain: >-
+    The flow of electricity — how much is moving past a point per second.
+    A safe ballpark: about 5 mA through your body starts to hurt, and a
+    sustained 100 mA can be lethal. So even tiny mains currents are
+    dangerous; that's why circuit breakers exist.
+  interpretation:
+    title: "Current levels: from sleep to shock"
+    columns: ["Current", "Real-world example", "Safety"]
+    rows:
+      - ["1 µA", "Microcontroller in deep sleep", "Safe"]
+      - ["10 – 50 mA", "Single LED, MCU running", "Safe to touch on low-voltage circuits"]
+      - ["~5 mA", "Across the body", "Just-noticeable shock (perception threshold)"]
+      - ["10 – 20 mA", "Across the body", "Can't let go of conductor (muscle lock)"]
+      - ["50 – 100 mA", "Across the body", "Heart fibrillation possible — DANGER"]
+      - ["1 – 10 A", "USB chargers, LED strips, kettle elements", "Heats wires; safe in proper insulation"]
+      - ["20 – 200 A", "Car starter, welder, EV charging", "Industrial / automotive only"]
+    footnote: "Voltage doesn't kill — current does, and only when it has a path through the body. A 12 V car battery is harmless to touch; a 120 V wall socket can be fatal because it can push enough current through skin."
 
 - term: "IC"
   full_form: "Integrated Circuit"
@@ -777,6 +1220,11 @@
     <span class="abbr-link" data-abbr="SOT-23">SOT-23</span>,
     <span class="abbr-link" data-abbr="QFN">QFN</span>, etc.) determine how
     you'll handle it.
+  plain: >-
+    A complete electronic circuit shrunk down onto a single chip of
+    silicon — anything from a tiny three-transistor amplifier to a
+    billion-transistor phone processor. The black plastic packages with
+    legs on circuit boards are all ICs.
 
 - term: "I²C"
   full_form: "Inter-Integrated Circuit (I²C)"
@@ -790,6 +1238,11 @@
     (2.2 kΩ) for fast-mode at 400 kHz or long buses with high capacitance.
     Compare <span class="abbr-link" data-abbr="SPI">SPI</span> (faster,
     push-pull, no addressing).
+  plain: >-
+    A two-wire bus that lets a microcontroller talk to many small chips
+    (sensors, displays, real-time clocks) all on the same pair of wires.
+    Each device has an address; the MCU calls them by name. Don't forget
+    the two pull-up resistors — that's the #1 newbie mistake.
 
 - term: "Impedance"
   full_form: "Impedance (Z)"
@@ -804,6 +1257,11 @@
     <code>jωL</code> — rises with frequency. Measured in
     <span class="abbr-link" data-abbr="Ohm">ohms</span> (Ω); used everywhere
     AC, RF, and audio analysis happens.
+  plain: >-
+    Like resistance but for AC signals — combines ordinary resistance with
+    the frequency-dependent behaviour of capacitors and inductors. Why a
+    "low-impedance" output can drive a heavy load, and why two cables must
+    have matching impedance (50 Ω, 75 Ω) to carry RF without reflections.
 
 - term: "Inductive kickback"
   full_form: "Inductive Kickback"
@@ -816,6 +1274,10 @@
     spike; the switching transistor sees this in reverse and dies on the first
     turn-off. Always clamp inductive loads with a
     <span class="abbr-link" data-abbr="Flyback diode">flyback diode</span>.
+  plain: >-
+    The same destructive spike that "back-EMF" describes, named for what
+    it does rather than the physics. The reason every motor or relay
+    driver circuit needs a flyback diode.
 
 - term: "Inductive reactance"
   full_form: "Inductive Reactance (X_L)"
@@ -826,6 +1288,10 @@
     <span class="abbr-link" data-abbr="f">frequency</span> — inductors look
     like a wire at DC and an open at very high frequencies. Counterpart:
     <span class="abbr-link" data-abbr="Capacitive reactance">capacitive reactance</span>.
+  plain: >-
+    An inductor's "resistance" to AC, which gets bigger as frequency rises.
+    At DC an inductor is just a wire; at high frequencies it almost looks
+    like an open circuit. The opposite behaviour of a capacitor.
 
 - term: "Inductor"
   full_form: "Inductor"
@@ -838,6 +1304,11 @@
     <span class="abbr-link" data-abbr="Back-EMF">back-EMF</span> spikes).
     Ubiquitous in switching converters, RF tank circuits, audio crossovers,
     and EMI suppression (ferrite beads).
+  plain: >-
+    A coil of wire that stores energy in its magnetic field. Resists
+    sudden changes in current — try to cut the current off and it
+    fights back with a voltage spike. Inside every switching power
+    supply, every RF tuner, and every audio crossover.
 
 - term: "Internal resistance"
   full_form: "Internal Resistance (Battery / Source)"
@@ -849,6 +1320,12 @@
     a coin cell ~10 Ω. Causes terminal voltage to sag under heavy load
     (<span class="abbr-link" data-abbr="IR drop">IR drop</span>); rises with
     age, low temperature, and depth of discharge.
+  plain: >-
+    Every battery has a tiny resistance inside it — that's why a fresh
+    9 V battery reads 9 V on a meter but sags to 8 V when you hook up a
+    load. Older or colder batteries have higher internal resistance,
+    which is why dying batteries can't deliver enough current to start
+    a car or fire a camera flash.
 
 - term: "IPC-2221"
   full_form: "IPC-2221 (PCB Design Standard)"
@@ -859,6 +1336,10 @@
     "1 A → 10 mil, 3 A → 30 mil, 5 A → 60 mil" rule of thumb (1 oz copper,
     10 °C rise) comes straight from its lookup tables. KiCad's Calculator
     Tools has it built in.
+  plain: >-
+    The standard rulebook PCB designers follow — "how wide should this
+    trace be to safely carry 3 A?" answers come from IPC-2221. KiCad and
+    Altium have it built into their design-rule checkers.
 
 - term: "IR drop"
   full_form: "IR Drop (V = I·R)"
@@ -868,6 +1349,12 @@
     data-abbr="Ohm's Law">Ohm's Law</span>. The reason 5 V at the regulator
     output isn't 5 V at the far end of a long thin trace; the reason a fresh
     battery's terminal voltage sags under heavy load.
+  plain: >-
+    The voltage you "lose" as current flows through any resistive bit
+    of wiring (a long wire, a connector, the inside of a battery). It's
+    just Ohm's Law (V = I × R) applied to the wiring itself, and it's
+    the reason 5 V at the regulator isn't always 5 V at the far end of
+    a thin trace.
 
 - term: "JFET"
   full_form: "Junction Field-Effect Transistor"
@@ -880,6 +1367,11 @@
     "on" with zero gate-source voltage; pinches off as V_GS goes negative
     (for N-channel). Found in high-impedance, low-noise analog input
     stages — phono preamps, electrometer amplifiers.
+  plain: >-
+    A type of transistor with extremely high input impedance and very
+    low noise. Mostly used in niche analog applications like vinyl
+    phono preamps or scientific instruments. Outshone by MOSFETs in
+    most modern designs.
 
 - term: "Joule"
   full_form: "Joule (J)"
@@ -889,6 +1381,11 @@
     (<code>E = P·t</code>). A AA
     <span class="abbr-link" data-abbr="Alkaline">alkaline</span> cell stores
     around 14 kJ; a typical Li-ion 18650 cell stores 30–40 kJ.
+  plain: >-
+    The SI unit of energy. One joule is one watt for one second — about
+    the energy it takes to lift an apple 1 metre off the ground. A AA
+    battery stores around 14,000 joules; a phone battery a few hundred
+    thousand. In hobby use, watt-hours (Wh) are usually more practical.
 
 - term: "Junction temperature"
   full_form: "Junction Temperature (T_J)"
@@ -899,6 +1396,11 @@
     P_dissipated × θ_JA</code>. A TO-220 dropping 5 W with bare-package
     θ_JA = 50 °C/W in a 25 °C room hits T_J = 275 °C — instant smoke without
     a <span class="abbr-link" data-abbr="Heatsink">heatsink</span>.
+  plain: >-
+    The temperature of the actual silicon inside a chip — usually much
+    hotter than the outside of the package you can touch. Exceed ~150 °C
+    and the chip's lifetime falls off a cliff. The reason heatsinks
+    matter, especially for power devices.
 
 - term: "KCL"
   full_form: "Kirchhoff's Current Law"
@@ -908,6 +1410,10 @@
     (charge can't accumulate at a node). The fundamental tool for solving
     parallel branch currents — write KCL at each node, get N-1 equations
     for an N-node circuit.
+  plain: >-
+    "What goes in must come out". At any junction in a circuit, the
+    total current arriving equals the total current leaving. Same
+    common sense as water in pipes — current can't pile up at a point.
 
 - term: "KVL"
   full_form: "Kirchhoff's Voltage Law"
@@ -919,6 +1425,11 @@
     <span class="abbr-link" data-abbr="EMF">EMFs</span> and
     <span class="abbr-link" data-abbr="IR drop">IR drops</span> with
     consistent sign, set to zero.
+  plain: >-
+    "What goes up must come down". Walk any loop around a circuit and the
+    voltages you climb up (batteries) must equal the voltages you drop
+    down (across components). Combined with KCL, it's the foundation of
+    all circuit analysis.
 
 - term: "L"
   full_form: "Inductance (symbol L)"
@@ -931,6 +1442,11 @@
     inductance, <span class="abbr-link" data-abbr="RF">RF</span> chokes),
     µH (<span class="abbr-link" data-abbr="Buck">buck</span> converters), to
     mH (audio crossovers and motor windings).
+  plain: >-
+    The "size" of an inductor — measured in henries (H). Like
+    capacitance for capacitors. Higher inductance = stores more magnetic
+    energy = bigger / heavier coil. See the `H` entry for typical
+    ranges.
 
 - term: "Latch-up"
   full_form: "Latch-Up (CMOS Failure Mode)"
@@ -943,6 +1459,11 @@
     rising above V_CC, falling below ground, or wrong power-up sequencing on
     multi-rail parts (<span class="abbr-link" data-abbr="FPGA">FPGAs</span>,
     DDR controllers).
+  plain: >-
+    A nasty failure mode where a chip's internal parasitic transistors
+    accidentally form a short between power and ground. The chip pulls
+    huge current and cooks. Triggered by overvoltage on a pin, ESD, or
+    powering up rails in the wrong order. Power-cycle is the only way out.
 
 - term: "LDO"
   full_form: "Low-Dropout Regulator"
@@ -957,6 +1478,11 @@
     current is dissipated as heat in the LDO. Low-Iq variants (μA-level
     <span class="abbr-link" data-abbr="Quiescent current">quiescent current</span>)
     are essential for battery-powered designs.
+  plain: >-
+    A small voltage-regulator chip that's friendly to batteries — it only
+    needs a small extra voltage above its target output to work. The
+    AMS1117 (3.3 V LDO) is on countless hobbyist boards. Burns the
+    voltage difference as heat, so not great for big step-downs.
 
 - term: "Lead-acid"
   full_form: "Lead-Acid Battery (SLA / VRLA)"
@@ -969,6 +1495,12 @@
     cycle life (~500 cycles), and shouldn't be discharged below ~50 % for
     longevity. Sealed (SLA / VRLA / AGM) variants are the maintenance-free
     UPS standard.
+  plain: >-
+    The car-battery chemistry. Cheap, can deliver hundreds of amps to
+    crank a starter motor, but heavy, doesn't last as many charge cycles
+    as lithium, and dies faster if you let it discharge below ~50 %.
+    Still the default in cars, motorcycles, and UPS systems because of
+    price.
 
 - term: "Leakage current"
   full_form: "Leakage Current"
@@ -980,6 +1512,12 @@
     or through an <span class="abbr-link" data-abbr="MOSFET">MOSFET</span>'s
     insulated gate. Usually nA to µA, but adds up in large arrays (memory) and
     matters for long-term battery designs. Rises sharply with temperature.
+  plain: >-
+    The tiny "should be zero" current that still trickles through
+    components when they're nominally off. Doesn't matter for a flashlight,
+    but adds up in a smartwatch that needs to last weeks — the difference
+    between a sensor that lasts a month and one that lasts a year on a
+    coin cell.
 
 - term: "LED"
   full_form: "Light-Emitting Diode"
@@ -992,6 +1530,24 @@
     — drive them through a series
     <span class="abbr-link" data-abbr="Resistor">resistor</span> sized so
     I_F ≈ 10–20 mA, never directly across a voltage source.
+  plain: >-
+    A tiny one-way diode that glows when current flows through it.
+    Drives the indicator lights, the screen backlights, the indicator
+    on your charger, and now also most household bulbs. Each colour
+    "wants" a slightly different voltage — see the table for sizing
+    that resistor.
+  interpretation:
+    title: "LED forward voltage by colour"
+    columns: ["Colour", "Typical V_F at 20 mA", "Series-resistor recipe from 5 V"]
+    rows:
+      - ["Infrared (IR)", "~1.2 V", "(5 − 1.2) / 0.02 = 190 Ω, use 220 Ω"]
+      - ["Red", "~2.0 V", "(5 − 2.0) / 0.02 = 150 Ω"]
+      - ["Yellow / Orange", "~2.1 V", "150 Ω"]
+      - ["Green (true)", "~2.2 V", "140 Ω, use 150 Ω"]
+      - ["Green (modern InGaN)", "~3.0 V", "100 Ω"]
+      - ["Blue", "~3.2 V", "90 Ω, use 100 Ω"]
+      - ["White / UV", "~3.4 V", "80 Ω, use 100 Ω"]
+    footnote: "Recipe: R = (V_supply − V_F) / I_LED. Always include a series resistor — never connect an LED directly to a voltage source or it will draw too much current and burn out."
 
 - term: "LiFePO4"
   full_form: "Lithium Iron Phosphate Cell (LiFePO₄)"
@@ -1005,6 +1561,11 @@
     <span class="abbr-link" data-abbr="Wh">Wh</span>. Common in solar storage,
     e-bikes, RV house batteries, and 12 V replacement packs (4 cells in
     series ≈ 12.8 V nominal).
+  plain: >-
+    A safer, longer-lived lithium chemistry — slightly bulkier and lower
+    voltage than regular Li-ion, but it lasts many more charge cycles
+    and is much less prone to thermal runaway / fire. Common in solar
+    storage, RVs, and modern e-bikes.
 
 - term: "Li-ion"
   full_form: "Lithium-Ion Cell"
@@ -1018,6 +1579,22 @@
     in the middle of the discharge curve (3.6–3.85 V covers ~20–80 % SOC);
     serious capacity tracking uses coulomb counting. Li-Po is the same
     chemistry in a soft pouch.
+  plain: >-
+    The default rechargeable battery in modern electronics — phones,
+    laptops, e-bikes, e-cigarettes, drones. High energy density (lots
+    of runtime per gram), but needs a protection circuit because
+    abuse can mean fire. "Li-Po" is the same chemistry in a soft pouch
+    instead of a metal can.
+  interpretation:
+    title: "Common rechargeable battery chemistries"
+    columns: ["Chemistry", "Nominal V/cell", "Energy density", "Cycle life", "Notes"]
+    rows:
+      - ["Lead-acid (SLA)", "2.0 V", "Low", "~500", "Cheap, heavy, fine for UPS / cars"]
+      - ["NiMH", "1.2 V", "Medium", "~500–1000", "Drop-in for AA alkalines (Eneloop)"]
+      - ["Li-ion (NMC, LCO)", "3.7 V", "High", "~500–1000", "Phones, laptops; needs BMS"]
+      - ["Li-Po (pouch Li-ion)", "3.7 V", "High", "~500–1000", "Same chemistry, flexible form factor"]
+      - ["LiFePO4", "3.2 V", "Medium-high", "~2000–5000", "Safer, longer life; bulkier"]
+    footnote: "Lithium chemistries can deliver lots of current quickly but require careful charging (CC/CV) and a Battery Management System to prevent fire."
 
 - term: "Linear region"
   full_form: "Linear Region (Active Region)"
@@ -1031,6 +1608,11 @@
     (<span class="abbr-link" data-abbr="Saturation">saturation</span>) or
     fully-off (cutoff). FETs call the equivalent the "saturation region",
     confusingly.
+  plain: >-
+    The "amplifier" mode of a transistor — partially on, output scales
+    smoothly with input. Used for analog amplifiers (audio, sensor
+    front-ends). Wastes a lot of heat, which is why switching circuits
+    instead drive transistors fully on or fully off.
 
 - term: "Linear regulator"
   full_form: "Linear Regulator"
@@ -1043,6 +1625,11 @@
     and clean rails matter (analog, RF, audio). Otherwise use a
     <span class="abbr-link" data-abbr="Switching regulator">switching
     regulator</span>.
+  plain: >-
+    A power-supply chip that drops a higher voltage to a lower one by
+    burning the difference as heat. Simple, quiet, no noise — but if you
+    drop 12 V to 5 V at 1 A, the regulator dissipates 7 W of pure heat.
+    For big drops or high currents, use a switching converter instead.
 
 - term: "Logic analyzer"
   full_form: "Logic Analyzer"
@@ -1055,6 +1642,11 @@
     buses, or state machines. Hobbyist parts (Saleae Logic, $20 USB
     "logic-8") decode common protocols in software, turning raw waveforms
     into "byte 0x42 ACK byte 0x00" right in the trace view.
+  plain: >-
+    A "scope" specifically for digital signals — captures many lines at
+    once and decodes the bytes for you ("here's an I²C transaction
+    addressing 0x68, writing 0x42"). A $20 USB stick can save you hours
+    of debugging.
 
 - term: "Logic level"
   full_form: "Logic Level"
@@ -1066,6 +1658,20 @@
     <span class="abbr-link" data-abbr="LVCMOS">LVCMOS</span>, 1.8 V CMOS.
     Mixing families requires care — a 3.3 V LVCMOS output may not meet a 5 V
     TTL chip's V_IH threshold without level-shifting.
+  plain: >-
+    The voltages a digital chip uses for "1" and "0". An old Arduino
+    Uno uses 5 V logic; an ESP32 or Pi Pico uses 3.3 V. Connecting them
+    directly can confuse the chips or damage the lower-voltage one — that's
+    what level shifters are for.
+  interpretation:
+    title: "Common digital-logic families and their voltages"
+    columns: ["Family", "Supply (V_CC)", "Output 'HIGH' min", "Output 'LOW' max"]
+    rows:
+      - ["5 V TTL (74LS)", "5.0 V", "2.4 V", "0.4 V"]
+      - ["5 V CMOS (74HC)", "5.0 V", "4.4 V", "0.5 V"]
+      - ["3.3 V LVCMOS", "3.3 V", "2.4 V", "0.4 V"]
+      - ["1.8 V CMOS", "1.8 V", "1.35 V", "0.45 V"]
+    footnote: "Cross-family interfacing: a 3.3 V output usually drives a 5 V CMOS input fine, but feeding 5 V into a 3.3 V input often blows it up. Use a level shifter when in doubt."
 
 - term: "Loop"
   full_form: "Loop (closed circuit path)"
@@ -1075,6 +1681,10 @@
     <span class="abbr-link" data-abbr="KVL">KVL</span> analysis — sum the
     voltages around a loop, equate to zero. A loop containing exactly one
     closed path through unique branches is called a "mesh".
+  plain: >-
+    Any closed path you can trace around a circuit, ending up where you
+    started. KVL says the voltages around any loop sum to zero — the
+    foundation of any circuit calculation.
 
 - term: "LVCMOS"
   full_form: "Low-Voltage CMOS Logic"
@@ -1085,6 +1695,11 @@
     <span class="abbr-link" data-abbr="TTL">TTL</span> requires checking that
     output high meets the receiver's V_IH and that the receiver tolerates 5 V on
     its inputs (otherwise level-shift).
+  plain: >-
+    Lower-voltage CMOS logic — 3.3 V or 1.8 V instead of the original
+    5 V. What modern microcontrollers and computer chips use. Easier on
+    battery life, but watch out when mixing with older 5 V logic — they
+    don't always understand each other.
 
 - term: "MCU"
   full_form: "Microcontroller Unit"
@@ -1103,6 +1718,11 @@
     <span class="abbr-link" data-abbr="ESP32">ESP32</span>, PIC. Picked over
     a Raspberry Pi when you need real-time response, low power, or hard
     determinism.
+  plain: >-
+    A whole tiny computer on a single chip — CPU, RAM, storage, and pins
+    that talk to the world. The brain inside an Arduino, ESP32, or Pi
+    Pico. You pick MCUs over a full Raspberry Pi when you want low power,
+    fast boot, and direct hardware control.
 
 - term: "Mil"
   full_form: "Mil (Thousandth of an Inch)"
@@ -1112,6 +1732,10 @@
     <span class="abbr-link" data-abbr="IPC-2221">IPC-2221</span>. Not to be
     confused with millimeter ("mm") — 10 mil ≈ 0.25 mm, 100 mil = 2.54 mm
     (the classic 0.1" header pitch).
+  plain: >-
+    A weird American PCB measurement unit — one mil is 1/1000 of an
+    inch. Don't confuse it with millimetre. The classic "0.1 inch"
+    header pin spacing is 100 mil = 2.54 mm.
 
 - term: "MISO"
   full_form: "MISO (Master In, Slave Out)"
@@ -1123,6 +1747,10 @@
     share the same wire. Pair with
     <span class="abbr-link" data-abbr="MOSI">MOSI</span> for the other
     direction.
+  plain: >-
+    The "Master In, Slave Out" wire on an SPI bus — i.e. the line the
+    peripheral chip uses to send data back to the microcontroller. One
+    of the four SPI wires (MOSI, MISO, SCK, CS).
 
 - term: "MOSFET"
   full_form: "Metal-Oxide-Semiconductor Field-Effect Transistor"
@@ -1136,6 +1764,11 @@
     milliohms in a logic-level part) and digital logic
     (every <span class="abbr-link" data-abbr="CMOS">CMOS</span> gate is
     a complementary MOSFET pair).
+  plain: >-
+    The dominant transistor type today — controls big currents with very
+    little input drive. Used as the power switch in motor drivers, LED
+    strips, and computer CPUs. "Logic-level" MOSFETs can be driven
+    straight from a 3.3 V or 5 V microcontroller pin.
 
 - term: "MOSI"
   full_form: "MOSI (Master Out, Slave In)"
@@ -1145,6 +1778,10 @@
     sampled by the addressed slave on the active clock edge. Pair with
     <span class="abbr-link" data-abbr="MISO">MISO</span> for the return path
     and SCK for the shared clock.
+  plain: >-
+    The "Master Out, Slave In" wire on an SPI bus — what the
+    microcontroller uses to send data to the peripheral. The companion
+    to MISO (which goes the other direction).
 
 - term: "MOV"
   full_form: "Metal-Oxide Varistor"
@@ -1155,6 +1792,11 @@
     ground. Sacrificial — repeated big surges degrade it, so they're often
     paired with a thermal <span class="abbr-link" data-abbr="Fuse">fuse</span>
     and replaced after a major event. Common in mains-side surge strips.
+  plain: >-
+    A sacrificial component used in surge protectors — when a voltage
+    spike (lightning, accidentally plugging in the wrong thing) hits it,
+    the MOV conducts the energy to ground. Survives small spikes;
+    after a big strike it needs replacing.
 
 - term: "Multimeter"
   full_form: "Multimeter (DMM)"
@@ -1167,6 +1809,11 @@
     AC modes default to <span class="abbr-link" data-abbr="RMS">RMS</span>
     readings (use a "true RMS" meter for non-sinusoidal waveforms). The first
     instrument every hobbyist owns.
+  plain: >-
+    The first tool every electronics hobbyist owns. Measures voltage,
+    current, and resistance, beeps for continuity (handy for finding
+    breaks in wires), and usually does a few other things. A $30
+    multimeter is enough for 95 % of hobby work.
 
 - term: "NiMH"
   full_form: "Nickel-Metal Hydride"
@@ -1178,6 +1825,11 @@
     in modern "low self-discharge" Eneloop variants). Less energy-dense than
     <span class="abbr-link" data-abbr="Li-ion">Li-ion</span> but safer and
     drop-in for many alkaline battery slots.
+  plain: >-
+    The rechargeable AA/AAA chemistry — Eneloop is the famous brand.
+    1.2 V per cell (close enough to alkaline's 1.5 V to work in most
+    devices), can be recharged hundreds of times. Much greener than
+    burning through disposable alkalines.
 
 - term: "Node"
   full_form: "Node (circuit topology)"
@@ -1187,6 +1839,10 @@
     The fundamental building block for <span class="abbr-link"
     data-abbr="KCL">KCL</span> analysis — one equation per node minus
     one (the reference) gives a solvable system.
+  plain: >-
+    Any point where two or more wires or components meet in a circuit.
+    Every node has a single voltage; analysing nodes is the foundation
+    of circuit math.
 
 - term: "Noise margin"
   full_form: "Noise Margin"
@@ -1197,6 +1853,11 @@
     has ~0.4 V noise margin; 3.3 V
     <span class="abbr-link" data-abbr="LVCMOS">LVCMOS</span> has ~1 V. Smaller
     margins are why mixed-voltage interfacing is finicky.
+  plain: >-
+    The "safety cushion" between what a digital chip outputs and what the
+    next chip needs to see for a clean read. More margin = more noise
+    your wires can pick up before bits flip. Low-voltage logic (1.8 V)
+    has tiny margins and needs careful PCB design.
 
 - term: "NTC"
   full_form: "Negative Temperature Coefficient (thermistor)"
@@ -1207,6 +1868,11 @@
     limiter on AC-line equipment (cold = high R limits surge, then
     self-heats to low R for normal operation). Compare
     <span class="abbr-link" data-abbr="PTC">PTC</span>.
+  plain: >-
+    A cheap temperature sensor — a special resistor whose resistance
+    drops as it gets warmer. The "thermistor" in a 3D printer's hot
+    end and in many smart-home temperature sensors. Compare PTC
+    (resistance rises with heat).
 
 - term: "Ohmic region"
   full_form: "Ohmic Region"
@@ -1221,6 +1887,11 @@
     <span class="abbr-link" data-abbr="R_DS(on)">R_DS(on)</span>; for a
     <span class="abbr-link" data-abbr="Diode">diode</span> at very low currents,
     behaviour is exponential (non-ohmic).
+  plain: >-
+    The operating region where a transistor or other device behaves like a
+    plain resistor — current is just voltage divided by resistance. For
+    a fully-on MOSFET this is the "low-loss" region you want for power
+    switching.
 
 - term: "Ohm"
   full_form: "Ohm (Ω)"
@@ -1231,6 +1902,23 @@
     <span class="abbr-link" data-abbr="Ampere">ampere</span> through it. Hobby
     parts span mΩ (current-sense, sense resistors) through Ω–kΩ–MΩ to TΩ
     (insulation testers).
+  plain: >-
+    The unit of electrical resistance — how strongly something opposes
+    current. The Greek letter Ω. A wire has a tiny fraction of an ohm;
+    a typical resistor in a circuit is hundreds of ohms to a few thousand;
+    the inside of dry human skin is megaohms.
+  interpretation:
+    title: "Common resistor values you'll actually buy (E12 series)"
+    columns: ["Decade", "Values (Ω)"]
+    rows:
+      - ["Ω level", "1, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2"]
+      - ["10 Ω", "10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82"]
+      - ["100 Ω", "100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820"]
+      - ["1 kΩ", "Same multipliers (1k, 1.2k, 1.5k, … 8.2k)"]
+      - ["10 kΩ", "10k, 12k, 15k, … 82k"]
+      - ["100 kΩ", "100k, 120k, … 820k"]
+      - ["1 MΩ+", "1M, 2.2M, 4.7M, 10M (less commonly stocked)"]
+    footnote: "These are the 'standard' 12 values per decade in the E12 series — the values resistor kits actually contain. Need 100k? It's there. Need exactly 105k? Use two resistors or buy a precision E96-series value."
 
 - term: "Ohm's Law"
   full_form: "Ohm's Law (V = I · R)"
@@ -1239,6 +1927,12 @@
     resistance. Rearranges as I = V / R or R = V / I. The first equation
     you'll ever write in circuit analysis; the foundation for everything
     on this page including the Quick Wheel.
+  plain: >-
+    The one equation every electronics hobbyist needs to know:
+    <strong>V = I × R</strong> (voltage equals current times resistance).
+    Rearrange it to find any one of the three when you know the other
+    two. This is the law behind sizing resistors for LEDs, current
+    limiters, voltage dividers — everything.
 
 - term: "Op-amp"
   full_form: "Operational Amplifier"
@@ -1251,6 +1945,11 @@
     and integrators. Classic single-supply parts: LM358, MCP6002. For audio:
     NE5532, OPA1612. The two golden rules in linear feedback: inputs draw ~zero
     current; the output drives whatever keeps the inputs at the same voltage.
+  plain: >-
+    The Swiss-army-knife of analog circuits — a little chip that
+    amplifies the difference between its two input pins. Wire up a couple
+    of feedback resistors and you can make filters, amplifiers,
+    comparators, and pretty much any analog signal-processing block.
 
 - term: "Open-drain"
   full_form: "Open-Drain (Open-Collector) Output"
@@ -1263,6 +1962,11 @@
     without contention) and the basis of
     <span class="abbr-link" data-abbr="I²C">I²C</span>. Compare
     <span class="abbr-link" data-abbr="Push-pull">push-pull</span>.
+  plain: >-
+    An output that can only pull the line low — it can't drive it high
+    on its own. A pull-up resistor handles that. The clever bit: many
+    chips can share the same line and only the one that needs to pulls
+    it low. That's how I²C works.
 
 - term: "Optoisolator"
   full_form: "Optoisolator (Optocoupler)"
@@ -1276,6 +1980,12 @@
     controller, ground-loop breaking,
     <span class="abbr-link" data-abbr="Relay">solid-state relay</span> input
     stages.
+  plain: >-
+    A clever chip with an LED and a light-sensor inside, with no
+    electrical connection between them. You send a signal across with
+    light. Used wherever you need to pass a signal between two
+    circuits that absolutely must not share electrical ground —
+    typically mains side to low-voltage side of a power supply.
 
 - term: "Oscilloscope"
   full_form: "Oscilloscope"
@@ -1288,6 +1998,12 @@
     <span class="abbr-link" data-abbr="I²C">I²C</span>), and capture rare
     events on advanced triggers. Hobby entry-point: a Rigol DS1054Z or a USB
     scope at &lt; $300; serious work above ~100 MHz climbs fast in price.
+  plain: >-
+    The big test instrument with the screen showing wiggly lines — it
+    draws voltage against time so you can see exactly what your signal
+    looks like. A $300 entry-level scope is more capable than what NASA
+    flew Apollo with. Once you've got one, you'll wonder how you
+    debugged anything without it.
 
 - term: "P"
   full_form: "Power (symbol P)"
@@ -1297,6 +2013,11 @@
     <code>P = V·I = I²·R = V²/R</code>. The "P" quadrant of the Quick Wheel
     above. Watch the dissipation in resistors and regulators — heat is the
     silent killer of components.
+  plain: >-
+    Electrical power, measured in watts. For DC circuits, just multiply
+    voltage by current: a 5 V × 2 A power supply puts out 10 W. Resistors
+    that get hot are dissipating watts as heat — exceed their rating and
+    they char or fail.
 
 - term: "P-N junction"
   full_form: "P-N Junction"
@@ -1311,6 +2032,11 @@
     (<span class="abbr-link" data-abbr="Reverse bias">reverse bias</span>). A
     <span class="abbr-link" data-abbr="Schottky diode">Schottky</span> uses a
     metal-semiconductor junction instead — faster, lower V_F.
+  plain: >-
+    The atomic-scale boundary between two specially-doped patches of silicon
+    that gives a diode its one-way behaviour. Every diode, LED, and
+    bipolar transistor has at least one P-N junction inside it. The
+    invention that made modern electronics possible.
 
 - term: "PCB"
   full_form: "Printed Circuit Board"
@@ -1320,6 +2046,11 @@
     or six-layer boards add dedicated power and ground planes for cleaner
     high-speed designs. A finished PCB needs a populated <span
     class="abbr-link" data-abbr="BOM">BOM</span> to become a working board.
+  plain: >-
+    The fibreglass board with copper traces that holds all the components
+    in any modern device. Hobbyists design them in KiCad or EasyEDA and
+    ship the file to a Chinese fab; ten boards in your hands a week later
+    for about $10.
 
 - term: "Polarity"
   full_form: "Polarity"
@@ -1333,6 +2064,11 @@
     vent or explode if installed reversed; batteries leak or destroy what
     they're powering. Non-polarised components (resistors, ceramic caps,
     most inductors) don't care which way they're installed.
+  plain: >-
+    Which lead of a component is "+" and which is "−". Crucial for some
+    components: install an LED, electrolytic cap, or battery backwards
+    and it won't work — and the cap or battery may even leak or pop.
+    Resistors and ceramic caps don't care which way they go in.
 
 - term: "Polyfuse"
   full_form: "Polyfuse / Resettable Fuse"
@@ -1345,6 +2081,11 @@
     of fuse you find in USB hubs and motor drivers — survives mild faults that
     would blow a one-shot
     <span class="abbr-link" data-abbr="Fuse">fuse</span>.
+  plain: >-
+    A self-resetting fuse — when too much current flows it heats up and
+    chokes the line; once it cools (after you remove power) it goes back
+    to normal. Inside USB hubs, motor drivers, and gaming consoles, so
+    one accidental short doesn't kill the device.
 
 - term: "Power factor"
   full_form: "Power Factor"
@@ -1354,6 +2095,12 @@
     loads have power factor 1; reactive loads (motors, fluorescent ballasts,
     switching supplies without correction) have less. Low PF means utilities
     deliver more current than the watts equation alone implies.
+  plain: >-
+    A measure of how "efficiently" an AC device draws power. A simple
+    heater is power-factor 1.0 (uses all the current it pulls); a big
+    motor or unregulated power supply might be 0.6, meaning extra
+    current flows back and forth without doing useful work. Utility
+    companies penalise big industrial users for low power factor.
 
 - term: "ppm"
   full_form: "Parts Per Million"
@@ -1363,6 +2110,22 @@
     over 24 hours is ~8.6 seconds of clock drift; ±2 ppm is GPS-disciplined
     territory. Also used for resistor temperature coefficients (50 ppm/°C
     means 50 µΩ/Ω/°C of drift).
+  plain: >-
+    One in a million — the unit used to spec how accurate a crystal
+    oscillator is. A 20 ppm watch crystal drifts about 1.7 seconds per
+    day; a high-quality TCXO is around 0.5 ppm. GPS-disciplined clocks
+    are essentially perfect.
+  interpretation:
+    title: "Oscillator accuracy: from cheap to atomic"
+    columns: ["Type", "Accuracy", "Daily drift"]
+    rows:
+      - ["Cheap RC inside an MCU", "±1 % (10,000 ppm)", "~14 minutes"]
+      - ["Standard quartz crystal", "±20–50 ppm", "~2–4 seconds"]
+      - ["Watch crystal (32.768 kHz)", "±20 ppm", "~1.7 seconds"]
+      - ["TCXO (temp-compensated)", "±0.5–2 ppm", "~0.05–0.2 seconds"]
+      - ["OCXO (oven-controlled)", "±0.01 ppm", "~1 millisecond"]
+      - ["GPS-disciplined", "≪ 0.001 ppm", "Essentially perfect"]
+    footnote: "Why your microwave clock loses minutes per month but your phone never does: phones sync to atomic-clock-backed network time, while the microwave just counts its own crystal."
 
 - term: "Probe"
   full_form: "Probe (Scope / Logic)"
@@ -1374,6 +2137,12 @@
     to keep their input impedance high (10 MΩ) and limit the load they place
     on the circuit. The shortest possible ground lead is critical at high
     frequencies — long ground clips inject ringing that isn't really there.
+  plain: >-
+    The lead that hooks an oscilloscope or logic analyzer to your
+    circuit. Most scope probes have a "10×" switch — leave it there;
+    it attenuates the signal to keep the scope from loading your
+    circuit. The short ground clip on the probe matters more than
+    beginners think.
 
 - term: "Propagation delay"
   full_form: "Propagation Delay (t_pd)"
@@ -1383,6 +2152,11 @@
     50 % crossing. For 74HC family ~10 ns, 74AC ~5 ns, modern FPGA fabric &lt; 1
     ns. Cumulative delay through a chain sets the maximum clock speed before
     <span class="abbr-link" data-abbr="Setup time">setup-time</span> violations.
+  plain: >-
+    The tiny delay between a logic gate's input changing and its output
+    actually responding — typically nanoseconds. Adds up across long
+    chains of gates and sets the maximum clock speed of a digital
+    design.
 
 - term: "PTC"
   full_form: "Positive Temperature Coefficient (resettable fuse)"
@@ -1394,6 +2168,11 @@
     speakers, motor drivers. Often called a
     <span class="abbr-link" data-abbr="Polyfuse">polyfuse</span>. Compare
     <span class="abbr-link" data-abbr="NTC">NTC</span>.
+  plain: >-
+    The "self-resetting fuse" component — resistance rises sharply when
+    it heats up from overcurrent, choking the line until things cool
+    off. Compare NTC (the opposite — resistance falls with heat, used
+    for temperature sensing).
 
 - term: "Pull-down"
   full_form: "Pull-Down Resistor"
@@ -1405,6 +2184,11 @@
     <span class="abbr-link" data-abbr="Pull-up">pull-up</span>; pick whichever
     matches your switch wiring (most active-high circuits use pull-downs;
     most active-low use pull-ups).
+  plain: >-
+    A resistor wired between a microcontroller pin and ground, so the
+    pin sits at "0" until something deliberately pulls it high (a
+    pressed button, an active output). Mirror of the more common
+    pull-up resistor.
 
 - term: "Pull-up"
   full_form: "Pull-Up Resistor"
@@ -1416,6 +2200,11 @@
     <span class="abbr-link" data-abbr="I²C">I²C</span>, 100 kΩ for
     ultra-low-power. Most MCUs expose internal pull-ups (~30–50 kΩ) you can
     enable in firmware instead of soldering external resistors.
+  plain: >-
+    A resistor wired between a microcontroller pin and the positive
+    supply, so the pin sits at "1" until something deliberately pulls
+    it low. The standard way to read a button that connects to ground.
+    Most MCUs have internal pull-ups you can enable in software.
 
 - term: "Push-pull"
   full_form: "Push-Pull Output"
@@ -1426,6 +2215,11 @@
     <span class="abbr-link" data-abbr="SPI">SPI</span> drivers. Cannot be
     wire-OR'd (two contending drivers fight); for shared buses use
     <span class="abbr-link" data-abbr="Open-drain">open-drain</span> instead.
+  plain: >-
+    An output that actively drives both high and low — the strong,
+    default behaviour of most digital chips. Faster than open-drain, but
+    you can't have two chips share the wire because they'd fight each
+    other.
 
 - term: "PWM"
   full_form: "Pulse-Width Modulation"
@@ -1436,6 +2230,12 @@
     dim LEDs, control DC motor speed, drive heaters, and synthesise audio
     via a downstream filter. Choose frequency above audible range (>20 kHz)
     for motors and lighting unless the buzz is the goal.
+  plain: >-
+    A clever way to "fake" analog output from a digital pin — switch the
+    output fully on and fully off very rapidly, and change the
+    on-vs-off ratio. The average brightness of an LED (or speed of a
+    motor) follows that ratio. The reason MCUs can dim LEDs without an
+    analog DAC.
 
 - term: "QFN"
   full_form: "QFN (Quad-Flat No-Lead Package)"
@@ -1447,6 +2247,11 @@
     soldering with hot air. Common for modern MCUs, regulators, and DC-DC
     converters where the centre pad sinks heat to the
     <span class="abbr-link" data-abbr="Copper pour">copper pour</span> below.
+  plain: >-
+    A compact chip package with no leads sticking out — just pads on the
+    bottom. Great thermal performance but tricky to solder by hand;
+    needs hot-air rework or a reflow oven. Many modern microcontrollers
+    ship in QFN.
 
 - term: "Q"
   full_form: "Charge (Q) / Quality factor (Q)"
@@ -1459,6 +2264,11 @@
     low-loss inductors) have narrow
     <span class="abbr-link" data-abbr="Bandwidth">bandwidths</span>; low-Q
     ones (lossy filters) have broad responses.
+  plain: >-
+    "Q" gets reused for two things. As "charge", it's the total amount
+    of electricity that's flowed (used to spec battery capacity). As
+    "quality factor", it describes how sharply a tuned circuit responds
+    — high-Q = a sharp ring (good crystals), low-Q = a soggy thud.
 
 - term: "Quiescent current"
   full_form: "Quiescent Current (Iq)"
@@ -1470,6 +2280,11 @@
     a low-Iq part (1 µA) lasts years. Always check the
     <span class="abbr-link" data-abbr="Datasheet">datasheet</span> Iq spec
     for any always-on rail.
+  plain: >-
+    The "wasted" current a chip draws when it's powered up but doing
+    nothing useful — the always-on background drain. Critical for
+    battery-powered devices: a microamp of Iq vs a milliamp can be the
+    difference between a year of runtime and a week.
 
 - term: "R"
   full_form: "Resistance (symbol R)"
@@ -1480,6 +2295,11 @@
     <span class="abbr-link" data-abbr="Ohm's Law">Ohm's law</span>
     (<code>R = V/I</code>). Hobby ranges: mΩ (current-sense) → Ω → kΩ
     (signal, pull-ups) → MΩ (high-impedance inputs).
+  plain: >-
+    How strongly something opposes electrical current — measured in ohms.
+    The "R" in Ohm's Law (V = I × R). A piece of wire has milliohms; a
+    pull-up resistor is typically 10 kΩ; the inside of a person is
+    hundreds of thousands of ohms.
 
 - term: "R_DS(on)"
   full_form: "On-State Drain-Source Resistance (R_DS(on))"
@@ -1492,6 +2312,11 @@
     <span class="abbr-link" data-abbr="Datasheet">datasheet</span> at a given
     V_GS; check the V_GS curve to confirm your gate-drive voltage actually
     achieves that R_DS(on).
+  plain: >-
+    For a switching MOSFET, how much resistance is left when it's "fully
+    on". Lower is better — a 10 milliohm MOSFET barely heats up at all
+    when switching big currents. The number you look at first when
+    picking a MOSFET to drive a motor or LED strip.
 
 - term: "RF"
   full_form: "Radio Frequency"
@@ -1504,6 +2329,11 @@
     <span class="abbr-link" data-abbr="Decoupling capacitor">decoupling</span>,
     grounding, and matched impedance start to matter even on the slow side
     above ~10 MHz.
+  plain: >-
+    "Radio frequency" — the range of frequencies used for wireless stuff,
+    from AM radio at the low end up through Wi-Fi and 5G. Above about
+    10 MHz, normal PCB rules start breaking down and you have to think
+    carefully about trace impedance, shielding, and grounding.
 
 - term: "Reactance"
   full_form: "Reactance (X)"
@@ -1516,6 +2346,11 @@
     reactance</span> and
     <span class="abbr-link" data-abbr="Inductive reactance">inductive
     reactance</span> for the specific formulas.
+  plain: >-
+    The frequency-dependent part of impedance — basically, how strongly
+    capacitors and inductors push back against AC signals. Caps look
+    less resistive as frequency rises; inductors look more resistive.
+    Same units (ohms) as plain resistance.
 
 - term: "Relay"
   full_form: "Relay"
@@ -1528,6 +2363,11 @@
     when the coil de-energises. Solid-state relays
     (<span class="abbr-link" data-abbr="SSR">SSRs</span>) use opto-isolated
     triacs/MOSFETs instead — silent, no contacts to wear.
+  plain: >-
+    A switch that's flipped by an electromagnet. A small current from
+    your microcontroller can power the coil, which physically closes
+    a larger contact that controls mains-voltage stuff. The "click"
+    you hear when your boiler turns on is usually a relay.
 
 - term: "Resistor"
   full_form: "Resistor"
@@ -1538,6 +2378,11 @@
     series). Power ratings: ¼ W through-hole, ⅒ W to 1 W
     <span class="abbr-link" data-abbr="SMD">SMD</span>. The single most
     common component in any circuit.
+  plain: >-
+    The most common component on any circuit board — those colour-banded
+    cylinders or tiny rectangles. They drop voltage, limit current, and
+    set timings. Sized by both resistance (ohms) and power rating (¼ W
+    is the hobby default).
 
 - term: "Resonance"
   full_form: "Resonance"
@@ -1549,6 +2394,11 @@
     reactances cancel, leaving only resistance. Formula:
     <code>f₀ = 1 / (2π·√(LC))</code>. Foundation of radio tuning, oscillators,
     and notch / band-pass filters.
+  plain: >-
+    The frequency where a coil and capacitor "pair up" and respond
+    strongly — like pushing a swing at exactly its natural rhythm. The
+    foundation of radio tuning: the LC tank in an old AM radio resonates
+    at the station you're listening to and rejects the others.
 
 - term: "Reverse bias"
   full_form: "Reverse Bias"
@@ -1562,6 +2412,11 @@
     designed to operate IN reverse breakdown to clamp a stable voltage. The
     opposite condition is
     <span class="abbr-link" data-abbr="Forward bias">forward bias</span>.
+  plain: >-
+    Connecting a diode the "wrong" way — anode to minus, cathode to plus
+    — so it blocks current instead of conducting. Push too hard and
+    the diode breaks down dramatically. Zener diodes deliberately
+    operate this way to clamp a stable voltage.
 
 - term: "Rise time"
   full_form: "Rise Time (t_r)"
@@ -1574,6 +2429,10 @@
     <span class="abbr-link" data-abbr="Bandwidth">bandwidth</span> required
     to faithfully capture an edge is roughly 0.35 / t_r — a 1 ns edge needs
     a 350 MHz scope.
+  plain: >-
+    How long a digital signal takes to go from low to high. Faster edges
+    = the signal looks crisp on a scope, higher clock speeds possible.
+    Mirror of fall time (high to low).
 
 - term: "RMS"
   full_form: "Root Mean Square"
@@ -1586,6 +2445,20 @@
     actual peak is ~325 V.
     <span class="abbr-link" data-abbr="Multimeter">Multimeters</span> in AC
     mode default to RMS.
+  plain: >-
+    A way of describing an AC voltage so that it has the same "heating
+    effect" as a DC voltage of the same number. "230 V mains" is the
+    RMS value — the actual peak is 325 V. Most multimeters in AC mode
+    show you the RMS value.
+  interpretation:
+    title: "Peak vs peak-to-peak vs RMS for common waveforms"
+    columns: ["Waveform", "Peak", "Peak-to-Peak", "RMS"]
+    rows:
+      - ["Sine wave", "V_p", "2 × V_p", "0.707 × V_p"]
+      - ["Square wave (±V_p)", "V_p", "2 × V_p", "V_p (same as peak)"]
+      - ["Triangle wave", "V_p", "2 × V_p", "0.577 × V_p"]
+      - ["DC", "V", "0 (no swing)", "V (same as DC)"]
+    footnote: "Multimeters set to AC volts read RMS. 'True RMS' meters do it correctly for any waveform; cheap meters assume a sine and read incorrectly on square or triangle waves."
 
 - term: "RP2040"
   full_form: "RP2040 (Raspberry Pi MCU)"
@@ -1595,7 +2468,12 @@
     133 MHz, 264 KB SRAM, no built-in flash (loads from external SPI flash),
     cheap (&lt; $1 in volume), with the unique "PIO" peripheral that lets you
     bit-bang custom serial protocols at clock speed. Found on the Raspberry Pi
-    Pico, Pico W, and a host of community boards.
+    Pico, Pico V, and a host of community boards.
+  plain: >-
+    The microcontroller chip inside a Raspberry Pi Pico — Raspberry Pi
+    Foundation's first own-silicon design. Dual-core ARM at 133 MHz with
+    a clever programmable I/O peripheral that lets you implement custom
+    high-speed protocols. Cheap and powerful for the price.
 
 - term: "Saturation"
   full_form: "Saturation (Transistor Region)"
@@ -1608,6 +2486,11 @@
     used for analog amplifiers; the FET equivalent of "fully on" is the
     "<span class="abbr-link" data-abbr="Ohmic region">ohmic region</span>".
     Always read carefully which device the author means.
+  plain: >-
+    A confusing term that means opposite things depending on the
+    transistor type. For BJTs: "fully on, as far as it'll go". For
+    MOSFETs: a specific analog region. Always check which type the
+    document is talking about.
 
 - term: "Schmitt trigger"
   full_form: "Schmitt Trigger"
@@ -1619,6 +2502,12 @@
     the input drops below the lower threshold — so a noisy slow edge won't bounce
     the output back and forth. Used in switch debouncing, clock cleanup, and
     sensor input conditioning.
+  plain: >-
+    A comparator with a built-in "deadzone" — it has two thresholds
+    (one for going up, one for going down) instead of just one. The
+    deadzone stops noisy signals from chattering the output back and
+    forth. Used to clean up slow or noisy edges (button presses,
+    fading-in clocks).
 
 - term: "RX"
   full_form: "RX (UART Receive)"
@@ -1628,6 +2517,11 @@
     ground. Idle state is high; a logic-low start bit kicks off each character
     frame. Most MCU boards label the pins from the MCU's point of view, so
     connecting two boards needs a TX↔RX crossover.
+  plain: >-
+    The "receive" wire on a serial connection. Always pairs with a
+    "TX" (transmit) wire on the other end — connect one board's TX to
+    the other's RX (and vice versa). Forgetting to cross them is the
+    most common reason a serial console "won't work".
 
 - term: "Schottky diode"
   full_form: "Schottky Diode"
@@ -1637,6 +2531,11 @@
     forward voltage (~0.2–0.4 V vs ~0.7 V for silicon) and very fast
     switching. Common in switching-converter rectifiers, low-loss polarity
     protection, and clamping. Typical part: 1N5817 (1 A), SS34 (3 A).
+  plain: >-
+    A "low-loss" diode with a smaller voltage drop (~0.3 V vs ~0.7 V for
+    a regular silicon diode) and much faster switching. Common inside
+    switching power supplies and in low-loss reverse-polarity protection
+    on hobby boards.
 
 - term: "SCK"
   full_form: "SCK (SPI Clock)"
@@ -1647,6 +2546,10 @@
     <span class="abbr-link" data-abbr="MOSI">MOSI</span>. The polarity (CPOL)
     and phase (CPHA) tell each peripheral which edge is the active one — the
     classic four-mode SPI timing matrix.
+  plain: >-
+    The clock wire on an SPI bus — pulses generated by the master
+    that tell every peripheral when to read/write a bit. One of the four
+    SPI lines.
 
 - term: "SCL"
   full_form: "SCL (I²C Clock)"
@@ -1656,6 +2559,10 @@
     <span class="abbr-link" data-abbr="Pull-up">pull-up</span> resistor.
     Standard mode runs at 100 kHz, fast mode at 400 kHz, fast-mode-plus at 1
     MHz; bus capacitance and pull-up value set the practical ceiling.
+  plain: >-
+    The clock wire on an I²C bus. Like the data wire (SDA), it's
+    open-drain and needs a pull-up resistor. The "kHz speed" of an I²C
+    bus is the clock rate on this line.
 
 - term: "SDA"
   full_form: "SDA (I²C Data)"
@@ -1667,6 +2574,11 @@
     drive it low; neither can drive it high. The classic bench symptom of a
     missing pull-up: SDA and SCL both stuck high (idle) but every transaction
     reads 0xFF.
+  plain: >-
+    The data wire on an I²C bus. Needs a pull-up resistor to V_CC
+    (typically 4.7 kΩ) — forgetting that is the #1 mistake when wiring
+    up an I²C sensor for the first time. If your I²C reads 0xFF over
+    and over, suspect the pull-ups.
 
 - term: "Settling time"
   full_form: "Settling Time"
@@ -1678,6 +2590,11 @@
     <span class="abbr-link" data-abbr="Rise time">rise time</span> alone
     suggests, because settling has to ride out any
     <span class="abbr-link" data-abbr="Transient">overshoot</span> and ringing.
+  plain: >-
+    The time after a signal changes before it's done "ringing" and has
+    actually landed at its target value. Matters for ADCs (you have to
+    wait for the input to settle before sampling) and DACs (the output
+    isn't accurate immediately after you write a new value).
 
 - term: "Setup time"
   full_form: "Setup Time (t_su)"
@@ -1687,6 +2604,11 @@
     <span class="abbr-link" data-abbr="Hold time">hold time</span>; together
     they bound a "data must be quiet" window around the clock edge. Setup
     violations limit clock speed in fast designs.
+  plain: >-
+    The minimum time data must be stable before a clock tick for a
+    flip-flop to capture it cleanly. Cousin of hold-time (which is
+    after). Together they define the "data must be quiet" window
+    around every clock edge.
 
 - term: "Siemens"
   full_form: "Siemens (S)"
@@ -1695,6 +2617,10 @@
     <span class="abbr-link" data-abbr="R">resistance</span>; symbol S
     (formerly mho, ℧). 1 S = 1/Ω. Rare in hobby use beyond datasheet specs
     for high-current rails and transconductance specs for op-amps and FETs.
+  plain: >-
+    The opposite of an ohm — a unit of conductance. 1 siemens = 1/Ω.
+    Rarely used by hobbyists; you'll see it in chip datasheets for
+    "transconductance" specs on op-amps and FETs.
 
 - term: "Slew rate"
   full_form: "Slew Rate (V/µs)"
@@ -1707,6 +2633,11 @@
     V/µs; a fast amplifier hits 100+ V/µs. Pick a part whose slew rate
     comfortably exceeds your fastest signal:
     <code>SR ≥ 2π·f·V_peak</code>.
+  plain: >-
+    The fastest rate at which an op-amp's output can change voltage.
+    Push a fast signal through a slow op-amp and the output ramps as
+    fast as it can — sines turn into triangles. Pick a faster op-amp
+    or smaller signal swing.
 
 - term: "SMD"
   full_form: "Surface-Mount Device"
@@ -1717,6 +2648,22 @@
     0402 / 0201 (visible only with magnification). The opposite of
     <span class="abbr-link" data-abbr="THT">THT</span>; the dominant
     construction style for modern boards.
+  plain: >-
+    Tiny "no leads" components that sit flat on the surface of a PCB.
+    Sizes go from "easy with tweezers" (1206) down to "smaller than a
+    grain of sand" (0201). All modern electronics are mostly SMD;
+    hobbyists hand-solder 0805 and 0603 with practice.
+  interpretation:
+    title: "Common SMD passive sizes (resistors / caps)"
+    columns: ["Code", "Size (mm)", "Power", "Hand-solderable?"]
+    rows:
+      - ["1206", "3.2 × 1.6", "¼ W", "Easy with tweezers"]
+      - ["0805", "2.0 × 1.25", "1/10 W", "Easy; the hobbyist default"]
+      - ["0603", "1.6 × 0.8", "1/16 W", "Practice needed but doable"]
+      - ["0402", "1.0 × 0.5", "1/16 W", "Tricky; magnifier recommended"]
+      - ["0201", "0.6 × 0.3", "1/20 W", "Reflow or microscope only"]
+      - ["01005", "0.4 × 0.2", "—", "Industrial pick-and-place only"]
+    footnote: "The number is roughly the imperial size: '0805' = 0.08 × 0.05 inches. Pad layouts shrink as the parts shrink, which is why hobby boards still default to 0805 or 0603."
 
 - term: "Solder mask"
   full_form: "Solder Mask"
@@ -1728,6 +2675,11 @@
     Also acts as electrical insulation between adjacent traces and protects
     copper from oxidation. A fingerprint of every board's manufacturer
     handwriting.
+  plain: >-
+    The coloured (usually green) coating on a circuit board. Its job is
+    to keep solder where you want it — only on the exposed pads — and
+    protect the copper from rusting. Different colours don't change
+    performance; they're cosmetic.
 
 - term: "SOC"
   full_form: "State of Charge"
@@ -1742,6 +2694,11 @@
     but only ~±10 % for
     <span class="abbr-link" data-abbr="Li-ion">Li-ion</span> because of the
     flat middle of its discharge curve.
+  plain: >-
+    The "fuel gauge" percentage of a battery — 100 % means full, 0 %
+    means dead. Notoriously hard to estimate accurately on lithium
+    batteries because the voltage stays almost flat across most of
+    the discharge curve. Phones use sophisticated algorithms to guess.
 
 - term: "Snubber"
   full_form: "Snubber"
@@ -1752,6 +2709,10 @@
     specific circuit's ringing frequency. Complement to a
     <span class="abbr-link" data-abbr="Flyback diode">flyback diode</span>
     on inductive loads.
+  plain: >-
+    A small resistor-and-cap pair wired across a switching transistor
+    to absorb voltage spikes and stop nasty ringing. Goes hand-in-hand
+    with a flyback diode on relay / motor drives.
 
 - term: "SOT-23"
   full_form: "SOT-23 Package"
@@ -1765,6 +2726,10 @@
     Hand-solderable with practice; pad spacing is finer than
     <span class="abbr-link" data-abbr="THT">through-hole</span> but coarser
     than 0402 chip parts.
+  plain: >-
+    A tiny three-legged SMD package about the size of a grain of rice —
+    used for small-signal transistors and little voltage regulators.
+    Doable by hand with practice and a fine-tip iron.
 
 - term: "SPI"
   full_form: "Serial Peripheral Interface"
@@ -1778,6 +2743,11 @@
     line. Faster than <span class="abbr-link" data-abbr="I²C">I²C</span>
     (tens of MHz typical) but uses more pins. Common for SD cards,
     high-speed ADCs, displays.
+  plain: >-
+    A faster but pin-hungrier alternative to I²C for talking to
+    peripherals — uses four wires (clock, two data, chip-select). No
+    addressing; you select a chip by pulling its dedicated CS line
+    low. Found in SD cards, fast ADCs, and bigger displays.
 
 - term: "SS"
   full_form: "SS / CS (SPI Slave-Select / Chip-Select)"
@@ -1790,6 +2760,10 @@
     <span class="abbr-link" data-abbr="SCK">SCK</span> bus has only one talker
     on each direction. Sometimes labelled "CS" or "nCS"; SPI peripherals with
     only an "EN" pin treat it the same way.
+  plain: >-
+    The "chip-select" pin on SPI peripherals — the master pulls it low
+    to talk to just that one chip while ignoring the others sharing
+    the same bus. Often labelled "CS" instead of "SS".
 
 - term: "SSR"
   full_form: "Solid-State Relay"
@@ -1802,6 +2776,11 @@
     heaters and lights from a low-voltage MCU; some include zero-cross
     switching to reduce
     <span class="abbr-link" data-abbr="EMI">EMI</span>.
+  plain: >-
+    A "relay" with no moving parts — uses an optoisolator + power
+    transistor pair instead of a coil and contacts. Silent, faster, no
+    contact wear, but pickier about over-current. Used to switch
+    heaters and lights at home-automation projects.
 
 - term: "Supercapacitor"
   full_form: "Supercapacitor (Ultracapacitor)"
@@ -1813,6 +2792,12 @@
     burst-load buffering, RTC backup that lasts weeks, and energy-harvesting
     inputs. Can be stacked in series for higher voltages, but each cell needs
     a balancing resistor or active balancer.
+  plain: >-
+    A bridge between a battery and a capacitor — holds many farads of
+    charge (huge by capacitor standards) but only handles a few volts.
+    Charges and discharges much faster than a battery. Used in
+    backup-power buses, regenerative-braking buffers, and short-term
+    energy harvesting.
 
 - term: "Switching regulator"
   full_form: "Switching Regulator"
@@ -1826,6 +2811,12 @@
     efficient than a <span class="abbr-link" data-abbr="Linear regulator">linear
     regulator</span> when conversion ratio is large or current is high (85–95
     %), but adds switching noise and PCB-layout complexity.
+  plain: >-
+    A high-efficiency power-supply chip that rapidly switches the input
+    on and off through a coil to produce a steady output. Much better
+    than a linear regulator when you need to step a big voltage down
+    (or up) — 85 % to 95 % efficient. Most modern phone chargers and
+    laptop bricks are switchers.
 
 - term: "T_A"
   full_form: "Ambient Temperature (T_A)"
@@ -1834,6 +2825,11 @@
     calculation: <code>T_J = T_A + P × θ_JA</code>. A circuit designed for a
     25 °C lab desk may roast inside a sealed enclosure where T_A climbs to
     50 °C. Always design for the worst-case T_A your product will see.
+  plain: >-
+    The air temperature around a component. Matters for thermal design:
+    a chip rated for 25 °C ambient may overheat inside a sealed plastic
+    box where temperatures climb to 50 °C. Always check what the worst
+    case will be.
 
 - term: "T_J"
   full_form: "Junction Temperature (T_J) — see Junction temperature"
@@ -1843,6 +2839,10 @@
     temperature</span> for the formula and worked example. T_J(max) is the
     absolute-maximum spec — usually 125 or 150 °C — beyond which lifetime
     drops sharply.
+  plain: >-
+    Shorthand for "junction temperature" — the temperature of the
+    silicon inside a chip. Exceed the rated max (~125–150 °C for most
+    parts) and the chip's lifetime drops dramatically.
 
 - term: "Thermal resistance"
   full_form: "Thermal Resistance (θ, °C/W)"
@@ -1854,6 +2854,20 @@
     own air-rise. Add them in series like resistors:
     <code>θ_total = θ_JC + θ_CS + θ_SA</code>. A TO-220 with bare θ_JA
     ≈ 50 °C/W drops to ~10 °C/W with a small clip-on heatsink.
+  plain: >-
+    How hot a chip gets per watt it dissipates. Lower is better. Adding
+    a heatsink dramatically lowers thermal resistance — see the table.
+  interpretation:
+    title: "Typical thermal resistance — chip junction to air"
+    columns: ["Setup", "θ (°C/W)", "Practical limit"]
+    rows:
+      - ["TO-220 bare (no heatsink)", "~50 °C/W", "~2 W (then 100 °C rise)"]
+      - ["TO-220 + small clip-on heatsink", "~10 °C/W", "~10 W"]
+      - ["TO-220 + finned heatsink + fan", "~3 °C/W", "30+ W"]
+      - ["TO-247 bolted to large heatsink", "~1 °C/W", "100+ W"]
+      - ["Small SMD chip (SOT-23)", "~250 °C/W", "Few hundred mW max"]
+      - ["QFN with PCB ground pour as heatsink", "~30 °C/W", "Several W"]
+    footnote: "Rough sanity check: temperature rise = watts × thermal resistance. A 5 W TO-220 dissipating into 50 °C/W = 250 °C above ambient → instant smoke. Add a heatsink."
 
 - term: "Thermal runaway"
   full_form: "Thermal Runaway"
@@ -1866,6 +2880,11 @@
     overcharge / short can run away catastrophically (the origin of the term
     "battery fire"). Mitigated with emitter ballast resistors, heatsinks,
     thermal cutoffs, and a <span class="abbr-link" data-abbr="BMS">BMS</span>.
+  plain: >-
+    A vicious cycle — a part gets hot, which makes it draw more
+    current, which makes it hotter, until it bursts into flames. Why
+    lithium batteries with manufacturing defects can suddenly catch
+    fire, and why power transistors need careful biasing.
 
 - term: "Time constant"
   full_form: "Time Constant (τ)"
@@ -1875,6 +2894,11 @@
     an RL circuit, <code>τ = L/R</code>. Five time constants gets you to
     ~99 % (close enough for "settled"). Sets the speed of an RC filter, the
     debounce time of a switch, the discharge of a flash capacitor.
+  plain: >-
+    A rough "speed" measure for a capacitor charging or discharging — the
+    time to get about 63 % of the way to the final value. Wait five time
+    constants and you're essentially fully charged. Sets the speed of RC
+    filters and switch debouncing.
 
 - term: "TO-220"
   full_form: "TO-220 Package"
@@ -1887,6 +2911,11 @@
     and is electrically connected to one of the leads (often the drain or
     cathode), so an isolation pad is needed when grounding the heatsink. Bare
     θ_JA ≈ 50 °C/W; with a typical clip-on heatsink ~10 °C/W.
+  plain: >-
+    The classic three-legged "chunky" power transistor package, with a
+    metal tab on the back for bolting onto a heatsink. If you've ever
+    seen a 7805 regulator with a hole through its metal tab, that's a
+    TO-220.
 
 - term: "Trace"
   full_form: "Trace (PCB)"
@@ -1898,6 +2927,10 @@
     introduces resistance (small) and inductance (matters above ~10 MHz).
     Routing software auto-places traces from a netlist; high-speed traces
     deserve hand-routing.
+  plain: >-
+    A copper line on a PCB connecting one component to another. Width
+    determines how much current it can carry; length adds tiny resistance
+    and inductance that matter for fast signals.
 
 - term: "Transient"
   full_form: "Transient"
@@ -1910,6 +2943,11 @@
     caps</span>, <span class="abbr-link" data-abbr="Snubber">snubbers</span>,
     <span class="abbr-link" data-abbr="TVS diode">TVS diodes</span>, and
     proper grounding.
+  plain: >-
+    A short-lived voltage or current spike — caused by switching, ESD,
+    lightning, or even a relay coil collapsing nearby. Most circuit
+    failures happen during transients, not steady state. Decoupling
+    caps and TVS diodes exist to swallow them.
 
 - term: "THT"
   full_form: "Through-Hole Technology"
@@ -1919,6 +2957,10 @@
     the opposite side. Mechanically robust, easy to hand-solder, bulky
     compared to <span class="abbr-link" data-abbr="SMD">SMD</span>. Still
     preferred for connectors, large electrolytics, and prototyping.
+  plain: >-
+    Old-style components with leads that poke through holes in the
+    board. Easier to solder by hand than SMD, but bulkier. Still
+    common for connectors, big capacitors, and beginner kits.
 
 - term: "Transformer"
   full_form: "Transformer"
@@ -1930,6 +2972,11 @@
     turns ratio (V_out / V_in = N_out / N_in) and to provide galvanic
     isolation. Found in mains-frequency power supplies, audio output stages,
     and the high-frequency variants inside every switching converter.
+  plain: >-
+    Two coils of wire wrapped on the same magnetic core. AC voltage in
+    one coil shows up at a different voltage in the other, scaled by
+    the turns ratio. Steps mains voltage up or down, and provides
+    electrical isolation between primary and secondary.
 
 - term: "Transistor"
   full_form: "Transistor"
@@ -1943,6 +2990,11 @@
     <span class="abbr-link" data-abbr="MOSFET">MOSFETs</span> and
     <span class="abbr-link" data-abbr="JFET">JFETs</span>). The ubiquitous
     workhorse of every digital chip and analog stage.
+  plain: >-
+    A three-legged amplifier or switch — the invention that made
+    modern electronics possible. A phone processor packs billions of
+    transistors onto a fingernail-sized chip. Two big families: BJT
+    (current-controlled) and FET (voltage-controlled).
 
 - term: "TTL"
   full_form: "Transistor-Transistor Logic"
@@ -1953,6 +3005,11 @@
     <span class="abbr-link" data-abbr="CMOS">CMOS</span> and 3.3 V variants,
     but the term still shows up to mean "5 V single-ended logic levels" on
     hobby modules.
+  plain: >-
+    The original 5 V digital-logic family from the 1960s — the famous
+    "74-series" chips. Mostly replaced by CMOS today, but "TTL levels"
+    is still common shorthand for "5 V logic". A logic '1' is around
+    3–5 V; a logic '0' is below 0.8 V.
 
 - term: "TVS diode"
   full_form: "Transient Voltage Suppression Diode"
@@ -1963,6 +3020,11 @@
     pulse. Faster and more precise than an
     <span class="abbr-link" data-abbr="MOV">MOV</span>; common on USB lines,
     automotive 12 V rails, and exposed I/O.
+  plain: >-
+    A protection diode that clamps brief over-voltage spikes from ESD
+    or lightning. Faster and more accurate than an MOV. Sits across
+    USB lines, automotive 12 V rails, and any input pin exposed to the
+    outside world.
 
 - term: "TX"
   full_form: "TX (UART Transmit)"
@@ -1972,6 +3034,11 @@
     <span class="abbr-link" data-abbr="RX">RX</span>. Push-pull output, idles
     high. The TX/RX crossover is the most common reason a serial console
     "doesn't work" between two MCU boards.
+  plain: >-
+    The "transmit" wire on a serial connection — pairs with the
+    other end's "RX". Cross them: one board's TX → other's RX, and
+    vice versa. Skipping that crossover is the most common newbie
+    mistake.
 
 - term: "UART"
   full_form: "Universal Asynchronous Receiver-Transmitter"
@@ -1982,6 +3049,11 @@
     rate (9600, 115200, etc.). Tolerant of long wires when the two endpoints
     share a common <span class="abbr-link" data-abbr="Ground">ground</span>;
     the protocol behind every "serial console" on a microcontroller dev board.
+  plain: >-
+    A simple two-wire serial connection — one wire to send, one to
+    receive, no shared clock. Both sides agree on a speed (the "baud
+    rate") in advance. The protocol behind every microcontroller's
+    "serial console" debugging window.
 
 - term: "USB"
   full_form: "Universal Serial Bus"
@@ -1990,6 +3062,11 @@
     rails: USB 2.0 = 5 V at up to 500 mA per port; USB-C / PD can negotiate
     up to 20 V at 3 A and beyond. The 5 V rail is unregulated — always treat
     it as 4.4–5.25 V depending on cable + load.
+  plain: >-
+    The universal connector + protocol for connecting basically anything
+    digital. Old USB: 5 V, up to ~500 mA, slow data. Modern USB-C
+    Power Delivery: negotiates up to 20 V at 3 A or more, fast charges
+    laptops. The 5 V "rail" is never exactly 5 V — assume 4.4–5.25 V.
 
 - term: "V"
   full_form: "Voltage (symbol V)"
@@ -2000,6 +3077,23 @@
     (V = I·R) and in <span class="abbr-link" data-abbr="P">P</span> = V·I.
     Always measured between two nodes (across, never "at" — voltage is a
     difference).
+  plain: >-
+    The "pressure" that pushes electric current through a wire — measured
+    in volts. A AA battery is 1.5 V; USB is 5 V; a wall socket is 120 V
+    (US) or 230 V (EU). Important: voltage is always between two points,
+    never at one — a meter has two leads for a reason.
+  interpretation:
+    title: "Voltage zones: safe vs lethal"
+    columns: ["Voltage (DC)", "Touch-safety", "Where you'd encounter it"]
+    rows:
+      - ["< 5 V", "Completely safe", "USB, microcontrollers, sensors"]
+      - ["5 – 24 V", "Generally safe", "LED strips, hobby boards, e-bikes"]
+      - ["24 – 50 V", "Borderline", "Larger e-bikes, mid-power LED drivers"]
+      - ["50 – 120 V DC", "Painful, can shock", "Solar arrays, EV battery packs"]
+      - ["> 120 V DC", "Potentially lethal", "EV main bus, high-power supplies"]
+      - ["120 / 230 V AC mains", "Dangerous — can kill", "Wall sockets, household appliances"]
+      - ["> 1000 V", "Always lethal", "Power-line distribution, high-voltage labs"]
+    footnote: "Voltage doesn't kill on its own — current through your body does. But higher voltage can push lethal current through your skin's resistance. The big jump in danger is around 50 V DC / 30 V AC; anything below that is mostly safe to touch with dry hands."
 
 - term: "V_CC"
   full_form: "V_CC (Positive Supply Rail)"
@@ -2011,6 +3105,11 @@
     thing in practice. Always paired with a
     <span class="abbr-link" data-abbr="Decoupling capacitor">decoupling
     cap</span>.
+  plain: >-
+    The positive supply pin on a chip — where you connect "+5 V" or
+    "+3.3 V". Schematic convention puts V_CC at the top of the page,
+    ground at the bottom. CMOS chips often call the same thing V_DD;
+    they mean the same thing.
 
 - term: "V_DD"
   full_form: "V_DD (Drain Supply Rail)"
@@ -2022,6 +3121,11 @@
     to the rail. Synonymous with
     <span class="abbr-link" data-abbr="V_CC">V_CC</span> in modern usage; some
     chips have both V_DD (digital core) and V_CC (analog/IO) on different rails.
+  plain: >-
+    Same thing as V_CC, mostly — the positive supply pin on a CMOS chip.
+    Different names from historical convention. Some chips have both V_DD
+    (digital core) and V_CC (analog/IO) on separate pins so you can keep
+    noisy and clean rails apart.
 
 - term: "V_F"
   full_form: "Forward Voltage (V_F)"
@@ -2034,6 +3138,11 @@
     ~3.4 V white LED. The starting point for sizing an LED's series
     <span class="abbr-link" data-abbr="Resistor">resistor</span>:
     <code>R = (V_supply − V_F) / I_F</code>.
+  plain: >-
+    The voltage a forward-biased diode (or LED) drops when conducting.
+    About 0.7 V for an ordinary silicon diode; about 2 V for a red LED
+    up to 3.4 V for white. You subtract this from your supply voltage
+    when sizing the current-limiting resistor for an LED.
 
 - term: "V_GS(th)"
   full_form: "Gate-Source Threshold Voltage (V_GS(th))"
@@ -2046,6 +3155,11 @@
     4.5 V (standard) or 2.5 V (logic-level). A "logic-level" MOSFET like
     the IRLZ44N can be driven directly from a 3.3 V GPIO; a standard MOSFET
     needs a gate driver.
+  plain: >-
+    The minimum gate voltage that just barely starts turning a MOSFET on.
+    For practical switching you need a few volts above that. Look for
+    "logic-level" MOSFETs (lower V_GS(th)) if you want to switch one
+    directly from a microcontroller pin without a gate driver.
 
 - term: "Via"
   full_form: "Via (PCB)"
@@ -2056,6 +3170,10 @@
     fabrication). Vias add a small inductance (~1 nH each) — fine at audio,
     matters at RF. "Stitch" vias connect ground planes between layers to keep
     return paths short.
+  plain: >-
+    A plated hole through a PCB that lets a trace jump between layers.
+    Looks like a tiny solder-cup; functionally it's just a vertical
+    wire connecting copper on top to copper underneath.
 
 - term: "Volt"
   full_form: "Volt (V)"
@@ -2066,6 +3184,11 @@
     <span class="abbr-link" data-abbr="Coulomb">coulomb</span> of charge
     transported. Common rails: 1.8 / 3.3 / 5 / 9 / 12 / 24 V; mains 110 /
     230 V <span class="abbr-link" data-abbr="AC">AC</span>.
+  plain: >-
+    The SI unit of voltage — the "pressure" of electricity. Common
+    rails in electronics: 1.8 V (low-power), 3.3 V (most modern chips),
+    5 V (USB, older Arduino), 12 V (car), 24 V (industrial), 120 V or
+    230 V (mains).
 
 - term: "Vpp"
   full_form: "Peak-to-Peak Voltage"
@@ -2078,6 +3201,11 @@
     <span class="abbr-link" data-abbr="Multimeter">multimeter</span> in
     <span class="abbr-link" data-abbr="AC">AC</span> mode displays
     <span class="abbr-link" data-abbr="RMS">RMS</span>.
+  plain: >-
+    The total swing of an AC signal from its bottom to its top — what
+    you'd measure on an oscilloscope. A sine wave that goes from −5 V
+    to +5 V has Vpp = 10 V. Different from RMS (the heating-equivalent
+    value) and from peak (just the top half).
 
 - term: "W"
   full_form: "Energy (symbol W) / Watt (unit W)"
@@ -2088,6 +3216,10 @@
     <strong>Watt</strong>: SI unit of
     <span class="abbr-link" data-abbr="P">power</span>, also written W —
     one joule per second. Context disambiguates.
+  plain: >-
+    "W" is reused for energy (the quantity, in joules) and for the watt
+    (the unit of power, J/s). Context tells you which. In practice you'll
+    almost always see "W" meaning watts.
 
 - term: "Watt"
   full_form: "Watt (W)"
@@ -2099,6 +3231,23 @@
     one <span class="abbr-link" data-abbr="Ampere">ampere</span>. Hobby
     ranges: µW (sleeping MCU), mW (LED, idle logic), W (motors, regulators),
     tens of W (laptops, soldering irons).
+  plain: >-
+    The SI unit of power — energy per unit time. One watt is one volt
+    times one amp. A modern LED bulb burns ~10 W; a phone charger ~5 W;
+    a microwave ~1000 W; a car at speed ~50,000 W.
+  interpretation:
+    title: "Real-world power levels"
+    columns: ["Power", "Real-world example"]
+    rows:
+      - ["1 µW (microwatt)", "MCU in deep sleep"]
+      - ["1 mW", "Indicator LED, Bluetooth earbud"]
+      - ["100 mW – 1 W", "Wi-Fi router, USB-powered gadgets"]
+      - ["5 W", "USB charger (legacy), phone usage"]
+      - ["20 – 100 W", "Laptop running, LED bulb (10 W = 60 W incandescent)"]
+      - ["1 – 2 kW", "Kettle, hair dryer, microwave, electric heater"]
+      - ["10 – 50 kW", "Electric-car charger, induction stove (full)"]
+      - ["100+ kW", "EV at full power, grid-scale loads"]
+    footnote: "An old incandescent bulb burned 60 W to make 800 lumens of light; a modern LED makes the same light from 10 W. Watt for watt, modern electronics are vastly more efficient than what they replaced."
 
 - term: "Wh"
   full_form: "Watt-hour (Wh)"
@@ -2109,6 +3258,25 @@
     for comparing packs at different voltages on the same energy footing —
     a 12 V × 50 Ah car battery (600 Wh) stores about as much energy as
     sixteen 18650 cells (~37 Wh each) wired in series-parallel.
+  plain: >-
+    A watt-hour is the energy of running one watt for one hour. It's how
+    we describe big batteries. Useful because it works across voltages —
+    a 12 V × 50 Ah car battery (600 Wh) and a 36 V × 17 Ah e-bike pack
+    (600 Wh) hold the same amount of energy.
+  interpretation:
+    title: "Watt-hours: how much energy does what hold?"
+    columns: ["Device / pack", "Approx Wh"]
+    rows:
+      - ["AA alkaline battery", "~3 Wh"]
+      - ["18650 Li-ion cell", "~10 Wh"]
+      - ["Phone battery", "10 – 20 Wh"]
+      - ["Laptop battery", "40 – 100 Wh"]
+      - ["E-bike battery", "300 – 700 Wh"]
+      - ["Car (12 V lead-acid)", "~600 Wh"]
+      - ["Power-wall (home backup)", "5,000 – 15,000 Wh (5–15 kWh)"]
+      - ["Electric-car battery", "40,000 – 100,000 Wh (40–100 kWh)"]
+      - ["A litre of gasoline (for scale)", "~9,500 Wh of chemical energy"]
+    footnote: "Airline rule of thumb: lithium batteries under 100 Wh fly freely in carry-on; 100–160 Wh needs airline approval; above 160 Wh is generally forbidden as a passenger battery."
 
 - term: "Zener diode"
   full_form: "Zener Diode"
@@ -2119,6 +3287,11 @@
     12 V). Used as a simple voltage reference, an over-voltage clamp, and the
     feedback element in many switching regulators' early designs. Limit the
     reverse current with a series resistor.
+  plain: >-
+    A special diode designed to break down at a specific reverse voltage
+    (3.3 V, 5.1 V, 12 V, etc.) and hold that voltage steady. Used as a
+    simple voltage reference and as a "clamp" that protects circuits
+    from over-voltage. Always pair with a series resistor.
 
 - term: "ω"
   full_form: "Angular frequency (ω)"
@@ -2129,3 +3302,9 @@
     (X_L = jωL, X_C = 1/(jωC)) because they fall out of the underlying
     differential equations cleanly. Numerically ~6.28× the same signal's
     <span class="abbr-link" data-abbr="Hertz">hertz</span> value.
+  plain: >-
+    The Greek letter "omega" — frequency expressed in radians per
+    second instead of cycles per second. Mostly appears in mathy
+    formulas; it's the same frequency as Hz, just multiplied by 2π
+    (about 6.28). Engineers prefer ω in impedance equations because
+    it makes the math cleaner.
