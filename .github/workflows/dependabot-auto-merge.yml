@@ -15,7 +15,11 @@ permissions:
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    # Filter on the PR author (immutable, set at PR creation), not
+    # `github.actor` — the latter is whoever triggered the *current*
+    # event, so it becomes the human's login the moment someone clicks
+    # "Update branch" or "Re-run jobs", and the job silently skips.
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
       - name: Fetch Dependabot metadata
         id: metadata
