@@ -178,8 +178,13 @@ entries:
 
   - name: "nslookup"
     description: "Older interactive DNS query tool (still useful on Windows)."
-    syntax: "nslookup <name> [<server>]"
+    syntax: "nslookup [-type=<type>] <name> [<server>]"
     os: [linux, macos, windows, cross-platform]
+    flags:
+      - flag: "-type=<type>"
+        description: "Record type — A, MX, TXT, NS, SOA."
+      - flag: "-debug"
+        description: "Verbose mode — show full response."
     examples:
       - "nslookup example.com"
       - "nslookup example.com 8.8.8.8"
@@ -297,10 +302,49 @@ entries:
     references:
       - "man 8 ip"
 
+  - name: "nc"
+    slug: "nc-netcat"
+    description: "Netcat — read/write arbitrary TCP/UDP connections (\"swiss-army knife of networking\")."
+    syntax: "nc [-l] [-u] [-z] [-v] [-w <sec>] [<host>] <port>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-l"
+        description: "Listen mode — bind a port instead of connecting."
+      - flag: "-u"
+        description: "UDP instead of TCP."
+      - flag: "-z"
+        description: "Zero-I/O — port scan / connection test."
+      - flag: "-v"
+        description: "Verbose."
+      - flag: "-w <sec>"
+        description: "Timeout after n seconds of idle."
+      - flag: "-k"
+        description: "Keep listening after a client disconnects (GNU netcat)."
+    examples:
+      - "nc -zv example.com 80"
+      - "nc -l 1234   # listen on TCP/1234"
+      - "echo hello | nc localhost 1234"
+    gotchas: >
+      Multiple incompatible implementations exist: GNU netcat
+      (<code>nc</code>), OpenBSD netcat (the default on macOS and most
+      Linux), and <code>ncat</code> from the nmap project. Flag
+      behaviour differs, especially around <code>-k</code> and
+      <code>-c</code>.
+    see_also: ["ncat", "socat", "ss"]
+    references:
+      - "man 1 nc"
+
   - name: "ifconfig"
     description: "Show / configure network interfaces (legacy Linux, default macOS)."
-    syntax: "ifconfig [<iface>] [up|down]"
+    syntax: "ifconfig [<iface>] [up|down] [<addr> netmask <mask>]"
     os: [linux, macos, cross-platform]
+    flags:
+      - flag: "<iface> up"
+        description: "Bring an interface online."
+      - flag: "<iface> down"
+        description: "Bring an interface offline."
+      - flag: "-a"
+        description: "Show all interfaces, including downed ones."
     examples:
       - "ifconfig"
       - "sudo ifconfig en0 down"

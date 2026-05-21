@@ -392,3 +392,86 @@ entries:
     see_also: ["sed", "awk"]
     references:
       - "man 1 tr"
+
+  - name: "diff"
+    description: "Compare files line by line."
+    syntax: "diff [-u] [-r] [-i] [-w] <file1> <file2>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-u"
+        description: "Unified diff format (the standard for patches and code review)."
+      - flag: "-r"
+        description: "Recursive — compare directories."
+      - flag: "-i"
+        description: "Ignore case differences."
+      - flag: "-w"
+        description: "Ignore all whitespace."
+      - flag: "-q"
+        description: "Quiet — only report which files differ, not how."
+      - flag: "-N"
+        description: "Treat absent files as empty (useful for full-dir patches)."
+    examples:
+      - "diff -u old.txt new.txt"
+      - "diff -rq dir1/ dir2/"
+      - "diff -u a b > patch.diff"
+    see_also: ["patch", "git diff", "comm"]
+    references:
+      - "man 1 diff"
+
+  - name: "patch"
+    description: "Apply a diff (patch file) to update one or more files."
+    syntax: "patch [-p<n>] [-R] [--dry-run] [-i <patchfile>]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-p<n>"
+        description: "Strip n leading path components from filenames in the patch."
+      - flag: "-R"
+        description: "Reverse — undo a previously applied patch."
+      - flag: "--dry-run"
+        description: "Test the apply without modifying files."
+      - flag: "-i <file>"
+        description: "Read the patch from a file instead of stdin."
+    examples:
+      - "patch -p1 < fix.patch"
+      - "patch --dry-run -p0 < changes.diff"
+      - "patch -R -p1 < bad.patch"
+    see_also: ["diff", "git apply"]
+    references:
+      - "man 1 patch"
+
+  - name: "tac"
+    description: "Print lines in reverse order (cat backwards)."
+    syntax: "tac [<file>...]"
+    os: [linux, cross-platform, android]
+    flags:
+      - flag: "-r"
+        description: "Treat the separator as a regex."
+      - flag: "-s <sep>"
+        description: "Use <sep> instead of newline as the record separator."
+    examples:
+      - "tac server.log | head"
+      - "history | tac"
+    gotchas: >
+      Not bundled with macOS by default — <code>brew install
+      coreutils</code> gives <code>gtac</code>, or use <code>tail -r</code>
+      (BSD).
+    see_also: ["cat", "rev"]
+    references:
+      - "man 1 tac"
+
+  - name: "paste"
+    description: "Merge corresponding lines of files side by side."
+    syntax: "paste [-d <delim>] [-s] <file>..."
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-d <delim>"
+        description: "Field delimiter (default: tab)."
+      - flag: "-s"
+        description: "Serial — paste all lines of one file together, not column-wise."
+    examples:
+      - "paste names.txt emails.txt"
+      - "paste -d, names.txt emails.txt > combined.csv"
+      - "ls | paste -sd ,"
+    see_also: ["cut", "join"]
+    references:
+      - "man 1 paste"

@@ -94,8 +94,13 @@ entries:
 
   - name: "umask"
     description: "Show or set the default permission mask for new files."
-    syntax: "umask [<octal>]"
+    syntax: "umask [-S] [<octal>|<symbolic>]"
     os: [cross-platform]
+    flags:
+      - flag: "<octal>"
+        description: "Mask in octal (077, 022, 002)."
+      - flag: "-S"
+        description: "Show / set in symbolic notation (u=rwx,g=,o=)."
     examples:
       - "umask"
       - "umask 077"
@@ -279,3 +284,114 @@ entries:
     see_also: ["whoami", "groups"]
     references:
       - "man 1 id"
+
+  - name: "chgrp"
+    description: "Change group ownership of files (the group-only counterpart to chown)."
+    syntax: "chgrp [-R] <group> <file>..."
+    os: [linux, macos, cross-platform, root]
+    flags:
+      - flag: "-R"
+        description: "Recursive."
+      - flag: "-h"
+        description: "Act on the symlink itself, not its target."
+    examples:
+      - "chgrp staff shared.log"
+      - "sudo chgrp -R www-data /var/www/site"
+    see_also: ["chown", "chmod"]
+    references:
+      - "man 1 chgrp"
+
+  - name: "passwd"
+    description: "Change a user's password."
+    syntax: "passwd [<user>]"
+    os: [linux, macos, cross-platform, root]
+    flags:
+      - flag: "<user>"
+        description: "Change a different user's password (root only)."
+      - flag: "-l"
+        description: "Lock account (Linux)."
+      - flag: "-u"
+        description: "Unlock account."
+      - flag: "-e"
+        description: "Expire — force the user to change on next login."
+    examples:
+      - "passwd"
+      - "sudo passwd alice"
+      - "sudo passwd -l olduser"
+    see_also: ["chpasswd", "usermod"]
+    references:
+      - "man 1 passwd"
+
+  - name: "whoami"
+    description: "Print the effective user's login name."
+    syntax: "whoami"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "(no args)"
+        description: "Same as `id -un`. Useful in scripts and SSH prompts."
+    examples:
+      - "whoami"
+      - "sudo whoami   # prints 'root'"
+    see_also: ["id", "who"]
+    references:
+      - "man 1 whoami"
+
+  - name: "who"
+    description: "Show who is logged in to the system."
+    syntax: "who [-H] [-a] [<file>]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-H"
+        description: "Print column headers."
+      - flag: "-a"
+        description: "All info — boot time, dead processes, run-level."
+      - flag: "-b"
+        description: "Last boot time."
+    examples:
+      - "who"
+      - "who -a"
+    see_also: ["w", "whoami", "last"]
+    references:
+      - "man 1 who"
+
+  - name: "uptime"
+    description: "Show how long the system has been running + load averages."
+    syntax: "uptime [-p] [-s]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-p"
+        description: "Pretty format — \"up 3 days, 12 hours\"."
+      - flag: "-s"
+        description: "Since when — date the system booted."
+    examples:
+      - "uptime"
+      - "uptime -p"
+    gotchas: >
+      Load average columns are 1-min, 5-min, 15-min averages. On Linux
+      they include processes in uninterruptible sleep (D state); on
+      macOS / BSD they don't — so the same machine reports different
+      numbers under each OS.
+    see_also: ["top", "w"]
+    references:
+      - "man 1 uptime"
+
+  - name: "hostname"
+    description: "Print or set the system's hostname."
+    syntax: "hostname [-f|-s|-i] [<new>]"
+    os: [linux, macos, cross-platform, root]
+    flags:
+      - flag: "-f"
+        description: "FQDN (fully qualified domain name)."
+      - flag: "-s"
+        description: "Short form (strip the domain)."
+      - flag: "-i"
+        description: "IP address (Linux)."
+      - flag: "<new>"
+        description: "Set the hostname (root, this session only — persist via /etc/hostname or hostnamectl)."
+    examples:
+      - "hostname"
+      - "hostname -f"
+      - "sudo hostnamectl set-hostname newname  # persistent on systemd"
+    see_also: ["hostnamectl", "uname"]
+    references:
+      - "man 1 hostname"

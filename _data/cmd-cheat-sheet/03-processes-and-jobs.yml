@@ -167,6 +167,11 @@ entries:
     description: "Run a command immune to hangups (so it survives shell exit)."
     syntax: "nohup <cmd> [args...] [&]"
     os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "&"
+        description: "Trailing & backgrounds the command (shell syntax, not a nohup flag)."
+      - flag: "> file 2>&1"
+        description: "Redirect output explicitly; otherwise nohup appends to nohup.out in CWD."
     examples:
       - "nohup ./long-build.sh &"
       - "nohup python serve.py > server.log 2>&1 &"
@@ -208,6 +213,11 @@ entries:
     description: "Run a command and report how long it took."
     syntax: "time <cmd> [args...]"
     os: [cross-platform]
+    flags:
+      - flag: "/usr/bin/time -v"
+        description: "GNU binary form: verbose stats including max RSS, page faults, I/O."
+      - flag: "/usr/bin/time -f <fmt>"
+        description: "Custom format (%e elapsed, %U user, %S sys, %M peak RSS in KB)."
     examples:
       - "time make build"
       - "time curl -s https://example.com > /dev/null"
@@ -219,3 +229,153 @@ entries:
     see_also: ["hyperfine"]
     references:
       - "man 1 time"
+
+  - name: "killall"
+    description: "Kill all processes with a given name."
+    syntax: "killall [-<signal>] [-i] [-u <user>] <name>..."
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-<signal>"
+        description: "Signal to send (default: TERM)."
+      - flag: "-i"
+        description: "Interactive — confirm before killing each."
+      - flag: "-u <user>"
+        description: "Only processes owned by this user."
+      - flag: "-r"
+        description: "Match name as a regex (Linux)."
+    examples:
+      - "killall node"
+      - "killall -9 chrome"
+      - "killall -i firefox"
+    gotchas: >
+      BSD killall (macOS) and GNU killall (Linux) differ — macOS killall
+      matches the exact command name only and lacks <code>-r</code>.
+      Older Solaris <code>killall</code> killed every process the user
+      owned (true to the name), so the command name has historical
+      footgun connotations.
+    see_also: ["kill", "pkill"]
+    references:
+      - "man 1 killall"
+
+  - name: "bg"
+    description: "Resume a stopped job in the background."
+    syntax: "bg [%<jobspec>]"
+    os: [cross-platform]
+    flags:
+      - flag: "%<n>"
+        description: "Specific job number (from `jobs`)."
+      - flag: "%+ / %%"
+        description: "Most recent job (default)."
+      - flag: "%-"
+        description: "Previous job."
+    examples:
+      - "Ctrl+Z then bg   # send the foreground job to background"
+      - "bg %2"
+    see_also: ["fg", "jobs", "nohup"]
+    references:
+      - "help bg  (bash builtin)"
+
+  - name: "fg"
+    description: "Bring a backgrounded or stopped job to the foreground."
+    syntax: "fg [%<jobspec>]"
+    os: [cross-platform]
+    flags:
+      - flag: "%<n>"
+        description: "Specific job number."
+      - flag: "%+ / %%"
+        description: "Most recent job (default)."
+      - flag: "%<string>"
+        description: "Job whose command starts with <string>."
+    examples:
+      - "fg"
+      - "fg %1"
+      - "fg %vim"
+    see_also: ["bg", "jobs"]
+    references:
+      - "help fg  (bash builtin)"
+
+  - name: "strace"
+    description: "Trace system calls and signals a process is making."
+    syntax: "strace [-f] [-e <expr>] [-p <pid>] [-o <file>] <cmd>"
+    os: [linux, root]
+    flags:
+      - flag: "-f"
+        description: "Follow forks (child processes too)."
+      - flag: "-e <expr>"
+        description: "Filter syscalls (trace=open,read,write or trace=%file)."
+      - flag: "-p <pid>"
+        description: "Attach to a running process instead of starting one."
+      - flag: "-o <file>"
+        description: "Write trace to file instead of stderr."
+      - flag: "-c"
+        description: "Summary table at exit — count + time per syscall."
+      - flag: "-t"
+        description: "Prefix each line with a timestamp."
+    examples:
+      - "strace -e trace=open,read ls"
+      - "strace -fc ./my-program"
+      - "sudo strace -p 12345"
+    gotchas: >
+      Linux-only. macOS uses <code>dtruss</code> (needs root + SIP
+      adjustment) or <code>dtrace</code>. <code>strace</code> adds
+      significant overhead — don't attach to busy production processes
+      without thinking. <code>ltrace</code> is the library-call
+      equivalent.
+    see_also: ["ltrace", "dtruss", "perf"]
+    references:
+      - "man 1 strace"
+
+  - name: "tmux"
+    description: "Terminal multiplexer — split panes, persistent sessions over ssh."
+    syntax: "tmux [new|attach|ls|kill-session] [-t <name>]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "new -s <name>"
+        description: "Create a named session."
+      - flag: "attach -t <name>"
+        description: "Reattach (or just `tmux a` for the most recent)."
+      - flag: "ls"
+        description: "List sessions."
+      - flag: "kill-session -t <name>"
+        description: "End a session."
+      - flag: "Ctrl+b d"
+        description: "Detach (leaves session running)."
+      - flag: "Ctrl+b %  /  Ctrl+b \""
+        description: "Split pane vertically / horizontally."
+      - flag: "Ctrl+b c  /  Ctrl+b n"
+        description: "New window / next window."
+    examples:
+      - "tmux new -s work"
+      - "tmux a"
+      - "ssh user@host -t tmux a"
+    gotchas: >
+      Configuration goes in <code>~/.tmux.conf</code>. The default
+      prefix is <code>Ctrl+b</code>; many people rebind to
+      <code>Ctrl+a</code> (screen-compatible) via
+      <code>set -g prefix C-a</code>.
+    see_also: ["screen", "mosh"]
+    references:
+      - "man 1 tmux"
+
+  - name: "screen"
+    description: "Older terminal multiplexer — pre-installed on many minimal systems."
+    syntax: "screen [-S <name>] [-r <name>] [-ls]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-S <name>"
+        description: "Create a named session."
+      - flag: "-r [<name>]"
+        description: "Reattach a detached session."
+      - flag: "-ls"
+        description: "List sessions."
+      - flag: "-X <cmd>"
+        description: "Send a command to a running session."
+      - flag: "Ctrl+a d"
+        description: "Detach (default prefix is Ctrl+a)."
+    examples:
+      - "screen -S work"
+      - "screen -r work"
+      - "screen -ls"
+    see_also: ["tmux"]
+    references:
+      - "man 1 screen"

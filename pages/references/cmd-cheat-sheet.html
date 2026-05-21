@@ -173,6 +173,9 @@ The abbreviations / glossary system is shared site-wide:
             {% if batch %}
             {% for cmd in batch_data.entries %}
               {%- assign cmd_slug = cmd.slug | default: cmd.name | slugify -%}
+              {%- comment -%} Build-time lint — minimum quality bar enforced via grep-able HTML comments. Run _data/cmd-cheat-sheet/lint.sh after `jekyll build` to surface entries below the bar. {%- endcomment -%}
+              {%- if cmd.flags == nil or cmd.flags.size == 0 -%}<!-- LINT: {{ cmd.name }} ({{ batch.id }}) has no flags -->{% endif %}
+              {%- if cmd.examples == nil or cmd.examples.size == 0 -%}<!-- LINT: {{ cmd.name }} ({{ batch.id }}) has no examples -->{% endif %}
               <tr id="cmd-{{ cmd_slug }}" data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}">
                 <td class="col-name is-sticky-col"><code class="mono">{{ cmd.name }}</code></td>
                 <td class="col-desc">{{ cmd.description }}</td>

@@ -426,3 +426,163 @@ entries:
     see_also: ["git push", "git describe"]
     references:
       - "man 1 git-tag"
+
+  - name: "git cherry-pick"
+    description: "Apply specific commits from another branch onto the current one."
+    syntax: "git cherry-pick [-x] [-n] [--continue|--abort] <commit>..."
+    os: [cross-platform]
+    flags:
+      - flag: "-x"
+        description: "Append a 'cherry-picked from <sha>' line to the commit message."
+      - flag: "-n / --no-commit"
+        description: "Apply but don't auto-commit — stage only."
+      - flag: "--continue / --abort"
+        description: "Resume / bail out of a conflicted cherry-pick."
+      - flag: "<a>..<b>"
+        description: "Cherry-pick a range of commits (excluding a)."
+    examples:
+      - "git cherry-pick abc123"
+      - "git cherry-pick -x deadbeef..feedface"
+      - "git cherry-pick --abort"
+    see_also: ["git rebase", "git revert"]
+    references:
+      - "man 1 git-cherry-pick"
+
+  - name: "git revert"
+    description: "Create a new commit that undoes the changes from a previous commit."
+    syntax: "git revert [--no-commit] [--continue|--abort] <commit>..."
+    os: [cross-platform]
+    flags:
+      - flag: "--no-commit / -n"
+        description: "Apply the revert as staged changes; commit yourself."
+      - flag: "-m <parent>"
+        description: "When reverting a merge commit, pick which parent's mainline to keep."
+      - flag: "--continue / --abort"
+        description: "Resume / bail out of a conflicted revert."
+    examples:
+      - "git revert HEAD"
+      - "git revert -n abc123 def456"
+      - "git revert -m 1 <merge-sha>"
+    gotchas: >
+      <code>git revert</code> creates a new commit instead of rewriting
+      history — safe to use on shared branches, unlike
+      <code>git reset</code> or <code>git rebase</code>. Reverting a
+      merge commit needs <code>-m 1</code> to indicate "keep the
+      mainline" (usually the branch you merged into).
+    see_also: ["git reset", "git cherry-pick", "git reflog"]
+    references:
+      - "man 1 git-revert"
+
+  - name: "git reflog"
+    description: "Show the local history of HEAD movements — the 'undo' database."
+    syntax: "git reflog [show] [<ref>] [-<n>]"
+    os: [cross-platform]
+    flags:
+      - flag: "show"
+        description: "Default subcommand — list recent HEAD positions."
+      - flag: "-<n>"
+        description: "Limit to the last n entries."
+      - flag: "expire"
+        description: "Prune old reflog entries (rarely needed manually)."
+    examples:
+      - "git reflog"
+      - "git reflog -20"
+      - "git reset --hard HEAD@{2}"
+    gotchas: >
+      The reflog is your safety net for any operation that rewrites
+      history (<code>reset --hard</code>, <code>rebase</code>,
+      <code>amend</code>, <code>checkout --</code>). Default expiry is
+      90 days. The reflog is local-only — never pushed.
+    see_also: ["git reset", "git rebase"]
+    references:
+      - "man 1 git-reflog"
+
+  - name: "git show"
+    description: "Show one commit (or other object) — message, diff, metadata."
+    syntax: "git show [--stat] [--name-only] [<commit>]"
+    os: [cross-platform]
+    flags:
+      - flag: "<commit>"
+        description: "Default: HEAD."
+      - flag: "--stat"
+        description: "Per-file change summary instead of the full diff."
+      - flag: "--name-only"
+        description: "Just the changed filenames."
+      - flag: "-s"
+        description: "Suppress diff output (message only)."
+    examples:
+      - "git show"
+      - "git show --stat HEAD~3"
+      - "git show abc123:path/to/file.txt"
+    see_also: ["git log", "git diff"]
+    references:
+      - "man 1 git-show"
+
+  - name: "git blame"
+    description: "Annotate each line of a file with the commit that last touched it."
+    syntax: "git blame [-L <range>] [-w] [-C] [-M] <file>"
+    os: [cross-platform]
+    flags:
+      - flag: "-L <start>,<end>"
+        description: "Blame only the given line range (also -L /pattern/)."
+      - flag: "-w"
+        description: "Ignore whitespace-only changes."
+      - flag: "-C"
+        description: "Detect lines copied from other files in the same commit."
+      - flag: "-M"
+        description: "Detect lines moved within the same file."
+    examples:
+      - "git blame src/main.ts"
+      - "git blame -L 40,80 -w README.md"
+    see_also: ["git log", "git show"]
+    references:
+      - "man 1 git-blame"
+
+  - name: "git bisect"
+    description: "Binary-search the commit history to find the one that introduced a bug."
+    syntax: "git bisect [start|good|bad|reset] [<commit>]"
+    os: [cross-platform]
+    flags:
+      - flag: "start [<bad>] [<good>]"
+        description: "Begin a bisect session."
+      - flag: "good / bad"
+        description: "Mark the current commit good or bad; git checks out the next midpoint."
+      - flag: "reset"
+        description: "End the session and restore the original HEAD."
+      - flag: "run <cmd>"
+        description: "Automate — git runs <cmd> at each step (exit 0 = good, non-0 = bad)."
+    examples:
+      - "git bisect start && git bisect bad && git bisect good v1.2"
+      - "git bisect run npm test"
+      - "git bisect reset"
+    see_also: ["git log", "git diff"]
+    references:
+      - "man 1 git-bisect"
+
+  - name: "git submodule"
+    description: "Manage repositories nested inside the current one."
+    syntax: "git submodule [add|init|update|status|deinit] [args...]"
+    os: [cross-platform]
+    flags:
+      - flag: "add <url> [<path>]"
+        description: "Add a new submodule at <path>."
+      - flag: "init"
+        description: "Register submodules in .git/config (read from .gitmodules)."
+      - flag: "update [--init] [--recursive]"
+        description: "Check out each submodule at the SHA the parent pinned."
+      - flag: "--remote"
+        description: "Update to the latest commit on the submodule's tracked branch."
+      - flag: "deinit <path>"
+        description: "Remove a submodule's working tree (does not delete commits)."
+    examples:
+      - "git submodule add https://github.com/user/lib vendor/lib"
+      - "git submodule update --init --recursive"
+      - "git clone --recurse-submodules <url>"
+    gotchas: >
+      Submodules are notoriously fiddly — they pin specific commits, so
+      pulling main may leave submodules at stale SHAs unless you
+      <code>git submodule update</code>. Many projects switch to git
+      subtrees or Bazel / nx workspaces to escape the pain.
+    see_also: ["git clone"]
+    references:
+      - "man 1 git-submodule"
