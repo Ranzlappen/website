@@ -78,7 +78,7 @@ Production deploys of `castBlogVote`, the Blog Admin callables (`blogSaveDraft`,
 
 ## Deployment & CI/CD
 
-Five GitHub Actions workflows live in `.github/workflows/`. The three auto-trigger workflows are each scoped with `paths` / `paths-ignore` filters so they only fire when their inputs change; the other two are manual-trigger-capable.
+Six GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger workflows are each scoped with `paths` / `paths-ignore` filters so they only fire when their inputs change; the other two are manual-trigger-capable.
 
 | Workflow | Trigger | Scope | Deploys |
 |---|---|---|---|
@@ -109,7 +109,9 @@ Five GitHub Actions workflows live in `.github/workflows/`. The three auto-trigg
 
 **Required secret**: `FIREBASE_SERVICE_ACCOUNT` (JSON service-account key) for `firebase-deploy.yml`.
 
-**Dependabot** (`.github/dependabot.yml`): weekly updates for all four npm packages (polyvote, polyvote/functions, blog-admin, inventory-manager), bundler, and GitHub Actions. Minor+patch are grouped. Each PR runs CI.
+**Dependabot** (`.github/dependabot.yml`): weekly updates for all four npm packages (polyvote, polyvote/functions, blog-admin, inventory-manager), bundler, and GitHub Actions. Minor+patch are grouped. Each PR runs CI — `ci.yml`'s `paths:` covers `Gemfile`/`Gemfile.lock` and `.github/workflows/**` so bundler and github-actions PRs also fire the `changes` job.
+
+**Auto-merge** (`.github/workflows/dependabot-auto-merge.yml`): every Dependabot PR is queued for GitHub native auto-merge (`gh pr merge --auto --merge`) and lands once required status checks pass. Requires branch protection on `main` to mark the `changes` job as a required status check — without that, `--auto` merges immediately without waiting.
 
 **Manual fallbacks**:
 - Trigger `firebase-deploy-manual.yml` via `workflow_dispatch` (preferred) — deploys via GitHub Actions using the shared service-account secret. Default target is `functions` (all Cloud Functions); override with any `--only` target, e.g. `functions:blogSaveDraft,functions:blogPublishToGitHub` or `functions,database,firestore`.
@@ -166,10 +168,11 @@ Five GitHub Actions workflows live in `.github/workflows/`. The three auto-trigg
 │   ├── dependabot.yml          # Weekly dependency updates
 │   └── workflows/
 │       ├── ci.yml                      # PR validation (per-app jobs)
-│       ├── jekyll-gh-pages.yml         # Build + deploy prod site to Pages
+│       ├── dependabot-auto-merge.yml   # Queue Dependabot PRs for GitHub native auto-merge
 │       ├── feature-preview.yml         # Build + deploy main + `test` preview to Pages
 │       ├── firebase-deploy.yml         # Deploy Firestore/RTDB rules + castBlogVote + Blog Admin callables
-│       └── firebase-deploy-manual.yml  # Manual Cloud Functions deploys (workflow_dispatch)
+│       ├── firebase-deploy-manual.yml  # Manual Cloud Functions deploys (workflow_dispatch)
+│       └── jekyll-gh-pages.yml         # Build + deploy prod site to Pages
 ├── blog-admin/
 │   ├── src/
 │   │   ├── components/         # Editor UI, auth, dialogs
