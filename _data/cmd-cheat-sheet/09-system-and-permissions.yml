@@ -66,7 +66,7 @@ entries:
       Capital <code>X</code> in symbolic mode means "x on dirs but not
       regular files unless already executable" — exactly what you want
       with <code>-R</code>.
-    see_also: ["chown", "umask", "stat"]
+    see_also: ["chown", "umask", "stat", "widget-chmod"]
     references:
       - "man 1 chmod"
 

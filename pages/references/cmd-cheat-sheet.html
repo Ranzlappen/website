@@ -50,6 +50,7 @@ The abbreviations / glossary system is shared site-wide:
 <link rel="stylesheet" href="{{ '/assets/css/abbreviations.css' | relative_url }}">
 <link rel="stylesheet" href="{{ '/assets/css/reference-table.css' | relative_url }}">
 <link rel="stylesheet" href="{{ '/assets/css/cmd-cheat-sheet.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/css/cmd-widgets.css' | relative_url }}">
 
 <section class="reference-page reference-page--cmd">
   <div class="reference-container">
@@ -102,6 +103,29 @@ The abbreviations / glossary system is shared site-wide:
         <li><span class="reference-legend__swatch cmd-os--root"    aria-hidden="true">🛡</span> Requires root / sudo</li>
         <li><span class="reference-legend__swatch cmd-os--android" aria-hidden="true">🤖</span> Android (Termux)</li>
       </ul>
+    </section>
+
+    <section class="cmd-tools" aria-labelledby="cmd-tools-heading">
+      <h2 id="cmd-tools-heading" class="cmd-tools__heading">Interactive Tools</h2>
+      <p class="cmd-tools__intro">
+        Compose tricky invocations interactively. All four widgets run
+        locally in your browser — nothing leaves the page. Copy the
+        composed command from the output block once you're happy.
+      </p>
+      <div class="cmd-tools__grid">
+        <section class="cmd-widget" id="widget-chmod" data-cmd-widget="chmod" aria-labelledby="widget-chmod-heading">
+          <noscript>chmod calculator requires JavaScript.</noscript>
+        </section>
+        <section class="cmd-widget" id="widget-find" data-cmd-widget="find" aria-labelledby="widget-find-heading">
+          <noscript>find builder requires JavaScript.</noscript>
+        </section>
+        <section class="cmd-widget" id="widget-regex" data-cmd-widget="regex" aria-labelledby="widget-regex-heading">
+          <noscript>Regex tester requires JavaScript.</noscript>
+        </section>
+        <section class="cmd-widget" id="widget-curl" data-cmd-widget="curl" aria-labelledby="widget-curl-heading">
+          <noscript>curl composer requires JavaScript.</noscript>
+        </section>
+      </div>
     </section>
 
     {% include abbreviations-section.html
@@ -216,7 +240,16 @@ The abbreviations / glossary system is shared site-wide:
                 </td>
                 <td class="col-see-also">
                   {% if cmd.see_also and cmd.see_also.size > 0 %}
-                    {% for ref in cmd.see_also %}<a href="#cmd-{{ ref | slugify }}"><code class="mono">{{ ref }}</code></a>{% unless forloop.last %}, {% endunless %}{% endfor %}
+                    {%- for ref in cmd.see_also -%}
+                      {%- assign ref_slug = ref | slugify -%}
+                      {%- assign ref_first = ref_slug | slice: 0, 7 -%}
+                      {%- if ref_first == "widget-" -%}
+                        <a href="#{{ ref_slug }}" class="cmd-see-also__widget"><code class="mono">↳ {{ ref | replace: 'widget-', '' }}</code></a>
+                      {%- else -%}
+                        <a href="#cmd-{{ ref_slug }}"><code class="mono">{{ ref }}</code></a>
+                      {%- endif -%}
+                      {%- unless forloop.last %}, {% endunless -%}
+                    {%- endfor -%}
                   {% else %}
                     <span class="cell-empty">—</span>
                   {% endif %}
@@ -253,3 +286,9 @@ The abbreviations / glossary system is shared site-wide:
 <script src="{{ '/assets/js/abbreviations.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/reference-table.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/cmd-cheat-sheet.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/cmd-widget-core.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/cmd-widget-chmod.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/cmd-widget-find.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/cmd-widget-regex.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/cmd-widget-curl.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/cmd-widget-bundle.js' | relative_url }}" defer></script>

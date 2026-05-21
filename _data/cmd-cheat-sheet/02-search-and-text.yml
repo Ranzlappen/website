@@ -48,7 +48,7 @@ entries:
       need a <code>--</code> separator (<code>grep -- -foo file</code>).
       <code>ripgrep</code> (<code>rg</code>) is faster, respects
       <code>.gitignore</code>, and is generally preferable for ad-hoc work.
-    see_also: ["awk", "sed", "find", "ripgrep"]
+    see_also: ["awk", "sed", "find", "ripgrep", "widget-regex"]
     references:
       - "man 1 grep"
 
@@ -83,7 +83,7 @@ entries:
       (use <code>-print0</code> + <code>xargs -0</code> to handle spaces).
       BSD <code>find</code> (macOS) and GNU <code>find</code> have minor
       flag differences (<code>-printf</code> is GNU-only).
-    see_also: ["xargs", "grep", "fd"]
+    see_also: ["xargs", "grep", "fd", "widget-find"]
     references:
       - "man 1 find"
 
@@ -135,7 +135,7 @@ entries:
       form is <code>sed -i.bak 's/…'</code> which works on both and leaves
       a <code>.bak</code> behind. Don't mix delimiters inside the script:
       use <code>s|/path|/new|g</code> when the pattern contains slashes.
-    see_also: ["awk", "tr", "grep"]
+    see_also: ["awk", "tr", "grep", "widget-regex"]
     references:
       - "man 1 sed"
 

@@ -46,7 +46,7 @@ entries:
       support — install via Homebrew for full features. Use
       <code>--fail</code> in scripts so 4xx/5xx responses produce a
       non-zero exit code.
-    see_also: ["wget", "httpie", "rsync"]
+    see_also: ["wget", "httpie", "rsync", "widget-curl"]
     references:
       - "man 1 curl"
       - "https://curl.se/docs/manpage.html"
