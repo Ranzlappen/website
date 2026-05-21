@@ -1,33 +1,14 @@
 # Lint, test, and build checks for pull requests.
 # Jobs are split by app and gated on path filters so a PR only runs the
-# checks for the app(s) it actually touches.
+# checks for the app(s) it actually touches. The `ci-required`
+# aggregator at the bottom is the single status check branch protection
+# should require — it correctly handles skipped jobs from the path
+# filters.
 name: CI
 
 on:
   pull_request:
     branches: ["main"]
-    # Positive filter: CI only exists for the app modules. Anything outside
-    # polyvote/, blog-admin/, and inventory-manager/ (blog content, Jekyll
-    # config, other workflows, root docs) cannot affect these jobs, so it's
-    # excluded by omission. The `!` entries below carve out files inside the
-    # app dirs that also shouldn't trigger (docs, Firebase config,
-    # lint/format settings).
-    paths:
-      - 'polyvote/**'
-      - 'blog-admin/**'
-      - 'inventory-manager/**'
-      - 'Gemfile'
-      - 'Gemfile.lock'
-      - '.github/workflows/**'
-      - '!**/README.md'
-      - '!**/.gitignore'
-      - '!polyvote/.firebaserc'
-      - '!polyvote/firebase.json'
-      - '!polyvote/firestore.rules'
-      - '!polyvote/firestore.indexes.json'
-      - '!polyvote/database.rules.json'
-      - '!polyvote/storage.rules'
-      - '!polyvote/.prettierrc'
 
 concurrency:
   group: ci-${{ github.head_ref }}
@@ -188,3 +169,26 @@ jobs:
       - name: Build
         working-directory: inventory-manager
         run: npm run build
+
+  # Aggregator: single required-check candidate for branch protection.
+  # Runs after every app job and fails if any failed. Treats `skipped`
+  # as a pass so PRs that don't touch a given app aren't blocked. Mark
+  # this job (`ci-required`) as the required status check on `main`.
+  ci-required:
+    needs: [changes, polyvote, functions, blog-admin, inventory-manager]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all CI jobs passed (or skipped cleanly)
+        run: |
+          if [[ "${{ needs.changes.result }}" != "success" ]]; then
+            echo "changes job did not succeed: ${{ needs.changes.result }}"
+            exit 1
+          fi
+          for r in "${{ needs.polyvote.result }}" "${{ needs.functions.result }}" "${{ needs.blog-admin.result }}" "${{ needs.inventory-manager.result }}"; do
+            case "$r" in
+              success|skipped) ;;
+              *) echo "App job did not succeed: $r"; exit 1 ;;
+            esac
+          done
+          echo "All CI checks passed."
