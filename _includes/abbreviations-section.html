@@ -6,7 +6,20 @@
   modal flow + optional in-content decoration.
 
   Parameters:
-    include.data    — array of { term, full_form, explanation } maps
+    include.data    — array of entry maps. Schema per entry:
+                        term            — abbreviation / glossary key
+                        full_form       — expanded name
+                        explanation     — technical definition (HTML allowed
+                                          for embedded <span class="abbr-link"
+                                          data-abbr="X"> cross-references)
+                        plain           — optional plain-English blurb for
+                                          beginners (HTML allowed, same cross-
+                                          reference markup supported)
+                        interpretation  — optional structured lookup table:
+                                            title       — string
+                                            columns     — array<string>
+                                            rows        — array<array<string>>
+                                            footnote    — optional string
                       (typically site.data.abbreviations.<page_key>).
     include.heading — optional section heading text (defaults below).
     include.intro   — optional <p> shown above the grid.
@@ -36,9 +49,10 @@
     <ul class="abbr-grid">
       {% for entry in include.data %}
       <li>
-        <button type="button" class="abbr-card" data-abbr="{{ entry.term | escape }}">
+        <button type="button" class="abbr-card{% if entry.plain %} abbr-card--has-plain{% endif %}" data-abbr="{{ entry.term | escape }}">
           <span class="abbr-card__term">{{ entry.term }}</span>
           <span class="abbr-card__expansion">{{ entry.full_form }}</span>
+          {% if entry.plain %}<span class="abbr-card__plain">{{ entry.plain }}</span>{% endif %}
           <span class="abbr-card__hint">{{ entry.explanation }}</span>
         </button>
       </li>
@@ -52,6 +66,13 @@
     {% for entry in include.data %}
       {{ entry.term | jsonify }}: {
         "expansion": {{ entry.full_form | jsonify }},
+        {% if entry.plain %}"plain": {{ entry.plain | jsonify }},{% endif %}
+        {% if entry.interpretation %}"interpretation": {
+          "title": {{ entry.interpretation.title | jsonify }},
+          "columns": {{ entry.interpretation.columns | jsonify }},
+          "rows": {{ entry.interpretation.rows | jsonify }}{% if entry.interpretation.footnote %},
+          "footnote": {{ entry.interpretation.footnote | jsonify }}{% endif %}
+        },{% endif %}
         "body": {{ entry.explanation | jsonify }}
       }{% unless forloop.last %},{% endunless %}
     {% endfor %}
