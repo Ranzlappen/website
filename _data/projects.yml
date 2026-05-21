@@ -35,3 +35,7 @@
 - name: "Electronics Fundamentals"
   url: /references/electronics-fundamentals/
   favicon: /assets/images/favicons/electronics-fundamentals.svg
+
+- name: "CLI Command Cheat Sheet"
+  url: /references/cmd-cheat-sheet/
+  favicon: /assets/images/favicons/cmd-cheat-sheet.svg

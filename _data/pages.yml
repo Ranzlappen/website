@@ -32,6 +32,11 @@
   menu: [main]
   order: 4
 
+- title: "References"
+  url: "/references/"
+  menu: [main]
+  order: 5
+
 - title: "About"
   url: "/about/"
   menu: [main, footer]

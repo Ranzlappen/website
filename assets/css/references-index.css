@@ -1,0 +1,148 @@
+/* ============================================================================
+   References Index Page (/references/)
+   Small landing page that lists every reference page as a card. Uses the
+   site's shared CSS variables so dark/light theme switching is automatic.
+   ========================================================================== */
+
+.references-index {
+  padding: var(--space-2xl) 0 var(--space-3xl);
+}
+
+.references-index__container {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+.references-index__hero {
+  margin-bottom: var(--space-xl);
+}
+.references-index__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  color: var(--c-accent);
+  margin: 0 0 var(--space-sm);
+  font-weight: 600;
+}
+.references-index__title {
+  font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem);
+  margin: 0 0 var(--space-md);
+  line-height: 1.15;
+  color: var(--c-text);
+}
+.references-index__lede {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--c-text);
+  margin: 0;
+  max-width: 50rem;
+}
+
+.references-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-lg);
+}
+
+.references-card {
+  display: contents;
+}
+
+.references-card__link {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--transition-fast),
+              transform var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+.references-card__link:hover,
+.references-card__link:focus-visible {
+  border-color: var(--c-accent-border);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px var(--c-card-shadow);
+  outline: none;
+}
+
+.references-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border-light);
+  border-radius: var(--border-radius);
+  flex-shrink: 0;
+}
+.references-card__icon img {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.references-card__body {
+  min-width: 0;
+}
+.references-card__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  line-height: 1.3;
+  color: var(--c-text);
+}
+.references-card__blurb {
+  margin: 0 0 0.55rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--c-text-muted);
+  /* clamp blurb to 3 lines so card heights stay roughly aligned */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.references-card__meta {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--c-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+.references-card__meta strong {
+  color: var(--c-accent);
+}
+.references-card__meta time {
+  font-variant-numeric: tabular-nums;
+}
+
+.references-card__cta {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-accent);
+  white-space: nowrap;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* Small screens — collapse to single column, hide cta arrow (whole card clickable). */
+@media (max-width: 640px) {
+  .references-card__link {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "icon body"
+      "icon cta";
+    padding: var(--space-md);
+  }
+  .references-card__icon { grid-area: icon; align-self: start; }
+  .references-card__body { grid-area: body; }
+  .references-card__cta  { grid-area: cta; justify-self: start; }
+}

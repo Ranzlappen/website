@@ -1,0 +1,119 @@
+---
+layout: default
+title: References
+description: Searchable reference pages for the electromagnetic spectrum, electronics fundamentals, and the CLI command cheat sheet.
+permalink: /references/
+---
+
+{%- comment -%}
+=================================================================================
+References Index
+---------------------------------------------------------------------------------
+A landing page that lists every reference page on the site. New reference
+pages are added by appending a card below; metadata pulled live from each
+page's front matter (description) and its data files (entry count + last
+updated). Favicons committed locally under assets/images/favicons/.
+=================================================================================
+{%- endcomment -%}
+
+{%- comment -%} Spectrum metadata {%- endcomment -%}
+{%- assign spectrum_page = site.pages | where: "permalink", "/references/spectrum/" | first -%}
+{%- assign spectrum_batches = site.data.spectrum -%}
+{%- assign spectrum_rows = 0 -%}
+{%- assign spectrum_updated = "" -%}
+{%- for entry in spectrum_batches -%}
+  {%- if entry[1].batch -%}
+    {%- assign bands = entry[1].bands | default: empty -%}
+    {%- assign spectrum_rows = spectrum_rows | plus: bands.size -%}
+    {%- assign d = entry[1].batch.last_updated | default: "" -%}
+    {%- if d != "" and d > spectrum_updated -%}{%- assign spectrum_updated = d -%}{%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- comment -%} Electronics fundamentals metadata {%- endcomment -%}
+{%- assign ef_page = site.pages | where: "permalink", "/references/electronics-fundamentals/" | first -%}
+
+{%- comment -%} Cmd cheat sheet metadata {%- endcomment -%}
+{%- assign cmd_page = site.pages | where: "permalink", "/references/cmd-cheat-sheet/" | first -%}
+{%- assign cmd_batches = site.data["cmd-cheat-sheet"] -%}
+{%- assign cmd_rows = 0 -%}
+{%- assign cmd_updated = "" -%}
+{%- for entry in cmd_batches -%}
+  {%- if entry[1].batch -%}
+    {%- assign rows = entry[1].entries | default: empty -%}
+    {%- assign cmd_rows = cmd_rows | plus: rows.size -%}
+    {%- assign d = entry[1].batch.last_updated | default: "" -%}
+    {%- if d != "" and d > cmd_updated -%}{%- assign cmd_updated = d -%}{%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<link rel="stylesheet" href="{{ '/assets/css/references-index.css' | relative_url }}">
+
+<section class="references-index">
+  <div class="references-index__container">
+
+    <header class="references-index__hero">
+      <p class="references-index__eyebrow">References</p>
+      <h1 class="references-index__title">Reference Pages</h1>
+      <p class="references-index__lede">
+        Searchable, tabbed, dark-mode-by-default reference tables. Built
+        for skim-and-find use — pin a tab, type into the live search,
+        click any abbreviated term for an inline explanation. Open one
+        in a tab and leave it there.
+      </p>
+    </header>
+
+    <ul class="references-grid">
+
+      <li class="references-card">
+        <a class="references-card__link" href="{{ '/references/spectrum/' | relative_url }}">
+          <span class="references-card__icon" aria-hidden="true">
+            <img src="{{ '/assets/images/favicons/spectrum.svg' | relative_url }}" alt="">
+          </span>
+          <div class="references-card__body">
+            <h2 class="references-card__title">Electromagnetic Spectrum</h2>
+            <p class="references-card__blurb">{{ spectrum_page.description }}</p>
+            <p class="references-card__meta">
+              <strong>{{ spectrum_rows }}</strong> bands
+              {% if spectrum_updated != "" %} · updated <time datetime="{{ spectrum_updated }}">{{ spectrum_updated }}</time>{% endif %}
+            </p>
+          </div>
+          <span class="references-card__cta" aria-hidden="true">Open →</span>
+        </a>
+      </li>
+
+      <li class="references-card">
+        <a class="references-card__link" href="{{ '/references/electronics-fundamentals/' | relative_url }}">
+          <span class="references-card__icon" aria-hidden="true">
+            <img src="{{ '/assets/images/favicons/electronics-fundamentals.svg' | relative_url }}" alt="">
+          </span>
+          <div class="references-card__body">
+            <h2 class="references-card__title">Electronics Fundamentals</h2>
+            <p class="references-card__blurb">{{ ef_page.description }}</p>
+            <p class="references-card__meta"><strong>Interactive</strong> · calculators, formula wheel, resistor decoder</p>
+          </div>
+          <span class="references-card__cta" aria-hidden="true">Open →</span>
+        </a>
+      </li>
+
+      <li class="references-card">
+        <a class="references-card__link" href="{{ '/references/cmd-cheat-sheet/' | relative_url }}">
+          <span class="references-card__icon" aria-hidden="true">
+            <img src="{{ '/assets/images/favicons/cmd-cheat-sheet.svg' | relative_url }}" alt="">
+          </span>
+          <div class="references-card__body">
+            <h2 class="references-card__title">CLI Command Cheat Sheet</h2>
+            <p class="references-card__blurb">{{ cmd_page.description }}</p>
+            <p class="references-card__meta">
+              <strong>{{ cmd_rows }}</strong> commands
+              {% if cmd_updated != "" %} · updated <time datetime="{{ cmd_updated }}">{{ cmd_updated }}</time>{% endif %}
+            </p>
+          </div>
+          <span class="references-card__cta" aria-hidden="true">Open →</span>
+        </a>
+      </li>
+
+    </ul>
+
+  </div>
+</section>
