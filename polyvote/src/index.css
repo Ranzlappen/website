@@ -3,9 +3,8 @@
  * REASON: Enable theme toggle without rewriting every component's classNames
  * DATE: 2026-04-13
  */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@config '../tailwind.config.js';
 
 @layer base {
   /* Dark theme (default) */
