@@ -98,6 +98,7 @@ export {
   inventoryCreateFolder,
   inventoryUpdateFolder,
   inventoryDeleteFolder,
+  inventoryDuplicateFolder,
 } from "./inventory/folders";
 
 // Inventory: items

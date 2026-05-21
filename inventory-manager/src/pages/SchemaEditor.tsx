@@ -130,102 +130,133 @@ export default function SchemaEditor() {
           />
         </label>
 
-        <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg overflow-hidden">
-          <div className="grid grid-cols-[1fr_1fr_140px_80px_100px_180px_80px] gap-2 px-3 py-2 text-xs uppercase text-[var(--text-muted)] border-b border-[var(--border)]">
-            <span>Key</span>
-            <span>Label</span>
-            <span>Type</span>
-            <span title="Required to save">Req.</span>
-            <span title="Required for eBay">eBay Req.</span>
-            <span>eBay mapping</span>
-            <span>Order</span>
-          </div>
+        <div className="space-y-3">
           {schema.map((f, idx) => (
             <div
               key={idx}
-              className="grid grid-cols-[1fr_1fr_140px_80px_100px_180px_80px] gap-2 px-3 py-2 items-center border-b border-[var(--border)] last:border-b-0"
+              className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-3 space-y-3 lg:grid lg:grid-cols-[1fr_1fr_160px_90px_110px_200px_110px] lg:gap-2 lg:items-center lg:space-y-0"
             >
-              <input
-                value={f.key}
-                onChange={(e) =>
-                  updateField(idx, { key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') })
-                }
-                placeholder="snake_case"
-                className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-xs font-mono"
-              />
-              <input
-                value={f.label}
-                onChange={(e) => updateField(idx, { label: e.target.value })}
-                placeholder="Display label"
-                className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-sm"
-              />
-              <select
-                value={f.type}
-                onChange={(e) =>
-                  updateField(idx, {
-                    type: e.target.value as FieldDef['type'],
-                  })
-                }
-                className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-sm"
-              >
-                {FIELD_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-              <label className="flex items-center justify-center">
+              <label className="flex flex-col gap-1 lg:gap-0">
+                <span className="text-[10px] uppercase text-[var(--text-muted)] lg:hidden">
+                  Key
+                </span>
                 <input
-                  type="checkbox"
-                  checked={f.required}
-                  onChange={(e) => updateField(idx, { required: e.target.checked })}
+                  value={f.key}
+                  onChange={(e) =>
+                    updateField(idx, {
+                      key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_'),
+                    })
+                  }
+                  placeholder="snake_case"
+                  className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-xs font-mono w-full"
                 />
               </label>
-              <label className="flex items-center justify-center">
+
+              <label className="flex flex-col gap-1 lg:gap-0">
+                <span className="text-[10px] uppercase text-[var(--text-muted)] lg:hidden">
+                  Label
+                </span>
                 <input
-                  type="checkbox"
-                  checked={f.ebayRequired}
-                  onChange={(e) => updateField(idx, { ebayRequired: e.target.checked })}
+                  value={f.label}
+                  onChange={(e) => updateField(idx, { label: e.target.value })}
+                  placeholder="Display label"
+                  className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-sm w-full"
                 />
               </label>
-              <select
-                value={f.ebayMapping ?? ''}
-                onChange={(e) =>
-                  updateField(idx, { ebayMapping: e.target.value || null })
-                }
-                className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-sm"
-              >
-                {EBAY_MAPPING_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt || '(custom item-specific)'}
-                  </option>
-                ))}
-              </select>
-              <div className="flex gap-1 justify-end">
+
+              <label className="flex flex-col gap-1 lg:gap-0">
+                <span className="text-[10px] uppercase text-[var(--text-muted)] lg:hidden">
+                  Type
+                </span>
+                <select
+                  value={f.type}
+                  onChange={(e) =>
+                    updateField(idx, { type: e.target.value as FieldDef['type'] })
+                  }
+                  className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-sm w-full"
+                >
+                  {FIELD_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="flex gap-4 lg:contents">
+                <label className="flex items-center gap-2 lg:justify-center">
+                  <input
+                    type="checkbox"
+                    checked={f.required}
+                    onChange={(e) =>
+                      updateField(idx, { required: e.target.checked })
+                    }
+                  />
+                  <span className="text-xs lg:hidden">Required</span>
+                </label>
+                <label className="flex items-center gap-2 lg:justify-center">
+                  <input
+                    type="checkbox"
+                    checked={f.ebayRequired}
+                    onChange={(e) =>
+                      updateField(idx, { ebayRequired: e.target.checked })
+                    }
+                  />
+                  <span className="text-xs lg:hidden">eBay required</span>
+                </label>
+              </div>
+
+              <label className="flex flex-col gap-1 lg:gap-0">
+                <span className="text-[10px] uppercase text-[var(--text-muted)] lg:hidden">
+                  eBay mapping
+                </span>
+                <select
+                  value={f.ebayMapping ?? ''}
+                  onChange={(e) =>
+                    updateField(idx, { ebayMapping: e.target.value || null })
+                  }
+                  className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-sm w-full"
+                >
+                  {EBAY_MAPPING_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt || '(custom item-specific)'}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="flex gap-2 lg:justify-end">
                 <button
                   onClick={() => move(idx, -1)}
-                  className="text-xs px-1.5 rounded border border-[var(--border)] hover:border-[var(--accent)]"
+                  className="flex-1 lg:flex-none px-2 py-1 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)]"
                   title="Move up"
+                  aria-label="Move up"
                 >
                   ↑
                 </button>
                 <button
                   onClick={() => move(idx, 1)}
-                  className="text-xs px-1.5 rounded border border-[var(--border)] hover:border-[var(--accent)]"
+                  className="flex-1 lg:flex-none px-2 py-1 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)]"
                   title="Move down"
+                  aria-label="Move down"
                 >
                   ↓
                 </button>
                 <button
                   onClick={() => removeAt(idx)}
-                  className="text-xs px-1.5 rounded border border-[var(--border)] hover:border-[var(--danger)] hover:text-[var(--danger)]"
+                  className="flex-1 lg:flex-none px-2 py-1 text-sm rounded border border-[var(--border)] hover:border-[var(--danger)] hover:text-[var(--danger)]"
                   title="Remove"
+                  aria-label="Remove field"
                 >
                   ×
                 </button>
               </div>
+
               {f.type === 'select' && (
-                <div className="col-span-full pl-2">
+                <label className="flex flex-col gap-1 lg:col-span-7">
+                  <span className="text-[10px] uppercase text-[var(--text-muted)]">
+                    Options (comma-separated)
+                  </span>
                   <input
                     value={(f.options ?? []).join(', ')}
                     onChange={(e) =>
@@ -239,7 +270,7 @@ export default function SchemaEditor() {
                     placeholder="Comma-separated options"
                     className="w-full bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-xs"
                   />
-                </div>
+                </label>
               )}
             </div>
           ))}
