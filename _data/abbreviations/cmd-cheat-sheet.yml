@@ -1,0 +1,155 @@
+# Glossary for /references/cmd-cheat-sheet/
+# Schema: term, full_form, explanation (folded scalar with optional inline HTML).
+# Cross-reference other terms via <span class="abbr-link" data-abbr="TERM">TERM</span>.
+# Keep alphabetical by term.
+
+- term: "ABI"
+  full_form: "Application Binary Interface"
+  explanation: >-
+    The low-level contract between compiled code and the system — calling
+    conventions, struct layouts, library symbol versions. Binaries built
+    against one ABI may break on another (different glibc version, musl vs
+    glibc, x86_64 vs aarch64). Why a Linux x86_64 binary won't just run on
+    macOS even though both are Unix.
+
+- term: "CLI"
+  full_form: "Command-Line Interface"
+  explanation: >-
+    A text-only program you drive by typing commands at a shell prompt
+    instead of clicking a GUI. <span class="abbr-link" data-abbr="POSIX">POSIX</span>
+    conventions standardise flag style (<code>-x</code>, <code>--long-flag</code>)
+    and exit codes (0 = success, non-zero = error).
+
+- term: "EOF"
+  full_form: "End Of File"
+  explanation: >-
+    The signal that a stream has no more data. In a terminal, send EOF with
+    Ctrl+D — many CLIs (cat, wc, ssh sessions) exit cleanly on EOF rather
+    than needing an explicit "quit" command. In heredoc syntax,
+    <code>&lt;&lt;EOF</code> reads stdin until a line containing only
+    <code>EOF</code> appears.
+
+- term: "Exit code"
+  full_form: "Process Exit Status"
+  explanation: >-
+    The number a command returns when it finishes — 0 means success, any
+    non-zero value means failure (often 1 = generic error, 2 = misuse, 126
+    = not executable, 127 = command not found, 130 = killed by Ctrl+C).
+    Check it with <code>echo $?</code> in bash/zsh. Shell scripts chain on
+    exit codes (<code>cmd1 && cmd2</code>, <code>cmd1 || cmd2</code>).
+
+- term: "Glob"
+  full_form: "Glob Pattern"
+  explanation: >-
+    Shell wildcard matching for filenames — <code>*</code> matches any
+    characters except <code>/</code>, <code>?</code> matches a single
+    character, <code>[abc]</code> matches one of the listed characters,
+    <code>**</code> (with <code>globstar</code> or zsh) matches across
+    directory levels. Not the same as regex — globs are simpler and
+    filename-only.
+
+- term: "PATH"
+  full_form: "$PATH (Executable Search Path)"
+  explanation: >-
+    Colon-separated list of directories the shell searches when you type a
+    command. Inspect with <code>echo $PATH</code>; prepend a directory with
+    <code>export PATH="/new/dir:$PATH"</code> in your shell init file
+    (<code>~/.bashrc</code>, <code>~/.zshrc</code>). <code>which cmd</code>
+    tells you which copy wins for a given name.
+
+- term: "PID"
+  full_form: "Process ID"
+  explanation: >-
+    The unique integer the kernel assigns to a running process. Find one
+    with <code>pgrep nginx</code> or <code>ps aux | grep nginx</code>; act
+    on it with <code>kill &lt;pid&gt;</code>. PID 1 on Linux is the init
+    process (systemd / launchd on macOS).
+
+- term: "POSIX"
+  full_form: "Portable Operating System Interface"
+  explanation: >-
+    A family of IEEE standards (most notably IEEE 1003.1) that define a
+    common Unix-like API and shell behaviour. POSIX-compliant scripts
+    avoid bash-isms (<code>[[ ]]</code>, arrays, <code>&lt;( )</code>) and
+    run on dash, ash, ksh, etc. <code>#!/bin/sh</code> implies POSIX;
+    <code>#!/bin/bash</code> doesn't.
+
+- term: "REPL"
+  full_form: "Read–Eval–Print Loop"
+  explanation: >-
+    An interactive language prompt — type code, get the result immediately,
+    repeat. <code>python3</code>, <code>node</code>, <code>irb</code>,
+    <code>ghci</code> are all REPLs. Distinct from running a script file:
+    a REPL keeps state between lines and prints expression values.
+
+- term: "Regex"
+  full_form: "Regular Expression"
+  explanation: >-
+    A pattern language for matching text — far more expressive than
+    <span class="abbr-link" data-abbr="Glob">globs</span>. <code>grep</code>
+    uses BRE (basic) by default, ERE with <code>-E</code>, PCRE with
+    <code>-P</code>; <code>sed</code> uses BRE; <code>awk</code> uses ERE.
+    The flavour matters: <code>+</code> needs <code>\+</code> in BRE but
+    works bare in ERE.
+
+- term: "Shebang"
+  full_form: "#! Interpreter Directive"
+  explanation: >-
+    The first line of an executable script that tells the kernel which
+    interpreter to use — <code>#!/usr/bin/env python3</code>,
+    <code>#!/bin/bash</code>, <code>#!/usr/bin/env node</code>. Using
+    <code>/usr/bin/env</code> looks up the interpreter via
+    <span class="abbr-link" data-abbr="PATH">PATH</span> so the script
+    works whether Python is installed at <code>/usr/bin</code> or
+    <code>/usr/local/bin</code>.
+
+- term: "Sudo"
+  full_form: "Substitute User Do"
+  explanation: >-
+    Runs a single command as another user (default: root). Configured per
+    user via <code>/etc/sudoers</code> (edit with <code>visudo</code>).
+    <code>sudo -i</code> opens an interactive root shell;
+    <code>sudo -E</code> preserves your environment;
+    <code>sudo -u alice cmd</code> runs as alice.
+
+- term: "Stdin"
+  full_form: "Standard Input (file descriptor 0)"
+  explanation: >-
+    The default input stream for a process — usually the keyboard, or
+    whatever the previous command in a pipeline produced
+    (<code>cmd1 | cmd2</code>). Redirect from a file with
+    <code>cmd &lt; file</code>; close it with <code>cmd &lt; /dev/null</code>.
+
+- term: "Stdout"
+  full_form: "Standard Output (file descriptor 1)"
+  explanation: >-
+    The default output stream — usually the terminal. Redirect to a file
+    with <code>cmd &gt; out.txt</code> (overwrite) or <code>&gt;&gt;</code>
+    (append). Pipelines connect one process's stdout to the next process's
+    <span class="abbr-link" data-abbr="Stdin">stdin</span>.
+
+- term: "Stderr"
+  full_form: "Standard Error (file descriptor 2)"
+  explanation: >-
+    The separate stream for diagnostics and errors so they don't pollute
+    piped <span class="abbr-link" data-abbr="Stdout">stdout</span>.
+    Redirect with <code>cmd 2&gt; errors.log</code>; merge into stdout with
+    <code>cmd 2&gt;&amp;1</code>; silence everything with
+    <code>cmd &gt; /dev/null 2&gt;&amp;1</code>.
+
+- term: "TTY"
+  full_form: "Teletype / Terminal Device"
+  explanation: >-
+    The terminal-device interface a process is attached to. Check with
+    <code>tty</code>; check whether stdout is a TTY in scripts with
+    <code>[ -t 1 ]</code>. Pipes (<code>cmd | other</code>) and redirects
+    (<code>cmd &gt; file</code>) make stdout non-TTY, which is why
+    <code>ls</code> drops colours when piped.
+
+- term: "Termux"
+  full_form: "Termux (Android terminal emulator)"
+  explanation: >-
+    An Android app that ships a near-complete Linux userland (apt
+    packages, busybox, ssh, python, node, vim, …) in a sandboxed home
+    directory — no root required. The 🤖 badge marks commands that work
+    out of the box inside Termux on a stock Android phone.

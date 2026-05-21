@@ -1,0 +1,394 @@
+batch:
+  id: "search-and-text"
+  order: 2
+  name: "Search & Text Processing"
+  short_name: "Search & Text"
+  description: >
+    Find files, search text, slice and dice streams. The classic Unix
+    pipeline toolkit — combine these with pipes and redirection for almost
+    any data-munging task short of reaching for Python.
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "grep"
+    description: "Search text for lines matching a pattern."
+    syntax: "grep [-i] [-r] [-n] [-E|-F|-P] [-v] <pattern> [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-i"
+        description: "Case-insensitive match."
+      - flag: "-r"
+        description: "Recursive search through directories."
+      - flag: "-n"
+        description: "Prefix each match with its line number."
+      - flag: "-E"
+        description: "Extended regex (POSIX ERE) — +, ?, |, () without backslashes."
+      - flag: "-F"
+        description: "Fixed-string match (no regex). Fastest mode."
+      - flag: "-P"
+        description: "Perl-compatible regex (lookaround, \\d, etc.). GNU only."
+      - flag: "-v"
+        description: "Invert — print lines that do NOT match."
+      - flag: "-l"
+        description: "Print only filenames containing a match."
+      - flag: "-c"
+        description: "Print only the count of matching lines per file."
+      - flag: "-A <n>"
+        description: "Print n lines of trailing context after each match."
+      - flag: "-B <n>"
+        description: "Print n lines of leading context before each match."
+    examples:
+      - "grep -in \"error\" server.log"
+      - "grep -rEn \"TODO|FIXME\" src/"
+      - "ps aux | grep -v grep | grep nginx"
+    gotchas: >
+      macOS ships BSD grep, which lacks <code>-P</code> and orders flags
+      differently. Install GNU grep via <code>brew install grep</code> for
+      cross-platform <code>ggrep</code>. Patterns starting with <code>-</code>
+      need a <code>--</code> separator (<code>grep -- -foo file</code>).
+      <code>ripgrep</code> (<code>rg</code>) is faster, respects
+      <code>.gitignore</code>, and is generally preferable for ad-hoc work.
+    see_also: ["awk", "sed", "find", "ripgrep"]
+    references:
+      - "man 1 grep"
+
+  - name: "find"
+    description: "Walk a directory tree and act on files matching tests."
+    syntax: "find <path>... [tests] [actions]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-name <glob>"
+        description: "Match filename by glob (case-sensitive)."
+      - flag: "-iname <glob>"
+        description: "Case-insensitive filename match."
+      - flag: "-type f|d|l"
+        description: "Restrict to files (f), directories (d), or symlinks (l)."
+      - flag: "-mtime <n>"
+        description: "Modified n*24 hours ago (+n = older, -n = newer)."
+      - flag: "-size <n>[ckMG]"
+        description: "Size match (+ = larger, - = smaller; suffix sets unit)."
+      - flag: "-delete"
+        description: "Delete matching files (use only after dry-running with -print)."
+      - flag: "-exec <cmd> {} \\;"
+        description: "Run command per file ({} is replaced with the path)."
+      - flag: "-exec <cmd> {} +"
+        description: "Run command once with all paths batched as args (faster)."
+    examples:
+      - "find . -name '*.log' -mtime +30 -delete"
+      - "find src -type f -name '*.tsx' -exec grep -l TODO {} +"
+      - "find /var/log -type f -size +100M"
+    gotchas: >
+      <code>-print</code> is the default action — drop it for clarity, add
+      it back when piping into <code>xargs</code> with weird filenames
+      (use <code>-print0</code> + <code>xargs -0</code> to handle spaces).
+      BSD <code>find</code> (macOS) and GNU <code>find</code> have minor
+      flag differences (<code>-printf</code> is GNU-only).
+    see_also: ["xargs", "grep", "fd"]
+    references:
+      - "man 1 find"
+
+  - name: "awk"
+    description: "Pattern-action language for column-oriented text processing."
+    syntax: "awk [-F <sep>] '<pattern> { <action> }' [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-F <sep>"
+        description: "Input field separator (default: whitespace runs)."
+      - flag: "-v <var>=<val>"
+        description: "Set an awk variable before execution."
+      - flag: "-f <script>"
+        description: "Read the awk program from a file."
+    examples:
+      - "awk '{print $2, $5}' access.log"
+      - "awk -F, '$3 > 100 {print}' data.csv"
+      - "awk 'NR>1 {sum+=$2} END {print sum}' nums.txt"
+    gotchas: >
+      <code>NR</code> is the line number, <code>NF</code> the field count;
+      <code>$0</code> is the whole line, <code>$1</code>..<code>$NF</code>
+      the fields. Built-in to every Unix; for anything more elaborate,
+      reach for Python or <code>jq</code> (for JSON).
+    see_also: ["sed", "cut", "grep"]
+    references:
+      - "man 1 awk"
+      - "https://www.grymoire.com/Unix/Awk.html"
+
+  - name: "sed"
+    description: "Stream editor — apply scripted edits to a stream of text."
+    syntax: "sed [-i[<ext>]] [-E] '<script>' [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-i"
+        description: "Edit files in place (GNU). BSD/macOS requires -i ''."
+      - flag: "-E"
+        description: "Extended regex (so + ? () work without backslashes)."
+      - flag: "-n"
+        description: "Suppress default output (use with /pat/p to print only matches)."
+      - flag: "-e <script>"
+        description: "Add another script; repeat for multiple."
+    examples:
+      - "sed 's/foo/bar/g' input.txt"
+      - "sed -i 's/localhost/127.0.0.1/g' config.yml"
+      - "sed -n '10,20p' file.txt"
+    gotchas: >
+      <code>sed -i</code> means "in-place" on GNU but BSD/macOS requires a
+      backup-extension arg (<code>sed -i '' 's/…'</code>). The portable
+      form is <code>sed -i.bak 's/…'</code> which works on both and leaves
+      a <code>.bak</code> behind. Don't mix delimiters inside the script:
+      use <code>s|/path|/new|g</code> when the pattern contains slashes.
+    see_also: ["awk", "tr", "grep"]
+    references:
+      - "man 1 sed"
+
+  - name: "cut"
+    description: "Extract specific bytes, characters, or fields from each line."
+    syntax: "cut [-d <delim>] -f <fields> [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-d <delim>"
+        description: "Field delimiter (default: tab)."
+      - flag: "-f <list>"
+        description: "Field list (1,3 or 2-5 or 3-)."
+      - flag: "-c <list>"
+        description: "Character positions instead of fields."
+    examples:
+      - "cut -d: -f1 /etc/passwd"
+      - "cut -f2-4 data.tsv"
+    see_also: ["awk", "paste"]
+    references:
+      - "man 1 cut"
+
+  - name: "sort"
+    description: "Sort lines of text."
+    syntax: "sort [-n] [-r] [-u] [-k <field>] [-t <sep>] [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-n"
+        description: "Numeric sort (so 10 follows 9, not 1)."
+      - flag: "-r"
+        description: "Reverse order."
+      - flag: "-u"
+        description: "Output unique lines only (like uniq, no need to pre-sort)."
+      - flag: "-k <field>"
+        description: "Sort on field N (1-indexed)."
+      - flag: "-t <sep>"
+        description: "Field separator (default: whitespace)."
+      - flag: "-h"
+        description: "Human-readable numeric sort (handles 1K, 2M, 3G)."
+    examples:
+      - "sort -u names.txt"
+      - "sort -t, -k3 -n data.csv"
+      - "du -sh */ | sort -h"
+    see_also: ["uniq", "shuf"]
+    references:
+      - "man 1 sort"
+
+  - name: "uniq"
+    description: "Filter adjacent duplicate lines."
+    syntax: "uniq [-c] [-d] [-u] [<file>]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-c"
+        description: "Prefix each line with its occurrence count."
+      - flag: "-d"
+        description: "Only print lines that appear more than once."
+      - flag: "-u"
+        description: "Only print lines that appear exactly once."
+    examples:
+      - "sort access.log | uniq -c | sort -rn | head"
+      - "sort emails.txt | uniq -d"
+    gotchas: >
+      <code>uniq</code> only collapses <em>adjacent</em> duplicates — pipe
+      <code>sort</code> in first, or use <code>sort -u</code> for a
+      one-step equivalent.
+    see_also: ["sort"]
+    references:
+      - "man 1 uniq"
+
+  - name: "head"
+    description: "Print the first N lines (or bytes) of a stream."
+    syntax: "head [-n <count>|-c <bytes>] [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-n <n>"
+        description: "First n lines (default: 10). Negative means all but last n."
+      - flag: "-c <n>"
+        description: "First n bytes."
+    examples:
+      - "head -n 20 server.log"
+      - "head -c 1024 big.bin | xxd"
+    see_also: ["tail", "less"]
+    references:
+      - "man 1 head"
+
+  - name: "tail"
+    description: "Print the last N lines, optionally following a growing file."
+    syntax: "tail [-n <count>] [-f] [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-n <n>"
+        description: "Last n lines (default: 10). +n starts at line n."
+      - flag: "-f"
+        description: "Follow — keep printing as the file grows."
+      - flag: "-F"
+        description: "Follow even across log rotation (re-open by name)."
+    examples:
+      - "tail -n 100 access.log"
+      - "tail -F /var/log/nginx/error.log"
+    see_also: ["head", "less"]
+    references:
+      - "man 1 tail"
+
+  - name: "less"
+    description: "Page through text interactively (forward and backward)."
+    syntax: "less [+<line>] [-N] [-S] [-R] [<file>]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "+<line>"
+        description: "Start at the given line number."
+      - flag: "-N"
+        description: "Show line numbers."
+      - flag: "-S"
+        description: "Chop long lines instead of wrapping."
+      - flag: "-R"
+        description: "Pass ANSI colour codes through."
+    examples:
+      - "less +F /var/log/syslog"
+      - "git log --oneline | less -S"
+    gotchas: >
+      Inside less: <code>/pattern</code> searches forward,
+      <code>?pattern</code> searches backward, <code>n</code>/<code>N</code>
+      jumps next/prev, <code>g</code>/<code>G</code> go to top/bottom,
+      <code>q</code> quits. <code>+F</code> tails the file like
+      <code>tail -f</code> until Ctrl+C drops you into normal less mode.
+    see_also: ["more", "tail", "head"]
+    references:
+      - "man 1 less"
+
+  - name: "cat"
+    description: "Concatenate files and print to stdout."
+    syntax: "cat [-n] [-A] [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-n"
+        description: "Number every output line."
+      - flag: "-A"
+        description: "Show all non-printable chars ($ for newlines, ^I for tabs)."
+    examples:
+      - "cat file1 file2 > combined.txt"
+      - "cat -n script.sh"
+    gotchas: >
+      "Useless use of cat" — <code>cat file | grep x</code> is just
+      <code>grep x file</code>. Pipelines work better when you don't
+      detach the input from its source.
+    see_also: ["tac", "head", "tail"]
+    references:
+      - "man 1 cat"
+
+  - name: "tee"
+    description: "Read stdin, write to stdout AND to one or more files."
+    syntax: "tee [-a] <file>..."
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-a"
+        description: "Append to files instead of overwriting."
+    examples:
+      - "make 2>&1 | tee build.log"
+      - "echo nameserver 1.1.1.1 | sudo tee -a /etc/resolv.conf"
+    gotchas: >
+      The <code>echo … | sudo tee -a</code> pattern is how you write to a
+      root-only file when you can't run <code>sudo</code> on a redirect
+      (because <code>&gt;&gt;</code> is interpreted by your unprivileged
+      shell, not the sudo'd process).
+    see_also: ["cat", "xargs"]
+    references:
+      - "man 1 tee"
+
+  - name: "xargs"
+    description: "Build and execute commands from stdin."
+    syntax: "xargs [-0] [-n <max>] [-I <repl>] [-P <jobs>] <cmd>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-0"
+        description: "Input is null-separated (pair with find -print0)."
+      - flag: "-n <n>"
+        description: "Max args per command invocation."
+      - flag: "-I <repl>"
+        description: "Replace <repl> in cmd with each input item."
+      - flag: "-P <n>"
+        description: "Run up to n commands in parallel."
+    examples:
+      - "find . -name '*.tmp' -print0 | xargs -0 rm"
+      - "cat hosts.txt | xargs -I {} ssh {} uptime"
+      - "ls *.png | xargs -P 4 -n 1 optipng"
+    gotchas: >
+      Without <code>-0</code>, filenames with spaces or newlines break.
+      Always pair <code>find -print0</code> with <code>xargs -0</code>.
+      <code>-I {}</code> implies <code>-n 1</code>.
+    see_also: ["find", "parallel"]
+    references:
+      - "man 1 xargs"
+
+  - name: "jq"
+    description: "Filter, transform, and query JSON from the command line."
+    syntax: "jq [-r] [-c] '<filter>' [<file>]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-r"
+        description: "Raw output — strings without surrounding quotes."
+      - flag: "-c"
+        description: "Compact (one JSON value per line)."
+      - flag: "-s"
+        description: "Slurp — read all input into one big array."
+      - flag: "-e"
+        description: "Exit non-zero if the filter produces no/false output."
+    examples:
+      - "curl -s api.example/v1/users | jq '.[] | .name'"
+      - "jq -r '.items[] | [.id, .name] | @csv' data.json"
+      - "jq '.users |= map(. + {active: true})' in.json"
+    gotchas: >
+      Not installed by default — <code>apt install jq</code> /
+      <code>brew install jq</code>. For YAML use <code>yq</code> (the
+      Mike Farah Go reimplementation); they share most of the syntax.
+    see_also: ["awk", "yq"]
+    references:
+      - "man 1 jq"
+      - "https://jqlang.github.io/jq/manual/"
+
+  - name: "wc"
+    description: "Count lines, words, characters, or bytes."
+    syntax: "wc [-l] [-w] [-c] [-m] [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-l"
+        description: "Lines only."
+      - flag: "-w"
+        description: "Words only."
+      - flag: "-c"
+        description: "Bytes only."
+      - flag: "-m"
+        description: "Characters (matters for multi-byte UTF-8)."
+    examples:
+      - "wc -l *.py"
+      - "find . -name '*.tsx' | wc -l"
+    see_also: ["awk"]
+    references:
+      - "man 1 wc"
+
+  - name: "tr"
+    description: "Translate or delete characters from stdin."
+    syntax: "tr [-d] [-s] [-c] '<set1>' ['<set2>']"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-d"
+        description: "Delete characters in set1."
+      - flag: "-s"
+        description: "Squeeze repeated chars in set1 to a single occurrence."
+      - flag: "-c"
+        description: "Complement set1 (act on chars NOT in it)."
+    examples:
+      - "echo 'Hello' | tr 'a-z' 'A-Z'"
+      - "tr -d '\\r' < dos.txt > unix.txt"
+      - "tr -s ' ' < spaced.txt"
+    see_also: ["sed", "awk"]
+    references:
+      - "man 1 tr"

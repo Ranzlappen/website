@@ -1,0 +1,201 @@
+batch:
+  id: "ssh-and-remote"
+  order: 5
+  name: "SSH & Remote Access"
+  short_name: "SSH & Remote"
+  description: >
+    Secure shell access, file transfer, key management, and session
+    persistence over flaky links. If you administer anything that isn't
+    on your laptop, this is your bread and butter.
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "ssh"
+    description: "Open an authenticated, encrypted shell on a remote host."
+    syntax: "ssh [-p <port>] [-i <key>] [-L|-R <fwd>] [<user>@]<host> [<cmd>]"
+    os: [cross-platform]
+    flags:
+      - flag: "-p <port>"
+        description: "Use a non-default port (default 22)."
+      - flag: "-i <keyfile>"
+        description: "Identity file — private key to use for auth."
+      - flag: "-L <lport>:<rhost>:<rport>"
+        description: "Local port forward — bind local port to a remote-side address."
+      - flag: "-R <rport>:<lhost>:<lport>"
+        description: "Remote port forward — open a port on the remote that tunnels back to you."
+      - flag: "-D <port>"
+        description: "SOCKS proxy on the local port."
+      - flag: "-J <user@jump>"
+        description: "Hop via a jump host."
+      - flag: "-N"
+        description: "Don't execute a remote command — useful with -L / -R / -D."
+      - flag: "-f"
+        description: "Background after auth — good for tunnels."
+      - flag: "-A"
+        description: "Forward your ssh-agent (be careful on untrusted hosts)."
+      - flag: "-v"
+        description: "Verbose; -vv / -vvv for more detail (debugging auth)."
+    examples:
+      - "ssh user@example.com"
+      - "ssh -i ~/.ssh/id_ed25519 -p 2222 deploy@app.example"
+      - "ssh -L 5432:localhost:5432 db.example -N"
+      - "ssh -J bastion@gateway.example app@internal-host"
+    gotchas: >
+      Config goes in <code>~/.ssh/config</code> — set <code>HostName</code>,
+      <code>User</code>, <code>Port</code>, <code>IdentityFile</code>
+      per host and never type those flags again.
+      <code>StrictHostKeyChecking accept-new</code> is the sane default
+      (warns on changed keys but accepts first contact). Agent forwarding
+      (<code>-A</code>) gives the remote sudo over your local keys —
+      don't enable it on shared boxes.
+    see_also: ["scp", "rsync", "ssh-keygen", "ssh-copy-id"]
+    references:
+      - "man 1 ssh"
+      - "man 5 ssh_config"
+
+  - name: "scp"
+    description: "Copy files over SSH."
+    syntax: "scp [-r] [-P <port>] [-i <key>] <src>... [<user>@]<host>:<dst>"
+    os: [cross-platform]
+    flags:
+      - flag: "-r"
+        description: "Recursive — copy directories."
+      - flag: "-P <port>"
+        description: "Remote port (note: capital P, unlike ssh's -p)."
+      - flag: "-i <key>"
+        description: "Identity file."
+      - flag: "-p"
+        description: "Preserve timestamps and mode."
+      - flag: "-C"
+        description: "Compress in transit."
+    examples:
+      - "scp deploy.tar.gz user@server.example:/tmp/"
+      - "scp -r dist/ user@server.example:/var/www/"
+      - "scp user@server:/etc/nginx/nginx.conf ./"
+    gotchas: >
+      OpenSSH 9+ switched <code>scp</code>'s wire protocol from RCP to
+      SFTP — behaves similarly but rejects some old quoting tricks. For
+      anything beyond trivial copies, prefer <code>rsync</code> (resumes,
+      delta transfer, much faster on retries).
+    see_also: ["rsync", "sftp", "ssh"]
+    references:
+      - "man 1 scp"
+
+  - name: "rsync"
+    description: "Fast incremental file sync (local or over SSH) with delta transfer."
+    syntax: "rsync [-a] [-v] [--delete] [-z] [-P] <src>/ <dst>/"
+    os: [cross-platform]
+    flags:
+      - flag: "-a"
+        description: "Archive — recursive + symlinks + perms + times + group + owner."
+      - flag: "-v"
+        description: "Verbose."
+      - flag: "-z"
+        description: "Compress in transit."
+      - flag: "--delete"
+        description: "Delete files on dst that aren't in src (mirror)."
+      - flag: "-n / --dry-run"
+        description: "Preview what would change without doing it."
+      - flag: "-P"
+        description: "Progress bar + partial-resume on interrupted transfers."
+      - flag: "-e \"ssh -p <port>\""
+        description: "Use a custom SSH command (e.g. non-default port)."
+      - flag: "--exclude=<pat>"
+        description: "Skip paths matching the pattern (repeat for multiple)."
+    examples:
+      - "rsync -avP src/ dst/"
+      - "rsync -avz --delete ./dist/ user@server:/var/www/"
+      - "rsync -avn --exclude='node_modules' ./ backup/"
+    gotchas: >
+      Trailing <code>/</code> matters: <code>src/</code> means "contents of
+      src", <code>src</code> means "the src dir itself". Always dry-run
+      <code>--delete</code> first. <code>-a</code> is shorthand for
+      <code>-rlptgoD</code>; drop <code>-a</code> and explicitly pick
+      flags if you don't want owners/groups preserved.
+    see_also: ["scp", "tar", "cp"]
+    references:
+      - "man 1 rsync"
+
+  - name: "ssh-keygen"
+    description: "Generate, inspect, and manage SSH keypairs."
+    syntax: "ssh-keygen [-t <algo>] [-b <bits>] [-f <path>] [-C <comment>]"
+    os: [cross-platform]
+    flags:
+      - flag: "-t ed25519"
+        description: "Modern, fast, secure default. Pick this."
+      - flag: "-t rsa -b 4096"
+        description: "RSA fallback for old servers that don't support ed25519."
+      - flag: "-f <path>"
+        description: "Output keypair to this path (and path.pub)."
+      - flag: "-C <comment>"
+        description: "Comment appended to the public key — usually your email."
+      - flag: "-N \"\""
+        description: "Empty passphrase (only for unattended use; otherwise omit)."
+      - flag: "-y -f <key>"
+        description: "Print the public key for an existing private key."
+      - flag: "-l -f <key>"
+        description: "Print the fingerprint of a key."
+    examples:
+      - "ssh-keygen -t ed25519 -C \"you@example.com\""
+      - "ssh-keygen -lf ~/.ssh/id_ed25519.pub"
+      - "ssh-keygen -y -f ~/.ssh/id_ed25519"
+    gotchas: >
+      Default output path is <code>~/.ssh/id_ed25519</code> — answer the
+      prompts if you want a different location. Use a passphrase for
+      anything that touches production; pair with <code>ssh-add</code>
+      so you only enter it once per session.
+    see_also: ["ssh", "ssh-copy-id", "ssh-add"]
+    references:
+      - "man 1 ssh-keygen"
+
+  - name: "ssh-copy-id"
+    description: "Install your public key into a remote user's authorized_keys."
+    syntax: "ssh-copy-id [-i <pubkey>] [-p <port>] [<user>@]<host>"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-i <pubkey>"
+        description: "Which public key to install."
+      - flag: "-p <port>"
+        description: "Non-default SSH port."
+      - flag: "-f"
+        description: "Force — skip the test-key-already-present check."
+    examples:
+      - "ssh-copy-id user@server.example"
+      - "ssh-copy-id -i ~/.ssh/deploy.pub -p 2222 deploy@app.example"
+    gotchas: >
+      Not bundled with Windows OpenSSH — workaround: <code>cat
+      ~/.ssh/id_ed25519.pub | ssh user@host 'cat >> ~/.ssh/authorized_keys'</code>.
+    see_also: ["ssh", "ssh-keygen"]
+    references:
+      - "man 1 ssh-copy-id"
+
+  - name: "sftp"
+    description: "Interactive file transfer over SSH (FTP-like commands)."
+    syntax: "sftp [-P <port>] [-i <key>] [<user>@]<host>"
+    os: [cross-platform]
+    examples:
+      - "sftp user@server.example"
+      - "sftp -i ~/.ssh/id_ed25519 deploy@app.example"
+    gotchas: >
+      Once connected: <code>ls</code>, <code>cd</code>, <code>get</code>,
+      <code>put</code>, <code>mget</code>, <code>mput</code>, <code>bye</code>.
+      <code>sshfs</code> (FUSE) mounts a remote dir as a local filesystem
+      if you'd rather use regular file tools.
+    see_also: ["scp", "rsync", "sshfs"]
+    references:
+      - "man 1 sftp"
+
+  - name: "mosh"
+    description: "Mobile shell — SSH-like but survives roaming, sleep, and packet loss."
+    syntax: "mosh [<user>@]<host>"
+    os: [linux, macos, cross-platform, android]
+    examples:
+      - "mosh user@laggy-server.example"
+    gotchas: >
+      Uses UDP on ports 60000–61000 — open those if your network blocks
+      them. Needs <code>mosh</code> installed on both ends (server-side
+      acts as a relay). For SSH-only environments stick with
+      <code>ssh + tmux</code>.
+    see_also: ["ssh", "tmux"]
+    references:
+      - "https://mosh.org"

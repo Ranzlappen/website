@@ -48,15 +48,16 @@ The abbreviations / glossary system is shared site-wide:
 {%- endfor -%}
 
 <link rel="stylesheet" href="{{ '/assets/css/abbreviations.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/css/reference-table.css' | relative_url }}">
 <link rel="stylesheet" href="{{ '/assets/css/spectrum.css' | relative_url }}">
 
-<section class="spectrum-page">
-  <div class="spectrum-container">
+<section class="reference-page reference-page--spectrum">
+  <div class="reference-container">
 
-    <header class="spectrum-hero">
-      <p class="spectrum-eyebrow">Reference</p>
-      <h1 class="spectrum-title">The Electromagnetic Spectrum</h1>
-      <p class="spectrum-lede">
+    <header class="reference-hero">
+      <p class="reference-hero__eyebrow">Reference</p>
+      <h1 class="reference-hero__title">The Electromagnetic Spectrum</h1>
+      <p class="reference-hero__lede">
         From quasi-DC fields below one hertz to gamma rays beyond 10<sup>24</sup>&nbsp;Hz —
         every electromagnetic phenomenon is a different frequency of the same
         underlying field. This table gathers the bands, their boundaries, the
@@ -67,35 +68,35 @@ The abbreviations / glossary system is shared site-wide:
         <h3>⚠️ Legal Disclaimer &amp; Important Notes</h3>
         <p>This reference is for educational and hobbyist purposes only. Frequency allocations, power limits, licensing rules, and restrictions change over time and vary by country/region. The information here is believed accurate as of May 2026 but may be outdated or incomplete in your location. Always verify with your national regulator (e.g. BNetzA in Germany, FCC in the US) before transmitting. The site owner is not liable for any misuse, interference, or legal consequences arising from the use of this reference.</p>
       </section>
-      <p class="spectrum-howto">
+      <p class="reference-hero__howto">
         <strong>How to use:</strong> jump between batches with the tabs, type into the
         search box to filter rows live, or click <em>Show more</em> on long cells
         to expand the full text. The table scrolls horizontally on narrow screens
         and the header stays pinned as you scroll.
       </p>
-      <div class="spectrum-meta">
-        <span class="spectrum-meta__item">
+      <div class="reference-hero__meta">
+        <span class="reference-hero__meta-item">
           <strong>{{ total_batches }}</strong> batches
         </span>
-        <span class="spectrum-meta__item">
+        <span class="reference-hero__meta-item">
           <strong>{{ total_rows }}</strong> rows
         </span>
         {% if latest_update != "" %}
-        <span class="spectrum-meta__item">
+        <span class="reference-hero__meta-item">
           Last updated <time datetime="{{ latest_update }}"><strong>{{ latest_update }}</strong></time>
         </span>
         {% endif %}
       </div>
     </header>
 
-    <section class="spectrum-legend">
+    <section class="reference-legend">
       <h2>Spectrum Legend &amp; Usability</h2>
       <p>Each row is color-coded for quick reference:</p>
-      <ul class="spectrum-legend__list">
-        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--public" aria-hidden="true">🟢</span> Public / ISM / Unlicensed</li>
-        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--ham" aria-hidden="true">🔵</span> Amateur Radio (Ham-only)</li>
-        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--licensed" aria-hidden="true">🟡</span> Licensed / Regulated</li>
-        <li><span class="spectrum-legend__swatch spectrum-legend__swatch--restricted" aria-hidden="true">🔴</span> Restricted / Scientific / Military</li>
+      <ul class="reference-legend__list">
+        <li><span class="reference-legend__swatch spectrum-legend__swatch--public" aria-hidden="true">🟢</span> Public / ISM / Unlicensed</li>
+        <li><span class="reference-legend__swatch spectrum-legend__swatch--ham" aria-hidden="true">🔵</span> Amateur Radio (Ham-only)</li>
+        <li><span class="reference-legend__swatch spectrum-legend__swatch--licensed" aria-hidden="true">🟡</span> Licensed / Regulated</li>
+        <li><span class="reference-legend__swatch spectrum-legend__swatch--restricted" aria-hidden="true">🔴</span> Restricted / Scientific / Military</li>
       </ul>
     </section>
 
@@ -104,34 +105,34 @@ The abbreviations / glossary system is shared site-wide:
        heading="Abbreviations & Quick Reference"
        intro="Click or tap any abbreviation in the table — or any card below — to see its explanation. Every term used in the table is listed here alphabetically." %}
 
-    <div class="spectrum-controls">
-      <nav class="spectrum-tabs" role="tablist" aria-label="Spectrum batches">
-        <button type="button" class="spectrum-tab is-active" data-batch="all" role="tab" aria-selected="true">
+    <div class="reference-controls">
+      <nav class="reference-tabs" role="tablist" aria-label="Spectrum batches">
+        <button type="button" class="reference-tab is-active" data-batch="all" role="tab" aria-selected="true">
           All
         </button>
         {% for entry in batches %}
           {% assign b = entry[1].batch %}
           {% if b %}
-          <button type="button" class="spectrum-tab" data-batch="{{ b.id }}" role="tab" aria-selected="false" title="{{ b.name | escape }}">
+          <button type="button" class="reference-tab" data-batch="{{ b.id }}" role="tab" aria-selected="false" title="{{ b.name | escape }}">
             {{ b.short_name | default: b.name }}
           </button>
           {% endif %}
         {% endfor %}
       </nav>
 
-      <label class="spectrum-search">
-        <span class="spectrum-search__icon" aria-hidden="true">
+      <label class="reference-search">
+        <span class="reference-search__icon" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="7"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </span>
         <input type="search" id="spectrum-search" placeholder="Filter by name, technology, application…" autocomplete="off" spellcheck="false">
-        <span class="spectrum-search__count" id="spectrum-count" aria-live="polite"></span>
+        <span class="reference-search__count" id="spectrum-count" aria-live="polite"></span>
       </label>
     </div>
 
-    <div class="spectrum-batch-blurb" id="spectrum-batch-blurb" hidden></div>
+    <div class="reference-batch-blurb" id="spectrum-batch-blurb" hidden></div>
     {%- comment -%} Batch descriptions kept in a hidden data island for the active-tab blurb. {%- endcomment -%}
     <script type="application/json" id="spectrum-batch-data">
       {
@@ -147,11 +148,11 @@ The abbreviations / glossary system is shared site-wide:
       }
     </script>
 
-    <div class="spectrum-table-wrapper" role="region" aria-label="Electromagnetic spectrum table" tabindex="0">
-      <table class="spectrum-table" id="spectrum-table">
+    <div class="reference-table-wrapper has-snap-cols" role="region" aria-label="Electromagnetic spectrum table" tabindex="0">
+      <table class="reference-table" id="spectrum-table">
         <thead>
           <tr>
-            <th scope="col" class="col-freq">
+            <th scope="col" class="col-freq is-sticky-col">
               <span class="col-freq__full">Frequency Range</span>
               <span class="col-freq__short" aria-hidden="true">&nu;</span>
             </th>
@@ -180,7 +181,7 @@ The abbreviations / glossary system is shared site-wide:
             {% if batch %}
             {% for band in batch_data.bands %}
               <tr data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}">
-                <td class="col-freq mono">
+                <td class="col-freq is-sticky-col mono">
                   {%- assign freq_pair = band.frequency_range | split: " – " -%}
                   {%- if freq_pair.size >= 2 -%}
                     {%- assign freq_low = freq_pair | first -%}
@@ -205,7 +206,7 @@ The abbreviations / glossary system is shared site-wide:
                 <td class="col-projects">{{ band.hobbyist_project_ideas }}</td>
                 <td class="col-energy">{{ band.photon_energy }}</td>
                 <td class="col-sources">{{ band.sources_citations }}</td>
-                <td class="col-badge"><span class="usability-badge">{{ band.usability_badge }}</span></td>
+                <td class="col-badge"><span class="reference-badge">{{ band.usability_badge }}</span></td>
               </tr>
             {% endfor %}
             {% endif %}
@@ -213,7 +214,7 @@ The abbreviations / glossary system is shared site-wide:
         </tbody>
       </table>
 
-      <p class="spectrum-empty" id="spectrum-empty" hidden>
+      <p class="reference-empty" id="spectrum-empty" hidden>
         No bands match your filters.
       </p>
     </div>
@@ -222,4 +223,5 @@ The abbreviations / glossary system is shared site-wide:
 </section>
 
 <script src="{{ '/assets/js/abbreviations.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/reference-table.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/spectrum.js' | relative_url }}" defer></script>

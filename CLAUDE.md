@@ -67,6 +67,7 @@ Production deploys of `castBlogVote`, the Blog Admin callables (`blogSaveDraft`,
 - **Post categories**: Posts set a singular `category:` field in front matter. The string `"Projects"` (capitalized, exact match) is canonical and routes the post to `/projects/`; everything else lands on `/blog/`. Homepage and `/categories/` show all categories. Liquid's `==` is case-sensitive — keep the exact casing.
 - **Navigation**: Centralized in `_data/pages.yml` — single source of truth for nav and footer links.
 - **Abbreviations / glossary**: Reference pages share one utility for term cards + click-to-explain modal + opt-in in-content decoration. Per-page YAML datasets live under `_data/abbreviations/<page>.yml`; markup is `_includes/abbreviations-section.html`; styles `/assets/css/abbreviations.css`; behaviour `/assets/js/abbreviations.js`. To add it to a page: include the partial with `data=site.data.abbreviations.<page>`, pull in the CSS+JS, and add `data-abbr-decorate` to any element whose text should auto-link matched terms. Per-page datasets are isolated, so the same key can have different definitions on different pages with no collision.
+- **Reference-table scaffolding**: The sticky tab strip + live-search + scrollable big-table pattern used by `/references/spectrum/` and `/references/cmd-cheat-sheet/` is shared. Styles live in `/assets/css/reference-table.css` (controls, tabs, search, sticky thead, `.is-sticky-col` hook for the pinned column, generic legend swatches, `.reference-badge` base, the `.cell-collapse` family). Behaviour lives in `/assets/js/reference-table.js` and exposes one function — `window.initReferenceTable({tableId, tabSelector, searchId, countId, emptyId, blurbId, batchDataId})` — that each page's thin wrapper calls with its own IDs. Per-page CSS files (`spectrum.css`, `cmd-cheat-sheet.css`) layer column widths and palette modifiers on top, scoped under `.reference-page--<slug>` so overrides cannot leak between pages. To add a third reference page: opt in via `<section class="reference-page reference-page--<slug>">`, load the shared CSS/JS before the per-page ones, and write a thin wrapper that calls `initReferenceTable`.
 - **External apps**: The user's external apps (standalone subdomains like `ticked.ranzlappen.com`) are **not** in the navbar. They're listed in `_data/projects.yml` and rendered as a favicon strip in the footer via `_includes/footer.html`. Favicons are committed locally under `assets/images/favicons/` — **do not hotlink** upstream favicons (privacy-first: hotlinking leaks visitor IP/UA to the subdomain on every page load, before consent). To refresh a favicon, `curl` the upstream `<link rel="icon">` target into `assets/images/favicons/<name>.png` and commit.
 - **Firebase keys**: Public client-side keys in `_config.yml`, `polyvote/src/firebase.ts`, `blog-admin/src/firebase.ts`, and `inventory-manager/src/firebase.ts`. Security is enforced via Firestore rules, Storage rules, and Cloud Functions.
 - **Server-validated writes**: All client writes go through Cloud Functions (`httpsCallable`), never direct Firestore SDK writes. This applies to PolyVote user actions (votes, comments, requests), Blog Admin operations (drafts, publishing), **and** Inventory Manager operations (folders, items, photos, import/export, eBay CSV). Keep `blog-admin/src/firebase.ts` and `inventory-manager/src/firebase.ts` free of `addDoc`/`setDoc`/`updateDoc`/`deleteDoc`.
@@ -125,7 +126,7 @@ Six GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger
 | Layer | Blog | PolyVote | Blog Admin | Inventory Manager |
 |-------|------|----------|------------|-------------------|
 | Framework | Jekyll (Ruby) | React 19 + TypeScript | React 19 + TypeScript | React 19 + TypeScript |
-| Styling | Custom CSS — main `style.css` (~3,200 lines) plus per-page stylesheets (`spectrum.css`, `electronics-fundamentals.css`) and the shared `abbreviations.css`; ~7,000 lines total across the blog | Tailwind CSS v3 + Framer Motion | Tailwind CSS v4 (via `@tailwindcss/vite`) | Tailwind CSS v4 (via `@tailwindcss/vite`) |
+| Styling | Custom CSS — main `style.css` (~3,200 lines), per-page stylesheets (`spectrum.css`, `electronics-fundamentals.css`, `cmd-cheat-sheet.css`), the shared `abbreviations.css`, and the shared `reference-table.css` (sticky-tab + live-search big-table scaffolding used by Spectrum and the CLI cheat sheet) | Tailwind CSS v3 + Framer Motion | Tailwind CSS v4 (via `@tailwindcss/vite`) | Tailwind CSS v4 (via `@tailwindcss/vite`) |
 | Router | — | react-router-dom v6 | react-router-dom v7 | react-router-dom v7 |
 | State | Vanilla JS | Zustand | Zustand | Zustand |
 | Backend | GitHub Pages (static) | Firebase (Firestore, Auth, Functions) | Firebase (Firestore, Auth) | Firebase (Firestore, Auth, Storage) |
@@ -141,8 +142,10 @@ Six GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger
 │   ├── pages.yml               # Navigation registry (nav + footer)
 │   ├── projects.yml            # External app + reference-page favicons (footer strip)
 │   ├── abbreviations/          # Per-page glossary datasets (shared utility)
+│   │   ├── cmd-cheat-sheet.yml
 │   │   ├── electronics.yml
 │   │   └── spectrum.yml
+│   ├── cmd-cheat-sheet/        # CLI cheat sheet command data + maintenance README
 │   ├── spectrum/               # EM spectrum band data + maintenance README
 │   └── references/electronics/ # Architecture / maintenance README for the EF page
 ├── _includes/                  # Jekyll partials (head, header, footer…)
@@ -153,12 +156,16 @@ Six GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger
 │   ├── css/
 │   │   ├── style.css                    # Main blog stylesheet
 │   │   ├── abbreviations.css            # Shared glossary styling
-│   │   ├── spectrum.css                 # Spectrum reference page
+│   │   ├── reference-table.css          # Shared big-table scaffolding (Spectrum + cmd cheat sheet)
+│   │   ├── spectrum.css                 # Spectrum reference page (overrides)
 │   │   ├── electronics-fundamentals.css # Electronics reference page
+│   │   ├── cmd-cheat-sheet.css          # CLI cheat sheet reference page (overrides)
 │   │   └── cookie-consent.css
 │   ├── js/
 │   │   ├── abbreviations.js             # Shared glossary modal + decoration
-│   │   ├── spectrum.js                  # Spectrum table filters / batch tabs
+│   │   ├── reference-table.js           # Shared tab/search/empty/blurb wiring for big tables
+│   │   ├── spectrum.js                  # Spectrum: thin wrapper over reference-table.js
+│   │   ├── cmd-cheat-sheet.js           # CLI cheat sheet: thin wrapper over reference-table.js
 │   │   └── electronics-*.js             # 9-file EF widget bundle
 │   └── images/favicons/                 # Local copies of external app + reference page favicons
 ├── pages/                      # Static pages (about, contact, privacy, references/*…)

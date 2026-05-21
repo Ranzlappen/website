@@ -1,0 +1,428 @@
+batch:
+  id: "version-control"
+  order: 6
+  name: "Version Control (git)"
+  short_name: "Version Control"
+  description: >
+    The git subcommands you reach for daily — clone, status, add, commit,
+    push, pull, branch, log, diff, stash, rebase. All examples assume
+    Git ≥ 2.30; older versions may lack 'git switch' / 'git restore' and
+    need 'git checkout' equivalents.
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "git clone"
+    description: "Copy a remote repository to your machine."
+    syntax: "git clone [--depth <n>] [-b <branch>] <url> [<dir>]"
+    os: [cross-platform]
+    flags:
+      - flag: "--depth <n>"
+        description: "Shallow clone — only the most recent n commits. Smaller, faster."
+      - flag: "-b <branch>"
+        description: "Clone a specific branch (instead of the default)."
+      - flag: "--recurse-submodules"
+        description: "Initialise and clone submodules too."
+      - flag: "--single-branch"
+        description: "Only fetch the named branch, not all branches."
+    examples:
+      - "git clone https://github.com/user/repo.git"
+      - "git clone --depth 1 -b main git@github.com:user/repo.git"
+      - "git clone --recurse-submodules https://github.com/user/repo.git"
+    see_also: ["git init", "git remote"]
+    references:
+      - "man 1 git-clone"
+
+  - name: "git status"
+    description: "Show working-tree and staging-area changes."
+    syntax: "git status [-s] [-b] [--untracked-files=<mode>]"
+    os: [cross-platform]
+    flags:
+      - flag: "-s"
+        description: "Short format — two-letter status codes."
+      - flag: "-b"
+        description: "Show current branch + tracking info even in short mode."
+      - flag: "-uno / --untracked-files=no"
+        description: "Hide untracked files (faster on big trees)."
+    examples:
+      - "git status"
+      - "git status -sb"
+    see_also: ["git diff", "git log"]
+    references:
+      - "man 1 git-status"
+
+  - name: "git add"
+    description: "Stage changes for the next commit."
+    syntax: "git add [-A|-u|-p] [<pathspec>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "-A"
+        description: "Stage everything — new, modified, deleted."
+      - flag: "-u"
+        description: "Stage modified and deleted but NOT new files."
+      - flag: "-p"
+        description: "Interactive — pick hunks to stage one by one."
+      - flag: "-n / --dry-run"
+        description: "Show what would be added without staging."
+    examples:
+      - "git add src/main.ts"
+      - "git add -A"
+      - "git add -p"
+    gotchas: >
+      <code>git add .</code> stages everything below the current directory;
+      <code>git add -A</code> stages the entire working tree. Big
+      difference if you're inside a subfolder. Use <code>-p</code> for
+      surgical commits when one set of edits should be split across
+      multiple commits.
+    see_also: ["git restore", "git reset", "git commit"]
+    references:
+      - "man 1 git-add"
+
+  - name: "git commit"
+    description: "Record staged changes as a new commit."
+    syntax: "git commit [-m \"<msg>\"] [-a] [--amend] [--no-edit]"
+    os: [cross-platform]
+    flags:
+      - flag: "-m \"<msg>\""
+        description: "Inline commit message; skips $EDITOR."
+      - flag: "-a"
+        description: "Stage all tracked, modified files before committing."
+      - flag: "--amend"
+        description: "Replace the previous commit. Rewrites history."
+      - flag: "--no-edit"
+        description: "Used with --amend to keep the previous message verbatim."
+      - flag: "-s / --signoff"
+        description: "Append a Signed-off-by trailer."
+    examples:
+      - "git commit -m \"fix: trim whitespace in README\""
+      - "git commit -am \"quick fix\""
+      - "git commit --amend --no-edit"
+    gotchas: >
+      Never <code>--amend</code> a commit that's already pushed to a
+      shared branch without coordinating a force-push. <code>-a</code>
+      stages already-tracked files only — new files still need
+      <code>git add</code> first.
+    see_also: ["git add", "git push", "git reset", "git log"]
+    references:
+      - "man 1 git-commit"
+
+  - name: "git push"
+    description: "Upload local commits to a remote branch."
+    syntax: "git push [-u] [--force-with-lease] [<remote>] [<branch>]"
+    os: [cross-platform]
+    flags:
+      - flag: "-u / --set-upstream"
+        description: "Set tracking — first push of a new branch."
+      - flag: "--force"
+        description: "Overwrite remote history. Dangerous on shared branches."
+      - flag: "--force-with-lease"
+        description: "Safer force — refuses if someone else pushed since you fetched."
+      - flag: "--tags"
+        description: "Push tags too."
+      - flag: "--dry-run"
+        description: "Show what would be pushed."
+    examples:
+      - "git push"
+      - "git push -u origin feature/new-thing"
+      - "git push --force-with-lease"
+    gotchas: >
+      Default <code>--force</code> can wipe a teammate's pushed work. Use
+      <code>--force-with-lease</code> — it refuses to push if the remote
+      moved on after your last fetch. Even safer: <code>--force-with-lease=&lt;branch&gt;:&lt;sha&gt;</code>
+      pinning the exact SHA you expect to be overwriting.
+    see_also: ["git pull", "git fetch"]
+    references:
+      - "man 1 git-push"
+
+  - name: "git pull"
+    description: "Fetch from remote and merge / rebase into the current branch."
+    syntax: "git pull [--rebase] [--ff-only] [<remote>] [<branch>]"
+    os: [cross-platform]
+    flags:
+      - flag: "--rebase"
+        description: "Rebase local commits on top of fetched ones (cleaner history)."
+      - flag: "--ff-only"
+        description: "Only fast-forward; abort if a merge would be needed."
+      - flag: "--no-ff"
+        description: "Always create a merge commit."
+    examples:
+      - "git pull"
+      - "git pull --rebase"
+      - "git pull --ff-only"
+    gotchas: >
+      Set <code>git config --global pull.rebase true</code> (or
+      <code>pull.ff only</code>) once and you'll never accidentally
+      create a junky "Merge branch 'main' of …" commit again.
+    see_also: ["git fetch", "git merge", "git rebase"]
+    references:
+      - "man 1 git-pull"
+
+  - name: "git fetch"
+    description: "Download remote commits without merging."
+    syntax: "git fetch [--all] [--prune] [<remote>] [<refspec>]"
+    os: [cross-platform]
+    flags:
+      - flag: "--all"
+        description: "Fetch from every configured remote."
+      - flag: "--prune"
+        description: "Remove local refs to branches that no longer exist on the remote."
+      - flag: "--tags"
+        description: "Fetch tags too."
+    examples:
+      - "git fetch"
+      - "git fetch --all --prune"
+    see_also: ["git pull", "git remote"]
+    references:
+      - "man 1 git-fetch"
+
+  - name: "git switch"
+    description: "Change branches (the modern replacement for `git checkout` for branches)."
+    syntax: "git switch [-c|-C] [-t <upstream>] <branch>"
+    os: [cross-platform]
+    flags:
+      - flag: "-c <branch>"
+        description: "Create and switch to a new branch."
+      - flag: "-C <branch>"
+        description: "Create or reset; force-overwrite if it exists."
+      - flag: "-"
+        description: "Switch to the previous branch (like cd -)."
+      - flag: "--detach"
+        description: "Detach HEAD at a commit instead of moving a branch."
+    examples:
+      - "git switch main"
+      - "git switch -c feature/new-thing"
+      - "git switch -"
+    see_also: ["git restore", "git checkout", "git branch"]
+    references:
+      - "man 1 git-switch"
+
+  - name: "git restore"
+    description: "Restore files in working tree or staging area (replaces `git checkout -- file`)."
+    syntax: "git restore [--staged] [--source=<commit>] <pathspec>..."
+    os: [cross-platform]
+    flags:
+      - flag: "--staged"
+        description: "Unstage — remove from index but keep working-tree changes."
+      - flag: "--source=<ref>"
+        description: "Restore from a specific commit/branch."
+      - flag: "-W -S"
+        description: "Restore both working tree (-W) and staged version (-S)."
+    examples:
+      - "git restore src/foo.ts"
+      - "git restore --staged src/foo.ts"
+      - "git restore --source=HEAD~3 README.md"
+    see_also: ["git switch", "git reset", "git checkout"]
+    references:
+      - "man 1 git-restore"
+
+  - name: "git branch"
+    description: "List, create, delete, or rename branches."
+    syntax: "git branch [-a] [-d|-D <name>] [-m <new>] [<name> [<base>]]"
+    os: [cross-platform]
+    flags:
+      - flag: "-a"
+        description: "List local + remote-tracking branches."
+      - flag: "-v / -vv"
+        description: "Show last commit / upstream info."
+      - flag: "-d <name>"
+        description: "Delete a merged branch."
+      - flag: "-D <name>"
+        description: "Force-delete (even if unmerged)."
+      - flag: "-m <new>"
+        description: "Rename the current branch."
+    examples:
+      - "git branch -a"
+      - "git branch -d old-feature"
+      - "git branch -m new-name"
+    see_also: ["git switch", "git merge"]
+    references:
+      - "man 1 git-branch"
+
+  - name: "git merge"
+    description: "Merge another branch into the current one."
+    syntax: "git merge [--no-ff] [--squash] [--abort] <branch>"
+    os: [cross-platform]
+    flags:
+      - flag: "--no-ff"
+        description: "Always create a merge commit, even for fast-forwardable cases."
+      - flag: "--ff-only"
+        description: "Only allow fast-forward; abort otherwise."
+      - flag: "--squash"
+        description: "Squash the merged commits into a single commit (don't auto-commit)."
+      - flag: "--abort"
+        description: "Bail out of a conflicted merge and reset."
+    examples:
+      - "git merge feature/new-thing"
+      - "git merge --no-ff feature/big-change"
+      - "git merge --abort"
+    see_also: ["git rebase", "git pull"]
+    references:
+      - "man 1 git-merge"
+
+  - name: "git rebase"
+    description: "Replay commits onto a different base — rewrites history."
+    syntax: "git rebase [-i] [--onto <newbase>] [--continue|--abort] <upstream>"
+    os: [cross-platform]
+    flags:
+      - flag: "-i"
+        description: "Interactive — pick / squash / reword / drop / reorder commits."
+      - flag: "--onto <ref>"
+        description: "Reparent onto a specific commit (advanced)."
+      - flag: "--continue"
+        description: "Resume after resolving a conflict."
+      - flag: "--abort"
+        description: "Bail out and reset to the pre-rebase state."
+      - flag: "--autosquash"
+        description: "Auto-apply fixup!/squash! commits during interactive rebase."
+    examples:
+      - "git rebase main"
+      - "git rebase -i HEAD~5"
+      - "git rebase --abort"
+    gotchas: >
+      Never rebase commits that have been pushed to a shared branch.
+      Rebasing rewrites SHAs, so anyone with the old SHAs will be on a
+      diverged history.
+    see_also: ["git merge", "git cherry-pick"]
+    references:
+      - "man 1 git-rebase"
+
+  - name: "git stash"
+    description: "Temporarily shelve working-tree changes."
+    syntax: "git stash [push -m \"<msg>\"|pop|list|drop|apply]"
+    os: [cross-platform]
+    flags:
+      - flag: "push -m \"<msg>\""
+        description: "Save current changes with a label."
+      - flag: "-u"
+        description: "Include untracked files too."
+      - flag: "pop"
+        description: "Apply the top stash and drop it from the list."
+      - flag: "apply"
+        description: "Apply without dropping."
+      - flag: "list"
+        description: "Show all stashes."
+      - flag: "drop stash@{<n>}"
+        description: "Delete a specific stash entry."
+    examples:
+      - "git stash push -m \"wip: testing thing\""
+      - "git stash pop"
+      - "git stash list"
+    gotchas: >
+      Stashes are local-only — they never push or sync. Don't treat the
+      stash as long-term storage; commit to a wip branch if you'll be
+      gone for more than a day.
+    see_also: ["git commit", "git restore"]
+    references:
+      - "man 1 git-stash"
+
+  - name: "git log"
+    description: "Show commit history."
+    syntax: "git log [--oneline] [--graph] [-<n>] [--author=<who>] [<path>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "--oneline"
+        description: "One commit per line — SHA + subject."
+      - flag: "--graph"
+        description: "ASCII branch/merge graph."
+      - flag: "-<n>"
+        description: "Last n commits."
+      - flag: "--author=<who>"
+        description: "Filter by author."
+      - flag: "--since=<when>"
+        description: "Commits newer than e.g. '2 weeks ago'."
+      - flag: "-p"
+        description: "Show diffs alongside each commit."
+      - flag: "--stat"
+        description: "Show per-file change counts."
+    examples:
+      - "git log --oneline --graph --all -20"
+      - "git log -p src/main.ts"
+      - "git log --since='1 week ago' --author=me"
+    see_also: ["git show", "git diff", "git blame"]
+    references:
+      - "man 1 git-log"
+
+  - name: "git diff"
+    description: "Show changes between commits, branches, working tree, or staging."
+    syntax: "git diff [--staged] [<commit>[..<commit>]] [-- <path>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "--staged / --cached"
+        description: "Diff staged changes vs HEAD."
+      - flag: "--stat"
+        description: "Summary of changes per file."
+      - flag: "--name-only"
+        description: "Just the changed filenames."
+      - flag: "-w"
+        description: "Ignore whitespace changes."
+    examples:
+      - "git diff"
+      - "git diff --staged"
+      - "git diff main..feature/new-thing -- src/"
+    see_also: ["git log", "git show"]
+    references:
+      - "man 1 git-diff"
+
+  - name: "git reset"
+    description: "Move HEAD (and optionally the index / working tree) to a different commit."
+    syntax: "git reset [--soft|--mixed|--hard] [<commit>]"
+    os: [cross-platform]
+    flags:
+      - flag: "--soft"
+        description: "Move HEAD only. Index and working tree untouched."
+      - flag: "--mixed"
+        description: "Move HEAD and reset index. Working tree untouched (default)."
+      - flag: "--hard"
+        description: "Move HEAD and reset both index and working tree. DESTRUCTIVE."
+    examples:
+      - "git reset HEAD~1"
+      - "git reset --soft HEAD~3"
+      - "git reset --hard origin/main"
+    gotchas: >
+      <code>--hard</code> discards uncommitted changes silently — no
+      undo. Use <code>git reflog</code> to recover the previous HEAD if
+      you reset by mistake.
+    see_also: ["git restore", "git revert", "git reflog"]
+    references:
+      - "man 1 git-reset"
+
+  - name: "git remote"
+    description: "Manage the set of configured remote repositories."
+    syntax: "git remote [-v | add <name> <url> | set-url <name> <url> | remove <name>]"
+    os: [cross-platform]
+    flags:
+      - flag: "-v"
+        description: "Verbose list — show URLs."
+      - flag: "add <name> <url>"
+        description: "Add a new remote."
+      - flag: "set-url <name> <url>"
+        description: "Change an existing remote's URL."
+      - flag: "rename <old> <new>"
+        description: "Rename a remote."
+    examples:
+      - "git remote -v"
+      - "git remote add upstream https://github.com/owner/repo.git"
+      - "git remote set-url origin git@github.com:user/repo.git"
+    see_also: ["git fetch", "git push"]
+    references:
+      - "man 1 git-remote"
+
+  - name: "git tag"
+    description: "Create, list, or delete lightweight / annotated tags."
+    syntax: "git tag [-a <name> -m \"<msg>\"] [-d <name>] [-l <glob>]"
+    os: [cross-platform]
+    flags:
+      - flag: "-a <name>"
+        description: "Annotated tag (carries metadata + message)."
+      - flag: "-m \"<msg>\""
+        description: "Annotation message (required with -a)."
+      - flag: "-d <name>"
+        description: "Delete a local tag."
+      - flag: "-l <glob>"
+        description: "List tags matching a glob."
+    examples:
+      - "git tag -a v1.0.0 -m \"first release\""
+      - "git push --tags"
+      - "git tag -d v1.0.0-rc1"
+    see_also: ["git push", "git describe"]
+    references:
+      - "man 1 git-tag"

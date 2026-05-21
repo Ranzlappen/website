@@ -1,0 +1,281 @@
+batch:
+  id: "system-and-permissions"
+  order: 9
+  name: "System & Permissions"
+  short_name: "System & Perms"
+  description: >
+    Privilege escalation, file mode changes, disk usage, mount, and the
+    handful of "what is this machine doing right now" introspection tools.
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "sudo"
+    description: "Run a single command as another user (default: root)."
+    syntax: "sudo [-i|-u <user>|-E|-k] <cmd> [args...]"
+    os: [linux, macos, cross-platform, root, android]
+    flags:
+      - flag: "-i"
+        description: "Open an interactive root shell (simulates a fresh login)."
+      - flag: "-s"
+        description: "Run shell as target user, keep current $PWD/environment."
+      - flag: "-u <user>"
+        description: "Run as a non-root user."
+      - flag: "-E"
+        description: "Preserve calling user's environment (subject to /etc/sudoers)."
+      - flag: "-k"
+        description: "Invalidate cached credentials (re-prompt next time)."
+      - flag: "-v"
+        description: "Refresh credential timestamp without running anything."
+    examples:
+      - "sudo apt update"
+      - "sudo -u postgres psql"
+      - "sudo -i"
+    gotchas: >
+      <code>sudo cmd &gt;&gt; /etc/file</code> doesn't work — the redirect
+      is your unprivileged shell. Use <code>echo … | sudo tee -a /etc/file</code>
+      instead. Edit <code>/etc/sudoers</code> only via <code>visudo</code>
+      so syntax errors don't lock you out.
+    see_also: ["su", "doas", "visudo"]
+    references:
+      - "man 8 sudo"
+
+  - name: "chmod"
+    description: "Change file permissions."
+    syntax: "chmod [<mode>|<symbolic>] <file>..."
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "<octal>"
+        description: "Three or four octal digits — owner, group, others (+ setuid/sticky)."
+      - flag: "u/g/o/a"
+        description: "Target: user, group, others, all."
+      - flag: "+/-/="
+        description: "Add / remove / set permissions."
+      - flag: "r/w/x"
+        description: "Read / write / execute."
+      - flag: "-R"
+        description: "Recurse into directories."
+    examples:
+      - "chmod 600 ~/.ssh/id_ed25519"
+      - "chmod -R u+rwX,go+rX,go-w site/"
+      - "chmod +x scripts/deploy.sh"
+    gotchas: >
+      Octal cheat sheet: <code>r=4 w=2 x=1</code>. <code>755</code> is
+      "owner rwx, others rx" (the default for executables and dirs);
+      <code>644</code> is "owner rw, others r" (regular files);
+      <code>600</code> is "owner only" (private keys, .env).
+      Capital <code>X</code> in symbolic mode means "x on dirs but not
+      regular files unless already executable" — exactly what you want
+      with <code>-R</code>.
+    see_also: ["chown", "umask", "stat"]
+    references:
+      - "man 1 chmod"
+
+  - name: "chown"
+    description: "Change file owner and / or group."
+    syntax: "chown [-R] [<user>][:<group>] <file>..."
+    os: [linux, macos, cross-platform, root]
+    flags:
+      - flag: "<user>"
+        description: "New owner."
+      - flag: ":<group>"
+        description: "New group only (keep owner)."
+      - flag: "<user>:<group>"
+        description: "Both at once."
+      - flag: "-R"
+        description: "Recursive."
+      - flag: "-h"
+        description: "Act on the symlink itself, not its target."
+    examples:
+      - "sudo chown -R www-data:www-data /var/www/site"
+      - "sudo chown :staff shared.log"
+    see_also: ["chmod", "chgrp"]
+    references:
+      - "man 1 chown"
+
+  - name: "umask"
+    description: "Show or set the default permission mask for new files."
+    syntax: "umask [<octal>]"
+    os: [cross-platform]
+    examples:
+      - "umask"
+      - "umask 077"
+    gotchas: >
+      Umask is subtracted from the default base mode (666 for files, 777
+      for dirs). <code>umask 022</code> → new files 644, new dirs 755
+      (the typical default). <code>umask 077</code> → owner-only, useful
+      for paranoid home dirs.
+    see_also: ["chmod"]
+    references:
+      - "help umask  (bash builtin)"
+
+  - name: "df"
+    description: "Report filesystem disk space usage."
+    syntax: "df [-h] [-T] [-i] [<path>]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-h"
+        description: "Human-readable (K, M, G)."
+      - flag: "-H"
+        description: "Like -h but powers of 1000 instead of 1024."
+      - flag: "-T"
+        description: "Include filesystem type."
+      - flag: "-i"
+        description: "Show inode usage instead of block usage."
+    examples:
+      - "df -h"
+      - "df -hT /"
+      - "df -i"
+    gotchas: >
+      "No space left on device" can mean blocks OR inodes — check
+      <code>df -i</code> too. Lots of small files can exhaust inodes
+      well before blocks fill up.
+    see_also: ["du", "lsblk"]
+    references:
+      - "man 1 df"
+
+  - name: "du"
+    description: "Estimate file space usage (per directory)."
+    syntax: "du [-h] [-s] [-d <depth>] [<path>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-h"
+        description: "Human-readable sizes."
+      - flag: "-s"
+        description: "Summary — one total per arg."
+      - flag: "-d <n>"
+        description: "Max depth to descend."
+      - flag: "-a"
+        description: "Include individual files, not just directories."
+      - flag: "--exclude=<pat>"
+        description: "Skip paths matching the glob."
+    examples:
+      - "du -sh *"
+      - "du -h -d 1 ~ | sort -h"
+      - "du -sh --exclude='*.log' /var/lib"
+    gotchas: >
+      <code>du -sh *</code> misses dotfiles — use <code>du -sh .[!.]* *</code>
+      to include them. <code>ncdu</code> is an interactive front end
+      worth installing if you're hunting space hogs.
+    see_also: ["df", "ncdu"]
+    references:
+      - "man 1 du"
+
+  - name: "mount"
+    description: "Mount a filesystem at a directory."
+    syntax: "mount [-t <type>] [-o <opts>] <device> <mountpoint>"
+    os: [linux, macos, cross-platform, root]
+    flags:
+      - flag: "-t <type>"
+        description: "Filesystem type (ext4, xfs, nfs, cifs, …); usually auto-detected."
+      - flag: "-o <opts>"
+        description: "Comma-separated options (ro, noexec, uid=…, vers=4…)."
+      - flag: "-a"
+        description: "Mount everything in /etc/fstab (used at boot)."
+    examples:
+      - "sudo mount /dev/sdb1 /mnt/usb"
+      - "sudo mount -t nfs nas.local:/data /mnt/nas"
+      - "mount  # show current mounts"
+    see_also: ["umount", "lsblk", "fstab"]
+    references:
+      - "man 8 mount"
+
+  - name: "umount"
+    description: "Unmount a filesystem."
+    syntax: "umount [-l] [-f] <mountpoint|device>"
+    os: [linux, macos, cross-platform, root]
+    flags:
+      - flag: "-l"
+        description: "Lazy — detach now, clean up when no longer busy."
+      - flag: "-f"
+        description: "Force (mostly NFS-only)."
+    examples:
+      - "sudo umount /mnt/usb"
+      - "sudo umount -l /mnt/stale"
+    gotchas: >
+      "Target is busy" usually means a shell is <code>cd</code>'d into
+      the mount or a process has an open file. <code>lsof +D /mnt/usb</code>
+      or <code>fuser -m /mnt/usb</code> tells you who.
+    see_also: ["mount", "fuser", "lsof"]
+    references:
+      - "man 8 umount"
+
+  - name: "lsblk"
+    description: "List block devices in a tree (disks → partitions → mappings)."
+    syntax: "lsblk [-f] [-p] [-o <cols>]"
+    os: [linux]
+    flags:
+      - flag: "-f"
+        description: "Include filesystem type, UUID, label."
+      - flag: "-p"
+        description: "Print full paths (/dev/sda1)."
+      - flag: "-o <cols>"
+        description: "Custom columns (NAME,SIZE,FSTYPE,MOUNTPOINT,…)."
+    examples:
+      - "lsblk"
+      - "lsblk -f"
+    see_also: ["df", "blkid", "fdisk"]
+    references:
+      - "man 8 lsblk"
+
+  - name: "free"
+    description: "Show memory usage (RAM and swap)."
+    syntax: "free [-h] [-s <sec>] [-c <count>]"
+    os: [linux]
+    flags:
+      - flag: "-h"
+        description: "Human-readable sizes."
+      - flag: "-m / -g"
+        description: "Megabytes / gigabytes."
+      - flag: "-s <sec>"
+        description: "Repeat every n seconds (loop)."
+    examples:
+      - "free -h"
+      - "free -h -s 2"
+    gotchas: >
+      <code>available</code> is what you actually have — <code>free</code>
+      excludes cache that the kernel will reclaim on demand. Linux uses
+      free RAM as cache aggressively; "low free RAM" is usually fine.
+    see_also: ["top", "vmstat"]
+    references:
+      - "man 1 free"
+
+  - name: "uname"
+    description: "Print system / kernel info."
+    syntax: "uname [-a|-r|-s|-m]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-a"
+        description: "Everything: kernel, hostname, kernel version, arch, OS."
+      - flag: "-r"
+        description: "Kernel release."
+      - flag: "-s"
+        description: "Kernel name (Linux / Darwin / …)."
+      - flag: "-m"
+        description: "Machine architecture (x86_64, arm64, …)."
+    examples:
+      - "uname -a"
+      - "uname -m"
+    see_also: ["lsb_release", "hostnamectl"]
+    references:
+      - "man 1 uname"
+
+  - name: "id"
+    description: "Print the calling user's UID, GID, and group memberships."
+    syntax: "id [-u|-g|-G|-n] [<user>]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-u"
+        description: "Effective UID only."
+      - flag: "-g"
+        description: "Effective GID only."
+      - flag: "-G"
+        description: "All group IDs."
+      - flag: "-n"
+        description: "Print names instead of numeric IDs (combine with -u/-g/-G)."
+    examples:
+      - "id"
+      - "id -un"
+      - "id alice"
+    see_also: ["whoami", "groups"]
+    references:
+      - "man 1 id"
