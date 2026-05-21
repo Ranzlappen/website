@@ -1,0 +1,312 @@
+batch:
+  id: "network-and-transfer"
+  order: 4
+  name: "Network & Transfer"
+  short_name: "Network"
+  description: >
+    HTTP clients, DNS lookups, port scanners, link state — the tools you
+    reach for to ask "is the network broken or is my code broken".
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "curl"
+    description: "Transfer data to / from URLs (HTTP, HTTPS, FTP, SFTP, …)."
+    syntax: "curl [-X <method>] [-H \"<header>\"] [-d <data>] [-o <file>] [-L] [-sS] <url>"
+    os: [cross-platform]
+    flags:
+      - flag: "-X <method>"
+        description: "HTTP method (GET default; POST, PUT, DELETE, PATCH…)."
+      - flag: "-H \"<header>\""
+        description: "Add a request header; repeat for multiple."
+      - flag: "-d <data>"
+        description: "Request body (also implies POST if -X is not set)."
+      - flag: "--data-binary @<file>"
+        description: "Send the contents of a file as the body, byte-for-byte."
+      - flag: "-o <file>"
+        description: "Write response body to a file instead of stdout."
+      - flag: "-O"
+        description: "Save as the URL's basename."
+      - flag: "-L"
+        description: "Follow 3xx redirects."
+      - flag: "-sS"
+        description: "Silent (-s) but show errors (-S). Common in scripts."
+      - flag: "-I"
+        description: "HEAD request — fetch headers only."
+      - flag: "-u <user>:<pass>"
+        description: "HTTP basic auth."
+      - flag: "-v"
+        description: "Verbose — print full request and response headers."
+    examples:
+      - "curl -sSL https://example.com/install.sh | sh"
+      - "curl -X POST -H \"Content-Type: application/json\" -d '{\"k\":1}' https://api.example/v1/data"
+      - "curl -o output.bin -L https://files.example/dl/123"
+    gotchas: >
+      <code>curl | sh</code> executes arbitrary network code — only do
+      this for sources you trust. Default macOS curl lacks brotli/zstd
+      support — install via Homebrew for full features. Use
+      <code>--fail</code> in scripts so 4xx/5xx responses produce a
+      non-zero exit code.
+    see_also: ["wget", "httpie", "rsync"]
+    references:
+      - "man 1 curl"
+      - "https://curl.se/docs/manpage.html"
+
+  - name: "wget"
+    description: "Non-interactive network downloader."
+    syntax: "wget [-O <file>] [-c] [-r] [-N] <url>"
+    os: [linux, cross-platform, android]
+    flags:
+      - flag: "-O <file>"
+        description: "Output filename (- for stdout)."
+      - flag: "-c"
+        description: "Continue a partially downloaded file."
+      - flag: "-r"
+        description: "Recursive — mirror a site."
+      - flag: "-N"
+        description: "Only download if newer than the local copy."
+      - flag: "-q"
+        description: "Quiet — no output."
+    examples:
+      - "wget https://example.com/big.iso"
+      - "wget -c https://files.example/huge.tar.gz"
+      - "wget -r -N -np https://docs.example.com/manual/"
+    gotchas: >
+      Not installed on macOS by default — <code>brew install wget</code>.
+      <code>curl</code> covers most of the same use cases and is
+      preinstalled everywhere.
+    see_also: ["curl", "aria2c"]
+    references:
+      - "man 1 wget"
+
+  - name: "ping"
+    description: "Send ICMP echo requests to a host and report round-trip time."
+    syntax: "ping [-c <count>] [-i <interval>] [-W <timeout>] <host>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-c <n>"
+        description: "Stop after n requests."
+      - flag: "-i <s>"
+        description: "Wait s seconds between requests (default 1)."
+      - flag: "-W <s>"
+        description: "Per-reply timeout in seconds."
+      - flag: "-4 / -6"
+        description: "Force IPv4 or IPv6."
+    examples:
+      - "ping -c 4 1.1.1.1"
+      - "ping -i 0.2 example.com"
+    gotchas: >
+      Some networks block ICMP — "ping fails" doesn't always mean the
+      host is down. Sub-second <code>-i</code> values usually require
+      root.
+    see_also: ["traceroute", "mtr"]
+    references:
+      - "man 8 ping"
+
+  - name: "traceroute"
+    description: "Show the network path (hop by hop) to a host."
+    syntax: "traceroute [-n] [-T] [-w <s>] <host>"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-n"
+        description: "Numeric only — don't resolve hostnames (faster)."
+      - flag: "-T"
+        description: "Use TCP SYN instead of UDP (often gets past firewalls)."
+      - flag: "-I"
+        description: "Use ICMP echo (Linux: needs root)."
+      - flag: "-w <s>"
+        description: "Wait s seconds for each reply."
+    examples:
+      - "traceroute -n example.com"
+      - "sudo traceroute -T -p 443 example.com"
+    see_also: ["mtr", "ping"]
+    references:
+      - "man 8 traceroute"
+
+  - name: "mtr"
+    description: "Combined traceroute + ping with a live rolling display."
+    syntax: "mtr [-r] [-c <count>] [-w] <host>"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-r"
+        description: "Report mode — run N cycles then print and exit."
+      - flag: "-c <n>"
+        description: "Number of cycles."
+      - flag: "-w"
+        description: "Wide report (no truncated hostnames)."
+    examples:
+      - "mtr -rwc 20 example.com"
+    see_also: ["traceroute", "ping"]
+    references:
+      - "man 8 mtr"
+
+  - name: "dig"
+    description: "Detailed DNS lookups (the canonical DNS debugger)."
+    syntax: "dig [@<server>] <name> [<type>] [+short]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "@<server>"
+        description: "Use this DNS server instead of the system resolver."
+      - flag: "<type>"
+        description: "Record type — A, AAAA, MX, TXT, NS, CNAME, SOA, ANY."
+      - flag: "+short"
+        description: "Compact output — just the answer."
+      - flag: "+trace"
+        description: "Trace the query from the roots downward."
+    examples:
+      - "dig example.com"
+      - "dig @1.1.1.1 example.com MX +short"
+      - "dig +trace example.com"
+    see_also: ["host", "nslookup"]
+    references:
+      - "man 1 dig"
+
+  - name: "host"
+    description: "Simpler DNS lookup utility — terse output by default."
+    syntax: "host [-t <type>] <name> [<server>]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-t <type>"
+        description: "Record type (A, MX, TXT, …)."
+      - flag: "-a"
+        description: "All record types."
+    examples:
+      - "host example.com"
+      - "host -t MX example.com"
+    see_also: ["dig", "nslookup"]
+    references:
+      - "man 1 host"
+
+  - name: "nslookup"
+    description: "Older interactive DNS query tool (still useful on Windows)."
+    syntax: "nslookup <name> [<server>]"
+    os: [linux, macos, windows, cross-platform]
+    examples:
+      - "nslookup example.com"
+      - "nslookup example.com 8.8.8.8"
+    gotchas: >
+      <code>dig</code> is more powerful and has better scripting support;
+      reach for <code>nslookup</code> on Windows where <code>dig</code>
+      isn't bundled.
+    see_also: ["dig", "host"]
+    references:
+      - "man 1 nslookup"
+
+  - name: "ss"
+    description: "Inspect sockets — listening ports, established connections, stats."
+    syntax: "ss [-l] [-t] [-u] [-n] [-p] [-a]"
+    os: [linux]
+    flags:
+      - flag: "-l"
+        description: "Listening sockets only."
+      - flag: "-t"
+        description: "TCP."
+      - flag: "-u"
+        description: "UDP."
+      - flag: "-n"
+        description: "Numeric — don't resolve hosts or services."
+      - flag: "-p"
+        description: "Show the owning process (needs root for others)."
+      - flag: "-a"
+        description: "All sockets (default: not listening)."
+    examples:
+      - "ss -ltnp"
+      - "sudo ss -tunap | grep 443"
+    gotchas: >
+      <code>ss</code> replaced <code>netstat</code> on modern Linux —
+      faster and reads <code>/proc/net</code> directly. macOS uses
+      <code>netstat</code> + <code>lsof -i</code> instead.
+    see_also: ["netstat", "lsof"]
+    references:
+      - "man 8 ss"
+
+  - name: "netstat"
+    description: "List network connections, routing tables, interface stats."
+    syntax: "netstat [-l] [-t] [-u] [-n] [-p] [-r]"
+    os: [linux, macos, windows, cross-platform]
+    flags:
+      - flag: "-l"
+        description: "Listening sockets."
+      - flag: "-t / -u"
+        description: "TCP / UDP."
+      - flag: "-n"
+        description: "Numeric."
+      - flag: "-p"
+        description: "Show owning process (Linux; not BSD/macOS)."
+      - flag: "-r"
+        description: "Routing table."
+    examples:
+      - "netstat -ltn"
+      - "netstat -rn"
+    gotchas: >
+      Deprecated on modern Linux in favour of <code>ss</code> (faster
+      same data). Still standard on macOS, BSD, and Windows.
+    see_also: ["ss", "lsof", "route"]
+    references:
+      - "man 8 netstat"
+
+  - name: "nmap"
+    description: "Port scanner and network discovery tool."
+    syntax: "nmap [-sS|-sT|-sU] [-p <ports>] [-A] [-Pn] <target>"
+    os: [linux, macos, windows, cross-platform, root]
+    flags:
+      - flag: "-sS"
+        description: "TCP SYN (stealth) scan — requires root."
+      - flag: "-sT"
+        description: "TCP connect scan — no root needed but more visible."
+      - flag: "-sU"
+        description: "UDP scan."
+      - flag: "-p <ports>"
+        description: "Ports list (22,80,443 or 1-1024)."
+      - flag: "-A"
+        description: "Aggressive: OS detect, version, scripts, traceroute."
+      - flag: "-Pn"
+        description: "Skip host discovery — treat all hosts as up."
+    examples:
+      - "nmap -sT -p 22,80,443 example.com"
+      - "sudo nmap -A 192.168.1.0/24"
+    gotchas: >
+      Only scan networks you own or have written permission to scan.
+      Aggressive scans are noisy and may trigger IDS alerts.
+    see_also: ["ss", "masscan"]
+    references:
+      - "man 1 nmap"
+
+  - name: "ip"
+    description: "Show / manipulate routing, devices, addresses, tunnels (modern Linux)."
+    syntax: "ip [<object>] [<command>] [<args>]"
+    os: [linux, root]
+    flags:
+      - flag: "ip addr"
+        description: "Show IP addresses on all interfaces."
+      - flag: "ip link"
+        description: "Show / change interface link state."
+      - flag: "ip route"
+        description: "Show / change the routing table."
+      - flag: "ip -br a"
+        description: "Brief one-line-per-interface summary."
+    examples:
+      - "ip addr show"
+      - "ip -br a"
+      - "sudo ip route add 10.0.0.0/8 via 192.168.1.1"
+    gotchas: >
+      Replaced the older <code>ifconfig</code> / <code>route</code> /
+      <code>arp</code> trio. Not available on macOS — use
+      <code>ifconfig</code> + <code>route</code> + <code>netstat -rn</code>
+      there.
+    see_also: ["ifconfig", "ss"]
+    references:
+      - "man 8 ip"
+
+  - name: "ifconfig"
+    description: "Show / configure network interfaces (legacy Linux, default macOS)."
+    syntax: "ifconfig [<iface>] [up|down]"
+    os: [linux, macos, cross-platform]
+    examples:
+      - "ifconfig"
+      - "sudo ifconfig en0 down"
+    gotchas: >
+      Deprecated on modern Linux (use <code>ip</code>). Still default on
+      macOS and BSD.
+    see_also: ["ip"]
+    references:
+      - "man 8 ifconfig"

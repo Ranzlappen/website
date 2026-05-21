@@ -1,0 +1,221 @@
+batch:
+  id: "processes-and-jobs"
+  order: 3
+  name: "Processes & Jobs"
+  short_name: "Processes"
+  description: >
+    Inspect what's running, suspend / background / kill jobs, watch CPU
+    and memory live. The toolkit for diagnosing "why is this server hot"
+    and "what is eating my battery".
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "ps"
+    description: "Snapshot the current process list."
+    syntax: "ps [aux | -ef] [-o <fmt>]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "aux"
+        description: "BSD style: all users, including no-controlling-terminal procs."
+      - flag: "-ef"
+        description: "POSIX style: full format, every process."
+      - flag: "-o <fmt>"
+        description: "Custom output columns (e.g. pid,user,%cpu,%mem,cmd)."
+    examples:
+      - "ps aux | grep nginx"
+      - "ps -eo pid,user,%cpu,%mem,cmd --sort=-%mem | head"
+    gotchas: >
+      <code>ps aux</code> and <code>ps -ef</code> are nearly equivalent but
+      use different flag syntax (BSD vs POSIX). On modern Linux either
+      works; on minimal busybox boxes (and some Android setups) only one
+      is available.
+    see_also: ["top", "pgrep", "htop"]
+    references:
+      - "man 1 ps"
+
+  - name: "top"
+    description: "Live, sortable view of running processes."
+    syntax: "top [-d <delay>] [-n <iters>] [-o <field>] [-u <user>]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-d <s>"
+        description: "Refresh delay in seconds (default: 3 on Linux, 1 on macOS)."
+      - flag: "-n <n>"
+        description: "Run for n iterations then exit (good for scripts)."
+      - flag: "-o <field>"
+        description: "Sort by field (cpu, mem, time)."
+      - flag: "-u <user>"
+        description: "Show only this user's processes."
+    examples:
+      - "top -o cpu"
+      - "top -n 1 -b > snapshot.txt"
+    gotchas: >
+      Linux <code>top</code> and macOS <code>top</code> are different
+      binaries with different keybindings. Inside Linux <code>top</code>:
+      <code>P</code> sort by CPU, <code>M</code> by memory, <code>k</code>
+      kill a PID, <code>q</code> quit.
+    see_also: ["htop", "ps", "iotop"]
+    references:
+      - "man 1 top"
+
+  - name: "htop"
+    description: "Interactive process viewer with colour, mouse support, and tree mode."
+    syntax: "htop [-d <ds>] [-u <user>] [-p <pid>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-u <user>"
+        description: "Show only this user's processes."
+      - flag: "-p <pid,...>"
+        description: "Show only the listed PIDs."
+      - flag: "-t"
+        description: "Start in tree view."
+    examples:
+      - "htop"
+      - "htop -u www-data -t"
+    gotchas: >
+      Not installed by default — <code>apt install htop</code> /
+      <code>brew install htop</code> / <code>pkg install htop</code> in
+      Termux. Inside htop: F5 tree, F6 sort, F9 kill, F10 quit.
+    see_also: ["top", "btop"]
+    references:
+      - "man 1 htop"
+
+  - name: "kill"
+    description: "Send a signal to one or more processes (default: SIGTERM)."
+    syntax: "kill [-<signal>|-l] <pid>..."
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-9 / -KILL"
+        description: "SIGKILL — unblockable, kernel kills the process."
+      - flag: "-15 / -TERM"
+        description: "SIGTERM — graceful shutdown (default)."
+      - flag: "-1 / -HUP"
+        description: "SIGHUP — many daemons reload config on this."
+      - flag: "-l"
+        description: "List all signal names."
+    examples:
+      - "kill 12345"
+      - "kill -HUP $(pgrep nginx)"
+      - "kill -9 1234"
+    gotchas: >
+      Reach for <code>-15</code> first — <code>-9</code> bypasses cleanup
+      and can leave locked files, half-written data, or zombie children.
+      A process that ignores <code>-15</code> for >5s is the only candidate
+      for <code>-9</code>.
+    see_also: ["pkill", "killall", "pgrep"]
+    references:
+      - "man 1 kill"
+
+  - name: "pkill"
+    description: "Kill processes by name pattern instead of PID."
+    syntax: "pkill [-<signal>] [-f] [-u <user>] <pattern>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-f"
+        description: "Match against the full command line, not just the process name."
+      - flag: "-u <user>"
+        description: "Only kill processes owned by this user."
+      - flag: "-<signal>"
+        description: "Which signal to send (default: TERM)."
+    examples:
+      - "pkill nginx"
+      - "pkill -f 'python my-script.py'"
+    see_also: ["kill", "pgrep", "killall"]
+    references:
+      - "man 1 pkill"
+
+  - name: "pgrep"
+    description: "List PIDs of processes matching a name pattern."
+    syntax: "pgrep [-f] [-u <user>] [-a] <pattern>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-f"
+        description: "Match the full command line."
+      - flag: "-a"
+        description: "Print the command line alongside the PID."
+      - flag: "-u <user>"
+        description: "Restrict to one user."
+    examples:
+      - "pgrep -a nginx"
+      - "pgrep -fu $USER node"
+    see_also: ["pkill", "ps"]
+    references:
+      - "man 1 pgrep"
+
+  - name: "jobs"
+    description: "List the current shell's background and stopped jobs."
+    syntax: "jobs [-l] [-p]"
+    os: [cross-platform]
+    flags:
+      - flag: "-l"
+        description: "Include PIDs in the output."
+      - flag: "-p"
+        description: "Print PIDs only."
+    examples:
+      - "jobs"
+      - "jobs -l"
+    gotchas: >
+      Jobs are shell-local — they disappear when the shell exits unless
+      you use <code>nohup</code> or <code>disown</code>. Use
+      <code>fg %1</code> to foreground job 1, <code>bg %1</code> to
+      resume it in the background.
+    see_also: ["bg", "fg", "nohup", "disown"]
+    references:
+      - "help jobs  (bash builtin)"
+
+  - name: "nohup"
+    description: "Run a command immune to hangups (so it survives shell exit)."
+    syntax: "nohup <cmd> [args...] [&]"
+    os: [linux, macos, cross-platform, android]
+    examples:
+      - "nohup ./long-build.sh &"
+      - "nohup python serve.py > server.log 2>&1 &"
+    gotchas: >
+      Output goes to <code>nohup.out</code> in the current directory
+      unless you redirect explicitly. For something more durable, use
+      <code>systemd</code> service units (Linux), <code>launchd</code>
+      (macOS), or a terminal multiplexer like <code>tmux</code>.
+    see_also: ["disown", "tmux", "screen"]
+    references:
+      - "man 1 nohup"
+
+  - name: "lsof"
+    description: "List open files (including network sockets) and their owning processes."
+    syntax: "lsof [-i [<host>:<port>]] [-p <pid>] [-u <user>]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-i"
+        description: "Internet sockets — append :<port> or @host."
+      - flag: "-p <pid>"
+        description: "Files opened by a specific PID."
+      - flag: "-u <user>"
+        description: "Files opened by a specific user."
+      - flag: "+D <dir>"
+        description: "All open files under a directory."
+    examples:
+      - "lsof -i :3000"
+      - "sudo lsof -p $(pgrep nginx)"
+      - "lsof +D /var/log"
+    gotchas: >
+      Almost always needs <code>sudo</code> to see other users' files /
+      sockets. On Linux, <code>ss -ltnp</code> is faster for "what's
+      listening on which port".
+    see_also: ["ss", "netstat", "fuser"]
+    references:
+      - "man 8 lsof"
+
+  - name: "time"
+    description: "Run a command and report how long it took."
+    syntax: "time <cmd> [args...]"
+    os: [cross-platform]
+    examples:
+      - "time make build"
+      - "time curl -s https://example.com > /dev/null"
+    gotchas: >
+      <code>time</code> is both a shell builtin and a binary
+      (<code>/usr/bin/time</code>). The builtin (which most shells default
+      to) shows real/user/sys; the binary supports <code>-v</code> for
+      memory and I/O stats (<code>/usr/bin/time -v ...</code> on Linux).
+    see_also: ["hyperfine"]
+    references:
+      - "man 1 time"

@@ -1,0 +1,235 @@
+batch:
+  id: "package-management"
+  order: 7
+  name: "Package Management"
+  short_name: "Pkg Mgmt"
+  description: >
+    Distribution package managers (apt, brew, pacman, dnf) and
+    language-level package managers (pip, npm, bundle, cargo). For each:
+    install, remove, upgrade, search, and inspect.
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "apt"
+    description: "Debian/Ubuntu package manager (newer wrapper around apt-get/apt-cache)."
+    syntax: "apt [update|upgrade|install|remove|search|show] [<pkg>...]"
+    os: [linux, root, android]
+    flags:
+      - flag: "update"
+        description: "Refresh the package list from configured repos."
+      - flag: "upgrade"
+        description: "Upgrade installed packages."
+      - flag: "install <pkg>"
+        description: "Install one or more packages."
+      - flag: "remove <pkg>"
+        description: "Remove (keep config) a package."
+      - flag: "purge <pkg>"
+        description: "Remove and delete config files."
+      - flag: "autoremove"
+        description: "Drop orphaned dependencies."
+      - flag: "search <pat>"
+        description: "Search the package index."
+    examples:
+      - "sudo apt update && sudo apt upgrade -y"
+      - "sudo apt install build-essential git curl"
+      - "apt search ripgrep"
+    gotchas: >
+      Always run <code>apt update</code> before <code>apt install</code> —
+      stale indexes cause "package not found" errors. <code>apt</code> is
+      the user-facing tool; <code>apt-get</code> is the more scriptable
+      stable interface (preferred in CI).
+    see_also: ["apt-get", "dpkg"]
+    references:
+      - "man 8 apt"
+
+  - name: "brew"
+    description: "Homebrew package manager for macOS (and Linux via Linuxbrew)."
+    syntax: "brew [install|uninstall|upgrade|search|info|services] [<pkg>...]"
+    os: [macos, linux, cross-platform]
+    flags:
+      - flag: "install <pkg>"
+        description: "Install a formula."
+      - flag: "install --cask <pkg>"
+        description: "Install a GUI app (cask)."
+      - flag: "uninstall <pkg>"
+        description: "Remove a package."
+      - flag: "upgrade"
+        description: "Upgrade everything (or a single named pkg)."
+      - flag: "search <pat>"
+        description: "Search formulae and casks."
+      - flag: "services [start|stop|restart] <pkg>"
+        description: "Manage launchd-driven services (macOS)."
+    examples:
+      - "brew install jq ripgrep fzf"
+      - "brew install --cask visual-studio-code"
+      - "brew services restart postgresql@14"
+    gotchas: >
+      Don't <code>sudo brew</code> — Homebrew is designed to install into
+      a user-writable prefix and refuses elevated runs.
+    see_also: ["port", "apt"]
+    references:
+      - "https://docs.brew.sh"
+
+  - name: "pacman"
+    description: "Arch Linux package manager."
+    syntax: "pacman [-S|-R|-Q|-Sy|-Syu|-Ss] [<pkg>...]"
+    os: [linux, root]
+    flags:
+      - flag: "-S <pkg>"
+        description: "Install or upgrade a package."
+      - flag: "-Sy"
+        description: "Refresh the package database."
+      - flag: "-Syu"
+        description: "Refresh + full system upgrade."
+      - flag: "-R <pkg>"
+        description: "Remove a package."
+      - flag: "-Rns <pkg>"
+        description: "Remove + deps + config files."
+      - flag: "-Ss <pat>"
+        description: "Search remote packages."
+      - flag: "-Qi <pkg>"
+        description: "Show installed-package info."
+    examples:
+      - "sudo pacman -Syu"
+      - "sudo pacman -S neovim ripgrep"
+      - "pacman -Ss ^rust$"
+    gotchas: >
+      Never run <code>pacman -Sy &lt;pkg&gt;</code> on Arch — partial
+      upgrades break dependency chains. Always <code>-Syu</code>.
+    see_also: ["yay", "paru", "dnf"]
+    references:
+      - "man 8 pacman"
+
+  - name: "pip"
+    description: "Install Python packages from PyPI (or sources)."
+    syntax: "pip [install|uninstall|list|show|freeze] [<pkg>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "install <pkg>"
+        description: "Install a package."
+      - flag: "install -r requirements.txt"
+        description: "Install everything listed in the file."
+      - flag: "install -e <path>"
+        description: "Editable install (changes in source reflect immediately)."
+      - flag: "install --user <pkg>"
+        description: "Install into the user site, not the system."
+      - flag: "uninstall <pkg>"
+        description: "Remove a package."
+      - flag: "freeze"
+        description: "Dump installed package versions in requirements format."
+      - flag: "list --outdated"
+        description: "Show packages with newer releases available."
+    examples:
+      - "pip install requests"
+      - "pip install -r requirements.txt"
+      - "pip freeze > requirements.txt"
+    gotchas: >
+      Don't <code>pip install</code> as root on a system Python — you'll
+      collide with the distro package manager (apt, dnf). Use
+      <code>python -m venv .venv && . .venv/bin/activate</code>, or
+      <code>pipx</code> for CLI tools, or <code>--user</code>. On modern
+      Debian/Ubuntu, system Python is "externally managed" and pip
+      refuses without <code>--break-system-packages</code>.
+    see_also: ["pipx", "uv", "poetry"]
+    references:
+      - "man 1 pip"
+      - "https://pip.pypa.io/"
+
+  - name: "npm"
+    description: "Node.js package manager."
+    syntax: "npm [install|uninstall|update|run|publish|init] [<pkg>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "install <pkg>"
+        description: "Install into ./node_modules and add to package.json."
+      - flag: "install -g <pkg>"
+        description: "Install globally (system-wide CLI tools)."
+      - flag: "install --save-dev <pkg>"
+        description: "Add as devDependency."
+      - flag: "install"
+        description: "Install everything in package.json into ./node_modules."
+      - flag: "ci"
+        description: "Clean install — installs exactly what package-lock.json says."
+      - flag: "run <script>"
+        description: "Run a script defined in package.json scripts."
+      - flag: "update [<pkg>]"
+        description: "Update within semver ranges in package.json."
+      - flag: "outdated"
+        description: "List packages with newer releases available."
+    examples:
+      - "npm install"
+      - "npm install --save-dev typescript"
+      - "npm ci"
+      - "npm run build"
+    gotchas: >
+      Use <code>npm ci</code> in CI — it errors instead of mutating
+      <code>package-lock.json</code>, and it's faster. Don't mix
+      <code>npm</code> and <code>yarn</code>/<code>pnpm</code> in the
+      same repo.
+    see_also: ["npx", "pnpm", "yarn"]
+    references:
+      - "https://docs.npmjs.com"
+
+  - name: "npx"
+    description: "Run a one-off npm package binary without installing it globally."
+    syntax: "npx [-y] <package>[@version] [args...]"
+    os: [cross-platform]
+    flags:
+      - flag: "-y / --yes"
+        description: "Auto-accept install prompt."
+      - flag: "<pkg>@<ver>"
+        description: "Pin a specific version."
+      - flag: "--no"
+        description: "Don't attempt to install; only use a local binary."
+    examples:
+      - "npx create-vite my-app"
+      - "npx -y prettier --write \"src/**/*.ts\""
+    see_also: ["npm"]
+    references:
+      - "https://docs.npmjs.com/cli/v10/commands/npx"
+
+  - name: "cargo"
+    description: "Rust package manager and build tool."
+    syntax: "cargo [new|build|run|test|add|publish] [<args>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "new <name>"
+        description: "Create a new project."
+      - flag: "build [--release]"
+        description: "Compile (release adds optimisation, removes debug)."
+      - flag: "run [-- <args>]"
+        description: "Build and execute (args after -- go to the binary)."
+      - flag: "test"
+        description: "Run unit and integration tests."
+      - flag: "add <crate>"
+        description: "Add a dependency to Cargo.toml."
+      - flag: "install <crate>"
+        description: "Install a binary crate globally (~/.cargo/bin)."
+    examples:
+      - "cargo new hello && cd hello"
+      - "cargo build --release"
+      - "cargo install ripgrep"
+    see_also: ["rustup"]
+    references:
+      - "https://doc.rust-lang.org/cargo/"
+
+  - name: "bundle"
+    description: "Ruby's Bundler — manage gem dependencies per project."
+    syntax: "bundle [install|update|exec|add] [<gem>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "install"
+        description: "Install everything in Gemfile.lock."
+      - flag: "update [<gem>]"
+        description: "Update gems within Gemfile constraints."
+      - flag: "exec <cmd>"
+        description: "Run a command in the bundle context."
+      - flag: "add <gem>"
+        description: "Add a gem to the Gemfile and install it."
+    examples:
+      - "bundle install"
+      - "bundle exec rake test"
+      - "bundle exec jekyll serve"
+    see_also: ["gem"]
+    references:
+      - "https://bundler.io"

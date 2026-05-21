@@ -1,0 +1,172 @@
+batch:
+  id: "language-runtimes"
+  order: 11
+  name: "Language Runtimes"
+  short_name: "Runtimes"
+  description: >
+    Invoking interpreters and REPLs from the shell — Python, Node, Ruby,
+    bash itself. Focused on REPL entry, one-liners, and script execution
+    patterns rather than language-level package management (that's in the
+    "Package Mgmt" tab).
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "python3"
+    description: "Run Python — REPL, scripts, modules, one-liners."
+    syntax: "python3 [-i] [-c \"<code>\"] [-m <module>] [<script> [args]]"
+    os: [cross-platform]
+    flags:
+      - flag: "-c \"<code>\""
+        description: "Execute a one-liner."
+      - flag: "-m <mod>"
+        description: "Run a module as a script (python3 -m http.server)."
+      - flag: "-i"
+        description: "Drop into REPL after running the script (great for debugging)."
+      - flag: "-u"
+        description: "Unbuffered stdout/stderr — see prints immediately in pipes."
+      - flag: "-V / --version"
+        description: "Print version and exit."
+    examples:
+      - "python3 -c \"import json,sys; print(json.load(sys.stdin)['ok'])\""
+      - "python3 -m http.server 8000"
+      - "python3 -i debug.py"
+    gotchas: >
+      System Python and your project's Python are different — use
+      <code>python3 -m venv .venv && . .venv/bin/activate</code> per
+      project. On macOS, <code>python</code> (no 3) usually doesn't
+      exist; always use <code>python3</code>. <code>uv</code> /
+      <code>pyenv</code> manage parallel interpreter versions.
+    see_also: ["pip", "pipx", "uv", "pyenv"]
+    references:
+      - "https://docs.python.org/3/using/cmdline.html"
+
+  - name: "node"
+    description: "Run JavaScript with Node.js — REPL, scripts, one-liners."
+    syntax: "node [-e \"<code>\"] [-p \"<expr>\"] [<script> [args]]"
+    os: [cross-platform]
+    flags:
+      - flag: "-e \"<code>\""
+        description: "Execute the code string."
+      - flag: "-p \"<expr>\""
+        description: "Evaluate and print the expression's result."
+      - flag: "-r <mod>"
+        description: "Require the module before running (for shims)."
+      - flag: "--inspect"
+        description: "Enable the Chrome DevTools debugger."
+      - flag: "-v / --version"
+        description: "Print version."
+    examples:
+      - "node -e \"console.log(crypto.randomUUID())\""
+      - "node -p \"process.versions\""
+      - "node --inspect server.js"
+    see_also: ["npm", "npx", "deno", "bun"]
+    references:
+      - "https://nodejs.org/api/cli.html"
+
+  - name: "ruby"
+    description: "Run Ruby — REPL via irb, scripts, one-liners."
+    syntax: "ruby [-e \"<code>\"] [-n|-p] [-l] [<script> [args]]"
+    os: [cross-platform]
+    flags:
+      - flag: "-e \"<code>\""
+        description: "Execute a one-liner."
+      - flag: "-n"
+        description: "Wrap script in 'while gets; …; end' (auto line loop)."
+      - flag: "-p"
+        description: "Like -n but auto-prints $_ each iteration."
+      - flag: "-l"
+        description: "Chomp newlines + add newline on print (line-mode)."
+      - flag: "-r <lib>"
+        description: "Require a library before running."
+    examples:
+      - "ruby -e \"puts 'hi'\""
+      - "ruby -pe 'gsub(/foo/, \"bar\")' input.txt"
+    see_also: ["irb", "gem", "bundle"]
+    references:
+      - "ruby --help"
+
+  - name: "irb"
+    description: "Interactive Ruby REPL."
+    syntax: "irb [-r <lib>] [--simple-prompt]"
+    os: [cross-platform]
+    flags:
+      - flag: "-r <lib>"
+        description: "Require a library on start."
+      - flag: "--simple-prompt"
+        description: "Minimal prompt."
+    examples:
+      - "irb"
+      - "irb -r json"
+    see_also: ["ruby", "pry"]
+    references:
+      - "https://docs.ruby-lang.org/en/master/IRB.html"
+
+  - name: "bash"
+    description: "GNU Bash shell — interactive or batch."
+    syntax: "bash [-c \"<cmd>\"] [-i] [-l] [<script> [args]]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-c \"<cmd>\""
+        description: "Execute one command string then exit."
+      - flag: "-i"
+        description: "Force interactive mode."
+      - flag: "-l / --login"
+        description: "Login shell — sources /etc/profile + ~/.bash_profile."
+      - flag: "-x"
+        description: "Trace each command before execution (debugging)."
+      - flag: "-e"
+        description: "Exit on first error (set -e at script start does the same)."
+      - flag: "-u"
+        description: "Treat unset variables as an error."
+      - flag: "-o pipefail"
+        description: "Pipeline fails if any stage fails, not just the last."
+    examples:
+      - "bash -c 'echo $$'"
+      - "bash -lc 'env | grep PATH'"
+      - "bash -euo pipefail script.sh"
+    gotchas: >
+      The "strict mode" trio <code>set -euo pipefail</code> at the top of
+      every script catches a huge class of bugs early — unset vars
+      typoed as commands, partial-pipeline failures silently ignored,
+      etc. macOS ships bash 3.2 (2007) under <code>/bin/bash</code> —
+      <code>brew install bash</code> for the modern one at
+      <code>/opt/homebrew/bin/bash</code>.
+    see_also: ["zsh", "sh", "dash"]
+    references:
+      - "man 1 bash"
+
+  - name: "zsh"
+    description: "Z shell — bash-compatible-ish with extras (globbing, prompts, plugins)."
+    syntax: "zsh [-c \"<cmd>\"] [-i] [<script> [args]]"
+    os: [linux, macos, cross-platform, android]
+    examples:
+      - "zsh -c 'echo $ZSH_VERSION'"
+    gotchas: >
+      Default shell on macOS since Catalina. Most bash scripts work
+      unchanged but a few subtle differences exist (word splitting on
+      unquoted vars, glob behaviour). Pin scripts to bash with
+      <code>#!/usr/bin/env bash</code> when portability matters.
+    see_also: ["bash", "oh-my-zsh"]
+    references:
+      - "man 1 zsh"
+
+  - name: "Shebang lines"
+    slug: "shebang-lines"
+    description: "The #! interpreter directive at the top of a script."
+    syntax: "#!<path-to-interpreter> [<flags>]"
+    os: [linux, macos, cross-platform, android]
+    examples:
+      - "#!/usr/bin/env bash"
+      - "#!/usr/bin/env python3"
+      - "#!/usr/bin/env -S node --experimental-vm-modules"
+      - "#!/bin/sh"
+    gotchas: >
+      Use <code>#!/usr/bin/env &lt;interp&gt;</code> for portability — it
+      finds the interpreter via PATH instead of hard-coding
+      <code>/usr/local/bin/...</code>. Linux limits the shebang line to
+      128 chars and historically only allows one arg to the interpreter
+      — <code>env -S</code> (GNU coreutils ≥ 8.30) splits a second
+      arg-string for you.
+    see_also: ["bash", "python3", "node"]
+    references:
+      - "https://en.wikipedia.org/wiki/Shebang_(Unix)"

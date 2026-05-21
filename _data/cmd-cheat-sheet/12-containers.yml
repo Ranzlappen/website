@@ -1,0 +1,225 @@
+batch:
+  id: "containers"
+  order: 12
+  name: "Containers"
+  short_name: "Containers"
+  description: >
+    Docker and the broader container toolchain — build, run, exec into,
+    log, compose — plus a quick kubectl primer for cluster basics.
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "docker run"
+    description: "Create and start a container from an image."
+    syntax: "docker run [-d] [-it] [--rm] [-p <h>:<c>] [-v <h>:<c>] [-e <k>=<v>] <image> [<cmd>]"
+    os: [cross-platform]
+    flags:
+      - flag: "-d"
+        description: "Detached — run in the background."
+      - flag: "-it"
+        description: "Interactive (-i) + allocate a TTY (-t)."
+      - flag: "--rm"
+        description: "Auto-remove the container when it exits."
+      - flag: "--name <name>"
+        description: "Assign a name (instead of a random one)."
+      - flag: "-p <hp>:<cp>"
+        description: "Publish a container port to the host."
+      - flag: "-v <hpath>:<cpath>[:ro]"
+        description: "Mount a host path into the container (optionally read-only)."
+      - flag: "-e <k>=<v>"
+        description: "Set an environment variable inside the container."
+      - flag: "--env-file <file>"
+        description: "Load env vars from a file."
+      - flag: "--network <net>"
+        description: "Attach to a specific docker network."
+      - flag: "-u <uid>[:<gid>]"
+        description: "Run as a non-root user / group."
+    examples:
+      - "docker run --rm -it ubuntu:24.04 bash"
+      - "docker run -d --name web -p 8080:80 nginx:alpine"
+      - "docker run --rm -v $PWD:/app -w /app node:22 npm test"
+    gotchas: >
+      Default users inside containers are often <code>root</code>, even
+      when the host user isn't. Anything written into a bind-mount lands
+      on disk as root. Pass <code>-u "$(id -u):$(id -g)"</code> to match
+      your host UID, or build the image with a non-root <code>USER</code>.
+    see_also: ["docker exec", "docker ps", "docker stop"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/container/run/"
+
+  - name: "docker ps"
+    description: "List containers."
+    syntax: "docker ps [-a] [--filter <f>] [--format <fmt>]"
+    os: [cross-platform]
+    flags:
+      - flag: "-a"
+        description: "Include stopped containers."
+      - flag: "-q"
+        description: "Quiet — IDs only (handy with xargs)."
+      - flag: "--filter <k>=<v>"
+        description: "Filter (status=exited, name=web, ancestor=nginx)."
+      - flag: "--format <go-template>"
+        description: "Custom output (e.g. 'table {{.Names}}\\t{{.Image}}')."
+    examples:
+      - "docker ps"
+      - "docker ps -aq --filter status=exited | xargs docker rm"
+      - "docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'"
+    see_also: ["docker rm", "docker stop"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/container/ls/"
+
+  - name: "docker build"
+    description: "Build an image from a Dockerfile."
+    syntax: "docker build [-t <tag>] [-f <Dockerfile>] [--build-arg <k>=<v>] [--target <stage>] <context>"
+    os: [cross-platform]
+    flags:
+      - flag: "-t <tag>"
+        description: "Tag the resulting image (name:version)."
+      - flag: "-f <file>"
+        description: "Use a Dockerfile at a non-standard path."
+      - flag: "--build-arg <k>=<v>"
+        description: "Pass an ARG into the build."
+      - flag: "--target <stage>"
+        description: "Stop at a named stage in a multi-stage build."
+      - flag: "--no-cache"
+        description: "Disable the layer cache."
+      - flag: "--platform <plat>"
+        description: "Build for a specific platform (linux/arm64, linux/amd64)."
+    examples:
+      - "docker build -t myapp:dev ."
+      - "docker build -f Dockerfile.prod --target runtime -t myapp:prod ."
+      - "docker build --platform linux/amd64 -t myapp:x86 ."
+    gotchas: >
+      The context (<code>.</code>) is uploaded to the daemon before the
+      build starts — add a <code>.dockerignore</code> to exclude
+      <code>node_modules</code>, <code>.git</code>, etc. or you'll send
+      gigabytes on every build. Use BuildKit
+      (<code>DOCKER_BUILDKIT=1</code> on older Docker, default since
+      23.0) for cache mounts, parallel stages, and secret mounts.
+    see_also: ["docker buildx", "docker push"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/buildx/build/"
+
+  - name: "docker exec"
+    description: "Run a command inside an already-running container."
+    syntax: "docker exec [-it] [-u <user>] <container> <cmd> [args...]"
+    os: [cross-platform]
+    flags:
+      - flag: "-it"
+        description: "Interactive + TTY (for shells)."
+      - flag: "-u <user>"
+        description: "Run as a different user inside the container."
+      - flag: "-e <k>=<v>"
+        description: "Add an env var for this command only."
+      - flag: "-w <dir>"
+        description: "Working directory."
+    examples:
+      - "docker exec -it web sh"
+      - "docker exec -u root web apt update"
+      - "docker exec web env | sort"
+    see_also: ["docker run", "docker logs"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/container/exec/"
+
+  - name: "docker logs"
+    description: "Show stdout / stderr of a container."
+    syntax: "docker logs [-f] [--tail <n>] [--since <t>] <container>"
+    os: [cross-platform]
+    flags:
+      - flag: "-f"
+        description: "Follow — keep streaming."
+      - flag: "--tail <n>"
+        description: "Only the last n lines."
+      - flag: "--since <time>"
+        description: "Lines newer than e.g. '10m', '2024-01-01'."
+      - flag: "-t"
+        description: "Prefix each line with a timestamp."
+    examples:
+      - "docker logs -f --tail 100 web"
+      - "docker logs --since 1h --tail 50 db"
+    see_also: ["docker ps", "docker exec"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/container/logs/"
+
+  - name: "docker compose"
+    description: "Define and run multi-container applications via a YAML file."
+    syntax: "docker compose [-f <file>] [up|down|ps|logs|exec] [args...]"
+    os: [cross-platform]
+    flags:
+      - flag: "up"
+        description: "Build + create + start everything in compose.yml."
+      - flag: "up -d"
+        description: "Detached — return after services start."
+      - flag: "down"
+        description: "Stop + remove containers, networks, volumes (with -v)."
+      - flag: "ps"
+        description: "List services and their state."
+      - flag: "logs [-f]"
+        description: "Aggregate logs from all services."
+      - flag: "exec <svc> <cmd>"
+        description: "Run a command in a named service."
+      - flag: "build [--no-cache]"
+        description: "(Re)build images for services with a build: stanza."
+      - flag: "-f <file>"
+        description: "Use a non-default compose file (default: compose.yml or docker-compose.yml)."
+    examples:
+      - "docker compose up -d"
+      - "docker compose logs -f web db"
+      - "docker compose exec db psql -U postgres"
+    gotchas: >
+      <code>docker compose</code> (v2, plugin) and <code>docker-compose</code>
+      (v1, separate Python binary) take nearly identical args; v1 is
+      legacy and missing from new installs. <code>compose.yml</code> is
+      the v3+ filename, but most projects still ship <code>docker-compose.yml</code>.
+    see_also: ["docker run", "docker build"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/compose/"
+
+  - name: "podman"
+    description: "Daemonless, root-less Docker-compatible container engine."
+    syntax: "podman <command> [args...]"
+    os: [linux, macos, cross-platform]
+    examples:
+      - "podman run --rm -it alpine sh"
+      - "podman build -t myapp ."
+      - "alias docker=podman"
+    gotchas: >
+      CLI is a near-superset of Docker's (most <code>docker</code>
+      commands work via <code>alias docker=podman</code>). Default is
+      rootless — uses user namespaces under the hood, so port-mapping
+      below 1024 won't work without extra config. On macOS, runs a tiny
+      Linux VM (podman-machine) behind the scenes.
+    see_also: ["docker run", "docker build"]
+    references:
+      - "https://docs.podman.io"
+
+  - name: "kubectl"
+    description: "Talk to a Kubernetes cluster — inspect, deploy, exec, log."
+    syntax: "kubectl [-n <ns>] [get|describe|logs|exec|apply|delete|edit] <resource> [args...]"
+    os: [cross-platform]
+    flags:
+      - flag: "-n <namespace>"
+        description: "Operate inside a non-default namespace."
+      - flag: "--context <ctx>"
+        description: "Use a specific kubeconfig context."
+      - flag: "-l <key>=<val>"
+        description: "Label selector."
+      - flag: "-o yaml|json|wide"
+        description: "Output format."
+      - flag: "--all-namespaces / -A"
+        description: "Operate across every namespace."
+    examples:
+      - "kubectl get pods -A"
+      - "kubectl logs -f deploy/web -n production"
+      - "kubectl exec -it pod/web-abc123 -- sh"
+      - "kubectl apply -f manifest.yaml"
+    gotchas: >
+      Always confirm <code>kubectl config current-context</code> before
+      destructive commands — landing a <code>kubectl delete</code> on
+      production because you forgot to switch contexts is a classic
+      footgun. <code>kubectx</code> + <code>kubens</code> from
+      <code>ahmetb/kubectx</code> make context/namespace switching
+      ergonomic.
+    see_also: ["kubectx", "helm", "k9s"]
+    references:
+      - "https://kubernetes.io/docs/reference/kubectl/"

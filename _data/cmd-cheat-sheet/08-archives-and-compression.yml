@@ -1,0 +1,164 @@
+batch:
+  id: "archives-and-compression"
+  order: 8
+  name: "Archives & Compression"
+  short_name: "Archives"
+  description: >
+    Pack, unpack, and compress. tar is the workhorse on Unix; zip / 7z
+    are the cross-platform standards.
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "tar"
+    description: "Tape archiver — bundle (and optionally compress) directories."
+    syntax: "tar [c|x|t] [v] [z|j|J] [-f <archive>] [<files>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "c"
+        description: "Create a new archive."
+      - flag: "x"
+        description: "Extract from an archive."
+      - flag: "t"
+        description: "List contents."
+      - flag: "v"
+        description: "Verbose — list each file."
+      - flag: "f <archive>"
+        description: "Archive filename (- for stdin/stdout)."
+      - flag: "z"
+        description: "Compress with gzip (.tar.gz / .tgz)."
+      - flag: "j"
+        description: "Compress with bzip2 (.tar.bz2)."
+      - flag: "J"
+        description: "Compress with xz (.tar.xz)."
+      - flag: "-C <dir>"
+        description: "Change to dir before reading/writing (great for relative paths)."
+      - flag: "--exclude=<pat>"
+        description: "Skip files matching the glob."
+    examples:
+      - "tar czvf backup.tar.gz ~/Documents"
+      - "tar xzvf backup.tar.gz -C /tmp/restore"
+      - "tar tzvf backup.tar.gz | head"
+    gotchas: >
+      Argument order matters with single-letter flags — <code>c</code>,
+      <code>x</code>, <code>t</code> come first; <code>f &lt;archive&gt;</code>
+      must directly precede the filename. Long options
+      (<code>--create</code>, <code>--extract</code>) are more forgiving.
+      Always verify <code>-C</code> when extracting untrusted archives —
+      tarballs can contain absolute paths or <code>../</code> traversals
+      (the classic "tar slip" attack).
+    see_also: ["gzip", "xz", "zip"]
+    references:
+      - "man 1 tar"
+
+  - name: "zip"
+    description: "Create a ZIP archive (cross-platform)."
+    syntax: "zip [-r] [-9] [-e] <archive>.zip <files>..."
+    os: [linux, macos, windows, cross-platform, android]
+    flags:
+      - flag: "-r"
+        description: "Recurse into directories."
+      - flag: "-9"
+        description: "Best compression."
+      - flag: "-e"
+        description: "Encrypt with a password (weak ZipCrypto — use 7z for real security)."
+      - flag: "-x <pat>"
+        description: "Exclude files matching pattern."
+    examples:
+      - "zip -r project.zip ./src"
+      - "zip -9 -r site.zip _site -x '*.DS_Store'"
+    see_also: ["unzip", "tar", "7z"]
+    references:
+      - "man 1 zip"
+
+  - name: "unzip"
+    description: "Extract files from a ZIP archive."
+    syntax: "unzip [-l] [-o] [-d <dir>] <archive>.zip [<files>...]"
+    os: [linux, macos, windows, cross-platform, android]
+    flags:
+      - flag: "-l"
+        description: "List contents without extracting."
+      - flag: "-o"
+        description: "Overwrite existing files without prompting."
+      - flag: "-d <dir>"
+        description: "Extract into the given directory."
+      - flag: "-q"
+        description: "Quiet."
+    examples:
+      - "unzip download.zip"
+      - "unzip -l backup.zip"
+      - "unzip -d /tmp/extract pkg.zip"
+    see_also: ["zip", "tar", "7z"]
+    references:
+      - "man 1 unzip"
+
+  - name: "gzip"
+    description: "Single-file gzip compression (.gz)."
+    syntax: "gzip [-d] [-k] [-<level>] <file>..."
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-d / gunzip"
+        description: "Decompress."
+      - flag: "-k"
+        description: "Keep the original file (gzip deletes it by default)."
+      - flag: "-<1..9>"
+        description: "Compression level (1=fast, 9=small)."
+      - flag: "-r"
+        description: "Recursively compress files in a directory."
+    examples:
+      - "gzip server.log"
+      - "gunzip backup.sql.gz"
+      - "gzip -9k large.bin"
+    gotchas: >
+      <code>gzip</code> works on one file at a time. For multiple files
+      bundle with <code>tar</code> first
+      (<code>tar czf bundle.tar.gz dir/</code>) — that's the
+      <code>.tar.gz</code> convention.
+    see_also: ["tar", "xz", "bzip2"]
+    references:
+      - "man 1 gzip"
+
+  - name: "7z"
+    description: "7-Zip — high-ratio compression, supports many archive formats."
+    syntax: "7z [a|x|l] [-p<pwd>] <archive>.7z [<files>...]"
+    os: [linux, macos, windows, cross-platform]
+    flags:
+      - flag: "a"
+        description: "Add to (or create) an archive."
+      - flag: "x"
+        description: "Extract preserving full paths."
+      - flag: "e"
+        description: "Extract to current directory, ignoring paths."
+      - flag: "l"
+        description: "List contents."
+      - flag: "-p<pwd>"
+        description: "Set/use a password."
+      - flag: "-mhe=on"
+        description: "Encrypt filenames too (with password)."
+    examples:
+      - "7z a backup.7z ./project"
+      - "7z x archive.7z"
+      - "7z a -p -mhe=on secure.7z secrets/"
+    see_also: ["zip", "tar"]
+    references:
+      - "man 1 7z"
+
+  - name: "xz"
+    description: "LZMA2 compression — small archives at the cost of CPU time."
+    syntax: "xz [-d] [-k] [-<level>] <file>"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-d / unxz"
+        description: "Decompress."
+      - flag: "-k"
+        description: "Keep the original file."
+      - flag: "-T <n>"
+        description: "Use n threads (0 = auto, all cores)."
+      - flag: "-<1..9>"
+        description: "Compression level (default 6; 9e is extreme)."
+    examples:
+      - "xz -T0 big.tar"
+      - "unxz dump.sql.xz"
+      - "tar cJf snap.tar.xz ./project"
+    see_also: ["gzip", "zstd", "tar"]
+    references:
+      - "man 1 xz"

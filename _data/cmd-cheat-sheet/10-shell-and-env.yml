@@ -1,0 +1,253 @@
+batch:
+  id: "shell-and-env"
+  order: 10
+  name: "Shell & Environment"
+  short_name: "Shell & Env"
+  description: >
+    Shell builtins and environment management — echo, export, env,
+    aliases, history, redirection, and the small but mighty
+    <code>which</code>/<code>man</code>/<code>read</code> trio. Everything
+    here works in bash and zsh; POSIX shells (dash, ash) cover most of it.
+  last_updated: "2026-05-21"
+
+entries:
+  - name: "echo"
+    description: "Print arguments to stdout."
+    syntax: "echo [-n] [-e] <string>..."
+    os: [cross-platform]
+    flags:
+      - flag: "-n"
+        description: "Do not append a trailing newline."
+      - flag: "-e"
+        description: "Interpret backslash escapes (\\n, \\t, …)."
+    examples:
+      - "echo \"Hello, $USER\""
+      - "echo -n waiting && sleep 1"
+      - "echo -e \"line1\\nline2\""
+    gotchas: >
+      <code>echo</code> is a shell builtin AND a binary; behaviour differs
+      slightly across both. For anything beyond trivial output, prefer
+      <code>printf</code> — it's portable, supports format strings, and
+      doesn't quietly interpret <code>-e</code>/<code>-n</code> as data.
+    see_also: ["printf"]
+    references:
+      - "help echo  (bash builtin)"
+
+  - name: "printf"
+    description: "Format and print — like C's printf."
+    syntax: "printf <format> [<arg>...]"
+    os: [cross-platform]
+    examples:
+      - "printf \"%s: %d\\n\" \"errors\" 0"
+      - "printf '%-20s %s\\n' name email"
+    see_also: ["echo"]
+    references:
+      - "man 1 printf"
+
+  - name: "export"
+    description: "Mark a shell variable as exported to child processes."
+    syntax: "export [<name>=<value>] [<name>...]"
+    os: [cross-platform]
+    examples:
+      - "export EDITOR=nvim"
+      - "export PATH=\"$HOME/.local/bin:$PATH\""
+      - "export -p   # list exported vars"
+    gotchas: >
+      An assignment without <code>export</code>
+      (<code>FOO=bar</code>) sets a shell variable that child processes
+      will not see. <code>FOO=bar cmd</code> exports for that single
+      invocation only — clean and useful.
+    see_also: ["env", "unset"]
+    references:
+      - "help export  (bash builtin)"
+
+  - name: "env"
+    description: "Print the environment, or run a command with a modified one."
+    syntax: "env [-i] [<name>=<value>...] [<cmd> [args...]]"
+    os: [cross-platform]
+    flags:
+      - flag: "-i"
+        description: "Start with an empty environment."
+      - flag: "-u <name>"
+        description: "Remove a variable before running cmd."
+    examples:
+      - "env | sort"
+      - "env -i PATH=/usr/bin BAR=baz ./script.sh"
+      - "env DEBUG=1 npm test"
+    gotchas: >
+      The shebang line <code>#!/usr/bin/env python3</code> uses
+      <code>env</code> to look up Python in PATH — portable across distros
+      that install Python in different places.
+    see_also: ["export", "printenv"]
+    references:
+      - "man 1 env"
+
+  - name: "alias"
+    description: "Create a shorthand for a longer command."
+    syntax: "alias [<name>='<replacement>']"
+    os: [cross-platform]
+    examples:
+      - "alias ll='ls -lah'"
+      - "alias gst='git status -sb'"
+      - "alias  # list all"
+    gotchas: >
+      Aliases are shell-local — define them in <code>~/.bashrc</code> /
+      <code>~/.zshrc</code> for persistence. They don't expand inside
+      scripts run with <code>#!/bin/bash</code> unless you enable
+      <code>shopt -s expand_aliases</code>; use a function instead for
+      script-level reuse.
+    see_also: ["unalias", "function"]
+    references:
+      - "help alias  (bash builtin)"
+
+  - name: "history"
+    description: "Show or manipulate the command history."
+    syntax: "history [-c] [-d <offset>] [<count>]"
+    os: [cross-platform]
+    flags:
+      - flag: "-c"
+        description: "Clear current session's history."
+      - flag: "-d <n>"
+        description: "Delete entry at offset n."
+      - flag: "-w"
+        description: "Write current session to the history file."
+    examples:
+      - "history"
+      - "history | grep ssh"
+      - "!42   # re-run history entry 42"
+    gotchas: >
+      Bash truncates history to <code>HISTSIZE</code> entries; the file
+      to <code>HISTFILESIZE</code>. Multi-shell users want
+      <code>HISTCONTROL=ignoreboth</code> and <code>shopt -s histappend</code>
+      to avoid clobbering history when several shells exit at once.
+    see_also: ["alias"]
+    references:
+      - "help history  (bash builtin)"
+
+  - name: "which"
+    description: "Show the full path to a command (or that it's an alias / builtin)."
+    syntax: "which [-a] <name>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-a"
+        description: "Print all matches in PATH, not just the first."
+    examples:
+      - "which python3"
+      - "which -a node"
+    gotchas: >
+      <code>which</code> doesn't know about aliases or shell functions —
+      <code>type</code> does. Prefer <code>command -v</code> in scripts
+      (POSIX, portable, predictable).
+    see_also: ["type", "whereis", "command"]
+    references:
+      - "man 1 which"
+
+  - name: "type"
+    description: "Tell you what a name is — alias, builtin, function, or external binary."
+    syntax: "type [-a] [-t] <name>..."
+    os: [cross-platform]
+    flags:
+      - flag: "-a"
+        description: "All matches (aliases, builtins, AND each binary in PATH)."
+      - flag: "-t"
+        description: "Just the kind (alias / keyword / function / builtin / file)."
+    examples:
+      - "type ls"
+      - "type -a echo"
+      - "type -t which"
+    see_also: ["which", "command"]
+    references:
+      - "help type  (bash builtin)"
+
+  - name: "man"
+    description: "Show the manual page for a command, syscall, or function."
+    syntax: "man [<section>] <name>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "<section>"
+        description: "Section number: 1=commands, 2=syscalls, 3=libc, 5=files, 7=misc, 8=admin."
+      - flag: "-k <kw>"
+        description: "Keyword search (same as apropos)."
+      - flag: "-f <name>"
+        description: "One-line description (same as whatis)."
+    examples:
+      - "man ssh"
+      - "man 5 ssh_config"
+      - "man -k ssh"
+    gotchas: >
+      Inside man: <code>/pattern</code> search, <code>n</code>/<code>N</code>
+      next/prev, <code>q</code> quit. For colourised man pages set
+      <code>MANPAGER='less -R'</code> and a colour-aware
+      <code>LESS_TERMCAP_*</code> set in your shell init.
+      <code>tldr</code> is a friendlier "example-first" alternative.
+    see_also: ["apropos", "whatis", "tldr"]
+    references:
+      - "man 1 man"
+
+  - name: "read"
+    description: "Read one line from stdin into shell variables."
+    syntax: "read [-p <prompt>] [-s] [-r] [-t <sec>] [-a <arr>] <var>..."
+    os: [cross-platform]
+    flags:
+      - flag: "-p <prompt>"
+        description: "Print the prompt before reading."
+      - flag: "-s"
+        description: "Silent — don't echo (for passwords)."
+      - flag: "-r"
+        description: "Raw — don't interpret backslashes."
+      - flag: "-t <sec>"
+        description: "Timeout."
+      - flag: "-a <arr>"
+        description: "Read into an array, splitting on IFS."
+    examples:
+      - "read -rp \"Name: \" name && echo \"hi $name\""
+      - "read -srp \"Pass: \" pw"
+    gotchas: >
+      Always use <code>read -r</code> in scripts — without it, backslashes
+      get interpreted as line continuations. <code>while IFS= read -r
+      line; do …; done &lt; file</code> is the canonical loop for reading
+      a file line by line in bash.
+    see_also: ["readarray", "mapfile"]
+    references:
+      - "help read  (bash builtin)"
+
+  - name: "Redirection idioms"
+    slug: "redirection-idioms"
+    description: "Plumb stdin / stdout / stderr to files, pipes, and each other."
+    syntax: "cmd [> file] [>> file] [< file] [2> file] [2>&1] [<<EOF...EOF] [<(cmd)]"
+    os: [cross-platform]
+    flags:
+      - flag: "> file"
+        description: "Redirect stdout to file (overwrite)."
+      - flag: ">> file"
+        description: "Append stdout to file."
+      - flag: "< file"
+        description: "Use file as stdin."
+      - flag: "2> file"
+        description: "Redirect stderr."
+      - flag: "2>&1"
+        description: "Merge stderr into stdout (must come AFTER any > redirect)."
+      - flag: "&> file"
+        description: "Redirect both stdout and stderr (bash shorthand)."
+      - flag: "| cmd"
+        description: "Pipe stdout to cmd's stdin."
+      - flag: "<<EOF ... EOF"
+        description: "Heredoc — multi-line stdin terminated by EOF."
+      - flag: "<<<\"<word>\""
+        description: "Herestring — single-line stdin from <word>."
+      - flag: "<(cmd)"
+        description: "Process substitution — treat cmd's stdout as a file."
+    examples:
+      - "make build > build.log 2>&1"
+      - "cmd 2>/dev/null    # silence errors"
+      - "diff <(sort a.txt) <(sort b.txt)"
+      - "cat <<EOF > config.yml\nkey: value\nEOF"
+    gotchas: >
+      Order matters: <code>cmd &gt; file 2&gt;&amp;1</code> sends both to
+      <code>file</code>, but <code>cmd 2&gt;&amp;1 &gt; file</code> sends
+      stderr to the original stdout (terminal) and stdout to the file.
+      <code>&amp;&gt;</code> is bash-only; portable scripts should use
+      <code>&gt; file 2&gt;&amp;1</code>.
+    see_also: ["tee", "xargs"]
+    references:
+      - "bash(1) — REDIRECTION section"

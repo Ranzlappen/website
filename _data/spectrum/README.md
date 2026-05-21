@@ -176,10 +176,14 @@ pages/references/spectrum.html
 │       entries via {% if entry[1].batch %} guards
 ├── {%- assign abbreviations = site.data.abbreviations.spectrum -%}
 │   └── passed into {% include abbreviations-section.html data=abbreviations … %}
-├── /assets/css/spectrum.css        ← spectrum-specific styling
+├── /assets/css/reference-table.css ← shared big-table scaffolding (controls, sticky thead, sticky-first-col hook, legend swatch base, cell-collapse, badge base) — see CLAUDE.md "Reference-table scaffolding"
+├── /assets/css/spectrum.css        ← spectrum-specific overrides (column widths, freq-pair, legend palette, disclaimer)
 ├── /assets/css/abbreviations.css   ← shared glossary styling
-├── /assets/js/spectrum.js          ← search, batch tabs (spectrum-specific)
+├── /assets/js/reference-table.js   ← shared init function: tab switching + live search + counter + empty + active-batch blurb
+├── /assets/js/spectrum.js          ← thin wrapper: calls window.initReferenceTable with spectrum's IDs
 └── /assets/js/abbreviations.js     ← shared modal + tbody decorator
 ```
+
+The shared `.reference-table-*` system was extracted when the CLI cheat sheet (`/references/cmd-cheat-sheet/`) was added in May 2026. Changing rules in `assets/css/reference-table.css` or `assets/js/reference-table.js` affects both pages — re-test Spectrum after edits.
 
 If a change to this data needs a corresponding template/style/script change, scope the PR to include all three so the page never lands in a half-broken state.

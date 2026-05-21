@@ -1,0 +1,144 @@
+/* ============================================================================
+   CLI Command Cheat Sheet — page-specific overrides
+   Layers on top of /assets/css/reference-table.css.
+   Defines the OS-badge palette, column widths, and the flag/example layout
+   inside cells. Everything is scoped under `.reference-page--cmd` or under
+   page-specific class names so nothing leaks to other reference pages.
+   ========================================================================== */
+
+/* ---- Desktop column min-widths ---- */
+.reference-page--cmd .reference-table {
+  min-width: 1500px;
+}
+.reference-page--cmd .reference-table .col-name     { min-width: 10rem; width: 10rem; }
+.reference-page--cmd .reference-table .col-desc     { min-width: 14rem; }
+.reference-page--cmd .reference-table .col-syntax   { min-width: 18rem; }
+.reference-page--cmd .reference-table .col-flags    { min-width: 18rem; }
+.reference-page--cmd .reference-table .col-examples { min-width: 18rem; }
+.reference-page--cmd .reference-table .col-gotchas  { min-width: 16rem; }
+.reference-page--cmd .reference-table .col-see-also { min-width: 10rem; }
+.reference-page--cmd .reference-table .col-os       { min-width: 7rem;  width: 7rem; }
+
+.reference-page--cmd .reference-table .col-syntax,
+.reference-page--cmd .reference-table .col-examples,
+.reference-page--cmd .reference-table .col-flags {
+  overflow-wrap: anywhere;
+}
+
+/* ---- Flag sub-table (inside the Flags cell) ---- */
+.cmd-flag-list {
+  margin: 0.6rem 0 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.cmd-flag-list dt {
+  white-space: nowrap;
+}
+.cmd-flag-list dt code {
+  font-size: 0.8rem;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border-light);
+  padding: 0.05rem 0.4rem;
+  border-radius: 4px;
+  color: var(--c-text);
+}
+.cmd-flag-list dd {
+  margin: 0;
+  color: var(--c-text);
+}
+
+/* ---- Examples block ---- */
+.cmd-examples {
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border-light);
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  white-space: pre;
+}
+.cmd-examples code {
+  font-family: var(--f-mono);
+  color: var(--c-text);
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+/* ---- See-also chips ---- */
+.reference-page--cmd .col-see-also a {
+  color: var(--c-accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--c-accent-border);
+}
+.reference-page--cmd .col-see-also a:hover {
+  border-bottom-style: solid;
+}
+
+/* ---- OS badge stack ---- */
+.cmd-os-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+/* ---- OS badge palette ----
+   Six modifiers that set --swatch-bg (used by .reference-legend__swatch)
+   and override .reference-badge background. Each pair sets both the dark
+   default and the [data-theme="light"] override. */
+.cmd-os--linux,
+.cmd-os--macos,
+.cmd-os--windows,
+.cmd-os--cross,
+.cmd-os--root,
+.cmd-os--android {
+  border: 0;
+  color: #ffffff;
+  font-size: 0.95em;
+  line-height: 1;
+}
+
+.cmd-os--linux   { --swatch-bg: #f59e0b; background: #f59e0b; color: #1a1a1a; }
+.cmd-os--macos   { --swatch-bg: #a3a3a3; background: #a3a3a3; color: #1a1a1a; }
+.cmd-os--windows { --swatch-bg: #3b82f6; background: #3b82f6; color: #ffffff; }
+.cmd-os--cross   { --swatch-bg: #22c55e; background: #22c55e; color: #ffffff; }
+.cmd-os--root    { --swatch-bg: #ef4444; background: #ef4444; color: #ffffff; }
+.cmd-os--android { --swatch-bg: #84cc16; background: #84cc16; color: #1a1a1a; }
+
+[data-theme="light"] .cmd-os--linux   { --swatch-bg: #fbbf24; background: #fbbf24; color: #1a1a1a; }
+[data-theme="light"] .cmd-os--macos   { --swatch-bg: #737373; background: #737373; color: #ffffff; }
+[data-theme="light"] .cmd-os--windows { --swatch-bg: #2563eb; background: #2563eb; color: #ffffff; }
+[data-theme="light"] .cmd-os--cross   { --swatch-bg: #16a34a; background: #16a34a; color: #ffffff; }
+[data-theme="light"] .cmd-os--root    { --swatch-bg: #dc2626; background: #dc2626; color: #ffffff; }
+[data-theme="light"] .cmd-os--android { --swatch-bg: #65a30d; background: #65a30d; color: #1a1a1a; }
+
+/* ---- Inline mono helper inside cmd cells (slightly smaller than .mono) ---- */
+.reference-page--cmd .col-name code,
+.reference-page--cmd .col-syntax code,
+.reference-page--cmd .col-see-also code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+/* ---- Mobile tweaks ---- */
+@media (max-width: 640px) {
+  .reference-page--cmd .reference-table {
+    table-layout: auto;
+    font-size: 0.825rem;
+    min-width: 0;
+  }
+  .reference-page--cmd .reference-table .col-name { width: auto; min-width: 7rem; }
+  .reference-page--cmd .reference-table td.is-sticky-col,
+  .reference-page--cmd .reference-table th.is-sticky-col {
+    box-shadow: 6px 0 6px -4px rgba(0, 0, 0, 0.45);
+  }
+  .cmd-examples { font-size: 0.78rem; }
+  .cmd-flag-list { grid-template-columns: 1fr; gap: 0.15rem 0; }
+  .cmd-flag-list dt { margin-top: 0.3rem; }
+}
