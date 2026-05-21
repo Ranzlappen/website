@@ -90,6 +90,61 @@ describe("validateItemFields", () => {
   });
 });
 
+describe("ean field type", () => {
+  const eanSchema = [
+    {
+      key: "ean",
+      label: "EAN",
+      type: "ean" as const,
+      required: false,
+      ebayRequired: false,
+      order: 0,
+    },
+  ];
+
+  it.each([
+    ["EAN-8", "12345678"],
+    ["UPC-A (12)", "012345678901"],
+    ["EAN-13", "4006381333931"],
+    ["GTIN-14", "10012345678902"],
+  ])("accepts %s", (_label, code) => {
+    const out = validateItemFields({ ean: code }, eanSchema, {
+      enforceRequired: false,
+    });
+    expect(out.ean).toBe(code);
+  });
+
+  it("strips embedded whitespace before validating", () => {
+    const out = validateItemFields(
+      { ean: "  4006 38133 3931 " },
+      eanSchema,
+      { enforceRequired: false }
+    );
+    expect(out.ean).toBe("4006381333931");
+  });
+
+  it("rejects letters", () => {
+    expect(() =>
+      validateItemFields({ ean: "400638ABC3931" }, eanSchema, {
+        enforceRequired: false,
+      })
+    ).toThrow(/must be an 8, 12, 13, or 14-digit barcode/);
+  });
+
+  it("rejects wrong digit counts", () => {
+    expect(() =>
+      validateItemFields({ ean: "12345" }, eanSchema, {
+        enforceRequired: false,
+      })
+    ).toThrow(/must be an 8, 12, 13, or 14-digit barcode/);
+    expect(() =>
+      validateItemFields({ ean: "123456789012345" }, eanSchema, {
+        enforceRequired: false,
+      })
+    ).toThrow(/must be an 8, 12, 13, or 14-digit barcode/);
+  });
+});
+
 describe("missingEbayRequiredFields", () => {
   const schema = defaultFieldSchema();
 

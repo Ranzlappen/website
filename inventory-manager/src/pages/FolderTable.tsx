@@ -4,7 +4,9 @@ import Header from '../components/Header';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ImportDialog from '../components/ImportDialog';
 import {
+  inventoryDeleteFolderFn,
   inventoryDeleteItemFn,
+  inventoryDuplicateFolderFn,
   inventoryExportEbayCsvFn,
   inventoryExportFn,
   inventoryListFoldersFn,
@@ -47,6 +49,8 @@ export default function FolderTable() {
   const navigate = useNavigate();
   const folders = useStore((s) => s.folders);
   const setFolders = useStore((s) => s.setFolders);
+  const upsertFolder = useStore((s) => s.upsertFolder);
+  const removeFolders = useStore((s) => s.removeFolders);
   const items = useStore((s) => s.items);
   const setItems = useStore((s) => s.setItems);
   const upsertItem = useStore((s) => s.upsertItem);
@@ -61,6 +65,11 @@ export default function FolderTable() {
   const [search, setSearch] = useState('');
   const [showImport, setShowImport] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<ItemDoc | null>(null);
+  const [pendingFolderDelete, setPendingFolderDelete] = useState(false);
+  const [duplicateOpen, setDuplicateOpen] = useState(false);
+  const [dupName, setDupName] = useState('');
+  const [dupCopyItems, setDupCopyItems] = useState(false);
+  const [dupBusy, setDupBusy] = useState(false);
 
   const folder = useMemo(
     () => folders.find((f) => f.id === folderId) ?? null,
@@ -162,6 +171,60 @@ export default function FolderTable() {
     return folder.pathSegments.join(' › ');
   }
 
+  async function deleteFolder() {
+    if (!folder) return;
+    try {
+      const res = await inventoryDeleteFolderFn({ folderId: folder.id });
+      const allIds = new Set<string>();
+      const walk = (id: string) => {
+        allIds.add(id);
+        folders
+          .filter((f) => f.parentFolderId === id)
+          .forEach((c) => walk(c.id));
+      };
+      walk(folder.id);
+      removeFolders(Array.from(allIds));
+      addToast(`Deleted ${res.data.deletedFolderCount} folder(s)`, 'success');
+      navigate('/');
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Delete failed', 'error');
+    } finally {
+      setPendingFolderDelete(false);
+    }
+  }
+
+  function openDuplicate() {
+    if (!folder) return;
+    setDupName(`${folder.name} (copy)`);
+    setDupCopyItems(false);
+    setDuplicateOpen(true);
+  }
+
+  async function submitDuplicate() {
+    if (!folder || !dupName.trim()) return;
+    setDupBusy(true);
+    try {
+      const res = await inventoryDuplicateFolderFn({
+        folderId: folder.id,
+        newName: dupName.trim(),
+        copyItems: dupCopyItems,
+      });
+      upsertFolder(res.data);
+      addToast(
+        dupCopyItems
+          ? `Duplicated with ${res.data.itemCount} items and ${res.data.photoCount} photos`
+          : 'Duplicated (schema only)',
+        'success',
+      );
+      setDuplicateOpen(false);
+      navigate(`/folder/${res.data.id}`);
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Duplicate failed', 'error');
+    } finally {
+      setDupBusy(false);
+    }
+  }
+
   if (!folderId) return null;
 
   return (
@@ -187,6 +250,18 @@ export default function FolderTable() {
             >
               Edit schema
             </Link>
+            <button
+              onClick={openDuplicate}
+              className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
+            >
+              Duplicate
+            </button>
+            <button
+              onClick={() => setPendingFolderDelete(true)}
+              className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--danger)] hover:text-[var(--danger)] transition-colors"
+            >
+              Delete folder
+            </button>
             <button
               onClick={() => setShowImport(true)}
               className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
@@ -360,6 +435,69 @@ export default function FolderTable() {
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      <ConfirmDialog
+        open={pendingFolderDelete}
+        title={`Delete “${folder?.name ?? ''}”?`}
+        message="This folder, every subfolder, and every item inside will be soft-deleted. Recoverable from Firestore for 30 days."
+        confirmLabel="Delete folder"
+        destructive
+        onConfirm={deleteFolder}
+        onCancel={() => setPendingFolderDelete(false)}
+      />
+
+      {duplicateOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/70 flex items-center justify-center px-4"
+          onClick={() => setDuplicateOpen(false)}
+        >
+          <div
+            className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-semibold mb-3">
+              Duplicate “{folder?.name ?? ''}”
+            </h2>
+            <input
+              autoFocus
+              value={dupName}
+              onChange={(e) => setDupName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !dupBusy) submitDuplicate();
+              }}
+              placeholder="New folder name"
+              className="w-full bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
+            />
+            <label className="flex items-start gap-2 mt-3 text-sm">
+              <input
+                type="checkbox"
+                checked={dupCopyItems}
+                onChange={(e) => setDupCopyItems(e.target.checked)}
+                className="mt-0.5"
+              />
+              <span>
+                Also copy <strong>{folder?.itemCount ?? 0}</strong> item(s) and
+                re-upload their photos to fresh Storage paths.
+              </span>
+            </label>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => setDuplicateOpen(false)}
+                className="px-4 py-2 rounded border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitDuplicate}
+                disabled={!dupName.trim() || dupBusy}
+                className="px-4 py-2 rounded bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+              >
+                {dupBusy ? 'Working…' : 'Duplicate'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

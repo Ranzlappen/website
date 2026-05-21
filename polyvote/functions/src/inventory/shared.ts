@@ -8,7 +8,8 @@ export type FieldType =
   | "select"
   | "boolean"
   | "date"
-  | "url";
+  | "url"
+  | "ean";
 
 // Subset of eBay File Exchange columns we can map to. Anything not in this
 // set is treated as a custom item-specific (emitted as "C:<label>").
@@ -98,7 +99,11 @@ const VALID_FIELD_TYPES: FieldType[] = [
   "boolean",
   "date",
   "url",
+  "ean",
 ];
+
+// EAN-8, UPC-A (12), EAN-13, GTIN-14
+const EAN_PATTERN = /^(\d{8}|\d{12}|\d{13}|\d{14})$/;
 
 // The base schema every new folder gets. Covers the minimum set of eBay
 // File Exchange columns needed for a fixed-price listing so the user can
@@ -338,6 +343,17 @@ export function validateItemFields(
           throw new HttpsError(
             "invalid-argument",
             `${def.label}: "${s}" is not an allowed option.`
+          );
+        }
+        out[def.key] = s;
+        break;
+      }
+      case "ean": {
+        const s = String(raw).trim().replace(/\s+/g, "");
+        if (!EAN_PATTERN.test(s)) {
+          throw new HttpsError(
+            "invalid-argument",
+            `${def.label} must be an 8, 12, 13, or 14-digit barcode.`
           );
         }
         out[def.key] = s;

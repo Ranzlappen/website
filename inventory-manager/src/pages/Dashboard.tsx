@@ -5,7 +5,9 @@ import ConfirmDialog from '../components/ConfirmDialog';
 import {
   inventoryCreateFolderFn,
   inventoryDeleteFolderFn,
+  inventoryDuplicateFolderFn,
   inventoryListFoldersFn,
+  inventoryUpdateFolderFn,
 } from '../firebase';
 import { useStore } from '../store';
 import type { FolderDoc } from '../types';
@@ -30,45 +32,71 @@ function buildTree(folders: FolderDoc[]): TreeNode[] {
   return build(null);
 }
 
+interface NodeActions {
+  onNewChild: (parent: FolderDoc) => void;
+  onDuplicate: (f: FolderDoc) => void;
+  onRename: (f: FolderDoc) => void;
+  onDelete: (f: FolderDoc) => void;
+}
+
+const iconBtnCls =
+  'shrink-0 inline-flex items-center justify-center w-8 h-8 rounded text-sm text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--bg-surface-hover)] transition-colors';
+
 function FolderNode({
   node,
   depth,
-  onDelete,
-  onNewChild,
+  actions,
 }: {
   node: TreeNode;
   depth: number;
-  onDelete: (f: FolderDoc) => void;
-  onNewChild: (parent: FolderDoc) => void;
+  actions: NodeActions;
 }) {
   return (
     <div>
       <div
-        className="flex items-center gap-2 py-1.5 group"
-        style={{ paddingLeft: depth * 18 }}
+        className="flex items-center gap-1 py-1"
+        style={{ paddingLeft: depth * 16 }}
       >
         <Link
           to={`/folder/${node.folder.id}`}
-          className="flex-1 truncate hover:text-[var(--accent)] transition-colors"
+          className="flex-1 min-w-0 truncate hover:text-[var(--accent)] transition-colors py-1.5"
         >
           📁 {node.folder.name}
+          <span className="ml-2 text-xs text-[var(--text-muted)]">
+            {node.folder.itemCount}
+          </span>
         </Link>
-        <span className="text-xs text-[var(--text-muted)]">
-          {node.folder.itemCount} items
-        </span>
         <button
-          onClick={() => onNewChild(node.folder)}
+          onClick={() => actions.onNewChild(node.folder)}
           title="New subfolder"
-          className="opacity-0 group-hover:opacity-100 text-xs text-[var(--text-muted)] hover:text-[var(--accent)] transition-all"
+          aria-label="New subfolder"
+          className={iconBtnCls}
         >
-          + sub
+          ＋
         </button>
         <button
-          onClick={() => onDelete(node.folder)}
-          title="Delete folder"
-          className="opacity-0 group-hover:opacity-100 text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-all"
+          onClick={() => actions.onDuplicate(node.folder)}
+          title="Duplicate folder"
+          aria-label="Duplicate folder"
+          className={iconBtnCls}
         >
-          delete
+          ⧉
+        </button>
+        <button
+          onClick={() => actions.onRename(node.folder)}
+          title="Rename folder"
+          aria-label="Rename folder"
+          className={iconBtnCls}
+        >
+          ✎
+        </button>
+        <button
+          onClick={() => actions.onDelete(node.folder)}
+          title="Delete folder"
+          aria-label="Delete folder"
+          className={`${iconBtnCls} hover:text-[var(--danger)]`}
+        >
+          ✕
         </button>
       </div>
       {node.children.map((c) => (
@@ -76,13 +104,17 @@ function FolderNode({
           key={c.folder.id}
           node={c}
           depth={depth + 1}
-          onDelete={onDelete}
-          onNewChild={onNewChild}
+          actions={actions}
         />
       ))}
     </div>
   );
 }
+
+type FolderModal =
+  | { mode: 'create'; parent: FolderDoc | null }
+  | { mode: 'rename'; folder: FolderDoc }
+  | { mode: 'duplicate'; folder: FolderDoc };
 
 export default function Dashboard() {
   const folders = useStore((s) => s.folders);
@@ -92,10 +124,10 @@ export default function Dashboard() {
   const addToast = useStore((s) => s.addToast);
 
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState<{ parent: FolderDoc | null } | null>(
-    null,
-  );
-  const [newName, setNewName] = useState('');
+  const [modal, setModal] = useState<FolderModal | null>(null);
+  const [modalName, setModalName] = useState('');
+  const [modalCopyItems, setModalCopyItems] = useState(false);
+  const [modalBusy, setModalBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<FolderDoc | null>(null);
 
   useEffect(() => {
@@ -114,19 +146,63 @@ export default function Dashboard() {
     };
   }, [setFolders, addToast]);
 
-  async function createFolder() {
-    if (!newName.trim()) return;
+  function openCreate(parent: FolderDoc | null) {
+    setModal({ mode: 'create', parent });
+    setModalName('');
+    setModalCopyItems(false);
+  }
+  function openRename(folder: FolderDoc) {
+    setModal({ mode: 'rename', folder });
+    setModalName(folder.name);
+  }
+  function openDuplicate(folder: FolderDoc) {
+    setModal({ mode: 'duplicate', folder });
+    setModalName(`${folder.name} (copy)`);
+    setModalCopyItems(false);
+  }
+  function closeModal() {
+    setModal(null);
+    setModalName('');
+    setModalCopyItems(false);
+  }
+
+  async function submitModal() {
+    if (!modal || !modalName.trim()) return;
+    setModalBusy(true);
     try {
-      const res = await inventoryCreateFolderFn({
-        name: newName.trim(),
-        parentFolderId: creating?.parent?.id ?? null,
-      });
-      upsertFolder(res.data);
-      addToast(`Created “${res.data.name}”`, 'success');
-      setCreating(null);
-      setNewName('');
+      if (modal.mode === 'create') {
+        const res = await inventoryCreateFolderFn({
+          name: modalName.trim(),
+          parentFolderId: modal.parent?.id ?? null,
+        });
+        upsertFolder(res.data);
+        addToast(`Created “${res.data.name}”`, 'success');
+      } else if (modal.mode === 'rename') {
+        const res = await inventoryUpdateFolderFn({
+          folderId: modal.folder.id,
+          name: modalName.trim(),
+        });
+        upsertFolder(res.data);
+        addToast('Renamed', 'success');
+      } else {
+        const res = await inventoryDuplicateFolderFn({
+          folderId: modal.folder.id,
+          newName: modalName.trim(),
+          copyItems: modalCopyItems,
+        });
+        upsertFolder(res.data);
+        addToast(
+          modalCopyItems
+            ? `Duplicated with ${res.data.itemCount} items and ${res.data.photoCount} photos`
+            : 'Duplicated (schema only)',
+          'success',
+        );
+      }
+      closeModal();
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Create failed', 'error');
+      addToast(err instanceof Error ? err.message : 'Failed', 'error');
+    } finally {
+      setModalBusy(false);
     }
   }
 
@@ -134,7 +210,6 @@ export default function Dashboard() {
     if (!pendingDelete) return;
     try {
       const res = await inventoryDeleteFolderFn({ folderId: pendingDelete.id });
-      // Cascade: remove this folder + every descendant from cache.
       const allIds = new Set<string>();
       const walk = (id: string) => {
         allIds.add(id);
@@ -153,19 +228,31 @@ export default function Dashboard() {
   }
 
   const tree = buildTree(folders);
+  const actions: NodeActions = {
+    onNewChild: openCreate,
+    onDuplicate: openDuplicate,
+    onRename: openRename,
+    onDelete: setPendingDelete,
+  };
+
+  const modalTitle =
+    modal?.mode === 'create'
+      ? `New folder${modal.parent ? ` inside “${modal.parent.name}”` : ''}`
+      : modal?.mode === 'rename'
+        ? `Rename “${modal.folder.name}”`
+        : modal?.mode === 'duplicate'
+          ? `Duplicate “${modal.folder.name}”`
+          : '';
 
   return (
     <>
       <Header />
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 gap-3">
           <h1 className="text-xl font-bold">Inventories</h1>
           <button
-            onClick={() => {
-              setCreating({ parent: null });
-              setNewName('');
-            }}
-            className="px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold hover:bg-[var(--accent-hover)] transition-colors"
+            onClick={() => openCreate(null)}
+            className="px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold hover:bg-[var(--accent-hover)] transition-colors shrink-0"
           >
             + New folder
           </button>
@@ -181,58 +268,75 @@ export default function Dashboard() {
             </p>
           </div>
         ) : (
-          <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-3">
-            {tree.map((node) => (
-              <FolderNode
-                key={node.folder.id}
-                node={node}
-                depth={0}
-                onDelete={setPendingDelete}
-                onNewChild={(parent) => {
-                  setCreating({ parent });
-                  setNewName('');
-                }}
-              />
-            ))}
+          <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-2 overflow-x-auto">
+            <div className="min-w-fit">
+              {tree.map((node) => (
+                <FolderNode
+                  key={node.folder.id}
+                  node={node}
+                  depth={0}
+                  actions={actions}
+                />
+              ))}
+            </div>
           </div>
         )}
       </main>
 
-      {creating && (
+      {modal && (
         <div
           className="fixed inset-0 z-40 bg-black/70 flex items-center justify-center px-4"
-          onClick={() => setCreating(null)}
+          onClick={closeModal}
         >
           <div
             className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-6 max-w-md w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-semibold mb-3">
-              New folder{creating.parent ? ` inside “${creating.parent.name}”` : ''}
-            </h2>
+            <h2 className="font-semibold mb-3">{modalTitle}</h2>
             <input
               autoFocus
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
+              value={modalName}
+              onChange={(e) => setModalName(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') createFolder();
+                if (e.key === 'Enter' && !modalBusy) submitModal();
               }}
-              placeholder="e.g. Vintage cameras"
+              placeholder="Folder name"
               className="w-full bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
             />
+            {modal.mode === 'duplicate' && (
+              <label className="flex items-start gap-2 mt-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={modalCopyItems}
+                  onChange={(e) => setModalCopyItems(e.target.checked)}
+                  className="mt-0.5"
+                />
+                <span>
+                  Also copy <strong>{modal.folder.itemCount}</strong> item(s) and
+                  re-upload their photos to fresh Storage paths. Slower; deletes
+                  on either side won't touch the other.
+                </span>
+              </label>
+            )}
             <div className="flex justify-end gap-2 mt-4">
               <button
-                onClick={() => setCreating(null)}
+                onClick={closeModal}
                 className="px-4 py-2 rounded border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={createFolder}
-                disabled={!newName.trim()}
+                onClick={submitModal}
+                disabled={!modalName.trim() || modalBusy}
                 className="px-4 py-2 rounded bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
               >
-                Create
+                {modalBusy
+                  ? 'Working…'
+                  : modal.mode === 'create'
+                    ? 'Create'
+                    : modal.mode === 'rename'
+                      ? 'Rename'
+                      : 'Duplicate'}
               </button>
             </div>
           </div>

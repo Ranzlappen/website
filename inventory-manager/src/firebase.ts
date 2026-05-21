@@ -49,6 +49,11 @@ export const inventoryDeleteFolderFn = httpsCallable<
   { success: boolean; deletedFolderCount: number }
 >(functions, 'inventoryDeleteFolder');
 
+export const inventoryDuplicateFolderFn = httpsCallable<
+  { folderId: string; newName?: string; copyItems?: boolean },
+  FolderDoc & { itemCount: number; photoCount: number }
+>(functions, 'inventoryDuplicateFolder');
+
 // ── Items ──
 export const inventoryListItemsFn = httpsCallable<
   { folderId?: string; limit?: number; cursor?: number; ebayOnly?: boolean },

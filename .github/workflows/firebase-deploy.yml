@@ -70,7 +70,7 @@ jobs:
           TARGETS="$TARGETS,functions:blogPublishToGitHub,functions:blogUploadImage"
           TARGETS="$TARGETS,functions:blogListSeriesUsage"
           TARGETS="$TARGETS,functions:setUserRole,functions:adminListUsers,functions:adminBanUser,functions:adminUnbanUser"
-          TARGETS="$TARGETS,functions:inventoryListFolders,functions:inventoryCreateFolder,functions:inventoryUpdateFolder,functions:inventoryDeleteFolder"
+          TARGETS="$TARGETS,functions:inventoryListFolders,functions:inventoryCreateFolder,functions:inventoryUpdateFolder,functions:inventoryDeleteFolder,functions:inventoryDuplicateFolder"
           TARGETS="$TARGETS,functions:inventoryListItems,functions:inventoryGetItem,functions:inventoryCreateItem,functions:inventoryUpdateItem,functions:inventoryDeleteItem,functions:inventoryToggleEbaySync"
           TARGETS="$TARGETS,functions:inventoryUploadPhoto,functions:inventoryDeletePhoto,functions:inventoryReorderPhotos"
           TARGETS="$TARGETS,functions:inventoryImport,functions:inventoryExport,functions:inventoryExportEbayCsv"

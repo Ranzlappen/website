@@ -1,13 +1,25 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
+import { randomUUID } from "node:crypto";
 import { requireRole } from "../utils/adminOnly";
 import {
   appendAudit,
+  defaultEbayBlock,
   defaultFieldSchema,
   validateFieldSchema,
   type FieldDef,
   type FolderDoc,
+  type ItemDoc,
+  type PhotoRef,
 } from "./shared";
+
+// Must match the bucket constant in `./photos.ts`.
+const INVENTORY_BUCKET = "proven-concept-436717-q3.firebasestorage.app";
+
+function publicUrl(bucket: string, path: string): string {
+  return `https://storage.googleapis.com/${bucket}/${path}`;
+}
 
 const MAX_NAME = 80;
 const MAX_DEPTH = 6;
@@ -246,3 +258,132 @@ export const inventoryDeleteFolder = onCall(async (request) => {
 
   return { success: true, deletedFolderCount: allFolderIds.length };
 });
+
+/**
+ * Duplicate a folder. Always copies the schema; when `copyItems` is true
+ * also clones every item and re-uploads its photos to fresh Storage paths
+ * under the new item ids so the two folders are fully isolated.
+ *
+ * eBay state (`listingId`, `listingStatus`) is intentionally NOT copied —
+ * duplicates are not relistings.
+ */
+export const inventoryDuplicateFolder = onCall(
+  { timeoutSeconds: 300 },
+  async (request) => {
+    requireRole(request, "admin");
+    const db = getFirestore();
+    const uid = request.auth!.uid;
+
+    const { folderId, newName, copyItems } = request.data as {
+      folderId: string;
+      newName?: string;
+      copyItems?: boolean;
+    };
+
+    if (!folderId) {
+      throw new HttpsError("invalid-argument", "folderId is required.");
+    }
+
+    const srcSnap = await db.collection("inventoryFolders").doc(folderId).get();
+    if (!srcSnap.exists) {
+      throw new HttpsError("not-found", "folder not found.");
+    }
+    const src = srcSnap.data() as FolderDoc;
+    if (src.deletedAt) {
+      throw new HttpsError("failed-precondition", "folder is deleted.");
+    }
+
+    const cleanName =
+      (typeof newName === "string" && newName.trim()) || `${src.name} (copy)`;
+    if (cleanName.length > MAX_NAME) {
+      throw new HttpsError("invalid-argument", `name must be 1-${MAX_NAME} chars.`);
+    }
+
+    const pathSegments = await resolvePath(src.parentFolderId, cleanName);
+    const now = Date.now();
+
+    const newFolderRef = db.collection("inventoryFolders").doc();
+    const newFolderDoc: FolderDoc = {
+      name: cleanName,
+      parentFolderId: src.parentFolderId,
+      pathSegments,
+      fieldSchema: src.fieldSchema,
+      itemCount: 0,
+      createdAt: now,
+      updatedAt: now,
+      createdBy: uid,
+      deletedAt: null,
+    };
+    await newFolderRef.set(newFolderDoc);
+
+    let itemCount = 0;
+    let photoCount = 0;
+
+    if (copyItems) {
+      const itemsSnap = await db
+        .collection("inventoryItems")
+        .where("folderId", "==", folderId)
+        .where("deletedAt", "==", null)
+        .limit(5000)
+        .get();
+
+      const bucket = getStorage().bucket(INVENTORY_BUCKET);
+
+      for (const srcItemDoc of itemsSnap.docs) {
+        const srcItem = srcItemDoc.data() as ItemDoc;
+        const newItemRef = db.collection("inventoryItems").doc();
+
+        // Deep-copy each photo to a fresh Storage path under the new item id.
+        const newPhotos: PhotoRef[] = [];
+        for (const photo of srcItem.photos ?? []) {
+          const ext = photo.storagePath.substring(
+            photo.storagePath.lastIndexOf(".")
+          );
+          const newPath = `inventory/${newItemRef.id}/${randomUUID()}${ext}`;
+          try {
+            await bucket.file(photo.storagePath).copy(bucket.file(newPath));
+            await bucket.file(newPath).makePublic();
+            newPhotos.push({
+              ...photo,
+              storagePath: newPath,
+              downloadUrl: publicUrl(INVENTORY_BUCKET, newPath),
+              order: newPhotos.length,
+            });
+            photoCount++;
+          } catch (e) {
+            // Skip photos that fail to copy (source missing / permission). Logged for the operator.
+            console.warn("photo copy failed", photo.storagePath, e);
+          }
+        }
+
+        const newItem: ItemDoc = {
+          folderId: newFolderRef.id,
+          fields: srcItem.fields,
+          photos: newPhotos,
+          ebay: defaultEbayBlock(),
+          createdAt: now,
+          updatedAt: now,
+          createdBy: uid,
+          deletedAt: null,
+        };
+        await newItemRef.set(newItem);
+        itemCount++;
+      }
+
+      if (itemCount > 0) {
+        await newFolderRef.update({ itemCount, updatedAt: now });
+      }
+    }
+
+    await appendAudit({
+      action: "folder.duplicate",
+      actorUid: uid,
+      folderId: newFolderRef.id,
+      before: { srcFolderId: folderId },
+      after: { copyItems: !!copyItems, itemCount, photoCount },
+    });
+
+    const fresh = await newFolderRef.get();
+    return { id: newFolderRef.id, ...fresh.data(), itemCount, photoCount };
+  }
+);

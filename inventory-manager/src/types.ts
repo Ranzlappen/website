@@ -10,7 +10,8 @@ export type FieldType =
   | 'select'
   | 'boolean'
   | 'date'
-  | 'url';
+  | 'url'
+  | 'ean';
 
 export interface FieldDef {
   key: string;
@@ -78,6 +79,7 @@ export const FIELD_TYPES: { value: FieldType; label: string }[] = [
   { value: 'boolean', label: 'Yes / No' },
   { value: 'date', label: 'Date' },
   { value: 'url', label: 'URL' },
+  { value: 'ean', label: 'EAN / barcode (with Scan)' },
 ];
 
 export const EBAY_MAPPING_OPTIONS = [

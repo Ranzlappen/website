@@ -17,7 +17,7 @@ export default function Header({ children }: { children?: React.ReactNode }) {
           eBay export
         </Link>
         <div className="flex-1">{children}</div>
-        <span className="text-xs text-[var(--text-muted)] truncate max-w-[200px]">
+        <span className="hidden sm:inline text-xs text-[var(--text-muted)] truncate max-w-[200px]">
           {user?.email}
         </span>
         <button
