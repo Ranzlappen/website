@@ -194,6 +194,23 @@
       panel.appendChild(plainWrap);
     }
 
+    // Optional shell/code example. Rendered as a <pre><code> block with
+    // textContent (literal — escape sequences shown verbatim, not interpreted
+    // as HTML). Accepts either a string or an array of strings.
+    if (def.example) {
+      var exampleText = Array.isArray(def.example) ? def.example.join('\n') : String(def.example);
+      var exampleLabel = document.createElement('span');
+      exampleLabel.className = 'abbr-modal__example-label';
+      exampleLabel.textContent = 'Example';
+      var examplePre = document.createElement('pre');
+      examplePre.className = 'abbr-modal__example';
+      var exampleCode = document.createElement('code');
+      exampleCode.textContent = exampleText;
+      examplePre.appendChild(exampleCode);
+      panel.appendChild(exampleLabel);
+      panel.appendChild(examplePre);
+    }
+
     // Interpretation table (the beginner aid — open by default).
     if (hasInterp) {
       var interpDetails = document.createElement('details');
