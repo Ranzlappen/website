@@ -221,22 +221,44 @@ bucket like a normal upload.
 
 ### One-time setup
 
+`inventoryListDriveFolder` is **not** auto-deployed by
+`firebase-deploy.yml` — it declares `GOOGLE_DRIVE_API_KEY` via
+`defineSecret()`, and Firebase refuses to deploy a function whose
+secret isn't set when running non-interactively in CI. Until you've
+finished the setup below, every other function deploys normally; only
+the Drive folder picker is unavailable.
+
 1. In the same Google Cloud project that backs Firebase
    (`proven-concept-436717-q3`), enable the **Drive API** at
    `https://console.cloud.google.com/apis/library/drive.googleapis.com`.
 2. Create an API key (Console → APIs & Services → Credentials → Create
-   credentials → API key). For safety, restrict it to the Drive API
-   only and to your project's referrers.
-3. From `polyvote/`, store it as a Functions secret:
-   `firebase functions:secrets:set GOOGLE_DRIVE_API_KEY`
-4. Re-deploy `inventoryListDriveFolder` so the secret is picked up:
-   `firebase deploy --only functions:inventoryListDriveFolder`
-5. Whenever you want to use the picker, share the source folder as
-   **Anyone with the link → Viewer**.
+   credentials → API key). Restrict it to the Drive API only.
+3. From `polyvote/`, authenticated via `firebase login`, store the key
+   as a Functions secret:
+   ```
+   firebase functions:secrets:set GOOGLE_DRIVE_API_KEY
+   ```
+   Paste the key value when prompted. (Or pipe it in:
+   `printf '%s' YOUR_KEY | firebase functions:secrets:set GOOGLE_DRIVE_API_KEY --data-file -`)
+4. Deploy the function so the secret is bound:
+   ```
+   firebase deploy --only functions:inventoryListDriveFolder
+   ```
+   Alternative: trigger `firebase-deploy-manual.yml` via
+   `workflow_dispatch` with target
+   `functions:inventoryListDriveFolder`. The CI service account has
+   permission to read the secret you just stored.
+5. Share each source folder as **Anyone with the link → Viewer** in
+   Google Drive before using the picker.
 
 The API key + the public share are enough; the function never sees a
 user's Google credentials. The last-used folder URL is remembered in
 `localStorage` so subsequent opens prefill it.
+
+**Rotating the key:** repeat step 3 (the secret-set command creates a
+new version), then redeploy the function so it picks up the new version
+on cold start. Old versions can be cleaned up via
+`firebase functions:secrets:prune`.
 
 ## Photo storage
 

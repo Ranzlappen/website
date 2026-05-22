@@ -111,7 +111,7 @@ Six GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger
 
 **Required secrets**:
 - `FIREBASE_SERVICE_ACCOUNT` (JSON service-account key) for `firebase-deploy.yml`.
-- `GOOGLE_DRIVE_API_KEY` (Firebase Functions secret, set via `firebase functions:secrets:set`) for the inventory `inventoryListDriveFolder` callable. Restrict the key to the Drive API in the GCP console. Optional — the rest of inventory works without it; only the Drive folder picker fails (`failed-precondition` with a setup-hint message) when missing.
+- `GOOGLE_DRIVE_API_KEY` (Firebase Functions secret, set via `firebase functions:secrets:set`) for the inventory `inventoryListDriveFolder` callable. Restrict the key to the Drive API in the GCP console. **`inventoryListDriveFolder` is intentionally excluded from `firebase-deploy.yml`'s auto-deploy `TARGETS` list** — Firebase refuses to deploy a function whose `defineSecret`-declared secret isn't set yet when running non-interactively. Set the secret then deploy the function manually (`firebase deploy --only functions:inventoryListDriveFolder`) or via `firebase-deploy-manual.yml` with that target. The rest of inventory deploys normally without this secret; only the Drive folder picker is unavailable until it's stored.
 
 **Dependabot** (`.github/dependabot.yml`): weekly updates for all four npm packages (polyvote, polyvote/functions, blog-admin, inventory-manager), bundler, and GitHub Actions. Minor+patch are grouped. Each PR runs CI — `ci.yml` triggers on every PR to `main` (no `paths:` filter) so the `ci-required` aggregator always appears as a status check.
 
