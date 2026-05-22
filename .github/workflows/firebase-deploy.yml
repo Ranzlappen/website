@@ -72,7 +72,13 @@ jobs:
           TARGETS="$TARGETS,functions:setUserRole,functions:adminListUsers,functions:adminBanUser,functions:adminUnbanUser"
           TARGETS="$TARGETS,functions:inventoryListFolders,functions:inventoryCreateFolder,functions:inventoryUpdateFolder,functions:inventoryDeleteFolder,functions:inventoryDuplicateFolder"
           TARGETS="$TARGETS,functions:inventoryListItems,functions:inventoryGetItem,functions:inventoryCreateItem,functions:inventoryUpdateItem,functions:inventoryDeleteItem,functions:inventoryToggleEbaySync,functions:inventoryDuplicateItem,functions:inventoryBulkUpdate"
-          TARGETS="$TARGETS,functions:inventoryUploadPhoto,functions:inventoryDeletePhoto,functions:inventoryReorderPhotos,functions:inventoryImportPhotoFromUrl,functions:inventoryListDriveFolder"
+          # inventoryListDriveFolder is NOT auto-deployed because it declares
+          # GOOGLE_DRIVE_API_KEY via defineSecret(). Firebase refuses to deploy
+          # a function whose secret isn't set yet when running non-interactively.
+          # One-time setup in inventory-manager/README.md, then deploy it via:
+          #   firebase deploy --only functions:inventoryListDriveFolder
+          # …or trigger firebase-deploy-manual.yml with that target string.
+          TARGETS="$TARGETS,functions:inventoryUploadPhoto,functions:inventoryDeletePhoto,functions:inventoryReorderPhotos,functions:inventoryImportPhotoFromUrl"
           TARGETS="$TARGETS,functions:inventoryImport,functions:inventoryExport,functions:inventoryExportEbayCsv"
           TARGETS="$TARGETS,functions:inventoryFindByEan,functions:inventorySearchItems"
           TARGETS="$TARGETS,functions:inventoryListDeleted,functions:inventoryRestoreItem,functions:inventoryRestoreFolder,functions:inventoryPurgeDeleted"
