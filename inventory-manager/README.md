@@ -211,6 +211,33 @@ Drive URLs are normalized to the public direct-download endpoint
 For arbitrary HTTPS URLs we fetch them unchanged. CORS doesn't apply
 because the fetch happens server-side.
 
+## Browse a Google Drive folder
+
+The **+ From Drive** button opens a thumbnail picker for any publicly-
+shared Drive folder. Paste the folder share URL, tick the photos you
+want, click Import — each selection runs through the same
+`inventoryImportPhotoFromUrl` path so the files land in our Storage
+bucket like a normal upload.
+
+### One-time setup
+
+1. In the same Google Cloud project that backs Firebase
+   (`proven-concept-436717-q3`), enable the **Drive API** at
+   `https://console.cloud.google.com/apis/library/drive.googleapis.com`.
+2. Create an API key (Console → APIs & Services → Credentials → Create
+   credentials → API key). For safety, restrict it to the Drive API
+   only and to your project's referrers.
+3. From `polyvote/`, store it as a Functions secret:
+   `firebase functions:secrets:set GOOGLE_DRIVE_API_KEY`
+4. Re-deploy `inventoryListDriveFolder` so the secret is picked up:
+   `firebase deploy --only functions:inventoryListDriveFolder`
+5. Whenever you want to use the picker, share the source folder as
+   **Anyone with the link → Viewer**.
+
+The API key + the public share are enough; the function never sees a
+user's Google credentials. The last-used folder URL is remembered in
+`localStorage` so subsequent opens prefill it.
+
 ## Photo storage
 
 | Item | Value |

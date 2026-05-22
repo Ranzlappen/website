@@ -140,6 +140,20 @@ export const inventoryImportPhotoFromUrlFn = httpsCallable<
   PhotoRef
 >(functions, 'inventoryImportPhotoFromUrl');
 
+export interface DriveFileInfo {
+  id: string;
+  name: string;
+  mimeType: string;
+  thumbnailUrl: string | null;
+  sizeBytes: number | null;
+  modifiedAt: string | null;
+}
+
+export const inventoryListDriveFolderFn = httpsCallable<
+  { folderUrl: string; pageToken?: string },
+  { files: DriveFileInfo[]; nextPageToken: string | null }
+>(functions, 'inventoryListDriveFolder');
+
 // ── Import / export ──
 export const inventoryImportFn = httpsCallable<
   {

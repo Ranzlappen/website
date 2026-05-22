@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolveImageUrl } from "../photos";
+import { extractDriveFolderId, resolveImageUrl } from "../photos";
 
 describe("resolveImageUrl", () => {
   it("normalizes a Drive /file/d/<ID>/view URL", () => {
@@ -41,5 +41,41 @@ describe("resolveImageUrl", () => {
 
   it("rejects ftp / file URLs", () => {
     expect(() => resolveImageUrl("ftp://example.com/x.jpg")).toThrow(/http/);
+  });
+});
+
+describe("extractDriveFolderId", () => {
+  it("accepts /drive/folders/<id>", () => {
+    expect(
+      extractDriveFolderId(
+        "https://drive.google.com/drive/folders/1abcdefGHIJK_LMNOPQRSTUV2",
+      ),
+    ).toBe("1abcdefGHIJK_LMNOPQRSTUV2");
+  });
+
+  it("accepts /drive/u/0/folders/<id>?usp=sharing", () => {
+    expect(
+      extractDriveFolderId(
+        "https://drive.google.com/drive/u/0/folders/1abcdefGHIJK_LMNOPQRSTUV2?usp=sharing",
+      ),
+    ).toBe("1abcdefGHIJK_LMNOPQRSTUV2");
+  });
+
+  it("accepts a raw folder id", () => {
+    expect(extractDriveFolderId("1abcdefGHIJK_LMNOPQRSTUV2")).toBe(
+      "1abcdefGHIJK_LMNOPQRSTUV2",
+    );
+  });
+
+  it("rejects URLs without /folders/<id>", () => {
+    expect(() =>
+      extractDriveFolderId("https://drive.google.com/file/d/abc/view"),
+    ).toThrow(/folders/);
+  });
+
+  it("rejects non-Drive hosts", () => {
+    expect(() =>
+      extractDriveFolderId("https://example.com/folders/abc"),
+    ).toThrow(/drive\.google\.com/);
   });
 });

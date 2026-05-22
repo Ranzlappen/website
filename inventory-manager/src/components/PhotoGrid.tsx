@@ -7,6 +7,7 @@ import {
 } from '../firebase';
 import { useStore } from '../store';
 import type { PhotoRef } from '../types';
+import DrivePicker from './DrivePicker';
 import PhotoLightbox from './PhotoLightbox';
 
 interface Props {
@@ -44,6 +45,7 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
   const [urlImportOpen, setUrlImportOpen] = useState(false);
   const [urlInput, setUrlInput] = useState('');
   const [urlBusy, setUrlBusy] = useState(false);
+  const [driveOpen, setDriveOpen] = useState(false);
 
   async function importFromUrl() {
     if (!urlInput.trim()) return;
@@ -169,6 +171,15 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
             title="Paste a Google Drive share URL or any public image URL"
           >
             + From URL
+          </button>
+          <button
+            type="button"
+            onClick={() => setDriveOpen(true)}
+            disabled={photos.length >= 24}
+            className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
+            title="Browse a public Google Drive folder"
+          >
+            + From Drive
           </button>
           <button
             type="button"
@@ -302,6 +313,13 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
           onClose={() => setLightboxIndex(null)}
         />
       )}
+
+      <DrivePicker
+        open={driveOpen}
+        itemId={itemId}
+        onClose={() => setDriveOpen(false)}
+        onImported={(newOnes) => onChange([...photos, ...newOnes])}
+      />
     </div>
   );
 }

@@ -1,9 +1,12 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 import { randomUUID } from "node:crypto";
 import { requireRole } from "../utils/adminOnly";
 import { appendAudit, type ItemDoc, type PhotoRef } from "./shared";
+
+const driveApiKey = defineSecret("GOOGLE_DRIVE_API_KEY");
 
 // The project's Firebase Storage bucket. Pinned explicitly so we don't
 // depend on whichever bucket the Admin SDK picks as "default" — Firebase
@@ -387,5 +390,113 @@ export const inventoryImportPhotoFromUrl = onCall(
     });
 
     return photo;
+  }
+);
+
+/**
+ * Parse a Google Drive folder URL into a folder id. Accepts:
+ *  - https://drive.google.com/drive/folders/<ID>
+ *  - https://drive.google.com/drive/u/0/folders/<ID>?usp=sharing
+ *  - raw folder id
+ */
+export function extractDriveFolderId(input: string): string {
+  const trimmed = input.trim();
+  if (!trimmed) throw new HttpsError("invalid-argument", "folderUrl is required.");
+
+  if (/^[a-zA-Z0-9_-]{25,60}$/.test(trimmed)) return trimmed;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    throw new HttpsError("invalid-argument", "folderUrl must be a valid URL.");
+  }
+  if (parsed.hostname !== "drive.google.com") {
+    throw new HttpsError("invalid-argument", "folderUrl must be a drive.google.com URL.");
+  }
+  const m = parsed.pathname.match(/\/folders\/([^/?]+)/);
+  if (!m) {
+    throw new HttpsError(
+      "invalid-argument",
+      "folderUrl does not contain a /folders/<id> segment.",
+    );
+  }
+  return m[1];
+}
+
+interface DriveFile {
+  id: string;
+  name: string;
+  mimeType: string;
+  thumbnailLink?: string;
+  modifiedTime?: string;
+  size?: string;
+}
+
+/**
+ * List image files inside a publicly-shared Drive folder via Drive API v3.
+ * Requires the `GOOGLE_DRIVE_API_KEY` Functions secret + the folder shared
+ * "Anyone with the link → Viewer". No user OAuth involved.
+ */
+export const inventoryListDriveFolder = onCall(
+  { secrets: [driveApiKey] },
+  async (request) => {
+    requireRole(request, "admin");
+
+    const { folderUrl, pageToken } = request.data as {
+      folderUrl: string;
+      pageToken?: string;
+    };
+
+    const folderId = extractDriveFolderId(folderUrl);
+    const key = driveApiKey.value();
+    if (!key) {
+      throw new HttpsError(
+        "failed-precondition",
+        "GOOGLE_DRIVE_API_KEY secret is not configured.",
+      );
+    }
+
+    const q = `'${folderId}' in parents and mimeType contains 'image/' and trashed=false`;
+    const fields = encodeURIComponent(
+      "files(id,name,mimeType,thumbnailLink,modifiedTime,size),nextPageToken",
+    );
+    const url =
+      `https://www.googleapis.com/drive/v3/files` +
+      `?q=${encodeURIComponent(q)}&fields=${fields}&pageSize=100` +
+      (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : "") +
+      `&key=${encodeURIComponent(key)}`;
+
+    let res: Response;
+    try {
+      res = await fetch(url);
+    } catch (e) {
+      throw new HttpsError(
+        "unavailable",
+        `Drive API fetch failed: ${e instanceof Error ? e.message : "unknown"}.`,
+      );
+    }
+    if (!res.ok) {
+      const body = await res.text();
+      throw new HttpsError(
+        "failed-precondition",
+        `Drive API HTTP ${res.status}. Ensure the folder is shared "Anyone with the link" and the API key allows Drive API. ${body.slice(0, 200)}`,
+      );
+    }
+    const data = (await res.json()) as {
+      files?: DriveFile[];
+      nextPageToken?: string;
+    };
+
+    const files = (data.files ?? []).map((f) => ({
+      id: f.id,
+      name: f.name,
+      mimeType: f.mimeType,
+      thumbnailUrl: f.thumbnailLink ?? null,
+      sizeBytes: f.size ? Number(f.size) : null,
+      modifiedAt: f.modifiedTime ?? null,
+    }));
+
+    return { files, nextPageToken: data.nextPageToken ?? null };
   }
 );

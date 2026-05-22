@@ -119,6 +119,7 @@ export {
   inventoryDeletePhoto,
   inventoryReorderPhotos,
   inventoryImportPhotoFromUrl,
+  inventoryListDriveFolder,
 } from "./inventory/photos";
 
 // Inventory: import / export
