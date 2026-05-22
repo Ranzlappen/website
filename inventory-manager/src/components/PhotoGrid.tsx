@@ -111,18 +111,42 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
         <h3 className="font-semibold text-sm uppercase tracking-wide text-[var(--text-muted)]">
           Photos ({photos.length} / 24)
         </h3>
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={uploading || photos.length >= 24}
-          className="px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
-        >
-          {uploading ? 'Uploading…' : '+ Upload'}
-        </button>
+        <div className="flex items-center gap-2">
+          {photos.length > 0 && (
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(
+                    photos.map((p) => p.downloadUrl).join('|'),
+                  );
+                  addToast(
+                    `Copied ${photos.length} URL${photos.length === 1 ? '' : 's'}`,
+                    'success',
+                  );
+                } catch {
+                  addToast('Copy failed', 'error');
+                }
+              }}
+              className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
+              title="Copy a pipe-separated list of every photo URL (same shape as the eBay PicURL column)"
+            >
+              Copy gallery URLs
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading || photos.length >= 24}
+            className="px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
+          >
+            {uploading ? 'Uploading…' : '+ Upload'}
+          </button>
+        </div>
         <input
           ref={fileRef}
           type="file"
@@ -180,12 +204,26 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
                 Primary
               </span>
             )}
-            <div className="absolute inset-x-0 bottom-0 p-1 flex justify-between bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-[10px] text-white truncate">{p.filename}</span>
+            <div className="absolute inset-x-0 bottom-0 p-1 flex justify-between gap-2 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[10px] text-white truncate flex-1">{p.filename}</span>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(p.downloadUrl);
+                    addToast('Photo URL copied', 'success');
+                  } catch {
+                    addToast('Copy failed', 'error');
+                  }
+                }}
+                className="text-[10px] text-white/80 hover:text-white shrink-0"
+              >
+                Copy URL
+              </button>
               <button
                 type="button"
                 onClick={() => deletePhoto(p)}
-                className="text-[10px] text-red-300 hover:text-red-100"
+                className="text-[10px] text-red-300 hover:text-red-100 shrink-0"
               >
                 Delete
               </button>
