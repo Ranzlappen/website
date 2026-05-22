@@ -93,6 +93,11 @@ export const inventoryToggleEbaySyncFn = httpsCallable<
   { success: boolean; ebay: EbayBlock }
 >(functions, 'inventoryToggleEbaySync');
 
+export const inventoryDuplicateItemFn = httpsCallable<
+  { itemId: string; copyPhotos?: boolean },
+  ItemDoc & { photoCount: number }
+>(functions, 'inventoryDuplicateItem');
+
 // ── Photos ──
 export const inventoryUploadPhotoFn = httpsCallable<
   {

@@ -10,6 +10,7 @@ import FieldInput from '../components/FieldInput';
 import PhotoGrid from '../components/PhotoGrid';
 import {
   inventoryCreateItemFn,
+  inventoryDuplicateItemFn,
   inventoryGetItemFn,
   inventoryListFoldersFn,
   inventoryUpdateItemFn,
@@ -198,10 +199,32 @@ export default function ItemEditor() {
           >
             ← Back to folder
           </Link>
-          <div className="text-xs text-[var(--text-muted)] flex items-center gap-3">
+          <div className="text-xs text-[var(--text-muted)] flex items-center gap-3 flex-wrap">
             {saving && <span>Saving…</span>}
             {!saving && lastSaved && (
               <span>Saved {lastSaved.toLocaleTimeString()}</span>
+            )}
+            {item && (
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await inventoryDuplicateItemFn({
+                      itemId: item.id,
+                    });
+                    upsertItem(res.data);
+                    addToast('Item duplicated', 'success');
+                    navigate(`/folder/${item.folderId}/item/${res.data.id}`);
+                  } catch (err) {
+                    addToast(
+                      err instanceof Error ? err.message : 'Duplicate failed',
+                      'error',
+                    );
+                  }
+                }}
+                className="px-3 py-1.5 rounded border border-[var(--border)] text-[var(--text)] text-xs hover:border-[var(--accent)] transition-colors"
+              >
+                Duplicate item
+              </button>
             )}
             <button
               onClick={() => save()}

@@ -22,6 +22,64 @@ function publicUrl(bucket: string, path: string): string {
   return `https://storage.googleapis.com/${bucket}/${path}`;
 }
 
+/**
+ * Build a new item doc that is a deep copy of `srcItem` under `targetFolderId`.
+ * Photos (if any and `copyPhotos`) are physically copied to fresh Storage
+ * paths under the new item id so the two items are fully isolated.
+ *
+ * Returns `{ doc, photoCount }` — the caller is responsible for writing
+ * the doc and incrementing folder.itemCount. eBay state is deliberately
+ * reset; duplicates are not relistings.
+ */
+export async function buildDuplicatedItem(opts: {
+  srcItem: ItemDoc;
+  srcSchema: FieldDef[];
+  targetFolderId: string;
+  newItemId: string;
+  uid: string;
+  copyPhotos: boolean;
+  now: number;
+}): Promise<{ doc: ItemDoc; photoCount: number }> {
+  const { srcItem, srcSchema, targetFolderId, newItemId, uid, copyPhotos, now } =
+    opts;
+
+  const newPhotos: PhotoRef[] = [];
+  let photoCount = 0;
+  if (copyPhotos && (srcItem.photos?.length ?? 0) > 0) {
+    const bucket = getStorage().bucket(INVENTORY_BUCKET);
+    for (const photo of srcItem.photos!) {
+      const ext = photo.storagePath.substring(photo.storagePath.lastIndexOf("."));
+      const newPath = `inventory/${newItemId}/${randomUUID()}${ext}`;
+      try {
+        await bucket.file(photo.storagePath).copy(bucket.file(newPath));
+        await bucket.file(newPath).makePublic();
+        newPhotos.push({
+          ...photo,
+          storagePath: newPath,
+          downloadUrl: publicUrl(INVENTORY_BUCKET, newPath),
+          order: newPhotos.length,
+        });
+        photoCount++;
+      } catch (e) {
+        console.warn("photo copy failed", photo.storagePath, e);
+      }
+    }
+  }
+
+  const doc: ItemDoc = {
+    folderId: targetFolderId,
+    fields: srcItem.fields,
+    photos: newPhotos,
+    ebay: defaultEbayBlock(),
+    eanCodes: extractEanCodes(srcItem.fields, srcSchema),
+    createdAt: now,
+    updatedAt: now,
+    createdBy: uid,
+    deletedAt: null,
+  };
+  return { doc, photoCount };
+}
+
 const MAX_NAME = 80;
 const MAX_DEPTH = 6;
 
@@ -328,48 +386,22 @@ export const inventoryDuplicateFolder = onCall(
         .limit(5000)
         .get();
 
-      const bucket = getStorage().bucket(INVENTORY_BUCKET);
-
       for (const srcItemDoc of itemsSnap.docs) {
         const srcItem = srcItemDoc.data() as ItemDoc;
         const newItemRef = db.collection("inventoryItems").doc();
-
-        // Deep-copy each photo to a fresh Storage path under the new item id.
-        const newPhotos: PhotoRef[] = [];
-        for (const photo of srcItem.photos ?? []) {
-          const ext = photo.storagePath.substring(
-            photo.storagePath.lastIndexOf(".")
-          );
-          const newPath = `inventory/${newItemRef.id}/${randomUUID()}${ext}`;
-          try {
-            await bucket.file(photo.storagePath).copy(bucket.file(newPath));
-            await bucket.file(newPath).makePublic();
-            newPhotos.push({
-              ...photo,
-              storagePath: newPath,
-              downloadUrl: publicUrl(INVENTORY_BUCKET, newPath),
-              order: newPhotos.length,
-            });
-            photoCount++;
-          } catch (e) {
-            // Skip photos that fail to copy (source missing / permission). Logged for the operator.
-            console.warn("photo copy failed", photo.storagePath, e);
-          }
-        }
-
-        const newItem: ItemDoc = {
-          folderId: newFolderRef.id,
-          fields: srcItem.fields,
-          photos: newPhotos,
-          ebay: defaultEbayBlock(),
-          eanCodes: extractEanCodes(srcItem.fields, src.fieldSchema),
-          createdAt: now,
-          updatedAt: now,
-          createdBy: uid,
-          deletedAt: null,
-        };
+        const { doc: newItem, photoCount: copiedPhotos } =
+          await buildDuplicatedItem({
+            srcItem,
+            srcSchema: src.fieldSchema,
+            targetFolderId: newFolderRef.id,
+            newItemId: newItemRef.id,
+            uid,
+            copyPhotos: true,
+            now,
+          });
         await newItemRef.set(newItem);
         itemCount++;
+        photoCount += copiedPhotos;
       }
 
       if (itemCount > 0) {

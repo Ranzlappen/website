@@ -7,6 +7,7 @@ import {
   inventoryDeleteFolderFn,
   inventoryDeleteItemFn,
   inventoryDuplicateFolderFn,
+  inventoryDuplicateItemFn,
   inventoryExportEbayCsvFn,
   inventoryExportFn,
   inventoryListFoldersFn,
@@ -131,6 +132,21 @@ export default function FolderTable() {
       addToast(err instanceof Error ? err.message : 'Delete failed', 'error');
     } finally {
       setPendingDelete(null);
+    }
+  }
+
+  async function duplicateItem(it: ItemDoc) {
+    try {
+      const res = await inventoryDuplicateItemFn({ itemId: it.id });
+      upsertItem(res.data);
+      addToast(
+        res.data.photoCount > 0
+          ? `Duplicated (with ${res.data.photoCount} photo${res.data.photoCount === 1 ? '' : 's'})`
+          : 'Duplicated',
+        'success',
+      );
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Duplicate failed', 'error');
     }
   }
 
@@ -394,13 +410,19 @@ export default function FolderTable() {
                     <td className="px-3 py-2 text-center">
                       <StatusBadge status={it.ebay?.listingStatus ?? 'none'} />
                     </td>
-                    <td className="px-3 py-2 text-right">
+                    <td className="px-3 py-2 text-right whitespace-nowrap">
                       <Link
                         to={`/folder/${folderId}/item/${it.id}`}
                         className="text-xs text-[var(--accent)] hover:underline mr-3"
                       >
                         Edit
                       </Link>
+                      <button
+                        onClick={() => duplicateItem(it)}
+                        className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] mr-3"
+                      >
+                        Duplicate
+                      </button>
                       <button
                         onClick={() => setPendingDelete(it)}
                         className="text-xs text-[var(--text-muted)] hover:text-[var(--danger)]"

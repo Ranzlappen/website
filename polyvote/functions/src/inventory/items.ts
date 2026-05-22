@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { requireRole } from "../utils/adminOnly";
+import { buildDuplicatedItem } from "./folders";
 import {
   appendAudit,
   defaultEbayBlock,
@@ -312,3 +313,67 @@ export const inventoryToggleEbaySync = onCall(async (request) => {
 
   return { success: true, ebay: nextEbay };
 });
+
+/**
+ * Duplicate a single item inside its current folder. Deep-copies photos
+ * to fresh Storage paths so the two items are fully isolated. eBay state
+ * is reset on the copy.
+ */
+export const inventoryDuplicateItem = onCall(
+  { timeoutSeconds: 120 },
+  async (request) => {
+    requireRole(request, "admin");
+    const db = getFirestore();
+    const uid = request.auth!.uid;
+
+    const { itemId, copyPhotos } = request.data as {
+      itemId: string;
+      copyPhotos?: boolean;
+    };
+    if (!itemId) {
+      throw new HttpsError("invalid-argument", "itemId is required.");
+    }
+
+    const srcSnap = await db.collection("inventoryItems").doc(itemId).get();
+    if (!srcSnap.exists) {
+      throw new HttpsError("not-found", "item not found.");
+    }
+    const src = srcSnap.data() as ItemDoc;
+    if (src.deletedAt) {
+      throw new HttpsError("failed-precondition", "item is deleted.");
+    }
+
+    const folder = await loadFolder(src.folderId);
+
+    const now = Date.now();
+    const newItemRef = db.collection("inventoryItems").doc();
+    const { doc: newDoc, photoCount } = await buildDuplicatedItem({
+      srcItem: src,
+      srcSchema: folder.fieldSchema,
+      targetFolderId: src.folderId,
+      newItemId: newItemRef.id,
+      uid,
+      copyPhotos: copyPhotos !== false,
+      now,
+    });
+    await newItemRef.set(newDoc);
+    await db
+      .collection("inventoryFolders")
+      .doc(src.folderId)
+      .update({
+        itemCount: FieldValue.increment(1),
+        updatedAt: now,
+      });
+
+    await appendAudit({
+      action: "item.duplicate",
+      actorUid: uid,
+      itemId: newItemRef.id,
+      folderId: src.folderId,
+      before: { srcItemId: itemId },
+      after: { photoCount },
+    });
+
+    return { id: newItemRef.id, ...newDoc, photoCount };
+  }
+);
