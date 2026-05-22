@@ -1,9 +1,12 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 import { randomUUID } from "node:crypto";
 import { requireRole } from "../utils/adminOnly";
 import { appendAudit, type ItemDoc, type PhotoRef } from "./shared";
+
+const driveApiKey = defineSecret("GOOGLE_DRIVE_API_KEY");
 
 // The project's Firebase Storage bucket. Pinned explicitly so we don't
 // depend on whichever bucket the Admin SDK picks as "default" — Firebase
@@ -223,3 +226,277 @@ export const inventoryReorderPhotos = onCall(async (request) => {
 
   return { success: true, photos: reordered };
 });
+
+/**
+ * Parse a user-supplied URL into a fetchable image URL.
+ *
+ * Accepts:
+ *  - https://drive.google.com/file/d/<ID>/view…
+ *  - https://drive.google.com/open?id=<ID>
+ *  - https://drive.google.com/uc?id=<ID>…
+ *  - raw 25–44-char Drive file id
+ *  - any other HTTPS URL (passed through unchanged)
+ *
+ * Drive URLs are normalized to the public direct-download endpoint
+ * `https://drive.google.com/uc?export=download&id=<ID>` so unauthenticated
+ * fetch works as long as the file is shared "anyone with the link".
+ */
+export function resolveImageUrl(input: string): string {
+  const trimmed = input.trim();
+  if (!trimmed) throw new HttpsError("invalid-argument", "url is required.");
+
+  // Raw Drive file id heuristic.
+  if (/^[a-zA-Z0-9_-]{25,60}$/.test(trimmed)) {
+    return `https://drive.google.com/uc?export=download&id=${trimmed}`;
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    throw new HttpsError("invalid-argument", "url must be a valid URL.");
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+    throw new HttpsError("invalid-argument", "url must be http(s).");
+  }
+
+  // Drive variants → normalize to the direct-download endpoint.
+  if (parsed.hostname === "drive.google.com") {
+    let id: string | null = parsed.searchParams.get("id");
+    if (!id) {
+      const m = parsed.pathname.match(/\/file\/d\/([^/]+)/);
+      if (m) id = m[1];
+    }
+    if (id) {
+      return `https://drive.google.com/uc?export=download&id=${id}`;
+    }
+  }
+
+  return parsed.toString();
+}
+
+/**
+ * Server-side fetch an image from a public URL (Drive direct link or any
+ * other HTTPS image) and upload it to our Storage like a regular photo.
+ * No user OAuth involved — the target must be publicly shared.
+ */
+export const inventoryImportPhotoFromUrl = onCall(
+  { timeoutSeconds: 60 },
+  async (request) => {
+    requireRole(request, "admin");
+    const db = getFirestore();
+    const uid = request.auth!.uid;
+
+    const { itemId, url } = request.data as { itemId: string; url: string };
+    if (!itemId || !url) {
+      throw new HttpsError("invalid-argument", "itemId and url are required.");
+    }
+
+    const itemRef = db.collection("inventoryItems").doc(itemId);
+    const snap = await itemRef.get();
+    if (!snap.exists) {
+      throw new HttpsError("not-found", "item not found.");
+    }
+    const existing = snap.data() as ItemDoc;
+    if (existing.deletedAt) {
+      throw new HttpsError("failed-precondition", "item is deleted.");
+    }
+    if ((existing.photos ?? []).length >= 24) {
+      throw new HttpsError("failed-precondition", "Photo limit (24) reached.");
+    }
+
+    const fetchUrl = resolveImageUrl(url);
+
+    let res: Response;
+    try {
+      res = await fetch(fetchUrl, { redirect: "follow" });
+    } catch (e) {
+      throw new HttpsError(
+        "unavailable",
+        `Could not fetch URL: ${e instanceof Error ? e.message : "unknown error"}.`
+      );
+    }
+    if (!res.ok) {
+      throw new HttpsError(
+        "unavailable",
+        `Fetch returned HTTP ${res.status}. If this is a Drive link, ensure the file is shared "Anyone with the link".`
+      );
+    }
+
+    const contentType = (res.headers.get("content-type") ?? "").split(";")[0].trim();
+    const extByType: Record<string, string> = {
+      "image/webp": ".webp",
+      "image/png": ".png",
+      "image/jpeg": ".jpg",
+      "image/jpg": ".jpg",
+    };
+    const ext = extByType[contentType];
+    if (!ext) {
+      throw new HttpsError(
+        "invalid-argument",
+        `Unsupported image content-type: ${contentType || "unknown"}.`
+      );
+    }
+
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (buffer.length === 0) {
+      throw new HttpsError("invalid-argument", "Empty image body.");
+    }
+    if (buffer.length > MAX_SIZE_BYTES) {
+      throw new HttpsError(
+        "invalid-argument",
+        `Image must be under ${MAX_SIZE_BYTES / 1024 / 1024}MB.`
+      );
+    }
+
+    const storagePath = `inventory/${itemId}/${randomUUID()}${ext}`;
+    const bucket = getStorage().bucket(INVENTORY_BUCKET);
+    const file = bucket.file(storagePath);
+    await file.save(buffer, {
+      contentType,
+      resumable: false,
+      metadata: {
+        cacheControl: "public, max-age=31536000, immutable",
+        metadata: {
+          uploadedBy: uid,
+          itemId,
+          sourceUrl: fetchUrl,
+        },
+      },
+    });
+    await file.makePublic();
+
+    const photo: PhotoRef = {
+      storagePath,
+      downloadUrl: publicUrl(bucket.name, storagePath),
+      filename: fetchUrl.split("/").pop()?.split("?")[0] || "imported",
+      sizeBytes: buffer.length,
+      width: 0,
+      height: 0,
+      order: (existing.photos ?? []).length,
+    };
+
+    await itemRef.update({
+      photos: [...(existing.photos ?? []), photo],
+      updatedAt: Date.now(),
+    });
+
+    await appendAudit({
+      action: "photo.importFromUrl",
+      actorUid: uid,
+      itemId,
+      folderId: existing.folderId,
+      after: { storagePath, sourceUrl: fetchUrl },
+    });
+
+    return photo;
+  }
+);
+
+/**
+ * Parse a Google Drive folder URL into a folder id. Accepts:
+ *  - https://drive.google.com/drive/folders/<ID>
+ *  - https://drive.google.com/drive/u/0/folders/<ID>?usp=sharing
+ *  - raw folder id
+ */
+export function extractDriveFolderId(input: string): string {
+  const trimmed = input.trim();
+  if (!trimmed) throw new HttpsError("invalid-argument", "folderUrl is required.");
+
+  if (/^[a-zA-Z0-9_-]{25,60}$/.test(trimmed)) return trimmed;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    throw new HttpsError("invalid-argument", "folderUrl must be a valid URL.");
+  }
+  if (parsed.hostname !== "drive.google.com") {
+    throw new HttpsError("invalid-argument", "folderUrl must be a drive.google.com URL.");
+  }
+  const m = parsed.pathname.match(/\/folders\/([^/?]+)/);
+  if (!m) {
+    throw new HttpsError(
+      "invalid-argument",
+      "folderUrl does not contain a /folders/<id> segment.",
+    );
+  }
+  return m[1];
+}
+
+interface DriveFile {
+  id: string;
+  name: string;
+  mimeType: string;
+  thumbnailLink?: string;
+  modifiedTime?: string;
+  size?: string;
+}
+
+/**
+ * List image files inside a publicly-shared Drive folder via Drive API v3.
+ * Requires the `GOOGLE_DRIVE_API_KEY` Functions secret + the folder shared
+ * "Anyone with the link → Viewer". No user OAuth involved.
+ */
+export const inventoryListDriveFolder = onCall(
+  { secrets: [driveApiKey] },
+  async (request) => {
+    requireRole(request, "admin");
+
+    const { folderUrl, pageToken } = request.data as {
+      folderUrl: string;
+      pageToken?: string;
+    };
+
+    const folderId = extractDriveFolderId(folderUrl);
+    const key = driveApiKey.value();
+    if (!key) {
+      throw new HttpsError(
+        "failed-precondition",
+        "GOOGLE_DRIVE_API_KEY secret is not configured.",
+      );
+    }
+
+    const q = `'${folderId}' in parents and mimeType contains 'image/' and trashed=false`;
+    const fields = encodeURIComponent(
+      "files(id,name,mimeType,thumbnailLink,modifiedTime,size),nextPageToken",
+    );
+    const url =
+      `https://www.googleapis.com/drive/v3/files` +
+      `?q=${encodeURIComponent(q)}&fields=${fields}&pageSize=100` +
+      (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : "") +
+      `&key=${encodeURIComponent(key)}`;
+
+    let res: Response;
+    try {
+      res = await fetch(url);
+    } catch (e) {
+      throw new HttpsError(
+        "unavailable",
+        `Drive API fetch failed: ${e instanceof Error ? e.message : "unknown"}.`,
+      );
+    }
+    if (!res.ok) {
+      const body = await res.text();
+      throw new HttpsError(
+        "failed-precondition",
+        `Drive API HTTP ${res.status}. Ensure the folder is shared "Anyone with the link" and the API key allows Drive API. ${body.slice(0, 200)}`,
+      );
+    }
+    const data = (await res.json()) as {
+      files?: DriveFile[];
+      nextPageToken?: string;
+    };
+
+    const files = (data.files ?? []).map((f) => ({
+      id: f.id,
+      name: f.name,
+      mimeType: f.mimeType,
+      thumbnailUrl: f.thumbnailLink ?? null,
+      sizeBytes: f.size ? Number(f.size) : null,
+      modifiedAt: f.modifiedTime ?? null,
+    }));
+
+    return { files, nextPageToken: data.nextPageToken ?? null };
+  }
+);

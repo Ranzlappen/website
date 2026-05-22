@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
   defaultFieldSchema,
+  extractEanCodes,
   missingEbayRequiredFields,
   validateFieldSchema,
   validateItemFields,
+  type FieldDef,
 } from "../shared";
 
 describe("validateFieldSchema", () => {
@@ -169,5 +171,43 @@ describe("missingEbayRequiredFields", () => {
       schema
     );
     expect(missing).toContain("Title");
+  });
+});
+
+describe("extractEanCodes", () => {
+  const schema: FieldDef[] = [
+    { key: "title", label: "Title", type: "text", required: false, ebayRequired: false, order: 0 },
+    { key: "primary_ean", label: "EAN", type: "ean", required: false, ebayRequired: false, order: 1 },
+    { key: "alt_ean", label: "Alt EAN", type: "ean", required: false, ebayRequired: false, order: 2 },
+  ];
+
+  it("returns every populated ean-typed value", () => {
+    const codes = extractEanCodes(
+      { title: "Camera", primary_ean: "4006381333931", alt_ean: "12345678" },
+      schema
+    );
+    expect(codes).toEqual(["4006381333931", "12345678"]);
+  });
+
+  it("skips empty/blank ean fields", () => {
+    const codes = extractEanCodes(
+      { primary_ean: "4006381333931", alt_ean: "   " },
+      schema
+    );
+    expect(codes).toEqual(["4006381333931"]);
+  });
+
+  it("ignores non-ean fields with numeric values", () => {
+    const codes = extractEanCodes(
+      { title: "1234567812345", primary_ean: null, alt_ean: null },
+      schema
+    );
+    expect(codes).toEqual([]);
+  });
+
+  it("returns empty array when no ean fields exist in schema", () => {
+    const noEanSchema = schema.filter((f) => f.type !== "ean");
+    const codes = extractEanCodes({ title: "x" }, noEanSchema);
+    expect(codes).toEqual([]);
   });
 });

@@ -65,6 +65,8 @@ export interface ItemDoc {
   fields: Record<string, unknown>;
   photos: PhotoRef[];
   ebay: EbayBlock;
+  /** Denormalized EAN-typed field values; maintained server-side. */
+  eanCodes: string[];
   createdAt: number;
   updatedAt: number;
   createdBy: string;

@@ -93,6 +93,26 @@ export const inventoryToggleEbaySyncFn = httpsCallable<
   { success: boolean; ebay: EbayBlock }
 >(functions, 'inventoryToggleEbaySync');
 
+export const inventoryDuplicateItemFn = httpsCallable<
+  { itemId: string; copyPhotos?: boolean },
+  ItemDoc & { photoCount: number }
+>(functions, 'inventoryDuplicateItem');
+
+export type BulkAction = 'delete' | 'toggleEbay' | 'move' | 'setField';
+
+export const inventoryBulkUpdateFn = httpsCallable<
+  {
+    itemIds: string[];
+    action: BulkAction;
+    payload?: Record<string, unknown>;
+  },
+  {
+    ok: boolean;
+    updated: number;
+    skipped: { id: string; reason: string }[];
+  }
+>(functions, 'inventoryBulkUpdate');
+
 // ── Photos ──
 export const inventoryUploadPhotoFn = httpsCallable<
   {
@@ -115,9 +135,33 @@ export const inventoryReorderPhotosFn = httpsCallable<
   { success: boolean; photos: PhotoRef[] }
 >(functions, 'inventoryReorderPhotos');
 
+export const inventoryImportPhotoFromUrlFn = httpsCallable<
+  { itemId: string; url: string },
+  PhotoRef
+>(functions, 'inventoryImportPhotoFromUrl');
+
+export interface DriveFileInfo {
+  id: string;
+  name: string;
+  mimeType: string;
+  thumbnailUrl: string | null;
+  sizeBytes: number | null;
+  modifiedAt: string | null;
+}
+
+export const inventoryListDriveFolderFn = httpsCallable<
+  { folderUrl: string; pageToken?: string },
+  { files: DriveFileInfo[]; nextPageToken: string | null }
+>(functions, 'inventoryListDriveFolder');
+
 // ── Import / export ──
 export const inventoryImportFn = httpsCallable<
-  { folderId: string; format: 'csv' | 'json'; data: string; dryRun?: boolean },
+  {
+    folderId: string;
+    format: 'csv' | 'json' | 'ebay-csv';
+    data: string;
+    dryRun?: boolean;
+  },
   {
     dryRun: boolean;
     summary: {
@@ -138,3 +182,30 @@ export const inventoryExportEbayCsvFn = httpsCallable<
   { folderId?: string; itemIds?: string[] },
   { filename: string; body: string; rowCount: number; columns: string[] }
 >(functions, 'inventoryExportEbayCsv');
+
+// ── Lookup ──
+export const inventoryFindByEanFn = httpsCallable<
+  { code: string },
+  { matches: ItemDoc[] }
+>(functions, 'inventoryFindByEan');
+
+export const inventorySearchItemsFn = httpsCallable<
+  { query: string; limit?: number },
+  { items: ItemDoc[]; truncated: boolean }
+>(functions, 'inventorySearchItems');
+
+// ── Trash ──
+export const inventoryListDeletedFn = httpsCallable<
+  { limit?: number },
+  { items: ItemDoc[]; folders: FolderDoc[]; purgeAfterMs: number }
+>(functions, 'inventoryListDeleted');
+
+export const inventoryRestoreItemFn = httpsCallable<
+  { itemId: string },
+  { success: boolean }
+>(functions, 'inventoryRestoreItem');
+
+export const inventoryRestoreFolderFn = httpsCallable<
+  { folderId: string; cascade?: boolean },
+  { success: boolean; folderCount: number; itemCount: number }
+>(functions, 'inventoryRestoreFolder');
