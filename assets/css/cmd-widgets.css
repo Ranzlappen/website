@@ -94,6 +94,7 @@
   font-size: 0.88rem;
   min-width: 0;
   flex: 1 1 auto;
+  box-sizing: border-box;
   transition: border-color var(--transition-fast),
               box-shadow var(--transition-fast);
 }
@@ -302,15 +303,75 @@
 
 /* Mobile: row labels stack on top of inputs. */
 @media (max-width: 640px) {
+  /* Tighter widget shell padding — saves ~16px of horizontal space per side. */
+  .cmd-widget {
+    padding: var(--space-sm) var(--space-md);
+  }
+  /* Reduce inter-widget gap when cards stack single-column. */
+  .cmd-tools__grid {
+    gap: var(--space-md);
+  }
+
+  /* Row stacking — label sits above input, tighter gap. */
   .cmd-widget__row {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.3rem;
   }
   .cmd-widget__row-label { min-width: 0; }
+
+  /* CRITICAL FIX: when the parent row is flex-direction: column, the
+     `flex: 0 0 5rem|9rem` on these "narrow" inputs sets the HEIGHT axis
+     instead of width. Reset to auto-sized in the cross axis with natural
+     width so they no longer render as 5rem-tall blocks. */
+  .cmd-widget__text--narrow,
+  .cmd-widget__select--narrow {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  /* Inline checkboxes (e.g. "Basic auth", "follow redirects", "case-
+     insensitive") shouldn't stretch to full row width — keep them at
+     content width and left-aligned. */
+  .cmd-widget__inline-check {
+    align-self: start;
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  /* chmod grid — narrower cells for thumb taps. */
   .cmd-widget--chmod__grid {
     grid-template-columns: 5rem repeat(3, 2.5rem);
   }
+  /* Bigger touch targets on chmod cells + utility buttons. */
+  .cmd-widget__cell,
+  .cmd-widget__copy,
+  .cmd-widget__add-row,
+  .cmd-widget__remove-row {
+    min-height: 2.25rem;
+  }
+
+  /* curl header rows — stack key + value, keep × pinned right.
+     Before: 1fr 1fr auto (cramped). After: 1fr auto with key/value
+     stacking via grid-template-areas. */
   .cmd-widget__header-row {
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "key remove"
+      "value remove";
+    gap: 0.25rem 0.35rem;
+  }
+  .cmd-widget__header-row > :nth-child(1) { grid-area: key; }
+  .cmd-widget__header-row > :nth-child(2) { grid-area: value; }
+  .cmd-widget__header-row > :nth-child(3) {
+    grid-area: remove;
+    align-self: stretch;
+  }
+
+  /* Composed-output: wrap without slicing through tokens. break-all is
+     too aggressive for shell commands ("gi|t commit -m"). */
+  .cmd-widget__output-pre {
+    word-break: normal;
+    overflow-wrap: anywhere;
   }
 }

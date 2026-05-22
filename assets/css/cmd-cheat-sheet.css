@@ -133,12 +133,27 @@
     font-size: 0.825rem;
     min-width: 0;
   }
-  .reference-page--cmd .reference-table .col-name { width: auto; min-width: 7rem; }
+  .reference-page--cmd .reference-table .col-name {
+    width: auto;
+    min-width: 7rem;
+    /* Long command names like "git cherry-pick" or "ssh-copy-id" are
+       ~7.5rem wide as mono — wrap them inside the sticky cell so they
+       don't bleed across. */
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
   .reference-page--cmd .reference-table td.is-sticky-col,
   .reference-page--cmd .reference-table th.is-sticky-col {
     box-shadow: 6px 0 6px -4px rgba(0, 0, 0, 0.45);
   }
-  .cmd-examples { font-size: 0.78rem; }
+  /* Wrap example lines inside the cell so the cell doesn't create a
+     second horizontal scrollbar on top of the table's own. */
+  .cmd-examples {
+    font-size: 0.78rem;
+    white-space: pre-wrap;
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
   .cmd-flag-list { grid-template-columns: 1fr; gap: 0.15rem 0; }
   .cmd-flag-list dt { margin-top: 0.3rem; }
 }
