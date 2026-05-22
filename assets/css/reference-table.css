@@ -407,9 +407,33 @@
   .reference-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
   .reference-table tbody td { padding: 0.65rem 0.6rem; overflow-wrap: anywhere; }
 
+  /* CRITICAL: On mobile, drop the wrapper's sticky + max-height + scroll
+     container behaviour so the page can scroll past the table to reach
+     the footer. With the desktop rules in place the wrapper consumes
+     ~100vh and every touch scroll is captured by the wrapper's internal
+     overflow — the footer becomes unreachable on phones. Setting
+     `overflow: visible` (not just dropping max-height) is required:
+     `overflow: auto` with content that fits still registers as a scroll
+     container on iOS Safari and dampens page-scroll momentum. The thead
+     loses its always-visible pinning as a consequence; acceptable
+     trade-off for being able to reach the rest of the page. */
+  .reference-table-wrapper {
+    position: static;
+    top: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  .reference-table thead th {
+    position: static;
+    box-shadow: none;
+  }
+
   /* Opt-in mobile snap: pages add `.has-snap-cols` on the wrapper to get
-     column-by-column scroll snapping. Useful for very wide tables. */
+     column-by-column scroll snapping. Useful for very wide tables. The
+     opt-in re-enables horizontal scrolling that the base mobile rule
+     above turned off. */
   .reference-table-wrapper.has-snap-cols {
+    overflow-x: auto;
     scroll-snap-type: x mandatory;
   }
   .reference-table-wrapper.has-snap-cols .reference-table thead th:not(.is-sticky-col),

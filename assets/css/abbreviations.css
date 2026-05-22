@@ -364,6 +364,20 @@
   font-variant-numeric: tabular-nums;
 }
 
+@media (max-width: 640px) {
+  .abbr-interp-table { font-size: 0.8rem; }
+  .abbr-interp-table th,
+  .abbr-interp-table td { padding: 0.4rem 0.55rem; }
+
+  /* Wrap example code to panel width so the modal doesn't create its
+     own horizontal scrollbar on phones. The line breaks in the YAML are
+     preserved by pre-wrap. */
+  .abbr-modal__example {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+}
 .abbr-modal__close {
   position: absolute;
   top: 0.5rem;
