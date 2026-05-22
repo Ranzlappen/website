@@ -109,6 +109,8 @@ export {
   inventoryUpdateItem,
   inventoryDeleteItem,
   inventoryToggleEbaySync,
+  inventoryDuplicateItem,
+  inventoryBulkUpdate,
 } from "./inventory/items";
 
 // Inventory: photos
@@ -116,6 +118,8 @@ export {
   inventoryUploadPhoto,
   inventoryDeletePhoto,
   inventoryReorderPhotos,
+  inventoryImportPhotoFromUrl,
+  inventoryListDriveFolder,
 } from "./inventory/photos";
 
 // Inventory: import / export
@@ -123,3 +127,17 @@ export { inventoryImport, inventoryExport } from "./inventory/importExport";
 
 // Inventory: eBay File Exchange CSV export
 export { inventoryExportEbayCsv } from "./inventory/ebayExport";
+
+// Inventory: lookup (scan-to-find + global search)
+export {
+  inventoryFindByEan,
+  inventorySearchItems,
+} from "./inventory/lookup";
+
+// Inventory: trash (restore + auto-purge)
+export {
+  inventoryListDeleted,
+  inventoryRestoreItem,
+  inventoryRestoreFolder,
+  inventoryPurgeDeleted,
+} from "./inventory/trash";

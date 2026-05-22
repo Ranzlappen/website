@@ -40,6 +40,7 @@ function makeItem(overrides: Partial<ItemDoc> = {}): ItemDoc {
       },
     ],
     ebay: defaultEbayBlock(),
+    eanCodes: [],
     createdAt: 1,
     updatedAt: 1,
     createdBy: "u",
@@ -141,5 +142,57 @@ describe("buildEbayCsv", () => {
     const parsed = parseCsv(csv);
     const titleIdx = parsed[0].indexOf("Title");
     expect(parsed[1][titleIdx]).toBe('Camera, "vintage"');
+  });
+
+  it("round-trips: export → import maps cells back via ebayMapping", () => {
+    const schema: FieldDef[] = [
+      ...defaultFieldSchema(),
+      {
+        key: "brand",
+        label: "Brand",
+        type: "text",
+        required: false,
+        ebayRequired: false,
+        ebayMapping: "Brand", // custom item-specific
+        order: 99,
+      },
+    ];
+    const original = makeItem({
+      fields: {
+        title: "Vintage radio",
+        description: "Works fine",
+        sku: "SKU-99",
+        price: 49.95,
+        quantity: 1,
+        condition: "Used – Good",
+        brand: "Grundig",
+      },
+    });
+
+    const { csv, columns } = buildEbayCsv(
+      [{ id: "i1", data: original }],
+      new Map([["folder-1", schema]]),
+    );
+    const rows = parseCsv(csv);
+    const row = rows[1];
+
+    // Reverse-map columns the same way inventoryImport's ebay-csv branch does.
+    const reMapped: Record<string, unknown> = {};
+    columns.forEach((col, idx) => {
+      const mapping = col.startsWith("C:") ? col.slice(2) : col;
+      if (["Action", "PicURL", "Country", "Currency", "Format", "Duration"].includes(col)) {
+        return;
+      }
+      const def = schema.find((f) => f.ebayMapping === mapping);
+      if (def) reMapped[def.key] = row[idx];
+    });
+
+    expect(reMapped.title).toBe("Vintage radio");
+    expect(reMapped.description).toBe("Works fine");
+    expect(reMapped.sku).toBe("SKU-99");
+    expect(reMapped.brand).toBe("Grundig");
+    // Numbers come back as strings from CSV; validateItemFields would coerce them.
+    expect(reMapped.price).toBe("49.95");
+    expect(reMapped.quantity).toBe("1");
   });
 });

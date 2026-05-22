@@ -138,6 +138,13 @@ Price, Quantity, Condition) so the eBay export works without any setup.
   folderId: string;                   // indexed
   fields: Record<string, unknown>;    // keyed by FieldDef.key
   photos: PhotoRef[];                 // ordered; photos[0] is primary
+  eanCodes: string[];                 // denormalized list of every ean-typed
+                                      // value on the item; used by the
+                                      // scan-to-find flow for a single
+                                      // array-contains query across folders.
+                                      // Maintained server-side by
+                                      // extractEanCodes(fields, schema) on
+                                      // every write path.
   ebay: {
     syncEnabled: boolean;             // the per-row checkbox
     listingStatus: 'none' | 'ready' | 'exported' | 'listed' | 'ended' | 'error';
@@ -185,6 +192,74 @@ Composite indexes are declared in
 
 ---
 
+## Import a photo from a URL
+
+Click **+ From URL** in the photo grid to fetch an image from any public
+HTTPS URL — Google Drive share links, plain image URLs, anywhere with
+a `Content-Type: image/(webp|png|jpeg)` response. The Cloud Function
+`inventoryImportPhotoFromUrl` does the fetch server-side, validates the
+mime type and 10MB size cap, then stores the bytes in our Storage
+bucket like a normal upload.
+
+Drive URLs are normalized to the public direct-download endpoint
+`https://drive.google.com/uc?export=download&id=<id>`, so:
+
+- The file must be shared as **Anyone with the link → Viewer**.
+- These URL shapes work: `/file/d/<id>/view`, `/open?id=<id>`,
+  `/uc?id=<id>`, or a raw 25-44-char Drive id.
+
+For arbitrary HTTPS URLs we fetch them unchanged. CORS doesn't apply
+because the fetch happens server-side.
+
+## Browse a Google Drive folder
+
+The **+ From Drive** button opens a thumbnail picker for any publicly-
+shared Drive folder. Paste the folder share URL, tick the photos you
+want, click Import — each selection runs through the same
+`inventoryImportPhotoFromUrl` path so the files land in our Storage
+bucket like a normal upload.
+
+### One-time setup
+
+`inventoryListDriveFolder` is **not** auto-deployed by
+`firebase-deploy.yml` — it declares `GOOGLE_DRIVE_API_KEY` via
+`defineSecret()`, and Firebase refuses to deploy a function whose
+secret isn't set when running non-interactively in CI. Until you've
+finished the setup below, every other function deploys normally; only
+the Drive folder picker is unavailable.
+
+1. In the same Google Cloud project that backs Firebase
+   (`proven-concept-436717-q3`), enable the **Drive API** at
+   `https://console.cloud.google.com/apis/library/drive.googleapis.com`.
+2. Create an API key (Console → APIs & Services → Credentials → Create
+   credentials → API key). Restrict it to the Drive API only.
+3. From `polyvote/`, authenticated via `firebase login`, store the key
+   as a Functions secret:
+   ```
+   firebase functions:secrets:set GOOGLE_DRIVE_API_KEY
+   ```
+   Paste the key value when prompted. (Or pipe it in:
+   `printf '%s' YOUR_KEY | firebase functions:secrets:set GOOGLE_DRIVE_API_KEY --data-file -`)
+4. Deploy the function so the secret is bound:
+   ```
+   firebase deploy --only functions:inventoryListDriveFolder
+   ```
+   Alternative: trigger `firebase-deploy-manual.yml` via
+   `workflow_dispatch` with target
+   `functions:inventoryListDriveFolder`. The CI service account has
+   permission to read the secret you just stored.
+5. Share each source folder as **Anyone with the link → Viewer** in
+   Google Drive before using the picker.
+
+The API key + the public share are enough; the function never sees a
+user's Google credentials. The last-used folder URL is remembered in
+`localStorage` so subsequent opens prefill it.
+
+**Rotating the key:** repeat step 3 (the secret-set command creates a
+new version), then redeploy the function so it picks up the new version
+on cold start. Old versions can be cleaned up via
+`firebase functions:secrets:prune`.
+
 ## Photo storage
 
 | Item | Value |
@@ -224,8 +299,10 @@ design ladders up:
    *after* the initial create round-trip so we don't fire half-built
    items.
 3. **Soft delete everywhere.** Folders and items get `deletedAt = now`
-   rather than being removed. Recoverable from Firestore for 30 days
-   (GC policy applies at your discretion).
+   rather than being removed. The Trash page (`/trash`) lists every
+   soft-deleted record with a Restore button. A scheduled Cloud Function
+   `inventoryPurgeDeleted` runs daily and hard-deletes anything older than
+   30 days, including its photo objects in Storage.
 4. **Audit log per mutation.** `inventoryAuditLog` records who did what
    and when, including the `before`/`after` payload on edits. That's
    the recovery path when soft-delete isn't enough.
@@ -311,12 +388,18 @@ exists. `PicURL` is a `|`-separated list of public photo URLs.
   with complete item documents.
 
 ### Import
-Accepts CSV or JSON.
+Accepts three formats:
 
 - **CSV**: header row must match field `key` or `label`
   case-insensitively. Unknown columns are silently ignored.
 - **JSON**: either a raw array of items or `{ items: [...] }`. Each
   item can be `{ fields: {...} }` or a flat record (auto-wrapped).
+- **eBay CSV** (round-trip from `inventoryExportEbayCsv`): header cells
+  match against each field's `ebayMapping` rather than its key/label.
+  Core columns (Title, Description, StartPrice, CustomLabel, …) and
+  custom `C:<label>` item-specifics both work. PicURL / Action /
+  Country / Currency / Format / Duration are ignored since they have
+  no schema target.
 
 Both formats run a **dry-run** first (`Preview` button), which reports
 `toCreate`, `toUpdate` (matched by SKU), and `skipped` (with the

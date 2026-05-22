@@ -9,6 +9,31 @@ import {
   inventoryListFoldersFn,
   inventoryUpdateFolderFn,
 } from '../firebase';
+
+/** True if `targetId` is `srcId` itself or any descendant — used to reject
+ * drops that would create a cycle. */
+function isSelfOrDescendant(
+  srcId: string,
+  targetId: string | null,
+  folders: FolderDoc[],
+): boolean {
+  if (!targetId) return false;
+  if (srcId === targetId) return true;
+  const childrenOf = new Map<string, string[]>();
+  folders.forEach((f) => {
+    const key = f.parentFolderId ?? '__root__';
+    const arr = childrenOf.get(key) ?? [];
+    arr.push(f.id);
+    childrenOf.set(key, arr);
+  });
+  const stack = [srcId];
+  while (stack.length) {
+    const cur = stack.pop()!;
+    if (cur === targetId) return true;
+    (childrenOf.get(cur) ?? []).forEach((c) => stack.push(c));
+  }
+  return false;
+}
 import { useStore } from '../store';
 import type { FolderDoc } from '../types';
 
@@ -37,6 +62,12 @@ interface NodeActions {
   onDuplicate: (f: FolderDoc) => void;
   onRename: (f: FolderDoc) => void;
   onDelete: (f: FolderDoc) => void;
+  onDragStart: (f: FolderDoc) => void;
+  onDragEnd: () => void;
+  onDrop: (target: FolderDoc | null) => void;
+  draggingFolderId: string | null;
+  hoverFolderId: string | null;
+  setHoverFolderId: (id: string | null) => void;
 }
 
 const iconBtnCls =
@@ -46,17 +77,50 @@ function FolderNode({
   node,
   depth,
   actions,
+  folders,
 }: {
   node: TreeNode;
   depth: number;
   actions: NodeActions;
+  folders: FolderDoc[];
 }) {
+  const isDragging = actions.draggingFolderId === node.folder.id;
+  const isHover = actions.hoverFolderId === node.folder.id;
+  const dropLegal =
+    !!actions.draggingFolderId &&
+    !isSelfOrDescendant(actions.draggingFolderId, node.folder.id, folders);
+
   return (
     <div>
       <div
-        className="flex items-center gap-1 py-1"
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.effectAllowed = 'move';
+          actions.onDragStart(node.folder);
+        }}
+        onDragEnd={actions.onDragEnd}
+        onDragOver={(e) => {
+          if (dropLegal) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            actions.setHoverFolderId(node.folder.id);
+          }
+        }}
+        onDragLeave={() => {
+          if (isHover) actions.setHoverFolderId(null);
+        }}
+        onDrop={(e) => {
+          if (dropLegal) {
+            e.preventDefault();
+            actions.onDrop(node.folder);
+          }
+        }}
+        className={`flex items-center gap-1 py-1 rounded transition-colors ${
+          isDragging ? 'opacity-50' : ''
+        } ${isHover && dropLegal ? 'bg-[var(--bg-surface-hover)] outline outline-1 outline-[var(--accent)]' : ''}`}
         style={{ paddingLeft: depth * 16 }}
       >
+        <span className="text-[var(--text-muted)] cursor-grab select-none" title="Drag to move">⋮⋮</span>
         <Link
           to={`/folder/${node.folder.id}`}
           className="flex-1 min-w-0 truncate hover:text-[var(--accent)] transition-colors py-1.5"
@@ -105,6 +169,7 @@ function FolderNode({
           node={c}
           depth={depth + 1}
           actions={actions}
+          folders={folders}
         />
       ))}
     </div>
@@ -129,6 +194,30 @@ export default function Dashboard() {
   const [modalCopyItems, setModalCopyItems] = useState(false);
   const [modalBusy, setModalBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<FolderDoc | null>(null);
+  const [draggingFolderId, setDraggingFolderId] = useState<string | null>(null);
+  const [hoverFolderId, setHoverFolderId] = useState<string | null>(null);
+  const [rootHover, setRootHover] = useState(false);
+
+  async function moveFolder(source: FolderDoc, targetParentId: string | null) {
+    if (source.parentFolderId === targetParentId) return;
+    try {
+      await inventoryUpdateFolderFn({
+        folderId: source.id,
+        parentFolderId: targetParentId,
+      });
+      // Re-fetch the full tree — pathSegments on descendants need updating.
+      const res = await inventoryListFoldersFn({});
+      setFolders(res.data.folders);
+      addToast(
+        targetParentId
+          ? `Moved “${source.name}” into a new parent`
+          : `Moved “${source.name}” to root`,
+        'success',
+      );
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Move failed', 'error');
+    }
+  }
 
   useEffect(() => {
     let alive = true;
@@ -233,6 +322,22 @@ export default function Dashboard() {
     onDuplicate: openDuplicate,
     onRename: openRename,
     onDelete: setPendingDelete,
+    onDragStart: (f) => setDraggingFolderId(f.id),
+    onDragEnd: () => {
+      setDraggingFolderId(null);
+      setHoverFolderId(null);
+      setRootHover(false);
+    },
+    onDrop: (target) => {
+      const src = folders.find((f) => f.id === draggingFolderId);
+      setDraggingFolderId(null);
+      setHoverFolderId(null);
+      setRootHover(false);
+      if (src) moveFolder(src, target?.id ?? null);
+    },
+    draggingFolderId,
+    hoverFolderId,
+    setHoverFolderId,
   };
 
   const modalTitle =
@@ -270,12 +375,37 @@ export default function Dashboard() {
         ) : (
           <div className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-2 overflow-x-auto">
             <div className="min-w-fit">
+              {draggingFolderId && (
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    setRootHover(true);
+                  }}
+                  onDragLeave={() => setRootHover(false)}
+                  onDrop={() => {
+                    const src = folders.find((f) => f.id === draggingFolderId);
+                    setDraggingFolderId(null);
+                    setHoverFolderId(null);
+                    setRootHover(false);
+                    if (src) moveFolder(src, null);
+                  }}
+                  className={`mb-2 px-3 py-2 text-xs text-center border-2 border-dashed rounded transition-colors ${
+                    rootHover
+                      ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-surface-hover)]'
+                      : 'border-[var(--border)] text-[var(--text-muted)]'
+                  }`}
+                >
+                  Drop here to move to root
+                </div>
+              )}
               {tree.map((node) => (
                 <FolderNode
                   key={node.folder.id}
                   node={node}
                   depth={0}
                   actions={actions}
+                  folders={folders}
                 />
               ))}
             </div>

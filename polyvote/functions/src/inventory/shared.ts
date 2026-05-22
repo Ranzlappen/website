@@ -84,10 +84,35 @@ export interface ItemDoc {
   fields: Record<string, unknown>;
   photos: PhotoRef[];
   ebay: EbayBlock;
+  /**
+   * Denormalized list of every EAN-typed field value on this item, used
+   * by `inventoryFindByEan` for a single `array-contains` query across all
+   * folders. Kept in lock-step by `extractEanCodes(fields, schema)`.
+   */
+  eanCodes: string[];
   createdAt: number;
   updatedAt: number;
   createdBy: string;
   deletedAt: number | null;
+}
+
+/**
+ * Pull every populated `ean`-typed value out of `fields` according to the
+ * folder's schema. Used by every write path (`inventoryCreateItem`,
+ * `inventoryUpdateItem`, `inventoryImport`, item duplication) to keep
+ * `ItemDoc.eanCodes` denormalized for cheap lookup.
+ */
+export function extractEanCodes(
+  fields: Record<string, unknown>,
+  schema: FieldDef[]
+): string[] {
+  const codes: string[] = [];
+  for (const def of schema) {
+    if (def.type !== "ean") continue;
+    const v = fields[def.key];
+    if (typeof v === "string" && v.trim()) codes.push(v.trim());
+  }
+  return codes;
 }
 
 const FIELD_KEY_PATTERN = /^[a-z][a-z0-9_]{0,39}$/;

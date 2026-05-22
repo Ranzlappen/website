@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
+import BulkActionBar from '../components/BulkActionBar';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ImportDialog from '../components/ImportDialog';
+import PhotoLightbox from '../components/PhotoLightbox';
 import {
   inventoryDeleteFolderFn,
   inventoryDeleteItemFn,
   inventoryDuplicateFolderFn,
+  inventoryDuplicateItemFn,
   inventoryExportEbayCsvFn,
   inventoryExportFn,
   inventoryListFoldersFn,
@@ -70,6 +73,10 @@ export default function FolderTable() {
   const [dupName, setDupName] = useState('');
   const [dupCopyItems, setDupCopyItems] = useState(false);
   const [dupBusy, setDupBusy] = useState(false);
+  const [lightboxItem, setLightboxItem] = useState<ItemDoc | null>(null);
+  const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(
+    null,
+  );
 
   const folder = useMemo(
     () => folders.find((f) => f.id === folderId) ?? null,
@@ -103,14 +110,46 @@ export default function FolderTable() {
   }, [folderId, folders.length, setFolders, setItems, addToast, clearSelected]);
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return items;
-    const q = search.toLowerCase();
-    return items.filter((it) =>
-      Object.values(it.fields).some((v) =>
-        String(v ?? '').toLowerCase().includes(q),
-      ),
-    );
-  }, [items, search]);
+    const base = !search.trim()
+      ? items
+      : items.filter((it) =>
+          Object.values(it.fields).some((v) =>
+            String(v ?? '').toLowerCase().includes(search.toLowerCase()),
+          ),
+        );
+    if (!sort) return base;
+    const def = folder?.fieldSchema.find((f) => f.key === sort.key);
+    const sorted = base.slice().sort((a, b) => {
+      const av = a.fields?.[sort.key];
+      const bv = b.fields?.[sort.key];
+      // Empties always sink to the bottom regardless of direction.
+      const aEmpty = av === null || av === undefined || av === '';
+      const bEmpty = bv === null || bv === undefined || bv === '';
+      if (aEmpty && bEmpty) return 0;
+      if (aEmpty) return 1;
+      if (bEmpty) return -1;
+
+      const cmp =
+        def?.type === 'number'
+          ? Number(av) - Number(bv)
+          : def?.type === 'date'
+            ? String(av).localeCompare(String(bv))
+            : String(av).localeCompare(String(bv), undefined, {
+                numeric: true,
+                sensitivity: 'base',
+              });
+      return sort.dir === 'asc' ? cmp : -cmp;
+    });
+    return sorted;
+  }, [items, search, sort, folder]);
+
+  function toggleSort(key: string) {
+    setSort((s) => {
+      if (!s || s.key !== key) return { key, dir: 'asc' };
+      if (s.dir === 'asc') return { key, dir: 'desc' };
+      return null; // back to default (updatedAt desc from the server)
+    });
+  }
 
   async function toggleEbay(item: ItemDoc, enabled: boolean) {
     try {
@@ -131,6 +170,21 @@ export default function FolderTable() {
       addToast(err instanceof Error ? err.message : 'Delete failed', 'error');
     } finally {
       setPendingDelete(null);
+    }
+  }
+
+  async function duplicateItem(it: ItemDoc) {
+    try {
+      const res = await inventoryDuplicateItemFn({ itemId: it.id });
+      upsertItem(res.data);
+      addToast(
+        res.data.photoCount > 0
+          ? `Duplicated (with ${res.data.photoCount} photo${res.data.photoCount === 1 ? '' : 's'})`
+          : 'Duplicated',
+        'success',
+      );
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Duplicate failed', 'error');
     }
   }
 
@@ -329,16 +383,31 @@ export default function FolderTable() {
                     />
                   </th>
                   <th className="px-3 py-2 text-left w-12">Photo</th>
-                  {folder.fieldSchema.slice(0, 5).map((f) => (
-                    <th key={f.key} className="px-3 py-2 text-left">
-                      {f.label}
-                      {f.ebayRequired && (
-                        <span title="Required for eBay" className="ml-1 text-[var(--accent)]">
-                          ★
-                        </span>
-                      )}
-                    </th>
-                  ))}
+                  {folder.fieldSchema.slice(0, 5).map((f) => {
+                    const active = sort?.key === f.key;
+                    return (
+                      <th key={f.key} className="px-3 py-2 text-left">
+                        <button
+                          type="button"
+                          onClick={() => toggleSort(f.key)}
+                          className={`inline-flex items-center gap-1 uppercase text-xs hover:text-[var(--accent)] transition-colors ${
+                            active ? 'text-[var(--accent)]' : ''
+                          }`}
+                          title="Click to sort"
+                        >
+                          {f.label}
+                          {f.ebayRequired && (
+                            <span title="Required for eBay" className="text-[var(--accent)]">
+                              ★
+                            </span>
+                          )}
+                          <span aria-hidden="true">
+                            {active ? (sort?.dir === 'asc' ? '▲' : '▼') : ''}
+                          </span>
+                        </button>
+                      </th>
+                    );
+                  })}
                   <th className="px-3 py-2 text-center">eBay</th>
                   <th className="px-3 py-2 text-center">Status</th>
                   <th className="px-3 py-2 text-right">Actions</th>
@@ -369,12 +438,19 @@ export default function FolderTable() {
                     </td>
                     <td className="px-3 py-2">
                       {it.photos?.[0] ? (
-                        <img
-                          src={it.photos[0].downloadUrl}
-                          alt=""
-                          className="w-10 h-10 object-cover rounded border border-[var(--border)]"
-                          loading="lazy"
-                        />
+                        <button
+                          type="button"
+                          onClick={() => setLightboxItem(it)}
+                          className="block p-0 m-0 bg-transparent"
+                          aria-label="Open photos"
+                        >
+                          <img
+                            src={it.photos[0].downloadUrl}
+                            alt=""
+                            className="w-10 h-10 object-cover rounded border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
+                            loading="lazy"
+                          />
+                        </button>
                       ) : (
                         <div className="w-10 h-10 rounded bg-[var(--bg)] border border-[var(--border)]" />
                       )}
@@ -394,13 +470,19 @@ export default function FolderTable() {
                     <td className="px-3 py-2 text-center">
                       <StatusBadge status={it.ebay?.listingStatus ?? 'none'} />
                     </td>
-                    <td className="px-3 py-2 text-right">
+                    <td className="px-3 py-2 text-right whitespace-nowrap">
                       <Link
                         to={`/folder/${folderId}/item/${it.id}`}
                         className="text-xs text-[var(--accent)] hover:underline mr-3"
                       >
                         Edit
                       </Link>
+                      <button
+                        onClick={() => duplicateItem(it)}
+                        className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] mr-3"
+                      >
+                        Duplicate
+                      </button>
                       <button
                         onClick={() => setPendingDelete(it)}
                         className="text-xs text-[var(--text-muted)] hover:text-[var(--danger)]"
@@ -416,6 +498,20 @@ export default function FolderTable() {
         )}
       </main>
 
+      {folder && selectedItemIds.size > 0 && (
+        <BulkActionBar
+          folder={folder}
+          folders={folders}
+          selectedIds={Array.from(selectedItemIds)}
+          onClear={clearSelected}
+          onCompleted={async () => {
+            if (!folderId) return;
+            const res = await inventoryListItemsFn({ folderId, limit: 500 });
+            setItems(res.data.items);
+          }}
+        />
+      )}
+
       <ImportDialog
         folderId={folderId}
         open={showImport}
@@ -425,6 +521,14 @@ export default function FolderTable() {
           setItems(res.data.items);
         }}
       />
+
+      {lightboxItem && (lightboxItem.photos?.length ?? 0) > 0 && (
+        <PhotoLightbox
+          photos={lightboxItem.photos}
+          startIndex={0}
+          onClose={() => setLightboxItem(null)}
+        />
+      )}
 
       <ConfirmDialog
         open={!!pendingDelete}

@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import Header from '../components/Header';
 import FieldInput from '../components/FieldInput';
 import PhotoGrid from '../components/PhotoGrid';
 import {
   inventoryCreateItemFn,
+  inventoryDuplicateItemFn,
   inventoryGetItemFn,
   inventoryListFoldersFn,
   inventoryUpdateItemFn,
@@ -38,6 +44,7 @@ const AUTO_SAVE_DEBOUNCE_MS = 2500;
 export default function ItemEditor() {
   const { folderId, itemId } = useParams<{ folderId: string; itemId?: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const folders = useStore((s) => s.folders);
   const setFolders = useStore((s) => s.setFolders);
   const upsertItem = useStore((s) => s.upsertItem);
@@ -81,6 +88,13 @@ export default function ItemEditor() {
           folderDoc.fieldSchema.forEach((f) => {
             seed[f.key] = f.type === 'boolean' ? false : null;
           });
+          // Prefill the first EAN-typed field if `?ean=<code>` came in from
+          // the scan-to-find flow.
+          const prefillEan = searchParams.get('ean');
+          if (prefillEan) {
+            const firstEan = folderDoc.fieldSchema.find((f) => f.type === 'ean');
+            if (firstEan) seed[firstEan.key] = prefillEan;
+          }
           if (alive) setFields(seed);
         }
       } catch (err) {
@@ -94,7 +108,7 @@ export default function ItemEditor() {
     return () => {
       alive = false;
     };
-  }, [folderId, itemId, folders, setFolders, addToast]);
+  }, [folderId, itemId, folders, setFolders, addToast, searchParams]);
 
   function patchField(key: string, value: unknown) {
     setFields((f) => ({ ...f, [key]: value }));
@@ -185,10 +199,32 @@ export default function ItemEditor() {
           >
             ← Back to folder
           </Link>
-          <div className="text-xs text-[var(--text-muted)] flex items-center gap-3">
+          <div className="text-xs text-[var(--text-muted)] flex items-center gap-3 flex-wrap">
             {saving && <span>Saving…</span>}
             {!saving && lastSaved && (
               <span>Saved {lastSaved.toLocaleTimeString()}</span>
+            )}
+            {item && (
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await inventoryDuplicateItemFn({
+                      itemId: item.id,
+                    });
+                    upsertItem(res.data);
+                    addToast('Item duplicated', 'success');
+                    navigate(`/folder/${item.folderId}/item/${res.data.id}`);
+                  } catch (err) {
+                    addToast(
+                      err instanceof Error ? err.message : 'Duplicate failed',
+                      'error',
+                    );
+                  }
+                }}
+                className="px-3 py-1.5 rounded border border-[var(--border)] text-[var(--text)] text-xs hover:border-[var(--accent)] transition-colors"
+              >
+                Duplicate item
+              </button>
             )}
             <button
               onClick={() => save()}
