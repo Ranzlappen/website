@@ -6,6 +6,7 @@ import {
 } from '../firebase';
 import { useStore } from '../store';
 import type { PhotoRef } from '../types';
+import PhotoLightbox from './PhotoLightbox';
 
 interface Props {
   itemId: string;
@@ -38,6 +39,7 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   async function handleFiles(files: FileList | null) {
     if (!files || !files.length) return;
@@ -160,14 +162,21 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
             }}
             className="relative group bg-[var(--bg)] rounded border border-[var(--border)] overflow-hidden cursor-move"
           >
-            <img
-              src={p.downloadUrl}
-              alt={p.filename}
-              className="block w-full aspect-square object-cover"
-              loading="lazy"
-            />
+            <button
+              type="button"
+              onClick={() => setLightboxIndex(idx)}
+              aria-label={`Open ${p.filename}`}
+              className="block w-full p-0 m-0 bg-transparent"
+            >
+              <img
+                src={p.downloadUrl}
+                alt={p.filename}
+                className="block w-full aspect-square object-cover"
+                loading="lazy"
+              />
+            </button>
             {idx === 0 && (
-              <span className="absolute top-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent)] text-[var(--bg)] font-semibold">
+              <span className="pointer-events-none absolute top-1 left-1 text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent)] text-[var(--bg)] font-semibold">
                 Primary
               </span>
             )}
@@ -184,6 +193,14 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
           </div>
         ))}
       </div>
+
+      {lightboxIndex !== null && (
+        <PhotoLightbox
+          photos={photos}
+          startIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
     </div>
   );
 }

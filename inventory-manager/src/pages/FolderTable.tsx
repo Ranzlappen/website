@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ImportDialog from '../components/ImportDialog';
+import PhotoLightbox from '../components/PhotoLightbox';
 import {
   inventoryDeleteFolderFn,
   inventoryDeleteItemFn,
@@ -71,6 +72,7 @@ export default function FolderTable() {
   const [dupName, setDupName] = useState('');
   const [dupCopyItems, setDupCopyItems] = useState(false);
   const [dupBusy, setDupBusy] = useState(false);
+  const [lightboxItem, setLightboxItem] = useState<ItemDoc | null>(null);
 
   const folder = useMemo(
     () => folders.find((f) => f.id === folderId) ?? null,
@@ -385,12 +387,19 @@ export default function FolderTable() {
                     </td>
                     <td className="px-3 py-2">
                       {it.photos?.[0] ? (
-                        <img
-                          src={it.photos[0].downloadUrl}
-                          alt=""
-                          className="w-10 h-10 object-cover rounded border border-[var(--border)]"
-                          loading="lazy"
-                        />
+                        <button
+                          type="button"
+                          onClick={() => setLightboxItem(it)}
+                          className="block p-0 m-0 bg-transparent"
+                          aria-label="Open photos"
+                        >
+                          <img
+                            src={it.photos[0].downloadUrl}
+                            alt=""
+                            className="w-10 h-10 object-cover rounded border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
+                            loading="lazy"
+                          />
+                        </button>
                       ) : (
                         <div className="w-10 h-10 rounded bg-[var(--bg)] border border-[var(--border)]" />
                       )}
@@ -447,6 +456,14 @@ export default function FolderTable() {
           setItems(res.data.items);
         }}
       />
+
+      {lightboxItem && (lightboxItem.photos?.length ?? 0) > 0 && (
+        <PhotoLightbox
+          photos={lightboxItem.photos}
+          startIndex={0}
+          onClose={() => setLightboxItem(null)}
+        />
+      )}
 
       <ConfirmDialog
         open={!!pendingDelete}
