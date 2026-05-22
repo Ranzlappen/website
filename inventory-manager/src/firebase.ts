@@ -149,3 +149,8 @@ export const inventoryFindByEanFn = httpsCallable<
   { code: string },
   { matches: ItemDoc[] }
 >(functions, 'inventoryFindByEan');
+
+export const inventorySearchItemsFn = httpsCallable<
+  { query: string; limit?: number },
+  { items: ItemDoc[]; truncated: boolean }
+>(functions, 'inventorySearchItems');

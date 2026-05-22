@@ -125,5 +125,8 @@ export { inventoryImport, inventoryExport } from "./inventory/importExport";
 // Inventory: eBay File Exchange CSV export
 export { inventoryExportEbayCsv } from "./inventory/ebayExport";
 
-// Inventory: lookup (scan-to-find existing item)
-export { inventoryFindByEan } from "./inventory/lookup";
+// Inventory: lookup (scan-to-find + global search)
+export {
+  inventoryFindByEan,
+  inventorySearchItems,
+} from "./inventory/lookup";
