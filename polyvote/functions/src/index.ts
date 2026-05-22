@@ -110,6 +110,7 @@ export {
   inventoryDeleteItem,
   inventoryToggleEbaySync,
   inventoryDuplicateItem,
+  inventoryBulkUpdate,
 } from "./inventory/items";
 
 // Inventory: photos

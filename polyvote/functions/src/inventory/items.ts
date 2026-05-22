@@ -315,6 +315,238 @@ export const inventoryToggleEbaySync = onCall(async (request) => {
 });
 
 /**
+ * Bulk update on a list of items. `action` controls the operation:
+ *  - 'delete'      → soft-delete each selected item
+ *  - 'toggleEbay'  → set ebay.syncEnabled (payload: { enabled })
+ *  - 'move'        → reparent to a different folder (payload: { targetFolderId })
+ *  - 'setField'    → write a single field on every item (payload: { fieldKey, value })
+ *
+ * Validates each item per-action; skips items where the operation isn't
+ * legal (e.g. enabling eBay sync without all required fields), and returns
+ * `{ ok, skipped: [{ id, reason }] }`.
+ */
+export const inventoryBulkUpdate = onCall(
+  { timeoutSeconds: 180 },
+  async (request) => {
+    requireRole(request, "admin");
+    const db = getFirestore();
+    const uid = request.auth!.uid;
+
+    const { itemIds, action, payload } = request.data as {
+      itemIds: string[];
+      action: "delete" | "toggleEbay" | "move" | "setField";
+      payload?: Record<string, unknown>;
+    };
+
+    if (!Array.isArray(itemIds) || itemIds.length === 0) {
+      throw new HttpsError("invalid-argument", "itemIds[] is required.");
+    }
+    if (itemIds.length > 500) {
+      throw new HttpsError("invalid-argument", "Max 500 items per bulk action.");
+    }
+
+    // Load every item one-by-one (Firestore `in` caps at 30, so a get-per-id
+    // loop is simpler and the volume is admin-bounded anyway).
+    const docs = await Promise.all(
+      itemIds.map((id) => db.collection("inventoryItems").doc(id).get())
+    );
+    const items: { id: string; data: ItemDoc }[] = docs
+      .filter((d) => d.exists)
+      .map((d) => ({ id: d.id, data: d.data() as ItemDoc }))
+      .filter(({ data }) => !data.deletedAt);
+
+    if (items.length === 0) {
+      throw new HttpsError("failed-precondition", "No live items matched.");
+    }
+
+    // Pre-load every folder referenced so schema-aware actions are fast.
+    const folderIds = Array.from(new Set(items.map((i) => i.data.folderId)));
+    const folderById = new Map<string, FolderDoc>();
+    await Promise.all(
+      folderIds.map(async (fid) => {
+        const f = await db.collection("inventoryFolders").doc(fid).get();
+        if (f.exists) folderById.set(fid, f.data() as FolderDoc);
+      })
+    );
+
+    const now = Date.now();
+    const skipped: { id: string; reason: string }[] = [];
+    let updated = 0;
+    let batch = db.batch();
+    let writes = 0;
+    const flush = async () => {
+      if (writes === 0) return;
+      await batch.commit();
+      batch = db.batch();
+      writes = 0;
+    };
+    const folderCountDelta = new Map<string, number>();
+
+    if (action === "delete") {
+      for (const { id, data } of items) {
+        batch.update(db.collection("inventoryItems").doc(id), {
+          deletedAt: now,
+          updatedAt: now,
+        });
+        folderCountDelta.set(
+          data.folderId,
+          (folderCountDelta.get(data.folderId) ?? 0) - 1
+        );
+        updated++;
+        writes++;
+        if (writes >= 400) await flush();
+      }
+    } else if (action === "toggleEbay") {
+      const enabled = (payload as { enabled?: boolean })?.enabled === true;
+      for (const { id, data } of items) {
+        const folder = folderById.get(data.folderId);
+        if (!folder) {
+          skipped.push({ id, reason: "folder not found" });
+          continue;
+        }
+        if (enabled) {
+          const missing = missingEbayRequiredFields(data.fields, folder.fieldSchema);
+          if (missing.length) {
+            skipped.push({
+              id,
+              reason: `missing required fields: ${missing.join(", ")}`,
+            });
+            continue;
+          }
+        }
+        const nextEbay = {
+          ...data.ebay,
+          syncEnabled: enabled,
+          listingStatus: enabled
+            ? data.ebay.listingStatus === "none"
+              ? ("ready" as const)
+              : data.ebay.listingStatus
+            : data.ebay.listingStatus === "ready"
+              ? ("none" as const)
+              : data.ebay.listingStatus,
+        };
+        batch.update(db.collection("inventoryItems").doc(id), {
+          ebay: nextEbay,
+          updatedAt: now,
+        });
+        updated++;
+        writes++;
+        if (writes >= 400) await flush();
+      }
+    } else if (action === "move") {
+      const targetFolderId = (payload as { targetFolderId?: string })?.targetFolderId;
+      if (!targetFolderId) {
+        throw new HttpsError("invalid-argument", "payload.targetFolderId is required.");
+      }
+      const targetSnap = await db
+        .collection("inventoryFolders")
+        .doc(targetFolderId)
+        .get();
+      if (!targetSnap.exists) {
+        throw new HttpsError("not-found", "target folder not found.");
+      }
+      const target = targetSnap.data() as FolderDoc;
+      if (target.deletedAt) {
+        throw new HttpsError("failed-precondition", "target folder is deleted.");
+      }
+      for (const { id, data } of items) {
+        if (data.folderId === targetFolderId) {
+          skipped.push({ id, reason: "already in target folder" });
+          continue;
+        }
+        // Recompute eanCodes against the *new* schema (a removed ean key in
+        // the target would silently drop from the lookup; that's fine — the
+        // value still lives in `fields`).
+        const newEan = extractEanCodes(data.fields, target.fieldSchema);
+        batch.update(db.collection("inventoryItems").doc(id), {
+          folderId: targetFolderId,
+          eanCodes: newEan,
+          updatedAt: now,
+        });
+        folderCountDelta.set(
+          data.folderId,
+          (folderCountDelta.get(data.folderId) ?? 0) - 1
+        );
+        folderCountDelta.set(
+          targetFolderId,
+          (folderCountDelta.get(targetFolderId) ?? 0) + 1
+        );
+        updated++;
+        writes++;
+        if (writes >= 400) await flush();
+      }
+    } else if (action === "setField") {
+      const fieldKey = (payload as { fieldKey?: string })?.fieldKey;
+      const rawValue = (payload as { value?: unknown })?.value;
+      if (!fieldKey) {
+        throw new HttpsError("invalid-argument", "payload.fieldKey is required.");
+      }
+      for (const { id, data } of items) {
+        const folder = folderById.get(data.folderId);
+        if (!folder) {
+          skipped.push({ id, reason: "folder not found" });
+          continue;
+        }
+        const def = folder.fieldSchema.find((f) => f.key === fieldKey);
+        if (!def) {
+          skipped.push({
+            id,
+            reason: `field "${fieldKey}" not in this item's schema`,
+          });
+          continue;
+        }
+        let cleaned: Record<string, unknown>;
+        try {
+          cleaned = validateItemFields(
+            { ...data.fields, [fieldKey]: rawValue },
+            folder.fieldSchema,
+            { enforceRequired: false }
+          );
+        } catch (e) {
+          skipped.push({
+            id,
+            reason: e instanceof Error ? e.message : "invalid value",
+          });
+          continue;
+        }
+        batch.update(db.collection("inventoryItems").doc(id), {
+          fields: cleaned,
+          eanCodes: extractEanCodes(cleaned, folder.fieldSchema),
+          updatedAt: now,
+        });
+        updated++;
+        writes++;
+        if (writes >= 400) await flush();
+      }
+    } else {
+      throw new HttpsError("invalid-argument", `unknown action: ${action}`);
+    }
+
+    await flush();
+
+    // Apply folder itemCount deltas.
+    for (const [fid, delta] of folderCountDelta) {
+      if (delta === 0) continue;
+      await db
+        .collection("inventoryFolders")
+        .doc(fid)
+        .update({
+          itemCount: FieldValue.increment(delta),
+          updatedAt: now,
+        });
+    }
+
+    await appendAudit({
+      action: `bulk.${action}`,
+      actorUid: uid,
+      after: { requested: itemIds.length, updated, skipped: skipped.length },
+    });
+
+    return { ok: true, updated, skipped };
+  }
+);
+
+/**
  * Duplicate a single item inside its current folder. Deep-copies photos
  * to fresh Storage paths so the two items are fully isolated. eBay state
  * is reset on the copy.

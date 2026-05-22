@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
+import BulkActionBar from '../components/BulkActionBar';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ImportDialog from '../components/ImportDialog';
 import PhotoLightbox from '../components/PhotoLightbox';
@@ -496,6 +497,20 @@ export default function FolderTable() {
           </div>
         )}
       </main>
+
+      {folder && selectedItemIds.size > 0 && (
+        <BulkActionBar
+          folder={folder}
+          folders={folders}
+          selectedIds={Array.from(selectedItemIds)}
+          onClear={clearSelected}
+          onCompleted={async () => {
+            if (!folderId) return;
+            const res = await inventoryListItemsFn({ folderId, limit: 500 });
+            setItems(res.data.items);
+          }}
+        />
+      )}
 
       <ImportDialog
         folderId={folderId}

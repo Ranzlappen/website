@@ -98,6 +98,21 @@ export const inventoryDuplicateItemFn = httpsCallable<
   ItemDoc & { photoCount: number }
 >(functions, 'inventoryDuplicateItem');
 
+export type BulkAction = 'delete' | 'toggleEbay' | 'move' | 'setField';
+
+export const inventoryBulkUpdateFn = httpsCallable<
+  {
+    itemIds: string[];
+    action: BulkAction;
+    payload?: Record<string, unknown>;
+  },
+  {
+    ok: boolean;
+    updated: number;
+    skipped: { id: string; reason: string }[];
+  }
+>(functions, 'inventoryBulkUpdate');
+
 // ── Photos ──
 export const inventoryUploadPhotoFn = httpsCallable<
   {
