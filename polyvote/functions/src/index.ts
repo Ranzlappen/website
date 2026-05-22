@@ -118,6 +118,7 @@ export {
   inventoryUploadPhoto,
   inventoryDeletePhoto,
   inventoryReorderPhotos,
+  inventoryImportPhotoFromUrl,
 } from "./inventory/photos";
 
 // Inventory: import / export

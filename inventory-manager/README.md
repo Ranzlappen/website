@@ -192,6 +192,25 @@ Composite indexes are declared in
 
 ---
 
+## Import a photo from a URL
+
+Click **+ From URL** in the photo grid to fetch an image from any public
+HTTPS URL — Google Drive share links, plain image URLs, anywhere with
+a `Content-Type: image/(webp|png|jpeg)` response. The Cloud Function
+`inventoryImportPhotoFromUrl` does the fetch server-side, validates the
+mime type and 10MB size cap, then stores the bytes in our Storage
+bucket like a normal upload.
+
+Drive URLs are normalized to the public direct-download endpoint
+`https://drive.google.com/uc?export=download&id=<id>`, so:
+
+- The file must be shared as **Anyone with the link → Viewer**.
+- These URL shapes work: `/file/d/<id>/view`, `/open?id=<id>`,
+  `/uc?id=<id>`, or a raw 25-44-char Drive id.
+
+For arbitrary HTTPS URLs we fetch them unchanged. CORS doesn't apply
+because the fetch happens server-side.
+
 ## Photo storage
 
 | Item | Value |

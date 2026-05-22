@@ -72,7 +72,7 @@ jobs:
           TARGETS="$TARGETS,functions:setUserRole,functions:adminListUsers,functions:adminBanUser,functions:adminUnbanUser"
           TARGETS="$TARGETS,functions:inventoryListFolders,functions:inventoryCreateFolder,functions:inventoryUpdateFolder,functions:inventoryDeleteFolder,functions:inventoryDuplicateFolder"
           TARGETS="$TARGETS,functions:inventoryListItems,functions:inventoryGetItem,functions:inventoryCreateItem,functions:inventoryUpdateItem,functions:inventoryDeleteItem,functions:inventoryToggleEbaySync,functions:inventoryDuplicateItem,functions:inventoryBulkUpdate"
-          TARGETS="$TARGETS,functions:inventoryUploadPhoto,functions:inventoryDeletePhoto,functions:inventoryReorderPhotos"
+          TARGETS="$TARGETS,functions:inventoryUploadPhoto,functions:inventoryDeletePhoto,functions:inventoryReorderPhotos,functions:inventoryImportPhotoFromUrl"
           TARGETS="$TARGETS,functions:inventoryImport,functions:inventoryExport,functions:inventoryExportEbayCsv"
           TARGETS="$TARGETS,functions:inventoryFindByEan,functions:inventorySearchItems"
           TARGETS="$TARGETS,functions:inventoryListDeleted,functions:inventoryRestoreItem,functions:inventoryRestoreFolder,functions:inventoryPurgeDeleted"

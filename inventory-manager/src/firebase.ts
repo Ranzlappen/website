@@ -135,6 +135,11 @@ export const inventoryReorderPhotosFn = httpsCallable<
   { success: boolean; photos: PhotoRef[] }
 >(functions, 'inventoryReorderPhotos');
 
+export const inventoryImportPhotoFromUrlFn = httpsCallable<
+  { itemId: string; url: string },
+  PhotoRef
+>(functions, 'inventoryImportPhotoFromUrl');
+
 // ── Import / export ──
 export const inventoryImportFn = httpsCallable<
   {

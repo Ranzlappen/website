@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import {
   inventoryDeletePhotoFn,
+  inventoryImportPhotoFromUrlFn,
   inventoryReorderPhotosFn,
   inventoryUploadPhotoFn,
 } from '../firebase';
@@ -40,6 +41,28 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
   const [uploading, setUploading] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [urlImportOpen, setUrlImportOpen] = useState(false);
+  const [urlInput, setUrlInput] = useState('');
+  const [urlBusy, setUrlBusy] = useState(false);
+
+  async function importFromUrl() {
+    if (!urlInput.trim()) return;
+    setUrlBusy(true);
+    try {
+      const res = await inventoryImportPhotoFromUrlFn({
+        itemId,
+        url: urlInput.trim(),
+      });
+      onChange([...photos, res.data]);
+      addToast('Photo imported', 'success');
+      setUrlInput('');
+      setUrlImportOpen(false);
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Import failed', 'error');
+    } finally {
+      setUrlBusy(false);
+    }
+  }
 
   async function handleFiles(files: FileList | null) {
     if (!files || !files.length) return;
@@ -140,6 +163,15 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
           )}
           <button
             type="button"
+            onClick={() => setUrlImportOpen((v) => !v)}
+            disabled={photos.length >= 24}
+            className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
+            title="Paste a Google Drive share URL or any public image URL"
+          >
+            + From URL
+          </button>
+          <button
+            type="button"
             onClick={() => fileRef.current?.click()}
             disabled={uploading || photos.length >= 24}
             className="px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
@@ -156,6 +188,37 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
           onChange={(e) => handleFiles(e.target.files)}
         />
       </div>
+
+      {urlImportOpen && (
+        <div className="mb-3 flex gap-2 flex-wrap">
+          <input
+            type="url"
+            autoFocus
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !urlBusy) importFromUrl();
+            }}
+            placeholder="Paste a Google Drive share URL or any public image URL"
+            className="flex-1 min-w-[200px] bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2 text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => setUrlImportOpen(false)}
+            className="px-3 py-2 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={importFromUrl}
+            disabled={urlBusy || !urlInput.trim()}
+            className="px-3 py-2 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+          >
+            {urlBusy ? 'Fetching…' : 'Add'}
+          </button>
+        </div>
+      )}
 
       <div
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 min-h-[120px] p-3 rounded border-2 border-dashed border-[var(--border)]"
