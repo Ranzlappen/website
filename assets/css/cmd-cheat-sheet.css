@@ -126,25 +126,37 @@
   padding: 0;
 }
 
-/* ---- Mobile tweaks ---- */
+/* ---- Mobile: column-snap layout (mirrors the spectrum page) ---- */
 @media (max-width: 640px) {
-  .reference-page--cmd .reference-table {
-    table-layout: auto;
-    font-size: 0.825rem;
-    min-width: 0;
+  /* Scroll-padding so swipes land cleanly past the sticky command column. */
+  .reference-page--cmd .reference-table-wrapper.has-snap-cols {
+    scroll-padding-left: 7rem;       /* matches col-name width below */
   }
+  .reference-page--cmd .reference-table {
+    table-layout: fixed;
+    font-size: 0.825rem;
+    min-width: 0;                    /* override the desktop 1500px floor */
+  }
+  /* Sticky command column — fixed width so non-sticky columns can compute
+     their viewport-page width consistently. Long command names like
+     "git cherry-pick" or "ssh-copy-id" wrap inside the cell. */
   .reference-page--cmd .reference-table .col-name {
-    width: auto;
+    width: 7rem;
     min-width: 7rem;
-    /* Long command names like "git cherry-pick" or "ssh-copy-id" are
-       ~7.5rem wide as mono — wrap them inside the sticky cell so they
-       don't bleed across. */
     overflow-wrap: anywhere;
     word-break: break-word;
   }
-  .reference-page--cmd .reference-table td.is-sticky-col,
-  .reference-page--cmd .reference-table th.is-sticky-col {
-    box-shadow: 6px 0 6px -4px rgba(0, 0, 0, 0.45);
+  /* Every non-sticky column = one viewport page minus the sticky col and
+     the container's horizontal padding (2 × var(--space-md) ≈ 2rem). */
+  .reference-page--cmd .reference-table .col-desc,
+  .reference-page--cmd .reference-table .col-syntax,
+  .reference-page--cmd .reference-table .col-flags,
+  .reference-page--cmd .reference-table .col-examples,
+  .reference-page--cmd .reference-table .col-gotchas,
+  .reference-page--cmd .reference-table .col-see-also,
+  .reference-page--cmd .reference-table .col-os {
+    width: calc(100vw - 9rem);
+    min-width: 0;
   }
   /* Wrap example lines inside the cell so the cell doesn't create a
      second horizontal scrollbar on top of the table's own. */
