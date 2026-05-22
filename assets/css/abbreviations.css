@@ -196,14 +196,17 @@
   position: fixed;
   inset: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 1000;
   padding: var(--space-md);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .abbr-modal[hidden] { display: none; }
 .abbr-modal__backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(2px);
@@ -217,10 +220,11 @@
   padding: var(--space-lg);
   max-width: 32rem;
   width: 100%;
+  margin: auto;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
 }
 .abbr-modal__term {
-  margin: 0 0 0.5rem;
+  margin: 0 2.5rem 0.5rem 0;
   font-size: 1.25rem;
   color: var(--c-accent);
 }
@@ -325,6 +329,7 @@
 /* ---- Interpretation table ----------------------------------------------- */
 .abbr-interp-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-top: 1px solid var(--c-border);
 }
 .abbr-interp-table {
@@ -359,24 +364,55 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 640px) {
-  .abbr-interp-table { font-size: 0.8rem; }
-  .abbr-interp-table th,
-  .abbr-interp-table td { padding: 0.4rem 0.55rem; }
-}
 .abbr-modal__close {
   position: absolute;
   top: 0.5rem;
   right: 0.6rem;
-  background: transparent;
-  border: 0;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
   color: var(--c-text-muted);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  padding: 0.15rem 0.6rem;
+  min-width: 2rem;
+  min-height: 2rem;
+  z-index: 2;
 }
 .abbr-modal__close:hover { color: var(--c-text); }
+.abbr-modal__close:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .abbr-modal { padding: 0.5rem; }
+  .abbr-modal__panel {
+    padding: 0.9rem;
+    border-radius: var(--border-radius);
+  }
+  .abbr-modal__term { font-size: 1.1rem; }
+  .abbr-modal__plain { padding: 0.6rem 0.7rem; }
+  .abbr-modal__plain-body { font-size: 0.92rem; }
+  .abbr-modal__interpretation > summary,
+  .abbr-modal__technical > summary { padding: 0.5rem 0.65rem; }
+  .abbr-modal__footnote { padding: 0.5rem 0.7rem 0.6rem; }
+
+  .abbr-interp-table { font-size: 0.78rem; }
+  .abbr-interp-table th,
+  .abbr-interp-table td { padding: 0.35rem 0.4rem; }
+  .abbr-interp-table th { white-space: normal; }
+  .abbr-interp-table td {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  .abbr-interp-table__head { white-space: normal; }
+
+  /* Allow cross-reference terms to wrap on narrow screens so they
+     don't push the modal beyond the viewport. */
+  .abbr-modal .abbr-link { white-space: normal; }
+}
 
 /* Inline cross-references inside modal bodies. `white-space: nowrap` keeps
    multi-word terms ("Photon Energy", "COSPAS-SARSAT", "Ka-band") on a single
