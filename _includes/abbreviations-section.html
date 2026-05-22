@@ -15,6 +15,12 @@
                         plain           — optional plain-English blurb for
                                           beginners (HTML allowed, same cross-
                                           reference markup supported)
+                        example         — optional shell/code snippet shown
+                                          as a <pre><code> block in the modal.
+                                          string  → one block
+                                          array   → joined with newlines
+                                          (literal text, not HTML — escape
+                                          sequences shown verbatim)
                         interpretation  — optional structured lookup table:
                                             title       — string
                                             columns     — array<string>
@@ -49,7 +55,7 @@
     <ul class="abbr-grid">
       {% for entry in include.data %}
       <li>
-        <button type="button" class="abbr-card{% if entry.plain %} abbr-card--has-plain{% endif %}" data-abbr="{{ entry.term | escape }}">
+        <button type="button" class="abbr-card{% if entry.plain %} abbr-card--has-plain{% endif %}{% if entry.example %} abbr-card--has-example{% endif %}" data-abbr="{{ entry.term | escape }}">
           <span class="abbr-card__term">{{ entry.term }}</span>
           <span class="abbr-card__expansion">{{ entry.full_form }}</span>
           {% if entry.plain %}<span class="abbr-card__plain">{{ entry.plain }}</span>{% endif %}
@@ -67,6 +73,7 @@
       {{ entry.term | jsonify }}: {
         "expansion": {{ entry.full_form | jsonify }},
         {% if entry.plain %}"plain": {{ entry.plain | jsonify }},{% endif %}
+        {% if entry.example %}"example": {{ entry.example | jsonify }},{% endif %}
         {% if entry.interpretation %}"interpretation": {
           "title": {{ entry.interpretation.title | jsonify }},
           "columns": {{ entry.interpretation.columns | jsonify }},

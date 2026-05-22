@@ -28,6 +28,11 @@
     than needing an explicit "quit" command. In heredoc syntax,
     <code>&lt;&lt;EOF</code> reads stdin until a line containing only
     <code>EOF</code> appears.
+  example: |-
+    cat <<EOF > greeting.txt
+    Hello, $USER
+    Today is $(date +%A)
+    EOF
 
 - term: "Exit code"
   full_form: "Process Exit Status"
@@ -37,6 +42,9 @@
     = not executable, 127 = command not found, 130 = killed by Ctrl+C).
     Check it with <code>echo $?</code> in bash/zsh. Shell scripts chain on
     exit codes (<code>cmd1 && cmd2</code>, <code>cmd1 || cmd2</code>).
+  example: |-
+    cmd1 && echo "ok" || echo "failed (exit $?)"
+    grep -q TODO src/main.ts && echo "still pending"
 
 - term: "Glob"
   full_form: "Glob Pattern"
@@ -47,6 +55,11 @@
     <code>**</code> (with <code>globstar</code> or zsh) matches across
     directory levels. Not the same as regex — globs are simpler and
     filename-only.
+  example: |-
+    ls *.log              # any file ending in .log
+    rm /tmp/test-[0-9]*   # test-1, test-42, …
+    shopt -s globstar     # bash: enable **
+    ls **/*.tsx           # every .tsx, any depth
 
 - term: "PATH"
   full_form: "$PATH (Executable Search Path)"
@@ -56,6 +69,10 @@
     <code>export PATH="/new/dir:$PATH"</code> in your shell init file
     (<code>~/.bashrc</code>, <code>~/.zshrc</code>). <code>which cmd</code>
     tells you which copy wins for a given name.
+  example: |-
+    echo "$PATH" | tr ':' '\n'
+    export PATH="$HOME/.local/bin:$PATH"   # ~/.bashrc
+    which -a python3                        # see all matches
 
 - term: "PID"
   full_form: "Process ID"
@@ -73,6 +90,12 @@
     avoid bash-isms (<code>[[ ]]</code>, arrays, <code>&lt;( )</code>) and
     run on dash, ash, ksh, etc. <code>#!/bin/sh</code> implies POSIX;
     <code>#!/bin/bash</code> doesn't.
+  example: |-
+    #!/bin/sh
+    if [ -f config.yml ]; then           # POSIX test
+      echo "exists"
+    fi
+    command -v jq >/dev/null || echo "install jq"
 
 - term: "REPL"
   full_form: "Read–Eval–Print Loop"
@@ -91,6 +114,10 @@
     <code>-P</code>; <code>sed</code> uses BRE; <code>awk</code> uses ERE.
     The flavour matters: <code>+</code> needs <code>\+</code> in BRE but
     works bare in ERE.
+  example: |-
+    grep -E '^(error|warn): ' app.log     # ERE — | () + ? bare
+    grep -P '\b\w+@\w+\.\w+\b' inbox.txt  # PCRE — \b \w
+    sed 's/foo\+/bar/g' input.txt          # BRE — \+ needed
 
 - term: "Shebang"
   full_form: "#! Interpreter Directive"
@@ -102,6 +129,10 @@
     <span class="abbr-link" data-abbr="PATH">PATH</span> so the script
     works whether Python is installed at <code>/usr/bin</code> or
     <code>/usr/local/bin</code>.
+  example: |-
+    #!/usr/bin/env python3
+    import sys
+    print(f"hello from {sys.executable}")
 
 - term: "Sudo"
   full_form: "Substitute User Do"
@@ -111,6 +142,10 @@
     <code>sudo -i</code> opens an interactive root shell;
     <code>sudo -E</code> preserves your environment;
     <code>sudo -u alice cmd</code> runs as alice.
+  example: |-
+    sudo apt update
+    sudo -u postgres psql
+    echo "1.1.1.1" | sudo tee -a /etc/resolv.conf
 
 - term: "Stdin"
   full_form: "Standard Input (file descriptor 0)"
@@ -119,6 +154,10 @@
     whatever the previous command in a pipeline produced
     (<code>cmd1 | cmd2</code>). Redirect from a file with
     <code>cmd &lt; file</code>; close it with <code>cmd &lt; /dev/null</code>.
+  example: |-
+    wc -l < server.log           # read file as stdin
+    sort input.txt | uniq -c     # pipe — stdout → stdin
+    ssh host cmd < /dev/null     # explicitly close stdin
 
 - term: "Stdout"
   full_form: "Standard Output (file descriptor 1)"
@@ -127,6 +166,10 @@
     with <code>cmd &gt; out.txt</code> (overwrite) or <code>&gt;&gt;</code>
     (append). Pipelines connect one process's stdout to the next process's
     <span class="abbr-link" data-abbr="Stdin">stdin</span>.
+  example: |-
+    ls > files.txt        # overwrite
+    date >> log.txt       # append
+    cmd > /dev/null       # discard
 
 - term: "Stderr"
   full_form: "Standard Error (file descriptor 2)"
@@ -136,6 +179,10 @@
     Redirect with <code>cmd 2&gt; errors.log</code>; merge into stdout with
     <code>cmd 2&gt;&amp;1</code>; silence everything with
     <code>cmd &gt; /dev/null 2&gt;&amp;1</code>.
+  example: |-
+    make 2> build-errors.log
+    cmd > out.txt 2>&1        # both → out.txt
+    cmd 2>/dev/null            # silence errors only
 
 - term: "TTY"
   full_form: "Teletype / Terminal Device"
@@ -145,6 +192,10 @@
     <code>[ -t 1 ]</code>. Pipes (<code>cmd | other</code>) and redirects
     (<code>cmd &gt; file</code>) make stdout non-TTY, which is why
     <code>ls</code> drops colours when piped.
+  example: |-
+    tty                                # /dev/pts/3
+    if [ -t 1 ]; then echo "interactive"; fi
+    ls --color=auto                    # auto-detects via -t
 
 - term: "Termux"
   full_form: "Termux (Android terminal emulator)"

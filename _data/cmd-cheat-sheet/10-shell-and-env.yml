@@ -37,6 +37,17 @@ entries:
     description: "Format and print — like C's printf."
     syntax: "printf <format> [<arg>...]"
     os: [cross-platform]
+    flags:
+      - flag: "%s"
+        description: "String specifier."
+      - flag: "%d / %i"
+        description: "Signed integer."
+      - flag: "%f / %.<n>f"
+        description: "Float, optionally with n decimals."
+      - flag: "%x / %X"
+        description: "Lowercase / uppercase hex."
+      - flag: "%-<n>s"
+        description: "Left-align string in a field of width n."
     examples:
       - "printf \"%s: %d\\n\" \"errors\" 0"
       - "printf '%-20s %s\\n' name email"
@@ -46,8 +57,15 @@ entries:
 
   - name: "export"
     description: "Mark a shell variable as exported to child processes."
-    syntax: "export [<name>=<value>] [<name>...]"
+    syntax: "export [-p] [-n] [<name>[=<value>]...]"
     os: [cross-platform]
+    flags:
+      - flag: "-p"
+        description: "Print all exported variables in re-importable form."
+      - flag: "-n"
+        description: "Un-export a variable (keep it as a shell var, drop from environment)."
+      - flag: "<name>=<value>"
+        description: "Assign and export in one step."
     examples:
       - "export EDITOR=nvim"
       - "export PATH=\"$HOME/.local/bin:$PATH\""
@@ -86,6 +104,13 @@ entries:
     description: "Create a shorthand for a longer command."
     syntax: "alias [<name>='<replacement>']"
     os: [cross-platform]
+    flags:
+      - flag: "(no args)"
+        description: "Print every defined alias."
+      - flag: "<name>='<cmd>'"
+        description: "Define a new alias for this shell session."
+      - flag: "<name>"
+        description: "Show what one specific alias expands to."
     examples:
       - "alias ll='ls -lah'"
       - "alias gst='git status -sb'"
@@ -251,3 +276,166 @@ entries:
     see_also: ["tee", "xargs"]
     references:
       - "bash(1) — REDIRECTION section"
+
+  - name: "unalias"
+    description: "Remove one or more shell aliases."
+    syntax: "unalias [-a] <name>..."
+    os: [cross-platform]
+    flags:
+      - flag: "-a"
+        description: "Remove all aliases."
+      - flag: "<name>"
+        description: "Remove the named alias."
+    examples:
+      - "unalias ll"
+      - "unalias -a"
+    see_also: ["alias"]
+    references:
+      - "help unalias  (bash builtin)"
+
+  - name: "printenv"
+    description: "Print environment variables."
+    syntax: "printenv [<name>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "(no args)"
+        description: "Print every env var = value."
+      - flag: "<name>"
+        description: "Print just that variable's value, no name= prefix."
+    examples:
+      - "printenv"
+      - "printenv HOME"
+    see_also: ["env", "export"]
+    references:
+      - "man 1 printenv"
+
+  - name: "set"
+    description: "Set shell options or positional parameters; with no args, print all shell vars."
+    syntax: "set [-e|-u|-x|-o <opt>|+<flag>] [-- <args>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "-e"
+        description: "errexit — exit immediately on any command failure."
+      - flag: "-u"
+        description: "nounset — error on unset variables."
+      - flag: "-x"
+        description: "xtrace — print each command before executing it."
+      - flag: "-o pipefail"
+        description: "Pipeline fails if any stage fails (bash/zsh)."
+      - flag: "+<flag>"
+        description: "Disable that flag (set -x trace on, set +x trace off)."
+    examples:
+      - "set -euo pipefail"
+      - "set +x"
+      - "set -- a b c   # \\$1=a \\$2=b \\$3=c"
+    gotchas: >
+      <code>set -euo pipefail</code> at the top of every bash script
+      catches a huge class of bugs early. Shell options apply to the
+      current shell, not children — script-level only.
+    see_also: ["shopt", "unset"]
+    references:
+      - "help set  (bash builtin)"
+
+  - name: "unset"
+    description: "Remove a shell variable or function."
+    syntax: "unset [-v|-f] <name>..."
+    os: [cross-platform]
+    flags:
+      - flag: "-v"
+        description: "Variables only (default)."
+      - flag: "-f"
+        description: "Functions only."
+    examples:
+      - "unset FOO"
+      - "unset -f myfn"
+    see_also: ["export", "set"]
+    references:
+      - "help unset  (bash builtin)"
+
+  - name: "pushd / popd"
+    slug: "pushd-popd"
+    description: "Directory stack — push the current dir + cd somewhere new, then pop back."
+    syntax: "pushd <dir>   |   popd   |   dirs"
+    os: [cross-platform]
+    flags:
+      - flag: "pushd <dir>"
+        description: "cd to dir and push the previous dir onto the stack."
+      - flag: "popd"
+        description: "Pop the top of the stack and cd to it."
+      - flag: "dirs"
+        description: "Show the stack."
+      - flag: "dirs -v"
+        description: "Stack with numbered entries — handy for cd ~<n>."
+    examples:
+      - "pushd /tmp"
+      - "pushd ~/src"
+      - "dirs -v"
+      - "popd"
+    see_also: ["cd", "dirs"]
+    references:
+      - "help pushd  (bash builtin)"
+
+  - name: "source"
+    description: "Execute a script in the current shell (so its vars/aliases persist)."
+    syntax: "source <file> [args...]   |   . <file>"
+    os: [cross-platform]
+    flags:
+      - flag: ". <file>"
+        description: "POSIX-portable spelling — works in dash/ash too."
+      - flag: "source <file>"
+        description: "Bash/zsh-specific alias for the dot operator."
+    examples:
+      - "source ~/.bashrc"
+      - ". ./venv/bin/activate"
+    gotchas: >
+      Running a script via <code>./script.sh</code> spawns a subshell —
+      any <code>export</code>/<code>cd</code>/alias inside doesn't
+      affect your current shell. Use <code>source</code> when you
+      explicitly want the script's side effects to stick (env vars,
+      virtualenv activation).
+    see_also: ["export", "exec"]
+    references:
+      - "help source  (bash builtin)"
+
+  - name: "eval"
+    description: "Concatenate args and execute them as a shell command."
+    syntax: "eval <command-string>"
+    os: [cross-platform]
+    flags:
+      - flag: "<args>"
+        description: "Joined with spaces and re-parsed by the shell — double interpretation."
+    examples:
+      - "cmd='ls -la'; eval \"$cmd\""
+      - "eval \"$(ssh-agent -s)\""
+      - "eval \"$(direnv hook bash)\""
+    gotchas: >
+      <code>eval</code> double-parses its input — any user-supplied
+      string is a shell injection vector. Reach for it only when you
+      genuinely need to evaluate a dynamically constructed command (and
+      double-quote your input).
+    see_also: ["exec", "source"]
+    references:
+      - "help eval  (bash builtin)"
+
+  - name: "trap"
+    description: "Run a command when the shell receives a signal or exits."
+    syntax: "trap '<cmd>' <signal>..."
+    os: [cross-platform]
+    flags:
+      - flag: "EXIT / 0"
+        description: "Fire on shell exit — cleanup hook."
+      - flag: "ERR"
+        description: "Fire when any command returns non-zero (with set -e)."
+      - flag: "INT"
+        description: "Ctrl+C."
+      - flag: "TERM / HUP"
+        description: "External termination."
+      - flag: "trap - <signal>"
+        description: "Reset the handler back to default."
+    examples:
+      - "trap 'rm -f /tmp/lock.$$' EXIT"
+      - "trap 'echo interrupted' INT"
+      - "trap 'echo \"line $LINENO failed\"' ERR"
+    see_also: ["kill", "set"]
+    references:
+      - "help trap  (bash builtin)"

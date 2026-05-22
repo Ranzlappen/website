@@ -1,0 +1,316 @@
+/* ============================================================================
+   CLI Cheat Sheet — Interactive Tools (cmd-widgets)
+   Styles the "Interactive Tools" section above the table on
+   /references/cmd-cheat-sheet/. Uses site-wide CSS custom properties so
+   dark/light theme switching is automatic.
+   ========================================================================== */
+
+.cmd-tools {
+  margin: var(--space-xl) 0;
+}
+.cmd-tools__heading {
+  font-size: 1.25rem;
+  margin: 0 0 var(--space-xs);
+  color: var(--c-text);
+}
+.cmd-tools__intro {
+  margin: 0 0 var(--space-lg);
+  color: var(--c-text-muted);
+  font-size: 0.95rem;
+  max-width: 60rem;
+}
+
+.cmd-tools__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+  gap: var(--space-lg);
+}
+
+/* ---- Widget shell ---- */
+.cmd-widget {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-md) var(--space-lg);
+  scroll-margin-top: calc(var(--header-height, 3.75rem) + 1rem);
+}
+.cmd-widget__title {
+  font-size: 1.05rem;
+  margin: 0 0 var(--space-xs);
+  color: var(--c-text);
+  font-family: var(--f-mono);
+  font-weight: 600;
+}
+.cmd-widget__lede {
+  margin: 0 0 var(--space-md);
+  color: var(--c-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+/* ---- Form rows ---- */
+.cmd-widget__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+.cmd-widget__row--stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+.cmd-widget__row-label {
+  font-size: 0.82rem;
+  color: var(--c-text-muted);
+  min-width: 7rem;
+  font-weight: 500;
+}
+.cmd-widget__inline-label {
+  font-size: 0.82rem;
+  color: var(--c-text-muted);
+  margin-left: var(--space-sm);
+}
+.cmd-widget__inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--c-text-muted);
+  cursor: pointer;
+}
+.cmd-widget__inline-check input { margin: 0; }
+
+/* ---- Inputs ---- */
+.cmd-widget__text,
+.cmd-widget__select,
+.cmd-widget__textarea {
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  padding: 0.35rem 0.55rem;
+  border-radius: var(--border-radius-sm, 4px);
+  font: inherit;
+  font-size: 0.88rem;
+  min-width: 0;
+  flex: 1 1 auto;
+  transition: border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+.cmd-widget__text:focus,
+.cmd-widget__select:focus,
+.cmd-widget__textarea:focus {
+  outline: none;
+  border-color: var(--c-accent-border);
+  box-shadow: 0 0 0 3px var(--c-accent-bg);
+}
+.cmd-widget__text--mono,
+.cmd-widget__textarea {
+  font-family: var(--f-mono);
+  font-size: 0.82rem;
+}
+.cmd-widget__text--narrow { flex: 0 0 5rem; }
+.cmd-widget__select--narrow { flex: 0 0 9rem; }
+.cmd-widget__textarea { width: 100%; resize: vertical; }
+
+/* ---- chmod grid ---- */
+.cmd-widget--chmod__grid {
+  display: grid;
+  grid-template-columns: 6rem repeat(3, 3rem);
+  gap: 0.25rem 0.6rem;
+  margin: 0 0 var(--space-sm);
+  align-items: center;
+}
+.cmd-widget__grid-corner { /* empty corner */ }
+.cmd-widget__grid-col {
+  text-align: center;
+  font-family: var(--f-mono);
+  font-size: 0.85rem;
+  color: var(--c-text-muted);
+  font-weight: 600;
+}
+.cmd-widget__grid-row {
+  font-size: 0.85rem;
+  color: var(--c-text);
+}
+.cmd-widget__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border-light);
+  border-radius: var(--border-radius-sm, 4px);
+  cursor: pointer;
+}
+.cmd-widget__cell:has(input:checked) {
+  background: var(--c-accent-bg);
+  border-color: var(--c-accent-border);
+}
+
+/* ---- curl header rows ---- */
+.cmd-widget__headers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+}
+.cmd-widget__header-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr auto;
+  gap: 0.35rem;
+}
+.cmd-widget__add-row {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px dashed var(--c-border);
+  color: var(--c-text-muted);
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--border-radius-sm, 4px);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-top: 0.3rem;
+}
+.cmd-widget__add-row:hover {
+  border-color: var(--c-accent-border);
+  color: var(--c-accent);
+}
+.cmd-widget__remove-row {
+  background: transparent;
+  border: 1px solid var(--c-border-light);
+  color: var(--c-text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.5rem;
+  border-radius: var(--border-radius-sm, 4px);
+}
+.cmd-widget__remove-row:hover { color: var(--c-danger, #ef4444); }
+
+/* ---- regex pane + captures ---- */
+.cmd-widget__status {
+  margin: var(--space-sm) 0 0.35rem;
+  font-size: 0.82rem;
+  color: var(--c-accent);
+  font-variant-numeric: tabular-nums;
+}
+.cmd-widget__status--empty { color: var(--c-text-muted); }
+.cmd-widget__status--error { color: var(--c-danger, #ef4444); }
+
+.cmd-widget__regex-pane {
+  margin: 0 0 var(--space-sm);
+  padding: 0.6rem 0.8rem;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border-light);
+  border-radius: var(--border-radius-sm, 4px);
+  font-family: var(--f-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  color: var(--c-text);
+}
+.cmd-widget__regex-mark {
+  background: rgba(74, 222, 128, 0.28);
+  color: var(--c-text);
+  border-radius: 2px;
+  padding: 0.05em 0.15em;
+}
+[data-theme="light"] .cmd-widget__regex-mark {
+  background: rgba(22, 163, 74, 0.22);
+}
+.cmd-widget__regex-captures { margin-top: var(--space-sm); }
+.cmd-widget__regex-caps-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-text-muted);
+  margin: 0 0 0.3rem;
+}
+.cmd-widget__regex-caps-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.2rem 0.7rem;
+  margin: 0;
+  font-size: 0.82rem;
+}
+.cmd-widget__regex-caps-list dt {
+  font-family: var(--f-mono);
+  color: var(--c-accent);
+  font-weight: 600;
+}
+.cmd-widget__regex-caps-list dd { margin: 0; color: var(--c-text); }
+
+/* ---- Composed-output block ---- */
+.cmd-widget__output { margin-top: var(--space-md); }
+.cmd-widget__output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+.cmd-widget__output-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: var(--c-text-muted);
+}
+.cmd-widget__copy {
+  background: transparent;
+  border: 1px solid var(--c-border-light);
+  color: var(--c-text);
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--border-radius-sm, 4px);
+  cursor: pointer;
+  transition: background var(--transition-fast),
+              border-color var(--transition-fast),
+              color var(--transition-fast);
+}
+.cmd-widget__copy:hover {
+  border-color: var(--c-accent-border);
+  color: var(--c-accent);
+}
+.cmd-widget__copy.is-copied {
+  background: var(--c-accent-bg);
+  border-color: var(--c-accent-border);
+  color: var(--c-accent);
+}
+.cmd-widget__output-pre {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border-light);
+  border-radius: var(--border-radius-sm, 4px);
+  font-family: var(--f-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--c-text);
+}
+.cmd-widget__output-pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+}
+
+/* Mobile: row labels stack on top of inputs. */
+@media (max-width: 640px) {
+  .cmd-widget__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cmd-widget__row-label { min-width: 0; }
+  .cmd-widget--chmod__grid {
+    grid-template-columns: 5rem repeat(3, 2.5rem);
+  }
+  .cmd-widget__header-row {
+    grid-template-columns: 1fr 1fr auto;
+  }
+}

@@ -407,3 +407,42 @@
 body.abbr-modal-open {
   overflow: hidden;
 }
+
+/* Optional example block inside the modal (opt-in via entry.example).
+   Mirrors the cmd-cheat-sheet .cmd-examples styling so the visual
+   language stays consistent across both surfaces. */
+.abbr-modal__example-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  margin: 0.5rem 0 0.3rem;
+}
+.abbr-modal__example {
+  margin: 0 0 var(--space-md);
+  padding: 0.6rem 0.8rem;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border-light);
+  border-radius: var(--border-radius-sm, 4px);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--c-text);
+}
+.abbr-modal__example code {
+  font-family: var(--f-mono);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+}
+
+/* Tiny visual hint on cards that carry an example */
+.abbr-card--has-example .abbr-card__term::after {
+  content: " ▸";
+  color: var(--c-accent);
+  font-size: 0.8em;
+}

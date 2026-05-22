@@ -137,8 +137,17 @@ entries:
 
   - name: "zsh"
     description: "Z shell — bash-compatible-ish with extras (globbing, prompts, plugins)."
-    syntax: "zsh [-c \"<cmd>\"] [-i] [<script> [args]]"
+    syntax: "zsh [-c \"<cmd>\"] [-i] [-l] [-x] [<script> [args]]"
     os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-c \"<cmd>\""
+        description: "Execute one command string then exit."
+      - flag: "-i"
+        description: "Force interactive mode."
+      - flag: "-l / --login"
+        description: "Login shell — sources /etc/zprofile + ~/.zprofile."
+      - flag: "-x"
+        description: "Trace each command before execution."
     examples:
       - "zsh -c 'echo $ZSH_VERSION'"
     gotchas: >
@@ -155,6 +164,13 @@ entries:
     description: "The #! interpreter directive at the top of a script."
     syntax: "#!<path-to-interpreter> [<flags>]"
     os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "#!/usr/bin/env <interp>"
+        description: "Portable — finds the interpreter via PATH (preferred)."
+      - flag: "#!/bin/sh"
+        description: "POSIX shell. Use when scripting for non-bash environments."
+      - flag: "#!/usr/bin/env -S <interp> <args>"
+        description: "GNU coreutils ≥ 8.30 — pass multiple args to the interpreter."
     examples:
       - "#!/usr/bin/env bash"
       - "#!/usr/bin/env python3"
@@ -170,3 +186,141 @@ entries:
     see_also: ["bash", "python3", "node"]
     references:
       - "https://en.wikipedia.org/wiki/Shebang_(Unix)"
+
+  - name: "deno"
+    description: "Secure-by-default JavaScript / TypeScript runtime (Node-compatible-ish)."
+    syntax: "deno [run|test|fmt|lint|task|install] [--allow-<perm>] [<file>]"
+    os: [cross-platform]
+    flags:
+      - flag: "run <file>"
+        description: "Execute a script."
+      - flag: "--allow-net"
+        description: "Grant network permission (default denied)."
+      - flag: "--allow-read[=<paths>]"
+        description: "Filesystem read permission."
+      - flag: "--allow-env"
+        description: "Read environment variables."
+      - flag: "-A"
+        description: "Allow all permissions (escape hatch — be careful)."
+      - flag: "test [<file>]"
+        description: "Run tests."
+      - flag: "fmt"
+        description: "Format code (built-in)."
+    examples:
+      - "deno run --allow-net server.ts"
+      - "deno test"
+      - "deno install --allow-net -n serve https://deno.land/std/http/file_server.ts"
+    see_also: ["node", "bun"]
+    references:
+      - "https://docs.deno.com"
+
+  - name: "bun"
+    description: "Fast all-in-one JavaScript runtime + package manager + bundler + test runner."
+    syntax: "bun [run|install|add|x|test|build] [<args>...]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "run <script>"
+        description: "Execute a JS/TS file or package.json script."
+      - flag: "install"
+        description: "Install dependencies (10-30× faster than npm)."
+      - flag: "add <pkg>"
+        description: "Add a dependency."
+      - flag: "x <pkg>"
+        description: "Run a one-off package binary (npx equivalent)."
+      - flag: "test"
+        description: "Run built-in test runner."
+      - flag: "build"
+        description: "Bundle for production."
+    examples:
+      - "bun install"
+      - "bun run dev"
+      - "bun x create-react-app my-app"
+    gotchas: >
+      Node-compatible for most APIs but not 100% — some native modules
+      (notably anything with N-API quirks) still break. For
+      production-critical Node apps, validate compatibility first.
+      Windows support shipped in 2024 but is still less mature than
+      Linux/macOS.
+    see_also: ["node", "npm", "deno"]
+    references:
+      - "https://bun.sh/docs"
+
+  - name: "uv"
+    description: "Fast Python package + project manager (Rust, drop-in for pip + venv + pip-tools)."
+    syntax: "uv [pip|venv|run|add|sync|tool] [<args>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "pip install <pkg>"
+        description: "Drop-in pip replacement (10-100× faster)."
+      - flag: "venv [<path>]"
+        description: "Create a virtual environment (default: .venv)."
+      - flag: "add <pkg>"
+        description: "Add a dependency to pyproject.toml + sync."
+      - flag: "sync"
+        description: "Install everything in pyproject.toml / uv.lock."
+      - flag: "run <cmd>"
+        description: "Run a command inside the project's venv."
+      - flag: "tool install <pkg>"
+        description: "Install a Python CLI tool isolated (pipx equivalent)."
+    examples:
+      - "uv venv && source .venv/bin/activate"
+      - "uv pip install requests"
+      - "uv run pytest"
+      - "uv tool install ruff"
+    see_also: ["pip", "pipx", "poetry"]
+    references:
+      - "https://docs.astral.sh/uv/"
+
+  - name: "go"
+    description: "Run Go — build, test, format, manage modules."
+    syntax: "go [run|build|test|fmt|mod|install|get] [<args>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "run <file>"
+        description: "Compile and run in one step."
+      - flag: "build [-o <out>]"
+        description: "Compile to a binary."
+      - flag: "test [./...]"
+        description: "Run tests; ./... means recursive."
+      - flag: "fmt ./..."
+        description: "Format every package."
+      - flag: "mod tidy"
+        description: "Clean up go.mod + go.sum."
+      - flag: "install <pkg>@<ver>"
+        description: "Build + install a binary into $GOBIN."
+      - flag: "vet ./..."
+        description: "Static analysis."
+    examples:
+      - "go run ."
+      - "go build -o bin/server ./cmd/server"
+      - "go test -race -cover ./..."
+      - "go install github.com/user/tool@latest"
+    see_also: ["rustc", "node"]
+    references:
+      - "https://pkg.go.dev/cmd/go"
+
+  - name: "rustc"
+    description: "Rust compiler — rarely invoked directly, usually wrapped by cargo."
+    syntax: "rustc [-O] [--release] [--edition <year>] [-o <out>] <file.rs>"
+    os: [cross-platform]
+    flags:
+      - flag: "-O"
+        description: "Optimise."
+      - flag: "--edition <year>"
+        description: "Pin a Rust edition (2015/2018/2021/2024)."
+      - flag: "-o <out>"
+        description: "Output binary name."
+      - flag: "--explain <code>"
+        description: "Explain an error code (e.g. E0382)."
+    examples:
+      - "rustc hello.rs && ./hello"
+      - "rustc -O -o release src/main.rs"
+      - "rustc --explain E0382"
+    gotchas: >
+      For real projects always use <code>cargo build</code> / <code>cargo
+      run</code> — <code>rustc</code> doesn't know about Cargo.toml,
+      external crates, or feature flags. Direct invocation is only
+      useful for single-file experiments and explaining compiler errors.
+    see_also: ["cargo", "rustup"]
+    references:
+      - "https://doc.rust-lang.org/rustc/"

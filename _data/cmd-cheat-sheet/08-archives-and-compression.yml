@@ -162,3 +162,48 @@ entries:
     see_also: ["gzip", "zstd", "tar"]
     references:
       - "man 1 xz"
+
+  - name: "bzip2"
+    description: "Block-sorting compression — better ratio than gzip, slower."
+    syntax: "bzip2 [-d] [-k] [-<level>] <file>..."
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-d / bunzip2"
+        description: "Decompress."
+      - flag: "-k"
+        description: "Keep the original file."
+      - flag: "-<1..9>"
+        description: "Compression level (default 9)."
+    examples:
+      - "bzip2 -k server.log"
+      - "bunzip2 dump.sql.bz2"
+      - "tar cjf snap.tar.bz2 ./project"
+    gotchas: >
+      Mostly superseded by xz (better ratio) and zstd (much faster);
+      still ubiquitous in legacy <code>.tar.bz2</code> archives.
+    see_also: ["gzip", "xz", "zstd"]
+    references:
+      - "man 1 bzip2"
+
+  - name: "zstd"
+    description: "Facebook's fast compression — gzip-level speed, xz-ish ratio."
+    syntax: "zstd [-d] [-<level>] [-T <n>] [-k] <file>..."
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-d / unzstd"
+        description: "Decompress (.zst)."
+      - flag: "-<1..19>"
+        description: "Compression level (default 3; --long for higher)."
+      - flag: "-T <n>"
+        description: "Number of threads (0 = all cores)."
+      - flag: "-k"
+        description: "Keep the original file."
+      - flag: "--long"
+        description: "Wider window — better ratio, more memory."
+    examples:
+      - "zstd -19 -T0 big.tar"
+      - "unzstd dump.sql.zst"
+      - "tar --zstd -cf snap.tar.zst ./project"
+    see_also: ["gzip", "xz", "tar"]
+    references:
+      - "man 1 zstd"

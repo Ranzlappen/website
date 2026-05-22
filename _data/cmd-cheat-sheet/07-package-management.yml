@@ -233,3 +233,138 @@ entries:
     see_also: ["gem"]
     references:
       - "https://bundler.io"
+
+  - name: "dnf"
+    description: "Fedora / RHEL package manager (successor to yum)."
+    syntax: "dnf [install|remove|update|search|info|list] [<pkg>...]"
+    os: [linux, root]
+    flags:
+      - flag: "install <pkg>"
+        description: "Install one or more packages."
+      - flag: "remove <pkg>"
+        description: "Uninstall a package."
+      - flag: "update [<pkg>]"
+        description: "Upgrade everything (or a single package)."
+      - flag: "search <pat>"
+        description: "Search package names + summaries."
+      - flag: "list installed"
+        description: "List installed packages."
+      - flag: "group install <grp>"
+        description: "Install a package group (e.g. \"Development Tools\")."
+    examples:
+      - "sudo dnf update"
+      - "sudo dnf install neovim ripgrep"
+      - "dnf search ripgrep"
+    see_also: ["yum", "rpm", "apt"]
+    references:
+      - "man 8 dnf"
+
+  - name: "apk"
+    description: "Alpine Linux package manager — used heavily in container images."
+    syntax: "apk [add|del|update|upgrade|search|info] [<pkg>...]"
+    os: [linux, root]
+    flags:
+      - flag: "add <pkg>"
+        description: "Install a package."
+      - flag: "add --no-cache <pkg>"
+        description: "Don't store the index (saves space in containers)."
+      - flag: "del <pkg>"
+        description: "Remove a package."
+      - flag: "update"
+        description: "Refresh the index."
+      - flag: "upgrade"
+        description: "Upgrade installed packages."
+      - flag: "search <pat>"
+        description: "Search the index."
+    examples:
+      - "apk add --no-cache curl jq"
+      - "apk update && apk upgrade"
+    gotchas: >
+      The <code>--no-cache</code> idiom is the canonical way to avoid
+      ballooning Alpine container layers — equivalent to
+      <code>apk add … && rm -rf /var/cache/apk/*</code> in one step.
+    see_also: ["apt", "dnf"]
+    references:
+      - "https://wiki.alpinelinux.org/wiki/Alpine_Package_Keeper"
+
+  - name: "dpkg"
+    description: "Low-level Debian package tool — install / inspect / list .deb files."
+    syntax: "dpkg [-i|-r|-l|-L|-S] [<pkg>|<file>]"
+    os: [linux, root]
+    flags:
+      - flag: "-i <file.deb>"
+        description: "Install a .deb file (no dependency resolution — use apt for that)."
+      - flag: "-r <pkg>"
+        description: "Remove an installed package."
+      - flag: "-l [<pat>]"
+        description: "List installed packages (optionally matching a pattern)."
+      - flag: "-L <pkg>"
+        description: "List files installed by a package."
+      - flag: "-S <file>"
+        description: "Find which package owns a file."
+    examples:
+      - "sudo dpkg -i pkg.deb"
+      - "dpkg -l | grep nginx"
+      - "dpkg -S /usr/bin/curl"
+    gotchas: >
+      <code>dpkg -i</code> doesn't resolve dependencies — if the install
+      fails with "depends on…", follow up with <code>sudo apt-get
+      install -f</code> to repair.
+    see_also: ["apt", "apt-get"]
+    references:
+      - "man 1 dpkg"
+
+  - name: "yarn"
+    description: "Alternative Node.js package manager (faster, deterministic — competes with npm)."
+    syntax: "yarn [install|add|remove|run|upgrade] [<pkg>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "install"
+        description: "Install everything in package.json."
+      - flag: "add <pkg>"
+        description: "Add a dependency."
+      - flag: "add -D <pkg>"
+        description: "Add as devDependency."
+      - flag: "remove <pkg>"
+        description: "Remove a dependency."
+      - flag: "run <script>"
+        description: "Run a script defined in package.json (or just `yarn <script>`)."
+      - flag: "upgrade [<pkg>]"
+        description: "Upgrade within semver ranges."
+    examples:
+      - "yarn install"
+      - "yarn add react react-dom"
+      - "yarn dev"
+    gotchas: >
+      Classic (v1) and Berry (v2+) have meaningfully different
+      behaviours — Berry's Plug'n'Play mode bypasses
+      <code>node_modules</code> entirely and breaks some tooling. Check
+      <code>.yarnrc.yml</code> if things behave oddly.
+    see_also: ["npm", "pnpm", "bun"]
+    references:
+      - "https://yarnpkg.com"
+
+  - name: "pnpm"
+    description: "Performant, disk-efficient Node package manager (shared content-addressable store)."
+    syntax: "pnpm [install|add|remove|run|exec] [<pkg>...]"
+    os: [cross-platform]
+    flags:
+      - flag: "install"
+        description: "Install everything in package.json (alias: i)."
+      - flag: "add <pkg>"
+        description: "Add a dependency (-D for dev, -O for optional, -g for global)."
+      - flag: "remove <pkg>"
+        description: "Remove a dependency."
+      - flag: "run <script>"
+        description: "Run a script."
+      - flag: "exec <cmd>"
+        description: "Run a binary from node_modules/.bin."
+      - flag: "-w / --workspace-root"
+        description: "Operate on the workspace root in a monorepo."
+    examples:
+      - "pnpm install"
+      - "pnpm add -D typescript"
+      - "pnpm -w build"
+    see_also: ["npm", "yarn"]
+    references:
+      - "https://pnpm.io/cli"

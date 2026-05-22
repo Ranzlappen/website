@@ -171,8 +171,17 @@ entries:
 
   - name: "sftp"
     description: "Interactive file transfer over SSH (FTP-like commands)."
-    syntax: "sftp [-P <port>] [-i <key>] [<user>@]<host>"
+    syntax: "sftp [-P <port>] [-i <key>] [-b <batchfile>] [<user>@]<host>"
     os: [cross-platform]
+    flags:
+      - flag: "-P <port>"
+        description: "Remote port (note: capital P, unlike ssh's -p)."
+      - flag: "-i <key>"
+        description: "Identity file."
+      - flag: "-b <batchfile>"
+        description: "Batch mode — read sftp commands from a file."
+      - flag: "-r"
+        description: "Recursive transfers (used inside the session with get/put)."
     examples:
       - "sftp user@server.example"
       - "sftp -i ~/.ssh/id_ed25519 deploy@app.example"
@@ -187,8 +196,13 @@ entries:
 
   - name: "mosh"
     description: "Mobile shell — SSH-like but survives roaming, sleep, and packet loss."
-    syntax: "mosh [<user>@]<host>"
+    syntax: "mosh [--ssh=\"<ssh cmd>\"] [-p <udp-port-range>] [<user>@]<host>"
     os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "--ssh=\"<cmd>\""
+        description: "Use a custom ssh invocation (e.g. with -i / -p)."
+      - flag: "-p <port>"
+        description: "Pin a specific UDP port instead of the 60000-61000 range."
     examples:
       - "mosh user@laggy-server.example"
     gotchas: >

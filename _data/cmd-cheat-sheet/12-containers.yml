@@ -179,6 +179,13 @@ entries:
     description: "Daemonless, root-less Docker-compatible container engine."
     syntax: "podman <command> [args...]"
     os: [linux, macos, cross-platform]
+    flags:
+      - flag: "run / build / ps / exec / logs"
+        description: "Same subcommand surface as Docker (most invocations are drop-in)."
+      - flag: "--userns=keep-id"
+        description: "Map your host UID into the container (root-less default)."
+      - flag: "podman machine init|start"
+        description: "macOS / Windows: manage the underlying Linux VM."
     examples:
       - "podman run --rm -it alpine sh"
       - "podman build -t myapp ."
@@ -223,3 +230,111 @@ entries:
     see_also: ["kubectx", "helm", "k9s"]
     references:
       - "https://kubernetes.io/docs/reference/kubectl/"
+
+  - name: "docker stop"
+    description: "Send SIGTERM to a container, then SIGKILL after a timeout."
+    syntax: "docker stop [-t <sec>] <container>..."
+    os: [cross-platform]
+    flags:
+      - flag: "-t <sec>"
+        description: "Grace period before SIGKILL (default 10)."
+    examples:
+      - "docker stop web"
+      - "docker stop -t 30 db"
+      - "docker stop $(docker ps -q)"
+    see_also: ["docker kill", "docker rm"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/container/stop/"
+
+  - name: "docker rm"
+    description: "Remove one or more stopped containers."
+    syntax: "docker rm [-f] [-v] <container>..."
+    os: [cross-platform]
+    flags:
+      - flag: "-f"
+        description: "Force-remove a running container (sends SIGKILL first)."
+      - flag: "-v"
+        description: "Also remove any anonymous volumes attached."
+    examples:
+      - "docker rm web"
+      - "docker rm $(docker ps -aq --filter status=exited)"
+      - "docker rm -fv old-db"
+    see_also: ["docker stop", "docker ps"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/container/rm/"
+
+  - name: "docker images"
+    description: "List images stored locally."
+    syntax: "docker images [-a] [--filter <f>] [--format <fmt>] [<repo>[:<tag>]]"
+    os: [cross-platform]
+    flags:
+      - flag: "-a"
+        description: "Include intermediate layer images."
+      - flag: "-q"
+        description: "Image IDs only."
+      - flag: "--filter dangling=true"
+        description: "Show only untagged \"dangling\" images (cleanup candidates)."
+      - flag: "--format <go-template>"
+        description: "Custom output (e.g. 'table {{.Repository}}:{{.Tag}}\\t{{.Size}}')."
+    examples:
+      - "docker images"
+      - "docker images --filter dangling=true -q | xargs -r docker rmi"
+      - "docker images --format '{{.Repository}}:{{.Tag}}\\t{{.Size}}'"
+    see_also: ["docker pull", "docker rmi", "docker system prune"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/image/ls/"
+
+  - name: "docker pull"
+    description: "Download an image from a registry."
+    syntax: "docker pull [--platform <plat>] <image>[:<tag>]"
+    os: [cross-platform]
+    flags:
+      - flag: "<image>:<tag>"
+        description: "Specify a tag (default: latest)."
+      - flag: "--platform <plat>"
+        description: "Force a platform (e.g. linux/amd64 on Apple Silicon)."
+      - flag: "-a"
+        description: "All tags of the repository."
+    examples:
+      - "docker pull nginx:alpine"
+      - "docker pull --platform linux/amd64 postgres:16"
+    see_also: ["docker push", "docker images"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/image/pull/"
+
+  - name: "docker push"
+    description: "Upload an image to a registry."
+    syntax: "docker push <registry>/<repo>[:<tag>]"
+    os: [cross-platform]
+    flags:
+      - flag: "<registry>/<repo>:<tag>"
+        description: "Image reference must include the registry hostname for non-Docker-Hub destinations."
+      - flag: "-a"
+        description: "Push all tags of the repository."
+    examples:
+      - "docker tag myapp:dev ghcr.io/user/myapp:v1.0.0"
+      - "docker push ghcr.io/user/myapp:v1.0.0"
+    gotchas: >
+      Must <code>docker login &lt;registry&gt;</code> first. The
+      registry hostname is part of the image name — retagging is the
+      step that "moves" an image to a different registry.
+    see_also: ["docker pull", "docker login", "docker tag"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/image/push/"
+
+  - name: "docker inspect"
+    description: "Dump low-level JSON metadata for a container, image, network, or volume."
+    syntax: "docker inspect [--format <go-template>] <object>..."
+    os: [cross-platform]
+    flags:
+      - flag: "--format <tmpl>"
+        description: "Go-template to extract specific fields (avoid grepping full JSON)."
+      - flag: "--type container|image|volume|network"
+        description: "Disambiguate when an ID could refer to multiple types."
+    examples:
+      - "docker inspect web"
+      - "docker inspect --format '{{.NetworkSettings.IPAddress}}' web"
+      - "docker inspect --format '{{json .Config.Env}}' web | jq"
+    see_also: ["docker ps", "docker logs"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/inspect/"
