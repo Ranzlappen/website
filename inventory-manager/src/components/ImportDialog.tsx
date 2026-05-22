@@ -19,7 +19,7 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
   const addToast = useStore((s) => s.addToast);
   const fileRef = useRef<HTMLInputElement>(null);
   const [data, setData] = useState('');
-  const [format, setFormat] = useState<'csv' | 'json'>('csv');
+  const [format, setFormat] = useState<'csv' | 'json' | 'ebay-csv'>('csv');
   const [summary, setSummary] = useState<Summary | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -86,7 +86,7 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
           </button>
         </div>
 
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
           <label className="text-sm flex items-center gap-1">
             <input
               type="radio"
@@ -102,6 +102,14 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
               onChange={() => setFormat('json')}
             />
             JSON
+          </label>
+          <label className="text-sm flex items-center gap-1">
+            <input
+              type="radio"
+              checked={format === 'ebay-csv'}
+              onChange={() => setFormat('ebay-csv')}
+            />
+            eBay CSV
           </label>
           <input
             ref={fileRef}
@@ -124,7 +132,9 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
           placeholder={
             format === 'csv'
               ? 'Header row required. Column names must match your folder schema field keys or labels.'
-              : 'Either an array of { fields: {...} } objects, or { items: [...] }.'
+              : format === 'ebay-csv'
+                ? 'Paste an eBay File Exchange CSV. Title / Description / StartPrice / CustomLabel etc. map back via each field’s ebayMapping. PicURL / Action / Country / Currency are ignored.'
+                : 'Either an array of { fields: {...} } objects, or { items: [...] }.'
           }
           rows={10}
           className="w-full bg-[var(--bg)] border border-[var(--border)] rounded p-2 font-mono text-xs"

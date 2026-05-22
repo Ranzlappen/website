@@ -91,7 +91,7 @@ export const inventoryImport = onCall(async (request) => {
 
   const { folderId, format, data, dryRun } = request.data as {
     folderId: string;
-    format: "csv" | "json";
+    format: "csv" | "json" | "ebay-csv";
     data: string;
     dryRun?: boolean;
   };
@@ -165,19 +165,42 @@ export const inventoryImport = onCall(async (request) => {
       }
     });
   } else {
+    const isEbay = format === "ebay-csv";
     const rows = parseCsv(data).filter((r) => r.some((c) => c.trim() !== ""));
     if (rows.length < 2) {
       throw new HttpsError("invalid-argument", "CSV must have a header row and at least one data row.");
     }
     const header = rows[0].map((h) => h.trim());
-    // Map header columns to schema keys by case-insensitive `key` or `label`.
-    const keyByCol: (string | null)[] = header.map((col) => {
-      const lower = col.toLowerCase();
-      const def = folder.fieldSchema.find(
-        (f) => f.key.toLowerCase() === lower || f.label.toLowerCase() === lower
-      );
-      return def ? def.key : null;
-    });
+
+    let keyByCol: (string | null)[];
+    if (isEbay) {
+      // Map by ebayMapping. Core columns like "Title" match
+      // `f.ebayMapping === "Title"`; custom item-specifics like
+      // "C:Brand" match `f.ebayMapping === "Brand"`. PicURL / Action /
+      // Country / Currency have no schema target and are ignored.
+      keyByCol = header.map((col) => {
+        const mapping = col.startsWith("C:") ? col.slice(2) : col;
+        // Skip non-mappable columns entirely.
+        if (
+          ["Action", "PicURL", "Country", "Currency", "Format", "Duration"].includes(
+            col
+          )
+        ) {
+          return null;
+        }
+        const def = folder.fieldSchema.find((f) => f.ebayMapping === mapping);
+        return def ? def.key : null;
+      });
+    } else {
+      // Default CSV: match by field key or label, case-insensitive.
+      keyByCol = header.map((col) => {
+        const lower = col.toLowerCase();
+        const def = folder.fieldSchema.find(
+          (f) => f.key.toLowerCase() === lower || f.label.toLowerCase() === lower
+        );
+        return def ? def.key : null;
+      });
+    }
     rows.slice(1).forEach((row, i) => {
       const obj: Record<string, unknown> = {};
       keyByCol.forEach((key, c) => {

@@ -137,7 +137,12 @@ export const inventoryReorderPhotosFn = httpsCallable<
 
 // ── Import / export ──
 export const inventoryImportFn = httpsCallable<
-  { folderId: string; format: 'csv' | 'json'; data: string; dryRun?: boolean },
+  {
+    folderId: string;
+    format: 'csv' | 'json' | 'ebay-csv';
+    data: string;
+    dryRun?: boolean;
+  },
   {
     dryRun: boolean;
     summary: {

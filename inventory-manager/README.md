@@ -320,12 +320,18 @@ exists. `PicURL` is a `|`-separated list of public photo URLs.
   with complete item documents.
 
 ### Import
-Accepts CSV or JSON.
+Accepts three formats:
 
 - **CSV**: header row must match field `key` or `label`
   case-insensitively. Unknown columns are silently ignored.
 - **JSON**: either a raw array of items or `{ items: [...] }`. Each
   item can be `{ fields: {...} }` or a flat record (auto-wrapped).
+- **eBay CSV** (round-trip from `inventoryExportEbayCsv`): header cells
+  match against each field's `ebayMapping` rather than its key/label.
+  Core columns (Title, Description, StartPrice, CustomLabel, …) and
+  custom `C:<label>` item-specifics both work. PicURL / Action /
+  Country / Currency / Format / Duration are ignored since they have
+  no schema target.
 
 Both formats run a **dry-run** first (`Preview` button), which reports
 `toCreate`, `toUpdate` (matched by SKU), and `skipped` (with the
