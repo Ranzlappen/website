@@ -73,6 +73,9 @@ export default function FolderTable() {
   const [dupCopyItems, setDupCopyItems] = useState(false);
   const [dupBusy, setDupBusy] = useState(false);
   const [lightboxItem, setLightboxItem] = useState<ItemDoc | null>(null);
+  const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(
+    null,
+  );
 
   const folder = useMemo(
     () => folders.find((f) => f.id === folderId) ?? null,
@@ -106,14 +109,46 @@ export default function FolderTable() {
   }, [folderId, folders.length, setFolders, setItems, addToast, clearSelected]);
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return items;
-    const q = search.toLowerCase();
-    return items.filter((it) =>
-      Object.values(it.fields).some((v) =>
-        String(v ?? '').toLowerCase().includes(q),
-      ),
-    );
-  }, [items, search]);
+    const base = !search.trim()
+      ? items
+      : items.filter((it) =>
+          Object.values(it.fields).some((v) =>
+            String(v ?? '').toLowerCase().includes(search.toLowerCase()),
+          ),
+        );
+    if (!sort) return base;
+    const def = folder?.fieldSchema.find((f) => f.key === sort.key);
+    const sorted = base.slice().sort((a, b) => {
+      const av = a.fields?.[sort.key];
+      const bv = b.fields?.[sort.key];
+      // Empties always sink to the bottom regardless of direction.
+      const aEmpty = av === null || av === undefined || av === '';
+      const bEmpty = bv === null || bv === undefined || bv === '';
+      if (aEmpty && bEmpty) return 0;
+      if (aEmpty) return 1;
+      if (bEmpty) return -1;
+
+      const cmp =
+        def?.type === 'number'
+          ? Number(av) - Number(bv)
+          : def?.type === 'date'
+            ? String(av).localeCompare(String(bv))
+            : String(av).localeCompare(String(bv), undefined, {
+                numeric: true,
+                sensitivity: 'base',
+              });
+      return sort.dir === 'asc' ? cmp : -cmp;
+    });
+    return sorted;
+  }, [items, search, sort, folder]);
+
+  function toggleSort(key: string) {
+    setSort((s) => {
+      if (!s || s.key !== key) return { key, dir: 'asc' };
+      if (s.dir === 'asc') return { key, dir: 'desc' };
+      return null; // back to default (updatedAt desc from the server)
+    });
+  }
 
   async function toggleEbay(item: ItemDoc, enabled: boolean) {
     try {
@@ -347,16 +382,31 @@ export default function FolderTable() {
                     />
                   </th>
                   <th className="px-3 py-2 text-left w-12">Photo</th>
-                  {folder.fieldSchema.slice(0, 5).map((f) => (
-                    <th key={f.key} className="px-3 py-2 text-left">
-                      {f.label}
-                      {f.ebayRequired && (
-                        <span title="Required for eBay" className="ml-1 text-[var(--accent)]">
-                          ★
-                        </span>
-                      )}
-                    </th>
-                  ))}
+                  {folder.fieldSchema.slice(0, 5).map((f) => {
+                    const active = sort?.key === f.key;
+                    return (
+                      <th key={f.key} className="px-3 py-2 text-left">
+                        <button
+                          type="button"
+                          onClick={() => toggleSort(f.key)}
+                          className={`inline-flex items-center gap-1 uppercase text-xs hover:text-[var(--accent)] transition-colors ${
+                            active ? 'text-[var(--accent)]' : ''
+                          }`}
+                          title="Click to sort"
+                        >
+                          {f.label}
+                          {f.ebayRequired && (
+                            <span title="Required for eBay" className="text-[var(--accent)]">
+                              ★
+                            </span>
+                          )}
+                          <span aria-hidden="true">
+                            {active ? (sort?.dir === 'asc' ? '▲' : '▼') : ''}
+                          </span>
+                        </button>
+                      </th>
+                    );
+                  })}
                   <th className="px-3 py-2 text-center">eBay</th>
                   <th className="px-3 py-2 text-center">Status</th>
                   <th className="px-3 py-2 text-right">Actions</th>
