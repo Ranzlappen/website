@@ -4,6 +4,7 @@ import { requireRole } from "../utils/adminOnly";
 import {
   appendAudit,
   defaultEbayBlock,
+  extractEanCodes,
   missingEbayRequiredFields,
   validateItemFields,
   type FolderDoc,
@@ -119,6 +120,7 @@ export const inventoryCreateItem = onCall(async (request) => {
     fields: cleanFields,
     photos: [],
     ebay: ebayBlock,
+    eanCodes: extractEanCodes(cleanFields, folder.fieldSchema),
     createdAt: now,
     updatedAt: now,
     createdBy: uid,
@@ -182,6 +184,7 @@ export const inventoryUpdateItem = onCall(async (request) => {
       enforceRequired: true,
     });
     updates.fields = nextFields;
+    updates.eanCodes = extractEanCodes(nextFields, folder.fieldSchema);
   }
 
   if (ebay !== undefined) {

@@ -138,3 +138,9 @@ export const inventoryExportEbayCsvFn = httpsCallable<
   { folderId?: string; itemIds?: string[] },
   { filename: string; body: string; rowCount: number; columns: string[] }
 >(functions, 'inventoryExportEbayCsv');
+
+// ── Lookup ──
+export const inventoryFindByEanFn = httpsCallable<
+  { code: string },
+  { matches: ItemDoc[] }
+>(functions, 'inventoryFindByEan');

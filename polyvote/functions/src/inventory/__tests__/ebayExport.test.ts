@@ -40,6 +40,7 @@ function makeItem(overrides: Partial<ItemDoc> = {}): ItemDoc {
       },
     ],
     ebay: defaultEbayBlock(),
+    eanCodes: [],
     createdAt: 1,
     updatedAt: 1,
     createdBy: "u",

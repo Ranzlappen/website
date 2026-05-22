@@ -138,6 +138,13 @@ Price, Quantity, Condition) so the eBay export works without any setup.
   folderId: string;                   // indexed
   fields: Record<string, unknown>;    // keyed by FieldDef.key
   photos: PhotoRef[];                 // ordered; photos[0] is primary
+  eanCodes: string[];                 // denormalized list of every ean-typed
+                                      // value on the item; used by the
+                                      // scan-to-find flow for a single
+                                      // array-contains query across folders.
+                                      // Maintained server-side by
+                                      // extractEanCodes(fields, schema) on
+                                      // every write path.
   ebay: {
     syncEnabled: boolean;             // the per-row checkbox
     listingStatus: 'none' | 'ready' | 'exported' | 'listed' | 'ended' | 'error';

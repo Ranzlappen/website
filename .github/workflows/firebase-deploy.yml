@@ -74,4 +74,5 @@ jobs:
           TARGETS="$TARGETS,functions:inventoryListItems,functions:inventoryGetItem,functions:inventoryCreateItem,functions:inventoryUpdateItem,functions:inventoryDeleteItem,functions:inventoryToggleEbaySync"
           TARGETS="$TARGETS,functions:inventoryUploadPhoto,functions:inventoryDeletePhoto,functions:inventoryReorderPhotos"
           TARGETS="$TARGETS,functions:inventoryImport,functions:inventoryExport,functions:inventoryExportEbayCsv"
+          TARGETS="$TARGETS,functions:inventoryFindByEan"
           firebase deploy --only "$TARGETS" --non-interactive --force

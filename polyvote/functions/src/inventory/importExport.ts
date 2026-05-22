@@ -5,6 +5,7 @@ import { parseCsv, serializeCsv } from "./csv";
 import {
   appendAudit,
   defaultEbayBlock,
+  extractEanCodes,
   missingEbayRequiredFields,
   validateItemFields,
   type FolderDoc,
@@ -250,9 +251,10 @@ export const inventoryImport = onCall(async (request) => {
   let updated = 0;
 
   for (const r of records) {
+    const eanCodes = extractEanCodes(r.fields, folder.fieldSchema);
     if (r.existingId) {
       const ref = db.collection("inventoryItems").doc(r.existingId);
-      batch.update(ref, { fields: r.fields, updatedAt: now });
+      batch.update(ref, { fields: r.fields, eanCodes, updatedAt: now });
       updated++;
     } else {
       const ref = db.collection("inventoryItems").doc();
@@ -261,6 +263,7 @@ export const inventoryImport = onCall(async (request) => {
         fields: r.fields,
         photos: [],
         ebay: defaultEbayBlock(),
+        eanCodes,
         createdAt: now,
         updatedAt: now,
         createdBy: uid,

@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import Header from '../components/Header';
 import FieldInput from '../components/FieldInput';
 import PhotoGrid from '../components/PhotoGrid';
@@ -38,6 +43,7 @@ const AUTO_SAVE_DEBOUNCE_MS = 2500;
 export default function ItemEditor() {
   const { folderId, itemId } = useParams<{ folderId: string; itemId?: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const folders = useStore((s) => s.folders);
   const setFolders = useStore((s) => s.setFolders);
   const upsertItem = useStore((s) => s.upsertItem);
@@ -81,6 +87,13 @@ export default function ItemEditor() {
           folderDoc.fieldSchema.forEach((f) => {
             seed[f.key] = f.type === 'boolean' ? false : null;
           });
+          // Prefill the first EAN-typed field if `?ean=<code>` came in from
+          // the scan-to-find flow.
+          const prefillEan = searchParams.get('ean');
+          if (prefillEan) {
+            const firstEan = folderDoc.fieldSchema.find((f) => f.type === 'ean');
+            if (firstEan) seed[firstEan.key] = prefillEan;
+          }
           if (alive) setFields(seed);
         }
       } catch (err) {
@@ -94,7 +107,7 @@ export default function ItemEditor() {
     return () => {
       alive = false;
     };
-  }, [folderId, itemId, folders, setFolders, addToast]);
+  }, [folderId, itemId, folders, setFolders, addToast, searchParams]);
 
   function patchField(key: string, value: unknown) {
     setFields((f) => ({ ...f, [key]: value }));
