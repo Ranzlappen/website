@@ -131,3 +131,11 @@ export {
   inventoryFindByEan,
   inventorySearchItems,
 } from "./inventory/lookup";
+
+// Inventory: trash (restore + auto-purge)
+export {
+  inventoryListDeleted,
+  inventoryRestoreItem,
+  inventoryRestoreFolder,
+  inventoryPurgeDeleted,
+} from "./inventory/trash";

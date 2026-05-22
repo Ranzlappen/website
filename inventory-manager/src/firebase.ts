@@ -169,3 +169,19 @@ export const inventorySearchItemsFn = httpsCallable<
   { query: string; limit?: number },
   { items: ItemDoc[]; truncated: boolean }
 >(functions, 'inventorySearchItems');
+
+// ── Trash ──
+export const inventoryListDeletedFn = httpsCallable<
+  { limit?: number },
+  { items: ItemDoc[]; folders: FolderDoc[]; purgeAfterMs: number }
+>(functions, 'inventoryListDeleted');
+
+export const inventoryRestoreItemFn = httpsCallable<
+  { itemId: string },
+  { success: boolean }
+>(functions, 'inventoryRestoreItem');
+
+export const inventoryRestoreFolderFn = httpsCallable<
+  { folderId: string; cascade?: boolean },
+  { success: boolean; folderCount: number; itemCount: number }
+>(functions, 'inventoryRestoreFolder');

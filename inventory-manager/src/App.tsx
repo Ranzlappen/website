@@ -14,6 +14,7 @@ const SchemaEditor = lazy(() => import('./pages/SchemaEditor'));
 const ItemEditor = lazy(() => import('./pages/ItemEditor'));
 const EbayExport = lazy(() => import('./pages/EbayExport'));
 const Search = lazy(() => import('./pages/Search'));
+const Trash = lazy(() => import('./pages/Trash'));
 
 function LoadingScreen() {
   return (
@@ -59,6 +60,7 @@ export default function App() {
             <Route path="/folder/:folderId/new" element={<ItemEditor />} />
             <Route path="/ebay-export" element={<EbayExport />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/trash" element={<Trash />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

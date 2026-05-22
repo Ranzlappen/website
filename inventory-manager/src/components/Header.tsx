@@ -29,6 +29,12 @@ export default function Header({ children }: { children?: React.ReactNode }) {
         >
           eBay export
         </Link>
+        <Link
+          to="/trash"
+          className="text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
+        >
+          Trash
+        </Link>
         <button
           onClick={() => setScannerOpen(true)}
           className="text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"

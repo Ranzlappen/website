@@ -231,8 +231,10 @@ design ladders up:
    *after* the initial create round-trip so we don't fire half-built
    items.
 3. **Soft delete everywhere.** Folders and items get `deletedAt = now`
-   rather than being removed. Recoverable from Firestore for 30 days
-   (GC policy applies at your discretion).
+   rather than being removed. The Trash page (`/trash`) lists every
+   soft-deleted record with a Restore button. A scheduled Cloud Function
+   `inventoryPurgeDeleted` runs daily and hard-deletes anything older than
+   30 days, including its photo objects in Storage.
 4. **Audit log per mutation.** `inventoryAuditLog` records who did what
    and when, including the `before`/`after` payload on edits. That's
    the recovery path when soft-delete isn't enough.
