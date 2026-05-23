@@ -5,15 +5,18 @@ batch:
   short_name: "Files & Dirs"
   description: >
     Navigate the filesystem, list / create / move / delete files and
-    directories, and inspect symlinks. POSIX commands available on
-    virtually every shell — bash, zsh, dash, Termux's bash, even busybox.
-  last_updated: "2026-05-21"
+    directories, inspect symlinks, check disk usage, and identify file
+    types. POSIX commands available on virtually every shell — bash, zsh,
+    dash, Termux's bash, even busybox.
+  last_updated: "2026-05-23"
 
 entries:
   - name: "ls"
     description: "List directory contents."
     syntax: "ls [-l] [-a] [-h] [-S|-t] [-r] [<path>...]"
     os: [linux, macos, cross-platform, android]
+    danger: safe
+    modern: "<code>eza</code> / <code>lsd</code> — colourful, git-aware ls with icons"
     flags:
       - flag: "-l"
         description: "Long format: permissions, owner, size, mtime."
@@ -30,9 +33,17 @@ entries:
       - flag: "-R"
         description: "Recurse into subdirectories."
     examples:
-      - "ls -lah"
-      - "ls -lhS /var/log | head"
-      - "ls -lt --color=auto"
+      - code: "ls -lah"
+        explain: "Long-format listing of all files including dotfiles, with human-readable sizes — the go-to for seeing permissions and ownership at a glance."
+      - code: "ls -lhS /var/log | head"
+        explain: "Show the largest log files first in human-readable format, piped through head to see only the top 10."
+      - code: "ls -lt --color=auto"
+        explain: "Sort by newest modification time with coloured output — useful for finding recently changed files."
+    recipes:
+      - code: "ls -1 *.log | xargs -I{} gzip {}"
+        explain: "List every .log file one per line and compress each with gzip — combining ls with xargs for a safe batch operation."
+      - code: "ls -lt | awk 'NR==2{print $NF}'"
+        explain: "Print the name of the most recently modified file in the current directory — useful in scripts to find the latest artifact."
     gotchas: >
       macOS ships BSD <code>ls</code>, which lacks <code>--color=auto</code>
       (use <code>-G</code> instead) and orders flags differently. Install
@@ -46,6 +57,7 @@ entries:
     description: "Change the current shell directory."
     syntax: "cd [<dir>|-|~]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-"
         description: "Switch back to the previous directory ($OLDPWD)."
@@ -54,9 +66,17 @@ entries:
       - flag: ".."
         description: "Parent directory."
     examples:
-      - "cd ~/projects/website"
-      - "cd -"
-      - "cd"
+      - code: "cd ~/projects/website"
+        explain: "Jump directly to a project directory using the tilde home shorthand — quicker than typing the full absolute path."
+      - code: "cd -"
+        explain: "Toggle back to the directory you were in before the last cd — like a browser back button for the shell."
+      - code: "cd"
+        explain: "No arguments navigates to your home directory ($HOME) — the fastest way to get back to base."
+    recipes:
+      - code: "cd \"$(git rev-parse --show-toplevel)\""
+        explain: "Jump to the root of the current Git repository from any subdirectory — essential when you're deep in a tree."
+      - code: "cd /tmp && tar -xf ~/downloads/pkg.tar.gz && cd -"
+        explain: "Extract an archive in /tmp then return to the original directory with cd - — keeps your working directory clean."
     gotchas: >
       <code>cd</code> is a shell builtin, not a binary — it can't be run
       via <code>sudo</code> or <code>xargs</code>. Use <code>pushd</code> /
@@ -69,14 +89,22 @@ entries:
     description: "Print the current working directory."
     syntax: "pwd [-L|-P]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-L"
         description: "Logical path — follows symlinks (default)."
       - flag: "-P"
         description: "Physical path — resolves symlinks."
     examples:
-      - "pwd"
-      - "pwd -P"
+      - code: "pwd"
+        explain: "Print the current directory path — the simplest way to know exactly where you are in the filesystem."
+      - code: "pwd -P"
+        explain: "Print the real physical path with all symlinks resolved — critical when working inside a symlinked directory."
+    recipes:
+      - code: "export PROJ=$(pwd) && cd /tmp && echo \"$PROJ\""
+        explain: "Capture the current directory into a variable before changing to another location — lets you return with cd \"$PROJ\"."
+      - code: "cd \"$(dirname \"$(pwd)\")\""
+        explain: "Move up one level using pwd and dirname together — useful when you want the parent of the current directory without counting dots."
     see_also: ["cd", "realpath"]
     references:
       - "man 1 pwd"
@@ -85,22 +113,60 @@ entries:
     description: "Create one or more directories."
     syntax: "mkdir [-p] [-m <mode>] <dir>..."
     os: [linux, macos, cross-platform, android]
+    danger: caution
     flags:
       - flag: "-p"
         description: "Create parent directories as needed; do not error if it exists."
       - flag: "-m <mode>"
         description: "Set permissions on the new directory (octal, e.g. 700)."
     examples:
-      - "mkdir -p src/components/auth"
-      - "mkdir -m 700 ~/.ssh"
+      - code: "mkdir -p src/components/auth"
+        explain: "Create a nested directory path in one shot — mkdir creates every missing parent automatically so you don't need to loop."
+      - code: "mkdir -m 700 ~/.ssh"
+        explain: "Create the .ssh config directory with owner-only permissions — the correct mode required by ssh-keygen and sshd."
+    recipes:
+      - code: "mkdir -p project/{src,tests,docs} && ls project/"
+        explain: "Use brace expansion to create multiple subdirectories under a new parent in a single command — a quick project scaffold."
+      - code: "mkdir -p \"$(date +%Y/%m/%d)\" && cd \"$(date +%Y/%m/%d)\""
+        explain: "Create a date-based directory hierarchy for today (e.g. 2026/05/23) and enter it — handy for log or archive organisation."
     see_also: ["rmdir", "chmod"]
     references:
       - "man 1 mkdir"
+
+  - name: "rmdir"
+    description: "Remove empty directories."
+    syntax: "rmdir [-p] [-v] <dir>..."
+    os: [linux, macos, cross-platform, android]
+    danger: caution
+    flags:
+      - flag: "-p"
+        description: "Remove the directory and its empty ancestors — e.g. rmdir -p a/b/c removes c, then b, then a if all become empty."
+      - flag: "-v"
+        description: "Verbose — print each directory as it is removed."
+    examples:
+      - code: "rmdir build"
+        explain: "Remove the empty build directory — safer than rm -rf because it refuses to delete if any contents remain."
+      - code: "rmdir -p a/b/c"
+        explain: "Remove c and walk up removing a/b and a as long as each becomes empty — useful for cleaning up a scaffold you no longer need."
+    recipes:
+      - code: "find . -type d -empty | sort -r | xargs rmdir"
+        explain: "Find every empty directory in the tree, sort deepest-first (so children are removed before parents), then delete them all in one pass."
+      - code: "mkdir -p tmp/scratch && rmdir -p tmp/scratch"
+        explain: "Create and immediately clean up a temporary nested directory — shows how -p on rmdir mirrors -p on mkdir."
+    gotchas: >
+      <code>rmdir</code> fails if the directory contains even a single
+      hidden file (<code>.keep</code>, <code>.DS_Store</code>). Use
+      <code>rm -rf</code> only when you're certain of the contents, or
+      run <code>ls -la dir/</code> first to confirm it's truly empty.
+    see_also: ["rm", "mkdir", "find"]
+    references:
+      - "man 1 rmdir"
 
   - name: "rm"
     description: "Remove files and directories."
     syntax: "rm [-r] [-f] [-i] <file>..."
     os: [linux, macos, cross-platform, android]
+    danger: destructive
     flags:
       - flag: "-r"
         description: "Recursive — remove directories and their contents."
@@ -111,9 +177,17 @@ entries:
       - flag: "-v"
         description: "Verbose — print each file as it's removed."
     examples:
-      - "rm old.log"
-      - "rm -rf node_modules"
-      - "rm -i *.tmp"
+      - code: "rm old.log"
+        explain: "Delete a single file — the simplest form with no flags, and the first thing to reach for when you're sure you don't need it."
+      - code: "rm -rf node_modules"
+        explain: "Recursively and forcefully delete the node_modules directory — the canonical way to clear npm dependencies before a clean install."
+      - code: "rm -i *.tmp"
+        explain: "Interactively prompt before deleting each .tmp file — -i gives you a per-file escape hatch when globbing large sets."
+    recipes:
+      - code: "find . -name '*.bak' -type f | xargs rm --"
+        explain: "Delete all .bak files in the tree found by find, using xargs to handle large numbers of files and -- to guard against names starting with dashes."
+      - code: "rm -rf \"${BUILD_DIR:?}\" && mkdir \"$BUILD_DIR\""
+        explain: "Use ${VAR:?} to abort if BUILD_DIR is unset or empty before running rm -rf — a one-line safety net against the classic empty-variable catastrophe."
     gotchas: >
       <code>rm -rf /</code> is the canonical destructive command. On macOS
       and modern GNU coreutils, <code>rm</code> refuses <code>/</code>
@@ -126,9 +200,10 @@ entries:
       - "man 1 rm"
 
   - name: "mv"
-    description: "Move (rename) files and directories."
+    description: "Move or rename files and directories."
     syntax: "mv [-i] [-n] [-v] <src>... <dst>"
     os: [linux, macos, cross-platform, android]
+    danger: caution
     flags:
       - flag: "-i"
         description: "Prompt before overwriting an existing destination."
@@ -137,9 +212,17 @@ entries:
       - flag: "-v"
         description: "Verbose — print each move."
     examples:
-      - "mv old.txt new.txt"
-      - "mv -i src/foo.js src/bar.js"
-      - "mv *.png images/"
+      - code: "mv old.txt new.txt"
+        explain: "Rename a file in place — mv with two plain paths is the standard rename operation on Unix."
+      - code: "mv -i src/foo.js src/bar.js"
+        explain: "Rename a source file while asking for confirmation before overwriting any existing bar.js — -i prevents silent overwrites."
+      - code: "mv *.png images/"
+        explain: "Move all PNG files in the current directory into an images/ subdirectory — glob expansion makes this a one-liner bulk move."
+    recipes:
+      - code: "for f in *.jpeg; do mv -- \"$f\" \"${f%.jpeg}.jpg\"; done"
+        explain: "Rename every .jpeg file to .jpg by stripping the old extension and appending the new one — a safe loop-and-rename pattern."
+      - code: "mv \"$(ls -t *.log | head -1)\" archive/"
+        explain: "Move the most recently modified .log file into the archive directory — uses command substitution to select the target dynamically."
     see_also: ["cp", "rename", "rm"]
     references:
       - "man 1 mv"
@@ -148,6 +231,7 @@ entries:
     description: "Copy files and directories."
     syntax: "cp [-r] [-i] [-p] [-v] <src>... <dst>"
     os: [linux, macos, cross-platform, android]
+    danger: caution
     flags:
       - flag: "-r"
         description: "Recursive — copy directories and contents."
@@ -160,9 +244,17 @@ entries:
       - flag: "-v"
         description: "Verbose — print each copy."
     examples:
-      - "cp config.yml config.yml.bak"
-      - "cp -r src/ dist/"
-      - "cp -a /etc/nginx ~/nginx-backup"
+      - code: "cp config.yml config.yml.bak"
+        explain: "Create a backup of a config file before editing it — the simplest pre-edit safety net."
+      - code: "cp -r src/ dist/"
+        explain: "Recursively copy the contents of src/ into dist/ — the trailing slash means copy the contents, not the src directory itself."
+      - code: "cp -a /etc/nginx ~/nginx-backup"
+        explain: "Archive-copy the nginx config directory preserving all metadata and symlinks — -a is the right flag for faithful backups."
+    recipes:
+      - code: "cp -p \"$file\" \"${file}.$(date +%Y%m%d)\""
+        explain: "Date-stamp a backup copy of a file while preserving its original timestamps — a tidy versioning convention for config files."
+      - code: "find src -name '*.ts' | xargs -I{} cp {} dest/"
+        explain: "Copy every TypeScript file found in src/ to a flat dest/ directory, using xargs to handle many files without exceeding ARG_MAX."
     gotchas: >
       BSD <code>cp</code> (macOS) has no <code>-a</code>; use
       <code>cp -pR</code> or install GNU coreutils. Trailing
@@ -174,9 +266,10 @@ entries:
       - "man 1 cp"
 
   - name: "touch"
-    description: "Create empty files or update their access / modification time."
+    description: "Create empty files or update their access / modification timestamps."
     syntax: "touch [-c] [-d <date>] [-r <ref>] <file>..."
     os: [linux, macos, cross-platform, android]
+    danger: caution
     flags:
       - flag: "-c"
         description: "Do not create the file if it doesn't exist."
@@ -185,8 +278,15 @@ entries:
       - flag: "-r <ref>"
         description: "Copy timestamps from another file."
     examples:
-      - "touch placeholder.md"
-      - "touch -d '2026-01-01' new.txt"
+      - code: "touch placeholder.md"
+        explain: "Create an empty file — the idiomatic way to initialise a file that build tooling or git needs to exist."
+      - code: "touch -d '2026-01-01' new.txt"
+        explain: "Set the modification time of new.txt to a specific date — useful when you need artifacts to appear as if generated at a known point in time."
+    recipes:
+      - code: "touch -r reference.txt target.txt"
+        explain: "Copy the exact timestamps from reference.txt onto target.txt — handy when you must preserve mtime after editing a file."
+      - code: "for f in a.txt b.txt c.txt; do touch \"$f\"; done && ls -lt"
+        explain: "Create multiple placeholder files in a loop and confirm their timestamps with ls -lt — quick scaffolding for testing scripts."
     see_also: ["stat", "mkdir"]
     references:
       - "man 1 touch"
@@ -195,6 +295,7 @@ entries:
     description: "Create hard or symbolic links."
     syntax: "ln [-s] [-f] <target> <link_name>"
     os: [linux, macos, cross-platform, android]
+    danger: caution
     flags:
       - flag: "-s"
         description: "Symbolic (soft) link — a pointer to a path."
@@ -203,8 +304,15 @@ entries:
       - flag: "-v"
         description: "Print each link as it's created."
     examples:
-      - "ln -s ~/projects/website current"
-      - "ln -sf /opt/node-22/bin/node /usr/local/bin/node"
+      - code: "ln -s ~/projects/website current"
+        explain: "Create a symlink named current in the CWD pointing to your project directory — lets you reference it by a short name."
+      - code: "ln -sf /opt/node-22/bin/node /usr/local/bin/node"
+        explain: "Atomically replace the node symlink in PATH to point to a new version — -sf ensures a clean swap with no gap."
+    recipes:
+      - code: "find /usr/local/bin -maxdepth 1 -type l | xargs -I{} readlink {}"
+        explain: "List the real targets of every symlink in /usr/local/bin — useful for auditing which versions tools actually point to."
+      - code: "ln -s \"$(pwd)/dotfiles/.zshrc\" ~/.zshrc"
+        explain: "Bootstrap a dotfiles setup by symlinking your versioned config file into the home directory with an absolute path generated by pwd."
     gotchas: >
       Hard links share the same inode and break if the file system runs
       out of inodes; you can't hard-link across file systems or to
@@ -215,21 +323,29 @@ entries:
       - "man 1 ln"
 
   - name: "stat"
-    description: "Display detailed file metadata (inode, size, perms, timestamps)."
+    description: "Display detailed file metadata — inode, size, permissions, and all three timestamps."
     syntax: "stat [-c <fmt>|--format=<fmt>] <file>..."
     os: [linux, macos, cross-platform, android]
+    danger: safe
     flags:
       - flag: "-c <fmt>"
         description: "GNU custom format string (%s = size, %y = mtime, %a = octal mode)."
       - flag: "-f <fmt>"
         description: "BSD/macOS custom format string."
     examples:
-      - "stat README.md"
-      - "stat -c '%n %s %y' *.log"
+      - code: "stat README.md"
+        explain: "Dump all metadata for README.md including inode number, block count, all three timestamps, and permissions — more than ls -l alone provides."
+      - code: "stat -c '%n %s %y' *.log"
+        explain: "Print only name, byte size, and mtime for every .log file — a quick way to compare file ages in scripts without parsing ls output."
+    recipes:
+      - code: "stat -c '%y %n' * | sort"
+        explain: "Sort all files in the current directory by modification time using stat output — more reliable than parsing ls because the format is stable."
+      - code: "find . -newer reference.txt -exec stat -c '%n modified: %y' {} \\;"
+        explain: "Print the mtime of every file newer than reference.txt — combines find's -newer predicate with stat for a structured timestamp report."
     gotchas: >
       Format strings differ between GNU stat (Linux: <code>-c</code>) and
       BSD stat (macOS: <code>-f</code>). Cross-platform scripts should
-      detect or fall back to <code>ls -l</code>.
+      detect the variant or fall back to <code>ls -l</code>.
     see_also: ["ls", "file"]
     references:
       - "man 1 stat"
@@ -238,14 +354,22 @@ entries:
     description: "Identify a file's type by its content (magic numbers), not its extension."
     syntax: "file [-b] [-i] <path>..."
     os: [linux, macos, cross-platform, android]
+    danger: safe
     flags:
       - flag: "-b"
         description: "Brief — omit the filename from output."
       - flag: "-i"
         description: "Print MIME type instead of human-readable description."
     examples:
-      - "file mystery.bin"
-      - "file -i *.dat"
+      - code: "file mystery.bin"
+        explain: "Identify what mystery.bin actually contains — file reads the first few bytes and matches them against its magic database, ignoring the extension."
+      - code: "file -i *.dat"
+        explain: "Print the MIME type of every .dat file — useful when feeding types into scripts that need to branch on content rather than extension."
+    recipes:
+      - code: "file * | grep 'ASCII text' | cut -d: -f1 | xargs wc -l"
+        explain: "Count lines in every file that file identifies as plain ASCII text — filters out binaries before passing to wc."
+      - code: "find . -type f | xargs file | grep 'ELF' | cut -d: -f1"
+        explain: "Locate every compiled ELF binary in the tree — handy for auditing a directory that mixes scripts and native executables."
     see_also: ["stat"]
     references:
       - "man 1 file"
@@ -254,6 +378,8 @@ entries:
     description: "Show a directory hierarchy as an ASCII tree."
     syntax: "tree [-L <depth>] [-a] [-d] [-I <pattern>] [<path>]"
     os: [linux, macos, cross-platform, android]
+    danger: safe
+    modern: "<code>eza --tree</code> — git-aware tree with icons and colour"
     flags:
       - flag: "-L <n>"
         description: "Limit depth to n levels."
@@ -264,8 +390,15 @@ entries:
       - flag: "-I <pat>"
         description: "Ignore files matching the glob pattern."
     examples:
-      - "tree -L 2"
-      - "tree -I 'node_modules|.git' src"
+      - code: "tree -L 2"
+        explain: "Show the top two levels of the current directory tree — enough depth to understand a project's structure without drowning in detail."
+      - code: "tree -I 'node_modules|.git' src"
+        explain: "Render the src subtree while excluding node_modules and .git — keeps the output focused on your own code."
+    recipes:
+      - code: "tree -d -L 3 | grep '/$'"
+        explain: "List only directory lines from a three-level tree — a quick directory-only map for documentation or onboarding notes."
+      - code: "tree -J . | python3 -m json.tool | head -40"
+        explain: "Output the tree as JSON (tree -J) and pretty-print it — useful for feeding directory structure into scripts or AI prompts."
     gotchas: >
       Not installed by default on macOS (<code>brew install tree</code>)
       or many minimal Linux containers (<code>apt install tree</code>).
@@ -277,14 +410,22 @@ entries:
     description: "Resolve a path to its absolute, symlink-free canonical form."
     syntax: "realpath [-e] [-s] <path>"
     os: [linux, cross-platform, android]
+    danger: safe
     flags:
       - flag: "-e"
         description: "All components must exist (error otherwise)."
       - flag: "-s"
         description: "Strip <code>..</code> and <code>.</code> but don't resolve symlinks."
     examples:
-      - "realpath ./config.yml"
-      - "realpath -s ../../foo"
+      - code: "realpath ./config.yml"
+        explain: "Print the absolute path of config.yml — eliminates any ./ prefix and resolves symlinks so you have the true on-disk location."
+      - code: "realpath -s ../../foo"
+        explain: "Collapse dotdot segments and return an absolute path without hitting the filesystem to resolve symlinks — useful for constructing paths that may not exist yet."
+    recipes:
+      - code: "SCRIPT_DIR=$(realpath \"$(dirname \"$0\")\")"
+        explain: "Capture the true directory containing the running script — a robust pattern that survives being called via a symlink or a relative path."
+      - code: "find . -type l | xargs -I{} realpath {} | sort -u"
+        explain: "Print the real on-disk targets of every symlink in the tree, deduplicated — lets you spot multiple links that resolve to the same file."
     gotchas: >
       Not available on stock macOS — install via <code>brew install
       coreutils</code> and use <code>grealpath</code>, or fall back to
@@ -293,3 +434,55 @@ entries:
     see_also: ["readlink", "pwd"]
     references:
       - "man 1 realpath"
+
+  - name: "dirname"
+    description: "Strip the last path component, returning the directory portion of a path."
+    syntax: "dirname <path>..."
+    os: [linux, macos, cross-platform, android]
+    danger: safe
+    flags:
+      - flag: "-z"
+        description: "Delimit output with NUL instead of newline — for use with xargs -0 or read -d ''."
+    examples:
+      - code: "dirname /usr/local/bin/node"
+        explain: "Returns /usr/local/bin — strips the filename and gives you only the directory part of the path."
+      - code: "dirname ./src/components/Button.tsx"
+        explain: "Returns ./src/components — useful for extracting the containing directory from a relative path without spawning a subshell."
+    recipes:
+      - code: "cd \"$(dirname \"$(which python3)\")\""
+        explain: "Jump into the directory that contains the python3 binary — combines which, dirname, and command substitution for a quick navigate-to-tool pattern."
+      - code: "find . -name '*.log' | while read f; do mkdir -p \"archive/$(dirname \"$f\")\"; cp \"$f\" \"archive/$f\"; done"
+        explain: "Mirror the directory structure of every .log file into an archive/ subdirectory before copying — dirname reconstructs each file's parent path."
+    see_also: ["basename", "realpath", "pwd"]
+    references:
+      - "man 1 dirname"
+
+  - name: "basename"
+    description: "Strip the directory portion (and optionally a suffix) from a path, leaving only the filename."
+    syntax: "basename <path> [<suffix>]"
+    os: [linux, macos, cross-platform, android]
+    danger: safe
+    flags:
+      - flag: "-s <suffix>"
+        description: "GNU form — strip this suffix from each result (equivalent to passing suffix as the second argument)."
+      - flag: "-z"
+        description: "Delimit output with NUL instead of newline."
+    examples:
+      - code: "basename /usr/local/bin/node"
+        explain: "Returns node — strips the directory prefix and gives just the filename, regardless of how deep the path is."
+      - code: "basename report-2026-05-23.tar.gz .tar.gz"
+        explain: "Returns report-2026-05-23 — strips both the directory and the given suffix, useful for deriving a plain stem from an archive name."
+    recipes:
+      - code: "for f in /var/log/*.log; do cp \"$f\" ~/backup/\"$(basename \"$f\")\"; done"
+        explain: "Copy every .log file into a flat backup directory using only the filename — basename extracts the leaf name from the full path."
+      - code: "find . -name '*.jpeg' | while read f; do mv \"$f\" \"$(dirname \"$f\")/$(basename \"$f\" .jpeg).jpg\"; done"
+        explain: "Rename every .jpeg to .jpg in-place by rebuilding the full path from dirname and basename — a robust rename loop that handles nested directories."
+    gotchas: >
+      Passing multiple paths to POSIX <code>basename</code> is undefined
+      behaviour — only GNU coreutils supports multiple arguments. For
+      portability across scripts that run on both Linux and macOS, call
+      <code>basename</code> once per path inside a loop rather than passing
+      a list.
+    see_also: ["dirname", "realpath"]
+    references:
+      - "man 1 basename"

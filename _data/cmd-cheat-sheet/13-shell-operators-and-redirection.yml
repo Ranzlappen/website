@@ -1,0 +1,271 @@
+batch:
+  id: "shell-operators"
+  order: 13
+  name: "Shell Operators & Redirection"
+  short_name: "Operators"
+  description: >
+    Pipes, redirection, logical connectors, command and process substitution,
+    heredocs, and brace/tilde expansion — the glue that turns individual
+    commands into expressive shell pipelines. Most of these are POSIX sh
+    features; a handful (<code>&></code>, <code>&lt;&lt;&lt;</code>,
+    <code>&lt;(...)</code>) are bash/zsh extensions.
+  last_updated: "2026-05-23"
+
+entries:
+  - name: "Redirection (> >> 2> &>)"
+    slug: "redirection"
+    description: "Route a command's standard output, standard error, or both to a file or device."
+    syntax: "<cmd> [>|>>|2>|&>|2>&1] <file>  |  <cmd> < <file>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: ">"
+        description: "Redirect stdout to a file — <strong>truncates</strong> the file if it exists."
+      - flag: ">>"
+        description: "Append stdout to a file — safe; creates the file if it doesn't exist."
+      - flag: "2>"
+        description: "Redirect stderr to a file."
+      - flag: "&>"
+        description: "Redirect both stdout and stderr to a file (bash/zsh; not POSIX)."
+      - flag: "2>&1"
+        description: "Merge stderr into stdout stream — POSIX-portable alternative to <code>&></code>."
+      - flag: "<"
+        description: "Feed a file as stdin to a command."
+      - flag: "/dev/null"
+        description: "Discard any output directed here — the null device."
+    examples:
+      - code: "ls -lh > listing.txt"
+        explain: "Write directory listing to listing.txt, overwriting any previous contents."
+      - code: "ls -lh >> listing.txt"
+        explain: "Append directory listing to listing.txt without erasing what's already there."
+      - code: "make 2> build-errors.log"
+        explain: "Capture only stderr from make into a log file; stdout still appears on screen."
+      - code: "curl -sS https://example.com > out.html 2>&1"
+        explain: "Send both stdout and stderr into one file — POSIX-compatible form."
+      - code: "grep pattern huge.log 2>/dev/null"
+        explain: "Silence error messages while still seeing matched lines."
+    recipes:
+      - code: "cmd > out.txt 2>&1"
+        explain: "Canonical POSIX way to redirect both streams — note <code>2>&1</code> must come after <code>></code>."
+    danger: caution
+    gotchas: >
+      <code>></code> truncates immediately when the shell opens the file —
+      before the command even runs. So <code>sort file > file</code> wipes
+      <code>file</code> to zero bytes first, then sorts nothing. Use a temp
+      file and <code>mv</code>, or <code>sponge</code> (moreutils).
+      <code>&></code> and <code>&>></code> are bash/zsh extensions not
+      available in POSIX <code>sh</code> or <code>dash</code>.
+    see_also: ["tee", "pipe"]
+    references:
+      - "https://www.gnu.org/software/bash/manual/bash.html#Redirections"
+      - "man 1 bash — REDIRECTION section"
+
+  - name: "Pipe (|)"
+    slug: "pipe"
+    description: "Connect the stdout of one command to the stdin of the next, forming a pipeline."
+    syntax: "<cmd1> | <cmd2> [| <cmd3> ...]  |  <cmd1> |& <cmd2>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "|"
+        description: "Connect stdout of the left command to stdin of the right command."
+      - flag: "|&"
+        description: "Pipe both stdout <em>and</em> stderr — shorthand for <code>2>&1 |</code> (bash/zsh only)."
+    examples:
+      - code: "ps aux | grep nginx | grep -v grep"
+        explain: "Chain three commands — each output feeds the next's input."
+      - code: "cat /var/log/syslog |& less"
+        explain: "Pipe stdout and stderr together into less (bash/zsh)."
+      - code: "du -sh * | sort -h | tail -5"
+        explain: "Find the five largest entries in the current directory by human-readable size."
+    recipes:
+      - code: "journalctl -u nginx --since today | grep -i error | wc -l"
+        explain: "Count today's nginx error lines — a typical multi-stage pipeline."
+    danger: safe
+    gotchas: >
+      The exit status of a pipeline is the exit status of the <em>last</em>
+      command by default. Set <code>set -o pipefail</code> (bash/zsh) to
+      propagate any non-zero status from earlier stages — essential in
+      scripts that need to detect upstream failures.
+      Each command in a pipeline runs in a subshell, so variable assignments
+      inside a pipeline do <em>not</em> persist to the parent shell.
+    see_also: ["tee", "xargs", "redirection"]
+    references:
+      - "https://www.gnu.org/software/bash/manual/bash.html#Pipelines"
+
+  - name: "Logical operators (&& || ;)"
+    slug: "logical-operators"
+    description: "Chain commands conditionally on success or failure, unconditionally, or send them to the background."
+    syntax: "<cmd1> && <cmd2>  |  <cmd1> || <cmd2>  |  <cmd1>; <cmd2>  |  <cmd> &"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "&&"
+        description: "AND — run the right command only if the left command exits with status 0 (success)."
+      - flag: "||"
+        description: "OR — run the right command only if the left command exits with a non-zero status (failure)."
+      - flag: ";"
+        description: "Sequence — run the right command unconditionally after the left finishes."
+      - flag: "&"
+        description: "Background — run the preceding command asynchronously; the shell does not wait."
+    examples:
+      - code: "make && ./run-tests.sh"
+        explain: "Run tests only when the build succeeds."
+      - code: "ping -c1 8.8.8.8 || echo 'No network'"
+        explain: "Print a message if the ping fails."
+      - code: "echo 'start'; sleep 5; echo 'done'"
+        explain: "Run three commands in sequence regardless of exit status."
+      - code: "npm run build &"
+        explain: "Start the build in the background and return the prompt immediately."
+    recipes:
+      - code: "cd /tmp && mkdir work && cd work && echo \"ready\""
+        explain: "Chain directory creation steps — the chain stops at the first failure."
+    danger: safe
+    gotchas: >
+      <code>&amp;&amp;</code> and <code>||</code> only look at the exit status
+      of the immediately preceding command — not the full chain. Use
+      parentheses to group: <code>(cmd1 &amp;&amp; cmd2) || fallback</code>.
+      Background jobs (<code>&amp;</code>) inherit the parent shell's file
+      descriptors; redirect their output to a file or they'll mix with
+      subsequent terminal output.
+    see_also: ["command-substitution", "pipe"]
+    references:
+      - "https://www.gnu.org/software/bash/manual/bash.html#Lists"
+
+  - name: "Command substitution ($(...))"
+    slug: "command-substitution"
+    description: "Capture the output of a command and use it inline as a string or argument."
+    syntax: "$(<cmd>)  |  `<cmd>`  |  $(( <expr> ))"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "$(...)"
+        description: "Preferred form — nests cleanly and is POSIX-compatible."
+      - flag: "`...`"
+        description: "Legacy backtick form — avoid in new scripts as nesting requires backslash-escaping."
+      - flag: "$(( ))"
+        description: "Arithmetic expansion — evaluates an integer expression and substitutes the result."
+    examples:
+      - code: "echo \"Today is $(date +%F)\""
+        explain: "Embed the current date directly in a string."
+      - code: "files=$(ls *.log); echo \"Logs: $files\""
+        explain: "Store command output in a variable for later use."
+      - code: "echo \"2 + 2 = $(( 2 + 2 ))\""
+        explain: "Perform inline integer arithmetic and print the result."
+      - code: "tar czf backup-$(date +%Y%m%d).tar.gz ./src"
+        explain: "Use the date in a filename to create a dated archive."
+    recipes:
+      - code: "node_ver=$(node --version); echo \"Node ${node_ver} detected\""
+        explain: "Capture a tool's version string and reference it in subsequent steps."
+    danger: safe
+    gotchas: >
+      Always double-quote command substitutions — <code>\"$(cmd)\"</code> —
+      to prevent word-splitting and glob expansion on the output. Unquoted
+      substitution will break on filenames containing spaces or special
+      characters. Backtick form treats backslashes specially inside, making
+      nested substitutions error-prone; prefer <code>$(...)</code>.
+    see_also: ["process-substitution", "logical-operators"]
+    references:
+      - "https://www.gnu.org/software/bash/manual/bash.html#Command-Substitution"
+
+  - name: "Process substitution (<(...))"
+    slug: "process-substitution"
+    description: "Treat a command's output as a file-like object, enabling commands that require filename arguments to consume live data from another process."
+    syntax: "<(<cmd>)  |  >(<cmd>)"
+    os: [linux, macos]
+    flags:
+      - flag: "<(...)"
+        description: "Open a read-end FIFO backed by the command's stdout — pass it where a filename is expected."
+      - flag: ">(...)"
+        description: "Open a write-end FIFO — data written there is piped into the command's stdin."
+    examples:
+      - code: "diff <(sort file1.txt) <(sort file2.txt)"
+        explain: "Compare two files sorted on the fly without creating temp files."
+      - code: "comm -23 <(sort a.txt) <(sort b.txt)"
+        explain: "Show lines present in a.txt but not in b.txt, sorting both inputs inline."
+      - code: "tee >(gzip > out.gz) > out.txt"
+        explain: "Write stdout to a plain file and simultaneously compress it — both writes happen in parallel."
+    recipes:
+      - code: "paste <(cut -f1 a.tsv) <(cut -f2 b.tsv)"
+        explain: "Join specific columns from two files side by side without intermediate temp files."
+    danger: safe
+    gotchas: >
+      Process substitution is a bash and zsh extension — it is <em>not</em>
+      available in POSIX <code>sh</code> or <code>dash</code>. Scripts using
+      <code>&lt;(...)</code> must start with <code>#!/usr/bin/env bash</code>.
+      The substituted path is a <code>/dev/fd/N</code> file descriptor (Linux)
+      or a named pipe under <code>/tmp</code> (macOS); commands that
+      <code>lseek</code> over their input (e.g. some archive tools) won't work.
+    see_also: ["pipe", "redirection"]
+    references:
+      - "https://www.gnu.org/software/bash/manual/bash.html#Process-Substitution"
+
+  - name: "Heredoc & herestring (<< <<<)"
+    slug: "heredoc"
+    description: "Feed a multi-line block of text or a single string directly into a command's stdin without a separate file."
+    syntax: "<cmd> << <DELIM>  |  <cmd> <<- <DELIM>  |  <cmd> <<< \"<string>\""
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "<<"
+        description: "Heredoc — reads lines until a line containing only the delimiter; parameter/command expansion active."
+      - flag: "<<-"
+        description: "Strip leading tabs from each heredoc line — useful for indented scripts."
+      - flag: "<<<"
+        description: "Herestring — feeds a single word or quoted string as stdin (bash/zsh; not POSIX)."
+    examples:
+      - code: "cat << 'EOF'\nHello, world!\nEOF"
+        explain: "Print a multi-line block — quoting the delimiter disables expansion inside."
+      - code: "mysql -u root << SQL\nSELECT version();\nSQL"
+        explain: "Send SQL inline to a database client without a separate .sql file."
+      - code: "grep '^Error' <<< \"$log_output\""
+        explain: "Grep through a variable's contents without creating a subshell pipeline."
+    recipes:
+      - code: "ssh user@host << 'ENDSSH'\n  sudo systemctl restart nginx\n  systemctl status nginx\nENDSSH"
+        explain: "Run multiple remote commands over one SSH connection using a heredoc."
+    danger: safe
+    gotchas: >
+      Quoting the heredoc delimiter (<code>&lt;&lt; 'EOF'</code>) suppresses
+      variable and command expansion inside the block — without quotes,
+      <code>$HOME</code> and <code>$(cmd)</code> are expanded, which can
+      cause surprises. The closing delimiter must appear on a line by itself
+      with no leading spaces (use <code>&lt;&lt;-</code> with tabs if you
+      need indentation). Herestrings (<code>&lt;&lt;&lt;</code>) are
+      bash/zsh extensions and not available in <code>/bin/sh</code>.
+    see_also: ["redirection", "pipe"]
+    references:
+      - "https://www.gnu.org/software/bash/manual/bash.html#Here-Documents"
+
+  - name: "Brace & tilde expansion ({} ~)"
+    slug: "brace-tilde-expansion"
+    description: "Generate lists of strings or paths at parse time — before any command runs — enabling concise multi-target operations."
+    syntax: "{<a>,<b>,<c>}  |  {<n>..<m>}  |  ~  |  ~<user>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "{a,b,c}"
+        description: "Comma list — expands to each item in place (e.g. <code>file.{yml,json}</code>)."
+      - flag: "{1..10}"
+        description: "Sequence — expands to an integer (or character) range, inclusive."
+      - flag: "~"
+        description: "Tilde alone — expands to <code>$HOME</code>."
+      - flag: "~user"
+        description: "Tilde + username — expands to that user's home directory."
+    examples:
+      - code: "cp config.yml{,.bak}"
+        explain: "Expand to 'cp config.yml config.yml.bak' — concise in-place backup."
+      - code: "mkdir -p src/{components,pages,hooks}"
+        explain: "Create three directories in one shot using brace expansion."
+      - code: "echo {A..Z}"
+        explain: "Print every uppercase letter — sequence expansion over characters."
+      - code: "for i in {1..5}; do echo \"item $i\"; done"
+        explain: "Loop five times using a brace-expanded integer range."
+    recipes:
+      - code: "mv app.{js,ts}"
+        explain: "Rename app.js to app.ts — expands to 'mv app.js app.ts'."
+    danger: safe
+    gotchas: >
+      Brace expansion happens before variable expansion, so
+      <code>{1..$n}</code> does <em>not</em> work — the shell sees the
+      literal string <code>$n</code> before it reads the variable. Use
+      <code>seq 1 $n</code> or an arithmetic loop instead. Brace expansion
+      is a bash/zsh feature; POSIX <code>sh</code> does not support it.
+      Tilde expansion only triggers when <code>~</code> is unquoted and at
+      the start of a word.
+    see_also: ["command-substitution"]
+    references:
+      - "https://www.gnu.org/software/bash/manual/bash.html#Brace-Expansion"

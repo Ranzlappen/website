@@ -8,7 +8,7 @@ Source data for the [`/references/cmd-cheat-sheet/`](../../pages/references/cmd-
 
 | File | Role |
 |---|---|
-| `01-files-and-dirs.yml` … `12-containers.yml` | One file per **category** of commands. Each file contributes one tab and a chunk of table rows. |
+| `01-files-and-dirs.yml` … `13-shell-operators-and-redirection.yml` | One file per **category** of commands. Each file contributes one tab and a chunk of table rows. |
 
 Jekyll exposes everything under `site.data["cmd-cheat-sheet"].<basename>` (bracketed because the directory name has hyphens). The numeric prefix (`01-`, `02-`, …) only controls **display order**; basenames after sort drive the iteration loop in [`pages/references/cmd-cheat-sheet.html`](../../pages/references/cmd-cheat-sheet.html).
 
@@ -42,8 +42,15 @@ entries:
       - flag: "-a"
         description: "Stage all tracked, modified files before committing."
     examples:
-      - "git commit -m \"fix typo\""
-      - "git commit -am \"quick fix\""
+      - code: "git commit -m \"fix typo\""
+        explain: "Record staged changes with a one-line message, skipping the editor."
+      - code: "git commit -am \"quick fix\""
+        explain: "Stage all tracked modifications and commit them in one step."
+    recipes:
+      - code: "git add -A && git commit -m \"wip\""
+        explain: "Stage everything (including new + deleted files) then commit."
+    danger: "caution"
+    modern: "<code>gh</code> for GitHub-side operations"
     gotchas: >
       Never --amend a commit that's already pushed to a shared branch
       without coordinating a force-push.
@@ -64,10 +71,13 @@ entries:
 
 - `slug` — string; kebab-case override for the in-page anchor ID (default: `name | slugify`).
 - `flags` — array of `{flag, description}` pairs. Rendered into a collapsible `<dl>` inside the Flags cell.
-- `examples` — array of command-line strings. Rendered as stacked `<pre><code>` lines.
+- `examples` — array of **`{code, explain}` objects**. `code` is the exact command line; `explain` is one plain-English sentence about what that invocation does. Each renders as a clickable button that opens an explanation modal (and command tokens inside `code` that match a glossary term become clickable too). The quality bar wants **≥2 examples per entry**, each with both keys.
+- `recipes` — array of `{code, explain}` objects (same shape as `examples`), for multi-command combos / pipelines. Rendered in the **Recipes / Combos** column, collapsed when there's more than one.
+- `danger` — one of `safe` | `caution` | `destructive`. Rendered as a colour-coded badge in the **Danger** column. `safe` = read-only / trivially reversible; `caution` = writes or changes state but recoverable; `destructive` = irreversible data loss possible.
+- `modern` — string (inline `<code>` allowed) naming a modern replacement, shown in the **Modern alt** column. Omit when there's no obvious alternative.
 - `gotchas` — string (use the folded scalar `>` for paragraph blocks). Markdown is supported; inline `<code>` works.
 - `see_also` — array of command names. Each one is rendered as a link to `#cmd-<slug>` of the matching entry in the page.
-- `references` — array of free-form strings (man-page references, URLs).
+- `references` — array of free-form strings (man-page references, URLs). Rendered in the **Docs** column — entries containing `://` become outbound links, the rest render as `<code>` (e.g. `man 1 ls`).
 
 ### `os` values
 
@@ -106,6 +116,8 @@ Open the relevant `NN-*.yml`, add a new entry under `entries:` keeping the requi
 ### Add or edit a glossary term
 
 Append to `_data/abbreviations/cmd-cheat-sheet.yml` (keeping alphabetical order). No JS or HTML edits required — the shared abbreviations include regenerates the JSON island on each build, and `/assets/js/abbreviations.js` reads the dictionary at runtime.
+
+Add an optional `aliases: [..]` array to an entry to register case/plural variants (e.g. `Glob → ["glob", "globs", "globbing"]`). Aliases decorate in-content and open the canonical card; they don't render a card of their own. This is how lowercase `posix` / plural `globs` in a command cell become clickable even though the canonical key is `POSIX` / `Glob`.
 
 ---
 

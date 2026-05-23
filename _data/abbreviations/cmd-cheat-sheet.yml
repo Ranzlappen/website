@@ -20,6 +20,87 @@
     conventions standardise flag style (<code>-x</code>, <code>--long-flag</code>)
     and exit codes (0 = success, non-zero = error).
 
+- term: "Cron"
+  full_form: "cron / crontab"
+  aliases: ["crontab", "cronjob", "cron job"]
+  explanation: >-
+    A Unix time-based job scheduler. Jobs are defined in a per-user
+    <em>crontab</em> file (edit with <code>crontab -e</code>; list with
+    <code>crontab -l</code>). Each line specifies a schedule using five
+    fields (minute, hour, day-of-month, month, day-of-week) followed by
+    the command to run. The
+    <span class="abbr-link" data-abbr="Daemon">daemon</span>
+    <code>crond</code> wakes every minute and fires matching jobs.
+  plain: >-
+    Think of cron as an alarm clock for your computer. You write a schedule
+    once and the system runs the command automatically — every night, every
+    hour, every Monday morning.
+  example: |-
+    crontab -e            # open your crontab in $EDITOR
+    # min hour dom mon dow  command
+    0   2   *   *   *    /usr/local/bin/backup.sh   # daily at 02:00
+    */5 *   *   *   *    curl -s https://example.com/healthz  # every 5 min
+    0   9   *   *   1    echo "Monday morning" | mail -s hi you@example.com
+
+- term: "curl"
+  full_form: "curl (Client URL)"
+  aliases: []
+  explanation: >-
+    A command-line tool for transferring data to or from a URL — HTTP,
+    HTTPS, FTP, SFTP, and more. Useful for testing APIs, downloading files,
+    and scripting web requests. Common flags: <code>-s</code> silent,
+    <code>-o</code> write to file, <code>-L</code> follow redirects,
+    <code>-H</code> add a header, <code>-d</code> send POST body,
+    <code>-X</code> set HTTP method, <code>-u user:pass</code> basic auth.
+  example: |-
+    curl -s https://api.example.com/v1/status | jq .
+    curl -L -o latest.tar.gz https://example.com/release.tar.gz
+    curl -X POST -H "Content-Type: application/json" \
+         -d '{"key":"value"}' https://api.example.com/items
+
+- term: "Daemon"
+  full_form: "Daemon (background service process)"
+  aliases: ["daemons"]
+  explanation: >-
+    A long-running background process that provides a system service — web
+    servers (nginx, apache), databases (postgres, mysqld), schedulers
+    (<span class="abbr-link" data-abbr="Cron">crond</span>), SSH server
+    (<span class="abbr-link" data-abbr="SSH">sshd</span>). Daemons
+    typically start at boot, run as dedicated users, and have no terminal
+    attached. On modern Linux, managed by systemd
+    (<code>systemctl start|stop|status &lt;name&gt;</code>).
+  plain: >-
+    A daemon is a background worker your computer keeps running quietly —
+    you never interact with it directly, but it's always there answering
+    requests (like a web server) or doing housekeeping.
+  example: |-
+    systemctl status nginx          # check if daemon is running
+    systemctl start postgresql      # start a daemon
+    systemctl enable sshd           # start at boot
+    journalctl -u nginx -f          # follow daemon logs
+
+- term: "Environment variable"
+  full_form: "Environment Variable"
+  aliases: ["environment variables", "env var", "env vars", "env variable"]
+  explanation: >-
+    A named string value that processes inherit from their parent shell —
+    used to pass configuration without hard-coding it. Set temporarily with
+    <code>VAR=value cmd</code> (just for that command) or persistently with
+    <code>export VAR=value</code> in your shell init file. The
+    <span class="abbr-link" data-abbr="PATH">PATH</span> variable is the
+    canonical example; others include <code>HOME</code>, <code>EDITOR</code>,
+    <code>LANG</code>, and <code>NO_COLOR</code>.
+  plain: >-
+    Environment variables are like sticky notes passed to every program you
+    launch. The program can read them to know where things are or how to
+    behave — without you having to pass those details as flags every time.
+  example: |-
+    echo "$HOME"                          # print a variable
+    export EDITOR=vim                     # set for this shell + children
+    NODE_ENV=production node server.js    # set for one command only
+    printenv                              # list all env vars
+    env -i PATH="$PATH" bash             # clean environment (only PATH)
+
 - term: "EOF"
   full_form: "End Of File"
   explanation: >-
@@ -46,8 +127,27 @@
     cmd1 && echo "ok" || echo "failed (exit $?)"
     grep -q TODO src/main.ts && echo "still pending"
 
+- term: "git"
+  full_form: "git (distributed version control)"
+  aliases: []
+  explanation: >-
+    A distributed version control system: every clone is a full repository
+    with complete history. Core concepts: <em>commits</em> (snapshots),
+    <em>branches</em> (lightweight movable pointers), <em>remotes</em>
+    (other repos you sync with), <em>staging area</em> (index — what your
+    next commit will contain). The
+    <span class="abbr-link" data-abbr="Working tree">working tree</span>
+    is what you actually edit on disk.
+  example: |-
+    git status                   # what changed?
+    git add -p                   # interactively stage hunks
+    git commit -m "feat: …"      # snapshot staged changes
+    git log --oneline --graph    # visual branch history
+    git stash && git pull --rebase && git stash pop
+
 - term: "Glob"
   full_form: "Glob Pattern"
+  aliases: ["glob", "globs", "globbing"]
   explanation: >-
     Shell wildcard matching for filenames — <code>*</code> matches any
     characters except <code>/</code>, <code>?</code> matches a single
@@ -60,6 +160,77 @@
     rm /tmp/test-[0-9]*   # test-1, test-42, …
     shopt -s globstar     # bash: enable **
     ls **/*.tsx           # every .tsx, any depth
+
+- term: "grep"
+  full_form: "grep (Global Regular Expression Print)"
+  aliases: ["greps"]
+  explanation: >-
+    Searches one or more files (or
+    <span class="abbr-link" data-abbr="Stdin">stdin</span>) for lines
+    matching a <span class="abbr-link" data-abbr="Regex">regular
+    expression</span> and prints matching lines. Key flags:
+    <code>-i</code> case-insensitive, <code>-r</code> recursive,
+    <code>-l</code> filenames only, <code>-n</code> line numbers,
+    <code>-v</code> invert (non-matching lines), <code>-E</code> ERE,
+    <code>-P</code> PCRE, <code>-q</code> silent (just exit code).
+  example: |-
+    grep -rn "TODO" src/            # recursive + line numbers
+    grep -i "error" app.log         # case-insensitive
+    grep -v "^#" config.yml         # skip comment lines
+    grep -E "^(WARN|ERROR):" app.log
+    git diff | grep '^[+-]'         # changed lines only
+
+- term: "Heredoc"
+  full_form: "Here Document"
+  aliases: ["heredocs", "here-doc", "here document"]
+  explanation: >-
+    A shell syntax for embedding a multi-line string literal inline,
+    feeding it as
+    <span class="abbr-link" data-abbr="Stdin">stdin</span> to a command.
+    <code>&lt;&lt;MARKER</code> reads until a line that is exactly
+    <code>MARKER</code> (the
+    <span class="abbr-link" data-abbr="EOF">EOF</span> sentinel). Quoting
+    the marker (<code>&lt;&lt;'EOF'</code>) suppresses variable and command
+    substitution inside the body; <code>&lt;&lt;-EOF</code> strips leading
+    tabs so you can indent the body.
+  plain: >-
+    A heredoc lets you write a block of text directly in your script
+    without needing a separate file or lots of echo calls — handy for
+    config templates, SQL queries, or multi-line messages.
+  example: |-
+    cat <<EOF > config.yml
+    host: $HOSTNAME
+    env:  $(git rev-parse --abbrev-ref HEAD)
+    EOF
+
+    # Quoted marker — no substitution
+    cat <<'EOF'
+    literal $HOME — not expanded
+    EOF
+
+    # Indented body (leading tabs stripped)
+    psql mydb <<-SQL
+    	SELECT id, name FROM users
+    	WHERE active = true;
+    SQL
+
+- term: "Inode"
+  full_form: "Index Node"
+  aliases: ["inodes"]
+  explanation: >-
+    A data structure on a Unix filesystem that stores metadata for a
+    file or directory — permissions, owner, timestamps, size, and the
+    block addresses where the data lives — but <em>not</em> the filename.
+    Filenames are just directory entries that map a name to an inode
+    number. Hard links share an inode; a
+    <span class="abbr-link" data-abbr="Symlink">symlink</span> has its
+    own inode pointing at a path. Check with <code>ls -i</code> or
+    <code>stat</code>.
+  example: |-
+    ls -i /etc/hosts          # show inode number
+    stat myfile.txt           # full inode metadata
+    df -i                     # inode usage per filesystem (can exhaust independently of space)
+    find . -inum 12345        # find file by inode number
 
 - term: "PATH"
   full_form: "$PATH (Executable Search Path)"
@@ -76,14 +247,39 @@
 
 - term: "PID"
   full_form: "Process ID"
+  aliases: ["pid", "PIDs"]
   explanation: >-
     The unique integer the kernel assigns to a running process. Find one
     with <code>pgrep nginx</code> or <code>ps aux | grep nginx</code>; act
     on it with <code>kill &lt;pid&gt;</code>. PID 1 on Linux is the init
     process (systemd / launchd on macOS).
 
+- term: "Pipe"
+  full_form: "Pipe / | operator"
+  aliases: ["pipes", "piped", "piping"]
+  explanation: >-
+    Connects the <span class="abbr-link" data-abbr="Stdout">stdout</span>
+    of one process to the
+    <span class="abbr-link" data-abbr="Stdin">stdin</span> of the next,
+    without writing a temporary file. The shell wires them up before
+    either process starts, so they run concurrently. Chain as many
+    stages as needed: <code>cmd1 | cmd2 | cmd3</code>. Only stdout is
+    piped — <span class="abbr-link" data-abbr="Stderr">stderr</span>
+    still goes to the terminal unless you redirect it first
+    (<code>2&gt;&amp;1 |</code>).
+  plain: >-
+    The pipe is the Unix superpower: small programs that each do one thing
+    well, snapped together like LEGO. The output of the first becomes the
+    input of the next.
+  example: |-
+    ps aux | grep nginx | awk '{print $2}'    # PIDs of nginx workers
+    cat access.log | cut -d' ' -f1 | sort | uniq -c | sort -rn | head
+    curl -s https://api.example.com/v1/items | jq '.[].name'
+    make 2>&1 | tee build.log                 # pipe stderr too; save + watch
+
 - term: "POSIX"
   full_form: "Portable Operating System Interface"
+  aliases: ["posix"]
   explanation: >-
     A family of IEEE standards (most notably IEEE 1003.1) that define a
     common Unix-like API and shell behaviour. POSIX-compliant scripts
@@ -97,16 +293,34 @@
     fi
     command -v jq >/dev/null || echo "install jq"
 
-- term: "REPL"
-  full_form: "Read–Eval–Print Loop"
+- term: "Redirection"
+  full_form: "I/O Redirection"
+  aliases: ["redirect", "redirects", "redirecting"]
   explanation: >-
-    An interactive language prompt — type code, get the result immediately,
-    repeat. <code>python3</code>, <code>node</code>, <code>irb</code>,
-    <code>ghci</code> are all REPLs. Distinct from running a script file:
-    a REPL keeps state between lines and prints expression values.
+    Shell syntax that rewires a process's file descriptors before it
+    starts — pointing <span class="abbr-link" data-abbr="Stdout">stdout</span>
+    or <span class="abbr-link" data-abbr="Stderr">stderr</span> at a file
+    instead of the terminal, or feeding a file into
+    <span class="abbr-link" data-abbr="Stdin">stdin</span>.
+    <code>&gt;</code> truncates, <code>&gt;&gt;</code> appends,
+    <code>&lt;</code> reads from a file, <code>2&gt;</code> redirects
+    stderr, <code>2&gt;&amp;1</code> merges stderr into stdout,
+    <code>&amp;&gt;</code> (bash) redirects both at once.
+  plain: >-
+    Redirection lets you save output to a file, silence noisy errors, or
+    feed a file to a command as if you had typed it — all without changing
+    the program itself.
+  example: |-
+    cmd > out.txt            # stdout → file (overwrite)
+    cmd >> out.txt           # stdout → file (append)
+    cmd < input.txt          # file → stdin
+    cmd 2> err.log           # stderr → file
+    cmd > out.txt 2>&1       # stdout + stderr → same file
+    cmd &> /dev/null         # discard everything (bash)
 
 - term: "Regex"
   full_form: "Regular Expression"
+  aliases: ["regex", "regexes", "regexp", "regular expression", "regular expressions"]
   explanation: >-
     A pattern language for matching text — far more expressive than
     <span class="abbr-link" data-abbr="Glob">globs</span>. <code>grep</code>
@@ -119,8 +333,17 @@
     grep -P '\b\w+@\w+\.\w+\b' inbox.txt  # PCRE — \b \w
     sed 's/foo\+/bar/g' input.txt          # BRE — \+ needed
 
+- term: "REPL"
+  full_form: "Read–Eval–Print Loop"
+  explanation: >-
+    An interactive language prompt — type code, get the result immediately,
+    repeat. <code>python3</code>, <code>node</code>, <code>irb</code>,
+    <code>ghci</code> are all REPLs. Distinct from running a script file:
+    a REPL keeps state between lines and prints expression values.
+
 - term: "Shebang"
   full_form: "#! Interpreter Directive"
+  aliases: ["shebangs"]
   explanation: >-
     The first line of an executable script that tells the kernel which
     interpreter to use — <code>#!/usr/bin/env python3</code>,
@@ -134,21 +357,46 @@
     import sys
     print(f"hello from {sys.executable}")
 
-- term: "Sudo"
-  full_form: "Substitute User Do"
+- term: "SSH"
+  full_form: "Secure Shell"
+  aliases: ["ssh"]
   explanation: >-
-    Runs a single command as another user (default: root). Configured per
-    user via <code>/etc/sudoers</code> (edit with <code>visudo</code>).
-    <code>sudo -i</code> opens an interactive root shell;
-    <code>sudo -E</code> preserves your environment;
-    <code>sudo -u alice cmd</code> runs as alice.
+    A cryptographic network protocol for logging into remote machines and
+    running commands securely over an untrusted network. The client is
+    <code>ssh</code>; the server
+    <span class="abbr-link" data-abbr="Daemon">daemon</span> is
+    <code>sshd</code>. Key-based auth (via <code>ssh-keygen</code> +
+    <code>ssh-copy-id</code>) is preferred over passwords.
+    <code>~/.ssh/config</code> lets you define aliases, jump hosts, and
+    per-host options.
+  plain: >-
+    SSH is like a secure encrypted telephone line to another computer.
+    Once connected, you get a shell just as if you were sitting in front
+    of that machine.
   example: |-
-    sudo apt update
-    sudo -u postgres psql
-    echo "1.1.1.1" | sudo tee -a /etc/resolv.conf
+    ssh user@host                        # basic login
+    ssh -i ~/.ssh/id_ed25519 user@host   # explicit key
+    ssh -L 5432:localhost:5432 user@host # local port forward (DB tunnel)
+    ssh-keygen -t ed25519 -C "me@example.com"
+    ssh-copy-id user@host                # install public key on remote
+
+- term: "Stderr"
+  full_form: "Standard Error (file descriptor 2)"
+  aliases: ["stderr"]
+  explanation: >-
+    The separate stream for diagnostics and errors so they don't pollute
+    piped <span class="abbr-link" data-abbr="Stdout">stdout</span>.
+    Redirect with <code>cmd 2&gt; errors.log</code>; merge into stdout with
+    <code>cmd 2&gt;&amp;1</code>; silence everything with
+    <code>cmd &gt; /dev/null 2&gt;&amp;1</code>.
+  example: |-
+    make 2> build-errors.log
+    cmd > out.txt 2>&1        # both → out.txt
+    cmd 2>/dev/null            # silence errors only
 
 - term: "Stdin"
   full_form: "Standard Input (file descriptor 0)"
+  aliases: ["stdin"]
   explanation: >-
     The default input stream for a process — usually the keyboard, or
     whatever the previous command in a pipeline produced
@@ -161,6 +409,7 @@
 
 - term: "Stdout"
   full_form: "Standard Output (file descriptor 1)"
+  aliases: ["stdout"]
   explanation: >-
     The default output stream — usually the terminal. Redirect to a file
     with <code>cmd &gt; out.txt</code> (overwrite) or <code>&gt;&gt;</code>
@@ -171,18 +420,87 @@
     date >> log.txt       # append
     cmd > /dev/null       # discard
 
-- term: "Stderr"
-  full_form: "Standard Error (file descriptor 2)"
+- term: "Subshell"
+  full_form: "Subshell"
+  aliases: ["subshells"]
   explanation: >-
-    The separate stream for diagnostics and errors so they don't pollute
-    piped <span class="abbr-link" data-abbr="Stdout">stdout</span>.
-    Redirect with <code>cmd 2&gt; errors.log</code>; merge into stdout with
-    <code>cmd 2&gt;&amp;1</code>; silence everything with
-    <code>cmd &gt; /dev/null 2&gt;&amp;1</code>.
+    A child shell process forked from the current shell — changes to
+    variables, the working directory, or shell options inside a subshell
+    do <em>not</em> affect the parent. Created implicitly by pipelines
+    (each stage runs in a subshell), or explicitly with parentheses
+    <code>( cmds )</code>. Distinct from a nested script invocation
+    (<code>bash script.sh</code>) and from command substitution
+    <code>$( )</code>, which is also a subshell. The
+    <span class="abbr-link" data-abbr="Environment variable">environment
+    variables</span> exported before the fork are inherited read-only.
   example: |-
-    make 2> build-errors.log
-    cmd > out.txt 2>&1        # both → out.txt
-    cmd 2>/dev/null            # silence errors only
+    (cd /tmp && ls)             # cd doesn't affect parent shell
+    echo $BASH_SUBSHELL         # 0 in parent, 1 inside ( )
+    x=1; (x=99); echo $x       # prints 1 — subshell change isolated
+    # Each pipeline stage is a subshell:
+    echo "hello" | read line; echo "$line"  # may print nothing (bash)
+
+- term: "Sudo"
+  full_form: "Substitute User Do"
+  aliases: ["sudo"]
+  explanation: >-
+    Runs a single command as another user (default: root). Configured per
+    user via <code>/etc/sudoers</code> (edit with <code>visudo</code>).
+    <code>sudo -i</code> opens an interactive root shell;
+    <code>sudo -E</code> preserves your environment;
+    <code>sudo -u alice cmd</code> runs as alice.
+  example: |-
+    sudo apt update
+    sudo -u postgres psql
+    echo "1.1.1.1" | sudo tee -a /etc/resolv.conf
+
+- term: "Symlink"
+  full_form: "Symbolic Link"
+  aliases: ["symlinks", "symbolic link", "soft link"]
+  explanation: >-
+    A filesystem entry that stores a path string pointing at another file
+    or directory, rather than data itself. Unlike a hard link, a symlink
+    can cross filesystem boundaries and point to directories. The
+    <span class="abbr-link" data-abbr="Inode">inode</span> of the symlink
+    and the inode of the target are distinct — deleting the target leaves
+    a dangling link. Create with <code>ln -s target link</code>; inspect
+    with <code>ls -l</code> or <code>readlink</code>.
+  plain: >-
+    A symlink is like a shortcut or alias — a name that points to another
+    file. Opening the symlink opens the real file; the shortcut itself
+    contains only the path to get there.
+  example: |-
+    ln -s /usr/local/bin/python3 ~/bin/python   # create symlink
+    ls -l ~/bin/python                          # → shows arrow to target
+    readlink -f ~/bin/python                    # resolve to real path
+    find . -type l                              # list all symlinks
+
+- term: "tarball"
+  full_form: "tar archive (.tar/.tar.gz)"
+  aliases: ["tarballs"]
+  explanation: >-
+    A single file that bundles a directory tree, produced by <code>tar</code>
+    (Tape ARchive). Commonly compressed with gzip (<code>.tar.gz</code> /
+    <code>.tgz</code>), bzip2 (<code>.tar.bz2</code>), or xz
+    (<code>.tar.xz</code>). The <code>tar</code> flags most people memorise:
+    <code>c</code> create, <code>x</code> extract, <code>v</code> verbose,
+    <code>f</code> filename, <code>z</code> gzip, <code>j</code> bzip2,
+    <code>J</code> xz. Often distributed alongside a
+    <span class="abbr-link" data-abbr="Symlink">symlink</span> like
+    <code>latest.tar.gz → v1.2.3.tar.gz</code>.
+  example: |-
+    tar czf archive.tar.gz dir/          # create gzip tarball
+    tar xzf archive.tar.gz              # extract
+    tar tzf archive.tar.gz | head       # list contents (no extract)
+    tar xzf archive.tar.gz -C /opt      # extract to specific dir
+
+- term: "Termux"
+  full_form: "Termux (Android terminal emulator)"
+  explanation: >-
+    An Android app that ships a near-complete Linux userland (apt
+    packages, busybox, ssh, python, node, vim, …) in a sandboxed home
+    directory — no root required. The 🤖 badge marks commands that work
+    out of the box inside Termux on a stock Android phone.
 
 - term: "TTY"
   full_form: "Teletype / Terminal Device"
@@ -197,10 +515,20 @@
     if [ -t 1 ]; then echo "interactive"; fi
     ls --color=auto                    # auto-detects via -t
 
-- term: "Termux"
-  full_form: "Termux (Android terminal emulator)"
+- term: "Working tree"
+  full_form: "Working Tree / Working Directory"
+  aliases: ["working directory", "worktree", "work tree"]
   explanation: >-
-    An Android app that ships a near-complete Linux userland (apt
-    packages, busybox, ssh, python, node, vim, …) in a sandboxed home
-    directory — no root required. The 🤖 badge marks commands that work
-    out of the box inside Termux on a stock Android phone.
+    In <span class="abbr-link" data-abbr="git">git</span> context, the
+    working tree is the checked-out set of files on disk that you actually
+    edit — as opposed to the index (staging area) or the committed history.
+    <code>git status</code> shows the difference between the working tree,
+    the index, and <code>HEAD</code>. Outside of git, <em>working
+    directory</em> simply means the current directory a process is running
+    in (print it with <code>pwd</code>; change it with <code>cd</code>).
+  example: |-
+    git status                    # working tree vs index vs HEAD
+    git diff                      # working tree vs index
+    git diff HEAD                 # working tree vs last commit
+    git restore file.txt          # discard working-tree changes
+    pwd                           # current working directory

@@ -4,40 +4,55 @@ batch:
   name: "Package Management"
   short_name: "Pkg Mgmt"
   description: >
-    Distribution package managers (apt, brew, pacman, dnf) and
-    language-level package managers (pip, npm, bundle, cargo). For each:
-    install, remove, upgrade, search, and inspect.
-  last_updated: "2026-05-21"
+    Distribution package managers (apt, brew, pacman, dnf, apk, flatpak,
+    snap) and language-level package managers (pip, pipx, npm, pnpm, cargo,
+    gem, bundle). For each: install, remove, upgrade, search, and inspect.
+  last_updated: "2026-05-23"
 
 entries:
   - name: "apt"
-    description: "Debian/Ubuntu package manager (newer wrapper around apt-get/apt-cache)."
-    syntax: "apt [update|upgrade|install|remove|search|show] [<pkg>...]"
+    description: "Debian/Ubuntu package manager — the user-facing wrapper around apt-get and apt-cache."
+    syntax: "apt [update|upgrade|install|remove|purge|autoremove|search|show] [<pkg>...]"
     os: [linux, root, android]
+    danger: caution
+    modern: "<code>apt</code> supersedes <code>apt-get</code>/<code>apt-cache</code> for interactive use; prefer <code>apt-get</code> in scripts for its stable CLI contract"
     flags:
       - flag: "update"
         description: "Refresh the package list from configured repos."
       - flag: "upgrade"
-        description: "Upgrade installed packages."
+        description: "Upgrade all installed packages to their latest available versions."
       - flag: "install <pkg>"
         description: "Install one or more packages."
       - flag: "remove <pkg>"
-        description: "Remove (keep config) a package."
+        description: "Remove a package but keep its config files."
       - flag: "purge <pkg>"
-        description: "Remove and delete config files."
+        description: "Remove a package and delete its config files."
       - flag: "autoremove"
-        description: "Drop orphaned dependencies."
+        description: "Drop orphaned dependencies no longer needed by any installed package."
       - flag: "search <pat>"
-        description: "Search the package index."
+        description: "Search package names and descriptions for a pattern."
+      - flag: "show <pkg>"
+        description: "Display detailed metadata for a package."
     examples:
-      - "sudo apt update && sudo apt upgrade -y"
-      - "sudo apt install build-essential git curl"
-      - "apt search ripgrep"
+      - code: "sudo apt update && sudo apt upgrade -y"
+        explain: "Refresh the package index then upgrade every installed package non-interactively — the standard full-system update one-liner."
+      - code: "sudo apt install build-essential git curl"
+        explain: "Install three packages at once — apt resolves and fetches all required dependencies automatically."
+      - code: "apt search ripgrep"
+        explain: "Search the package index for ripgrep without root — search and show never require sudo."
+      - code: "sudo apt purge nginx && sudo apt autoremove"
+        explain: "Remove nginx including its config files, then clean up any orphaned dependency packages left behind."
+    recipes:
+      - code: "sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y"
+        explain: "Full system refresh: sync the index, upgrade all packages, and prune orphans in one chained command — safe to alias as a daily maintenance routine."
+      - code: "sudo apt install -y --no-install-recommends python3 python3-pip"
+        explain: "Install packages without pulling in recommended extras — keeps the install lean, especially useful inside containers or CI."
     gotchas: >
       Always run <code>apt update</code> before <code>apt install</code> —
-      stale indexes cause "package not found" errors. <code>apt</code> is
-      the user-facing tool; <code>apt-get</code> is the more scriptable
-      stable interface (preferred in CI).
+      a stale index causes "package not found" errors even when the package
+      exists. <code>purge</code> deletes config files; <code>remove</code>
+      keeps them. Prefer <code>apt-get</code> in non-interactive scripts
+      (its output format and exit codes are stable across releases).
     see_also: ["apt-get", "dpkg"]
     references:
       - "man 8 apt"
@@ -46,6 +61,7 @@ entries:
     description: "Homebrew package manager for macOS (and Linux via Linuxbrew)."
     syntax: "brew [install|uninstall|upgrade|search|info|services] [<pkg>...]"
     os: [macos, linux, cross-platform]
+    danger: caution
     flags:
       - flag: "install <pkg>"
         description: "Install a formula."
@@ -54,118 +70,222 @@ entries:
       - flag: "uninstall <pkg>"
         description: "Remove a package."
       - flag: "upgrade"
-        description: "Upgrade everything (or a single named pkg)."
+        description: "Upgrade all installed formulae and casks (or a single named package)."
+      - flag: "update"
+        description: "Fetch the latest Homebrew and formula definitions from GitHub."
       - flag: "search <pat>"
-        description: "Search formulae and casks."
+        description: "Search formulae and casks by name or description."
+      - flag: "info <pkg>"
+        description: "Show metadata, deps, and installed status for a formula."
       - flag: "services [start|stop|restart] <pkg>"
-        description: "Manage launchd-driven services (macOS)."
+        description: "Manage launchd-driven services (macOS only)."
+      - flag: "list"
+        description: "List all installed formulae and casks."
     examples:
-      - "brew install jq ripgrep fzf"
-      - "brew install --cask visual-studio-code"
-      - "brew services restart postgresql@14"
+      - code: "brew install jq ripgrep fzf"
+        explain: "Install three CLI tools at once — Homebrew resolves and installs any shared dependencies automatically."
+      - code: "brew install --cask visual-studio-code"
+        explain: "Install a macOS GUI application via cask — Homebrew handles download, verification, and placing the .app in /Applications."
+      - code: "brew services restart postgresql@14"
+        explain: "Restart the PostgreSQL 14 launchd service managed by Homebrew without touching System Preferences."
+    recipes:
+      - code: "brew update && brew upgrade && brew cleanup"
+        explain: "Sync formula definitions, upgrade everything, then delete old cached downloads — the full Homebrew maintenance cycle."
+      - code: "brew install --cask firefox && brew list --casks"
+        explain: "Install Firefox as a cask, then confirm it appears in the installed cask list."
     gotchas: >
-      Don't <code>sudo brew</code> — Homebrew is designed to install into
-      a user-writable prefix and refuses elevated runs.
+      Never run <code>sudo brew</code> — Homebrew installs into a
+      user-writable prefix and refuses to run as root by design. On Apple
+      Silicon the prefix is <code>/opt/homebrew</code>; on Intel it is
+      <code>/usr/local</code> — scripts that hardcode the path will break
+      cross-architecture.
     see_also: ["port", "apt"]
     references:
       - "https://docs.brew.sh"
 
   - name: "pacman"
-    description: "Arch Linux package manager."
-    syntax: "pacman [-S|-R|-Q|-Sy|-Syu|-Ss] [<pkg>...]"
+    description: "Arch Linux package manager — fast, simple, and handles full system upgrades atomically."
+    syntax: "pacman [-S|-R|-Q|-Sy|-Syu|-Ss|-U] [<pkg>...]"
     os: [linux, root]
+    danger: caution
     flags:
       - flag: "-S <pkg>"
-        description: "Install or upgrade a package."
+        description: "Install or upgrade a package from the repos."
       - flag: "-Sy"
-        description: "Refresh the package database."
+        description: "Refresh the package database only."
       - flag: "-Syu"
-        description: "Refresh + full system upgrade."
+        description: "Refresh the database then perform a full system upgrade."
       - flag: "-R <pkg>"
-        description: "Remove a package."
+        description: "Remove a package, keeping orphaned dependencies."
       - flag: "-Rns <pkg>"
-        description: "Remove + deps + config files."
+        description: "Remove a package, its unneeded deps, and its config files."
       - flag: "-Ss <pat>"
-        description: "Search remote packages."
+        description: "Search remote package repos by name or description."
       - flag: "-Qi <pkg>"
-        description: "Show installed-package info."
+        description: "Show detailed info about an installed package."
+      - flag: "-Qe"
+        description: "List packages explicitly installed by the user (not pulled as deps)."
+      - flag: "-U <file.pkg.tar.zst>"
+        description: "Install a local package file."
     examples:
-      - "sudo pacman -Syu"
-      - "sudo pacman -S neovim ripgrep"
-      - "pacman -Ss ^rust$"
+      - code: "sudo pacman -Syu"
+        explain: "Sync the database and upgrade all installed packages — the correct way to keep an Arch system up to date."
+      - code: "sudo pacman -S neovim ripgrep"
+        explain: "Install two packages from the repos after verifying the database is already fresh."
+      - code: "pacman -Ss '^rust$'"
+        explain: "Search for a package whose name is exactly 'rust' — anchoring with ^ and $ avoids noisy partial matches."
+    recipes:
+      - code: "sudo pacman -Syu && pacman -Qe | wc -l"
+        explain: "Upgrade the full system, then count how many packages you've explicitly installed — a quick sanity check after a major upgrade."
+      - code: "sudo pacman -Rns $(pacman -Qdtq)"
+        explain: "Remove all orphaned dependency packages that are no longer needed by any explicitly installed package — the Arch equivalent of autoremove."
     gotchas: >
-      Never run <code>pacman -Sy &lt;pkg&gt;</code> on Arch — partial
-      upgrades break dependency chains. Always <code>-Syu</code>.
+      Never run <code>pacman -Sy &lt;pkg&gt;</code> (sync index only, then
+      install) on a running Arch system — partial upgrades break the
+      shared-library dependency chain and can render the system unbootable.
+      Always use <code>-Syu</code> to upgrade everything atomically first.
+      <code>-Rns</code> permanently deletes config files; <code>-R</code>
+      alone leaves them in place.
     see_also: ["yay", "paru", "dnf"]
     references:
       - "man 8 pacman"
 
   - name: "pip"
-    description: "Install Python packages from PyPI (or sources)."
+    description: "Install Python packages from PyPI — the standard tool for pure-Python library dependencies."
     syntax: "pip [install|uninstall|list|show|freeze] [<pkg>...]"
     os: [cross-platform]
+    danger: caution
+    modern: "<code>uv pip</code> is a drop-in replacement 10–100× faster; <code>pipx</code> handles CLI tool installs in isolated envs"
     flags:
       - flag: "install <pkg>"
-        description: "Install a package."
+        description: "Install a package from PyPI."
       - flag: "install -r requirements.txt"
-        description: "Install everything listed in the file."
+        description: "Install every dependency listed in a requirements file."
       - flag: "install -e <path>"
-        description: "Editable install (changes in source reflect immediately)."
+        description: "Editable install — changes to source code take effect immediately without reinstalling."
       - flag: "install --user <pkg>"
-        description: "Install into the user site, not the system."
+        description: "Install into the user site-packages, not the system Python."
+      - flag: "install -U <pkg>"
+        description: "Upgrade an already-installed package to the latest version."
       - flag: "uninstall <pkg>"
-        description: "Remove a package."
+        description: "Remove an installed package."
       - flag: "freeze"
-        description: "Dump installed package versions in requirements format."
+        description: "Dump all installed package versions in requirements.txt format."
       - flag: "list --outdated"
-        description: "Show packages with newer releases available."
+        description: "List installed packages that have newer releases available on PyPI."
     examples:
-      - "pip install requests"
-      - "pip install -r requirements.txt"
-      - "pip freeze > requirements.txt"
+      - code: "pip install requests"
+        explain: "Install the requests library from PyPI into the current Python environment — always run inside an activated venv."
+      - code: "pip install -r requirements.txt"
+        explain: "Install every package pinned in requirements.txt — the standard way to reproduce a project's dependencies."
+      - code: "pip freeze > requirements.txt"
+        explain: "Snapshot the exact versions of every installed package into requirements.txt for reproducible installs later."
+      - code: "pip list --outdated"
+        explain: "Show all installed packages that have newer versions available on PyPI — useful before a planned upgrade."
+    recipes:
+      - code: "python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt"
+        explain: "Create an isolated virtual environment, activate it, then install all project dependencies — the correct workflow that avoids polluting the system Python."
+      - code: "pip install -e . && pip install -r requirements-dev.txt"
+        explain: "Editable-install the current project plus its dev-only extras — standard setup for contributing to a Python library."
     gotchas: >
-      Don't <code>pip install</code> as root on a system Python — you'll
-      collide with the distro package manager (apt, dnf). Use
-      <code>python -m venv .venv && . .venv/bin/activate</code>, or
-      <code>pipx</code> for CLI tools, or <code>--user</code>. On modern
-      Debian/Ubuntu, system Python is "externally managed" and pip
-      refuses without <code>--break-system-packages</code>.
+      Never <code>pip install</code> as root on a system Python — it
+      collides with the distro package manager. On modern Debian/Ubuntu,
+      the system Python is "externally managed" and pip refuses unless
+      <code>--break-system-packages</code> is passed (a red flag to avoid).
+      Always use a <code>venv</code> or <code>pipx</code> for CLI tools.
     see_also: ["pipx", "uv", "poetry"]
     references:
       - "man 1 pip"
       - "https://pip.pypa.io/"
 
-  - name: "npm"
-    description: "Node.js package manager."
-    syntax: "npm [install|uninstall|update|run|publish|init] [<pkg>...]"
+  - name: "pipx"
+    description: "Install Python CLI tools into isolated per-tool virtual environments so they never conflict."
+    syntax: "pipx [install|uninstall|upgrade|run|list] <pkg>"
     os: [cross-platform]
+    danger: caution
+    modern: "<code>uv tool install</code> is a faster drop-in for <code>pipx install</code>"
     flags:
       - flag: "install <pkg>"
-        description: "Install into ./node_modules and add to package.json."
-      - flag: "install -g <pkg>"
-        description: "Install globally (system-wide CLI tools)."
-      - flag: "install --save-dev <pkg>"
-        description: "Add as devDependency."
-      - flag: "install"
-        description: "Install everything in package.json into ./node_modules."
-      - flag: "ci"
-        description: "Clean install — installs exactly what package-lock.json says."
-      - flag: "run <script>"
-        description: "Run a script defined in package.json scripts."
-      - flag: "update [<pkg>]"
-        description: "Update within semver ranges in package.json."
-      - flag: "outdated"
-        description: "List packages with newer releases available."
+        description: "Install a CLI tool into a dedicated venv and expose its binary on PATH."
+      - flag: "uninstall <pkg>"
+        description: "Remove a tool and its isolated environment."
+      - flag: "upgrade <pkg>"
+        description: "Upgrade a single installed tool to its latest version."
+      - flag: "upgrade-all"
+        description: "Upgrade every tool managed by pipx."
+      - flag: "run <pkg> [args...]"
+        description: "Fetch and run a tool without installing it — ephemeral, like npx."
+      - flag: "list"
+        description: "List all tools installed by pipx with their versions."
+      - flag: "inject <pkg> <dep>"
+        description: "Add an extra library into an existing tool's venv (for plugins)."
     examples:
-      - "npm install"
-      - "npm install --save-dev typescript"
-      - "npm ci"
-      - "npm run build"
+      - code: "pipx install black"
+        explain: "Install the Black formatter into its own isolated venv — the binary goes on PATH but its deps never touch the system Python."
+      - code: "pipx run httpie -- get https://httpbin.org/get"
+        explain: "Run httpie once without permanently installing it — pipx downloads, runs, and discards the temporary environment."
+      - code: "pipx upgrade-all"
+        explain: "Upgrade every tool managed by pipx to the latest version on PyPI in one command."
+    recipes:
+      - code: "pipx install ansible && pipx inject ansible jmespath"
+        explain: "Install Ansible into an isolated env then inject jmespath (an optional plugin dependency) into that same env without exposing it globally."
+      - code: "pipx install --include-deps tox && tox -e py311"
+        explain: "Install tox with all its entry points exposed, then run the Python 3.11 test environment — a clean, system-safe CI testing setup."
     gotchas: >
-      Use <code>npm ci</code> in CI — it errors instead of mutating
-      <code>package-lock.json</code>, and it's faster. Don't mix
-      <code>npm</code> and <code>yarn</code>/<code>pnpm</code> in the
-      same repo.
+      <code>pipx run</code> re-downloads the package every time by default;
+      add <code>--spec &lt;pkg&gt;==&lt;ver&gt;</code> to pin a version for
+      reproducible one-off runs. Tools installed via <code>pipx</code> do
+      not see each other's dependencies — if a tool needs a plugin,
+      use <code>pipx inject</code> rather than a bare pip install.
+    see_also: ["pip", "uv"]
+    references:
+      - "https://pipx.pypa.io"
+
+  - name: "npm"
+    description: "Node.js package manager — installs dependencies, runs scripts, and publishes packages."
+    syntax: "npm [install|uninstall|update|run|publish|init] [<pkg>...]"
+    os: [cross-platform]
+    danger: caution
+    modern: "<code>pnpm</code> or <code>bun</code> are faster drop-ins with stricter dependency isolation"
+    flags:
+      - flag: "install <pkg>"
+        description: "Install a package into ./node_modules and record it in package.json."
+      - flag: "install -g <pkg>"
+        description: "Install a package globally as a system-wide CLI tool."
+      - flag: "install --save-dev <pkg>"
+        description: "Install and record as a devDependency (not shipped in production)."
+      - flag: "install"
+        description: "Install every dependency listed in package.json."
+      - flag: "ci"
+        description: "Clean install — installs exactly what package-lock.json specifies, without updating it."
+      - flag: "run <script>"
+        description: "Run a script defined in the package.json scripts block."
+      - flag: "update [<pkg>]"
+        description: "Upgrade packages within the semver ranges declared in package.json."
+      - flag: "outdated"
+        description: "List packages that have newer releases available."
+      - flag: "uninstall <pkg>"
+        description: "Remove a package from node_modules and package.json."
+    examples:
+      - code: "npm install"
+        explain: "Install all dependencies from package.json into ./node_modules — the standard first step after cloning a Node project."
+      - code: "npm install --save-dev typescript"
+        explain: "Install TypeScript as a dev-only dependency, adding it to the devDependencies section of package.json."
+      - code: "npm ci"
+        explain: "Install exactly what package-lock.json says, erroring on any mismatch — the correct command for CI environments."
+      - code: "npm run build"
+        explain: "Execute the 'build' script defined in package.json — delegates to whatever bundler or compiler the project uses."
+    recipes:
+      - code: "npm ci && npm run lint && npm test && npm run build"
+        explain: "Full CI pipeline: reproducible install, lint, test, then build — run in this order to catch issues early."
+      - code: "npm install -g npm@latest && npm --version"
+        explain: "Upgrade npm itself to the latest release and confirm the new version — useful when npm warns about an outdated version."
+    gotchas: >
+      Use <code>npm ci</code> in CI — it errors instead of silently
+      mutating <code>package-lock.json</code>, and it's faster because it
+      skips dependency resolution. Never mix <code>npm</code> and
+      <code>yarn</code>/<code>pnpm</code> in the same repo — each writes
+      its own lockfile and they will conflict.
     see_also: ["npx", "pnpm", "yarn"]
     references:
       - "https://docs.npmjs.com"
@@ -174,197 +294,469 @@ entries:
     description: "Run a one-off npm package binary without installing it globally."
     syntax: "npx [-y] <package>[@version] [args...]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-y / --yes"
-        description: "Auto-accept install prompt."
+        description: "Auto-accept the install prompt without asking."
       - flag: "<pkg>@<ver>"
-        description: "Pin a specific version."
+        description: "Pin a specific version of the package to run."
       - flag: "--no"
-        description: "Don't attempt to install; only use a local binary."
+        description: "Never install — only use an already-available local binary."
+      - flag: "--package <pkg>"
+        description: "Install a package without running it (useful for adding to PATH temporarily)."
     examples:
-      - "npx create-vite my-app"
-      - "npx -y prettier --write \"src/**/*.ts\""
+      - code: "npx create-vite my-app"
+        explain: "Scaffold a new Vite project using create-vite without permanently installing the scaffolding tool."
+      - code: "npx -y prettier --write \"src/**/*.ts\""
+        explain: "Run Prettier over all TypeScript files in src/, auto-installing the package and skipping the confirmation prompt."
+    recipes:
+      - code: "npx serve dist/"
+        explain: "Spin up a local static HTTP server to preview a production build — no global install needed, great for one-off checks."
+      - code: "npx --yes npm-check-updates -u && npm install"
+        explain: "Upgrade all package.json version ranges to their latest releases using ncu, then reinstall — useful for major dependency audits."
+    gotchas: >
+      <code>npx</code> will silently install and execute packages from npm
+      — double-check the package name to avoid typosquatting attacks.
+      When a local <code>node_modules/.bin</code> binary matches the name,
+      npx runs that instead of downloading, which is usually the desired
+      behaviour.
     see_also: ["npm"]
     references:
       - "https://docs.npmjs.com/cli/v10/commands/npx"
 
   - name: "cargo"
-    description: "Rust package manager and build tool."
-    syntax: "cargo [new|build|run|test|add|publish] [<args>...]"
+    description: "Rust package manager and build tool — manages crate dependencies, compilation, and testing."
+    syntax: "cargo [new|build|run|test|add|install|publish] [<args>...]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "new <name>"
-        description: "Create a new project."
+        description: "Create a new Rust project directory with a Cargo.toml and src/main.rs."
       - flag: "build [--release]"
-        description: "Compile (release adds optimisation, removes debug)."
+        description: "Compile the project; --release enables optimisations and strips debug symbols."
       - flag: "run [-- <args>]"
-        description: "Build and execute (args after -- go to the binary)."
-      - flag: "test"
-        description: "Run unit and integration tests."
+        description: "Build and execute the binary; arguments after -- are passed to the program."
+      - flag: "test [<filter>]"
+        description: "Run unit and integration tests, optionally filtering by name."
       - flag: "add <crate>"
-        description: "Add a dependency to Cargo.toml."
+        description: "Add a dependency to Cargo.toml and update Cargo.lock."
       - flag: "install <crate>"
-        description: "Install a binary crate globally (~/.cargo/bin)."
+        description: "Compile and install a binary crate globally into ~/.cargo/bin."
+      - flag: "update"
+        description: "Update dependencies in Cargo.lock to the latest compatible versions."
+      - flag: "clippy"
+        description: "Run the Clippy linter for idiomatic Rust style suggestions."
     examples:
-      - "cargo new hello && cd hello"
-      - "cargo build --release"
-      - "cargo install ripgrep"
+      - code: "cargo new hello && cd hello && cargo run"
+        explain: "Scaffold a new Rust project, enter it, and run the hello-world binary — from zero to running in seconds."
+      - code: "cargo build --release"
+        explain: "Compile an optimised release build — the resulting binary is in target/release/ and ready for deployment."
+      - code: "cargo install ripgrep"
+        explain: "Compile and install ripgrep from crates.io into ~/.cargo/bin, making the rg command available globally."
+    recipes:
+      - code: "cargo test && cargo build --release"
+        explain: "Run the full test suite first, then produce an optimised release binary only if all tests pass — the correct CI sequence."
+      - code: "cargo add serde --features derive && cargo build"
+        explain: "Add serde with the derive feature flag to Cargo.toml, then verify the project still compiles."
+    gotchas: >
+      <code>cargo install</code> compiles from source — the first install
+      of a large crate like <code>rustc-serialize</code> can take several
+      minutes. Binary crates installed via <code>cargo install</code> are
+      not automatically updated; re-run <code>cargo install &lt;crate&gt;</code>
+      to upgrade, or use <code>cargo-update</code> (<code>cargo install
+      cargo-update</code>) for a bulk upgrade command.
     see_also: ["rustup"]
     references:
       - "https://doc.rust-lang.org/cargo/"
 
   - name: "bundle"
-    description: "Ruby's Bundler — manage gem dependencies per project."
-    syntax: "bundle [install|update|exec|add] [<gem>...]"
+    description: "Ruby's Bundler — manage gem dependencies per project using a Gemfile and Gemfile.lock."
+    syntax: "bundle [install|update|exec|add|check] [<gem>...]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "install"
-        description: "Install everything in Gemfile.lock."
+        description: "Install all gems specified in Gemfile.lock into the bundle."
       - flag: "update [<gem>]"
-        description: "Update gems within Gemfile constraints."
+        description: "Re-resolve and upgrade gems within the constraints in the Gemfile."
       - flag: "exec <cmd>"
-        description: "Run a command in the bundle context."
+        description: "Run a command in the context of the bundle (uses bundled gem versions)."
       - flag: "add <gem>"
-        description: "Add a gem to the Gemfile and install it."
+        description: "Add a gem to the Gemfile and install it immediately."
+      - flag: "check"
+        description: "Verify that all Gemfile dependencies are satisfied without installing."
+      - flag: "outdated"
+        description: "List gems that have newer versions available."
     examples:
-      - "bundle install"
-      - "bundle exec rake test"
-      - "bundle exec jekyll serve"
+      - code: "bundle install"
+        explain: "Install all gems from Gemfile.lock into the bundle — the first command to run after cloning a Ruby project."
+      - code: "bundle exec rake test"
+        explain: "Run rake test using the exact gem versions pinned in the Gemfile.lock rather than whatever gems are installed globally."
+      - code: "bundle exec jekyll serve"
+        explain: "Start the Jekyll dev server using the bundled Jekyll version — prevents version conflicts when multiple Ruby projects coexist."
+    recipes:
+      - code: "bundle install && bundle exec jekyll build"
+        explain: "Install all dependencies then run a Jekyll build — the reproducible two-step for any Jekyll CI job."
+      - code: "bundle update jekyll && bundle exec jekyll serve"
+        explain: "Upgrade only the jekyll gem within Gemfile constraints, then verify the site still serves correctly."
+    gotchas: >
+      Always prefix Ruby commands with <code>bundle exec</code> in a
+      Bundler project — running a gem binary directly uses the globally
+      installed version, which may differ from what Gemfile.lock specifies
+      and cause subtle incompatibilities. Commit <code>Gemfile.lock</code>
+      for applications (reproducible installs) but not for libraries
+      (allows downstream flexibility).
     see_also: ["gem"]
     references:
       - "https://bundler.io"
 
   - name: "dnf"
-    description: "Fedora / RHEL package manager (successor to yum)."
-    syntax: "dnf [install|remove|update|search|info|list] [<pkg>...]"
+    description: "Fedora and RHEL package manager — the modern successor to yum with improved dependency resolution."
+    syntax: "dnf [install|remove|upgrade|search|info|list|group] [<pkg>...]"
     os: [linux, root]
+    danger: caution
+    modern: "<code>dnf</code> replaces <code>yum</code> — same subcommands, faster solver, and better output"
     flags:
       - flag: "install <pkg>"
-        description: "Install one or more packages."
+        description: "Install one or more packages from configured repos."
       - flag: "remove <pkg>"
-        description: "Uninstall a package."
-      - flag: "update [<pkg>]"
-        description: "Upgrade everything (or a single package)."
+        description: "Uninstall a package and, by default, its unneeded dependencies."
+      - flag: "upgrade [<pkg>]"
+        description: "Upgrade all installed packages (or a single named package)."
       - flag: "search <pat>"
-        description: "Search package names + summaries."
+        description: "Search package names and summaries for a pattern."
+      - flag: "info <pkg>"
+        description: "Show detailed metadata for a package."
       - flag: "list installed"
-        description: "List installed packages."
+        description: "List all currently installed packages."
       - flag: "group install <grp>"
-        description: "Install a package group (e.g. \"Development Tools\")."
+        description: "Install a predefined package group such as \"Development Tools\"."
+      - flag: "autoremove"
+        description: "Remove packages installed as dependencies that are no longer needed."
+      - flag: "history"
+        description: "Show the transaction history — useful for auditing or undoing changes."
     examples:
-      - "sudo dnf update"
-      - "sudo dnf install neovim ripgrep"
-      - "dnf search ripgrep"
+      - code: "sudo dnf upgrade --refresh"
+        explain: "Force-refresh the repo metadata then upgrade all installed packages — the reliable full-system update command."
+      - code: "sudo dnf install neovim ripgrep"
+        explain: "Install two packages at once; dnf resolves all transitive dependencies before asking for confirmation."
+      - code: "dnf search ripgrep"
+        explain: "Search package names and summaries for 'ripgrep' without requiring root — read-only operations never need sudo."
+    recipes:
+      - code: "sudo dnf upgrade -y && sudo dnf autoremove -y"
+        explain: "Fully upgrade the system and remove orphaned packages in one non-interactive sweep — useful in provisioning scripts."
+      - code: "sudo dnf group install -y \"Development Tools\" && sudo dnf install git curl"
+        explain: "Install the Development Tools group (gcc, make, etc.) plus git and curl — the standard setup for a fresh Fedora/RHEL dev machine."
+    gotchas: >
+      <code>dnf remove</code> also removes dependent packages by default —
+      inspect the removal list carefully before confirming. Use
+      <code>dnf history undo last</code> to roll back the most recent
+      transaction if a removal goes wrong. On RHEL 8/9 the command may be
+      <code>dnf4</code> or aliased — check which binary is active.
     see_also: ["yum", "rpm", "apt"]
     references:
       - "man 8 dnf"
 
   - name: "apk"
-    description: "Alpine Linux package manager — used heavily in container images."
+    description: "Alpine Linux package manager — lean and fast, commonly used in Docker container images."
     syntax: "apk [add|del|update|upgrade|search|info] [<pkg>...]"
     os: [linux, root]
+    danger: caution
     flags:
       - flag: "add <pkg>"
         description: "Install a package."
       - flag: "add --no-cache <pkg>"
-        description: "Don't store the index (saves space in containers)."
+        description: "Install without storing the package index — saves space in container layers."
       - flag: "del <pkg>"
         description: "Remove a package."
       - flag: "update"
-        description: "Refresh the index."
+        description: "Refresh the package index from configured repositories."
       - flag: "upgrade"
-        description: "Upgrade installed packages."
+        description: "Upgrade all installed packages to their latest available versions."
       - flag: "search <pat>"
-        description: "Search the index."
+        description: "Search the package index for a pattern."
+      - flag: "info <pkg>"
+        description: "Display metadata and file list for an installed package."
     examples:
-      - "apk add --no-cache curl jq"
-      - "apk update && apk upgrade"
+      - code: "apk add --no-cache curl jq"
+        explain: "Install curl and jq without caching the package index — the canonical Dockerfile pattern that keeps image layers small."
+      - code: "apk update && apk upgrade"
+        explain: "Refresh the index then upgrade all installed packages — the Alpine equivalent of apt update && apt upgrade."
+    recipes:
+      - code: "apk add --no-cache bash git openssh-client && git clone git@github.com:org/repo.git"
+        explain: "Minimal Alpine container setup: install only the tools needed for a Git SSH clone, then use them immediately."
+      - code: "apk search -e git"
+        explain: "Search for a package whose name is exactly 'git' using the exact-match flag — avoids noise from partial matches like git-lfs."
     gotchas: >
-      The <code>--no-cache</code> idiom is the canonical way to avoid
-      ballooning Alpine container layers — equivalent to
-      <code>apk add … && rm -rf /var/cache/apk/*</code> in one step.
+      The <code>--no-cache</code> flag is the canonical way to avoid
+      bloating Alpine container layers — it is equivalent to
+      <code>apk add … && rm -rf /var/cache/apk/*</code> but done in a
+      single step. Alpine uses musl libc, not glibc — some binaries
+      compiled for standard Linux will not run or require the
+      <code>libc6-compat</code> compatibility package.
     see_also: ["apt", "dnf"]
     references:
       - "https://wiki.alpinelinux.org/wiki/Alpine_Package_Keeper"
 
   - name: "dpkg"
-    description: "Low-level Debian package tool — install / inspect / list .deb files."
+    description: "Low-level Debian package tool — install, remove, and inspect individual .deb files."
     syntax: "dpkg [-i|-r|-l|-L|-S] [<pkg>|<file>]"
     os: [linux, root]
+    danger: caution
     flags:
       - flag: "-i <file.deb>"
-        description: "Install a .deb file (no dependency resolution — use apt for that)."
+        description: "Install a .deb file directly — does not resolve dependencies, use apt for that."
       - flag: "-r <pkg>"
-        description: "Remove an installed package."
+        description: "Remove an installed package, keeping its config files."
       - flag: "-l [<pat>]"
-        description: "List installed packages (optionally matching a pattern)."
+        description: "List installed packages, optionally filtered by a glob pattern."
       - flag: "-L <pkg>"
-        description: "List files installed by a package."
+        description: "List all files installed by a package."
       - flag: "-S <file>"
-        description: "Find which package owns a file."
+        description: "Find which installed package owns a given file path."
+      - flag: "--get-selections"
+        description: "Dump the install/hold/deinstall state of all packages — useful for backups."
     examples:
-      - "sudo dpkg -i pkg.deb"
-      - "dpkg -l | grep nginx"
-      - "dpkg -S /usr/bin/curl"
+      - code: "sudo dpkg -i pkg.deb"
+        explain: "Install a downloaded .deb package file — if it fails due to missing dependencies, follow up with sudo apt-get install -f."
+      - code: "dpkg -l | grep nginx"
+        explain: "List installed packages and filter for nginx — a quick way to check whether a package is installed and see its version."
+      - code: "dpkg -S /usr/bin/curl"
+        explain: "Find which installed package provides the curl binary — useful for auditing which package owns an unexpected file."
+    recipes:
+      - code: "sudo dpkg -i package.deb; sudo apt-get install -f -y"
+        explain: "Install a .deb file, then immediately repair any unsatisfied dependencies that dpkg could not resolve on its own."
+      - code: "dpkg -l | awk '/^ii/{print $2}' > installed-packages.txt"
+        explain: "Export a list of all installed packages to a file — useful for snapshotting system state before a major change."
     gotchas: >
-      <code>dpkg -i</code> doesn't resolve dependencies — if the install
-      fails with "depends on…", follow up with <code>sudo apt-get
-      install -f</code> to repair.
+      <code>dpkg -i</code> does not resolve dependencies — the install
+      will fail with "depends on…" errors if prerequisites are missing.
+      Follow up with <code>sudo apt-get install -f</code> to fetch and
+      install the missing deps automatically. Use <code>apt</code> instead
+      of <code>dpkg</code> whenever possible for automatic dependency
+      handling.
     see_also: ["apt", "apt-get"]
     references:
       - "man 1 dpkg"
 
   - name: "yarn"
-    description: "Alternative Node.js package manager (faster, deterministic — competes with npm)."
+    description: "Alternative Node.js package manager — deterministic installs via a lockfile, workspaces support."
     syntax: "yarn [install|add|remove|run|upgrade] [<pkg>...]"
     os: [cross-platform]
+    danger: caution
+    modern: "<code>pnpm</code> or <code>bun</code> offer comparable speed with stricter hoisting rules"
     flags:
       - flag: "install"
-        description: "Install everything in package.json."
+        description: "Install all dependencies from yarn.lock into node_modules."
       - flag: "add <pkg>"
-        description: "Add a dependency."
+        description: "Add a dependency and update yarn.lock."
       - flag: "add -D <pkg>"
-        description: "Add as devDependency."
+        description: "Add as a devDependency."
       - flag: "remove <pkg>"
-        description: "Remove a dependency."
+        description: "Remove a dependency from package.json and yarn.lock."
       - flag: "run <script>"
-        description: "Run a script defined in package.json (or just `yarn <script>`)."
+        description: "Run a script defined in package.json (shorthand: yarn <script>)."
       - flag: "upgrade [<pkg>]"
-        description: "Upgrade within semver ranges."
+        description: "Upgrade packages within the semver ranges in package.json."
+      - flag: "workspaces foreach run build"
+        description: "Run the build script in every workspace (Yarn Berry monorepos)."
     examples:
-      - "yarn install"
-      - "yarn add react react-dom"
-      - "yarn dev"
+      - code: "yarn install"
+        explain: "Install all project dependencies from yarn.lock — the equivalent of npm ci for deterministic Yarn installs."
+      - code: "yarn add react react-dom"
+        explain: "Add React and ReactDOM as production dependencies, updating both package.json and yarn.lock in one step."
+      - code: "yarn dev"
+        explain: "Run the 'dev' script from package.json — Yarn allows omitting 'run' for scripts that don't conflict with built-in commands."
+    recipes:
+      - code: "yarn install --frozen-lockfile && yarn lint && yarn build"
+        explain: "CI-safe install that errors if yarn.lock is out of date, followed by lint and build — the standard Yarn CI pipeline."
+      - code: "yarn upgrade-interactive"
+        explain: "Open an interactive prompt showing outdated packages and letting you choose which to upgrade — safer than a blind upgrade-all."
     gotchas: >
-      Classic (v1) and Berry (v2+) have meaningfully different
+      Classic Yarn v1 and Berry (v2+) have meaningfully different
       behaviours — Berry's Plug'n'Play mode bypasses
-      <code>node_modules</code> entirely and breaks some tooling. Check
-      <code>.yarnrc.yml</code> if things behave oddly.
+      <code>node_modules</code> entirely and breaks some tooling that
+      assumes the directory exists. Check <code>.yarnrc.yml</code> if
+      things behave oddly; the presence of that file means Berry.
     see_also: ["npm", "pnpm", "bun"]
     references:
       - "https://yarnpkg.com"
 
   - name: "pnpm"
-    description: "Performant, disk-efficient Node package manager (shared content-addressable store)."
-    syntax: "pnpm [install|add|remove|run|exec] [<pkg>...]"
+    description: "Performant, disk-efficient Node package manager using a shared content-addressable store."
+    syntax: "pnpm [install|add|remove|run|exec|dlx] [<pkg>...]"
     os: [cross-platform]
+    danger: caution
+    modern: "<code>bun</code> is a comparable alternative; both outperform <code>npm</code> on install speed"
     flags:
       - flag: "install"
-        description: "Install everything in package.json (alias: i)."
+        description: "Install all dependencies from the lockfile (alias: i)."
       - flag: "add <pkg>"
         description: "Add a dependency (-D for dev, -O for optional, -g for global)."
       - flag: "remove <pkg>"
-        description: "Remove a dependency."
+        description: "Remove a dependency from package.json and the lockfile."
       - flag: "run <script>"
-        description: "Run a script."
+        description: "Run a script from package.json."
       - flag: "exec <cmd>"
-        description: "Run a binary from node_modules/.bin."
+        description: "Run a binary from node_modules/.bin without 'run'."
+      - flag: "dlx <pkg>"
+        description: "Fetch and execute a package in a temporary environment — pnpm's equivalent of npx."
       - flag: "-w / --workspace-root"
-        description: "Operate on the workspace root in a monorepo."
+        description: "Operate on the monorepo workspace root instead of the current package."
+      - flag: "--filter <pattern>"
+        description: "Scope the command to matching workspace packages."
     examples:
-      - "pnpm install"
-      - "pnpm add -D typescript"
-      - "pnpm -w build"
+      - code: "pnpm install"
+        explain: "Install all dependencies from pnpm-lock.yaml — faster than npm install because packages are hard-linked from the shared store."
+      - code: "pnpm add -D typescript"
+        explain: "Add TypeScript as a dev dependency, writing to both package.json and pnpm-lock.yaml."
+      - code: "pnpm -w build"
+        explain: "Run the build script at the workspace root — the standard way to trigger a monorepo-wide build with pnpm."
+    recipes:
+      - code: "pnpm install --frozen-lockfile && pnpm run lint && pnpm run build"
+        explain: "CI pipeline: reproducible install that errors on lockfile drift, followed by lint and build."
+      - code: "pnpm dlx create-next-app@latest my-app"
+        explain: "Scaffold a Next.js app using the latest create-next-app without permanently installing it — the pnpm alternative to npx."
+    gotchas: >
+      pnpm's strict symlinked <code>node_modules</code> layout means
+      packages cannot accidentally import unlisted dependencies (phantom
+      deps) — a feature, but it can break code that relies on npm/yarn's
+      flat hoisting. Set <code>shamefully-hoist=true</code> in
+      <code>.npmrc</code> only as a last resort; prefer fixing the actual
+      dependency declaration.
     see_also: ["npm", "yarn"]
     references:
       - "https://pnpm.io/cli"
+
+  - name: "flatpak"
+    description: "Install sandboxed Linux desktop applications from Flathub and other remotes, distribution-agnostic."
+    syntax: "flatpak [install|uninstall|update|run|list|search] [<remote>] <app>"
+    os: [linux]
+    danger: caution
+    flags:
+      - flag: "install <remote> <app>"
+        description: "Install an application from a configured remote (e.g. flathub)."
+      - flag: "uninstall <app>"
+        description: "Remove an installed Flatpak application."
+      - flag: "update"
+        description: "Update all installed Flatpak applications and runtimes."
+      - flag: "run <app>"
+        description: "Launch an installed Flatpak application."
+      - flag: "list"
+        description: "List all installed Flatpak applications and runtimes."
+      - flag: "search <pat>"
+        description: "Search for applications across all configured remotes."
+      - flag: "remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo"
+        description: "Add the Flathub remote if it is not already configured."
+    examples:
+      - code: "flatpak install flathub org.videolan.VLC"
+        explain: "Install VLC from Flathub into a sandboxed environment — works on any systemd-capable Linux distribution without root."
+      - code: "flatpak update"
+        explain: "Update all installed Flatpak apps and their shared runtimes to the latest versions."
+      - code: "flatpak list --app"
+        explain: "List only installed applications (excluding runtimes) — gives a clean view of what end-user apps are managed by Flatpak."
+    recipes:
+      - code: "flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak install -y flathub org.gimp.GIMP"
+        explain: "Ensure Flathub is configured, then install GIMP non-interactively — the standard first-run setup on a new machine."
+      - code: "flatpak update -y && flatpak uninstall --unused -y"
+        explain: "Update all apps then remove unused runtimes that no installed application depends on any more — keeps disk usage tidy."
+    gotchas: >
+      Flatpak apps run in a sandbox with restricted access to the host
+      filesystem — some apps need extra permissions granted via
+      <code>flatpak override --user --filesystem=home &lt;app&gt;</code>
+      (or the Flatseal GUI). Runtimes are shared between apps but can
+      accumulate; run <code>flatpak uninstall --unused</code> periodically
+      to reclaim space.
+    see_also: ["snap", "apt", "dnf"]
+    references:
+      - "https://docs.flatpak.org"
+
+  - name: "snap"
+    description: "Install sandboxed snap packages from the Snap Store — cross-distribution, auto-updating."
+    syntax: "snap [install|remove|refresh|find|list|info] [<pkg>]"
+    os: [linux]
+    danger: caution
+    flags:
+      - flag: "install <pkg>"
+        description: "Install a snap from the Snap Store."
+      - flag: "install --classic <pkg>"
+        description: "Install in classic confinement mode — full filesystem access, required by some developer tools."
+      - flag: "remove <pkg>"
+        description: "Remove an installed snap and its data."
+      - flag: "refresh [<pkg>]"
+        description: "Update all installed snaps (or a single named snap) to the latest channel version."
+      - flag: "find <pat>"
+        description: "Search the Snap Store for matching applications."
+      - flag: "list"
+        description: "List all installed snaps with channel and version info."
+      - flag: "info <pkg>"
+        description: "Show available channels, version, size, and confinement details for a snap."
+    examples:
+      - code: "sudo snap install code --classic"
+        explain: "Install VS Code in classic confinement mode — required because VS Code needs unrestricted filesystem access."
+      - code: "snap refresh"
+        explain: "Update all installed snaps to the latest release on their configured channel — snaps auto-refresh by default but this triggers it immediately."
+      - code: "snap find gimp"
+        explain: "Search the Snap Store for GIMP without root — find and list are read-only and never require sudo."
+    recipes:
+      - code: "sudo snap install node --classic --channel=22/stable && node --version"
+        explain: "Install Node.js 22 LTS via snap in classic mode, then verify the installed version — a quick way to get a specific Node channel."
+      - code: "snap list && sudo snap refresh"
+        explain: "List all installed snaps and their versions, then update everything — useful for an ad-hoc maintenance pass."
+    gotchas: >
+      Snaps run as squashfs images mounted at <code>/snap/&lt;name&gt;</code>
+      — they add mount points and may slow cold startup. Classic confinement
+      (<code>--classic</code>) removes sandboxing entirely; treat classic
+      snaps with the same trust as native packages. Snap Store is
+      proprietary and controlled by Canonical; organisations requiring
+      air-gap installs should consider Flatpak instead.
+    see_also: ["flatpak", "apt"]
+    references:
+      - "https://snapcraft.io/docs"
+
+  - name: "gem"
+    description: "Ruby's built-in package manager — install, manage, and publish RubyGems globally or per-user."
+    syntax: "gem [install|uninstall|update|list|search|info] [<gem>...]"
+    os: [cross-platform]
+    danger: caution
+    flags:
+      - flag: "install <gem>"
+        description: "Install a gem from RubyGems.org."
+      - flag: "install <gem> -v <version>"
+        description: "Install a specific version of a gem."
+      - flag: "uninstall <gem>"
+        description: "Remove an installed gem."
+      - flag: "update [<gem>]"
+        description: "Upgrade all installed gems (or a single named gem) to their latest versions."
+      - flag: "list [<pat>]"
+        description: "List locally installed gems, optionally filtered by a pattern."
+      - flag: "search <pat>"
+        description: "Search RubyGems.org for gems matching a pattern."
+      - flag: "info <gem>"
+        description: "Show metadata for an installed gem."
+      - flag: "--user-install"
+        description: "Install the gem into the user's home directory, not the system Ruby."
+    examples:
+      - code: "gem install bundler"
+        explain: "Install the Bundler gem globally — the first step on any fresh Ruby setup before working with a Gemfile-based project."
+      - code: "gem list"
+        explain: "List all gems installed in the current Ruby environment — useful for auditing what is available system-wide."
+      - code: "gem update --system"
+        explain: "Upgrade RubyGems itself to the latest release — run this before installing gems on a freshly provisioned system."
+    recipes:
+      - code: "gem install bundler jekyll && bundle init"
+        explain: "Install Bundler and Jekyll globally, then initialise a fresh Gemfile in the current directory — the starting point for a new Jekyll site."
+      - code: "gem update && gem cleanup"
+        explain: "Upgrade all installed gems then remove outdated versions no longer needed — keeps the gem environment lean."
+    gotchas: >
+      Avoid <code>sudo gem install</code> on a system Ruby — writing to
+      the system gem path risks breaking OS tools that depend on specific
+      gem versions (macOS is particularly fragile here). Use
+      <code>rbenv</code> or <code>rvm</code> to manage per-project Ruby
+      versions, or pass <code>--user-install</code> to install into
+      <code>~/.gem</code>. In Bundler-managed projects, prefer
+      <code>bundle add &lt;gem&gt;</code> over bare <code>gem install</code>.
+    see_also: ["bundle", "rbenv"]
+    references:
+      - "man 1 gem"
+      - "https://guides.rubygems.org"
