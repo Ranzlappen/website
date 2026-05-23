@@ -18,7 +18,7 @@
       input: 'Email me at alice@example.com or bob@example.org.\nLast update: 2026-05-21.'
     };
 
-    var title = CMDW.el('h3', { className: 'cmd-widget__title', text: 'regex tester' });
+    var body = CMDW.makeShell(root, 'regex tester');
     var lede = CMDW.el('p', { className: 'cmd-widget__lede', text: 'Live-test a regular expression against a sample string. Matches highlight as you type. The flavour selector is for orientation only — the engine is JavaScript\'s native RegExp.' });
 
     // Pattern row
@@ -67,14 +67,13 @@
     // Captures list
     var captures = CMDW.el('div', { className: 'cmd-widget__regex-captures' });
 
-    root.appendChild(title);
-    root.appendChild(lede);
-    root.appendChild(patternRow);
-    root.appendChild(flavourRow);
-    root.appendChild(textRow);
-    root.appendChild(status);
-    root.appendChild(pane);
-    root.appendChild(captures);
+    body.appendChild(lede);
+    body.appendChild(patternRow);
+    body.appendChild(flavourRow);
+    body.appendChild(textRow);
+    body.appendChild(status);
+    body.appendChild(pane);
+    body.appendChild(captures);
 
     function escapeHtml(s) {
       return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

@@ -19,7 +19,7 @@
       action: 'print'   // 'print' | 'delete' | 'exec'
     };
 
-    var title = CMDW.el('h3', { className: 'cmd-widget__title', text: 'find builder' });
+    var body = CMDW.makeShell(root, 'find builder');
     var lede = CMDW.el('p', { className: 'cmd-widget__lede', text: 'Compose a `find` invocation from a path + test fields + an action. Output is shell-escaped and ready to copy.' });
 
     function row(label, control) {
@@ -105,15 +105,14 @@
 
     var out = CMDW.makeOutput('Composed command');
 
-    root.appendChild(title);
-    root.appendChild(lede);
-    root.appendChild(row('Search path', pathInput));
-    root.appendChild(nameRow);
-    root.appendChild(row('Type', typeSel));
-    root.appendChild(mtimeRow);
-    root.appendChild(sizeRow);
-    root.appendChild(row('Action', actionSel));
-    root.appendChild(out.el);
+    body.appendChild(lede);
+    body.appendChild(row('Search path', pathInput));
+    body.appendChild(nameRow);
+    body.appendChild(row('Type', typeSel));
+    body.appendChild(mtimeRow);
+    body.appendChild(sizeRow);
+    body.appendChild(row('Action', actionSel));
+    body.appendChild(out.el);
 
     function render() {
       var parts = ['find'];

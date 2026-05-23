@@ -26,6 +26,12 @@
                                             columns     — array<string>
                                             rows        — array<array<string>>
                                             footnote    — optional string
+                        aliases         — optional array<string> of extra
+                                          lookup keys (case/plural variants).
+                                          Each is emitted into the JSON island
+                                          as {"aliasOf": term} so it decorates
+                                          and opens the canonical card. Not
+                                          rendered as its own grid card.
                       (typically site.data.abbreviations.<page_key>).
     include.heading — optional section heading text (defaults below).
     include.intro   — optional <p> shown above the grid.
@@ -81,7 +87,8 @@
           "footnote": {{ entry.interpretation.footnote | jsonify }}{% endif %}
         },{% endif %}
         "body": {{ entry.explanation | jsonify }}
-      }{% unless forloop.last %},{% endunless %}
+      }{% if entry.aliases %}{% for a in entry.aliases %},
+      {{ a | jsonify }}: { "aliasOf": {{ entry.term | jsonify }} }{% endfor %}{% endif %}{% unless forloop.last %},{% endunless %}
     {% endfor %}
   }
 </script>

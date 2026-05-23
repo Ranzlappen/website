@@ -29,7 +29,7 @@
     var special = { setuid: false, setgid: false, sticky: false };
     var pathName = '<file>';
 
-    var title = CMDW.el('h3', { className: 'cmd-widget__title', text: 'chmod calculator' });
+    var body = CMDW.makeShell(root, 'chmod calculator');
     var lede  = CMDW.el('p', { className: 'cmd-widget__lede', text: 'Toggle the per-role read/write/execute boxes and the special bits to see the octal mode, the symbolic form, and a ready-to-copy chmod invocation.' });
 
     // Permission grid
@@ -87,14 +87,13 @@
     var symbolicOut = CMDW.makeOutput('Symbolic');
     var cmdOut = CMDW.makeOutput('Command');
 
-    root.appendChild(title);
-    root.appendChild(lede);
-    root.appendChild(grid);
-    root.appendChild(specialWrap);
-    root.appendChild(nameWrap);
-    root.appendChild(octalOut.el);
-    root.appendChild(symbolicOut.el);
-    root.appendChild(cmdOut.el);
+    body.appendChild(lede);
+    body.appendChild(grid);
+    body.appendChild(specialWrap);
+    body.appendChild(nameWrap);
+    body.appendChild(octalOut.el);
+    body.appendChild(symbolicOut.el);
+    body.appendChild(cmdOut.el);
 
     function recompute() {
       // Sync state from checkboxes

@@ -39,8 +39,11 @@
   // text inside SVG <text> with HTML <span>s breaks SVG rendering; <code>
   // contains part numbers / unit values that collide with future glossary
   // terms; form controls have no prose-text descendants worth touching.
-  var SKIP_TAGS = { SCRIPT: 1, STYLE: 1, CODE: 1, INPUT: 1, TEXTAREA: 1,
-                    SELECT: 1, BUTTON: 1, SVG: 1 };
+  // Carve-out: a <code class="abbr-decorate-code"> opts back in — used by the
+  // CLI cheat sheet so command tokens inside worked examples (grep, curl, |,
+  // regex…) become clickable glossary triggers. Over-matching risk accepted.
+  var SKIP_TAGS = { SCRIPT: 1, STYLE: 1, INPUT: 1, TEXTAREA: 1,
+                    SELECT: 1, SVG: 1 };
 
   function decorate(root) {
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -55,6 +58,10 @@
             return NodeFilter.FILTER_REJECT;
           }
           if (p.tagName && SKIP_TAGS[p.tagName.toUpperCase()]) return NodeFilter.FILTER_REJECT;
+          if (p.tagName && p.tagName.toUpperCase() === 'CODE' &&
+              !(p.classList && p.classList.contains('abbr-decorate-code'))) {
+            return NodeFilter.FILTER_REJECT;
+          }
           if (p.namespaceURI === 'http://www.w3.org/2000/svg') return NodeFilter.FILTER_REJECT;
           p = p.parentNode;
         }
@@ -178,6 +185,18 @@
     panel.appendChild(termEl);
     panel.appendChild(expansionEl);
 
+    // Visible lead prose (not collapsed). Used by inline example modals to
+    // show "what this command does" up front; glossary terms inside it are
+    // auto-decorated so the reader can drill further.
+    if (def.lead) {
+      var leadEl = document.createElement('div');
+      leadEl.className = 'abbr-modal__lead';
+      leadEl.innerHTML = def.lead;
+      wireAbbrLinks(leadEl);
+      decorate(leadEl);
+      panel.appendChild(leadEl);
+    }
+
     // Plain-English section (beginner-first).
     if (hasPlain) {
       var plainWrap = document.createElement('div');
@@ -232,19 +251,23 @@
 
     // Technical body. Collapsed by default when a plain blurb exists so
     // beginners see the friendly text first; open by default otherwise so
-    // entries without a plain blurb behave identically to before.
-    var technicalDetails = document.createElement('details');
-    technicalDetails.className = 'abbr-modal__technical';
-    technicalDetails.open = !hasPlain;
-    var technicalSummary = document.createElement('summary');
-    technicalSummary.textContent = 'Technical detail';
-    technicalDetails.appendChild(technicalSummary);
-    var bodyEl = document.createElement('div');
-    bodyEl.className = 'abbr-modal__body';
-    bodyEl.innerHTML = def.body || '';
-    wireAbbrLinks(bodyEl);
-    technicalDetails.appendChild(bodyEl);
-    panel.appendChild(technicalDetails);
+    // entries without a plain blurb behave identically to before. Skipped
+    // entirely when there's no body (e.g. inline example modals that carry
+    // only a lead + example).
+    if (def.body) {
+      var technicalDetails = document.createElement('details');
+      technicalDetails.className = 'abbr-modal__technical';
+      technicalDetails.open = !hasPlain;
+      var technicalSummary = document.createElement('summary');
+      technicalSummary.textContent = 'Technical detail';
+      technicalDetails.appendChild(technicalSummary);
+      var bodyEl = document.createElement('div');
+      bodyEl.className = 'abbr-modal__body';
+      bodyEl.innerHTML = def.body || '';
+      wireAbbrLinks(bodyEl);
+      technicalDetails.appendChild(bodyEl);
+      panel.appendChild(technicalDetails);
+    }
 
     m.appendChild(backdrop);
     m.appendChild(panel);
@@ -254,13 +277,39 @@
     return m;
   }
 
-  function openModal(term) {
-    var def = DICT[term] || { expansion: term, body: term };
-    var m = buildModal(term, def);
+  // Resolve a lookup key to its canonical {term, def}. An entry whose only
+  // field is `aliasOf` redirects to its canonical term (so `globs`, `regexes`,
+  // lowercase `posix` etc. open the real Glob / Regex / POSIX card).
+  function resolveDef(term) {
+    var def = DICT[term];
+    if (def && def.aliasOf && DICT[def.aliasOf]) {
+      return { term: def.aliasOf, def: DICT[def.aliasOf] };
+    }
+    return { term: term, def: def || { expansion: term, body: term } };
+  }
+
+  function pushModal(m) {
     document.body.appendChild(m);
     document.body.classList.add('abbr-modal-open');
     modalStack.push({ modal: m, lastFocus: document.activeElement });
     m.querySelector('.abbr-modal__close').focus();
+  }
+
+  function openModal(term) {
+    var r = resolveDef(term);
+    pushModal(buildModal(r.term, r.def));
+  }
+
+  // Open a modal from inline content rather than a dictionary entry. Used for
+  // the cheat sheet's worked-example explanations: heading = command name,
+  // example = the invocation, lead = what it does (with terms auto-linked).
+  function openInline(opts) {
+    opts = opts || {};
+    pushModal(buildModal(opts.heading || 'Example', {
+      expansion: opts.expansion || '',
+      lead: opts.lead || '',
+      example: opts.example || null
+    }));
   }
 
   function closeModal(m) {
@@ -305,4 +354,12 @@
     if (!e.target.closest(ACTIVATE_SELECTOR)) return;
     activateFromEvent(e);
   });
+
+  // Public API for pages that need to drive the modal/decoration directly
+  // (e.g. cmd-cheat-sheet.js wires worked-example clicks to openInline).
+  window.Glossary = {
+    openTerm: openModal,
+    openInline: openInline,
+    decorate: decorate
+  };
 })();
