@@ -8,9 +8,9 @@
 
 /* ---- Desktop column min-widths ---- */
 .reference-page--cmd .reference-table {
-  min-width: 2300px;
+  min-width: 2180px;
 }
-.reference-page--cmd .reference-table .col-name     { min-width: 10rem; width: 10rem; }
+.reference-page--cmd .reference-table .col-name     { min-width: 11rem; width: 11rem; }
 .reference-page--cmd .reference-table .col-desc     { min-width: 14rem; }
 .reference-page--cmd .reference-table .col-syntax   { min-width: 17rem; }
 .reference-page--cmd .reference-table .col-flags    { min-width: 17rem; }
@@ -21,7 +21,6 @@
 .reference-page--cmd .reference-table .col-modern   { min-width: 11rem; }
 .reference-page--cmd .reference-table .col-see-also { min-width: 10rem; }
 .reference-page--cmd .reference-table .col-docs     { min-width: 11rem; }
-.reference-page--cmd .reference-table .col-os       { min-width: 7rem;  width: 7rem; }
 
 .reference-page--cmd .reference-table .col-syntax,
 .reference-page--cmd .reference-table .col-examples,
@@ -199,6 +198,10 @@
   flex-wrap: wrap;
   gap: 0.3rem;
 }
+/* OS pills live stacked beneath the command name in the sticky first column. */
+.reference-page--cmd .col-name .cmd-os-badges {
+  margin-top: 0.5rem;
+}
 
 /* ---- OS badge palette ----
    Six modifiers that set --swatch-bg (used by .reference-legend__swatch)
@@ -270,8 +273,7 @@
   .reference-page--cmd .reference-table .col-danger,
   .reference-page--cmd .reference-table .col-modern,
   .reference-page--cmd .reference-table .col-see-also,
-  .reference-page--cmd .reference-table .col-docs,
-  .reference-page--cmd .reference-table .col-os {
+  .reference-page--cmd .reference-table .col-docs {
     width: calc(100vw - 9rem);
     min-width: 0;
   }

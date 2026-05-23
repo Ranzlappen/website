@@ -26,13 +26,20 @@
   // Unicode-aware "word" boundaries (lookarounds excluding letters/digits/_)
   // so terms whose first or last character is a Greek letter (λ, μ, ν) match
   // table-cell text correctly, while preventing 'eV' from matching inside
-  // 'μeV'. Requires the `u` flag.
-  var WORD_RE = new RegExp(
-    '(?<![\\p{L}\\p{N}_])(' +
-      TERMS.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') +
-    ')(?![\\p{L}\\p{N}_])',
-    'gu'
-  );
+  // 'μeV'. Requires the `u` flag. Wrapped in try/catch: a lookbehind here is
+  // unsupported on older Safari (<16.4), and `new RegExp` would otherwise throw
+  // at module load — killing the modal + `window.Glossary` along with it. On
+  // failure WORD_RE stays null and only auto-decoration is skipped; click-to-
+  // explain on cards/triggers still works everywhere.
+  var WORD_RE = null;
+  try {
+    WORD_RE = new RegExp(
+      '(?<![\\p{L}\\p{N}_])(' +
+        TERMS.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') +
+      ')(?![\\p{L}\\p{N}_])',
+      'gu'
+    );
+  } catch (_) { WORD_RE = null; }
 
   // ---- Auto-decoration (opt-in) -------------------------------------------
   // Ancestor tag names whose text content must never be rewrapped: replacing
@@ -46,6 +53,7 @@
                     SELECT: 1, SVG: 1 };
 
   function decorate(root) {
+    if (!WORD_RE || !root) return;
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: function (node) {
         // Skip nodes already inside an .abbr-trigger / .abbr-link / .abbr-section,
@@ -96,8 +104,9 @@
     });
   }
 
-  var decorateRoots = document.querySelectorAll('[data-abbr-decorate]');
-  for (var d = 0; d < decorateRoots.length; d++) decorate(decorateRoots[d]);
+  // NOTE: the page-wide decoration pass runs at the END of this IIFE (after the
+  // modal API + listeners are live), wrapped in try/catch, so a decoration
+  // failure can never stop the modal/`window.Glossary` from initialising.
 
   // ---- Modal stack (recursive) -------------------------------------------
   // Each .abbr-link inside an open modal opens its own modal on top of the
@@ -362,4 +371,19 @@
     openInline: openInline,
     decorate: decorate
   };
+
+  // Page-wide auto-decoration runs LAST and defensively: each root is decorated
+  // in its own try/catch so one problematic subtree can't abort the whole pass,
+  // and the pass as a whole can never prevent the modal API + listeners above
+  // from being set up (the cause of dead "?" buttons when decoration threw).
+  var decorateRoots = document.querySelectorAll('[data-abbr-decorate]');
+  for (var d = 0; d < decorateRoots.length; d++) {
+    try {
+      decorate(decorateRoots[d]);
+    } catch (err) {
+      if (typeof console !== 'undefined' && console.error) {
+        console.error('Glossary decoration failed for a root:', err);
+      }
+    }
+  }
 })();

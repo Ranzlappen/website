@@ -448,27 +448,6 @@
   }
 }
 
-/* Touch devices (any width) — the sticky, max-height, internal-scroll table
-   wrapper traps touch-scroll and makes the page footer unreachable on tablets
-   (the ≤640px block already handles phones, but tablets at 641px+ kept the
-   desktop rule). Drop the wrapper's viewport-pinning on every coarse-pointer
-   device so the page scrolls normally past the table. Horizontal scroll of
-   wide tables is preserved via overflow-x. Trade-off: no always-pinned thead
-   on touch — same trade already accepted for phones. */
-@media (hover: none), (pointer: coarse) {
-  .reference-table-wrapper {
-    position: static;
-    top: auto;
-    max-height: none;
-    overflow-x: auto;
-    overflow-y: visible;
-  }
-  .reference-table thead th {
-    position: static;
-    box-shadow: none;
-  }
-}
-
 /* Small screens — generic responsive stack + opt-in mobile snap behaviour. */
 @media (max-width: 640px) {
   .reference-container { padding: 0 var(--space-md); }
@@ -481,38 +460,23 @@
   }
   .reference-search { max-width: 100%; flex: 1 1 auto; }
 
+  /* Keep the bounded sticky scroll box on phones too (sticky thead inside,
+     sticky command column), so the header stays pinned while scrolling rows —
+     same behaviour as desktop. The `max-height` is capped well below the
+     viewport so there's always page area beneath the box: scrolling past the
+     table reaches the footer, and because the box is a solid-background,
+     bounded element with the footer in normal flow below it, the footer can't
+     bleed into the table. */
   .reference-table-wrapper {
     top: calc(var(--header-height, 3.75rem) + 5.25rem);
-    max-height: calc(100vh - var(--header-height, 3.75rem) - 6.25rem);
+    max-height: calc(100vh - var(--header-height, 3.75rem) - 9rem);
   }
   .reference-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
   .reference-table tbody td { padding: 0.65rem 0.6rem; overflow-wrap: anywhere; }
 
-  /* CRITICAL: On mobile, drop the wrapper's sticky + max-height + scroll
-     container behaviour so the page can scroll past the table to reach
-     the footer. With the desktop rules in place the wrapper consumes
-     ~100vh and every touch scroll is captured by the wrapper's internal
-     overflow — the footer becomes unreachable on phones. Setting
-     `overflow: visible` (not just dropping max-height) is required:
-     `overflow: auto` with content that fits still registers as a scroll
-     container on iOS Safari and dampens page-scroll momentum. The thead
-     loses its always-visible pinning as a consequence; acceptable
-     trade-off for being able to reach the rest of the page. */
-  .reference-table-wrapper {
-    position: static;
-    top: auto;
-    max-height: none;
-    overflow: visible;
-  }
-  .reference-table thead th {
-    position: static;
-    box-shadow: none;
-  }
-
   /* Opt-in mobile snap: pages add `.has-snap-cols` on the wrapper to get
-     column-by-column scroll snapping. Useful for very wide tables. The
-     opt-in re-enables horizontal scrolling that the base mobile rule
-     above turned off. */
+     column-by-column scroll snapping on top of the wrapper's existing
+     horizontal overflow. Useful for very wide tables. */
   .reference-table-wrapper.has-snap-cols {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
