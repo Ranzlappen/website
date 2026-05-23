@@ -24,10 +24,10 @@ export default function Header({ children }: { children?: React.ReactNode }) {
           Inventory
         </Link>
         <Link
-          to="/ebay-export"
+          to="/export"
           className="text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
         >
-          eBay export
+          Export
         </Link>
         <Link
           to="/trash"

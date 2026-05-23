@@ -1,26 +1,39 @@
 import { describe, it, expect } from "vitest";
 import {
-  defaultFieldSchema,
   extractEanCodes,
-  missingEbayRequiredFields,
   validateFieldSchema,
   validateItemFields,
   type FieldDef,
 } from "../shared";
+import { coreFieldSchema } from "../platforms";
 
 describe("validateFieldSchema", () => {
-  it("accepts the default schema", () => {
-    const schema = validateFieldSchema(defaultFieldSchema());
+  it("accepts the canonical core schema", () => {
+    const schema = validateFieldSchema(coreFieldSchema());
     expect(schema.length).toBeGreaterThanOrEqual(6);
     expect(schema.map((f) => f.key)).toContain("title");
     expect(schema.map((f) => f.key)).toContain("price");
   });
 
+  it("keeps only known platform ids in `platforms`", () => {
+    const schema = validateFieldSchema([
+      {
+        key: "x",
+        label: "X",
+        type: "text",
+        required: false,
+        platforms: ["ebay", "bogus", "amazon"],
+        order: 0,
+      },
+    ]);
+    expect(schema[0].platforms).toEqual(["ebay", "amazon"]);
+  });
+
   it("rejects duplicate keys", () => {
     expect(() =>
       validateFieldSchema([
-        { key: "x", label: "X", type: "text", required: false, ebayRequired: false, order: 0 },
-        { key: "x", label: "X2", type: "text", required: false, ebayRequired: false, order: 1 },
+        { key: "x", label: "X", type: "text", required: false, platforms: [], order: 0 },
+        { key: "x", label: "X2", type: "text", required: false, platforms: [], order: 1 },
       ])
     ).toThrow(/duplicate/);
   });
@@ -28,7 +41,7 @@ describe("validateFieldSchema", () => {
   it("rejects invalid key shapes", () => {
     expect(() =>
       validateFieldSchema([
-        { key: "Bad-Key", label: "L", type: "text", required: false, ebayRequired: false, order: 0 },
+        { key: "Bad-Key", label: "L", type: "text", required: false, platforms: [], order: 0 },
       ])
     ).toThrow(/key must match/);
   });
@@ -36,18 +49,21 @@ describe("validateFieldSchema", () => {
   it("requires options on select", () => {
     expect(() =>
       validateFieldSchema([
-        { key: "x", label: "X", type: "select", required: false, ebayRequired: false, order: 0 },
+        { key: "x", label: "X", type: "select", required: false, platforms: [], order: 0 },
       ])
     ).toThrow(/select type requires/);
   });
 });
 
 describe("validateItemFields", () => {
-  const schema = defaultFieldSchema();
+  const schema = coreFieldSchema();
 
   it("enforces required fields when asked", () => {
+    const required = schema.map((f) =>
+      f.key === "title" ? { ...f, required: true } : f
+    );
     expect(() =>
-      validateItemFields({ description: "x" }, schema, { enforceRequired: true })
+      validateItemFields({ description: "x" }, required, { enforceRequired: true })
     ).toThrow(/required/);
   });
 
@@ -93,13 +109,13 @@ describe("validateItemFields", () => {
 });
 
 describe("ean field type", () => {
-  const eanSchema = [
+  const eanSchema: FieldDef[] = [
     {
       key: "ean",
       label: "EAN",
-      type: "ean" as const,
+      type: "ean",
       required: false,
-      ebayRequired: false,
+      platforms: [],
       order: 0,
     },
   ];
@@ -147,38 +163,11 @@ describe("ean field type", () => {
   });
 });
 
-describe("missingEbayRequiredFields", () => {
-  const schema = defaultFieldSchema();
-
-  it("returns empty when all required fields are present", () => {
-    const missing = missingEbayRequiredFields(
-      { title: "T", description: "D", sku: "S", price: 1, quantity: 1, condition: "New" },
-      schema
-    );
-    expect(missing).toEqual([]);
-  });
-
-  it("flags missing eBay-required fields by label", () => {
-    const missing = missingEbayRequiredFields({ title: "T" }, schema);
-    expect(missing).toContain("Description");
-    expect(missing).toContain("Price");
-    expect(missing).not.toContain("SKU"); // ebayRequired: false on SKU
-  });
-
-  it("treats blank strings as missing", () => {
-    const missing = missingEbayRequiredFields(
-      { title: "  " },
-      schema
-    );
-    expect(missing).toContain("Title");
-  });
-});
-
 describe("extractEanCodes", () => {
   const schema: FieldDef[] = [
-    { key: "title", label: "Title", type: "text", required: false, ebayRequired: false, order: 0 },
-    { key: "primary_ean", label: "EAN", type: "ean", required: false, ebayRequired: false, order: 1 },
-    { key: "alt_ean", label: "Alt EAN", type: "ean", required: false, ebayRequired: false, order: 2 },
+    { key: "title", label: "Title", type: "text", required: false, platforms: [], order: 0 },
+    { key: "primary_ean", label: "EAN", type: "ean", required: false, platforms: [], order: 1 },
+    { key: "alt_ean", label: "Alt EAN", type: "ean", required: false, platforms: [], order: 2 },
   ];
 
   it("returns every populated ean-typed value", () => {

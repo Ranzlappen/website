@@ -8,6 +8,22 @@ interface Toast {
   type: 'success' | 'error' | 'info';
 }
 
+/**
+ * Folders created before the multi-platform feature lack `platformTags` and
+ * per-field `platforms`. Normalize on load so the UI can read them safely
+ * (treats legacy folders as untagged — they re-tag from Edit schema).
+ */
+function normalizeFolder(folder: FolderDoc): FolderDoc {
+  return {
+    ...folder,
+    platformTags: folder.platformTags ?? [],
+    fieldSchema: (folder.fieldSchema ?? []).map((f) => ({
+      ...f,
+      platforms: f.platforms ?? [],
+    })),
+  };
+}
+
 interface Store {
   // Auth
   user: User | null;
@@ -52,13 +68,14 @@ export const useStore = create<Store>((set, get) => ({
   isAdmin: () => get().userRole === 'admin',
 
   folders: [],
-  setFolders: (folders) => set({ folders }),
+  setFolders: (folders) => set({ folders: folders.map(normalizeFolder) }),
   upsertFolder: (folder) =>
     set((s) => {
-      const i = s.folders.findIndex((f) => f.id === folder.id);
-      if (i === -1) return { folders: [...s.folders, folder] };
+      const normalized = normalizeFolder(folder);
+      const i = s.folders.findIndex((f) => f.id === normalized.id);
+      if (i === -1) return { folders: [...s.folders, normalized] };
       const next = s.folders.slice();
-      next[i] = folder;
+      next[i] = normalized;
       return { folders: next };
     }),
   removeFolders: (folderIds) =>

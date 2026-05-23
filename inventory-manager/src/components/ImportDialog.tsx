@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { inventoryImportFn } from '../firebase';
+import { PLATFORMS } from '../platforms';
 import { useStore } from '../store';
 
 interface Props {
@@ -17,9 +18,15 @@ type Summary = {
 
 export default function ImportDialog({ folderId, open, onClose, onImported }: Props) {
   const addToast = useStore((s) => s.addToast);
+  const folders = useStore((s) => s.folders);
+  const folder = folders.find((f) => f.id === folderId);
+  const platformOptions = folder?.platformTags?.length
+    ? folder.platformTags
+    : PLATFORMS.map((p) => p.id);
   const fileRef = useRef<HTMLInputElement>(null);
   const [data, setData] = useState('');
-  const [format, setFormat] = useState<'csv' | 'json' | 'ebay-csv'>('csv');
+  const [format, setFormat] = useState<'csv' | 'json' | 'platform-csv'>('csv');
+  const [platform, setPlatform] = useState(platformOptions[0] ?? 'ebay');
   const [summary, setSummary] = useState<Summary | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -46,7 +53,13 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
     }
     setBusy(true);
     try {
-      const res = await inventoryImportFn({ folderId, format, data, dryRun: true });
+      const res = await inventoryImportFn({
+        folderId,
+        format,
+        data,
+        dryRun: true,
+        platform: format === 'platform-csv' ? platform : undefined,
+      });
       setSummary(res.data.summary);
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Dry-run failed', 'error');
@@ -58,7 +71,13 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
   async function commit() {
     setBusy(true);
     try {
-      const res = await inventoryImportFn({ folderId, format, data, dryRun: false });
+      const res = await inventoryImportFn({
+        folderId,
+        format,
+        data,
+        dryRun: false,
+        platform: format === 'platform-csv' ? platform : undefined,
+      });
       addToast(
         `Imported: created ${res.data.summary.toCreate}, updated ${res.data.summary.toUpdate}, skipped ${res.data.summary.skipped.length}`,
         'success',
@@ -106,15 +125,31 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
           <label className="text-sm flex items-center gap-1">
             <input
               type="radio"
-              checked={format === 'ebay-csv'}
-              onChange={() => setFormat('ebay-csv')}
+              checked={format === 'platform-csv'}
+              onChange={() => setFormat('platform-csv')}
             />
-            eBay CSV
+            Platform CSV
           </label>
+          {format === 'platform-csv' && (
+            <select
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+              className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-xs"
+            >
+              {platformOptions.map((id) => {
+                const p = PLATFORMS.find((x) => x.id === id);
+                return (
+                  <option key={id} value={id}>
+                    {p?.name ?? id}
+                  </option>
+                );
+              })}
+            </select>
+          )}
           <input
             ref={fileRef}
             type="file"
-            accept=".csv,.json,.txt"
+            accept=".csv,.json,.txt,.xml"
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) handleFile(f);
@@ -132,8 +167,8 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
           placeholder={
             format === 'csv'
               ? 'Header row required. Column names must match your folder schema field keys or labels.'
-              : format === 'ebay-csv'
-                ? 'Paste an eBay File Exchange CSV. Title / Description / StartPrice / CustomLabel etc. map back via each field’s ebayMapping. PicURL / Action / Country / Currency are ignored.'
+              : format === 'platform-csv'
+                ? 'Paste a CSV exported for the selected platform. Each platform column maps back to its canonical field; unknown columns are ignored.'
                 : 'Either an array of { fields: {...} } objects, or { items: [...] }.'
           }
           rows={10}

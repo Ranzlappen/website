@@ -30,7 +30,12 @@ export const inventoryListFoldersFn = httpsCallable<
 >(functions, 'inventoryListFolders');
 
 export const inventoryCreateFolderFn = httpsCallable<
-  { parentFolderId?: string | null; name: string; fieldSchema?: FieldDef[] },
+  {
+    parentFolderId?: string | null;
+    name: string;
+    fieldSchema?: FieldDef[];
+    platformTags?: string[];
+  },
   FolderDoc
 >(functions, 'inventoryCreateFolder');
 
@@ -40,6 +45,7 @@ export const inventoryUpdateFolderFn = httpsCallable<
     name?: string;
     fieldSchema?: FieldDef[];
     parentFolderId?: string | null;
+    platformTags?: string[];
   },
   FolderDoc
 >(functions, 'inventoryUpdateFolder');
@@ -158,9 +164,10 @@ export const inventoryListDriveFolderFn = httpsCallable<
 export const inventoryImportFn = httpsCallable<
   {
     folderId: string;
-    format: 'csv' | 'json' | 'ebay-csv';
+    format: 'csv' | 'json' | 'platform-csv';
     data: string;
     dryRun?: boolean;
+    platform?: string;
   },
   {
     dryRun: boolean;
@@ -177,11 +184,28 @@ export const inventoryExportFn = httpsCallable<
   { format: 'csv' | 'json'; filename: string; body: string }
 >(functions, 'inventoryExport');
 
-// ── eBay export ──
-export const inventoryExportEbayCsvFn = httpsCallable<
-  { folderId?: string; itemIds?: string[] },
-  { filename: string; body: string; rowCount: number; columns: string[] }
->(functions, 'inventoryExportEbayCsv');
+// ── Multi-platform export (CSV/TSV/XML per platform) ──
+export interface PlatformExportFile {
+  platform: string;
+  filename: string;
+  body: string;
+  fileExt: string;
+  rowCount: number;
+}
+
+export const inventoryExportPlatformsFn = httpsCallable<
+  {
+    folderId?: string;
+    itemIds?: string[];
+    scope?: 'folder' | 'global';
+    selections: { platform: string; format: 'csv' | 'tsv' | 'xml' }[];
+  },
+  {
+    files: PlatformExportFile[];
+    blocked: Record<string, { id: string; missing: string[] }[]>;
+    skipped: { platform: string; reason: string }[];
+  }
+>(functions, 'inventoryExportPlatforms');
 
 // ── Lookup ──
 export const inventoryFindByEanFn = httpsCallable<

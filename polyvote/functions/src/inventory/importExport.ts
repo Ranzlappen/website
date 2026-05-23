@@ -6,11 +6,11 @@ import {
   appendAudit,
   defaultEbayBlock,
   extractEanCodes,
-  missingEbayRequiredFields,
   validateItemFields,
   type FolderDoc,
   type ItemDoc,
 } from "./shared";
+import { getPlatform } from "./platforms";
 
 interface ImportSummary {
   toCreate: number;
@@ -89,11 +89,12 @@ export const inventoryImport = onCall(async (request) => {
   const db = getFirestore();
   const uid = request.auth!.uid;
 
-  const { folderId, format, data, dryRun } = request.data as {
+  const { folderId, format, data, dryRun, platform } = request.data as {
     folderId: string;
-    format: "csv" | "json" | "ebay-csv";
+    format: "csv" | "json" | "platform-csv";
     data: string;
     dryRun?: boolean;
+    platform?: string;
   };
 
   if (!folderId || !format || typeof data !== "string") {
@@ -165,32 +166,38 @@ export const inventoryImport = onCall(async (request) => {
       }
     });
   } else {
-    const isEbay = format === "ebay-csv";
-    const rows = parseCsv(data).filter((r) => r.some((c) => c.trim() !== ""));
+    const isPlatform = format === "platform-csv";
+
+    // Platform CSVs may use a non-comma delimiter (e.g. Geizhals ';').
+    let delimiter = ",";
+    let colToField = new Map<string, string>();
+    if (isPlatform) {
+      const def = platform ? getPlatform(platform) : undefined;
+      if (!def) {
+        throw new HttpsError(
+          "invalid-argument",
+          "a valid platform is required for platform-csv import."
+        );
+      }
+      const fmt = def.formats.find((f) => f.id === "csv" || f.id === "tsv");
+      delimiter = fmt?.delimiter ?? ",";
+      // Map each platform's EXACT column header → canonical field key, but
+      // only for keys this folder's schema actually has.
+      const schemaKeys = new Set(folder.fieldSchema.map((f) => f.key));
+      for (const c of def.columns) {
+        if (schemaKeys.has(c.field)) colToField.set(c.column, c.field);
+      }
+    }
+
+    const rows = parseCsv(data, delimiter).filter((r) => r.some((c) => c.trim() !== ""));
     if (rows.length < 2) {
       throw new HttpsError("invalid-argument", "CSV must have a header row and at least one data row.");
     }
     const header = rows[0].map((h) => h.trim());
 
     let keyByCol: (string | null)[];
-    if (isEbay) {
-      // Map by ebayMapping. Core columns like "Title" match
-      // `f.ebayMapping === "Title"`; custom item-specifics like
-      // "C:Brand" match `f.ebayMapping === "Brand"`. PicURL / Action /
-      // Country / Currency have no schema target and are ignored.
-      keyByCol = header.map((col) => {
-        const mapping = col.startsWith("C:") ? col.slice(2) : col;
-        // Skip non-mappable columns entirely.
-        if (
-          ["Action", "PicURL", "Country", "Currency", "Format", "Duration"].includes(
-            col
-          )
-        ) {
-          return null;
-        }
-        const def = folder.fieldSchema.find((f) => f.ebayMapping === mapping);
-        return def ? def.key : null;
-      });
+    if (isPlatform) {
+      keyByCol = header.map((col) => colToField.get(col) ?? null);
     } else {
       // Default CSV: match by field key or label, case-insensitive.
       keyByCol = header.map((col) => {
@@ -316,5 +323,3 @@ export const inventoryImport = onCall(async (request) => {
 
   return { dryRun: false, summary: { ...summary, toCreate: created, toUpdate: updated } };
 });
-
-export { missingEbayRequiredFields }; // re-export for ebayExport convenience

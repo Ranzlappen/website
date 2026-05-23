@@ -6,7 +6,6 @@ import { requireRole } from "../utils/adminOnly";
 import {
   appendAudit,
   defaultEbayBlock,
-  defaultFieldSchema,
   extractEanCodes,
   validateFieldSchema,
   type FieldDef,
@@ -14,6 +13,23 @@ import {
   type ItemDoc,
   type PhotoRef,
 } from "./shared";
+import {
+  ensureTagColumns,
+  fieldsForTags,
+  PLATFORM_IDS,
+} from "./platforms";
+
+function cleanTags(input: unknown): string[] {
+  if (!Array.isArray(input)) return [];
+  return Array.from(
+    new Set(
+      input.filter(
+        (t): t is string =>
+          typeof t === "string" && (PLATFORM_IDS as readonly string[]).includes(t)
+      )
+    )
+  );
+}
 
 // Must match the bucket constant in `./photos.ts`.
 const INVENTORY_BUCKET = "proven-concept-436717-q3.firebasestorage.app";
@@ -138,19 +154,23 @@ export const inventoryCreateFolder = onCall(async (request) => {
   const db = getFirestore();
   const uid = request.auth!.uid;
 
-  const { parentFolderId, name, fieldSchema } = request.data as {
+  const { parentFolderId, name, fieldSchema, platformTags } = request.data as {
     parentFolderId?: string | null;
     name: string;
     fieldSchema?: FieldDef[];
+    platformTags?: string[];
   };
 
   const cleanName = validateName(name);
   const parent = parentFolderId ?? null;
   const pathSegments = await resolvePath(parent, cleanName);
+  const tags = cleanTags(platformTags);
 
+  // Explicit schema wins (still gets its tag columns guaranteed); otherwise
+  // seed from the chosen tags (empty tags → canonical core).
   const schema = fieldSchema
-    ? validateFieldSchema(fieldSchema)
-    : defaultFieldSchema();
+    ? ensureTagColumns(validateFieldSchema(fieldSchema), tags)
+    : fieldsForTags(tags);
 
   const now = Date.now();
   const ref = db.collection("inventoryFolders").doc();
@@ -159,6 +179,7 @@ export const inventoryCreateFolder = onCall(async (request) => {
     parentFolderId: parent,
     pathSegments,
     fieldSchema: schema,
+    platformTags: tags,
     itemCount: 0,
     createdAt: now,
     updatedAt: now,
@@ -171,7 +192,7 @@ export const inventoryCreateFolder = onCall(async (request) => {
     action: "folder.create",
     actorUid: uid,
     folderId: ref.id,
-    after: { name: cleanName, parentFolderId: parent },
+    after: { name: cleanName, parentFolderId: parent, platformTags: tags },
   });
 
   return { id: ref.id, ...doc };
@@ -182,12 +203,14 @@ export const inventoryUpdateFolder = onCall(async (request) => {
   const db = getFirestore();
   const uid = request.auth!.uid;
 
-  const { folderId, name, fieldSchema, parentFolderId } = request.data as {
-    folderId: string;
-    name?: string;
-    fieldSchema?: FieldDef[];
-    parentFolderId?: string | null;
-  };
+  const { folderId, name, fieldSchema, parentFolderId, platformTags } =
+    request.data as {
+      folderId: string;
+      name?: string;
+      fieldSchema?: FieldDef[];
+      parentFolderId?: string | null;
+      platformTags?: string[];
+    };
 
   if (!folderId) {
     throw new HttpsError("invalid-argument", "folderId is required.");
@@ -223,11 +246,17 @@ export const inventoryUpdateFolder = onCall(async (request) => {
     updates.pathSegments = await resolvePath(newParent, newName);
   }
 
-  if (fieldSchema) {
-    const cleaned = validateFieldSchema(fieldSchema);
-    // Soft guard: warn-but-allow when shrinking the schema. We keep item data
-    // intact even for removed keys (they just stop showing in the UI).
-    updates.fieldSchema = cleaned;
+  // Tag/schema interplay: whenever either changes, recompute the schema's
+  // platform columns from the folder's full tag list (adds missing columns,
+  // refreshes badges, keeps removed-tag columns + their data). Non-destructive.
+  const tagsProvided = platformTags !== undefined;
+  const newTags = tagsProvided ? cleanTags(platformTags) : existing.platformTags ?? [];
+  if (fieldSchema || tagsProvided) {
+    const base = fieldSchema ? validateFieldSchema(fieldSchema) : existing.fieldSchema;
+    updates.fieldSchema = ensureTagColumns(base, newTags);
+  }
+  if (tagsProvided) {
+    updates.platformTags = newTags;
   }
 
   await ref.update(updates);
@@ -236,8 +265,12 @@ export const inventoryUpdateFolder = onCall(async (request) => {
     action: "folder.update",
     actorUid: uid,
     folderId,
-    before: { name: existing.name, parentFolderId: existing.parentFolderId },
-    after: { name: newName, parentFolderId: newParent },
+    before: {
+      name: existing.name,
+      parentFolderId: existing.parentFolderId,
+      platformTags: existing.platformTags ?? [],
+    },
+    after: { name: newName, parentFolderId: newParent, platformTags: newTags },
   });
 
   const fresh = await ref.get();
@@ -367,6 +400,7 @@ export const inventoryDuplicateFolder = onCall(
       parentFolderId: src.parentFolderId,
       pathSegments,
       fieldSchema: src.fieldSchema,
+      platformTags: src.platformTags ?? [],
       itemCount: 0,
       createdAt: now,
       updatedAt: now,

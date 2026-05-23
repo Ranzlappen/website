@@ -19,8 +19,8 @@ export interface FieldDef {
   type: FieldType;
   options?: string[];
   required: boolean;
-  ebayRequired: boolean;
-  ebayMapping?: string | null;
+  /** Platform tag ids this column serves (drives header badges). */
+  platforms: string[];
   order: number;
 }
 
@@ -30,6 +30,7 @@ export interface FolderDoc {
   parentFolderId: string | null;
   pathSegments: string[];
   fieldSchema: FieldDef[];
+  platformTags: string[];
   itemCount: number;
   createdAt: number;
   updatedAt: number;
@@ -83,42 +84,6 @@ export const FIELD_TYPES: { value: FieldType; label: string }[] = [
   { value: 'url', label: 'URL' },
   { value: 'ean', label: 'EAN / barcode (with Scan)' },
 ];
-
-export const EBAY_MAPPING_OPTIONS = [
-  '',
-  'Title',
-  'Description',
-  'Category',
-  'ConditionID',
-  'StartPrice',
-  'Quantity',
-  'CustomLabel',
-  'Format',
-  'Duration',
-  'ShippingProfileName',
-  'ReturnProfileName',
-  'PaymentProfileName',
-];
-
-export function defaultFieldSchema(): FieldDef[] {
-  return [
-    { key: 'title', label: 'Title', type: 'text', required: true, ebayRequired: true, ebayMapping: 'Title', order: 0 },
-    { key: 'description', label: 'Description', type: 'longtext', required: false, ebayRequired: true, ebayMapping: 'Description', order: 1 },
-    { key: 'sku', label: 'SKU', type: 'text', required: true, ebayRequired: false, ebayMapping: 'CustomLabel', order: 2 },
-    { key: 'price', label: 'Price', type: 'number', required: true, ebayRequired: true, ebayMapping: 'StartPrice', order: 3 },
-    { key: 'quantity', label: 'Quantity', type: 'number', required: true, ebayRequired: true, ebayMapping: 'Quantity', order: 4 },
-    {
-      key: 'condition',
-      label: 'Condition',
-      type: 'select',
-      options: ['New', 'Used – Like New', 'Used – Good', 'Used – Acceptable', 'For parts'],
-      required: false,
-      ebayRequired: true,
-      ebayMapping: 'ConditionID',
-      order: 5,
-    },
-  ];
-}
 
 export function defaultEbayBlock(): EbayBlock {
   return {

@@ -4,13 +4,14 @@ import Header from '../components/Header';
 import BulkActionBar from '../components/BulkActionBar';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ImportDialog from '../components/ImportDialog';
+import ExportDialog from '../components/ExportDialog';
 import PhotoLightbox from '../components/PhotoLightbox';
+import PlatformBadges from '../components/PlatformBadges';
 import {
   inventoryDeleteFolderFn,
   inventoryDeleteItemFn,
   inventoryDuplicateFolderFn,
   inventoryDuplicateItemFn,
-  inventoryExportEbayCsvFn,
   inventoryExportFn,
   inventoryListFoldersFn,
   inventoryListItemsFn,
@@ -67,6 +68,7 @@ export default function FolderTable() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showImport, setShowImport] = useState(false);
+  const [showExport, setShowExport] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<ItemDoc | null>(null);
   const [pendingFolderDelete, setPendingFolderDelete] = useState(false);
   const [duplicateOpen, setDuplicateOpen] = useState(false);
@@ -202,25 +204,6 @@ export default function FolderTable() {
     }
   }
 
-  async function exportEbaySelected() {
-    if (!folderId) return;
-    const ids = Array.from(selectedItemIds);
-    const target =
-      ids.length > 0
-        ? { itemIds: ids }
-        : { folderId };
-    try {
-      const res = await inventoryExportEbayCsvFn(target);
-      downloadFile(res.data.filename, res.data.body, 'text/csv');
-      addToast(`eBay CSV ready (${res.data.rowCount} rows)`, 'success');
-      // Refresh to pick up listingStatus → 'exported'.
-      const r = await inventoryListItemsFn({ folderId, limit: 500 });
-      setItems(r.data.items);
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Export failed', 'error');
-    }
-  }
-
   function breadcrumb(folder: FolderDoc): string {
     return folder.pathSegments.join(' › ');
   }
@@ -335,10 +318,10 @@ export default function FolderTable() {
               Export JSON
             </button>
             <button
-              onClick={exportEbaySelected}
+              onClick={() => setShowExport(true)}
               className="px-3 py-1.5 text-sm rounded border border-[var(--accent)] text-[var(--accent)] hover:bg-[var(--bg-surface)] transition-colors"
             >
-              eBay CSV {selectedItemIds.size > 0 && `(${selectedItemIds.size} selected)`}
+              Export… {selectedItemIds.size > 0 && `(${selectedItemIds.size} selected)`}
             </button>
             <button
               onClick={() => navigate(`/folder/${folderId}/new`)}
@@ -386,29 +369,29 @@ export default function FolderTable() {
                   {folder.fieldSchema.slice(0, 5).map((f) => {
                     const active = sort?.key === f.key;
                     return (
-                      <th key={f.key} className="px-3 py-2 text-left">
-                        <button
-                          type="button"
-                          onClick={() => toggleSort(f.key)}
-                          className={`inline-flex items-center gap-1 uppercase text-xs hover:text-[var(--accent)] transition-colors ${
-                            active ? 'text-[var(--accent)]' : ''
-                          }`}
-                          title="Click to sort"
-                        >
-                          {f.label}
-                          {f.ebayRequired && (
-                            <span title="Required for eBay" className="text-[var(--accent)]">
-                              ★
+                      <th key={f.key} className="px-3 py-2 text-left align-top">
+                        <div className="flex flex-col gap-1">
+                          <button
+                            type="button"
+                            onClick={() => toggleSort(f.key)}
+                            className={`inline-flex items-center gap-1 uppercase text-xs hover:text-[var(--accent)] transition-colors ${
+                              active ? 'text-[var(--accent)]' : ''
+                            }`}
+                            title="Click to sort"
+                          >
+                            {f.label}
+                            <span aria-hidden="true">
+                              {active ? (sort?.dir === 'asc' ? '▲' : '▼') : ''}
                             </span>
+                          </button>
+                          {(f.platforms?.length ?? 0) > 0 && (
+                            <PlatformBadges fieldKey={f.key} platforms={f.platforms ?? []} />
                           )}
-                          <span aria-hidden="true">
-                            {active ? (sort?.dir === 'asc' ? '▲' : '▼') : ''}
-                          </span>
-                        </button>
+                        </div>
                       </th>
                     );
                   })}
-                  <th className="px-3 py-2 text-center">eBay</th>
+                  <th className="px-3 py-2 text-center">Export</th>
                   <th className="px-3 py-2 text-center">Status</th>
                   <th className="px-3 py-2 text-right">Actions</th>
                 </tr>
@@ -517,6 +500,21 @@ export default function FolderTable() {
         open={showImport}
         onClose={() => setShowImport(false)}
         onImported={async () => {
+          const res = await inventoryListItemsFn({ folderId, limit: 500 });
+          setItems(res.data.items);
+        }}
+      />
+
+      <ExportDialog
+        open={showExport}
+        onClose={() => setShowExport(false)}
+        platforms={folder?.platformTags ?? []}
+        request={{
+          folderId,
+          itemIds: selectedItemIds.size > 0 ? Array.from(selectedItemIds) : undefined,
+          scope: 'folder',
+        }}
+        onDone={async () => {
           const res = await inventoryListItemsFn({ folderId, limit: 500 });
           setItems(res.data.items);
         }}

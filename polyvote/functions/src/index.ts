@@ -125,8 +125,8 @@ export {
 // Inventory: import / export
 export { inventoryImport, inventoryExport } from "./inventory/importExport";
 
-// Inventory: eBay File Exchange CSV export
-export { inventoryExportEbayCsv } from "./inventory/ebayExport";
+// Inventory: multi-platform export (CSV/TSV/XML per platform)
+export { inventoryExportPlatforms } from "./inventory/platformExport";
 
 // Inventory: lookup (scan-to-find + global search)
 export {

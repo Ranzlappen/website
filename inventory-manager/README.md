@@ -21,7 +21,7 @@ tool.
 5. [Photo storage](#photo-storage)
 6. [Persistence guarantees](#persistence-guarantees)
 7. [Security](#security)
-8. [eBay export](#ebay-export)
+8. [Platforms & export](#platforms--export)
 9. [Import / export](#import--export)
 10. [Field types](#field-types)
 11. [Barcode scanner (EAN field)](#barcode-scanner-ean-field)
@@ -108,6 +108,9 @@ writes via Cloud Functions only.
   parentFolderId: string | null;      // null at the root
   pathSegments: string[];             // denormalized breadcrumb (max depth 6)
   fieldSchema: FieldDef[];            // custom columns for this folder's items
+  platformTags: string[];             // selling platforms this folder targets
+                                      // (e.g. ["ebay","amazon"]); drives which
+                                      // columns are generated + the badges
   itemCount: number;                  // maintained by functions
   createdAt: number;                  // ms epoch
   updatedAt: number;
@@ -122,14 +125,17 @@ type FieldDef = {
       | 'date' | 'url' | 'ean';
   options?: string[];                 // for type=select
   required: boolean;                  // required to save an item
-  ebayRequired: boolean;              // required to enable ebay.syncEnabled
-  ebayMapping?: string | null;        // maps this field to an eBay CSV column
+  platforms: string[];                // platform tag ids this column serves
+                                      // (drives the header badges); [] = custom
   order: number;
 }
 ```
 
-Every new folder is seeded with a base schema (Title, Description, SKU,
-Price, Quantity, Condition) so the eBay export works without any setup.
+A new folder's schema is generated from its `platformTags` (the union of
+every tag's required canonical columns). An untagged folder gets a small
+canonical core (Title, SKU, Price, Quantity, Description, Condition).
+Applying a tag later generates its columns; stripping a tag keeps the columns
+and their data — only the badges disappear. See **Platforms & export**.
 
 ### `inventoryItems/{itemId}`
 
@@ -337,44 +343,62 @@ design ladders up:
 
 ---
 
-## eBay export
+## Platforms & export
 
-Generates an [eBay File Exchange](https://www.ebay.com/help/selling/listings/creating-managing-listings/uploading-listings-file-exchange?id=4116)
-CSV that you upload manually to Seller Hub. No OAuth, no live API — by
-design, the same checkbox + status fields will feed the real Sell API
-when that ships later.
+The tool exports to eight selling platforms. The single source of truth is the
+**platform registry**, duplicated (data-only on the frontend) between:
 
-### Lifecycle
+- `polyvote/functions/src/inventory/platforms.ts` — canonical fields, every
+  platform's exact column names, required flags, supported formats, **and the
+  value-transform functions + CSV delimiter** the serializers use.
+- `inventory-manager/src/platforms.ts` — the same data minus transforms (the
+  browser never serializes), plus the schema helpers the UI shares.
 
-```
-none → ready → exported → listed → ended
-              (toggle)   (CSV     (manual,
-                         download) future API)
-```
+### Canonical fields ↔ per-platform columns
 
-- **none** — default; item is not in the eBay queue.
-- **ready** — `syncEnabled = true` and every eBay-required field is
-  populated. Validated server-side; toggling on with missing fields is
-  rejected.
-- **exported** — was included in a CSV download. `lastExportedAt` is
-  stamped.
-- **listed** — to be set once the real Sell API integration ships.
-- **ended** — listing concluded.
-- **error** — last sync attempt failed; check `lastError`.
+One **canonical** field (e.g. `price`) maps to a *different exact column name
+per platform's file* (`*StartPrice` on eBay, `standard_price` on Amazon,
+`price` on Facebook/idealo/billiger…). `platformsForField(key)` powers the ⓘ
+info button next to each column that lists every platform's exact name.
 
-### CSV columns
+A folder's `platformTags` decide which canonical columns it needs
+(`fieldsForTags` / `ensureTagColumns`). Adding a tag generates its required
+columns and stamps the tag into each column's `platforms[]` (the color-coded
+header badges). Stripping a tag is non-destructive: `ensureTagColumns` keeps
+the columns + item data and just drops the tag from `platforms[]`.
 
-Always emitted: `Action, Title, Description, Category, ConditionID,
-StartPrice, Quantity, CustomLabel, Format, Duration,
-ShippingProfileName, ReturnProfileName, PaymentProfileName, PicURL,
-Country, Currency`.
+### Platforms, formats & quirks
 
-Plus one `C:<mapping>` column for each schema field whose
-`ebayMapping` is something other than a core eBay field — those become
-[eBay item specifics](https://www.ebay.com/help/selling/listings/categorizing-your-items/item-specifics?id=4118).
+| Platform | Formats | Notes |
+|---|---|---|
+| eBay | CSV / Tab | File Exchange; asterisk headers (`*Title`…), numeric `*ConditionID`, `PicURL` pipe-joined, `C:` item-specifics, `Country=DE`/`Currency=EUR`. |
+| Amazon | Tab (`.txt`) | Category flat-file tokens (`item_name`, `standard_price`, `condition_type`…), `external_product_id_type=EAN`. |
+| Kleinanzeigen | CSV / OpenImmo XML | ⚠ No official general product CSV — CSV tokens are best-effort, `price` integer; XML is a minimal real-estate OpenImmo skeleton. |
+| Whatnot | CSV | `Category`/`Sub Category`/`Title`/…/`Image URL 1..8`. |
+| Facebook | CSV / XML (RSS) | Meta catalog feed; `price` `"<n> EUR"`, `condition` new/used/refurbished; XML is RSS 2.0 with the `g:` namespace. |
+| idealo | CSV / XML | `eans`/`hans`(MPN)/`imageUrls`; `.` decimal, `;` list-separator. |
+| billiger.de | CSV / XML | solute schema (`aid`, `GTIN`, `dlv_cost`…). |
+| Geizhals | CSV (`;`) / XML | No fixed column names — we pick our own headers. |
 
-`Action` is `Add` for items without a `listingId`, `Revise` once one
-exists. `PicURL` is a `|`-separated list of public photo URLs.
+Output format is chosen per platform in the export dialog (a CSV/XML toggle
+appears for platforms offering both; the registry flags a default). XML is
+hand-built in `xml.ts` (no dependency, mirrors `csv.ts`).
+
+### Export flow
+
+`inventoryExportPlatforms({ folderId?, itemIds?, scope, selections: [{platform, format}] })`
+returns `{ files: [{platform, filename, body, fileExt}], blocked, skipped }`.
+Only items whose folder carries a platform's tag feed that platform's file;
+items missing that platform's required columns are skipped and reported in
+`blocked` (a partial export still succeeds). The client downloads a single
+file directly, or zips 2+ with **JSZip** into `inventory-export-<date>.zip`.
+
+`ebay.syncEnabled` is the per-item **"Include in exports"** opt-in (the table
+checkbox / bulk bar). The eBay file still stamps `listingStatus → exported`
+and `lastExportedAt` on the items it contains; the `none → ready → exported →
+listed → ended` lifecycle + `categoryId`/`conditionId`/`format`/`duration`
+overrides remain eBay-specific (ItemEditor shows them only when the folder has
+the `ebay` tag).
 
 ---
 
@@ -394,12 +418,11 @@ Accepts three formats:
   case-insensitively. Unknown columns are silently ignored.
 - **JSON**: either a raw array of items or `{ items: [...] }`. Each
   item can be `{ fields: {...} }` or a flat record (auto-wrapped).
-- **eBay CSV** (round-trip from `inventoryExportEbayCsv`): header cells
-  match against each field's `ebayMapping` rather than its key/label.
-  Core columns (Title, Description, StartPrice, CustomLabel, …) and
-  custom `C:<label>` item-specifics both work. PicURL / Action /
-  Country / Currency / Format / Duration are ignored since they have
-  no schema target.
+- **Platform CSV** (round-trip from `inventoryExportPlatforms`): pick a
+  platform; header cells are matched against that platform's exact column
+  names via the registry (`column → canonical field`), honoring the
+  platform's delimiter (e.g. Geizhals `;`). Columns with no canonical target
+  (computed/constant/photo columns) are ignored.
 
 Both formats run a **dry-run** first (`Preview` button), which reports
 `toCreate`, `toUpdate` (matched by SKU), and `skipped` (with the
@@ -423,9 +446,10 @@ pure create.
 | `url` | URL input | trimmed |
 | `ean` | text + **Scan** button | 8/12/13/14 digits; whitespace stripped before validation. See next section. |
 
-Any field type can be mapped to an eBay CSV column via
-`FieldDef.ebayMapping`. Pick from the dropdown of core columns or type
-a custom item-specific name (becomes `C:<name>` in the CSV).
+A field's per-platform export column names aren't stored on the field — they
+live in the platform registry, keyed by the field's canonical `key`. The
+schema editor's ⓘ button (next to each column's platform badges) shows every
+platform's exact column name for that field.
 
 ---
 
@@ -481,14 +505,21 @@ unmount — the camera light goes off when you close the modal.
 5. If the function adds a new Firestore query shape, add the matching
    composite index to `polyvote/firestore.indexes.json`.
 
-### Add a new eBay-mappable column
+### Add a new platform (or canonical field)
 
-The `EBAY_MAPPING_OPTIONS` array in
-`inventory-manager/src/types.ts` drives the schema editor's mapping
-dropdown. For "real" eBay core columns, add the column name there
-*and* to `EBAY_CORE_FIELDS` in
-`polyvote/functions/src/inventory/shared.ts`. Anything not in
-`EBAY_CORE_FIELDS` is emitted as a `C:<label>` item-specific.
+Everything lives in the **registry** (`platforms.ts`, both copies):
+
+1. **New canonical field**: add it to `CANONICAL_FIELDS` (key/label/type/
+   options) in both copies. Reference it from a platform's `columns`.
+2. **New platform**: add an entry to `PLATFORM_IDS` + `PLATFORMS` in both
+   copies — `id`, `name`, `badge` (Tailwind classes), `formats` (CSV/TSV/XML
+   with delimiter or `dialect`), and `columns` (`{ field, column, xmlTag?,
+   required }`). On the backend add any `transform` / `constants`. If it needs
+   a new XML envelope, add a `dialect` branch in `xml.ts`.
+3. Tests in `__tests__/platforms.test.ts` + `platformExport.test.ts`.
+
+No schema migration is needed — `ensureTagColumns` generates the columns the
+first time the tag is applied to a folder.
 
 ---
 
@@ -500,45 +531,56 @@ dropdown. For "real" eBay core columns, add the column name there
 main.tsx                # BrowserRouter basename="/inventory"
 App.tsx                 # Route table + onAuthStateChanged → store
 firebase.ts             # Firebase init + every httpsCallable wrapper
-store.ts                # Zustand (auth + folders + items + selection + toasts)
-types.ts                # FieldDef, FolderDoc, ItemDoc, FIELD_TYPES, EBAY_MAPPING_OPTIONS
+store.ts                # Zustand (auth + folders + items + selection + toasts); normalizes legacy folders
+types.ts                # FieldDef, FolderDoc, ItemDoc, FIELD_TYPES
+platforms.ts            # platform registry (data-only mirror) + schema/overlap helpers
 ebay.ts                 # EBAY_CONDITION_IDS, EBAY_DURATIONS, EBAY_FORMATS
 index.css               # Tailwind import + CSS custom properties for the dark theme
 components/
   AdminGuard.tsx        # blocks non-admin routes
   Toast.tsx             # bottom-right toast stack
-  Header.tsx            # nav bar (Inventory, eBay export, sign out)
+  Header.tsx            # nav bar (Inventory, Export, sign out)
   FieldInput.tsx        # one component per FieldType, incl. EAN+Scan
   BarcodeScanner.tsx    # camera modal, BarcodeDetector loop
   PhotoGrid.tsx         # drag-to-reorder, drop-to-upload, delete
-  ImportDialog.tsx      # CSV/JSON paste-or-file, dry-run preview, commit
+  PlatformBadges.tsx    # color-coded platform badges + per-column exact-name info popover
+  PlatformTagSelector.tsx # toggle chips for a folder's platform tags
+  ImportDialog.tsx      # CSV/JSON/Platform-CSV paste-or-file, dry-run preview, commit
+  ExportDialog.tsx      # platform checkboxes + CSV/XML toggle; JSZip-zips 2+ files
   ConfirmDialog.tsx     # reusable yes/no modal
 pages/
   Login.tsx
-  Dashboard.tsx         # folder tree + always-visible action icons + create/rename/duplicate dialogs
-  FolderTable.tsx       # item table for one folder + action bar (schema, duplicate, delete, import, export, +new)
-  SchemaEditor.tsx      # per-folder fieldSchema editor; cards-on-mobile, grid-on-lg
-  ItemEditor.tsx        # full item form + photo grid + eBay sidebar; auto-saves every 2.5s
-  EbayExport.tsx        # cross-folder staged view of all syncEnabled items + CSV download
+  Dashboard.tsx         # folder tree + create (with platform tags)/rename/duplicate dialogs
+  FolderTable.tsx       # item table for one folder; header platform badges; Export… dialog
+  SchemaEditor.tsx      # per-folder platform tags + fieldSchema editor
+  ItemEditor.tsx        # full item form + photo grid + per-tag readiness + eBay sidebar; auto-saves
+  ExportCenter.tsx      # cross-folder /export: per-platform ready/blocked tally + Export… dialog
 ```
 
 ### Cloud Functions — `polyvote/functions/src/inventory/`
 
 ```
 shared.ts               # FieldDef/ItemDoc types, validateFieldSchema/validateItemFields,
-                        # defaultFieldSchema, defaultEbayBlock, appendAudit
+                        # defaultEbayBlock, appendAudit
+platforms.ts            # platform registry: canonical fields, per-platform exact columns +
+                        # required + transforms + formats; fieldsForTags/ensureTagColumns/
+                        # platformsForField/missingForPlatform
 folders.ts              # inventoryListFolders / Create / Update / Delete / DuplicateFolder
+                        # (Create/Update accept platformTags → ensureTagColumns)
 items.ts                # inventoryListItems / GetItem / CreateItem / UpdateItem /
-                        # DeleteItem / ToggleEbaySync
+                        # DeleteItem / ToggleEbaySync (export inclusion; no per-field gating)
 photos.ts               # inventoryUploadPhoto / DeletePhoto / ReorderPhotos
                         # (uses INVENTORY_BUCKET constant for the firebasestorage.app bucket)
-importExport.ts         # inventoryImport (CSV+JSON, dry-run) / inventoryExport
-ebayExport.ts           # inventoryExportEbayCsv (File Exchange format, C:* item-specifics)
-csv.ts                  # RFC-4180-ish parseCsv / serializeCsv / escapeCsvCell
+importExport.ts         # inventoryImport (CSV+JSON+platform-csv, dry-run) / inventoryExport
+platformExport.ts       # inventoryExportPlatforms + buildPlatformFile (CSV/TSV/XML per platform)
+csv.ts                  # RFC-4180-ish parseCsv / serializeCsv / escapeCsvCell (delimiter-aware)
+xml.ts                  # escapeXml / serializeXml (rss-google / solute / openimmo / flat …)
 __tests__/
   csv.test.ts
   shared.test.ts
-  ebayExport.test.ts
+  platforms.test.ts
+  platformExport.test.ts
+  xml.test.ts
 ```
 
 ### Firebase / rules / workflows
