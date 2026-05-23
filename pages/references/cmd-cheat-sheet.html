@@ -203,7 +203,6 @@ The abbreviations / glossary system is shared site-wide:
             <th scope="col" class="col-modern">Modern alt</th>
             <th scope="col" class="col-see-also">See also</th>
             <th scope="col" class="col-docs">Docs</th>
-            <th scope="col" class="col-os">OS</th>
           </tr>
         </thead>
         <tbody data-abbr-decorate>
@@ -218,7 +217,21 @@ The abbreviations / glossary system is shared site-wide:
               {%- if cmd.examples == nil or cmd.examples.size == 0 -%}<!-- LINT: {{ cmd.name }} ({{ batch.id }}) has no examples -->{% endif %}
               {%- for ex in cmd.examples -%}{%- if ex.code == nil or ex.explain == nil -%}<!-- LINT: {{ cmd.name }} ({{ batch.id }}) has an example missing code/explain -->{%- endif -%}{%- endfor -%}
               <tr id="cmd-{{ cmd_slug }}" data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}">
-                <td class="col-name is-sticky-col"><code class="mono">{{ cmd.name }}</code></td>
+                <td class="col-name is-sticky-col">
+                  <code class="mono">{{ cmd.name }}</code>
+                  <div class="cmd-os-badges">
+                    {% for o in cmd.os %}
+                      {%- case o -%}
+                        {%- when "linux"          -%}<span class="reference-badge cmd-os--linux"   title="Linux">🐧</span>
+                        {%- when "macos"          -%}<span class="reference-badge cmd-os--macos"   title="macOS">🍎</span>
+                        {%- when "windows"        -%}<span class="reference-badge cmd-os--windows" title="Windows">🪟</span>
+                        {%- when "cross-platform" -%}<span class="reference-badge cmd-os--cross"   title="Cross-platform">⚙️</span>
+                        {%- when "root"           -%}<span class="reference-badge cmd-os--root"    title="Requires root / sudo">🛡</span>
+                        {%- when "android"        -%}<span class="reference-badge cmd-os--android" title="Android (Termux)">🤖</span>
+                      {%- endcase -%}
+                    {% endfor %}
+                  </div>
+                </td>
                 <td class="col-desc">{{ cmd.description }}</td>
                 <td class="col-syntax"><code class="mono">{{ cmd.syntax | escape }}</code></td>
                 <td class="col-flags">
@@ -331,20 +344,6 @@ The abbreviations / glossary system is shared site-wide:
                   {% else %}
                     <span class="cell-empty">—</span>
                   {% endif %}
-                </td>
-                <td class="col-os">
-                  <div class="cmd-os-badges">
-                    {% for o in cmd.os %}
-                      {%- case o -%}
-                        {%- when "linux"          -%}<span class="reference-badge cmd-os--linux"   title="Linux">🐧</span>
-                        {%- when "macos"          -%}<span class="reference-badge cmd-os--macos"   title="macOS">🍎</span>
-                        {%- when "windows"        -%}<span class="reference-badge cmd-os--windows" title="Windows">🪟</span>
-                        {%- when "cross-platform" -%}<span class="reference-badge cmd-os--cross"   title="Cross-platform">⚙️</span>
-                        {%- when "root"           -%}<span class="reference-badge cmd-os--root"    title="Requires root / sudo">🛡</span>
-                        {%- when "android"        -%}<span class="reference-badge cmd-os--android" title="Android (Termux)">🤖</span>
-                      {%- endcase -%}
-                    {% endfor %}
-                  </div>
                 </td>
               </tr>
             {% endfor %}
