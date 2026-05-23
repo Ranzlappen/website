@@ -555,7 +555,7 @@ entries:
       - flag: "remove <pkg>"
         description: "Remove a dependency from package.json and yarn.lock."
       - flag: "run <script>"
-        description: "Run a script defined in package.json (shorthand: yarn <script>)."
+        description: "Run a script defined in package.json (shorthand: yarn <code>&lt;script&gt;</code>)."
       - flag: "upgrade [<pkg>]"
         description: "Upgrade packages within the semver ranges in package.json."
       - flag: "workspaces foreach run build"

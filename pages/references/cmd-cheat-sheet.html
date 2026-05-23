@@ -199,7 +199,6 @@ The abbreviations / glossary system is shared site-wide:
             <th scope="col" class="col-examples">Examples</th>
             <th scope="col" class="col-recipes">Recipes / Combos</th>
             <th scope="col" class="col-gotchas">Gotchas</th>
-            <th scope="col" class="col-danger">Danger</th>
             <th scope="col" class="col-modern">Modern alt</th>
             <th scope="col" class="col-see-also">See also</th>
             <th scope="col" class="col-docs">Docs</th>
@@ -231,6 +230,11 @@ The abbreviations / glossary system is shared site-wide:
                       {%- endcase -%}
                     {% endfor %}
                   </div>
+                  {%- case cmd.danger -%}
+                    {%- when "destructive" -%}<div class="cmd-danger-cell"><span class="reference-badge cmd-danger--destructive" title="Destructive — can cause irreversible data loss or system damage">⚠ destructive</span></div>
+                    {%- when "caution" -%}<div class="cmd-danger-cell"><span class="reference-badge cmd-danger--caution" title="Caution — can overwrite, modify state, or surprise you">▲ caution</span></div>
+                    {%- when "safe" -%}<div class="cmd-danger-cell"><span class="reference-badge cmd-danger--safe" title="Safe — read-only or trivially reversible in normal use">✓ safe</span></div>
+                  {%- endcase -%}
                 </td>
                 <td class="col-desc">{{ cmd.description }}</td>
                 <td class="col-syntax"><code class="mono">{{ cmd.syntax | escape }}</code></td>
@@ -300,14 +304,6 @@ The abbreviations / glossary system is shared site-wide:
                 </td>
                 <td class="col-gotchas">
                   {% if cmd.gotchas %}{{ cmd.gotchas | markdownify }}{% else %}<span class="cell-empty">—</span>{% endif %}
-                </td>
-                <td class="col-danger">
-                  {%- case cmd.danger -%}
-                    {%- when "destructive" -%}<span class="reference-badge cmd-danger--destructive" title="Destructive — can cause irreversible data loss or system damage">⚠ destructive</span>
-                    {%- when "caution" -%}<span class="reference-badge cmd-danger--caution" title="Caution — can overwrite, modify state, or surprise you">▲ caution</span>
-                    {%- when "safe" -%}<span class="reference-badge cmd-danger--safe" title="Safe — read-only or trivially reversible in normal use">✓ safe</span>
-                    {%- else -%}<span class="cell-empty">—</span>
-                  {%- endcase -%}
                 </td>
                 <td class="col-modern">
                   {% if cmd.modern %}{{ cmd.modern }}{% else %}<span class="cell-empty">—</span>{% endif %}

@@ -246,7 +246,7 @@ entries:
     os: [linux, macos, cross-platform]
     flags:
       - flag: "-i"
-        description: "Internet sockets — append :<port> or @host."
+        description: "Internet sockets — append :<code>&lt;port&gt;</code> or @host."
       - flag: "-p <pid>"
         description: "Files opened by a specific PID."
       - flag: "-u <user>"
@@ -365,7 +365,7 @@ entries:
       - flag: "%+ / %%"
         description: "Most recent job (default)."
       - flag: "%<string>"
-        description: "Job whose command starts with <string>."
+        description: "Job whose command starts with <code>&lt;string&gt;</code>."
     examples:
       - code: "fg"
         explain: "Brings the most recent background or stopped job back to the foreground."

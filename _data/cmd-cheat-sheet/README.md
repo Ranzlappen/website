@@ -73,7 +73,7 @@ entries:
 - `flags` — array of `{flag, description}` pairs. Rendered into a collapsible `<dl>` inside the Flags cell.
 - `examples` — array of **`{code, explain}` objects**. `code` is the exact command line; `explain` is one plain-English sentence about what that invocation does. Each renders as a clickable button that opens an explanation modal (and command tokens inside `code` that match a glossary term become clickable too). The quality bar wants **≥2 examples per entry**, each with both keys.
 - `recipes` — array of `{code, explain}` objects (same shape as `examples`), for multi-command combos / pipelines. Rendered in the **Recipes / Combos** column, collapsed when there's more than one.
-- `danger` — one of `safe` | `caution` | `destructive`. Rendered as a colour-coded badge in the **Danger** column. `safe` = read-only / trivially reversible; `caution` = writes or changes state but recoverable; `destructive` = irreversible data loss possible.
+- `danger` — one of `safe` | `caution` | `destructive`. Rendered as a colour-coded badge stacked in the sticky first column, beneath the command name and OS pills (there is no standalone Danger column). `safe` = read-only / trivially reversible; `caution` = writes or changes state but recoverable; `destructive` = irreversible data loss possible.
 - `modern` — string (inline `<code>` allowed) naming a modern replacement, shown in the **Modern alt** column. Omit when there's no obvious alternative.
 - `gotchas` — string (use the folded scalar `>` for paragraph blocks). Markdown is supported; inline `<code>` works.
 - `see_also` — array of command names. Each one is rendered as a link to `#cmd-<slug>` of the matching entry in the page.
@@ -127,6 +127,7 @@ Add an optional `aliases: [..]` array to an entry to register case/plural varian
 - **Real Unicode dashes**: `–` (en-dash) for ranges, `—` (em-dash) for parentheticals. Avoid `--` in prose.
 - **Escape `"` inside double-quoted strings** with `\"`. Single-quoted strings need no escaping but don't expand any escapes.
 - **HTML inside cells is permitted** but should be minimal — inline `<code>` for terms, `<br>` for forced breaks.
+- **Escape literal angle brackets in raw-rendered fields.** `description`, flag `description`, `modern`, and `gotchas` are emitted as raw HTML (so inline `<code>` works). A bare placeholder like `<script>`, `<repl>`, or `<path>` is therefore parsed as a real element — and a literal `<script>` will silently corrupt the table DOM from that row onward (the footer ends up rendered inside the table). Write placeholders as escaped, code-wrapped text: `<code>&lt;script&gt;</code>`. (The `syntax` field is exempt — the template runs it through `| escape`, so raw `<placeholders>` there are safe.) `lint.sh` fails the build if any rawtext/script tag ends up inside the command table.
 - **Do not duplicate abbreviation glosses inside command cells** — write the term once in the glossary YAML and let the click-to-explain modal handle it.
 
 ---
