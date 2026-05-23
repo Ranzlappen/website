@@ -204,7 +204,8 @@ export function validateFieldSchema(input: unknown): FieldDef[] {
       key,
       label,
       type,
-      options,
+      // Omit when undefined — Firestore rejects explicit `undefined` values.
+      ...(options !== undefined ? { options } : {}),
       required: r.required === true,
       platforms: Array.from(new Set(platforms)),
       order: typeof r.order === "number" ? r.order : idx,

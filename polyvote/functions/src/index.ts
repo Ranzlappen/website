@@ -1,7 +1,13 @@
 import { initializeApp } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 
 // Initialize Firebase Admin SDK
 initializeApp();
+
+// Drop `undefined` field values instead of throwing on write. Defense-in-depth
+// so an accidental `undefined` (e.g. an absent optional schema field) can't
+// 500 a callable; the code still prefers explicit `null`.
+getFirestore().settings({ ignoreUndefinedProperties: true });
 
 // Auth triggers
 export { onUserCreate } from "./auth/onCreate";

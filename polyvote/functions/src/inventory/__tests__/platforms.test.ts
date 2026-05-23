@@ -53,6 +53,31 @@ describe("ensureTagColumns", () => {
   });
 });
 
+describe("no explicit `options: undefined` (Firestore rejects undefined)", () => {
+  const hasOwnOptions = (f: object) =>
+    Object.prototype.hasOwnProperty.call(f, "options");
+
+  it("omits the options key entirely on non-select generated fields", () => {
+    const schema = fieldsForTags(["ebay", "facebook"]);
+    const title = schema.find((f) => f.key === "title")!;
+    const price = schema.find((f) => f.key === "price")!;
+    const condition = schema.find((f) => f.key === "condition")!;
+    expect(hasOwnOptions(title)).toBe(false);
+    expect(hasOwnOptions(price)).toBe(false);
+    expect(hasOwnOptions(condition)).toBe(true); // select keeps its options
+    expect(title.options).toBeUndefined();
+  });
+
+  it("core schema and ensureTagColumns never carry undefined options", () => {
+    for (const f of coreFieldSchema()) {
+      if (f.type !== "select") expect(hasOwnOptions(f)).toBe(false);
+    }
+    for (const f of ensureTagColumns(coreFieldSchema(), ["idealo"])) {
+      if (f.type !== "select") expect(hasOwnOptions(f)).toBe(false);
+    }
+  });
+});
+
 describe("platformsForField", () => {
   it("lists each platform's exact column for a canonical key", () => {
     const price = platformsForField("price");
