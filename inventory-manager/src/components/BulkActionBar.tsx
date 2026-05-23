@@ -89,14 +89,14 @@ export default function BulkActionBar({
               onClick={() => run('toggleEbay', { enabled: true })}
               className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
             >
-              eBay sync on
+              Include in export
             </button>
             <button
               disabled={busy}
               onClick={() => run('toggleEbay', { enabled: false })}
               className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
             >
-              eBay sync off
+              Exclude from export
             </button>
             <button
               disabled={busy}

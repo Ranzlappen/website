@@ -8,6 +8,7 @@ import {
 import Header from '../components/Header';
 import FieldInput from '../components/FieldInput';
 import PhotoGrid from '../components/PhotoGrid';
+import PlatformBadges from '../components/PlatformBadges';
 import {
   inventoryCreateItemFn,
   inventoryDuplicateItemFn,
@@ -17,27 +18,14 @@ import {
 } from '../firebase';
 import { useStore } from '../store';
 import { EBAY_CONDITION_IDS, EBAY_DURATIONS, EBAY_FORMATS } from '../ebay';
+import { missingForPlatform, PLATFORM_BY_ID } from '../platforms';
 import {
   defaultEbayBlock,
   type EbayBlock,
-  type FieldDef,
   type FolderDoc,
   type ItemDoc,
   type PhotoRef,
 } from '../types';
-
-function missingEbayRequired(
-  fields: Record<string, unknown>,
-  schema: FieldDef[],
-): string[] {
-  return schema
-    .filter((f) => f.ebayRequired)
-    .filter((f) => {
-      const v = fields[f.key];
-      return v === undefined || v === null || (typeof v === 'string' && !v.trim());
-    })
-    .map((f) => f.label);
-}
 
 const AUTO_SAVE_DEBOUNCE_MS = 2500;
 
@@ -120,9 +108,13 @@ export default function ItemEditor() {
     dirtyRef.current = true;
   }
 
-  const missing = useMemo(
-    () => (folder ? missingEbayRequired(fields, folder.fieldSchema) : []),
-    [fields, folder],
+  const readiness = useMemo(
+    () =>
+      (folder?.platformTags ?? []).map((tag) => ({
+        tag,
+        missing: missingForPlatform({ fields, photos }, tag),
+      })),
+    [folder, fields, photos],
   );
 
   async function save(opts: { silent?: boolean } = {}) {
@@ -246,16 +238,11 @@ export default function ItemEditor() {
               </h2>
               {folder.fieldSchema.map((f) => (
                 <label key={f.key} className="flex flex-col gap-1">
-                  <span className="text-sm flex items-center gap-2">
+                  <span className="text-sm flex items-center gap-2 flex-wrap">
                     {f.label}
                     {f.required && <span className="text-[var(--danger)]">*</span>}
-                    {f.ebayRequired && (
-                      <span
-                        className="text-[10px] uppercase px-1.5 py-0.5 rounded border border-[var(--accent)] text-[var(--accent)]"
-                        title="Required to send this item to eBay"
-                      >
-                        eBay
-                      </span>
+                    {(f.platforms?.length ?? 0) > 0 && (
+                      <PlatformBadges fieldKey={f.key} platforms={f.platforms ?? []} />
                     )}
                   </span>
                   <FieldInput
@@ -285,7 +272,7 @@ export default function ItemEditor() {
 
             <aside className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-5 space-y-4 h-fit lg:sticky lg:top-4">
               <h2 className="text-sm uppercase tracking-wide text-[var(--text-muted)]">
-                eBay
+                Export
               </h2>
 
               <label className="flex items-center gap-2 text-sm">
@@ -294,81 +281,98 @@ export default function ItemEditor() {
                   checked={ebay.syncEnabled}
                   onChange={(e) => patchEbay({ syncEnabled: e.target.checked })}
                 />
-                <span>Include in eBay export</span>
+                <span>Include in exports</span>
               </label>
 
-              {ebay.syncEnabled && missing.length > 0 && (
-                <div className="text-xs p-2 rounded border border-[var(--danger)] text-[var(--danger)]">
-                  Missing required fields: {missing.join(', ')}
+              {ebay.syncEnabled && readiness.length === 0 && (
+                <div className="text-xs p-2 rounded border border-[var(--border)] text-[var(--text-muted)]">
+                  This folder has no platform tags. Add tags in Edit schema to
+                  enable platform exports.
                 </div>
               )}
-              {ebay.syncEnabled && missing.length === 0 && (
-                <div className="text-xs p-2 rounded border border-[var(--accent)] text-[var(--accent)]">
-                  Ready for export.
-                </div>
+              {ebay.syncEnabled && readiness.length > 0 && (
+                <ul className="space-y-1">
+                  {readiness.map(({ tag, missing }) => (
+                    <li
+                      key={tag}
+                      className={`text-xs p-2 rounded border ${
+                        missing.length
+                          ? 'border-[var(--warn)] text-[var(--warn)]'
+                          : 'border-[var(--accent)] text-[var(--accent)]'
+                      }`}
+                    >
+                      <strong>{PLATFORM_BY_ID.get(tag)?.name ?? tag}:</strong>{' '}
+                      {missing.length ? `missing ${missing.join(', ')}` : 'ready'}
+                    </li>
+                  ))}
+                </ul>
               )}
 
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-[var(--text-muted)]">Format</span>
-                <select
-                  value={ebay.format}
-                  onChange={(e) =>
-                    patchEbay({ format: e.target.value as EbayBlock['format'] })
-                  }
-                  className="bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
-                >
-                  {EBAY_FORMATS.map((f) => (
-                    <option key={f.value} value={f.value}>
-                      {f.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {folder.platformTags?.includes('ebay') && (
+                <>
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="text-[var(--text-muted)]">eBay Format</span>
+                    <select
+                      value={ebay.format}
+                      onChange={(e) =>
+                        patchEbay({ format: e.target.value as EbayBlock['format'] })
+                      }
+                      className="bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
+                    >
+                      {EBAY_FORMATS.map((f) => (
+                        <option key={f.value} value={f.value}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-[var(--text-muted)]">Duration</span>
-                <select
-                  value={ebay.duration}
-                  onChange={(e) => patchEbay({ duration: e.target.value })}
-                  className="bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
-                >
-                  {EBAY_DURATIONS.map((d) => (
-                    <option key={d.value} value={d.value}>
-                      {d.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="text-[var(--text-muted)]">eBay Duration</span>
+                    <select
+                      value={ebay.duration}
+                      onChange={(e) => patchEbay({ duration: e.target.value })}
+                      className="bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
+                    >
+                      {EBAY_DURATIONS.map((d) => (
+                        <option key={d.value} value={d.value}>
+                          {d.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-[var(--text-muted)]">eBay Category ID</span>
-                <input
-                  value={ebay.categoryId ?? ''}
-                  onChange={(e) => patchEbay({ categoryId: e.target.value || null })}
-                  placeholder="e.g. 15052"
-                  className="bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
-                />
-              </label>
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="text-[var(--text-muted)]">eBay Category ID</span>
+                    <input
+                      value={ebay.categoryId ?? ''}
+                      onChange={(e) => patchEbay({ categoryId: e.target.value || null })}
+                      placeholder="e.g. 15052"
+                      className="bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
+                    />
+                  </label>
 
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-[var(--text-muted)]">Condition ID</span>
-                <select
-                  value={ebay.conditionId ?? ''}
-                  onChange={(e) =>
-                    patchEbay({
-                      conditionId: e.target.value ? Number(e.target.value) : null,
-                    })
-                  }
-                  className="bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
-                >
-                  <option value="">—</option>
-                  {EBAY_CONDITION_IDS.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.id} – {c.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="text-[var(--text-muted)]">eBay Condition ID</span>
+                    <select
+                      value={ebay.conditionId ?? ''}
+                      onChange={(e) =>
+                        patchEbay({
+                          conditionId: e.target.value ? Number(e.target.value) : null,
+                        })
+                      }
+                      className="bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
+                    >
+                      <option value="">—</option>
+                      {EBAY_CONDITION_IDS.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.id} – {c.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
+              )}
 
               {ebay.listingStatus !== 'none' && (
                 <div className="text-xs text-[var(--text-muted)] pt-2 border-t border-[var(--border)]">

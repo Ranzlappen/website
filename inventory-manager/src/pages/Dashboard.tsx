@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import ConfirmDialog from '../components/ConfirmDialog';
+import PlatformTagSelector from '../components/PlatformTagSelector';
 import {
   inventoryCreateFolderFn,
   inventoryDeleteFolderFn,
@@ -192,6 +193,7 @@ export default function Dashboard() {
   const [modal, setModal] = useState<FolderModal | null>(null);
   const [modalName, setModalName] = useState('');
   const [modalCopyItems, setModalCopyItems] = useState(false);
+  const [modalTags, setModalTags] = useState<string[]>([]);
   const [modalBusy, setModalBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<FolderDoc | null>(null);
   const [draggingFolderId, setDraggingFolderId] = useState<string | null>(null);
@@ -239,6 +241,7 @@ export default function Dashboard() {
     setModal({ mode: 'create', parent });
     setModalName('');
     setModalCopyItems(false);
+    setModalTags([]);
   }
   function openRename(folder: FolderDoc) {
     setModal({ mode: 'rename', folder });
@@ -253,6 +256,7 @@ export default function Dashboard() {
     setModal(null);
     setModalName('');
     setModalCopyItems(false);
+    setModalTags([]);
   }
 
   async function submitModal() {
@@ -263,6 +267,7 @@ export default function Dashboard() {
         const res = await inventoryCreateFolderFn({
           name: modalName.trim(),
           parentFolderId: modal.parent?.id ?? null,
+          platformTags: modalTags,
         });
         upsertFolder(res.data);
         addToast(`Created “${res.data.name}”`, 'success');
@@ -433,6 +438,17 @@ export default function Dashboard() {
               placeholder="Folder name"
               className="w-full bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-2"
             />
+            {modal.mode === 'create' && (
+              <div className="mt-4">
+                <div className="text-xs uppercase text-[var(--text-muted)] mb-2">
+                  Platform tags
+                </div>
+                <PlatformTagSelector value={modalTags} onChange={setModalTags} />
+                <p className="text-[11px] text-[var(--text-muted)] mt-2">
+                  Each tag adds the columns that platform's export requires.
+                </p>
+              </div>
+            )}
             {modal.mode === 'duplicate' && (
               <label className="flex items-start gap-2 mt-3 text-sm">
                 <input

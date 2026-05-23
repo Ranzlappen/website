@@ -6,7 +6,6 @@ import {
   appendAudit,
   defaultEbayBlock,
   extractEanCodes,
-  missingEbayRequiredFields,
   validateItemFields,
   type FolderDoc,
   type ItemDoc,
@@ -103,14 +102,9 @@ export const inventoryCreateItem = onCall(async (request) => {
   });
 
   const ebayBlock = { ...defaultEbayBlock(), ...(ebay ?? {}) };
-  if (ebayBlock.syncEnabled) {
-    const missing = missingEbayRequiredFields(cleanFields, folder.fieldSchema);
-    if (missing.length) {
-      throw new HttpsError(
-        "failed-precondition",
-        `Cannot enable eBay sync — missing required fields: ${missing.join(", ")}.`
-      );
-    }
+  if (ebayBlock.syncEnabled && ebayBlock.listingStatus === "none") {
+    // Flagged for export. Per-platform required-field validation happens at
+    // export time, so flagging is unconditional here.
     ebayBlock.listingStatus = "ready";
   }
 
@@ -191,18 +185,11 @@ export const inventoryUpdateItem = onCall(async (request) => {
   if (ebay !== undefined) {
     const nextEbay = { ...existing.ebay, ...ebay };
     if (nextEbay.syncEnabled) {
-      const missing = missingEbayRequiredFields(nextFields, folder.fieldSchema);
-      if (missing.length) {
-        throw new HttpsError(
-          "failed-precondition",
-          `Cannot enable eBay sync — missing required fields: ${missing.join(", ")}.`
-        );
-      }
       if (nextEbay.listingStatus === "none") {
         nextEbay.listingStatus = "ready";
       }
     } else if (nextEbay.listingStatus === "ready") {
-      // Toggling sync off without ever exporting clears the status.
+      // Toggling export off without ever exporting clears the status.
       nextEbay.listingStatus = "none";
     }
     updates.ebay = nextEbay;
@@ -284,17 +271,8 @@ export const inventoryToggleEbaySync = onCall(async (request) => {
   }
   const existing = snap.data() as ItemDoc;
 
-  const folder = await loadFolder(existing.folderId);
-
   const nextEbay = { ...existing.ebay, syncEnabled: !!enabled };
   if (enabled) {
-    const missing = missingEbayRequiredFields(existing.fields, folder.fieldSchema);
-    if (missing.length) {
-      throw new HttpsError(
-        "failed-precondition",
-        `Missing required fields: ${missing.join(", ")}.`
-      );
-    }
     if (nextEbay.listingStatus === "none") nextEbay.listingStatus = "ready";
   } else if (nextEbay.listingStatus === "ready") {
     nextEbay.listingStatus = "none";
@@ -399,21 +377,6 @@ export const inventoryBulkUpdate = onCall(
     } else if (action === "toggleEbay") {
       const enabled = (payload as { enabled?: boolean })?.enabled === true;
       for (const { id, data } of items) {
-        const folder = folderById.get(data.folderId);
-        if (!folder) {
-          skipped.push({ id, reason: "folder not found" });
-          continue;
-        }
-        if (enabled) {
-          const missing = missingEbayRequiredFields(data.fields, folder.fieldSchema);
-          if (missing.length) {
-            skipped.push({
-              id,
-              reason: `missing required fields: ${missing.join(", ")}`,
-            });
-            continue;
-          }
-        }
         const nextEbay = {
           ...data.ebay,
           syncEnabled: enabled,

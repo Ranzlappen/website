@@ -1,17 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
-import {
-  inventoryListFoldersFn,
-  inventoryUpdateFolderFn,
-} from '../firebase';
+import PlatformBadges from '../components/PlatformBadges';
+import PlatformTagSelector from '../components/PlatformTagSelector';
+import { inventoryListFoldersFn, inventoryUpdateFolderFn } from '../firebase';
+import { ensureTagColumns } from '../platforms';
 import { useStore } from '../store';
-import {
-  EBAY_MAPPING_OPTIONS,
-  FIELD_TYPES,
-  type FieldDef,
-  type FolderDoc,
-} from '../types';
+import { FIELD_TYPES, type FieldDef, type FolderDoc } from '../types';
 
 function emptyField(order: number): FieldDef {
   return {
@@ -19,8 +14,7 @@ function emptyField(order: number): FieldDef {
     label: '',
     type: 'text',
     required: false,
-    ebayRequired: false,
-    ebayMapping: null,
+    platforms: [],
     order,
   };
 }
@@ -35,16 +29,21 @@ export default function SchemaEditor() {
 
   const [folder, setFolder] = useState<FolderDoc | null>(null);
   const [schema, setSchema] = useState<FieldDef[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
   const [name, setName] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     let alive = true;
+    const apply = (f: FolderDoc) => {
+      setFolder(f);
+      setSchema(f.fieldSchema);
+      setTags(f.platformTags ?? []);
+      setName(f.name);
+    };
     const fromCache = folders.find((f) => f.id === folderId);
     if (fromCache) {
-      setFolder(fromCache);
-      setSchema(fromCache.fieldSchema);
-      setName(fromCache.name);
+      apply(fromCache);
       return;
     }
     inventoryListFoldersFn({})
@@ -52,11 +51,7 @@ export default function SchemaEditor() {
         if (!alive) return;
         setFolders(res.data.folders);
         const f = res.data.folders.find((x) => x.id === folderId);
-        if (f) {
-          setFolder(f);
-          setSchema(f.fieldSchema);
-          setName(f.name);
-        }
+        if (f) apply(f);
       })
       .catch((err) => addToast(err instanceof Error ? err.message : 'Load failed', 'error'));
     return () => {
@@ -65,9 +60,7 @@ export default function SchemaEditor() {
   }, [folderId, folders, setFolders, addToast]);
 
   function updateField(idx: number, patch: Partial<FieldDef>) {
-    setSchema((s) =>
-      s.map((f, i) => (i === idx ? { ...f, ...patch } : f)),
-    );
+    setSchema((s) => s.map((f, i) => (i === idx ? { ...f, ...patch } : f)));
   }
 
   function move(idx: number, dir: -1 | 1) {
@@ -88,6 +81,13 @@ export default function SchemaEditor() {
     setSchema((s) => [...s, emptyField(s.length)]);
   }
 
+  // Applying/stripping a tag regenerates the columns it owns (badges refresh,
+  // missing columns appear; stripping keeps columns + data, drops badges).
+  function onTagsChange(next: string[]) {
+    setTags(next);
+    setSchema((s) => ensureTagColumns(s, next));
+  }
+
   async function save() {
     if (!folderId) return;
     setSaving(true);
@@ -96,6 +96,7 @@ export default function SchemaEditor() {
         folderId,
         name: name.trim() || undefined,
         fieldSchema: schema,
+        platformTags: tags,
       });
       upsertFolder(res.data);
       addToast('Schema saved', 'success');
@@ -130,11 +131,21 @@ export default function SchemaEditor() {
           />
         </label>
 
+        <section className="mb-6 bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-4">
+          <h2 className="text-sm font-semibold mb-1">Platform tags</h2>
+          <p className="text-xs text-[var(--text-muted)] mb-3">
+            Tags decide which columns this folder's items need. Adding a tag
+            generates its required columns; removing a tag keeps the columns and
+            your data — only the badges disappear.
+          </p>
+          <PlatformTagSelector value={tags} onChange={onTagsChange} />
+        </section>
+
         <div className="space-y-3">
           {schema.map((f, idx) => (
             <div
               key={idx}
-              className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-3 space-y-3 lg:grid lg:grid-cols-[1fr_1fr_160px_90px_110px_200px_110px] lg:gap-2 lg:items-center lg:space-y-0"
+              className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-3 space-y-3 lg:grid lg:grid-cols-[1fr_1fr_150px_80px_1fr_100px] lg:gap-2 lg:items-center lg:space-y-0"
             >
               <label className="flex flex-col gap-1 lg:gap-0">
                 <span className="text-[10px] uppercase text-[var(--text-muted)] lg:hidden">
@@ -170,9 +181,7 @@ export default function SchemaEditor() {
                 </span>
                 <select
                   value={f.type}
-                  onChange={(e) =>
-                    updateField(idx, { type: e.target.value as FieldDef['type'] })
-                  }
+                  onChange={(e) => updateField(idx, { type: e.target.value as FieldDef['type'] })}
                   className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-sm w-full"
                 >
                   {FIELD_TYPES.map((t) => (
@@ -183,47 +192,21 @@ export default function SchemaEditor() {
                 </select>
               </label>
 
-              <div className="flex gap-4 lg:contents">
-                <label className="flex items-center gap-2 lg:justify-center">
-                  <input
-                    type="checkbox"
-                    checked={f.required}
-                    onChange={(e) =>
-                      updateField(idx, { required: e.target.checked })
-                    }
-                  />
-                  <span className="text-xs lg:hidden">Required</span>
-                </label>
-                <label className="flex items-center gap-2 lg:justify-center">
-                  <input
-                    type="checkbox"
-                    checked={f.ebayRequired}
-                    onChange={(e) =>
-                      updateField(idx, { ebayRequired: e.target.checked })
-                    }
-                  />
-                  <span className="text-xs lg:hidden">eBay required</span>
-                </label>
-              </div>
-
-              <label className="flex flex-col gap-1 lg:gap-0">
-                <span className="text-[10px] uppercase text-[var(--text-muted)] lg:hidden">
-                  eBay mapping
-                </span>
-                <select
-                  value={f.ebayMapping ?? ''}
-                  onChange={(e) =>
-                    updateField(idx, { ebayMapping: e.target.value || null })
-                  }
-                  className="bg-[var(--bg)] border border-[var(--border)] rounded px-2 py-1 text-sm w-full"
-                >
-                  {EBAY_MAPPING_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt || '(custom item-specific)'}
-                    </option>
-                  ))}
-                </select>
+              <label className="flex items-center gap-2 lg:justify-center">
+                <input
+                  type="checkbox"
+                  checked={f.required}
+                  onChange={(e) => updateField(idx, { required: e.target.checked })}
+                />
+                <span className="text-xs lg:hidden">Required</span>
               </label>
+
+              <div className="flex flex-col gap-1 lg:gap-0">
+                <span className="text-[10px] uppercase text-[var(--text-muted)] lg:hidden">
+                  Platforms
+                </span>
+                <PlatformBadges fieldKey={f.key} platforms={f.platforms} />
+              </div>
 
               <div className="flex gap-2 lg:justify-end">
                 <button
@@ -253,7 +236,7 @@ export default function SchemaEditor() {
               </div>
 
               {f.type === 'select' && (
-                <label className="flex flex-col gap-1 lg:col-span-7">
+                <label className="flex flex-col gap-1 lg:col-span-6">
                   <span className="text-[10px] uppercase text-[var(--text-muted)]">
                     Options (comma-separated)
                   </span>
@@ -293,9 +276,10 @@ export default function SchemaEditor() {
         </div>
 
         <p className="mt-4 text-xs text-[var(--text-muted)]">
-          ★ marks fields required for eBay export. Existing items keep any
-          values for keys you remove from the schema (they just stop showing
-          in the table view), so removing a key is not destructive.
+          Colored badges show which platforms use a column; the ⓘ button lists
+          each platform's exact exported column name. Existing items keep any
+          values for keys you remove from the schema (they just stop showing in
+          the table), so removing a key is not destructive.
         </p>
       </main>
     </>

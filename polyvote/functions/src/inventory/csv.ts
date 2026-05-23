@@ -4,20 +4,30 @@
  * the existing Functions bundle.
  */
 
-export function escapeCsvCell(value: unknown): string {
+export function escapeCsvCell(value: unknown, delimiter = ","): string {
   if (value === null || value === undefined) return "";
   const s = typeof value === "string" ? value : String(value);
-  if (/[",\r\n]/.test(s)) {
+  // Quote when the cell contains the active delimiter, a quote, or a newline.
+  const needsQuote =
+    s.includes(delimiter) || s.includes('"') || s.includes("\r") || s.includes("\n");
+  if (needsQuote) {
     return `"${s.replace(/"/g, '""')}"`;
   }
   return s;
 }
 
-export function serializeCsv(rows: (string | number | null | undefined)[][]): string {
-  return rows.map((r) => r.map(escapeCsvCell).join(",")).join("\r\n") + "\r\n";
+export function serializeCsv(
+  rows: (string | number | null | undefined)[][],
+  delimiter = ","
+): string {
+  return (
+    rows
+      .map((r) => r.map((c) => escapeCsvCell(c, delimiter)).join(delimiter))
+      .join("\r\n") + "\r\n"
+  );
 }
 
-export function parseCsv(input: string): string[][] {
+export function parseCsv(input: string, delimiter = ","): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let cell = "";
@@ -51,7 +61,7 @@ export function parseCsv(input: string): string[][] {
       i++;
       continue;
     }
-    if (ch === ",") {
+    if (ch === delimiter) {
       row.push(cell);
       cell = "";
       i++;

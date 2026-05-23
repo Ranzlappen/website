@@ -79,7 +79,7 @@ jobs:
           #   firebase deploy --only functions:inventoryListDriveFolder
           # …or trigger firebase-deploy-manual.yml with that target string.
           TARGETS="$TARGETS,functions:inventoryUploadPhoto,functions:inventoryDeletePhoto,functions:inventoryReorderPhotos,functions:inventoryImportPhotoFromUrl"
-          TARGETS="$TARGETS,functions:inventoryImport,functions:inventoryExport,functions:inventoryExportEbayCsv"
+          TARGETS="$TARGETS,functions:inventoryImport,functions:inventoryExport,functions:inventoryExportPlatforms"
           TARGETS="$TARGETS,functions:inventoryFindByEan,functions:inventorySearchItems"
           TARGETS="$TARGETS,functions:inventoryListDeleted,functions:inventoryRestoreItem,functions:inventoryRestoreFolder,functions:inventoryPurgeDeleted"
           firebase deploy --only "$TARGETS" --non-interactive --force

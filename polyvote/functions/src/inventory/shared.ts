@@ -1,5 +1,6 @@
 import { HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
+import { PLATFORM_IDS } from "./platforms";
 
 export type FieldType =
   | "text"
@@ -11,31 +12,15 @@ export type FieldType =
   | "url"
   | "ean";
 
-// Subset of eBay File Exchange columns we can map to. Anything not in this
-// set is treated as a custom item-specific (emitted as "C:<label>").
-export const EBAY_CORE_FIELDS = [
-  "Title",
-  "Description",
-  "Category",
-  "ConditionID",
-  "StartPrice",
-  "Quantity",
-  "CustomLabel",
-  "Format",
-  "Duration",
-  "ShippingProfileName",
-  "ReturnProfileName",
-  "PaymentProfileName",
-] as const;
-
 export interface FieldDef {
   key: string;
   label: string;
   type: FieldType;
   options?: string[];
   required: boolean;
-  ebayRequired: boolean;
-  ebayMapping?: string | null;
+  /** Platform tag ids this column serves. Drives header badges + which tags
+   * "own" the column. Custom user columns = []. */
+  platforms: string[];
   order: number;
 }
 
@@ -44,6 +29,8 @@ export interface FolderDoc {
   parentFolderId: string | null;
   pathSegments: string[];
   fieldSchema: FieldDef[];
+  /** Platform tags applied to this folder (e.g. ["ebay", "amazon"]). */
+  platformTags: string[];
   itemCount: number;
   createdAt: number;
   updatedAt: number;
@@ -130,69 +117,6 @@ const VALID_FIELD_TYPES: FieldType[] = [
 // EAN-8, UPC-A (12), EAN-13, GTIN-14
 const EAN_PATTERN = /^(\d{8}|\d{12}|\d{13}|\d{14})$/;
 
-// The base schema every new folder gets. Covers the minimum set of eBay
-// File Exchange columns needed for a fixed-price listing so the user can
-// export without configuring anything first.
-export function defaultFieldSchema(): FieldDef[] {
-  return [
-    {
-      key: "title",
-      label: "Title",
-      type: "text",
-      required: true,
-      ebayRequired: true,
-      ebayMapping: "Title",
-      order: 0,
-    },
-    {
-      key: "description",
-      label: "Description",
-      type: "longtext",
-      required: false,
-      ebayRequired: true,
-      ebayMapping: "Description",
-      order: 1,
-    },
-    {
-      key: "sku",
-      label: "SKU",
-      type: "text",
-      required: true,
-      ebayRequired: false,
-      ebayMapping: "CustomLabel",
-      order: 2,
-    },
-    {
-      key: "price",
-      label: "Price",
-      type: "number",
-      required: true,
-      ebayRequired: true,
-      ebayMapping: "StartPrice",
-      order: 3,
-    },
-    {
-      key: "quantity",
-      label: "Quantity",
-      type: "number",
-      required: true,
-      ebayRequired: true,
-      ebayMapping: "Quantity",
-      order: 4,
-    },
-    {
-      key: "condition",
-      label: "Condition",
-      type: "select",
-      options: ["New", "Used – Like New", "Used – Good", "Used – Acceptable", "For parts"],
-      required: false,
-      ebayRequired: true,
-      ebayMapping: "ConditionID",
-      order: 5,
-    },
-  ];
-}
-
 export function defaultEbayBlock(): EbayBlock {
   return {
     syncEnabled: false,
@@ -269,16 +193,12 @@ export function validateFieldSchema(input: unknown): FieldDef[] {
       }
     }
 
-    const ebayMappingRaw =
-      typeof r.ebayMapping === "string" && r.ebayMapping.trim()
-        ? r.ebayMapping.trim()
-        : null;
-    if (ebayMappingRaw && ebayMappingRaw.length > 60) {
-      throw new HttpsError(
-        "invalid-argument",
-        `field ${key}: ebayMapping too long.`
-      );
-    }
+    const platforms = Array.isArray(r.platforms)
+      ? r.platforms.filter(
+          (p): p is string =>
+            typeof p === "string" && (PLATFORM_IDS as readonly string[]).includes(p)
+        )
+      : [];
 
     out.push({
       key,
@@ -286,8 +206,7 @@ export function validateFieldSchema(input: unknown): FieldDef[] {
       type,
       options,
       required: r.required === true,
-      ebayRequired: r.ebayRequired === true,
-      ebayMapping: ebayMappingRaw,
+      platforms: Array.from(new Set(platforms)),
       order: typeof r.order === "number" ? r.order : idx,
     });
   });
@@ -388,20 +307,6 @@ export function validateItemFields(
   }
 
   return out;
-}
-
-/** Returns the keys of all eBay-required fields that are missing/empty. */
-export function missingEbayRequiredFields(
-  fields: Record<string, unknown>,
-  schema: FieldDef[]
-): string[] {
-  return schema
-    .filter((f) => f.ebayRequired)
-    .filter((f) => {
-      const v = fields[f.key];
-      return v === undefined || v === null || (typeof v === "string" && v.trim() === "");
-    })
-    .map((f) => f.label);
 }
 
 /** Append an audit log entry for any inventory mutation. */
