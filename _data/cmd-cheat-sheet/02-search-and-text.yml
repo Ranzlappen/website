@@ -417,7 +417,7 @@ entries:
       - flag: "-n <n>"
         description: "Max args per command invocation."
       - flag: "-I <repl>"
-        description: "Replace <repl> in cmd with each input item."
+        description: "Replace <code>&lt;repl&gt;</code> in cmd with each input item."
       - flag: "-P <n>"
         description: "Run up to n commands in parallel."
     examples:
@@ -604,7 +604,7 @@ entries:
       - flag: "-r"
         description: "Treat the separator as a regex."
       - flag: "-s <sep>"
-        description: "Use <sep> instead of newline as the record separator."
+        description: "Use <code>&lt;sep&gt;</code> instead of newline as the record separator."
     examples:
       - code: "tac server.log | head"
         explain: "Show the last 10 lines of the log file starting from the most recent — equivalent to tail but with full reverse ordering."

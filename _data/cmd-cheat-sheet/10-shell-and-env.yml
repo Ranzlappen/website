@@ -352,7 +352,7 @@ entries:
       - flag: "<<EOF ... EOF"
         description: "Heredoc — multi-line stdin terminated by EOF."
       - flag: "<<<\"<word>\""
-        description: "Herestring — single-line stdin from <word>."
+        description: "Herestring — single-line stdin from <code>&lt;word&gt;</code>."
       - flag: "<(cmd)"
         description: "Process substitution — treat cmd's stdout as a file."
     examples:
@@ -500,7 +500,7 @@ entries:
       - flag: "dirs"
         description: "Show the stack."
       - flag: "dirs -v"
-        description: "Stack with numbered entries — handy for cd ~<n>."
+        description: "Stack with numbered entries — handy for cd ~<code>&lt;n&gt;</code>."
     examples:
       - code: "pushd /tmp"
         explain: "Navigate to /tmp and save the current directory on the stack — a single popd brings you straight back."

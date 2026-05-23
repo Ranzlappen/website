@@ -8,7 +8,7 @@
 
 /* ---- Desktop column min-widths ---- */
 .reference-page--cmd .reference-table {
-  min-width: 2180px;
+  min-width: 2050px;
 }
 .reference-page--cmd .reference-table .col-name     { min-width: 11rem; width: 11rem; }
 .reference-page--cmd .reference-table .col-desc     { min-width: 14rem; }
@@ -17,7 +17,6 @@
 .reference-page--cmd .reference-table .col-examples { min-width: 18rem; }
 .reference-page--cmd .reference-table .col-recipes  { min-width: 16rem; }
 .reference-page--cmd .reference-table .col-gotchas  { min-width: 16rem; }
-.reference-page--cmd .reference-table .col-danger   { min-width: 8rem;  width: 8rem; }
 .reference-page--cmd .reference-table .col-modern   { min-width: 11rem; }
 .reference-page--cmd .reference-table .col-see-also { min-width: 10rem; }
 .reference-page--cmd .reference-table .col-docs     { min-width: 11rem; }
@@ -202,6 +201,10 @@
 .reference-page--cmd .col-name .cmd-os-badges {
   margin-top: 0.5rem;
 }
+/* Danger chip stacked beneath the OS pills in the sticky first column. */
+.reference-page--cmd .col-name .cmd-danger-cell {
+  margin-top: 0.4rem;
+}
 
 /* ---- OS badge palette ----
    Six modifiers that set --swatch-bg (used by .reference-legend__swatch)
@@ -270,7 +273,6 @@
   .reference-page--cmd .reference-table .col-examples,
   .reference-page--cmd .reference-table .col-recipes,
   .reference-page--cmd .reference-table .col-gotchas,
-  .reference-page--cmd .reference-table .col-danger,
   .reference-page--cmd .reference-table .col-modern,
   .reference-page--cmd .reference-table .col-see-also,
   .reference-page--cmd .reference-table .col-docs {
