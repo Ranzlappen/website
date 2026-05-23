@@ -292,15 +292,17 @@ export function platformName(id: string): string {
 
 function canonicalToFieldDef(key: string, owners: string[], order: number): FieldDef {
   const c = CANONICAL_FIELDS[key];
-  return {
+  const base: FieldDef = {
     key: c.key,
     label: c.label,
     type: c.type,
-    options: c.options,
     required: false,
     platforms: owners,
     order,
   };
+  // Only attach `options` for select fields — mirrors the backend so schema
+  // objects never carry an explicit `undefined` (rejected by Firestore).
+  return c.options ? { ...base, options: c.options } : base;
 }
 
 export function coreFieldSchema(): FieldDef[] {

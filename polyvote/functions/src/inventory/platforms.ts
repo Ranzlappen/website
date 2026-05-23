@@ -548,15 +548,17 @@ function canonicalToFieldDef(
   order: number
 ): FieldDef {
   const c = CANONICAL_FIELDS[key];
-  return {
+  const base: FieldDef = {
     key: c.key,
     label: c.label,
     type: c.type,
-    options: c.options,
     required: false,
     platforms: owners,
     order,
   };
+  // Only attach `options` for select fields — never write explicit
+  // `undefined` (Firestore rejects it).
+  return c.options ? { ...base, options: c.options } : base;
 }
 
 export function coreFieldSchema(): FieldDef[] {
