@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Lint the built CLI cheat-sheet page for entries below the minimum quality bar
-# (≥1 flag, ≥1 example). The template emits <!-- LINT: ... --> HTML comments
-# for under-spec entries; this script greps them out of _site/.
+# (≥1 flag, ≥1 example, and every example carrying both `code` and `explain`).
+# The template emits <!-- LINT: ... --> HTML comments for under-spec entries;
+# this script greps them out of _site/.
 #
 # Exit codes:
 #   0 — no lint warnings (clean)
@@ -20,7 +21,7 @@ fi
 
 matches=$(grep -c '<!-- LINT:' "$out" || true)
 if [ "$matches" -gt 0 ]; then
-  echo "lint: $matches under-spec entries (minimum bar: ≥1 flag, ≥1 example):" >&2
+  echo "lint: $matches under-spec entries (bar: ≥1 flag, ≥1 example, each example needs code+explain):" >&2
   grep -oE '<!-- LINT:[^>]+-->' "$out" | sed 's/<!-- /  /; s/ -->//' >&2
   exit 1
 fi

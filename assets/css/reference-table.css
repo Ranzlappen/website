@@ -388,6 +388,87 @@
   white-space: nowrap;
 }
 
+/* ---- Custom resize handle (assets/js/resize-handle.js) ----
+   The JS sets `resize: none` on opted-in textareas and wraps them in a
+   `.resize-host`, then injects a `.resize-handle` grabber with a much larger
+   hit area than the native ~12px corner. Works mouse + touch. */
+.resize-host {
+  position: relative;
+  display: block;
+}
+.resize-host > textarea {
+  resize: none;
+  display: block;
+  width: 100%;
+}
+.resize-handle {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: ns-resize;
+  touch-action: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 2px;
+  color: var(--c-text-faint);
+  border-radius: 0 0 4px 0;
+  z-index: 2;
+}
+.resize-handle:hover,
+.resize-handle.is-dragging { color: var(--c-accent); }
+.resize-handle::after {
+  content: "";
+  width: 0.85rem;
+  height: 0.85rem;
+  background:
+    linear-gradient(135deg, transparent 0 45%, currentColor 45% 55%, transparent 55% 100%),
+    linear-gradient(135deg, transparent 0 70%, currentColor 70% 80%, transparent 80% 100%);
+  opacity: 0.8;
+}
+.resize-handle:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+/* Tablet — between the phone stack and desktop. The desktop controls strip
+   keeps tabs + search on one row, which squeezes the search box on narrow
+   tablets. Let the strip wrap and give the search its own full-width line
+   below the tabs. (Does NOT reset the sticky table wrapper — that is handled
+   by the pointer-coarse rule below so the footer stays reachable.) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .reference-controls { flex-wrap: wrap; }
+  .reference-tabs { flex: 1 1 100%; order: 1; }
+  .reference-search {
+    flex: 1 1 100%;
+    max-width: none;
+    order: 2;
+  }
+}
+
+/* Touch devices (any width) — the sticky, max-height, internal-scroll table
+   wrapper traps touch-scroll and makes the page footer unreachable on tablets
+   (the ≤640px block already handles phones, but tablets at 641px+ kept the
+   desktop rule). Drop the wrapper's viewport-pinning on every coarse-pointer
+   device so the page scrolls normally past the table. Horizontal scroll of
+   wide tables is preserved via overflow-x. Trade-off: no always-pinned thead
+   on touch — same trade already accepted for phones. */
+@media (hover: none), (pointer: coarse) {
+  .reference-table-wrapper {
+    position: static;
+    top: auto;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  .reference-table thead th {
+    position: static;
+    box-shadow: none;
+  }
+}
+
 /* Small screens — generic responsive stack + opt-in mobile snap behaviour. */
 @media (max-width: 640px) {
   .reference-container { padding: 0 var(--space-md); }

@@ -6,7 +6,7 @@ batch:
   description: >
     Privilege escalation, file mode changes, disk usage, mount, and the
     handful of "what is this machine doing right now" introspection tools.
-  last_updated: "2026-05-21"
+  last_updated: "2026-05-23"
 
 entries:
   - name: "sudo"
@@ -27,20 +27,29 @@ entries:
       - flag: "-v"
         description: "Refresh credential timestamp without running anything."
     examples:
-      - "sudo apt update"
-      - "sudo -u postgres psql"
-      - "sudo -i"
+      - code: "sudo apt update"
+        explain: "Runs the package-index refresh as root on Debian/Ubuntu systems."
+      - code: "sudo -u postgres psql"
+        explain: "Opens a PostgreSQL shell impersonating the postgres service account."
+      - code: "sudo -i"
+        explain: "Drops into a full root login shell, loading root's profile and PATH."
+    recipes:
+      - code: "echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf"
+        explain: >
+          Appends a kernel tuning parameter as root — the tee trick avoids the
+          "redirect is your unprivileged shell" trap that defeats sudo >> /etc/file.
     gotchas: >
       <code>sudo cmd &gt;&gt; /etc/file</code> doesn't work — the redirect
       is your unprivileged shell. Use <code>echo … | sudo tee -a /etc/file</code>
       instead. Edit <code>/etc/sudoers</code> only via <code>visudo</code>
       so syntax errors don't lock you out.
+    danger: "caution"
     see_also: ["su", "doas", "visudo"]
     references:
       - "man 8 sudo"
 
   - name: "chmod"
-    description: "Change file permissions."
+    description: "Change file permissions using octal or symbolic notation."
     syntax: "chmod [<mode>|<symbolic>] <file>..."
     os: [linux, macos, cross-platform, android]
     flags:
@@ -55,9 +64,17 @@ entries:
       - flag: "-R"
         description: "Recurse into directories."
     examples:
-      - "chmod 600 ~/.ssh/id_ed25519"
-      - "chmod -R u+rwX,go+rX,go-w site/"
-      - "chmod +x scripts/deploy.sh"
+      - code: "chmod 600 ~/.ssh/id_ed25519"
+        explain: "Locks a private key to owner-read/write only — SSH refuses keys with looser permissions."
+      - code: "chmod -R u+rwX,go+rX,go-w site/"
+        explain: "Recursively grants owner full access and group/others read+execute on dirs only, removing write."
+      - code: "chmod +x scripts/deploy.sh"
+        explain: "Marks a script executable for the owner so it can be invoked directly."
+    recipes:
+      - code: "find . -type f -exec chmod 644 {} +"
+        explain: "Sets every file under the current tree to 644 (owner rw, others r) without touching directories."
+      - code: "find . -type d -exec chmod 755 {} +"
+        explain: "Ensures every directory is traversable by others without altering file permissions."
     gotchas: >
       Octal cheat sheet: <code>r=4 w=2 x=1</code>. <code>755</code> is
       "owner rwx, others rx" (the default for executables and dirs);
@@ -66,6 +83,7 @@ entries:
       Capital <code>X</code> in symbolic mode means "x on dirs but not
       regular files unless already executable" — exactly what you want
       with <code>-R</code>.
+    danger: "caution"
     see_also: ["chown", "umask", "stat", "widget-chmod"]
     references:
       - "man 1 chmod"
@@ -86,14 +104,20 @@ entries:
       - flag: "-h"
         description: "Act on the symlink itself, not its target."
     examples:
-      - "sudo chown -R www-data:www-data /var/www/site"
-      - "sudo chown :staff shared.log"
+      - code: "sudo chown -R www-data:www-data /var/www/site"
+        explain: "Hands the entire web root to the web server's user and group — required after manual file copies."
+      - code: "sudo chown :staff shared.log"
+        explain: "Changes only the group of a log file to staff, leaving the owner unchanged."
+    recipes:
+      - code: "sudo chown -R $(whoami) /usr/local/lib/node_modules"
+        explain: "Reclaims a directory tree as the current user — common fix after running npm with sudo."
+    danger: "caution"
     see_also: ["chmod", "chgrp"]
     references:
       - "man 1 chown"
 
   - name: "umask"
-    description: "Show or set the default permission mask for new files."
+    description: "Show or set the default permission mask applied when new files are created."
     syntax: "umask [-S] [<octal>|<symbolic>]"
     os: [cross-platform]
     flags:
@@ -102,13 +126,21 @@ entries:
       - flag: "-S"
         description: "Show / set in symbolic notation (u=rwx,g=,o=)."
     examples:
-      - "umask"
-      - "umask 077"
+      - code: "umask"
+        explain: "Prints the current process's active mask (typically 0022 on most systems)."
+      - code: "umask 077"
+        explain: "Sets owner-only permissions for all new files in this shell session — useful in scripts handling secrets."
+    recipes:
+      - code: "umask 002 && npm pack"
+        explain: >
+          Temporarily relaxes the mask so packed files are group-writable,
+          handy when building artifacts in a shared CI environment.
     gotchas: >
       Umask is subtracted from the default base mode (666 for files, 777
       for dirs). <code>umask 022</code> → new files 644, new dirs 755
       (the typical default). <code>umask 077</code> → owner-only, useful
       for paranoid home dirs.
+    danger: "caution"
     see_also: ["chmod"]
     references:
       - "help umask  (bash builtin)"
@@ -127,19 +159,27 @@ entries:
       - flag: "-i"
         description: "Show inode usage instead of block usage."
     examples:
-      - "df -h"
-      - "df -hT /"
-      - "df -i"
+      - code: "df -h"
+        explain: "Shows every mounted filesystem's size, used space, and available space in human-readable units."
+      - code: "df -hT /"
+        explain: "Reports the root filesystem's type alongside its usage — useful to confirm ext4 vs. xfs vs. overlay."
+      - code: "df -i"
+        explain: "Displays inode counts instead of block counts — diagnose \"no space\" when blocks show free but inodes don't."
+    recipes:
+      - code: "df -h | sort -k5 -rh | head"
+        explain: "Sorts mounted filesystems by percentage used (column 5) to surface the fullest partitions first."
     gotchas: >
       "No space left on device" can mean blocks OR inodes — check
       <code>df -i</code> too. Lots of small files can exhaust inodes
       well before blocks fill up.
+    danger: "safe"
+    modern: "Use <code>duf</code> for a colourised, categorised disk-usage overview (<code>brew install duf</code> / <code>apt install duf</code>)."
     see_also: ["du", "lsblk"]
     references:
       - "man 1 df"
 
   - name: "du"
-    description: "Estimate file space usage (per directory)."
+    description: "Estimate file space usage per directory."
     syntax: "du [-h] [-s] [-d <depth>] [<path>...]"
     os: [linux, macos, cross-platform, android]
     flags:
@@ -154,19 +194,27 @@ entries:
       - flag: "--exclude=<pat>"
         description: "Skip paths matching the glob."
     examples:
-      - "du -sh *"
-      - "du -h -d 1 ~ | sort -h"
-      - "du -sh --exclude='*.log' /var/lib"
+      - code: "du -sh *"
+        explain: "Prints a single total size for each item in the current directory — quick space audit."
+      - code: "du -h -d 1 ~ | sort -h"
+        explain: "Shows the size of each top-level home directory entry, sorted from smallest to largest."
+      - code: "du -sh --exclude='*.log' /var/lib"
+        explain: "Summarises /var/lib total usage while skipping all log files in the count."
+    recipes:
+      - code: "du -ah . | sort -rh | head -20"
+        explain: "Lists the 20 largest files and directories anywhere under the current tree."
     gotchas: >
       <code>du -sh *</code> misses dotfiles — use <code>du -sh .[!.]* *</code>
       to include them. <code>ncdu</code> is an interactive front end
       worth installing if you're hunting space hogs.
+    danger: "safe"
+    modern: "Use <code>dust</code> for a tree-formatted, colourised disk-usage view (<code>cargo install du-dust</code>)."
     see_also: ["df", "ncdu"]
     references:
       - "man 1 du"
 
   - name: "mount"
-    description: "Mount a filesystem at a directory."
+    description: "Mount a filesystem at a directory, or list current mounts."
     syntax: "mount [-t <type>] [-o <opts>] <device> <mountpoint>"
     os: [linux, macos, cross-platform, root]
     flags:
@@ -177,15 +225,22 @@ entries:
       - flag: "-a"
         description: "Mount everything in /etc/fstab (used at boot)."
     examples:
-      - "sudo mount /dev/sdb1 /mnt/usb"
-      - "sudo mount -t nfs nas.local:/data /mnt/nas"
-      - "mount  # show current mounts"
+      - code: "sudo mount /dev/sdb1 /mnt/usb"
+        explain: "Attaches the first partition of the second drive at /mnt/usb."
+      - code: "sudo mount -t nfs nas.local:/data /mnt/nas"
+        explain: "Mounts a remote NFS export from nas.local at the local /mnt/nas directory."
+      - code: "mount"
+        explain: "Prints all currently mounted filesystems with their types and options."
+    recipes:
+      - code: "sudo mount -o remount,ro /var/log"
+        explain: "Remounts an already-mounted filesystem read-only without unmounting — useful for forensic snapshots."
+    danger: "caution"
     see_also: ["umount", "lsblk", "fstab"]
     references:
       - "man 8 mount"
 
   - name: "umount"
-    description: "Unmount a filesystem."
+    description: "Unmount a filesystem safely before removing or ejecting the device."
     syntax: "umount [-l] [-f] <mountpoint|device>"
     os: [linux, macos, cross-platform, root]
     flags:
@@ -194,18 +249,21 @@ entries:
       - flag: "-f"
         description: "Force (mostly NFS-only)."
     examples:
-      - "sudo umount /mnt/usb"
-      - "sudo umount -l /mnt/stale"
+      - code: "sudo umount /mnt/usb"
+        explain: "Cleanly detaches the USB drive, flushing any pending writes before the device is removed."
+      - code: "sudo umount -l /mnt/stale"
+        explain: "Lazily detaches a hung NFS mount so the mountpoint can be reused without blocking."
     gotchas: >
       "Target is busy" usually means a shell is <code>cd</code>'d into
       the mount or a process has an open file. <code>lsof +D /mnt/usb</code>
       or <code>fuser -m /mnt/usb</code> tells you who.
+    danger: "caution"
     see_also: ["mount", "fuser", "lsof"]
     references:
       - "man 8 umount"
 
   - name: "lsblk"
-    description: "List block devices in a tree (disks → partitions → mappings)."
+    description: "List block devices in a tree (disks, partitions, LUKS, LVM mappings)."
     syntax: "lsblk [-f] [-p] [-o <cols>]"
     os: [linux]
     flags:
@@ -216,14 +274,20 @@ entries:
       - flag: "-o <cols>"
         description: "Custom columns (NAME,SIZE,FSTYPE,MOUNTPOINT,…)."
     examples:
-      - "lsblk"
-      - "lsblk -f"
+      - code: "lsblk"
+        explain: "Prints a tree of every block device and its partitions with sizes and mount points."
+      - code: "lsblk -f"
+        explain: "Adds filesystem type, UUID, and label columns — useful for writing fstab entries."
+    recipes:
+      - code: "lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT,LABEL"
+        explain: "Shows a concise custom table of all block devices — ideal for quickly identifying a newly plugged drive."
+    danger: "safe"
     see_also: ["df", "blkid", "fdisk"]
     references:
       - "man 8 lsblk"
 
   - name: "free"
-    description: "Show memory usage (RAM and swap)."
+    description: "Show RAM and swap usage including buffers and cache."
     syntax: "free [-h] [-s <sec>] [-c <count>]"
     os: [linux]
     flags:
@@ -234,18 +298,25 @@ entries:
       - flag: "-s <sec>"
         description: "Repeat every n seconds (loop)."
     examples:
-      - "free -h"
-      - "free -h -s 2"
+      - code: "free -h"
+        explain: "Displays total, used, free, shared, buff/cache, and available memory in human-readable form."
+      - code: "free -h -s 2"
+        explain: "Refreshes the memory report every 2 seconds — quick alternative to watch for spotting leaks."
+    recipes:
+      - code: "watch -n 1 free -h"
+        explain: "Runs free in a continuously updating full-screen view, refreshing every second."
     gotchas: >
       <code>available</code> is what you actually have — <code>free</code>
       excludes cache that the kernel will reclaim on demand. Linux uses
       free RAM as cache aggressively; "low free RAM" is usually fine.
+    danger: "safe"
+    modern: "Use <code>htop</code> or <code>btop</code> for a live, graphical memory + swap gauge alongside process info."
     see_also: ["top", "vmstat"]
     references:
       - "man 1 free"
 
   - name: "uname"
-    description: "Print system / kernel info."
+    description: "Print system and kernel information."
     syntax: "uname [-a|-r|-s|-m]"
     os: [linux, macos, cross-platform, android]
     flags:
@@ -258,14 +329,20 @@ entries:
       - flag: "-m"
         description: "Machine architecture (x86_64, arm64, …)."
     examples:
-      - "uname -a"
-      - "uname -m"
+      - code: "uname -a"
+        explain: "Prints the full system line — kernel name, hostname, release, version, arch, and OS in one shot."
+      - code: "uname -m"
+        explain: "Outputs the machine architecture (e.g. x86_64, aarch64) — useful in scripts that download arch-specific binaries."
+    recipes:
+      - code: "ARCH=$(uname -m) && curl -L \"https://example.com/app-${ARCH}.tar.gz\" | tar xz"
+        explain: "Dynamically selects the right binary archive for the current CPU architecture."
+    danger: "safe"
     see_also: ["lsb_release", "hostnamectl"]
     references:
       - "man 1 uname"
 
   - name: "id"
-    description: "Print the calling user's UID, GID, and group memberships."
+    description: "Print the calling user's UID, GID, and all group memberships."
     syntax: "id [-u|-g|-G|-n] [<user>]"
     os: [linux, macos, cross-platform, android]
     flags:
@@ -278,15 +355,22 @@ entries:
       - flag: "-n"
         description: "Print names instead of numeric IDs (combine with -u/-g/-G)."
     examples:
-      - "id"
-      - "id -un"
-      - "id alice"
+      - code: "id"
+        explain: "Prints UID, primary GID, and every supplementary group — useful after adding a user to a new group."
+      - code: "id -un"
+        explain: "Outputs just the current username — equivalent to whoami but POSIX-specified."
+      - code: "id alice"
+        explain: "Shows alice's UID/GID and groups without switching user — inspect another account's membership."
+    recipes:
+      - code: "id -nG | tr ' ' '\\n' | sort"
+        explain: "Lists all group memberships for the current user, one per line, sorted alphabetically."
+    danger: "safe"
     see_also: ["whoami", "groups"]
     references:
       - "man 1 id"
 
   - name: "chgrp"
-    description: "Change group ownership of files (the group-only counterpart to chown)."
+    description: "Change group ownership of files — the group-only counterpart to chown."
     syntax: "chgrp [-R] <group> <file>..."
     os: [linux, macos, cross-platform, root]
     flags:
@@ -295,14 +379,20 @@ entries:
       - flag: "-h"
         description: "Act on the symlink itself, not its target."
     examples:
-      - "chgrp staff shared.log"
-      - "sudo chgrp -R www-data /var/www/site"
+      - code: "chgrp staff shared.log"
+        explain: "Reassigns a log file's group to staff so members can read it without changing the owner."
+      - code: "sudo chgrp -R www-data /var/www/site"
+        explain: "Recursively sets the group on a web root so the web server can read all files."
+    recipes:
+      - code: "find /srv/project -type f -exec chgrp developers {} +"
+        explain: "Batch-changes group ownership on every file in a project tree without touching directories."
+    danger: "caution"
     see_also: ["chown", "chmod"]
     references:
       - "man 1 chgrp"
 
   - name: "passwd"
-    description: "Change a user's password."
+    description: "Change a user's login password."
     syntax: "passwd [<user>]"
     os: [linux, macos, cross-platform, root]
     flags:
@@ -315,9 +405,16 @@ entries:
       - flag: "-e"
         description: "Expire — force the user to change on next login."
     examples:
-      - "passwd"
-      - "sudo passwd alice"
-      - "sudo passwd -l olduser"
+      - code: "passwd"
+        explain: "Prompts the current user to enter and confirm a new password for their own account."
+      - code: "sudo passwd alice"
+        explain: "Lets root set alice's password directly without knowing the current one."
+      - code: "sudo passwd -l olduser"
+        explain: "Locks the olduser account by prepending ! to the password hash — login is blocked immediately."
+    recipes:
+      - code: "sudo passwd -e alice && sudo passwd -u alice"
+        explain: "Expires alice's password so she must choose a new one at next login, then ensures the account is unlocked."
+    danger: "caution"
     see_also: ["chpasswd", "usermod"]
     references:
       - "man 1 passwd"
@@ -328,16 +425,22 @@ entries:
     os: [linux, macos, cross-platform, android]
     flags:
       - flag: "(no args)"
-        description: "Same as `id -un`. Useful in scripts and SSH prompts."
+        description: "Same as id -un. Useful in scripts and SSH prompts."
     examples:
-      - "whoami"
-      - "sudo whoami   # prints 'root'"
+      - code: "whoami"
+        explain: "Prints the name of the effective user running the current shell or script."
+      - code: "sudo whoami"
+        explain: "Prints 'root' — confirms sudo escalation is working correctly."
+    recipes:
+      - code: "[ \"$(whoami)\" = root ] || { echo 'Must run as root'; exit 1; }"
+        explain: "Script guard that aborts with a clear message if the caller is not root."
+    danger: "safe"
     see_also: ["id", "who"]
     references:
       - "man 1 whoami"
 
   - name: "who"
-    description: "Show who is logged in to the system."
+    description: "Show who is currently logged in to the system."
     syntax: "who [-H] [-a] [<file>]"
     os: [linux, macos, cross-platform]
     flags:
@@ -348,29 +451,41 @@ entries:
       - flag: "-b"
         description: "Last boot time."
     examples:
-      - "who"
-      - "who -a"
+      - code: "who"
+        explain: "Lists each logged-in user, their TTY, login time, and source host or display."
+      - code: "who -a"
+        explain: "Shows extended info including system boot time, idle processes, and the current run level."
+    recipes:
+      - code: "who | awk '{print $1}' | sort -u"
+        explain: "Extracts a deduplicated list of all usernames currently logged into the system."
+    danger: "safe"
     see_also: ["w", "whoami", "last"]
     references:
       - "man 1 who"
 
   - name: "uptime"
-    description: "Show how long the system has been running + load averages."
+    description: "Show how long the system has been running and the 1/5/15-minute load averages."
     syntax: "uptime [-p] [-s]"
     os: [linux, macos, cross-platform, android]
     flags:
       - flag: "-p"
         description: "Pretty format — \"up 3 days, 12 hours\"."
       - flag: "-s"
-        description: "Since when — date the system booted."
+        description: "Since when — date and time the system last booted."
     examples:
-      - "uptime"
-      - "uptime -p"
+      - code: "uptime"
+        explain: "Prints current time, uptime duration, number of logged-in users, and load averages."
+      - code: "uptime -p"
+        explain: "Shows uptime in a readable sentence like \"up 2 weeks, 4 days, 3 hours\" — great for status reports."
+    recipes:
+      - code: "uptime -s && uptime -p"
+        explain: "Combines the boot timestamp and the human duration for a complete \"since/for how long\" summary."
     gotchas: >
       Load average columns are 1-min, 5-min, 15-min averages. On Linux
       they include processes in uninterruptible sleep (D state); on
       macOS / BSD they don't — so the same machine reports different
       numbers under each OS.
+    danger: "safe"
     see_also: ["top", "w"]
     references:
       - "man 1 uptime"
@@ -389,9 +504,165 @@ entries:
       - flag: "<new>"
         description: "Set the hostname (root, this session only — persist via /etc/hostname or hostnamectl)."
     examples:
-      - "hostname"
-      - "hostname -f"
-      - "sudo hostnamectl set-hostname newname  # persistent on systemd"
+      - code: "hostname"
+        explain: "Prints the system's current short hostname — quick check when SSHed into an unfamiliar machine."
+      - code: "hostname -f"
+        explain: "Returns the fully qualified domain name, confirming DNS resolution is configured correctly."
+      - code: "sudo hostnamectl set-hostname newname"
+        explain: "Persistently renames the host on systemd systems, updating /etc/hostname and the running kernel name."
+    recipes:
+      - code: "echo \"$(hostname -s)\" > /etc/hostname && hostnamectl set-hostname \"$(hostname -s)\""
+        explain: "Writes and applies a persistent short hostname in one step — useful during automated VM provisioning."
+    danger: "caution"
     see_also: ["hostnamectl", "uname"]
     references:
       - "man 1 hostname"
+
+  - name: "systemctl"
+    description: "Control the systemd system and service manager — start, stop, enable, and inspect units."
+    syntax: "systemctl <verb> [<unit>]"
+    os: [linux]
+    flags:
+      - flag: "start <unit>"
+        description: "Start a unit immediately."
+      - flag: "stop <unit>"
+        description: "Stop a running unit."
+      - flag: "restart <unit>"
+        description: "Stop then start a unit — applies changed config."
+      - flag: "reload <unit>"
+        description: "Ask the process to reload its config without a full restart (if supported)."
+      - flag: "enable <unit>"
+        description: "Enable a unit to start at boot."
+      - flag: "disable <unit>"
+        description: "Remove the boot-time start link."
+      - flag: "status <unit>"
+        description: "Show running state, recent logs, and PID."
+      - flag: "is-active <unit>"
+        description: "Exit 0 if the unit is active — useful in scripts."
+      - flag: "list-units --failed"
+        description: "List all units that have failed."
+    examples:
+      - code: "systemctl status nginx"
+        explain: "Shows nginx's active/inactive state, main PID, and the last few log lines — first stop when a service misbehaves."
+      - code: "sudo systemctl restart postgresql"
+        explain: "Stops and restarts the database, picking up any config changes made since it last started."
+      - code: "sudo systemctl enable --now docker"
+        explain: "Enables Docker to start at boot and also starts it immediately in one command."
+    recipes:
+      - code: "systemctl list-units --failed --no-legend | awk '{print $1}'"
+        explain: "Extracts a plain list of every failed unit name — pipe to xargs systemctl status for bulk investigation."
+      - code: "sudo systemctl reload-or-restart nginx"
+        explain: "Gracefully reloads nginx config if the process supports it, falling back to a full restart otherwise."
+    gotchas: >
+      <code>systemctl enable</code> only arms the unit for boot — it doesn't
+      start it now. Use <code>--now</code> to do both. <code>systemctl mask</code>
+      is stronger than <code>disable</code>: it symlinks the unit to /dev/null
+      so nothing can start it — even as a dependency. Unmask with
+      <code>systemctl unmask</code>.
+    danger: "caution"
+    see_also: ["journalctl", "service", "systemd-analyze"]
+    references:
+      - "man 1 systemctl"
+
+  - name: "journalctl"
+    description: "Query and filter logs collected by systemd's journal daemon."
+    syntax: "journalctl [-u <unit>] [-f] [-n <lines>] [-S <since>] [-p <priority>]"
+    os: [linux]
+    flags:
+      - flag: "-u <unit>"
+        description: "Filter to a specific systemd unit (e.g. nginx, sshd)."
+      - flag: "-f"
+        description: "Follow — tail new entries as they arrive (like tail -f)."
+      - flag: "-n <n>"
+        description: "Show only the last n lines."
+      - flag: "-S <time>"
+        description: "Show entries since a time (\"today\", \"1 hour ago\", \"2024-01-01 08:00\")."
+      - flag: "-U <time>"
+        description: "Show entries until a time."
+      - flag: "-p <level>"
+        description: "Filter by priority: emerg, alert, crit, err, warning, notice, info, debug."
+      - flag: "-b"
+        description: "Entries from the current boot only; -b -1 is the previous boot."
+      - flag: "--disk-usage"
+        description: "Report how much space the journal is consuming."
+      - flag: "--vacuum-size=<sz>"
+        description: "Shrink stored journal to at most this size (e.g. 500M)."
+    examples:
+      - code: "journalctl -u nginx -f"
+        explain: "Tails the live nginx service log — the go-to command when diagnosing a web server issue in real time."
+      - code: "journalctl -p err -b"
+        explain: "Shows only error-level and above messages from the current boot — cuts through the noise fast."
+      - code: "journalctl -S '1 hour ago' -u ssh"
+        explain: "Reviews SSH daemon log entries from the past hour — useful for spotting failed login attempts."
+    recipes:
+      - code: "journalctl -u nginx --since today --no-pager | grep '500'"
+        explain: "Greps today's nginx journal for HTTP 500 errors without opening a pager."
+      - code: "journalctl --disk-usage && sudo journalctl --vacuum-size=200M"
+        explain: "Reports current journal size, then trims it to 200 MB — keeps log storage from growing unbounded."
+    danger: "safe"
+    see_also: ["systemctl", "dmesg", "syslog"]
+    references:
+      - "man 1 journalctl"
+
+  - name: "crontab"
+    description: "Schedule recurring commands with the cron daemon using per-user crontab files."
+    syntax: "crontab [-l|-e|-r] [-u <user>]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-l"
+        description: "List the current user's crontab."
+      - flag: "-e"
+        description: "Open the crontab in $EDITOR for editing."
+      - flag: "-r"
+        description: "Remove (delete) the entire crontab — no confirmation prompt."
+      - flag: "-u <user>"
+        description: "Operate on a different user's crontab (root only)."
+    examples:
+      - code: "crontab -l"
+        explain: "Prints the current user's scheduled cron jobs — check what's installed before editing."
+      - code: "crontab -e"
+        explain: "Opens the crontab file in the default editor; cron syntax is validated before saving."
+    recipes:
+      - code: "(crontab -l 2>/dev/null; echo '0 3 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1') | crontab -"
+        explain: >
+          Appends a new daily 3 AM backup job to the existing crontab non-interactively —
+          safe because it preserves existing entries and suppresses the "no crontab" error on first run.
+    gotchas: >
+      Cron runs with a minimal PATH — always use absolute paths for both
+      commands and any files they reference. The five-field time spec is
+      <code>min hour day month weekday</code>; <code>*</code> means "every".
+      Use <code>https://crontab.guru</code> to verify your schedule expression
+      before deploying. <code>crontab -r</code> deletes everything with no
+      undo — prefer <code>crontab -e</code> and removing individual lines.
+    danger: "caution"
+    see_also: ["systemctl", "at", "anacron"]
+    references:
+      - "man 5 crontab"
+      - "man 1 crontab"
+
+  - name: "groups"
+    description: "Print the group memberships of the current user or a named user."
+    syntax: "groups [<user>]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "<user>"
+        description: "Show the groups for this user instead of the caller."
+    examples:
+      - code: "groups"
+        explain: "Lists every group the current user belongs to — verify docker or sudo membership after usermod."
+      - code: "groups alice"
+        explain: "Shows alice's group memberships without switching user — useful for access audits."
+    recipes:
+      - code: "sudo usermod -aG docker $USER && groups $USER"
+        explain: >
+          Adds the current user to the docker group then immediately prints their updated memberships —
+          note that the new group only takes effect in new login sessions.
+    gotchas: >
+      Group membership changes made with <code>usermod -aG</code> don't
+      apply to existing shells. Log out and back in (or run
+      <code>newgrp &lt;group&gt;</code>) to pick up the new membership
+      without a full logout.
+    danger: "safe"
+    see_also: ["id", "whoami", "usermod"]
+    references:
+      - "man 1 groups"

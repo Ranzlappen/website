@@ -5,16 +5,18 @@ batch:
   short_name: "Version Control"
   description: >
     The git subcommands you reach for daily — clone, status, add, commit,
-    push, pull, branch, log, diff, stash, rebase. All examples assume
-    Git ≥ 2.30; older versions may lack 'git switch' / 'git restore' and
-    need 'git checkout' equivalents.
-  last_updated: "2026-05-21"
+    push, pull, branch, log, diff, stash, rebase — plus GitHub CLI (gh) for
+    PRs, issues, and repo ops. All examples assume Git ≥ 2.30; older
+    versions may lack 'git switch' / 'git restore' and need 'git checkout'
+    equivalents.
+  last_updated: "2026-05-23"
 
 entries:
   - name: "git clone"
     description: "Copy a remote repository to your machine."
     syntax: "git clone [--depth <n>] [-b <branch>] <url> [<dir>]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "--depth <n>"
         description: "Shallow clone — only the most recent n commits. Smaller, faster."
@@ -25,17 +27,48 @@ entries:
       - flag: "--single-branch"
         description: "Only fetch the named branch, not all branches."
     examples:
-      - "git clone https://github.com/user/repo.git"
-      - "git clone --depth 1 -b main git@github.com:user/repo.git"
-      - "git clone --recurse-submodules https://github.com/user/repo.git"
+      - code: "git clone https://github.com/user/repo.git"
+        explain: "Clone a repository into a new directory named 'repo' in the current path."
+      - code: "git clone --depth 1 -b main git@github.com:user/repo.git"
+        explain: "Shallow-clone only the latest commit on 'main' via SSH — drastically faster for CI."
+      - code: "git clone --recurse-submodules https://github.com/user/repo.git"
+        explain: "Clone and initialise all nested submodules in one step."
+    recipes:
+      - code: "git clone --depth 1 --single-branch -b main <url> && cd repo && npm ci"
+        explain: "Minimal CI clone — one commit, one branch, then install dependencies."
     see_also: ["git init", "git remote"]
     references:
       - "man 1 git-clone"
+
+  - name: "git init"
+    description: "Initialise a new empty repository (or reinitialise an existing one)."
+    syntax: "git init [-b <branch>] [--bare] [<dir>]"
+    os: [cross-platform]
+    danger: safe
+    flags:
+      - flag: "-b <branch>"
+        description: "Set the name of the initial branch (e.g. 'main' instead of 'master')."
+      - flag: "--bare"
+        description: "Create a bare repository — no working tree, for server-side hosting."
+      - flag: "<dir>"
+        description: "Create the repo inside a new directory instead of the current one."
+    examples:
+      - code: "git init -b main"
+        explain: "Initialise a new repo in the current directory with the initial branch named 'main'."
+      - code: "git init --bare /srv/repos/project.git"
+        explain: "Create a bare remote-style repo on a server at the given path."
+    recipes:
+      - code: "git init -b main && git add -A && git commit -m \"initial commit\""
+        explain: "Bootstrap a fresh repository and create the first commit in three commands."
+    see_also: ["git clone", "git remote"]
+    references:
+      - "man 1 git-init"
 
   - name: "git status"
     description: "Show working-tree and staging-area changes."
     syntax: "git status [-s] [-b] [--untracked-files=<mode>]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-s"
         description: "Short format — two-letter status codes."
@@ -44,8 +77,13 @@ entries:
       - flag: "-uno / --untracked-files=no"
         description: "Hide untracked files (faster on big trees)."
     examples:
-      - "git status"
-      - "git status -sb"
+      - code: "git status"
+        explain: "Show full human-readable working-tree state — staged, unstaged, and untracked files."
+      - code: "git status -sb"
+        explain: "Compact view: two-letter codes plus the branch and upstream tracking line."
+    recipes:
+      - code: "git status -s | awk '{print $2}'"
+        explain: "Extract just the changed filenames for scripting or piping to another command."
     see_also: ["git diff", "git log"]
     references:
       - "man 1 git-status"
@@ -54,6 +92,7 @@ entries:
     description: "Stage changes for the next commit."
     syntax: "git add [-A|-u|-p] [<pathspec>...]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-A"
         description: "Stage everything — new, modified, deleted."
@@ -64,9 +103,15 @@ entries:
       - flag: "-n / --dry-run"
         description: "Show what would be added without staging."
     examples:
-      - "git add src/main.ts"
-      - "git add -A"
-      - "git add -p"
+      - code: "git add src/main.ts"
+        explain: "Stage a single specific file for the next commit."
+      - code: "git add -A"
+        explain: "Stage every new, modified, and deleted file across the entire working tree."
+      - code: "git add -p"
+        explain: "Walk through each change hunk interactively to cherry-pick exactly what to stage."
+    recipes:
+      - code: "git add -p && git commit -m \"fix: precise change\""
+        explain: "Stage only the relevant hunks interactively, then commit just those changes."
     gotchas: >
       <code>git add .</code> stages everything below the current directory;
       <code>git add -A</code> stages the entire working tree. Big
@@ -81,6 +126,7 @@ entries:
     description: "Record staged changes as a new commit."
     syntax: "git commit [-m \"<msg>\"] [-a] [--amend] [--no-edit]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-m \"<msg>\""
         description: "Inline commit message; skips $EDITOR."
@@ -93,9 +139,15 @@ entries:
       - flag: "-s / --signoff"
         description: "Append a Signed-off-by trailer."
     examples:
-      - "git commit -m \"fix: trim whitespace in README\""
-      - "git commit -am \"quick fix\""
-      - "git commit --amend --no-edit"
+      - code: "git commit -m \"fix: trim whitespace in README\""
+        explain: "Create a commit with an inline message, bypassing the editor."
+      - code: "git commit -am \"quick fix\""
+        explain: "Stage all tracked changes and commit in one step — equivalent to git add -u then commit."
+      - code: "git commit --amend --no-edit"
+        explain: "Fold staged changes into the previous commit, keeping its message intact."
+    recipes:
+      - code: "git add -A && git commit -m \"chore: update dependencies\""
+        explain: "Stage all changes and commit in a single pipeline — common for dependency bumps."
     gotchas: >
       Never <code>--amend</code> a commit that's already pushed to a
       shared branch without coordinating a force-push. <code>-a</code>
@@ -109,6 +161,7 @@ entries:
     description: "Upload local commits to a remote branch."
     syntax: "git push [-u] [--force-with-lease] [<remote>] [<branch>]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-u / --set-upstream"
         description: "Set tracking — first push of a new branch."
@@ -121,15 +174,22 @@ entries:
       - flag: "--dry-run"
         description: "Show what would be pushed."
     examples:
-      - "git push"
-      - "git push -u origin feature/new-thing"
-      - "git push --force-with-lease"
+      - code: "git push"
+        explain: "Push the current branch to its configured upstream remote."
+      - code: "git push -u origin feature/new-thing"
+        explain: "Push a new branch and set origin as its upstream so future 'git push' needs no args."
+      - code: "git push --force-with-lease"
+        explain: "Force-push only if the remote hasn't been updated by someone else since your last fetch."
+    recipes:
+      - code: "git push -u origin HEAD"
+        explain: "Push the current branch to a same-named remote branch and set upstream — works regardless of the branch name."
     gotchas: >
       Default <code>--force</code> can wipe a teammate's pushed work. Use
       <code>--force-with-lease</code> — it refuses to push if the remote
       moved on after your last fetch. Even safer: <code>--force-with-lease=&lt;branch&gt;:&lt;sha&gt;</code>
       pinning the exact SHA you expect to be overwriting.
-    see_also: ["git pull", "git fetch"]
+    modern: "For opening a PR immediately after pushing, use <code>gh pr create</code> — combines push + PR creation."
+    see_also: ["git pull", "git fetch", "gh pr"]
     references:
       - "man 1 git-push"
 
@@ -137,6 +197,7 @@ entries:
     description: "Fetch from remote and merge / rebase into the current branch."
     syntax: "git pull [--rebase] [--ff-only] [<remote>] [<branch>]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "--rebase"
         description: "Rebase local commits on top of fetched ones (cleaner history)."
@@ -145,9 +206,15 @@ entries:
       - flag: "--no-ff"
         description: "Always create a merge commit."
     examples:
-      - "git pull"
-      - "git pull --rebase"
-      - "git pull --ff-only"
+      - code: "git pull"
+        explain: "Fetch and integrate changes from the tracked remote branch using the configured strategy."
+      - code: "git pull --rebase"
+        explain: "Replay local commits on top of fetched commits — avoids creating a merge commit."
+      - code: "git pull --ff-only"
+        explain: "Only update if the remote is a strict ancestor of HEAD; abort rather than merge."
+    recipes:
+      - code: "git pull --rebase && git push"
+        explain: "Rebase-pull to incorporate upstream changes, then push your rebased commits cleanly."
     gotchas: >
       Set <code>git config --global pull.rebase true</code> (or
       <code>pull.ff only</code>) once and you'll never accidentally
@@ -160,6 +227,7 @@ entries:
     description: "Download remote commits without merging."
     syntax: "git fetch [--all] [--prune] [<remote>] [<refspec>]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "--all"
         description: "Fetch from every configured remote."
@@ -168,16 +236,22 @@ entries:
       - flag: "--tags"
         description: "Fetch tags too."
     examples:
-      - "git fetch"
-      - "git fetch --all --prune"
+      - code: "git fetch"
+        explain: "Download commits from origin without touching your working tree or current branch."
+      - code: "git fetch --all --prune"
+        explain: "Sync all remotes and clean up stale remote-tracking refs in one pass."
+    recipes:
+      - code: "git fetch origin && git log HEAD..origin/main --oneline"
+        explain: "See exactly what commits are on origin/main that you don't have yet before merging."
     see_also: ["git pull", "git remote"]
     references:
       - "man 1 git-fetch"
 
   - name: "git switch"
-    description: "Change branches (the modern replacement for `git checkout` for branches)."
+    description: "Change branches — the modern replacement for <code>git checkout</code> for branch operations."
     syntax: "git switch [-c|-C] [-t <upstream>] <branch>"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-c <branch>"
         description: "Create and switch to a new branch."
@@ -188,17 +262,24 @@ entries:
       - flag: "--detach"
         description: "Detach HEAD at a commit instead of moving a branch."
     examples:
-      - "git switch main"
-      - "git switch -c feature/new-thing"
-      - "git switch -"
+      - code: "git switch main"
+        explain: "Switch to the main branch, updating the working tree to match."
+      - code: "git switch -c feature/new-thing"
+        explain: "Create a new branch at the current HEAD and switch to it."
+      - code: "git switch -"
+        explain: "Jump back to whichever branch you were on before — identical to 'cd -'."
+    recipes:
+      - code: "git fetch origin && git switch -c fix/bug origin/main"
+        explain: "Fetch latest main, then create a new fix branch starting at origin/main."
     see_also: ["git restore", "git checkout", "git branch"]
     references:
       - "man 1 git-switch"
 
   - name: "git restore"
-    description: "Restore files in working tree or staging area (replaces `git checkout -- file`)."
+    description: "Restore files in the working tree or staging area — replaces <code>git checkout -- file</code>."
     syntax: "git restore [--staged] [--source=<commit>] <pathspec>..."
     os: [cross-platform]
+    danger: destructive
     flags:
       - flag: "--staged"
         description: "Unstage — remove from index but keep working-tree changes."
@@ -207,9 +288,20 @@ entries:
       - flag: "-W -S"
         description: "Restore both working tree (-W) and staged version (-S)."
     examples:
-      - "git restore src/foo.ts"
-      - "git restore --staged src/foo.ts"
-      - "git restore --source=HEAD~3 README.md"
+      - code: "git restore src/foo.ts"
+        explain: "Discard all unstaged working-tree changes to a file — irreversible without a stash."
+      - code: "git restore --staged src/foo.ts"
+        explain: "Move a staged file back to unstaged without losing the working-tree changes."
+      - code: "git restore --source=HEAD~3 README.md"
+        explain: "Pull a single file's content from three commits ago into the working tree."
+    recipes:
+      - code: "git restore --staged . && git restore ."
+        explain: "Completely nuke all staged and unstaged changes — a full working-tree reset without moving HEAD."
+    gotchas: >
+      <code>git restore</code> (no <code>--staged</code>) permanently
+      discards working-tree changes — there is no undo unless you have a
+      stash or the content in the reflog. Always check <code>git diff</code>
+      before restoring.
     see_also: ["git switch", "git reset", "git checkout"]
     references:
       - "man 1 git-restore"
@@ -218,6 +310,7 @@ entries:
     description: "List, create, delete, or rename branches."
     syntax: "git branch [-a] [-d|-D <name>] [-m <new>] [<name> [<base>]]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-a"
         description: "List local + remote-tracking branches."
@@ -230,9 +323,15 @@ entries:
       - flag: "-m <new>"
         description: "Rename the current branch."
     examples:
-      - "git branch -a"
-      - "git branch -d old-feature"
-      - "git branch -m new-name"
+      - code: "git branch -a"
+        explain: "List every local and remote-tracking branch with the current one starred."
+      - code: "git branch -d old-feature"
+        explain: "Delete a branch that has already been merged — git refuses if it hasn't been."
+      - code: "git branch -m new-name"
+        explain: "Rename the current branch in place."
+    recipes:
+      - code: "git branch --merged main | grep -v 'main\\|\\*' | xargs git branch -d"
+        explain: "Delete every local branch that has already been merged into main."
     see_also: ["git switch", "git merge"]
     references:
       - "man 1 git-branch"
@@ -241,6 +340,7 @@ entries:
     description: "Merge another branch into the current one."
     syntax: "git merge [--no-ff] [--squash] [--abort] <branch>"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "--no-ff"
         description: "Always create a merge commit, even for fast-forwardable cases."
@@ -251,9 +351,15 @@ entries:
       - flag: "--abort"
         description: "Bail out of a conflicted merge and reset."
     examples:
-      - "git merge feature/new-thing"
-      - "git merge --no-ff feature/big-change"
-      - "git merge --abort"
+      - code: "git merge feature/new-thing"
+        explain: "Merge the feature branch into the current branch using the default fast-forward strategy."
+      - code: "git merge --no-ff feature/big-change"
+        explain: "Force a merge commit even if a fast-forward is possible — preserves branch topology in the log."
+      - code: "git merge --abort"
+        explain: "Abandon a merge mid-conflict and restore the working tree to its pre-merge state."
+    recipes:
+      - code: "git fetch origin && git merge --ff-only origin/main"
+        explain: "Safely fast-forward the current branch to match origin/main — aborts if your local commits would conflict."
     see_also: ["git rebase", "git pull"]
     references:
       - "man 1 git-merge"
@@ -262,6 +368,7 @@ entries:
     description: "Replay commits onto a different base — rewrites history."
     syntax: "git rebase [-i] [--onto <newbase>] [--continue|--abort] <upstream>"
     os: [cross-platform]
+    danger: destructive
     flags:
       - flag: "-i"
         description: "Interactive — pick / squash / reword / drop / reorder commits."
@@ -274,14 +381,21 @@ entries:
       - flag: "--autosquash"
         description: "Auto-apply fixup!/squash! commits during interactive rebase."
     examples:
-      - "git rebase main"
-      - "git rebase -i HEAD~5"
-      - "git rebase --abort"
+      - code: "git rebase main"
+        explain: "Replay all commits on the current branch on top of the latest main."
+      - code: "git rebase -i HEAD~5"
+        explain: "Interactively edit, squash, reword, or drop the last 5 commits."
+      - code: "git rebase --abort"
+        explain: "Cancel an in-progress rebase and restore the branch to where it was."
+    recipes:
+      - code: "git fetch origin && git rebase origin/main"
+        explain: "Bring a feature branch up to date with main without creating a merge commit."
     gotchas: >
       Never rebase commits that have been pushed to a shared branch.
       Rebasing rewrites SHAs, so anyone with the old SHAs will be on a
-      diverged history.
-    see_also: ["git merge", "git cherry-pick"]
+      diverged history. After a rebase you must <code>--force-with-lease</code>
+      to push.
+    see_also: ["git merge", "git cherry-pick", "git reflog"]
     references:
       - "man 1 git-rebase"
 
@@ -289,6 +403,7 @@ entries:
     description: "Temporarily shelve working-tree changes."
     syntax: "git stash [push -m \"<msg>\"|pop|list|drop|apply]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "push -m \"<msg>\""
         description: "Save current changes with a label."
@@ -303,14 +418,22 @@ entries:
       - flag: "drop stash@{<n>}"
         description: "Delete a specific stash entry."
     examples:
-      - "git stash push -m \"wip: testing thing\""
-      - "git stash pop"
-      - "git stash list"
+      - code: "git stash push -m \"wip: testing thing\""
+        explain: "Save the current working-tree changes with a label so you can find them later."
+      - code: "git stash pop"
+        explain: "Re-apply the most recent stash and remove it from the stash list."
+      - code: "git stash list"
+        explain: "Show all saved stashes with their indices and messages."
+    recipes:
+      - code: "git stash push -u && git switch main && git pull && git switch - && git stash pop"
+        explain: "Stash all changes (including untracked), update main, switch back, and restore — a clean interrupt workflow."
     gotchas: >
       Stashes are local-only — they never push or sync. Don't treat the
       stash as long-term storage; commit to a wip branch if you'll be
-      gone for more than a day.
-    see_also: ["git commit", "git restore"]
+      gone for more than a day. <code>stash pop</code> can conflict just
+      like a merge; resolve conflicts then <code>git stash drop</code>
+      manually if pop leaves the stash behind.
+    see_also: ["git commit", "git restore", "git switch"]
     references:
       - "man 1 git-stash"
 
@@ -318,6 +441,7 @@ entries:
     description: "Show commit history."
     syntax: "git log [--oneline] [--graph] [-<n>] [--author=<who>] [<path>...]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "--oneline"
         description: "One commit per line — SHA + subject."
@@ -334,9 +458,15 @@ entries:
       - flag: "--stat"
         description: "Show per-file change counts."
     examples:
-      - "git log --oneline --graph --all -20"
-      - "git log -p src/main.ts"
-      - "git log --since='1 week ago' --author=me"
+      - code: "git log --oneline --graph --all -20"
+        explain: "Compact visual graph of the last 20 commits across all branches."
+      - code: "git log -p src/main.ts"
+        explain: "Show every commit that touched a specific file, with full diffs."
+      - code: "git log --since='1 week ago' --author=me"
+        explain: "Filter commits to your own work from the past week."
+    recipes:
+      - code: "git log --oneline --graph --decorate --all"
+        explain: "Full repo graph with branch and tag labels — the 'big picture' view."
     see_also: ["git show", "git diff", "git blame"]
     references:
       - "man 1 git-log"
@@ -345,6 +475,7 @@ entries:
     description: "Show changes between commits, branches, working tree, or staging."
     syntax: "git diff [--staged] [<commit>[..<commit>]] [-- <path>...]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "--staged / --cached"
         description: "Diff staged changes vs HEAD."
@@ -355,9 +486,15 @@ entries:
       - flag: "-w"
         description: "Ignore whitespace changes."
     examples:
-      - "git diff"
-      - "git diff --staged"
-      - "git diff main..feature/new-thing -- src/"
+      - code: "git diff"
+        explain: "Show all unstaged changes in the working tree compared to the index."
+      - code: "git diff --staged"
+        explain: "Preview exactly what will be committed — diff between the index and HEAD."
+      - code: "git diff main..feature/new-thing -- src/"
+        explain: "Show what the feature branch changed relative to main, scoped to the src/ directory."
+    recipes:
+      - code: "git diff --stat HEAD~5..HEAD"
+        explain: "Summarise the files and line counts changed across the last 5 commits."
     see_also: ["git log", "git show"]
     references:
       - "man 1 git-diff"
@@ -366,6 +503,7 @@ entries:
     description: "Move HEAD (and optionally the index / working tree) to a different commit."
     syntax: "git reset [--soft|--mixed|--hard] [<commit>]"
     os: [cross-platform]
+    danger: destructive
     flags:
       - flag: "--soft"
         description: "Move HEAD only. Index and working tree untouched."
@@ -374,13 +512,20 @@ entries:
       - flag: "--hard"
         description: "Move HEAD and reset both index and working tree. DESTRUCTIVE."
     examples:
-      - "git reset HEAD~1"
-      - "git reset --soft HEAD~3"
-      - "git reset --hard origin/main"
+      - code: "git reset HEAD~1"
+        explain: "Undo the last commit but keep all changes unstaged — useful to re-split a commit."
+      - code: "git reset --soft HEAD~3"
+        explain: "Move HEAD back 3 commits while leaving all changes staged — ready to squash into one commit."
+      - code: "git reset --hard origin/main"
+        explain: "Forcibly align the local branch with origin/main, discarding all local changes."
+    recipes:
+      - code: "git reset --soft HEAD~1 && git commit -m \"better message\""
+        explain: "Undo the last commit and immediately recommit with a corrected message — safer than --amend after a push."
     gotchas: >
       <code>--hard</code> discards uncommitted changes silently — no
       undo. Use <code>git reflog</code> to recover the previous HEAD if
-      you reset by mistake.
+      you reset by mistake. Avoid <code>--hard</code> on shared branches;
+      use <code>git revert</code> instead to create a safe undo commit.
     see_also: ["git restore", "git revert", "git reflog"]
     references:
       - "man 1 git-reset"
@@ -389,6 +534,7 @@ entries:
     description: "Manage the set of configured remote repositories."
     syntax: "git remote [-v | add <name> <url> | set-url <name> <url> | remove <name>]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-v"
         description: "Verbose list — show URLs."
@@ -399,9 +545,15 @@ entries:
       - flag: "rename <old> <new>"
         description: "Rename a remote."
     examples:
-      - "git remote -v"
-      - "git remote add upstream https://github.com/owner/repo.git"
-      - "git remote set-url origin git@github.com:user/repo.git"
+      - code: "git remote -v"
+        explain: "List all configured remotes with their fetch and push URLs."
+      - code: "git remote add upstream https://github.com/owner/repo.git"
+        explain: "Register the original project as 'upstream' so you can pull in their changes."
+      - code: "git remote set-url origin git@github.com:user/repo.git"
+        explain: "Switch origin from HTTPS to SSH without re-cloning."
+    recipes:
+      - code: "git remote add upstream <url> && git fetch upstream && git merge upstream/main"
+        explain: "Wire up an upstream fork source and immediately pull in the latest main."
     see_also: ["git fetch", "git push"]
     references:
       - "man 1 git-remote"
@@ -410,6 +562,7 @@ entries:
     description: "Create, list, or delete lightweight / annotated tags."
     syntax: "git tag [-a <name> -m \"<msg>\"] [-d <name>] [-l <glob>]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-a <name>"
         description: "Annotated tag (carries metadata + message)."
@@ -420,9 +573,15 @@ entries:
       - flag: "-l <glob>"
         description: "List tags matching a glob."
     examples:
-      - "git tag -a v1.0.0 -m \"first release\""
-      - "git push --tags"
-      - "git tag -d v1.0.0-rc1"
+      - code: "git tag -a v1.0.0 -m \"first release\""
+        explain: "Create an annotated tag at HEAD with a release message."
+      - code: "git push --tags"
+        explain: "Push all local tags to the remote — required for GitHub releases to see them."
+      - code: "git tag -d v1.0.0-rc1"
+        explain: "Delete a local tag — then push the deletion with 'git push origin :refs/tags/v1.0.0-rc1'."
+    recipes:
+      - code: "git tag -a v1.2.0 -m \"v1.2.0\" && git push origin v1.2.0"
+        explain: "Tag the current commit and push only that tag to origin — a clean release workflow."
     see_also: ["git push", "git describe"]
     references:
       - "man 1 git-tag"
@@ -431,6 +590,7 @@ entries:
     description: "Apply specific commits from another branch onto the current one."
     syntax: "git cherry-pick [-x] [-n] [--continue|--abort] <commit>..."
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-x"
         description: "Append a 'cherry-picked from <sha>' line to the commit message."
@@ -441,9 +601,15 @@ entries:
       - flag: "<a>..<b>"
         description: "Cherry-pick a range of commits (excluding a)."
     examples:
-      - "git cherry-pick abc123"
-      - "git cherry-pick -x deadbeef..feedface"
-      - "git cherry-pick --abort"
+      - code: "git cherry-pick abc123"
+        explain: "Apply a single commit from any branch onto the current branch as a new commit."
+      - code: "git cherry-pick -x deadbeef..feedface"
+        explain: "Apply a range of commits and annotate each with the original SHA."
+      - code: "git cherry-pick --abort"
+        explain: "Cancel a conflicted cherry-pick and restore the branch to its prior state."
+    recipes:
+      - code: "git log --oneline feature-branch | head -5  # find SHA, then:\ngit cherry-pick -x <sha>"
+        explain: "Inspect the feature branch's recent commits, then port a specific fix to the current branch."
     see_also: ["git rebase", "git revert"]
     references:
       - "man 1 git-cherry-pick"
@@ -452,6 +618,7 @@ entries:
     description: "Create a new commit that undoes the changes from a previous commit."
     syntax: "git revert [--no-commit] [--continue|--abort] <commit>..."
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "--no-commit / -n"
         description: "Apply the revert as staged changes; commit yourself."
@@ -460,9 +627,15 @@ entries:
       - flag: "--continue / --abort"
         description: "Resume / bail out of a conflicted revert."
     examples:
-      - "git revert HEAD"
-      - "git revert -n abc123 def456"
-      - "git revert -m 1 <merge-sha>"
+      - code: "git revert HEAD"
+        explain: "Create a new commit that undoes all changes from the most recent commit."
+      - code: "git revert -n abc123 def456"
+        explain: "Stage the reversal of two commits without auto-committing — lets you combine them into one."
+      - code: "git revert -m 1 <merge-sha>"
+        explain: "Revert a merge commit, keeping the first parent (main) as the mainline."
+    recipes:
+      - code: "git revert HEAD && git push"
+        explain: "Safely roll back the latest commit on a shared branch — no history rewrite, no force-push."
     gotchas: >
       <code>git revert</code> creates a new commit instead of rewriting
       history — safe to use on shared branches, unlike
@@ -477,6 +650,7 @@ entries:
     description: "Show the local history of HEAD movements — the 'undo' database."
     syntax: "git reflog [show] [<ref>] [-<n>]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "show"
         description: "Default subcommand — list recent HEAD positions."
@@ -485,9 +659,15 @@ entries:
       - flag: "expire"
         description: "Prune old reflog entries (rarely needed manually)."
     examples:
-      - "git reflog"
-      - "git reflog -20"
-      - "git reset --hard HEAD@{2}"
+      - code: "git reflog"
+        explain: "Show the full local HEAD movement log — your last chance to recover lost commits."
+      - code: "git reflog -20"
+        explain: "Show only the most recent 20 HEAD positions."
+      - code: "git reset --hard HEAD@{2}"
+        explain: "Jump HEAD back two positions in the reflog — recovers from a bad reset or rebase."
+    recipes:
+      - code: "git reflog | grep 'commit:' | head -10"
+        explain: "Filter reflog to actual commit events — handy for finding a commit you thought was lost."
     gotchas: >
       The reflog is your safety net for any operation that rewrites
       history (<code>reset --hard</code>, <code>rebase</code>,
@@ -501,6 +681,7 @@ entries:
     description: "Show one commit (or other object) — message, diff, metadata."
     syntax: "git show [--stat] [--name-only] [<commit>]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "<commit>"
         description: "Default: HEAD."
@@ -511,9 +692,15 @@ entries:
       - flag: "-s"
         description: "Suppress diff output (message only)."
     examples:
-      - "git show"
-      - "git show --stat HEAD~3"
-      - "git show abc123:path/to/file.txt"
+      - code: "git show"
+        explain: "Display the most recent commit's message and full diff."
+      - code: "git show --stat HEAD~3"
+        explain: "Show the commit message and changed-file summary for 3 commits back."
+      - code: "git show abc123:path/to/file.txt"
+        explain: "Print a file's content as it was at a specific commit — without changing anything."
+    recipes:
+      - code: "git show --name-only HEAD | tail -n +2"
+        explain: "List only the filenames changed in the last commit — skipping the message header."
     see_also: ["git log", "git diff"]
     references:
       - "man 1 git-show"
@@ -522,6 +709,7 @@ entries:
     description: "Annotate each line of a file with the commit that last touched it."
     syntax: "git blame [-L <range>] [-w] [-C] [-M] <file>"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-L <start>,<end>"
         description: "Blame only the given line range (also -L /pattern/)."
@@ -532,8 +720,13 @@ entries:
       - flag: "-M"
         description: "Detect lines moved within the same file."
     examples:
-      - "git blame src/main.ts"
-      - "git blame -L 40,80 -w README.md"
+      - code: "git blame src/main.ts"
+        explain: "Annotate every line of a file with the commit SHA, author, and date that last changed it."
+      - code: "git blame -L 40,80 -w README.md"
+        explain: "Blame only lines 40–80, ignoring whitespace-only changes."
+    recipes:
+      - code: "git blame -L 10,20 src/main.ts | awk '{print $1}' | sort -u | xargs git show --stat"
+        explain: "Find the commits that touched lines 10–20, then show what each commit changed overall."
     see_also: ["git log", "git show"]
     references:
       - "man 1 git-blame"
@@ -542,6 +735,7 @@ entries:
     description: "Binary-search the commit history to find the one that introduced a bug."
     syntax: "git bisect [start|good|bad|reset] [<commit>]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "start [<bad>] [<good>]"
         description: "Begin a bisect session."
@@ -552,9 +746,15 @@ entries:
       - flag: "run <cmd>"
         description: "Automate — git runs <cmd> at each step (exit 0 = good, non-0 = bad)."
     examples:
-      - "git bisect start && git bisect bad && git bisect good v1.2"
-      - "git bisect run npm test"
-      - "git bisect reset"
+      - code: "git bisect start && git bisect bad && git bisect good v1.2"
+        explain: "Start a session with HEAD as bad and v1.2 as good — git picks the first midpoint."
+      - code: "git bisect run npm test"
+        explain: "Fully automate the bisect — git runs your test suite and narrows down the bad commit without manual intervention."
+      - code: "git bisect reset"
+        explain: "End the session and return HEAD to the branch you started from."
+    recipes:
+      - code: "git bisect start HEAD v1.0 -- src/ && git bisect run npm test"
+        explain: "Scope the bisect to commits touching src/ and automate it with the test suite."
     see_also: ["git log", "git diff"]
     references:
       - "man 1 git-bisect"
@@ -563,6 +763,7 @@ entries:
     description: "Manage repositories nested inside the current one."
     syntax: "git submodule [add|init|update|status|deinit] [args...]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "add <url> [<path>]"
         description: "Add a new submodule at <path>."
@@ -575,9 +776,15 @@ entries:
       - flag: "deinit <path>"
         description: "Remove a submodule's working tree (does not delete commits)."
     examples:
-      - "git submodule add https://github.com/user/lib vendor/lib"
-      - "git submodule update --init --recursive"
-      - "git clone --recurse-submodules <url>"
+      - code: "git submodule add https://github.com/user/lib vendor/lib"
+        explain: "Register an external repository as a submodule pinned at HEAD and add a .gitmodules entry."
+      - code: "git submodule update --init --recursive"
+        explain: "Initialise and check out all submodules (including nested ones) at their pinned SHAs."
+      - code: "git clone --recurse-submodules <url>"
+        explain: "Clone a repo and initialise all submodules in a single command."
+    recipes:
+      - code: "git submodule foreach 'git pull origin main'"
+        explain: "Fast-forward every submodule to the latest main — run from the parent repo."
     gotchas: >
       Submodules are notoriously fiddly — they pin specific commits, so
       pulling main may leave submodules at stale SHAs unless you
@@ -586,3 +793,243 @@ entries:
     see_also: ["git clone"]
     references:
       - "man 1 git-submodule"
+
+  - name: "git worktree"
+    description: "Check out multiple branches simultaneously in separate working directories."
+    syntax: "git worktree [add|list|remove|prune] [<path>] [<commit-ish>]"
+    os: [cross-platform]
+    danger: caution
+    flags:
+      - flag: "add <path> <branch>"
+        description: "Create a new linked working tree at <path> for <branch>."
+      - flag: "-b <newbranch>"
+        description: "Create and check out a new branch in the worktree."
+      - flag: "list"
+        description: "List all worktrees with their HEAD and path."
+      - flag: "remove <path>"
+        description: "Remove a worktree (must be clean)."
+      - flag: "prune"
+        description: "Remove stale worktree administrative files."
+    examples:
+      - code: "git worktree add ../hotfix hotfix/payment-bug"
+        explain: "Check out the hotfix branch into a sibling directory without disturbing the main working tree."
+      - code: "git worktree add -b review/pr-42 ../pr-42 origin/pr-42"
+        explain: "Create a new branch tracking a remote PR branch in its own directory for review."
+      - code: "git worktree list"
+        explain: "Show all active worktrees, their paths, and which branch/commit each has checked out."
+    recipes:
+      - code: "git worktree add ../release v2.0.0 && cd ../release && npm run build"
+        explain: "Build a tagged release in an isolated worktree so your development tree is unaffected."
+    gotchas: >
+      Each branch can only be checked out in one worktree at a time —
+      git will refuse to add a worktree for a branch already in use
+      elsewhere. Clean up stale worktrees with <code>git worktree prune</code>
+      after removing directories manually.
+    see_also: ["git branch", "git switch"]
+    references:
+      - "man 1 git-worktree"
+
+  - name: "git clean"
+    description: "Remove untracked files and directories from the working tree."
+    syntax: "git clean [-f] [-d] [-x] [-n] [<path>...]"
+    os: [cross-platform]
+    danger: destructive
+    flags:
+      - flag: "-f"
+        description: "Force — required to actually delete (safety gate)."
+      - flag: "-d"
+        description: "Also remove untracked directories."
+      - flag: "-x"
+        description: "Also remove files ignored by .gitignore (e.g. build artifacts)."
+      - flag: "-n / --dry-run"
+        description: "Preview what would be removed without deleting anything."
+      - flag: "-i"
+        description: "Interactive — confirm each deletion."
+    examples:
+      - code: "git clean -n"
+        explain: "Dry-run — list every untracked file that would be removed, without touching anything."
+      - code: "git clean -fd"
+        explain: "Remove all untracked files and directories — irreversible."
+      - code: "git clean -fdx"
+        explain: "Remove untracked files, directories, and ignored files — restores the repo to a pristine state."
+    recipes:
+      - code: "git clean -n && read -p 'Proceed? ' && git clean -fd"
+        explain: "Preview the cleanup, prompt for confirmation, then execute — a safer interactive pattern."
+    gotchas: >
+      <code>git clean</code> has no undo — deleted untracked files are
+      gone permanently (not in reflog). Always run <code>-n</code> first.
+      <code>-x</code> will delete <code>.env</code>, build outputs,
+      and any other ignored files — be careful in projects with local-only
+      config.
+    see_also: ["git restore", "git reset"]
+    references:
+      - "man 1 git-clean"
+
+  - name: "git config"
+    description: "Read and write per-repo, user-global, or system-wide git settings."
+    syntax: "git config [--global|--local|--system] [<key> [<value>] | --list | --unset <key>]"
+    os: [cross-platform]
+    danger: caution
+    flags:
+      - flag: "--global"
+        description: "Write to ~/.gitconfig (all repos for the current user)."
+      - flag: "--local"
+        description: "Write to .git/config (this repo only, default)."
+      - flag: "--system"
+        description: "Write to the system-wide config (all users)."
+      - flag: "--list"
+        description: "Dump all settings in effect (shows which file each comes from with --show-origin)."
+      - flag: "--unset <key>"
+        description: "Remove a setting."
+      - flag: "--show-origin"
+        description: "Include the config file path next to each setting."
+    examples:
+      - code: "git config --global user.name \"Ada Lovelace\""
+        explain: "Set your display name globally so every future commit uses it."
+      - code: "git config --global pull.rebase true"
+        explain: "Make 'git pull' rebase by default globally — avoids accidental merge commits."
+      - code: "git config --list --show-origin"
+        explain: "List every active setting and the file it comes from — useful for debugging unexpected behaviour."
+    recipes:
+      - code: "git config --global alias.lg \"log --oneline --graph --decorate --all\""
+        explain: "Create a 'git lg' alias for the decorated graph view — type it once, use it forever."
+    gotchas: >
+      Local config (<code>.git/config</code>) overrides global
+      (<code>~/.gitconfig</code>) which overrides system. Always verify
+      with <code>--show-origin</code> when a setting doesn't take effect.
+      Sensitive values (tokens, signing keys) should go in a file outside
+      the repo, referenced by <code>include.path</code>.
+    see_also: ["git alias"]
+    references:
+      - "man 1 git-config"
+
+  - name: "git describe"
+    description: "Describe a commit using the nearest reachable tag and offset."
+    syntax: "git describe [--tags] [--always] [--dirty[=<suffix>]] [<commit>]"
+    os: [cross-platform]
+    danger: safe
+    flags:
+      - flag: "--tags"
+        description: "Consider lightweight tags (not just annotated ones)."
+      - flag: "--always"
+        description: "Fall back to the SHA if no tag is reachable."
+      - flag: "--long"
+        description: "Always show the long format (tag-N-gSHA) even when exactly on a tag."
+      - flag: "--dirty[=<suffix>]"
+        description: "Append '-dirty' (or a custom suffix) if the working tree has uncommitted changes."
+      - flag: "--abbrev=<n>"
+        description: "Use n hex digits for the SHA (default 7)."
+    examples:
+      - code: "git describe --tags"
+        explain: "Output something like 'v1.3.0-14-gabc1234' — tag name, commits since, and short SHA."
+      - code: "git describe --always --dirty"
+        explain: "Always produce output even without tags, and append '-dirty' if anything is uncommitted."
+      - code: "git describe --tags --abbrev=0"
+        explain: "Print just the nearest tag name with no commit offset — handy for scripting the current version."
+    recipes:
+      - code: "VERSION=$(git describe --tags --always --dirty) && echo \"Building $VERSION\""
+        explain: "Capture a human-readable version string that embeds the tag, offset, and dirty state for build scripts."
+    see_also: ["git tag", "git log"]
+    references:
+      - "man 1 git-describe"
+
+  - name: "gh pr"
+    description: "Create, view, and manage GitHub pull requests from the terminal."
+    syntax: "gh pr [create|view|list|checkout|merge|close|edit] [<number>|<url>] [flags]"
+    os: [cross-platform]
+    danger: caution
+    modern: "Use <code>gh pr create</code> after pushing instead of opening the GitHub web UI — it stays in the terminal flow."
+    flags:
+      - flag: "create"
+        description: "Open a new PR; prompts for title, body, base, and reviewers."
+      - flag: "--title / --body"
+        description: "Supply PR title and body non-interactively."
+      - flag: "--base <branch>"
+        description: "Set the target branch (default: the repo's default branch)."
+      - flag: "--draft"
+        description: "Open as a draft PR."
+      - flag: "--fill"
+        description: "Pre-fill title/body from the branch's commits automatically."
+      - flag: "checkout <number>"
+        description: "Fetch and check out a PR's branch locally."
+      - flag: "merge <number>"
+        description: "Merge a PR via the API (--squash / --rebase / --merge)."
+      - flag: "list"
+        description: "List open PRs."
+    examples:
+      - code: "gh pr create --fill"
+        explain: "Open a pull request with title and body pre-filled from commit messages."
+      - code: "gh pr checkout 42"
+        explain: "Check out PR #42's branch locally without manually copying the remote URL."
+      - code: "gh pr list --author @me --state open"
+        explain: "List your open pull requests across the repo."
+    recipes:
+      - code: "git push -u origin HEAD && gh pr create --fill --draft"
+        explain: "Push a new branch and immediately open a draft PR — the full PR workflow in two commands."
+    see_also: ["gh repo", "gh issue", "git push"]
+    references:
+      - "https://cli.github.com/manual/gh_pr"
+
+  - name: "gh repo"
+    description: "Create, clone, fork, and view GitHub repositories from the terminal."
+    syntax: "gh repo [create|clone|fork|view|sync] [<repo>] [flags]"
+    os: [cross-platform]
+    danger: safe
+    flags:
+      - flag: "create"
+        description: "Create a new repo on GitHub (interactive or via flags)."
+      - flag: "--public / --private / --internal"
+        description: "Visibility of the created repo."
+      - flag: "clone <repo>"
+        description: "Clone a repo by owner/name — no need to copy the full URL."
+      - flag: "fork <repo>"
+        description: "Fork a repo to your account and clone it locally."
+      - flag: "view <repo>"
+        description: "Display repo metadata; open in browser with --web."
+      - flag: "sync"
+        description: "Sync a fork with its upstream."
+    examples:
+      - code: "gh repo create my-project --public --clone"
+        explain: "Create a public GitHub repo and clone it locally in one step."
+      - code: "gh repo clone owner/repo"
+        explain: "Clone a GitHub repository using its short name — gh resolves the URL automatically."
+      - code: "gh repo fork owner/repo --clone"
+        explain: "Fork a repo to your account and clone the fork locally."
+    recipes:
+      - code: "gh repo fork owner/repo --clone && cd repo && gh repo sync"
+        explain: "Fork, clone, and immediately sync with upstream — a full fork setup in one flow."
+    see_also: ["gh pr", "gh issue", "git clone", "git remote"]
+    references:
+      - "https://cli.github.com/manual/gh_repo"
+
+  - name: "gh issue"
+    description: "Create, view, list, and close GitHub issues from the terminal."
+    syntax: "gh issue [create|view|list|close|edit|comment] [<number>] [flags]"
+    os: [cross-platform]
+    danger: safe
+    flags:
+      - flag: "create"
+        description: "Open an issue — interactive or via --title / --body / --label."
+      - flag: "--label <label>"
+        description: "Apply one or more labels (repeat the flag for multiple)."
+      - flag: "--assignee <user>"
+        description: "Assign the issue to a user (@ for yourself)."
+      - flag: "list"
+        description: "List open issues; filter with --state, --label, --assignee."
+      - flag: "close <number>"
+        description: "Close an issue."
+      - flag: "view <number> --web"
+        description: "Open the issue in the browser."
+    examples:
+      - code: "gh issue create --title \"Bug: login fails on Safari\" --label bug"
+        explain: "File a bug report with a title and label without opening the browser."
+      - code: "gh issue list --assignee @me --label \"help wanted\""
+        explain: "List your assigned issues that are tagged 'help wanted'."
+      - code: "gh issue close 12 --comment \"Fixed in #45\""
+        explain: "Close an issue and leave a closing comment in the same command."
+    recipes:
+      - code: "gh issue create --title \"<title>\" --body \"$(cat issue-body.md)\" --label bug,priority:high"
+        explain: "Create a richly formatted issue from a local Markdown file with multiple labels."
+    see_also: ["gh pr", "gh repo"]
+    references:
+      - "https://cli.github.com/manual/gh_issue"

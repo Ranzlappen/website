@@ -112,6 +112,25 @@
     };
   }
 
+  /* Build a collapsible widget shell: <details open><summary><h3 title/>
+   * <toggle/></summary><div body/></details>. Returns the body element the
+   * caller appends its controls into. Open by default; the summary heading
+   * carries `<root.id>-heading` so the section's aria-labelledby resolves. */
+  function makeShell(root, titleText) {
+    var details = el('details', { className: 'cmd-widget__collapse' });
+    details.open = true;
+    var summary = el('summary', { className: 'cmd-widget__summary' });
+    var heading = el('h3', { className: 'cmd-widget__title', text: titleText });
+    if (root && root.id) heading.id = root.id + '-heading';
+    summary.appendChild(heading);
+    summary.appendChild(el('span', { className: 'cmd-widget__toggle', 'aria-hidden': 'true' }));
+    details.appendChild(summary);
+    var body = el('div', { className: 'cmd-widget__body' });
+    details.appendChild(body);
+    root.appendChild(details);
+    return body;
+  }
+
   function el(tag, attrs, children) {
     var node = document.createElement(tag);
     if (attrs) {
@@ -141,6 +160,7 @@
     copyToClipboard: copyToClipboard,
     shellEscape: shellEscape,
     makeOutput: makeOutput,
+    makeShell: makeShell,
     el: el
   };
 })();

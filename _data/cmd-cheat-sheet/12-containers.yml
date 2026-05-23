@@ -5,14 +5,16 @@ batch:
   short_name: "Containers"
   description: >
     Docker and the broader container toolchain — build, run, exec into,
-    log, compose — plus a quick kubectl primer for cluster basics.
-  last_updated: "2026-05-21"
+    log, compose — plus podman for daemonless/rootless workloads and a
+    quick kubectl primer for cluster basics.
+  last_updated: "2026-05-23"
 
 entries:
   - name: "docker run"
     description: "Create and start a container from an image."
     syntax: "docker run [-d] [-it] [--rm] [-p <h>:<c>] [-v <h>:<c>] [-e <k>=<v>] <image> [<cmd>]"
     os: [cross-platform]
+    danger: "caution"
     flags:
       - flag: "-d"
         description: "Detached — run in the background."
@@ -21,7 +23,7 @@ entries:
       - flag: "--rm"
         description: "Auto-remove the container when it exits."
       - flag: "--name <name>"
-        description: "Assign a name (instead of a random one)."
+        description: "Assign a name instead of a random one."
       - flag: "-p <hp>:<cp>"
         description: "Publish a container port to the host."
       - flag: "-v <hpath>:<cpath>[:ro]"
@@ -31,18 +33,29 @@ entries:
       - flag: "--env-file <file>"
         description: "Load env vars from a file."
       - flag: "--network <net>"
-        description: "Attach to a specific docker network."
+        description: "Attach to a specific Docker network."
       - flag: "-u <uid>[:<gid>]"
         description: "Run as a non-root user / group."
     examples:
-      - "docker run --rm -it ubuntu:24.04 bash"
-      - "docker run -d --name web -p 8080:80 nginx:alpine"
-      - "docker run --rm -v $PWD:/app -w /app node:22 npm test"
+      - code: "docker run --rm -it ubuntu:24.04 bash"
+        explain: "Spin up an interactive Ubuntu shell that auto-deletes itself on exit."
+      - code: "docker run -d --name web -p 8080:80 nginx:alpine"
+        explain: "Start an nginx container in the background, mapping host port 8080 to container port 80."
+      - code: "docker run --rm -v $PWD:/app -w /app node:22 npm test"
+        explain: "Run the project's test suite inside a Node 22 container without installing Node locally."
+    recipes:
+      - code: "docker run --rm -it -v $PWD:/app -w /app -u \"$(id -u):$(id -g)\" node:22 npm ci"
+        explain: "Install npm dependencies inside a container, writing files as the current host user to avoid root-owned output."
+      - code: "docker run -d --name db -e POSTGRES_PASSWORD=secret -p 5432:5432 postgres:16-alpine"
+        explain: "Start a disposable local Postgres 16 instance with a preset password."
     gotchas: >
       Default users inside containers are often <code>root</code>, even
       when the host user isn't. Anything written into a bind-mount lands
       on disk as root. Pass <code>-u "$(id -u):$(id -g)"</code> to match
       your host UID, or build the image with a non-root <code>USER</code>.
+    modern: >
+      <code>podman run</code> is a drop-in replacement that runs daemonless
+      and rootless by default — no UID mismatch foot-gun.
     see_also: ["docker exec", "docker ps", "docker stop"]
     references:
       - "https://docs.docker.com/reference/cli/docker/container/run/"
@@ -51,19 +64,26 @@ entries:
     description: "List containers."
     syntax: "docker ps [-a] [--filter <f>] [--format <fmt>]"
     os: [cross-platform]
+    danger: "safe"
     flags:
       - flag: "-a"
         description: "Include stopped containers."
       - flag: "-q"
         description: "Quiet — IDs only (handy with xargs)."
       - flag: "--filter <k>=<v>"
-        description: "Filter (status=exited, name=web, ancestor=nginx)."
+        description: "Filter by status=exited, name=web, ancestor=nginx, etc."
       - flag: "--format <go-template>"
-        description: "Custom output (e.g. 'table {{.Names}}\\t{{.Image}}')."
+        description: "Custom output — e.g. 'table {{.Names}}\\t{{.Image}}'."
     examples:
-      - "docker ps"
-      - "docker ps -aq --filter status=exited | xargs docker rm"
-      - "docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'"
+      - code: "docker ps"
+        explain: "Show all currently running containers with their ports and status."
+      - code: "docker ps -aq --filter status=exited | xargs docker rm"
+        explain: "Remove every stopped container in one line."
+      - code: "docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'"
+        explain: "Print a tidy table with only the columns you care about."
+    recipes:
+      - code: "docker ps -q -f name=web | xargs -r docker logs --tail 50 -f"
+        explain: "Tail the last 50 lines of the container whose name includes 'web', then follow."
     see_also: ["docker rm", "docker stop"]
     references:
       - "https://docs.docker.com/reference/cli/docker/container/ls/"
@@ -72,6 +92,7 @@ entries:
     description: "Build an image from a Dockerfile."
     syntax: "docker build [-t <tag>] [-f <Dockerfile>] [--build-arg <k>=<v>] [--target <stage>] <context>"
     os: [cross-platform]
+    danger: "caution"
     flags:
       - flag: "-t <tag>"
         description: "Tag the resulting image (name:version)."
@@ -86,9 +107,17 @@ entries:
       - flag: "--platform <plat>"
         description: "Build for a specific platform (linux/arm64, linux/amd64)."
     examples:
-      - "docker build -t myapp:dev ."
-      - "docker build -f Dockerfile.prod --target runtime -t myapp:prod ."
-      - "docker build --platform linux/amd64 -t myapp:x86 ."
+      - code: "docker build -t myapp:dev ."
+        explain: "Build the Dockerfile in the current directory and tag the image as myapp:dev."
+      - code: "docker build -f Dockerfile.prod --target runtime -t myapp:prod ."
+        explain: "Use an alternate Dockerfile and stop at the 'runtime' stage — ideal for lean production images."
+      - code: "docker build --platform linux/amd64 -t myapp:x86 ."
+        explain: "Cross-build for x86-64 from an Apple Silicon Mac."
+    recipes:
+      - code: "docker build -t myapp:dev . && docker run --rm -p 3000:3000 myapp:dev"
+        explain: "Build the image and immediately run it, binding port 3000 — quick dev iteration loop."
+      - code: "DOCKER_BUILDKIT=1 docker build --target test -t myapp:test . && docker run --rm myapp:test npm test"
+        explain: "Build only the test stage of a multi-stage Dockerfile, then run the test suite inside it."
     gotchas: >
       The context (<code>.</code>) is uploaded to the daemon before the
       build starts — add a <code>.dockerignore</code> to exclude
@@ -104,19 +133,26 @@ entries:
     description: "Run a command inside an already-running container."
     syntax: "docker exec [-it] [-u <user>] <container> <cmd> [args...]"
     os: [cross-platform]
+    danger: "caution"
     flags:
       - flag: "-it"
-        description: "Interactive + TTY (for shells)."
+        description: "Interactive + TTY (required for interactive shells)."
       - flag: "-u <user>"
         description: "Run as a different user inside the container."
       - flag: "-e <k>=<v>"
-        description: "Add an env var for this command only."
+        description: "Add an env var for this exec invocation only."
       - flag: "-w <dir>"
-        description: "Working directory."
+        description: "Set the working directory inside the container."
     examples:
-      - "docker exec -it web sh"
-      - "docker exec -u root web apt update"
-      - "docker exec web env | sort"
+      - code: "docker exec -it web sh"
+        explain: "Open an interactive shell in the running 'web' container."
+      - code: "docker exec -u root web apt update"
+        explain: "Run apt update as root inside a container that normally runs as a non-root user."
+      - code: "docker exec web env | sort"
+        explain: "List all environment variables visible inside the container."
+    recipes:
+      - code: "docker exec -it $(docker ps -q -f name=web) sh"
+        explain: "Exec into the first container whose name contains 'web' without looking up the ID manually."
     see_also: ["docker run", "docker logs"]
     references:
       - "https://docs.docker.com/reference/cli/docker/container/exec/"
@@ -125,123 +161,94 @@ entries:
     description: "Show stdout / stderr of a container."
     syntax: "docker logs [-f] [--tail <n>] [--since <t>] <container>"
     os: [cross-platform]
+    danger: "safe"
     flags:
       - flag: "-f"
-        description: "Follow — keep streaming."
+        description: "Follow — keep streaming new log lines."
       - flag: "--tail <n>"
-        description: "Only the last n lines."
+        description: "Only show the last n lines."
       - flag: "--since <time>"
-        description: "Lines newer than e.g. '10m', '2024-01-01'."
+        description: "Lines newer than a duration (10m) or timestamp (2024-01-01)."
       - flag: "-t"
         description: "Prefix each line with a timestamp."
     examples:
-      - "docker logs -f --tail 100 web"
-      - "docker logs --since 1h --tail 50 db"
+      - code: "docker logs -f --tail 100 web"
+        explain: "Stream the last 100 lines of the 'web' container and follow for new output."
+      - code: "docker logs --since 1h --tail 50 db"
+        explain: "Show up to 50 log lines from the 'db' container that appeared in the last hour."
+    recipes:
+      - code: "docker logs --since 5m --timestamps web 2>&1 | grep -i error"
+        explain: "Scan the last 5 minutes of logs for error messages, merging stderr into the grep stream."
     see_also: ["docker ps", "docker exec"]
     references:
       - "https://docs.docker.com/reference/cli/docker/container/logs/"
 
   - name: "docker compose"
     description: "Define and run multi-container applications via a YAML file."
-    syntax: "docker compose [-f <file>] [up|down|ps|logs|exec] [args...]"
+    syntax: "docker compose [-f <file>] [up|down|ps|logs|exec|build] [args...]"
     os: [cross-platform]
+    danger: "caution"
     flags:
       - flag: "up"
         description: "Build + create + start everything in compose.yml."
       - flag: "up -d"
-        description: "Detached — return after services start."
+        description: "Detached — return to the shell after services start."
       - flag: "down"
-        description: "Stop + remove containers, networks, volumes (with -v)."
+        description: "Stop + remove containers and networks; add -v to remove volumes too."
       - flag: "ps"
-        description: "List services and their state."
+        description: "List services and their current state."
       - flag: "logs [-f]"
-        description: "Aggregate logs from all services."
+        description: "Aggregate logs from all services; -f to follow."
       - flag: "exec <svc> <cmd>"
-        description: "Run a command in a named service."
+        description: "Run a one-off command in a named service container."
       - flag: "build [--no-cache]"
-        description: "(Re)build images for services with a build: stanza."
+        description: "(Re)build images for services that have a build: stanza."
       - flag: "-f <file>"
         description: "Use a non-default compose file (default: compose.yml or docker-compose.yml)."
     examples:
-      - "docker compose up -d"
-      - "docker compose logs -f web db"
-      - "docker compose exec db psql -U postgres"
+      - code: "docker compose up -d"
+        explain: "Start all services defined in compose.yml in the background."
+      - code: "docker compose logs -f web db"
+        explain: "Follow live log output from just the 'web' and 'db' services."
+      - code: "docker compose exec db psql -U postgres"
+        explain: "Open a psql prompt inside the running 'db' service container."
+    recipes:
+      - code: "docker compose up -d && docker compose logs -f"
+        explain: "Start the whole stack detached, then immediately attach to the aggregated log stream."
+      - code: "docker compose down -v && docker compose up -d --build"
+        explain: "Tear down including volumes, rebuild images, and restart — full clean slate."
     gotchas: >
       <code>docker compose</code> (v2, plugin) and <code>docker-compose</code>
-      (v1, separate Python binary) take nearly identical args; v1 is
-      legacy and missing from new installs. <code>compose.yml</code> is
-      the v3+ filename, but most projects still ship <code>docker-compose.yml</code>.
+      (v1, standalone Python binary) take nearly identical args; v1 is
+      legacy and absent from new Docker Desktop installs. <code>compose.yml</code>
+      is the v3+ preferred filename, but most projects still ship
+      <code>docker-compose.yml</code> — both are recognised automatically.
+    modern: >
+      <code>docker compose</code> (space, no hyphen) is the v2 plugin bundled
+      with Docker Desktop and Docker Engine ≥ 20.10. Prefer it over the
+      legacy <code>docker-compose</code> v1 binary.
     see_also: ["docker run", "docker build"]
     references:
       - "https://docs.docker.com/reference/cli/docker/compose/"
-
-  - name: "podman"
-    description: "Daemonless, root-less Docker-compatible container engine."
-    syntax: "podman <command> [args...]"
-    os: [linux, macos, cross-platform]
-    flags:
-      - flag: "run / build / ps / exec / logs"
-        description: "Same subcommand surface as Docker (most invocations are drop-in)."
-      - flag: "--userns=keep-id"
-        description: "Map your host UID into the container (root-less default)."
-      - flag: "podman machine init|start"
-        description: "macOS / Windows: manage the underlying Linux VM."
-    examples:
-      - "podman run --rm -it alpine sh"
-      - "podman build -t myapp ."
-      - "alias docker=podman"
-    gotchas: >
-      CLI is a near-superset of Docker's (most <code>docker</code>
-      commands work via <code>alias docker=podman</code>). Default is
-      rootless — uses user namespaces under the hood, so port-mapping
-      below 1024 won't work without extra config. On macOS, runs a tiny
-      Linux VM (podman-machine) behind the scenes.
-    see_also: ["docker run", "docker build"]
-    references:
-      - "https://docs.podman.io"
-
-  - name: "kubectl"
-    description: "Talk to a Kubernetes cluster — inspect, deploy, exec, log."
-    syntax: "kubectl [-n <ns>] [get|describe|logs|exec|apply|delete|edit] <resource> [args...]"
-    os: [cross-platform]
-    flags:
-      - flag: "-n <namespace>"
-        description: "Operate inside a non-default namespace."
-      - flag: "--context <ctx>"
-        description: "Use a specific kubeconfig context."
-      - flag: "-l <key>=<val>"
-        description: "Label selector."
-      - flag: "-o yaml|json|wide"
-        description: "Output format."
-      - flag: "--all-namespaces / -A"
-        description: "Operate across every namespace."
-    examples:
-      - "kubectl get pods -A"
-      - "kubectl logs -f deploy/web -n production"
-      - "kubectl exec -it pod/web-abc123 -- sh"
-      - "kubectl apply -f manifest.yaml"
-    gotchas: >
-      Always confirm <code>kubectl config current-context</code> before
-      destructive commands — landing a <code>kubectl delete</code> on
-      production because you forgot to switch contexts is a classic
-      footgun. <code>kubectx</code> + <code>kubens</code> from
-      <code>ahmetb/kubectx</code> make context/namespace switching
-      ergonomic.
-    see_also: ["kubectx", "helm", "k9s"]
-    references:
-      - "https://kubernetes.io/docs/reference/kubectl/"
 
   - name: "docker stop"
     description: "Send SIGTERM to a container, then SIGKILL after a timeout."
     syntax: "docker stop [-t <sec>] <container>..."
     os: [cross-platform]
+    danger: "caution"
     flags:
       - flag: "-t <sec>"
-        description: "Grace period before SIGKILL (default 10)."
+        description: "Grace period before SIGKILL (default 10 seconds)."
     examples:
-      - "docker stop web"
-      - "docker stop -t 30 db"
-      - "docker stop $(docker ps -q)"
+      - code: "docker stop web"
+        explain: "Gracefully stop the 'web' container, giving it 10 s to clean up."
+      - code: "docker stop -t 30 db"
+        explain: "Allow the database container 30 s to flush writes before killing it."
+      - code: "docker stop $(docker ps -q)"
+        explain: "Stop every running container at once."
+    recipes:
+      - code: "docker stop $(docker ps -q) && docker rm $(docker ps -aq)"
+        explain: "Stop all running containers then remove every stopped container — full local cleanup without pruning images."
     see_also: ["docker kill", "docker rm"]
     references:
       - "https://docs.docker.com/reference/cli/docker/container/stop/"
@@ -250,15 +257,22 @@ entries:
     description: "Remove one or more stopped containers."
     syntax: "docker rm [-f] [-v] <container>..."
     os: [cross-platform]
+    danger: "destructive"
     flags:
       - flag: "-f"
         description: "Force-remove a running container (sends SIGKILL first)."
       - flag: "-v"
-        description: "Also remove any anonymous volumes attached."
+        description: "Also remove any anonymous volumes attached to the container."
     examples:
-      - "docker rm web"
-      - "docker rm $(docker ps -aq --filter status=exited)"
-      - "docker rm -fv old-db"
+      - code: "docker rm web"
+        explain: "Remove the stopped 'web' container."
+      - code: "docker rm $(docker ps -aq --filter status=exited)"
+        explain: "Remove every exited container in one pass."
+      - code: "docker rm -fv old-db"
+        explain: "Force-kill the running 'old-db' container and drop its anonymous volume."
+    recipes:
+      - code: "docker ps -aq --filter status=exited | xargs -r docker rm -v"
+        explain: "Prune all exited containers and their anonymous volumes without affecting running ones."
     see_also: ["docker stop", "docker ps"]
     references:
       - "https://docs.docker.com/reference/cli/docker/container/rm/"
@@ -267,19 +281,26 @@ entries:
     description: "List images stored locally."
     syntax: "docker images [-a] [--filter <f>] [--format <fmt>] [<repo>[:<tag>]]"
     os: [cross-platform]
+    danger: "safe"
     flags:
       - flag: "-a"
         description: "Include intermediate layer images."
       - flag: "-q"
         description: "Image IDs only."
       - flag: "--filter dangling=true"
-        description: "Show only untagged \"dangling\" images (cleanup candidates)."
+        description: "Show only untagged dangling images — cleanup candidates."
       - flag: "--format <go-template>"
-        description: "Custom output (e.g. 'table {{.Repository}}:{{.Tag}}\\t{{.Size}}')."
+        description: "Custom output — e.g. 'table {{.Repository}}:{{.Tag}}\\t{{.Size}}'."
     examples:
-      - "docker images"
-      - "docker images --filter dangling=true -q | xargs -r docker rmi"
-      - "docker images --format '{{.Repository}}:{{.Tag}}\\t{{.Size}}'"
+      - code: "docker images"
+        explain: "List all top-level images with their repository, tag, and size."
+      - code: "docker images --filter dangling=true -q | xargs -r docker rmi"
+        explain: "Remove every dangling (untagged) image left behind by rebuilds."
+      - code: "docker images --format '{{.Repository}}:{{.Tag}}\\t{{.Size}}'"
+        explain: "Print a compact two-column list of image references and their sizes."
+    recipes:
+      - code: "docker images --format '{{.ID}}\\t{{.Repository}}:{{.Tag}}\\t{{.Size}}' | sort -k3 -h | tail -10"
+        explain: "Find the 10 largest locally cached images, sorted by size."
     see_also: ["docker pull", "docker rmi", "docker system prune"]
     references:
       - "https://docs.docker.com/reference/cli/docker/image/ls/"
@@ -288,16 +309,22 @@ entries:
     description: "Download an image from a registry."
     syntax: "docker pull [--platform <plat>] <image>[:<tag>]"
     os: [cross-platform]
+    danger: "safe"
     flags:
       - flag: "<image>:<tag>"
         description: "Specify a tag (default: latest)."
       - flag: "--platform <plat>"
-        description: "Force a platform (e.g. linux/amd64 on Apple Silicon)."
+        description: "Force a specific platform — e.g. linux/amd64 on Apple Silicon."
       - flag: "-a"
-        description: "All tags of the repository."
+        description: "Pull all tags of the repository."
     examples:
-      - "docker pull nginx:alpine"
-      - "docker pull --platform linux/amd64 postgres:16"
+      - code: "docker pull nginx:alpine"
+        explain: "Download the lightweight alpine variant of the official nginx image."
+      - code: "docker pull --platform linux/amd64 postgres:16"
+        explain: "Force-download the x86-64 Postgres image on an Apple Silicon Mac."
+    recipes:
+      - code: "docker pull myapp:prod && docker stop web && docker rm web && docker run -d --name web myapp:prod"
+        explain: "Pull the latest production image, swap out the running container with zero Dockerfile changes."
     see_also: ["docker push", "docker images"]
     references:
       - "https://docs.docker.com/reference/cli/docker/image/pull/"
@@ -306,18 +333,25 @@ entries:
     description: "Upload an image to a registry."
     syntax: "docker push <registry>/<repo>[:<tag>]"
     os: [cross-platform]
+    danger: "caution"
     flags:
       - flag: "<registry>/<repo>:<tag>"
         description: "Image reference must include the registry hostname for non-Docker-Hub destinations."
       - flag: "-a"
         description: "Push all tags of the repository."
     examples:
-      - "docker tag myapp:dev ghcr.io/user/myapp:v1.0.0"
-      - "docker push ghcr.io/user/myapp:v1.0.0"
+      - code: "docker tag myapp:dev ghcr.io/user/myapp:v1.0.0"
+        explain: "Retag the local dev image with the full GitHub Container Registry path."
+      - code: "docker push ghcr.io/user/myapp:v1.0.0"
+        explain: "Upload the tagged image to GHCR so CI or other machines can pull it."
+    recipes:
+      - code: "docker build -t ghcr.io/user/myapp:$(git rev-parse --short HEAD) . && docker push ghcr.io/user/myapp:$(git rev-parse --short HEAD)"
+        explain: "Build and push an image tagged with the current Git commit SHA — immutable reference for deployments."
     gotchas: >
       Must <code>docker login &lt;registry&gt;</code> first. The
-      registry hostname is part of the image name — retagging is the
-      step that "moves" an image to a different registry.
+      registry hostname is part of the image name — retagging with
+      <code>docker tag</code> is the step that \"moves\" an image to a
+      different registry.
     see_also: ["docker pull", "docker login", "docker tag"]
     references:
       - "https://docs.docker.com/reference/cli/docker/image/push/"
@@ -326,15 +360,234 @@ entries:
     description: "Dump low-level JSON metadata for a container, image, network, or volume."
     syntax: "docker inspect [--format <go-template>] <object>..."
     os: [cross-platform]
+    danger: "safe"
     flags:
       - flag: "--format <tmpl>"
-        description: "Go-template to extract specific fields (avoid grepping full JSON)."
+        description: "Go-template to extract a specific field — avoids grepping raw JSON."
       - flag: "--type container|image|volume|network"
-        description: "Disambiguate when an ID could refer to multiple types."
+        description: "Disambiguate when an ID could refer to multiple object types."
     examples:
-      - "docker inspect web"
-      - "docker inspect --format '{{.NetworkSettings.IPAddress}}' web"
-      - "docker inspect --format '{{json .Config.Env}}' web | jq"
+      - code: "docker inspect web"
+        explain: "Dump the full JSON metadata for the 'web' container."
+      - code: "docker inspect --format '{{.NetworkSettings.IPAddress}}' web"
+        explain: "Extract just the container's IP address from the inspect output."
+      - code: "docker inspect --format '{{json .Config.Env}}' web | jq"
+        explain: "Pretty-print the environment variables configured in the container."
+    recipes:
+      - code: "docker inspect --format '{{.State.ExitCode}} {{.State.Error}}' $(docker ps -lq)"
+        explain: "Check why the most recently stopped container exited — exit code plus any error message."
     see_also: ["docker ps", "docker logs"]
     references:
       - "https://docs.docker.com/reference/cli/docker/inspect/"
+
+  - name: "docker rmi"
+    description: "Remove one or more images from local storage."
+    syntax: "docker rmi [-f] <image>..."
+    os: [cross-platform]
+    danger: "destructive"
+    flags:
+      - flag: "-f"
+        description: "Force removal even if a stopped container still references the image."
+      - flag: "<image>"
+        description: "Name:tag or image ID; repeat to delete multiple images at once."
+    examples:
+      - code: "docker rmi myapp:old"
+        explain: "Delete the locally cached myapp:old image."
+      - code: "docker rmi $(docker images -q --filter dangling=true)"
+        explain: "Remove all dangling (untagged) images accumulated from repeated builds."
+    recipes:
+      - code: "docker images -q nginx | xargs -r docker rmi -f"
+        explain: "Force-remove every locally stored nginx image regardless of tag."
+    see_also: ["docker images", "docker system prune"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/image/rm/"
+
+  - name: "docker system prune"
+    description: "Remove all unused containers, networks, images, and optionally volumes."
+    syntax: "docker system prune [-a] [-f] [--volumes]"
+    os: [cross-platform]
+    danger: "destructive"
+    flags:
+      - flag: "-a"
+        description: "Also remove images not referenced by any container (not just dangling ones)."
+      - flag: "-f"
+        description: "Skip the confirmation prompt."
+      - flag: "--volumes"
+        description: "Also remove anonymous and named volumes not attached to a running container."
+      - flag: "--filter until=<duration>"
+        description: "Only prune objects older than the given duration (e.g. 72h)."
+    examples:
+      - code: "docker system prune"
+        explain: "Remove stopped containers, dangling images, unused networks — prompts for confirmation."
+      - code: "docker system prune -a --volumes -f"
+        explain: "Aggressive cleanup: removes everything not in use by a running container, no prompt."
+    recipes:
+      - code: "docker system prune -a --filter until=72h -f"
+        explain: "Reclaim disk space from images and containers older than 3 days, skipping anything recent."
+    gotchas: >
+      <code>docker system prune -a --volumes</code> will delete named
+      volumes — including database data. Double-check what is running
+      before adding <code>--volumes</code>, and back up critical volumes
+      first. There is no undo.
+    see_also: ["docker rm", "docker rmi", "docker volume rm"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/system/prune/"
+
+  - name: "docker volume"
+    description: "Manage named volumes — create, list, inspect, and remove persistent storage."
+    syntax: "docker volume [create|ls|inspect|rm|prune] [args...]"
+    os: [cross-platform]
+    danger: "destructive"
+    flags:
+      - flag: "create <name>"
+        description: "Create a named volume."
+      - flag: "ls"
+        description: "List all volumes."
+      - flag: "inspect <name>"
+        description: "Show low-level details (mount path, driver, labels)."
+      - flag: "rm <name>"
+        description: "Delete a named volume (must not be in use)."
+      - flag: "prune [-f]"
+        description: "Remove all volumes not mounted by any container."
+    examples:
+      - code: "docker volume create pgdata"
+        explain: "Create a named volume called 'pgdata' for persisting Postgres data."
+      - code: "docker volume ls"
+        explain: "List every volume Docker knows about on this machine."
+      - code: "docker volume inspect pgdata"
+        explain: "Show where Docker has placed the volume on the host filesystem."
+    recipes:
+      - code: "docker run -d --name db -v pgdata:/var/lib/postgresql/data postgres:16-alpine"
+        explain: "Mount the named 'pgdata' volume so the database survives container removal."
+    gotchas: >
+      <code>docker volume rm</code> permanently deletes the data. Verify
+      no container is using the volume first with
+      <code>docker ps -a --filter volume=&lt;name&gt;</code>. Use
+      <code>docker run --rm -v pgdata:/data alpine tar cz /data &gt; backup.tar.gz</code>
+      to back up a volume before removal.
+    see_also: ["docker run", "docker system prune"]
+    references:
+      - "https://docs.docker.com/reference/cli/docker/volume/"
+
+  - name: "podman"
+    description: "Daemonless, rootless Docker-compatible container engine."
+    syntax: "podman <command> [args...]"
+    os: [linux, macos, cross-platform]
+    danger: "caution"
+    flags:
+      - flag: "run / build / ps / exec / logs"
+        description: "Same subcommand surface as Docker — most invocations are drop-in replacements."
+      - flag: "--userns=keep-id"
+        description: "Map your host UID into the container — the rootless default keeps file ownership sane."
+      - flag: "podman machine init|start"
+        description: "macOS / Windows: initialise and start the underlying Linux VM."
+      - flag: "podman generate systemd <container>"
+        description: "Generate a systemd unit file to run the container as a service."
+    examples:
+      - code: "podman run --rm -it alpine sh"
+        explain: "Start an Alpine shell rootlessly — no daemon required, no sudo."
+      - code: "podman build -t myapp ."
+        explain: "Build a container image from the Dockerfile in the current directory."
+      - code: "alias docker=podman"
+        explain: "Drop-in alias so existing Docker muscle-memory and scripts keep working."
+    recipes:
+      - code: "podman run -d --name web -p 8080:80 --userns=keep-id -v $PWD/html:/usr/share/nginx/html:ro nginx:alpine"
+        explain: "Serve a local directory via nginx rootlessly, with host UID preserved on the bind-mount."
+    gotchas: >
+      CLI is a near-superset of Docker's — most <code>docker</code>
+      commands work via <code>alias docker=podman</code>. Default is
+      rootless (user namespaces), so ports below 1024 won't bind without
+      extra config (<code>net.ipv4.ip_unprivileged_port_start=80</code>
+      in <code>/etc/sysctl.d/</code>). On macOS, a tiny Linux VM
+      (podman-machine) runs behind the scenes.
+    modern: >
+      <code>podman</code> is the daemonless, rootless alternative to
+      <code>docker</code> — no background daemon to crash, and rootless
+      by default.
+    see_also: ["docker run", "docker build", "buildah"]
+    references:
+      - "https://docs.podman.io"
+      - "https://podman.io/get-started"
+
+  - name: "kubectl"
+    description: "Talk to a Kubernetes cluster — inspect, deploy, exec, and manage resources."
+    syntax: "kubectl [-n <ns>] [get|describe|logs|exec|apply|delete] <resource> [args...]"
+    os: [cross-platform]
+    danger: "caution"
+    flags:
+      - flag: "-n <namespace>"
+        description: "Operate inside a non-default namespace."
+      - flag: "--context <ctx>"
+        description: "Use a specific kubeconfig context."
+      - flag: "-l <key>=<val>"
+        description: "Label selector — target a group of resources."
+      - flag: "-o yaml|json|wide"
+        description: "Output format."
+      - flag: "--all-namespaces / -A"
+        description: "Operate across every namespace."
+      - flag: "--dry-run=client"
+        description: "Validate a manifest locally without sending it to the API server."
+    examples:
+      - code: "kubectl get pods -A"
+        explain: "List every pod across all namespaces with their current status."
+      - code: "kubectl logs -f deploy/web -n production"
+        explain: "Follow live log output from all pods in the 'web' deployment in the production namespace."
+      - code: "kubectl exec -it pod/web-abc123 -- sh"
+        explain: "Open an interactive shell inside a specific pod."
+      - code: "kubectl apply -f manifest.yaml"
+        explain: "Create or update resources declaratively from a YAML manifest."
+    recipes:
+      - code: "kubectl get pods -n production -o wide | grep -v Running"
+        explain: "Quickly spot pods in the production namespace that are not in a Running state."
+      - code: "kubectl rollout restart deployment/web -n production"
+        explain: "Trigger a rolling restart of all pods in the 'web' deployment without downtime."
+    gotchas: >
+      Always confirm <code>kubectl config current-context</code> before
+      destructive commands — landing a <code>kubectl delete</code> on
+      production because you forgot to switch contexts is a classic
+      footgun. <code>kubectx</code> + <code>kubens</code> from
+      <code>ahmetb/kubectx</code> make context and namespace switching
+      ergonomic. Use <code>--dry-run=client -o yaml</code> to preview
+      what <code>apply</code> would change.
+    see_also: ["kubectx", "helm", "k9s"]
+    references:
+      - "https://kubernetes.io/docs/reference/kubectl/"
+
+  - name: "buildah"
+    description: "Build OCI container images without a daemon — layer by layer or from a Dockerfile."
+    syntax: "buildah [bud|from|run|copy|commit|push] [args...]"
+    os: [linux]
+    danger: "caution"
+    flags:
+      - flag: "bud -t <tag> ."
+        description: "Build from a Dockerfile (bud = build-using-dockerfile)."
+      - flag: "from <image>"
+        description: "Start a new working container based on an existing image."
+      - flag: "run <container> -- <cmd>"
+        description: "Run a command inside a working container during assembly."
+      - flag: "copy <container> <src> <dst>"
+        description: "Copy files into a working container."
+      - flag: "commit <container> <image>"
+        description: "Snapshot the working container as a new image."
+      - flag: "--layers"
+        description: "Cache intermediate layers (speeds up repeated builds)."
+    examples:
+      - code: "buildah bud -t myapp:latest ."
+        explain: "Build an OCI image from the local Dockerfile with no Docker daemon required."
+      - code: "buildah from alpine && buildah run alpine-working-container -- apk add curl"
+        explain: "Create a working container from Alpine and install curl into it interactively."
+    recipes:
+      - code: "buildah bud -t myapp:latest . && buildah push myapp:latest docker://ghcr.io/user/myapp:latest"
+        explain: "Build an image with buildah and push directly to GHCR — entirely daemonless."
+    gotchas: >
+      <code>buildah</code> is Linux-only — it leverages Linux namespaces
+      directly and is not available on macOS or Windows without a VM.
+      It pairs naturally with <code>podman</code>: images built by
+      buildah are immediately visible to <code>podman images</code>.
+    modern: >
+      <code>buildah</code> builds OCI-compliant images without the Docker
+      daemon — the daemonless complement to <code>podman</code>.
+    see_also: ["podman", "docker build"]
+    references:
+      - "https://buildah.io"
+      - "https://github.com/containers/buildah"

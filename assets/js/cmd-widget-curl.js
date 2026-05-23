@@ -18,7 +18,7 @@
       pass: ''
     };
 
-    var title = CMDW.el('h3', { className: 'cmd-widget__title', text: 'curl composer' });
+    var body = CMDW.makeShell(root, 'curl composer');
     var lede = CMDW.el('p', { className: 'cmd-widget__lede', text: 'Compose a `curl` invocation. The output is shell-escaped (single-quotes) and ready to paste into a terminal or a CI step.' });
 
     // URL row
@@ -103,14 +103,13 @@
 
     var out = CMDW.makeOutput('Composed command');
 
-    root.appendChild(title);
-    root.appendChild(lede);
-    root.appendChild(urlRow);
-    root.appendChild(methodRow);
-    root.appendChild(headersWrap);
-    root.appendChild(bodyRow);
-    root.appendChild(authRow);
-    root.appendChild(out.el);
+    body.appendChild(lede);
+    body.appendChild(urlRow);
+    body.appendChild(methodRow);
+    body.appendChild(headersWrap);
+    body.appendChild(bodyRow);
+    body.appendChild(authRow);
+    body.appendChild(out.el);
 
     function render() {
       var parts = ['curl'];

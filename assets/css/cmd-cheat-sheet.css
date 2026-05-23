@@ -8,19 +8,24 @@
 
 /* ---- Desktop column min-widths ---- */
 .reference-page--cmd .reference-table {
-  min-width: 1500px;
+  min-width: 2300px;
 }
 .reference-page--cmd .reference-table .col-name     { min-width: 10rem; width: 10rem; }
 .reference-page--cmd .reference-table .col-desc     { min-width: 14rem; }
-.reference-page--cmd .reference-table .col-syntax   { min-width: 18rem; }
-.reference-page--cmd .reference-table .col-flags    { min-width: 18rem; }
+.reference-page--cmd .reference-table .col-syntax   { min-width: 17rem; }
+.reference-page--cmd .reference-table .col-flags    { min-width: 17rem; }
 .reference-page--cmd .reference-table .col-examples { min-width: 18rem; }
+.reference-page--cmd .reference-table .col-recipes  { min-width: 16rem; }
 .reference-page--cmd .reference-table .col-gotchas  { min-width: 16rem; }
+.reference-page--cmd .reference-table .col-danger   { min-width: 8rem;  width: 8rem; }
+.reference-page--cmd .reference-table .col-modern   { min-width: 11rem; }
 .reference-page--cmd .reference-table .col-see-also { min-width: 10rem; }
+.reference-page--cmd .reference-table .col-docs     { min-width: 11rem; }
 .reference-page--cmd .reference-table .col-os       { min-width: 7rem;  width: 7rem; }
 
 .reference-page--cmd .reference-table .col-syntax,
 .reference-page--cmd .reference-table .col-examples,
+.reference-page--cmd .reference-table .col-recipes,
 .reference-page--cmd .reference-table .col-flags {
   overflow-wrap: anywhere;
 }
@@ -50,24 +55,132 @@
   color: var(--c-text);
 }
 
-/* ---- Examples block ---- */
-.cmd-examples {
+/* ---- Examples / recipes (clickable, each opens an explanation modal) ---- */
+.cmd-example-list {
+  list-style: none;
   margin: 0;
-  padding: 0.55rem 0.7rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.cmd-example-list > li { margin: 0; }
+.cmd-example {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 0;
+  padding: 0.45rem 0.6rem;
   background: var(--c-surface-alt);
   border: 1px solid var(--c-border-light);
   border-radius: 4px;
-  overflow-x: auto;
-  font-size: 0.82rem;
-  line-height: 1.55;
-  white-space: pre;
+  cursor: pointer;
+  font: inherit;
+  position: relative;
+  transition: border-color var(--transition-fast),
+              background var(--transition-fast);
 }
-.cmd-examples code {
+.cmd-example:hover,
+.cmd-example:focus-visible {
+  border-color: var(--c-accent-border);
+  background: var(--c-accent-bg);
+}
+.cmd-example:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 1px;
+}
+/* Subtle "?" affordance so it reads as explain-on-tap. */
+.cmd-example::after {
+  content: "?";
+  position: absolute;
+  top: 0.25rem;
+  right: 0.35rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--c-text-faint);
+  border: 1px solid var(--c-border-light);
+  border-radius: 999px;
+  width: 0.95rem;
+  height: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.cmd-example:hover::after,
+.cmd-example:focus-visible::after { color: var(--c-accent); border-color: var(--c-accent-border); }
+.cmd-example__code {
   font-family: var(--f-mono);
+  font-size: 0.8rem;
   color: var(--c-text);
   background: transparent;
   border: 0;
   padding: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  display: block;
+  padding-right: 1rem;            /* clear the ? badge */
+}
+/* Glossary terms decorated inside example code stay legible + clearly tappable. */
+.cmd-example__code .abbr-trigger {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+  cursor: help;
+}
+
+/* ---- Danger badges ---- */
+.cmd-danger--safe,
+.cmd-danger--caution,
+.cmd-danger--destructive {
+  border: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.cmd-danger--safe        { background: #16653433; color: #4ade80; border: 1px solid #22c55e55; }
+.cmd-danger--caution     { background: #78350f33; color: #fbbf24; border: 1px solid #f59e0b66; }
+.cmd-danger--destructive { background: #7f1d1d44; color: #f87171; border: 1px solid #ef444466; }
+[data-theme="light"] .cmd-danger--safe        { background: #dcfce7; color: #15803d; border-color: #16a34a55; }
+[data-theme="light"] .cmd-danger--caution     { background: #fef3c7; color: #b45309; border-color: #d9770655; }
+[data-theme="light"] .cmd-danger--destructive { background: #fee2e2; color: #b91c1c; border-color: #dc262655; }
+
+/* ---- Modern-alternative cell ---- */
+.reference-page--cmd .col-modern code {
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border-light);
+  padding: 0.05rem 0.4rem;
+  border-radius: 4px;
+  color: var(--c-text);
+}
+
+/* ---- Docs cell ---- */
+.cmd-docs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+.cmd-docs-list li { margin: 0 0 0.2rem; }
+.cmd-docs-list code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--c-text-muted);
+}
+.reference-page--cmd .col-docs a {
+  color: var(--c-accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--c-accent-border);
+  overflow-wrap: anywhere;
+}
+.reference-page--cmd .col-docs a:hover { border-bottom-style: solid; }
+
+/* ---- Legend sub-heading (Danger Level) ---- */
+.reference-legend__subhead {
+  font-size: 1rem;
+  margin: var(--space-md) 0 var(--space-xs);
+  color: var(--c-text);
 }
 
 /* ---- See-also chips ---- */
@@ -152,19 +265,15 @@
   .reference-page--cmd .reference-table .col-syntax,
   .reference-page--cmd .reference-table .col-flags,
   .reference-page--cmd .reference-table .col-examples,
+  .reference-page--cmd .reference-table .col-recipes,
   .reference-page--cmd .reference-table .col-gotchas,
+  .reference-page--cmd .reference-table .col-danger,
+  .reference-page--cmd .reference-table .col-modern,
   .reference-page--cmd .reference-table .col-see-also,
+  .reference-page--cmd .reference-table .col-docs,
   .reference-page--cmd .reference-table .col-os {
     width: calc(100vw - 9rem);
     min-width: 0;
-  }
-  /* Wrap example lines inside the cell so the cell doesn't create a
-     second horizontal scrollbar on top of the table's own. */
-  .cmd-examples {
-    font-size: 0.78rem;
-    white-space: pre-wrap;
-    word-break: normal;
-    overflow-wrap: anywhere;
   }
   .cmd-flag-list { grid-template-columns: 1fr; gap: 0.15rem 0; }
   .cmd-flag-list dt { margin-top: 0.3rem; }

@@ -48,6 +48,45 @@
   line-height: 1.55;
 }
 
+/* ---- Collapsible shell (<details class="cmd-widget__collapse">) ---- */
+.cmd-widget__collapse { width: 100%; }
+.cmd-widget__summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  user-select: none;
+}
+.cmd-widget__summary::-webkit-details-marker { display: none; }
+.cmd-widget__summary::marker { content: ""; }
+.cmd-widget__summary .cmd-widget__title { margin: 0; }
+.cmd-widget__summary:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 3px;
+  border-radius: var(--border-radius-sm, 4px);
+}
+.cmd-widget__toggle {
+  flex-shrink: 0;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-right: 0.25rem;
+  border-right: 2px solid var(--c-text-muted);
+  border-bottom: 2px solid var(--c-text-muted);
+  transform: rotate(45deg);            /* expanded → chevron points down */
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+.cmd-widget__collapse:not([open]) .cmd-widget__toggle {
+  transform: rotate(-45deg);           /* collapsed → chevron points right */
+}
+.cmd-widget__summary:hover .cmd-widget__toggle { border-color: var(--c-accent); }
+.cmd-widget__body { margin-top: var(--space-md); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cmd-widget__toggle { transition: none; }
+}
+
 /* ---- Form rows ---- */
 .cmd-widget__row {
   display: flex;

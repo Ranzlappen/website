@@ -7,13 +7,14 @@ batch:
     Secure shell access, file transfer, key management, and session
     persistence over flaky links. If you administer anything that isn't
     on your laptop, this is your bread and butter.
-  last_updated: "2026-05-21"
+  last_updated: "2026-05-23"
 
 entries:
   - name: "ssh"
     description: "Open an authenticated, encrypted shell on a remote host."
     syntax: "ssh [-p <port>] [-i <key>] [-L|-R <fwd>] [<user>@]<host> [<cmd>]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-p <port>"
         description: "Use a non-default port (default 22)."
@@ -36,10 +37,19 @@ entries:
       - flag: "-v"
         description: "Verbose; -vv / -vvv for more detail (debugging auth)."
     examples:
-      - "ssh user@example.com"
-      - "ssh -i ~/.ssh/id_ed25519 -p 2222 deploy@app.example"
-      - "ssh -L 5432:localhost:5432 db.example -N"
-      - "ssh -J bastion@gateway.example app@internal-host"
+      - code: "ssh user@example.com"
+        explain: "Open an interactive shell as 'user' on example.com using the default port 22."
+      - code: "ssh -i ~/.ssh/id_ed25519 -p 2222 deploy@app.example"
+        explain: "Connect as 'deploy' on a non-standard port using an explicit identity file."
+      - code: "ssh -L 5432:localhost:5432 db.example -N"
+        explain: "Forward local port 5432 to the database's localhost port — tunnel stays open with -N."
+      - code: "ssh -J bastion@gateway.example app@internal-host"
+        explain: "Connect to an internal host by hopping through a bastion gateway in one command."
+    recipes:
+      - code: "ssh host 'tail -f /var/log/app.log'"
+        explain: "Stream a remote log file live in your local terminal — no interactive session needed."
+      - code: "ssh -f -N -L 8080:localhost:8080 prod.example && open http://localhost:8080"
+        explain: "Background a local-port tunnel to a remote web service, then open it in the browser."
     gotchas: >
       Config goes in <code>~/.ssh/config</code> — set <code>HostName</code>,
       <code>User</code>, <code>Port</code>, <code>IdentityFile</code>
@@ -54,9 +64,11 @@ entries:
       - "man 5 ssh_config"
 
   - name: "scp"
-    description: "Copy files over SSH."
+    description: "Copy files over SSH — simple one-shot transfers between hosts."
     syntax: "scp [-r] [-P <port>] [-i <key>] <src>... [<user>@]<host>:<dst>"
     os: [cross-platform]
+    danger: caution
+    modern: "For anything beyond trivial copies prefer <code>rsync</code> (delta transfer, resume, faster retries) or <code>sftp</code>."
     flags:
       - flag: "-r"
         description: "Recursive — copy directories."
@@ -69,9 +81,15 @@ entries:
       - flag: "-C"
         description: "Compress in transit."
     examples:
-      - "scp deploy.tar.gz user@server.example:/tmp/"
-      - "scp -r dist/ user@server.example:/var/www/"
-      - "scp user@server:/etc/nginx/nginx.conf ./"
+      - code: "scp deploy.tar.gz user@server.example:/tmp/"
+        explain: "Upload a single file to the server's /tmp directory."
+      - code: "scp -r dist/ user@server.example:/var/www/"
+        explain: "Recursively copy the local dist/ directory to the remote web root."
+      - code: "scp user@server:/etc/nginx/nginx.conf ./"
+        explain: "Download a remote config file into the current local directory."
+    recipes:
+      - code: "scp -i ~/.ssh/deploy.pub -P 2222 build.tar.gz deploy@app.example:/releases/"
+        explain: "Upload a release archive to a non-standard port using a dedicated deploy key."
     gotchas: >
       OpenSSH 9+ switched <code>scp</code>'s wire protocol from RCP to
       SFTP — behaves similarly but rejects some old quoting tricks. For
@@ -85,6 +103,7 @@ entries:
     description: "Fast incremental file sync (local or over SSH) with delta transfer."
     syntax: "rsync [-a] [-v] [--delete] [-z] [-P] <src>/ <dst>/"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-a"
         description: "Archive — recursive + symlinks + perms + times + group + owner."
@@ -93,7 +112,7 @@ entries:
       - flag: "-z"
         description: "Compress in transit."
       - flag: "--delete"
-        description: "Delete files on dst that aren't in src (mirror)."
+        description: "Delete files on dst that aren't in src (mirror). DESTRUCTIVE — dry-run first."
       - flag: "-n / --dry-run"
         description: "Preview what would change without doing it."
       - flag: "-P"
@@ -103,9 +122,17 @@ entries:
       - flag: "--exclude=<pat>"
         description: "Skip paths matching the pattern (repeat for multiple)."
     examples:
-      - "rsync -avP src/ dst/"
-      - "rsync -avz --delete ./dist/ user@server:/var/www/"
-      - "rsync -avn --exclude='node_modules' ./ backup/"
+      - code: "rsync -avP src/ dst/"
+        explain: "Sync local directories with verbose output and a progress bar."
+      - code: "rsync -avz --delete ./dist/ user@server:/var/www/"
+        explain: "Mirror the local dist/ build to the server, deleting remote files that no longer exist locally."
+      - code: "rsync -avn --exclude='node_modules' ./ backup/"
+        explain: "Dry-run a backup excluding node_modules — nothing changes, just shows what would happen."
+    recipes:
+      - code: "tar -C /src -cf - . | ssh user@host 'tar -C /dst -xf -'"
+        explain: "Stream a directory over SSH via tar when rsync isn't available on the remote end."
+      - code: "rsync -avz -e \"ssh -p 2222 -i ~/.ssh/deploy\" --exclude='.env' ./app/ deploy@host:/srv/app/"
+        explain: "Deploy an app to a non-standard SSH port with a deploy key, excluding secrets."
     gotchas: >
       Trailing <code>/</code> matters: <code>src/</code> means "contents of
       src", <code>src</code> means "the src dir itself". Always dry-run
@@ -120,6 +147,7 @@ entries:
     description: "Generate, inspect, and manage SSH keypairs."
     syntax: "ssh-keygen [-t <algo>] [-b <bits>] [-f <path>] [-C <comment>]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-t ed25519"
         description: "Modern, fast, secure default. Pick this."
@@ -136,9 +164,15 @@ entries:
       - flag: "-l -f <key>"
         description: "Print the fingerprint of a key."
     examples:
-      - "ssh-keygen -t ed25519 -C \"you@example.com\""
-      - "ssh-keygen -lf ~/.ssh/id_ed25519.pub"
-      - "ssh-keygen -y -f ~/.ssh/id_ed25519"
+      - code: "ssh-keygen -t ed25519 -C \"you@example.com\""
+        explain: "Generate a new ed25519 keypair, tagged with your email as a comment."
+      - code: "ssh-keygen -lf ~/.ssh/id_ed25519.pub"
+        explain: "Print the fingerprint of an existing public key to verify its identity."
+      - code: "ssh-keygen -y -f ~/.ssh/id_ed25519"
+        explain: "Regenerate and print the public key from just the private key file."
+    recipes:
+      - code: "ssh-keygen -t ed25519 -f ~/.ssh/deploy_key -N \"\" -C \"deploy@ci\""
+        explain: "Generate a passphrase-free deploy key for CI/CD — store the private key as a CI secret."
     gotchas: >
       Default output path is <code>~/.ssh/id_ed25519</code> — answer the
       prompts if you want a different location. Use a passphrase for
@@ -152,6 +186,7 @@ entries:
     description: "Install your public key into a remote user's authorized_keys."
     syntax: "ssh-copy-id [-i <pubkey>] [-p <port>] [<user>@]<host>"
     os: [linux, macos, cross-platform]
+    danger: safe
     flags:
       - flag: "-i <pubkey>"
         description: "Which public key to install."
@@ -160,8 +195,13 @@ entries:
       - flag: "-f"
         description: "Force — skip the test-key-already-present check."
     examples:
-      - "ssh-copy-id user@server.example"
-      - "ssh-copy-id -i ~/.ssh/deploy.pub -p 2222 deploy@app.example"
+      - code: "ssh-copy-id user@server.example"
+        explain: "Append the default public key (~/.ssh/id_ed25519.pub) to the remote authorized_keys."
+      - code: "ssh-copy-id -i ~/.ssh/deploy.pub -p 2222 deploy@app.example"
+        explain: "Install a specific deploy public key on a server listening on port 2222."
+    recipes:
+      - code: "cat ~/.ssh/id_ed25519.pub | ssh user@host 'cat >> ~/.ssh/authorized_keys'"
+        explain: "Manual equivalent for Windows or systems without ssh-copy-id — pipe the public key to the remote."
     gotchas: >
       Not bundled with Windows OpenSSH — workaround: <code>cat
       ~/.ssh/id_ed25519.pub | ssh user@host 'cat >> ~/.ssh/authorized_keys'</code>.
@@ -173,6 +213,7 @@ entries:
     description: "Interactive file transfer over SSH (FTP-like commands)."
     syntax: "sftp [-P <port>] [-i <key>] [-b <batchfile>] [<user>@]<host>"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-P <port>"
         description: "Remote port (note: capital P, unlike ssh's -p)."
@@ -183,8 +224,15 @@ entries:
       - flag: "-r"
         description: "Recursive transfers (used inside the session with get/put)."
     examples:
-      - "sftp user@server.example"
-      - "sftp -i ~/.ssh/id_ed25519 deploy@app.example"
+      - code: "sftp user@server.example"
+        explain: "Open an interactive SFTP session where you can run ls, cd, get, put, etc."
+      - code: "sftp -i ~/.ssh/id_ed25519 deploy@app.example"
+        explain: "Connect to a server using an explicit identity file instead of the default key."
+      - code: "sftp -b /tmp/batch.txt user@server.example"
+        explain: "Run SFTP commands non-interactively from a batch file — useful in scripts."
+    recipes:
+      - code: "echo -e 'get /var/log/app.log /tmp/app.log\nbye' | sftp user@server"
+        explain: "Non-interactively download a single remote file using an inline batch command."
     gotchas: >
       Once connected: <code>ls</code>, <code>cd</code>, <code>get</code>,
       <code>put</code>, <code>mget</code>, <code>mput</code>, <code>bye</code>.
@@ -198,13 +246,20 @@ entries:
     description: "Mobile shell — SSH-like but survives roaming, sleep, and packet loss."
     syntax: "mosh [--ssh=\"<ssh cmd>\"] [-p <udp-port-range>] [<user>@]<host>"
     os: [linux, macos, cross-platform, android]
+    danger: safe
     flags:
       - flag: "--ssh=\"<cmd>\""
         description: "Use a custom ssh invocation (e.g. with -i / -p)."
       - flag: "-p <port>"
         description: "Pin a specific UDP port instead of the 60000-61000 range."
     examples:
-      - "mosh user@laggy-server.example"
+      - code: "mosh user@laggy-server.example"
+        explain: "Open a mosh session — automatically reconnects if your IP changes or the link drops."
+      - code: "mosh --ssh=\"ssh -p 2222\" user@server.example"
+        explain: "Connect via mosh to a server with a non-standard SSH port by overriding the SSH command."
+    recipes:
+      - code: "mosh user@server -- tmux new-session -A -s main"
+        explain: "Open mosh and immediately attach to (or create) a persistent tmux session — survives laptop lid-close."
     gotchas: >
       Uses UDP on ports 60000–61000 — open those if your network blocks
       them. Needs <code>mosh</code> installed on both ends (server-side
@@ -213,3 +268,73 @@ entries:
     see_also: ["ssh", "tmux"]
     references:
       - "https://mosh.org"
+
+  - name: "ssh-agent"
+    description: "Authentication agent that holds decrypted private keys in memory for a session."
+    syntax: "ssh-agent [-s] [-k] | eval \"$(ssh-agent -s)\""
+    os: [cross-platform]
+    danger: safe
+    flags:
+      - flag: "-s"
+        description: "Output Bourne-shell commands to set environment variables (default on most systems)."
+      - flag: "-c"
+        description: "Output C-shell commands."
+      - flag: "-k"
+        description: "Kill the running agent (uses SSH_AGENT_PID env var)."
+      - flag: "-t <seconds>"
+        description: "Set a default key lifetime — keys auto-expire after this many seconds."
+    examples:
+      - code: "eval \"$(ssh-agent -s)\""
+        explain: "Start an agent in the current shell and export the environment variables needed to use it."
+      - code: "ssh-agent -k"
+        explain: "Terminate the running agent process and clear its environment variables."
+    recipes:
+      - code: "eval \"$(ssh-agent -s)\" && ssh-add ~/.ssh/id_ed25519 && ssh user@host"
+        explain: "Start agent, load a key (prompting once for passphrase), then connect — key is cached for the session."
+    gotchas: >
+      Each new shell needs the agent's environment variables
+      (<code>SSH_AUTH_SOCK</code>, <code>SSH_AGENT_PID</code>).
+      Most desktop environments (GNOME, macOS) auto-start an agent on
+      login — running a second one wastes memory. On macOS, keys added
+      with <code>ssh-add --apple-use-keychain</code> survive reboots via
+      the system keychain.
+    see_also: ["ssh-add", "ssh", "ssh-keygen"]
+    references:
+      - "man 1 ssh-agent"
+
+  - name: "ssh-add"
+    description: "Add private keys to the running ssh-agent so you don't re-enter passphrases."
+    syntax: "ssh-add [-t <lifetime>] [-d] [-l] [<keyfile>...]"
+    os: [cross-platform]
+    danger: safe
+    flags:
+      - flag: "<keyfile>"
+        description: "Path to the private key to load (default: ~/.ssh/id_ed25519, id_rsa, etc.)."
+      - flag: "-t <seconds>"
+        description: "Expire the key from the agent after this many seconds."
+      - flag: "-d <keyfile>"
+        description: "Remove a specific key from the agent."
+      - flag: "-D"
+        description: "Remove all keys from the agent."
+      - flag: "-l"
+        description: "List fingerprints of all keys currently held by the agent."
+      - flag: "--apple-use-keychain"
+        description: "macOS only — store the passphrase in the system Keychain so the key survives reboots."
+    examples:
+      - code: "ssh-add ~/.ssh/id_ed25519"
+        explain: "Load a specific private key into the agent, prompting once for its passphrase."
+      - code: "ssh-add -l"
+        explain: "List all keys currently loaded in the agent, shown as fingerprints."
+      - code: "ssh-add -t 3600 ~/.ssh/deploy_key"
+        explain: "Load a deploy key with a 1-hour expiry — it is automatically removed after that."
+    recipes:
+      - code: "ssh-add -D && ssh-add ~/.ssh/id_ed25519 ~/.ssh/deploy_key"
+        explain: "Clear all loaded keys then reload exactly the two you want — good for switching contexts."
+    gotchas: >
+      Requires a running <code>ssh-agent</code> (check
+      <code>$SSH_AUTH_SOCK</code>). On macOS, the system agent auto-loads
+      keys from Keychain — use <code>ssh-add --apple-use-keychain</code>
+      once so keys persist after a reboot.
+    see_also: ["ssh-agent", "ssh-keygen", "ssh"]
+    references:
+      - "man 1 ssh-add"

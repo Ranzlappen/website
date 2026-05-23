@@ -71,9 +71,13 @@ The abbreviations / glossary system is shared site-wide:
       <p class="reference-hero__howto">
         <strong>How to use:</strong> pick a category tab or filter live by
         typing into the search box (matches across name, description, syntax,
-        flags, and examples). Tap any abbreviated term in a cell to see what
-        it stands for. The command column stays pinned as you scroll
-        horizontally.
+        flags, and examples). <strong>Tap any worked example</strong> to see a
+        plain-English explanation of what it does, or tap any highlighted term
+        inside an example (or any abbreviated term in a cell) to see what it
+        stands for. The <strong>Danger</strong> column flags destructive
+        commands at a glance and <strong>Modern alt</strong> points to a newer
+        replacement where one exists. The command column stays pinned as you
+        scroll horizontally.
       </p>
       <div class="reference-hero__meta">
         <span class="reference-hero__meta-item">
@@ -102,6 +106,14 @@ The abbreviations / glossary system is shared site-wide:
         <li><span class="reference-legend__swatch cmd-os--cross"   aria-hidden="true">⚙️</span> Cross-platform</li>
         <li><span class="reference-legend__swatch cmd-os--root"    aria-hidden="true">🛡</span> Requires root / sudo</li>
         <li><span class="reference-legend__swatch cmd-os--android" aria-hidden="true">🤖</span> Android (Termux)</li>
+      </ul>
+      <h2 class="reference-legend__subhead">Danger Level</h2>
+      <p>The <strong>Danger</strong> column rates how much damage a careless
+        invocation can do.</p>
+      <ul class="reference-legend__list">
+        <li><span class="reference-badge cmd-danger--safe">✓ safe</span> Read-only or trivially reversible</li>
+        <li><span class="reference-badge cmd-danger--caution">▲ caution</span> Can overwrite / modify state</li>
+        <li><span class="reference-badge cmd-danger--destructive">⚠ destructive</span> Irreversible data loss possible</li>
       </ul>
     </section>
 
@@ -185,8 +197,12 @@ The abbreviations / glossary system is shared site-wide:
             <th scope="col" class="col-syntax">Syntax</th>
             <th scope="col" class="col-flags">Flags / Options</th>
             <th scope="col" class="col-examples">Examples</th>
+            <th scope="col" class="col-recipes">Recipes / Combos</th>
             <th scope="col" class="col-gotchas">Gotchas</th>
+            <th scope="col" class="col-danger">Danger</th>
+            <th scope="col" class="col-modern">Modern alt</th>
             <th scope="col" class="col-see-also">See also</th>
+            <th scope="col" class="col-docs">Docs</th>
             <th scope="col" class="col-os">OS</th>
           </tr>
         </thead>
@@ -200,6 +216,7 @@ The abbreviations / glossary system is shared site-wide:
               {%- comment -%} Build-time lint — minimum quality bar enforced via grep-able HTML comments. Run _data/cmd-cheat-sheet/lint.sh after `jekyll build` to surface entries below the bar. {%- endcomment -%}
               {%- if cmd.flags == nil or cmd.flags.size == 0 -%}<!-- LINT: {{ cmd.name }} ({{ batch.id }}) has no flags -->{% endif %}
               {%- if cmd.examples == nil or cmd.examples.size == 0 -%}<!-- LINT: {{ cmd.name }} ({{ batch.id }}) has no examples -->{% endif %}
+              {%- for ex in cmd.examples -%}{%- if ex.code == nil or ex.explain == nil -%}<!-- LINT: {{ cmd.name }} ({{ batch.id }}) has an example missing code/explain -->{%- endif -%}{%- endfor -%}
               <tr id="cmd-{{ cmd_slug }}" data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}">
                 <td class="col-name is-sticky-col"><code class="mono">{{ cmd.name }}</code></td>
                 <td class="col-desc">{{ cmd.description }}</td>
@@ -229,14 +246,58 @@ The abbreviations / glossary system is shared site-wide:
                 </td>
                 <td class="col-examples">
                   {% if cmd.examples and cmd.examples.size > 0 %}
-                    <pre class="cmd-examples"><code class="mono">{% for ex in cmd.examples %}{{ ex | escape }}{% unless forloop.last %}
-{% endunless %}{% endfor %}</code></pre>
+                    <ul class="cmd-example-list">
+                      {% for ex in cmd.examples %}
+                        <li>
+                          <button type="button" class="cmd-example" data-heading="{{ cmd.name | escape }}" data-explain="{{ ex.explain | escape }}" title="{{ ex.explain | escape }}" aria-label="{{ ex.code | escape }} — tap for explanation">
+                            <code class="mono cmd-example__code abbr-decorate-code">{{ ex.code | escape }}</code>
+                          </button>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <span class="cell-empty">—</span>
+                  {% endif %}
+                </td>
+                <td class="col-recipes">
+                  {% if cmd.recipes and cmd.recipes.size > 0 %}
+                    {%- assign first_recipe = cmd.recipes | first -%}
+                    <details class="cell-collapse"{% if cmd.recipes.size <= 1 %} open{% endif %}>
+                      <summary>
+                        <span class="cell-collapse__count">{{ cmd.recipes.size }}</span>
+                        <span class="cell-collapse__label">{% if cmd.recipes.size == 1 %}recipe{% else %}recipes{% endif %}</span>
+                        {% if cmd.recipes.size > 1 %}
+                        <span class="cell-collapse__preview"><code class="mono">{{ first_recipe.code | truncate: 42 | escape }}</code></span>
+                        <span class="cell-collapse__more">Show all</span>
+                        {% endif %}
+                      </summary>
+                      <ul class="cmd-example-list">
+                        {% for rc in cmd.recipes %}
+                          <li>
+                            <button type="button" class="cmd-example" data-heading="{{ cmd.name | escape }}" data-explain="{{ rc.explain | escape }}" title="{{ rc.explain | escape }}" aria-label="{{ rc.code | escape }} — tap for explanation">
+                              <code class="mono cmd-example__code abbr-decorate-code">{{ rc.code | escape }}</code>
+                            </button>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </details>
                   {% else %}
                     <span class="cell-empty">—</span>
                   {% endif %}
                 </td>
                 <td class="col-gotchas">
                   {% if cmd.gotchas %}{{ cmd.gotchas | markdownify }}{% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-danger">
+                  {%- case cmd.danger -%}
+                    {%- when "destructive" -%}<span class="reference-badge cmd-danger--destructive" title="Destructive — can cause irreversible data loss or system damage">⚠ destructive</span>
+                    {%- when "caution" -%}<span class="reference-badge cmd-danger--caution" title="Caution — can overwrite, modify state, or surprise you">▲ caution</span>
+                    {%- when "safe" -%}<span class="reference-badge cmd-danger--safe" title="Safe — read-only or trivially reversible in normal use">✓ safe</span>
+                    {%- else -%}<span class="cell-empty">—</span>
+                  {%- endcase -%}
+                </td>
+                <td class="col-modern">
+                  {% if cmd.modern %}{{ cmd.modern }}{% else %}<span class="cell-empty">—</span>{% endif %}
                 </td>
                 <td class="col-see-also">
                   {% if cmd.see_also and cmd.see_also.size > 0 %}
@@ -250,6 +311,23 @@ The abbreviations / glossary system is shared site-wide:
                       {%- endif -%}
                       {%- unless forloop.last %}, {% endunless -%}
                     {%- endfor -%}
+                  {% else %}
+                    <span class="cell-empty">—</span>
+                  {% endif %}
+                </td>
+                <td class="col-docs">
+                  {% if cmd.references and cmd.references.size > 0 %}
+                    <ul class="cmd-docs-list">
+                      {%- for ref in cmd.references -%}
+                        <li>
+                          {%- if ref contains "://" -%}
+                            <a href="{{ ref }}" target="_blank" rel="noopener noreferrer">{{ ref | split: "://" | last | truncate: 32 }}</a>
+                          {%- else -%}
+                            <code class="mono">{{ ref }}</code>
+                          {%- endif -%}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
                   {% else %}
                     <span class="cell-empty">—</span>
                   {% endif %}
@@ -292,3 +370,4 @@ The abbreviations / glossary system is shared site-wide:
 <script src="{{ '/assets/js/cmd-widget-regex.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/cmd-widget-curl.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/cmd-widget-bundle.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/resize-handle.js' | relative_url }}" defer></script>

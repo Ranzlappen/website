@@ -7,7 +7,7 @@ batch:
     Inspect what's running, suspend / background / kill jobs, watch CPU
     and memory live. The toolkit for diagnosing "why is this server hot"
     and "what is eating my battery".
-  last_updated: "2026-05-21"
+  last_updated: "2026-05-23"
 
 entries:
   - name: "ps"
@@ -22,13 +22,20 @@ entries:
       - flag: "-o <fmt>"
         description: "Custom output columns (e.g. pid,user,%cpu,%mem,cmd)."
     examples:
-      - "ps aux | grep nginx"
-      - "ps -eo pid,user,%cpu,%mem,cmd --sort=-%mem | head"
+      - code: "ps aux"
+        explain: "Shows every running process for all users in BSD wide format."
+      - code: "ps -eo pid,user,%cpu,%mem,cmd --sort=-%mem | head"
+        explain: "Lists the top memory consumers with custom columns, sorted descending."
+    recipes:
+      - code: "ps aux | grep nginx"
+        explain: "Quickly checks whether any nginx process is currently running."
     gotchas: >
       <code>ps aux</code> and <code>ps -ef</code> are nearly equivalent but
       use different flag syntax (BSD vs POSIX). On modern Linux either
       works; on minimal busybox boxes (and some Android setups) only one
       is available.
+    danger: "safe"
+    modern: "Use <code>procs</code> for a colourised, human-friendly alternative (<code>cargo install procs</code>)."
     see_also: ["top", "pgrep", "htop"]
     references:
       - "man 1 ps"
@@ -47,13 +54,20 @@ entries:
       - flag: "-u <user>"
         description: "Show only this user's processes."
     examples:
-      - "top -o cpu"
-      - "top -n 1 -b > snapshot.txt"
+      - code: "top -o cpu"
+        explain: "Opens top pre-sorted by CPU usage descending."
+      - code: "top -n 1 -b > snapshot.txt"
+        explain: "Captures a single non-interactive batch snapshot to a file — useful in scripts."
+    recipes:
+      - code: "top -b -n 5 -d 2 | grep 'Cpu\\|Mem'"
+        explain: "Polls CPU and memory summary lines five times at 2-second intervals for a quick trend."
     gotchas: >
       Linux <code>top</code> and macOS <code>top</code> are different
       binaries with different keybindings. Inside Linux <code>top</code>:
       <code>P</code> sort by CPU, <code>M</code> by memory, <code>k</code>
       kill a PID, <code>q</code> quit.
+    danger: "safe"
+    modern: "Prefer <code>htop</code> or <code>btop</code> for colour, mouse support, and tree view."
     see_also: ["htop", "ps", "iotop"]
     references:
       - "man 1 top"
@@ -70,12 +84,19 @@ entries:
       - flag: "-t"
         description: "Start in tree view."
     examples:
-      - "htop"
-      - "htop -u www-data -t"
+      - code: "htop"
+        explain: "Opens the full interactive process dashboard with colour meters."
+      - code: "htop -u www-data -t"
+        explain: "Shows only the web server's processes in a collapsible process tree."
+    recipes:
+      - code: "htop -p $(pgrep -d, node)"
+        explain: "Watches only the Node.js PIDs — useful when debugging a multi-worker app."
     gotchas: >
       Not installed by default — <code>apt install htop</code> /
       <code>brew install htop</code> / <code>pkg install htop</code> in
       Termux. Inside htop: F5 tree, F6 sort, F9 kill, F10 quit.
+    danger: "safe"
+    modern: "Use <code>btop</code> for an even richer resource overview including disk and network graphs."
     see_also: ["top", "btop"]
     references:
       - "man 1 htop"
@@ -94,14 +115,23 @@ entries:
       - flag: "-l"
         description: "List all signal names."
     examples:
-      - "kill 12345"
-      - "kill -HUP $(pgrep nginx)"
-      - "kill -9 1234"
+      - code: "kill 12345"
+        explain: "Sends SIGTERM to PID 12345, asking it to shut down gracefully."
+      - code: "kill -HUP $(pgrep nginx)"
+        explain: "Sends SIGHUP to every nginx process, triggering a config reload without restart."
+      - code: "kill -9 1234"
+        explain: "Force-kills PID 1234 immediately via SIGKILL — the kernel reclaims it with no cleanup."
+    recipes:
+      - code: "kill $(pgrep -f 'python my-script.py')"
+        explain: "Gracefully terminates a process found by its full command line without needing ps."
+      - code: "kill -0 $PID && echo running || echo gone"
+        explain: "Uses signal 0 to probe whether a PID still exists without actually killing it."
     gotchas: >
       Reach for <code>-15</code> first — <code>-9</code> bypasses cleanup
       and can leave locked files, half-written data, or zombie children.
       A process that ignores <code>-15</code> for >5s is the only candidate
       for <code>-9</code>.
+    danger: "caution"
     see_also: ["pkill", "killall", "pgrep"]
     references:
       - "man 1 kill"
@@ -118,8 +148,14 @@ entries:
       - flag: "-<signal>"
         description: "Which signal to send (default: TERM)."
     examples:
-      - "pkill nginx"
-      - "pkill -f 'python my-script.py'"
+      - code: "pkill nginx"
+        explain: "Sends SIGTERM to all processes whose name matches nginx."
+      - code: "pkill -f 'python my-script.py'"
+        explain: "Terminates a process matched by its full command line rather than just its name."
+    recipes:
+      - code: "pkill -HUP -u www-data php-fpm"
+        explain: "Sends a reload signal to all php-fpm workers owned by the web server user."
+    danger: "caution"
     see_also: ["kill", "pgrep", "killall"]
     references:
       - "man 1 pkill"
@@ -135,9 +171,17 @@ entries:
         description: "Print the command line alongside the PID."
       - flag: "-u <user>"
         description: "Restrict to one user."
+      - flag: "-d <sep>"
+        description: "Use a custom delimiter between PIDs (e.g. comma for kill input)."
     examples:
-      - "pgrep -a nginx"
-      - "pgrep -fu $USER node"
+      - code: "pgrep -a nginx"
+        explain: "Lists every nginx PID with its full command line so you can see which binary is running."
+      - code: "pgrep -fu $USER node"
+        explain: "Finds all Node.js processes belonging to the current user."
+    recipes:
+      - code: "kill -9 $(pgrep -d ' ' -f 'webpack')"
+        explain: "Force-kills all webpack processes — useful when a build hangs and won't TERM."
+    danger: "safe"
     see_also: ["pkill", "ps"]
     references:
       - "man 1 pgrep"
@@ -152,13 +196,19 @@ entries:
       - flag: "-p"
         description: "Print PIDs only."
     examples:
-      - "jobs"
-      - "jobs -l"
+      - code: "jobs"
+        explain: "Lists all background and suspended jobs in the current shell session."
+      - code: "jobs -l"
+        explain: "Same list with PIDs included — handy when you need a PID to pass to kill."
+    recipes:
+      - code: "sleep 60 & sleep 120 & jobs -l"
+        explain: "Spawns two background sleeps then immediately inspects the job table with PIDs."
     gotchas: >
       Jobs are shell-local — they disappear when the shell exits unless
       you use <code>nohup</code> or <code>disown</code>. Use
       <code>fg %1</code> to foreground job 1, <code>bg %1</code> to
       resume it in the background.
+    danger: "safe"
     see_also: ["bg", "fg", "nohup", "disown"]
     references:
       - "help jobs  (bash builtin)"
@@ -173,13 +223,19 @@ entries:
       - flag: "> file 2>&1"
         description: "Redirect output explicitly; otherwise nohup appends to nohup.out in CWD."
     examples:
-      - "nohup ./long-build.sh &"
-      - "nohup python serve.py > server.log 2>&1 &"
+      - code: "nohup ./long-build.sh &"
+        explain: "Runs the build script detached from the terminal; output goes to nohup.out."
+      - code: "nohup python serve.py > server.log 2>&1 &"
+        explain: "Starts a Python server in the background with all output captured to server.log."
+    recipes:
+      - code: "nohup bash -c 'npm run build && rsync -av dist/ user@host:/var/www/' > deploy.log 2>&1 &"
+        explain: "Chains a build and deploy that continues even if the SSH session drops."
     gotchas: >
       Output goes to <code>nohup.out</code> in the current directory
       unless you redirect explicitly. For something more durable, use
       <code>systemd</code> service units (Linux), <code>launchd</code>
       (macOS), or a terminal multiplexer like <code>tmux</code>.
+    danger: "safe"
     see_also: ["disown", "tmux", "screen"]
     references:
       - "man 1 nohup"
@@ -198,13 +254,20 @@ entries:
       - flag: "+D <dir>"
         description: "All open files under a directory."
     examples:
-      - "lsof -i :3000"
-      - "sudo lsof -p $(pgrep nginx)"
-      - "lsof +D /var/log"
+      - code: "lsof -i :3000"
+        explain: "Shows which process is listening on or connected to port 3000."
+      - code: "lsof +D /var/log"
+        explain: "Lists every process that has a file open under /var/log — useful before rotating logs."
+    recipes:
+      - code: "sudo lsof -p $(pgrep nginx) | grep -E 'REG|DIR'"
+        explain: "Shows all regular files and directories nginx has open — good for confirming config reads."
+      - code: "lsof -i TCP -sTCP:LISTEN -n -P"
+        explain: "Lists all TCP listening sockets with numeric addresses and ports — a quick port audit."
     gotchas: >
       Almost always needs <code>sudo</code> to see other users' files /
       sockets. On Linux, <code>ss -ltnp</code> is faster for "what's
       listening on which port".
+    danger: "safe"
     see_also: ["ss", "netstat", "fuser"]
     references:
       - "man 8 lsof"
@@ -219,13 +282,19 @@ entries:
       - flag: "/usr/bin/time -f <fmt>"
         description: "Custom format (%e elapsed, %U user, %S sys, %M peak RSS in KB)."
     examples:
-      - "time make build"
-      - "time curl -s https://example.com > /dev/null"
+      - code: "time make build"
+        explain: "Reports real, user, and sys time for the full build — baseline for optimisation."
+      - code: "/usr/bin/time -v ./my-program"
+        explain: "Prints detailed stats including peak memory (max RSS), page faults, and I/O counts."
+    recipes:
+      - code: "/usr/bin/time -f '%e sec  %M kB RSS' ./run-tests.sh"
+        explain: "Captures wall-clock seconds and peak resident memory for a test suite in one line."
     gotchas: >
       <code>time</code> is both a shell builtin and a binary
       (<code>/usr/bin/time</code>). The builtin (which most shells default
       to) shows real/user/sys; the binary supports <code>-v</code> for
       memory and I/O stats (<code>/usr/bin/time -v ...</code> on Linux).
+    danger: "safe"
     see_also: ["hyperfine"]
     references:
       - "man 1 time"
@@ -244,15 +313,20 @@ entries:
       - flag: "-r"
         description: "Match name as a regex (Linux)."
     examples:
-      - "killall node"
-      - "killall -9 chrome"
-      - "killall -i firefox"
+      - code: "killall node"
+        explain: "Sends SIGTERM to every process named exactly node — stops all Node.js instances."
+      - code: "killall -i firefox"
+        explain: "Asks for confirmation before killing each Firefox process — safer when multiple profiles are open."
+    recipes:
+      - code: "killall -HUP sshd"
+        explain: "Tells sshd to reload its config without dropping active connections."
     gotchas: >
       BSD killall (macOS) and GNU killall (Linux) differ — macOS killall
       matches the exact command name only and lacks <code>-r</code>.
       Older Solaris <code>killall</code> killed every process the user
       owned (true to the name), so the command name has historical
       footgun connotations.
+    danger: "caution"
     see_also: ["kill", "pkill"]
     references:
       - "man 1 killall"
@@ -269,8 +343,14 @@ entries:
       - flag: "%-"
         description: "Previous job."
     examples:
-      - "Ctrl+Z then bg   # send the foreground job to background"
-      - "bg %2"
+      - code: "bg"
+        explain: "Resumes the most recently stopped job, running it in the background."
+      - code: "bg %2"
+        explain: "Resumes job number 2 in the background while keeping the shell prompt free."
+    recipes:
+      - code: "Ctrl+Z  # suspend foreground job, then: bg && jobs -l"
+        explain: "Suspends the current foreground job, backgrounds it, then confirms its PID."
+    danger: "safe"
     see_also: ["fg", "jobs", "nohup"]
     references:
       - "help bg  (bash builtin)"
@@ -287,9 +367,14 @@ entries:
       - flag: "%<string>"
         description: "Job whose command starts with <string>."
     examples:
-      - "fg"
-      - "fg %1"
-      - "fg %vim"
+      - code: "fg"
+        explain: "Brings the most recent background or stopped job back to the foreground."
+      - code: "fg %vim"
+        explain: "Foregrounds the suspended vim session — handy when you shelled out temporarily."
+    recipes:
+      - code: "jobs -l && fg %1"
+        explain: "Checks the job table then foregrounds job 1 — avoids foregrounding the wrong job."
+    danger: "safe"
     see_also: ["bg", "jobs"]
     references:
       - "help fg  (bash builtin)"
@@ -312,15 +397,20 @@ entries:
       - flag: "-t"
         description: "Prefix each line with a timestamp."
     examples:
-      - "strace -e trace=open,read ls"
-      - "strace -fc ./my-program"
-      - "sudo strace -p 12345"
+      - code: "strace -e trace=open,read ls"
+        explain: "Traces only open and read syscalls made by ls — shows which files it accesses."
+      - code: "strace -fc ./my-program"
+        explain: "Runs the program and prints a per-syscall count and time summary on exit."
+    recipes:
+      - code: "sudo strace -fp $(pgrep -f my-daemon) -e trace=network -o /tmp/net.log"
+        explain: "Attaches to a running daemon, filters to network syscalls only, and logs output for offline analysis."
     gotchas: >
       Linux-only. macOS uses <code>dtruss</code> (needs root + SIP
       adjustment) or <code>dtrace</code>. <code>strace</code> adds
       significant overhead — don't attach to busy production processes
       without thinking. <code>ltrace</code> is the library-call
       equivalent.
+    danger: "caution"
     see_also: ["ltrace", "dtruss", "perf"]
     references:
       - "man 1 strace"
@@ -345,14 +435,19 @@ entries:
       - flag: "Ctrl+b c  /  Ctrl+b n"
         description: "New window / next window."
     examples:
-      - "tmux new -s work"
-      - "tmux a"
-      - "ssh user@host -t tmux a"
+      - code: "tmux new -s work"
+        explain: "Creates a new tmux session named work — survives SSH disconnection."
+      - code: "tmux a"
+        explain: "Reattaches to the most recent detached session from any terminal."
+    recipes:
+      - code: "ssh user@host -t tmux a"
+        explain: "SSHes to a remote host and immediately reattaches to an existing tmux session."
     gotchas: >
       Configuration goes in <code>~/.tmux.conf</code>. The default
       prefix is <code>Ctrl+b</code>; many people rebind to
       <code>Ctrl+a</code> (screen-compatible) via
       <code>set -g prefix C-a</code>.
+    danger: "safe"
     see_also: ["screen", "mosh"]
     references:
       - "man 1 tmux"
@@ -373,9 +468,199 @@ entries:
       - flag: "Ctrl+a d"
         description: "Detach (default prefix is Ctrl+a)."
     examples:
-      - "screen -S work"
-      - "screen -r work"
-      - "screen -ls"
+      - code: "screen -S work"
+        explain: "Opens a new named screen session — the session persists after detach or disconnect."
+      - code: "screen -r work"
+        explain: "Reattaches to the session named work — pick up exactly where you left off."
+    recipes:
+      - code: "screen -S deploy -dm bash -c './deploy.sh && echo done'"
+        explain: "Starts a detached screen session that runs a deploy script and logs completion."
+    danger: "safe"
     see_also: ["tmux"]
     references:
       - "man 1 screen"
+
+  - name: "timeout"
+    description: "Run a command and kill it if it exceeds a time limit."
+    syntax: "timeout [-s <signal>] [-k <kill-after>] <duration> <cmd> [args...]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "<duration>"
+        description: "Time limit — a number in seconds or with a suffix: 30s, 5m, 1h."
+      - flag: "-s <signal>"
+        description: "Signal to send when time expires (default: SIGTERM)."
+      - flag: "-k <kill-after>"
+        description: "Send SIGKILL this long after the initial signal if the process is still alive."
+      - flag: "--preserve-status"
+        description: "Exit with the command's own exit code rather than 124 on timeout."
+    examples:
+      - code: "timeout 30s curl https://example.com"
+        explain: "Runs curl but terminates it if it hasn't finished within 30 seconds."
+      - code: "timeout -k 5s 10s ./flaky-script.sh"
+        explain: "Sends SIGTERM at 10s; if the script is still alive 5s later it gets SIGKILL."
+    recipes:
+      - code: "timeout 5m bash -c 'while true; do ./poll.sh && break; sleep 10; done'"
+        explain: "Polls a script every 10 seconds and aborts the whole loop after 5 minutes."
+    gotchas: >
+      <code>timeout</code> exits with code 124 if the time limit was
+      reached. macOS ships <code>gtimeout</code> (from GNU coreutils via
+      Homebrew) instead of <code>timeout</code>.
+    danger: "caution"
+    see_also: ["watch", "nohup"]
+    references:
+      - "man 1 timeout"
+
+  - name: "watch"
+    description: "Re-run a command at regular intervals and show its output full-screen."
+    syntax: "watch [-n <secs>] [-d] [-t] <cmd>"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-n <secs>"
+        description: "Refresh interval in seconds (default: 2)."
+      - flag: "-d"
+        description: "Highlight differences between refreshes."
+      - flag: "-t"
+        description: "Turn off the header (command, interval, date)."
+      - flag: "-e"
+        description: "Freeze the display and exit if the command returns non-zero."
+      - flag: "-g"
+        description: "Exit when the command output changes (useful for waiting on a state change)."
+    examples:
+      - code: "watch -n 1 'ps aux | sort -rk 3 | head -5'"
+        explain: "Updates every second with the five most CPU-hungry processes."
+      - code: "watch -d free -h"
+        explain: "Refreshes memory usage every 2s and highlights any values that changed."
+    recipes:
+      - code: "watch -n 5 -e 'curl -s -o /dev/null -w \"%{http_code}\" https://mysite.com | grep -v 200'"
+        explain: "Polls an HTTP endpoint every 5s and freezes the display if a non-200 status is seen."
+      - code: "watch -g -n 2 'docker ps -q | wc -l'"
+        explain: "Exits as soon as the number of running containers changes — lets you react to events in a script."
+    gotchas: >
+      <code>watch</code> passes the command to <code>sh -c</code>, so
+      shell builtins and aliases work but interactive features (readline,
+      colour prompts) don't. On macOS install via <code>brew install watch</code>
+      — the native system doesn't ship it.
+    danger: "safe"
+    see_also: ["timeout", "top", "entr"]
+    references:
+      - "man 1 watch"
+
+  - name: "disown"
+    description: "Remove a job from the shell's job table so it keeps running after the shell exits."
+    syntax: "disown [%<jobspec>...] [-h] [-ar]"
+    os: [cross-platform]
+    flags:
+      - flag: "%<n>"
+        description: "Disown a specific job number."
+      - flag: "-h"
+        description: "Mark the job to ignore SIGHUP but leave it in the job table."
+      - flag: "-a"
+        description: "Disown all jobs."
+      - flag: "-r"
+        description: "Disown only running jobs."
+    examples:
+      - code: "disown %1"
+        explain: "Detaches job 1 from the shell — it continues running even after you log out."
+      - code: "disown -h %2"
+        explain: "Tells job 2 to ignore SIGHUP while leaving it visible in the job table for now."
+    recipes:
+      - code: "nohup ./long-task.sh & disown"
+        explain: >
+          Combines nohup (redirects output) with disown (removes from job table) for the most
+          detached background execution without a terminal multiplexer.
+    gotchas: >
+      Unlike <code>nohup</code>, <code>disown</code> does not redirect
+      output — if the process writes to the terminal after the shell exits,
+      output is lost or can cause errors. Use <code>nohup</code> together
+      with <code>disown</code>, or redirect explicitly before backgrounding.
+    danger: "safe"
+    see_also: ["nohup", "jobs", "bg"]
+    references:
+      - "help disown  (bash builtin)"
+
+  - name: "pstree"
+    description: "Display running processes as a tree showing parent–child relationships."
+    syntax: "pstree [-p] [-u] [-a] [<pid>|<user>]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-p"
+        description: "Show PIDs alongside each process name."
+      - flag: "-u"
+        description: "Show the owning user when it differs from the parent."
+      - flag: "-a"
+        description: "Show command-line arguments."
+      - flag: "-h"
+        description: "Highlight the current process and its ancestors."
+      - flag: "-n"
+        description: "Sort by PID instead of name."
+    examples:
+      - code: "pstree -p"
+        explain: "Draws the full process tree with each node's PID — shows which process spawned what."
+      - code: "pstree -pa $(pgrep nginx | head -1)"
+        explain: "Shows the nginx master and all its worker children with PIDs and arguments."
+    recipes:
+      - code: "pstree -p $USER | grep -E 'bash|zsh|node'"
+        explain: "Filters the process tree to only your shell and Node processes — quick topology check."
+    gotchas: >
+      Install via <code>apt install psmisc</code> (Linux) or
+      <code>brew install pstree</code> (macOS). On macOS the built-in
+      <code>pstree</code> is from Homebrew; not available by default.
+    danger: "safe"
+    see_also: ["ps", "htop", "procs"]
+    references:
+      - "man 1 pstree"
+
+  - name: "nice"
+    description: "Launch a command with an adjusted scheduling priority."
+    syntax: "nice [-n <adj>] <cmd> [args...]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-n <adj>"
+        description: "Niceness adjustment: -20 (highest priority) to +19 (lowest). Default: +10."
+    examples:
+      - code: "nice -n 19 make -j$(nproc)"
+        explain: "Runs a parallel build at the lowest priority so it doesn't starve interactive work."
+      - code: "nice -n -5 ./realtime-sensor-reader"
+        explain: "Slightly raises priority for a sensor reader — stays below system daemons."
+    recipes:
+      - code: "nice -n 10 tar -czf backup.tar.gz /home & disown"
+        explain: "Creates a background archive at low priority then detaches it from the shell."
+    gotchas: >
+      Only root can set a <em>negative</em> niceness (higher priority).
+      Normal users can only raise niceness (lower priority) and cannot
+      subsequently lower it again — use <code>renice</code> if you need
+      to adjust a running process.
+    danger: "caution"
+    see_also: ["renice", "chrt", "ionice"]
+    references:
+      - "man 1 nice"
+
+  - name: "renice"
+    description: "Change the scheduling priority of an already-running process."
+    syntax: "renice -n <adj> [-p <pid>] [-u <user>] [-g <pgrp>]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-n <adj>"
+        description: "New niceness value: -20 (highest) to +19 (lowest)."
+      - flag: "-p <pid>"
+        description: "Target a specific PID (default target type)."
+      - flag: "-u <user>"
+        description: "Renice all processes owned by a user."
+      - flag: "-g <pgrp>"
+        description: "Renice all processes in a process group."
+    examples:
+      - code: "renice -n 19 -p 12345"
+        explain: "Drops PID 12345 to the lowest scheduling priority so it yields to everything else."
+      - code: "renice -n 5 -u worker"
+        explain: "Lowers priority for every process owned by the worker user — throttles a batch account."
+    recipes:
+      - code: "renice -n 15 $(pgrep -d ' ' -f 'python batch-job')"
+        explain: "Finds all batch Python workers by name and lowers all of their priorities in one command."
+    gotchas: >
+      Only root can decrease niceness (raise priority). Non-root users can
+      only increase niceness, and cannot undo it — plan the initial
+      niceness at launch with <code>nice</code> if you're unsure.
+    danger: "caution"
+    see_also: ["nice", "ionice", "chrt"]
+    references:
+      - "man 1 renice"

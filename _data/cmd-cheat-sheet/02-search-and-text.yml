@@ -7,7 +7,7 @@ batch:
     Find files, search text, slice and dice streams. The classic Unix
     pipeline toolkit — combine these with pipes and redirection for almost
     any data-munging task short of reaching for Python.
-  last_updated: "2026-05-21"
+  last_updated: "2026-05-23"
 
 entries:
   - name: "grep"
@@ -38,9 +38,17 @@ entries:
       - flag: "-B <n>"
         description: "Print n lines of leading context before each match."
     examples:
-      - "grep -in \"error\" server.log"
-      - "grep -rEn \"TODO|FIXME\" src/"
-      - "ps aux | grep -v grep | grep nginx"
+      - code: "grep -in \"error\" server.log"
+        explain: "Case-insensitively find every line containing 'error' in server.log, prefixing matches with line numbers."
+      - code: "grep -rEn \"TODO|FIXME\" src/"
+        explain: "Recursively scan src/ for TODO or FIXME comments using extended regex, showing file and line numbers."
+      - code: "ps aux | grep -v grep | grep nginx"
+        explain: "List running nginx processes, filtering out the grep command itself from the output."
+    recipes:
+      - code: "grep -rFl \"SecretKey\" . | xargs -I {} git log --oneline {} | sort -u"
+        explain: "Find every file containing a literal 'SecretKey', then show the git log for each — useful for auditing when a secret was introduced."
+      - code: "grep -n \"^import\" src/app.ts | cut -d: -f1 | paste -sd ,"
+        explain: "Extract the line numbers of all import statements in a TypeScript file and join them as a comma-separated list."
     gotchas: >
       macOS ships BSD grep, which lacks <code>-P</code> and orders flags
       differently. Install GNU grep via <code>brew install grep</code> for
@@ -48,6 +56,8 @@ entries:
       need a <code>--</code> separator (<code>grep -- -foo file</code>).
       <code>ripgrep</code> (<code>rg</code>) is faster, respects
       <code>.gitignore</code>, and is generally preferable for ad-hoc work.
+    danger: safe
+    modern: "Prefer <code>rg</code> (ripgrep) for interactive use — faster, <code>.gitignore</code>-aware, and Unicode-correct by default."
     see_also: ["awk", "sed", "find", "ripgrep", "widget-regex"]
     references:
       - "man 1 grep"
@@ -74,15 +84,25 @@ entries:
       - flag: "-exec <cmd> {} +"
         description: "Run command once with all paths batched as args (faster)."
     examples:
-      - "find . -name '*.log' -mtime +30 -delete"
-      - "find src -type f -name '*.tsx' -exec grep -l TODO {} +"
-      - "find /var/log -type f -size +100M"
+      - code: "find . -name '*.log' -mtime +30 -delete"
+        explain: "Delete all .log files under the current directory that have not been modified in over 30 days."
+      - code: "find src -type f -name '*.tsx' -exec grep -l TODO {} +"
+        explain: "Find every .tsx file under src/ that contains the word TODO, passing all paths to grep at once for efficiency."
+      - code: "find /var/log -type f -size +100M"
+        explain: "List log files larger than 100 MB — a quick way to find candidates for rotation or deletion."
+    recipes:
+      - code: "find . -name '*.py' -print0 | xargs -0 wc -l | sort -rn | head -20"
+        explain: "Rank the 20 longest Python files in the project by line count — useful for spotting bloated modules."
+      - code: "find . -type f -newer reference.txt -not -path './.git/*'"
+        explain: "List all files modified more recently than reference.txt, excluding the .git directory — handy for diffing what changed since a checkpoint."
     gotchas: >
       <code>-print</code> is the default action — drop it for clarity, add
       it back when piping into <code>xargs</code> with weird filenames
       (use <code>-print0</code> + <code>xargs -0</code> to handle spaces).
       BSD <code>find</code> (macOS) and GNU <code>find</code> have minor
       flag differences (<code>-printf</code> is GNU-only).
+    danger: caution
+    modern: "Consider <code>fd</code> for interactive use — simpler syntax, <code>.gitignore</code>-aware, and colored output by default."
     see_also: ["xargs", "grep", "fd", "widget-find"]
     references:
       - "man 1 find"
@@ -99,14 +119,23 @@ entries:
       - flag: "-f <script>"
         description: "Read the awk program from a file."
     examples:
-      - "awk '{print $2, $5}' access.log"
-      - "awk -F, '$3 > 100 {print}' data.csv"
-      - "awk 'NR>1 {sum+=$2} END {print sum}' nums.txt"
+      - code: "awk '{print $2, $5}' access.log"
+        explain: "Print the second and fifth whitespace-delimited fields from each line of access.log."
+      - code: "awk -F, '$3 > 100 {print}' data.csv"
+        explain: "Print every row of a CSV where the third column exceeds 100, using comma as the field separator."
+      - code: "awk 'NR>1 {sum+=$2} END {print sum}' nums.txt"
+        explain: "Skip the header line then sum the second column across all remaining rows, printing the total at the end."
+    recipes:
+      - code: "awk -F: '{print $1}' /etc/passwd | sort | uniq -c | sort -rn"
+        explain: "Count how often each username prefix appears in the passwd file — a one-liner for basic user auditing."
+      - code: "awk 'NR==FNR{a[$1]=$2; next} $1 in a {print $0, a[$1]}' lookup.txt data.txt"
+        explain: "Join two files on their first field — awk's two-file join idiom, a lightweight alternative to SQL or a Python merge."
     gotchas: >
       <code>NR</code> is the line number, <code>NF</code> the field count;
       <code>$0</code> is the whole line, <code>$1</code>..<code>$NF</code>
       the fields. Built-in to every Unix; for anything more elaborate,
       reach for Python or <code>jq</code> (for JSON).
+    danger: safe
     see_also: ["sed", "cut", "grep"]
     references:
       - "man 1 awk"
@@ -126,15 +155,24 @@ entries:
       - flag: "-e <script>"
         description: "Add another script; repeat for multiple."
     examples:
-      - "sed 's/foo/bar/g' input.txt"
-      - "sed -i 's/localhost/127.0.0.1/g' config.yml"
-      - "sed -n '10,20p' file.txt"
+      - code: "sed 's/foo/bar/g' input.txt"
+        explain: "Replace every occurrence of 'foo' with 'bar' in input.txt and print to stdout — the original file is unchanged."
+      - code: "sed -i 's/localhost/127.0.0.1/g' config.yml"
+        explain: "Edit config.yml in-place, replacing all occurrences of 'localhost' with the explicit loopback address."
+      - code: "sed -n '10,20p' file.txt"
+        explain: "Print only lines 10 through 20 of file.txt by suppressing default output and using the range-print command."
+    recipes:
+      - code: "grep -rl 'v1/api' src/ | xargs sed -i 's|v1/api|v2/api|g'"
+        explain: "Find all source files referencing the old API path and update them in-place — a bulk rename across many files."
+      - code: "sed -n '/START/,/END/p' report.txt | grep -v '^--$'"
+        explain: "Extract all lines between START and END markers, then strip the sed separator lines — useful for pulling out log sections."
     gotchas: >
       <code>sed -i</code> means "in-place" on GNU but BSD/macOS requires a
       backup-extension arg (<code>sed -i '' 's/…'</code>). The portable
       form is <code>sed -i.bak 's/…'</code> which works on both and leaves
       a <code>.bak</code> behind. Don't mix delimiters inside the script:
       use <code>s|/path|/new|g</code> when the pattern contains slashes.
+    danger: caution
     see_also: ["awk", "tr", "grep", "widget-regex"]
     references:
       - "man 1 sed"
@@ -151,8 +189,16 @@ entries:
       - flag: "-c <list>"
         description: "Character positions instead of fields."
     examples:
-      - "cut -d: -f1 /etc/passwd"
-      - "cut -f2-4 data.tsv"
+      - code: "cut -d: -f1 /etc/passwd"
+        explain: "Extract only the username field (first colon-delimited column) from /etc/passwd."
+      - code: "cut -f2-4 data.tsv"
+        explain: "Print columns 2, 3, and 4 from a tab-separated file, dropping all other fields."
+    recipes:
+      - code: "cut -d, -f1,3 report.csv | sort -u"
+        explain: "Pull two specific columns from a CSV and deduplicate — a fast alternative to awk for simple projections."
+      - code: "grep 'ERROR' app.log | cut -d' ' -f1,2 | sort | uniq -c"
+        explain: "Extract just the date and hour from timestamped error lines and count how many errors occurred per hour."
+    danger: safe
     see_also: ["awk", "paste"]
     references:
       - "man 1 cut"
@@ -175,9 +221,18 @@ entries:
       - flag: "-h"
         description: "Human-readable numeric sort (handles 1K, 2M, 3G)."
     examples:
-      - "sort -u names.txt"
-      - "sort -t, -k3 -n data.csv"
-      - "du -sh */ | sort -h"
+      - code: "sort -u names.txt"
+        explain: "Sort names.txt alphabetically and remove duplicate lines in one pass."
+      - code: "sort -t, -k3 -n data.csv"
+        explain: "Sort a CSV numerically by the third column, using comma as the field separator."
+      - code: "du -sh */ | sort -h"
+        explain: "List subdirectory sizes in human-readable order from smallest to largest."
+    recipes:
+      - code: "sort -t: -k3 -n /etc/passwd | cut -d: -f1,3"
+        explain: "List all users sorted by their numeric UID — useful for spotting suspicious low-UID accounts."
+      - code: "sort -k2 -rn scores.txt | head -10"
+        explain: "Print the top-10 entries ranked by their second field descending — a quick leaderboard from a flat file."
+    danger: safe
     see_also: ["uniq", "shuf"]
     references:
       - "man 1 sort"
@@ -194,12 +249,20 @@ entries:
       - flag: "-u"
         description: "Only print lines that appear exactly once."
     examples:
-      - "sort access.log | uniq -c | sort -rn | head"
-      - "sort emails.txt | uniq -d"
+      - code: "sort access.log | uniq -c | sort -rn | head"
+        explain: "Count how often each unique line appears in the log, then show the top 10 most frequent — a quick frequency analysis."
+      - code: "sort emails.txt | uniq -d"
+        explain: "Print only the email addresses that appear more than once — duplicate detection after a sort."
+    recipes:
+      - code: "cut -d' ' -f1 access.log | sort | uniq -c | sort -rn | head -20"
+        explain: "Find the 20 most active IP addresses in an access log by counting and ranking unique IPs."
+      - code: "comm -23 <(sort file_a.txt) <(sort file_b.txt)"
+        explain: "Show lines present in file_a but not in file_b — a set-difference using sorted input (comm is uniq's sibling)."
     gotchas: >
       <code>uniq</code> only collapses <em>adjacent</em> duplicates — pipe
       <code>sort</code> in first, or use <code>sort -u</code> for a
       one-step equivalent.
+    danger: safe
     see_also: ["sort"]
     references:
       - "man 1 uniq"
@@ -214,8 +277,16 @@ entries:
       - flag: "-c <n>"
         description: "First n bytes."
     examples:
-      - "head -n 20 server.log"
-      - "head -c 1024 big.bin | xxd"
+      - code: "head -n 20 server.log"
+        explain: "Print the first 20 lines of server.log — quick inspection of the beginning of a log file."
+      - code: "head -c 1024 big.bin | xxd"
+        explain: "Dump the first 1024 bytes of a binary file as a hex dump — useful for inspecting file headers."
+    recipes:
+      - code: "head -n 1 *.csv"
+        explain: "Print the header row of every CSV in the current directory — lets you quickly check column names across multiple files."
+      - code: "sort -rn scores.txt | head -5 | cut -f1"
+        explain: "Extract the names of the top-5 scorers from a tab-separated scores file."
+    danger: safe
     see_also: ["tail", "less"]
     references:
       - "man 1 head"
@@ -232,8 +303,16 @@ entries:
       - flag: "-F"
         description: "Follow even across log rotation (re-open by name)."
     examples:
-      - "tail -n 100 access.log"
-      - "tail -F /var/log/nginx/error.log"
+      - code: "tail -n 100 access.log"
+        explain: "Print the last 100 lines of the access log — checking recent traffic without opening the whole file."
+      - code: "tail -F /var/log/nginx/error.log"
+        explain: "Stream the nginx error log in real time, automatically re-opening it if it gets rotated by logrotate."
+    recipes:
+      - code: "tail -F /var/log/app.log | grep --line-buffered 'ERROR'"
+        explain: "Live-filter a growing log to show only error lines — a lightweight alternative to a full log monitoring stack."
+      - code: "tail -n +2 data.csv | sort -t, -k2 -rn | head -10"
+        explain: "Skip the CSV header then rank the remaining rows by the second column descending — prints the top 10 without touching the file."
+    danger: safe
     see_also: ["head", "less"]
     references:
       - "man 1 tail"
@@ -252,14 +331,22 @@ entries:
       - flag: "-R"
         description: "Pass ANSI colour codes through."
     examples:
-      - "less +F /var/log/syslog"
-      - "git log --oneline | less -S"
+      - code: "less +F /var/log/syslog"
+        explain: "Open syslog in follow mode (like tail -f) — press Ctrl+C to drop into normal paging mode."
+      - code: "git log --oneline | less -S"
+        explain: "Browse the git log with long lines truncated horizontally rather than wrapped — cleaner for wide commit hashes."
+    recipes:
+      - code: "grep -n 'ERROR' app.log | less -N +1"
+        explain: "Pipe just the error lines into less with line numbers, starting at the top — lets you browse and jump between filtered results."
+      - code: "ls -lh /proc | less -S"
+        explain: "Page through the /proc listing with horizontal scrolling so wide entries stay on one line each."
     gotchas: >
       Inside less: <code>/pattern</code> searches forward,
       <code>?pattern</code> searches backward, <code>n</code>/<code>N</code>
       jumps next/prev, <code>g</code>/<code>G</code> go to top/bottom,
       <code>q</code> quits. <code>+F</code> tails the file like
       <code>tail -f</code> until Ctrl+C drops you into normal less mode.
+    danger: safe
     see_also: ["more", "tail", "head"]
     references:
       - "man 1 less"
@@ -274,12 +361,21 @@ entries:
       - flag: "-A"
         description: "Show all non-printable chars ($ for newlines, ^I for tabs)."
     examples:
-      - "cat file1 file2 > combined.txt"
-      - "cat -n script.sh"
+      - code: "cat file1 file2 > combined.txt"
+        explain: "Concatenate two files in order and write the result to a new file — the original use case cat was designed for."
+      - code: "cat -n script.sh"
+        explain: "Print a shell script with line numbers added — handy when referencing line numbers in error messages."
+    recipes:
+      - code: "cat /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 32"
+        explain: "Generate a 32-character random alphanumeric string — a quick throwaway password or token."
+      - code: "cat header.txt body.txt footer.txt | gzip > report.txt.gz"
+        explain: "Assemble a multi-part document from fragments and compress it in one pipeline without creating an intermediate file."
     gotchas: >
       "Useless use of cat" — <code>cat file | grep x</code> is just
       <code>grep x file</code>. Pipelines work better when you don't
       detach the input from its source.
+    danger: safe
+    modern: "<code>bat</code> adds syntax highlighting, line numbers, and git diff markers — a drop-in viewer replacement for interactive use."
     see_also: ["tac", "head", "tail"]
     references:
       - "man 1 cat"
@@ -292,13 +388,21 @@ entries:
       - flag: "-a"
         description: "Append to files instead of overwriting."
     examples:
-      - "make 2>&1 | tee build.log"
-      - "echo nameserver 1.1.1.1 | sudo tee -a /etc/resolv.conf"
+      - code: "make 2>&1 | tee build.log"
+        explain: "Run make, capturing both stdout and stderr to build.log while still seeing the output in the terminal."
+      - code: "echo nameserver 1.1.1.1 | sudo tee -a /etc/resolv.conf"
+        explain: "Append a DNS nameserver entry to a root-owned file using sudo tee — the standard pattern when sudo redirection won't work."
+    recipes:
+      - code: "curl -fsSL https://example.com/install.sh | tee /tmp/install.sh | bash"
+        explain: "Download and execute an install script while saving a copy to /tmp — lets you audit what ran after the fact."
+      - code: "npm test 2>&1 | tee test-results.log | tail -20"
+        explain: "Run tests, save full output to a log file, and simultaneously watch the last 20 lines in the terminal."
     gotchas: >
       The <code>echo … | sudo tee -a</code> pattern is how you write to a
       root-only file when you can't run <code>sudo</code> on a redirect
       (because <code>&gt;&gt;</code> is interpreted by your unprivileged
       shell, not the sudo'd process).
+    danger: caution
     see_also: ["cat", "xargs"]
     references:
       - "man 1 tee"
@@ -317,13 +421,22 @@ entries:
       - flag: "-P <n>"
         description: "Run up to n commands in parallel."
     examples:
-      - "find . -name '*.tmp' -print0 | xargs -0 rm"
-      - "cat hosts.txt | xargs -I {} ssh {} uptime"
-      - "ls *.png | xargs -P 4 -n 1 optipng"
+      - code: "find . -name '*.tmp' -print0 | xargs -0 rm"
+        explain: "Safely delete all .tmp files, using null separators to correctly handle filenames containing spaces."
+      - code: "cat hosts.txt | xargs -I {} ssh {} uptime"
+        explain: "Run 'uptime' on every host listed in hosts.txt by substituting each hostname into the ssh command."
+      - code: "ls *.png | xargs -P 4 -n 1 optipng"
+        explain: "Optimise all PNG files in parallel using 4 concurrent optipng processes — much faster than a serial loop."
+    recipes:
+      - code: "git diff --name-only HEAD~1 | xargs -I {} cp {} /tmp/backup/"
+        explain: "Copy every file changed in the last commit to a backup directory — useful before a risky rebase."
+      - code: "cat urls.txt | xargs -P 8 -I {} curl -sO {}"
+        explain: "Download a list of URLs in parallel with 8 concurrent connections — a quick batch downloader."
     gotchas: >
       Without <code>-0</code>, filenames with spaces or newlines break.
       Always pair <code>find -print0</code> with <code>xargs -0</code>.
       <code>-I {}</code> implies <code>-n 1</code>.
+    danger: caution
     see_also: ["find", "parallel"]
     references:
       - "man 1 xargs"
@@ -342,13 +455,22 @@ entries:
       - flag: "-e"
         description: "Exit non-zero if the filter produces no/false output."
     examples:
-      - "curl -s api.example/v1/users | jq '.[] | .name'"
-      - "jq -r '.items[] | [.id, .name] | @csv' data.json"
-      - "jq '.users |= map(. + {active: true})' in.json"
+      - code: "curl -s api.example/v1/users | jq '.[] | .name'"
+        explain: "Fetch a JSON array of user objects and print just the name field from each element."
+      - code: "jq -r '.items[] | [.id, .name] | @csv' data.json"
+        explain: "Convert a JSON array of items into CSV rows using jq's built-in @csv formatter."
+      - code: "jq '.users |= map(. + {active: true})' in.json"
+        explain: "Add an 'active: true' field to every object in the users array — in-memory transformation without editing the file."
+    recipes:
+      - code: "curl -s 'https://api.github.com/repos/owner/repo/issues' | jq -r '.[] | [.number, .title] | @tsv'"
+        explain: "Fetch open GitHub issues and format them as a tab-separated table of number and title — quick CLI issue listing."
+      - code: "jq -s 'add | group_by(.type) | map({type: .[0].type, count: length})' events*.json"
+        explain: "Slurp multiple JSON event files, merge them, then group by type and count each — a lightweight aggregate without a database."
     gotchas: >
       Not installed by default — <code>apt install jq</code> /
       <code>brew install jq</code>. For YAML use <code>yq</code> (the
       Mike Farah Go reimplementation); they share most of the syntax.
+    danger: safe
     see_also: ["awk", "yq"]
     references:
       - "man 1 jq"
@@ -368,8 +490,16 @@ entries:
       - flag: "-m"
         description: "Characters (matters for multi-byte UTF-8)."
     examples:
-      - "wc -l *.py"
-      - "find . -name '*.tsx' | wc -l"
+      - code: "wc -l *.py"
+        explain: "Count the number of lines in every Python file in the current directory, with a grand total at the bottom."
+      - code: "find . -name '*.tsx' | wc -l"
+        explain: "Count how many TypeScript JSX files exist anywhere under the current directory."
+    recipes:
+      - code: "git diff --name-only | xargs wc -l | sort -rn"
+        explain: "Count lines in every file changed in the current working tree, ranked largest first — a quick scope estimate before a review."
+      - code: "find src -name '*.ts' -print0 | xargs -0 wc -l | tail -1"
+        explain: "Print the total line count across all TypeScript source files — the grand-total line from wc's multi-file output."
+    danger: safe
     see_also: ["awk"]
     references:
       - "man 1 wc"
@@ -386,9 +516,18 @@ entries:
       - flag: "-c"
         description: "Complement set1 (act on chars NOT in it)."
     examples:
-      - "echo 'Hello' | tr 'a-z' 'A-Z'"
-      - "tr -d '\\r' < dos.txt > unix.txt"
-      - "tr -s ' ' < spaced.txt"
+      - code: "echo 'Hello' | tr 'a-z' 'A-Z'"
+        explain: "Convert all lowercase letters to uppercase — the simplest case-conversion in a pipeline."
+      - code: "tr -d '\\r' < dos.txt > unix.txt"
+        explain: "Strip Windows-style carriage returns from a file, converting CRLF line endings to Unix LF."
+      - code: "tr -s ' ' < spaced.txt"
+        explain: "Collapse runs of multiple spaces into a single space — normalises inconsistent whitespace in text."
+    recipes:
+      - code: "cat /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 16"
+        explain: "Generate a 16-character random alphanumeric string by filtering the random byte stream to safe characters."
+      - code: "echo 'first,second,third' | tr ',' '\\n'"
+        explain: "Split a comma-separated list onto separate lines — a quick explode without needing awk or Python."
+    danger: safe
     see_also: ["sed", "awk"]
     references:
       - "man 1 tr"
@@ -411,9 +550,18 @@ entries:
       - flag: "-N"
         description: "Treat absent files as empty (useful for full-dir patches)."
     examples:
-      - "diff -u old.txt new.txt"
-      - "diff -rq dir1/ dir2/"
-      - "diff -u a b > patch.diff"
+      - code: "diff -u old.txt new.txt"
+        explain: "Show a unified diff between two text files — the format used by git and patch."
+      - code: "diff -rq dir1/ dir2/"
+        explain: "Recursively compare two directory trees and report only which files differ — no content shown."
+      - code: "diff -u a b > patch.diff"
+        explain: "Capture the unified diff of two files into a patch file that can later be applied with patch."
+    recipes:
+      - code: "diff <(sort file_a.txt) <(sort file_b.txt)"
+        explain: "Compare the sorted contents of two files without creating temporary files — process substitution feeds sorted output directly to diff."
+      - code: "diff -rq --exclude='*.pyc' --exclude='.git' src/ dist/"
+        explain: "Compare source and distribution directories, skipping compiled files and the git folder — validates that no unexpected files were added during a build."
+    danger: safe
     see_also: ["patch", "git diff", "comm"]
     references:
       - "man 1 diff"
@@ -432,9 +580,18 @@ entries:
       - flag: "-i <file>"
         description: "Read the patch from a file instead of stdin."
     examples:
-      - "patch -p1 < fix.patch"
-      - "patch --dry-run -p0 < changes.diff"
-      - "patch -R -p1 < bad.patch"
+      - code: "patch -p1 < fix.patch"
+        explain: "Apply a unified diff patch, stripping one leading path component — the standard for patches generated by git diff."
+      - code: "patch --dry-run -p0 < changes.diff"
+        explain: "Test whether the patch would apply cleanly without touching any files — safe pre-flight check."
+      - code: "patch -R -p1 < bad.patch"
+        explain: "Reverse (undo) a previously applied patch — useful for rolling back a change without git."
+    recipes:
+      - code: "diff -u original.conf current.conf | patch -p0 /etc/app/app.conf"
+        explain: "Generate a diff of two config versions and apply it to a live config file in one step."
+      - code: "curl -fsSL https://example.com/hotfix.patch | patch --dry-run -p1 && curl -fsSL https://example.com/hotfix.patch | patch -p1"
+        explain: "Download a remote patch, dry-run it to confirm it applies cleanly, then apply it for real — a safe two-step for unattended patching."
+    danger: caution
     see_also: ["diff", "git apply"]
     references:
       - "man 1 patch"
@@ -449,12 +606,20 @@ entries:
       - flag: "-s <sep>"
         description: "Use <sep> instead of newline as the record separator."
     examples:
-      - "tac server.log | head"
-      - "history | tac"
+      - code: "tac server.log | head"
+        explain: "Show the last 10 lines of the log file starting from the most recent — equivalent to tail but with full reverse ordering."
+      - code: "history | tac"
+        explain: "Display your shell history in reverse chronological order — most recent commands first."
+    recipes:
+      - code: "tac access.log | grep -m 1 'POST /api/login'"
+        explain: "Find the most recent login attempt in the access log by scanning from the bottom — stops as soon as it finds the first match."
+      - code: "tac changelog.md | awk '/^## /{n++} n==2{exit} {print}' | tac"
+        explain: "Extract the second-most-recent changelog section by reversing the file, grabbing up to the second heading, then reversing back."
     gotchas: >
       Not bundled with macOS by default — <code>brew install
       coreutils</code> gives <code>gtac</code>, or use <code>tail -r</code>
       (BSD).
+    danger: safe
     see_also: ["cat", "rev"]
     references:
       - "man 1 tac"
@@ -469,9 +634,182 @@ entries:
       - flag: "-s"
         description: "Serial — paste all lines of one file together, not column-wise."
     examples:
-      - "paste names.txt emails.txt"
-      - "paste -d, names.txt emails.txt > combined.csv"
-      - "ls | paste -sd ,"
+      - code: "paste names.txt emails.txt"
+        explain: "Merge names.txt and emails.txt side by side, separated by a tab — creates a two-column table."
+      - code: "paste -d, names.txt emails.txt > combined.csv"
+        explain: "Join two files column-wise with a comma delimiter, producing a two-column CSV."
+      - code: "ls | paste -sd ,"
+        explain: "Collapse all filenames into a single comma-separated line — quick way to build an argument list."
+    recipes:
+      - code: "paste <(cut -d: -f1 /etc/passwd) <(cut -d: -f3 /etc/passwd) | column -t"
+        explain: "Extract usernames and UIDs from /etc/passwd side by side, then format as an aligned table."
+      - code: "seq 1 10 | paste - - -"
+        explain: "Reshape a single-column sequence of numbers into three columns by reading stdin three times — a quick matrix reshape."
+    danger: safe
     see_also: ["cut", "join"]
     references:
       - "man 1 paste"
+
+  - name: "rg"
+    slug: "ripgrep"
+    description: "Fast recursive search respecting .gitignore — a modern grep replacement."
+    syntax: "rg [options] <pattern> [<path>...]"
+    os: [linux, macos, cross-platform]
+    flags:
+      - flag: "-i"
+        description: "Case-insensitive match."
+      - flag: "-l"
+        description: "Print only filenames with a match."
+      - flag: "-n"
+        description: "Show line numbers (on by default in terminal output)."
+      - flag: "-t <type>"
+        description: "Search only files of a given type (e.g. -t py, -t js)."
+      - flag: "--no-ignore"
+        description: "Do not respect .gitignore / .rgignore files."
+      - flag: "-g <glob>"
+        description: "Include or exclude files matching a glob (prefix ! to exclude)."
+      - flag: "-A <n>"
+        description: "Print n lines of context after each match."
+      - flag: "-B <n>"
+        description: "Print n lines of context before each match."
+      - flag: "--hidden"
+        description: "Search hidden files and directories (dotfiles)."
+      - flag: "-s"
+        description: "Case-sensitive match (overrides -i and smartcase)."
+      - flag: "--stats"
+        description: "Print summary statistics after search results."
+    examples:
+      - code: "rg 'useState' src/"
+        explain: "Recursively search src/ for React's useState hook, automatically skipping node_modules and git-ignored paths."
+      - code: "rg -t ts --stats 'any' ."
+        explain: "Find all uses of the TypeScript 'any' type in the project and print a summary count of matches and files searched."
+      - code: "rg -l 'console\\.log' src/ | xargs wc -l"
+        explain: "List files containing debug console.log calls and count their line lengths — a quick audit of debug clutter."
+    recipes:
+      - code: "rg -t py 'def ' --no-heading -N | wc -l"
+        explain: "Count the total number of function definitions across all Python files — a rough complexity metric."
+      - code: "rg --json 'ERROR' app.log | jq -r '.data | select(.type==\"match\") | .lines.text'"
+        explain: "Search a log with rg's JSON output mode, then use jq to extract just the matched text — composable structured search."
+    gotchas: >
+      Not installed by default — <code>cargo install ripgrep</code>,
+      <code>apt install ripgrep</code>, or <code>brew install ripgrep</code>.
+      <code>rg</code> skips binary files and <code>.gitignore</code>d paths
+      silently; add <code>--no-ignore --binary</code> to override. Regex
+      engine is Rust's (RE2-style) — no lookahead/lookbehind. For PCRE2
+      features use <code>rg -P</code> (requires PCRE2 feature at build time).
+    danger: safe
+    see_also: ["grep", "find", "fd", "widget-regex"]
+    references:
+      - "https://github.com/BurntSushi/ripgrep"
+      - "rg --help"
+
+  - name: "comm"
+    description: "Compare two sorted files line by line, showing lines unique to each or common to both."
+    syntax: "comm [-123] <file1> <file2>"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-1"
+        description: "Suppress lines unique to file1 (first column)."
+      - flag: "-2"
+        description: "Suppress lines unique to file2 (second column)."
+      - flag: "-3"
+        description: "Suppress lines common to both files (third column)."
+    examples:
+      - code: "comm -23 <(sort a.txt) <(sort b.txt)"
+        explain: "Show lines that are in a.txt but not in b.txt — set difference using process substitution so no temp files are needed."
+      - code: "comm -12 <(sort set_a.txt) <(sort set_b.txt)"
+        explain: "Print only lines that appear in both files — set intersection on two sorted streams."
+    recipes:
+      - code: "comm -3 <(pip freeze | sort) <(cat requirements.txt | sort)"
+        explain: "Find packages that differ between the installed environment and requirements.txt — quickly spot missing or extra dependencies."
+      - code: "comm -23 <(git ls-files | sort) <(find . -type f -not -path './.git/*' | sed 's|^./||' | sort)"
+        explain: "Find files on disk that are not tracked by git — untracked file audit without running git status."
+    gotchas: >
+      Both inputs must be sorted — <code>comm</code> processes lines
+      sequentially and gives wrong results on unsorted input. Use process
+      substitution (<code>&lt;(sort file)</code>) to sort on the fly.
+      Output is three tab-indented columns: only-in-1, only-in-2, both;
+      use <code>-1</code>, <code>-2</code>, <code>-3</code> flags to
+      suppress unwanted columns.
+    danger: safe
+    see_also: ["diff", "sort", "uniq"]
+    references:
+      - "man 1 comm"
+
+  - name: "column"
+    description: "Format input into aligned columns or a table — turns tab/space-separated data into readable output."
+    syntax: "column [-t] [-s <sep>] [-o <out-sep>] [-N <names>] [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-t"
+        description: "Create a table — auto-align columns by padding with spaces."
+      - flag: "-s <sep>"
+        description: "Input column separator (default: whitespace). Specify ',' for CSV."
+      - flag: "-o <sep>"
+        description: "Output column separator (default: two spaces). GNU util-linux only."
+      - flag: "-N <names>"
+        description: "Comma-separated column headers to add. GNU util-linux only."
+      - flag: "-R <cols>"
+        description: "Right-align named/numbered columns. GNU util-linux only."
+    examples:
+      - code: "mount | column -t"
+        explain: "Format the mount table into neatly aligned columns — far more readable than the raw output."
+      - code: "column -t -s, data.csv"
+        explain: "Pretty-print a CSV file as a space-aligned table in the terminal — quick human-readable preview."
+    recipes:
+      - code: "ps aux | awk 'NR==1 || $3>1.0' | column -t"
+        explain: "Filter running processes consuming more than 1% CPU, then align the output as a neat table."
+      - code: "cut -d: -f1,3,7 /etc/passwd | column -t -s:"
+        explain: "Extract username, UID, and shell from /etc/passwd and display them as an aligned three-column table."
+    gotchas: >
+      The <code>-o</code>, <code>-N</code>, and <code>-R</code> flags are
+      GNU util-linux extensions unavailable on macOS's BSD <code>column</code>.
+      On macOS, use <code>brew install util-linux</code> or stick to
+      <code>-t</code> and <code>-s</code> which are portable.
+      <code>column -t</code> buffers the entire input before printing —
+      avoid piping infinite streams into it.
+    danger: safe
+    see_also: ["awk", "paste", "cut"]
+    references:
+      - "man 1 column"
+
+  - name: "nl"
+    description: "Number lines of files, with control over which lines are numbered and the format used."
+    syntax: "nl [-b <style>] [-n <format>] [-w <width>] [-v <start>] [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    flags:
+      - flag: "-b a"
+        description: "Number all lines including blank ones (default: -b t, body only)."
+      - flag: "-b p<regex>"
+        description: "Number only lines matching the regex."
+      - flag: "-n rz"
+        description: "Right-align line numbers, zero-padded."
+      - flag: "-n ln"
+        description: "Left-align line numbers."
+      - flag: "-w <n>"
+        description: "Width of the line-number field."
+      - flag: "-v <n>"
+        description: "Starting line number (default: 1)."
+      - flag: "-s <sep>"
+        description: "Separator between line number and content (default: tab)."
+    examples:
+      - code: "nl -ba script.sh"
+        explain: "Number every line in script.sh including blank lines — useful when referencing line numbers in documentation."
+      - code: "nl -n rz -w 4 report.txt"
+        explain: "Number report.txt with four-digit zero-padded line numbers — produces a fixed-width index for post-processing."
+    recipes:
+      - code: "nl -bp'^[A-Z]' notes.txt"
+        explain: "Number only lines that start with an uppercase letter — gives an instant outline index for a structured note file."
+      - code: "grep -n '' file.txt | sed 's/:/ /' | column -t"
+        explain: "Add line numbers with grep then reformat the colon separator into aligned columns — an alternative to nl using standard tools."
+    gotchas: >
+      <code>nl</code> treats the input as logical pages delimited by
+      <code>\\:\\:\\:</code> (header), <code>\\:\\:</code> (body), and
+      <code>\\:</code> (footer) by default — these delimiters reset numbering
+      per page. Use <code>-b a</code> if your file looks like it's skipping
+      lines unexpectedly. For simple numbered output, <code>cat -n</code>
+      or <code>grep -n ''</code> are often simpler.
+    danger: safe
+    see_also: ["cat", "head", "awk"]
+    references:
+      - "man 1 nl"

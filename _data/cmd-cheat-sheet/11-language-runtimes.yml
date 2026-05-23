@@ -8,13 +8,15 @@ batch:
     bash itself. Focused on REPL entry, one-liners, and script execution
     patterns rather than language-level package management (that's in the
     "Package Mgmt" tab).
-  last_updated: "2026-05-21"
+  last_updated: "2026-05-23"
 
 entries:
   - name: "python3"
     description: "Run Python — REPL, scripts, modules, one-liners."
     syntax: "python3 [-i] [-c \"<code>\"] [-m <module>] [<script> [args]]"
     os: [cross-platform]
+    danger: safe
+    modern: "<code>uv</code> / <code>pyenv</code> manage parallel interpreter versions and virtualenvs"
     flags:
       - flag: "-c \"<code>\""
         description: "Execute a one-liner."
@@ -27,9 +29,17 @@ entries:
       - flag: "-V / --version"
         description: "Print version and exit."
     examples:
-      - "python3 -c \"import json,sys; print(json.load(sys.stdin)['ok'])\""
-      - "python3 -m http.server 8000"
-      - "python3 -i debug.py"
+      - code: "python3 -c \"import json,sys; print(json.load(sys.stdin)['ok'])\""
+        explain: "Parse JSON from stdin and print a key — a handy one-liner for spot-checking API responses without a file."
+      - code: "python3 -m http.server 8000"
+        explain: "Spin up a zero-config static file server in the current directory on port 8000 — great for local testing."
+      - code: "python3 -i debug.py"
+        explain: "Run a script then drop into the interactive REPL with all its globals intact — useful for post-mortem debugging."
+    recipes:
+      - code: "python3 -m venv .venv && source .venv/bin/activate"
+        explain: "Create a project-local virtual environment and activate it — keeps dependencies isolated from the system Python."
+      - code: "python3 -c \"import sys; print(sys.version, sys.executable)\""
+        explain: "Print the exact Python version and binary path to confirm which interpreter is active in the current shell."
     gotchas: >
       System Python and your project's Python are different — use
       <code>python3 -m venv .venv && . .venv/bin/activate</code> per
@@ -44,6 +54,8 @@ entries:
     description: "Run JavaScript with Node.js — REPL, scripts, one-liners."
     syntax: "node [-e \"<code>\"] [-p \"<expr>\"] [<script> [args]]"
     os: [cross-platform]
+    danger: safe
+    modern: "<code>bun</code> / <code>deno</code> — faster or more secure drop-in alternatives; <code>nvm</code> / <code>fnm</code> manage multiple Node versions"
     flags:
       - flag: "-e \"<code>\""
         description: "Execute the code string."
@@ -56,17 +68,106 @@ entries:
       - flag: "-v / --version"
         description: "Print version."
     examples:
-      - "node -e \"console.log(crypto.randomUUID())\""
-      - "node -p \"process.versions\""
-      - "node --inspect server.js"
-    see_also: ["npm", "npx", "deno", "bun"]
+      - code: "node -e \"console.log(crypto.randomUUID())\""
+        explain: "Generate a random UUID using the built-in crypto module — no imports needed in Node 19+."
+      - code: "node -p \"process.versions\""
+        explain: "Print the version table of Node and its embedded engines (V8, libuv, openssl) — useful for debugging runtime compatibility."
+      - code: "node --inspect server.js"
+        explain: "Start a script with the Chrome DevTools debugger enabled — connect at chrome://inspect to set breakpoints and inspect state."
+    recipes:
+      - code: "node -e 'console.log(process.version)'"
+        explain: "Quickly print the active Node version — handy in a script to assert the minimum required runtime before proceeding."
+      - code: "node -e \"require('fs').writeFileSync('out.json', JSON.stringify({ts: Date.now()}))\""
+        explain: "Write a JSON file from a one-liner — useful for generating test fixtures or timestamps without a script file."
+    see_also: ["npm", "npx", "nvm", "deno", "bun"]
     references:
       - "https://nodejs.org/api/cli.html"
+
+  - name: "nvm"
+    description: "Node Version Manager — install and switch between Node.js versions."
+    syntax: "nvm [install|use|ls|alias|exec] [<version>]"
+    os: [linux, macos]
+    danger: caution
+    modern: "<code>fnm</code> (fast Node manager, Rust) — same concept but faster shell startup and native Windows support"
+    flags:
+      - flag: "install <version>"
+        description: "Download and install a Node version (e.g. 22, lts/iron, node)."
+      - flag: "use <version>"
+        description: "Switch to a previously installed version in the current shell."
+      - flag: "ls"
+        description: "List all locally installed versions."
+      - flag: "ls-remote [--lts]"
+        description: "List available versions to install (optionally filter LTS only)."
+      - flag: "alias default <version>"
+        description: "Set the version used in new shells."
+      - flag: "exec <version> <cmd>"
+        description: "Run a command under a specific Node version without switching."
+    examples:
+      - code: "nvm install --lts"
+        explain: "Install the latest LTS release of Node.js — the safest choice for new projects."
+      - code: "nvm use 20"
+        explain: "Switch the current shell to Node 20 — the switch only affects the active session unless set as default."
+    recipes:
+      - code: "nvm install 22 && nvm alias default 22"
+        explain: "Install Node 22 and make it the default so all new shells open on it."
+      - code: "nvm exec 18 node -e 'console.log(process.version)'"
+        explain: "Run a one-liner under Node 18 without permanently switching — useful for cross-version compatibility checks."
+    gotchas: >
+      <code>nvm</code> is a shell function, not a binary — it modifies
+      <code>PATH</code> in the current shell. It must be sourced in your
+      <code>.bashrc</code> / <code>.zshrc</code>; running it in a
+      subshell or via <code>sudo</code> has no effect on the parent.
+      <code>fnm</code> is a faster alternative with Windows support.
+    see_also: ["node", "npm", "bun"]
+    references:
+      - "https://github.com/nvm-sh/nvm"
+
+  - name: "bun"
+    description: "Fast all-in-one JavaScript runtime + package manager + bundler + test runner."
+    syntax: "bun [run|install|add|x|test|build] [<args>...]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    modern: "<code>bun</code> is itself the modern alternative — already faster than Node + npm combined for most tasks"
+    flags:
+      - flag: "run <script>"
+        description: "Execute a JS/TS file or package.json script."
+      - flag: "install"
+        description: "Install dependencies (10–30× faster than npm)."
+      - flag: "add <pkg>"
+        description: "Add a dependency."
+      - flag: "x <pkg>"
+        description: "Run a one-off package binary (npx equivalent)."
+      - flag: "test"
+        description: "Run built-in test runner."
+      - flag: "build"
+        description: "Bundle for production."
+    examples:
+      - code: "bun install"
+        explain: "Install all dependencies from package.json significantly faster than npm — bun uses a binary lockfile and parallel fetching."
+      - code: "bun run dev"
+        explain: "Start the project's dev script from package.json — bun resolves the script name the same way npm does."
+      - code: "bun x create-react-app my-app"
+        explain: "Run a package binary once without installing it globally — equivalent to npx but faster."
+    recipes:
+      - code: "bun --version && bun install && bun run build"
+        explain: "Print the Bun version, install dependencies, and build — a quick sanity-check pipeline before a deploy."
+      - code: "bun x tsx script.ts"
+        explain: "Execute a TypeScript file without pre-compiling using tsx via bun's npx-equivalent — ideal for one-off automation scripts."
+    gotchas: >
+      Node-compatible for most APIs but not 100% — some native modules
+      (notably anything with N-API quirks) still break. For
+      production-critical Node apps, validate compatibility first.
+      Windows support shipped in 2024 but is still less mature than
+      Linux/macOS.
+    see_also: ["node", "npm", "deno", "npx"]
+    references:
+      - "https://bun.sh/docs"
 
   - name: "ruby"
     description: "Run Ruby — REPL via irb, scripts, one-liners."
     syntax: "ruby [-e \"<code>\"] [-n|-p] [-l] [<script> [args]]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-e \"<code>\""
         description: "Execute a one-liner."
@@ -79,8 +180,15 @@ entries:
       - flag: "-r <lib>"
         description: "Require a library before running."
     examples:
-      - "ruby -e \"puts 'hi'\""
-      - "ruby -pe 'gsub(/foo/, \"bar\")' input.txt"
+      - code: "ruby -e \"puts 'hi'\""
+        explain: "The simplest Ruby one-liner — prints a string to stdout without creating a script file."
+      - code: "ruby -pe 'gsub(/foo/, \"bar\")' input.txt"
+        explain: "Replace every occurrence of 'foo' with 'bar' in input.txt and print each processed line — a sed-like in-place filter."
+    recipes:
+      - code: "ruby -r json -e \"puts JSON.pretty_generate(JSON.parse(STDIN.read))\" < data.json"
+        explain: "Pretty-print a JSON file using Ruby's standard library — handy when jq is unavailable."
+      - code: "ruby -pe 'gsub(/\\s+$/, \"\")' -i.bak file.txt"
+        explain: "Strip trailing whitespace from every line in-place, writing a backup with .bak extension first."
     see_also: ["irb", "gem", "bundle"]
     references:
       - "ruby --help"
@@ -89,14 +197,20 @@ entries:
     description: "Interactive Ruby REPL."
     syntax: "irb [-r <lib>] [--simple-prompt]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-r <lib>"
         description: "Require a library on start."
       - flag: "--simple-prompt"
         description: "Minimal prompt."
     examples:
-      - "irb"
-      - "irb -r json"
+      - code: "irb"
+        explain: "Open the interactive Ruby REPL — a quick playground for testing expressions and exploring the standard library."
+      - code: "irb -r json"
+        explain: "Start irb with the JSON module pre-loaded — ready to parse or generate JSON immediately."
+    recipes:
+      - code: "irb --simple-prompt -r date"
+        explain: "Open irb with a minimal prompt and the Date class available — useful for quick date arithmetic experiments."
     see_also: ["ruby", "pry"]
     references:
       - "https://docs.ruby-lang.org/en/master/IRB.html"
@@ -105,6 +219,7 @@ entries:
     description: "GNU Bash shell — interactive or batch."
     syntax: "bash [-c \"<cmd>\"] [-i] [-l] [<script> [args]]"
     os: [linux, macos, cross-platform, android]
+    danger: safe
     flags:
       - flag: "-c \"<cmd>\""
         description: "Execute one command string then exit."
@@ -121,9 +236,17 @@ entries:
       - flag: "-o pipefail"
         description: "Pipeline fails if any stage fails, not just the last."
     examples:
-      - "bash -c 'echo $$'"
-      - "bash -lc 'env | grep PATH'"
-      - "bash -euo pipefail script.sh"
+      - code: "bash -c 'echo $$'"
+        explain: "Run a simple command string and print the subshell's PID — confirms you're in a child process."
+      - code: "bash -lc 'env | grep PATH'"
+        explain: "Open a login shell and print PATH-related environment variables — useful to see what a login session sets up."
+      - code: "bash -euo pipefail script.sh"
+        explain: "Run a script with strict-mode flags — exits on errors, unset variables, and pipeline failures."
+    recipes:
+      - code: "bash -x script.sh 2>&1 | tee debug.log"
+        explain: "Trace every command as it runs and capture both stdout and stderr to a log file — the fastest way to diagnose a failing script."
+      - code: "bash -n script.sh"
+        explain: "Syntax-check a script without executing it — catches parse errors before deployment."
     gotchas: >
       The "strict mode" trio <code>set -euo pipefail</code> at the top of
       every script catches a huge class of bugs early — unset vars
@@ -139,6 +262,7 @@ entries:
     description: "Z shell — bash-compatible-ish with extras (globbing, prompts, plugins)."
     syntax: "zsh [-c \"<cmd>\"] [-i] [-l] [-x] [<script> [args]]"
     os: [linux, macos, cross-platform, android]
+    danger: safe
     flags:
       - flag: "-c \"<cmd>\""
         description: "Execute one command string then exit."
@@ -149,7 +273,13 @@ entries:
       - flag: "-x"
         description: "Trace each command before execution."
     examples:
-      - "zsh -c 'echo $ZSH_VERSION'"
+      - code: "zsh -c 'echo $ZSH_VERSION'"
+        explain: "Print the zsh version from a one-liner — also confirms zsh is installed and on PATH."
+      - code: "zsh -i -c 'source ~/.zshrc && echo $MANPATH'"
+        explain: "Load a full interactive config and inspect a variable — handy for debugging what your .zshrc exports."
+    recipes:
+      - code: "zsh -x script.zsh 2>&1 | head -50"
+        explain: "Trace the first 50 lines of execution of a zsh script — a quick way to find where it stalls or errors."
     gotchas: >
       Default shell on macOS since Catalina. Most bash scripts work
       unchanged but a few subtle differences exist (word splitting on
@@ -164,6 +294,7 @@ entries:
     description: "The #! interpreter directive at the top of a script."
     syntax: "#!<path-to-interpreter> [<flags>]"
     os: [linux, macos, cross-platform, android]
+    danger: safe
     flags:
       - flag: "#!/usr/bin/env <interp>"
         description: "Portable — finds the interpreter via PATH (preferred)."
@@ -172,10 +303,17 @@ entries:
       - flag: "#!/usr/bin/env -S <interp> <args>"
         description: "GNU coreutils ≥ 8.30 — pass multiple args to the interpreter."
     examples:
-      - "#!/usr/bin/env bash"
-      - "#!/usr/bin/env python3"
-      - "#!/usr/bin/env -S node --experimental-vm-modules"
-      - "#!/bin/sh"
+      - code: "#!/usr/bin/env bash"
+        explain: "Portable bash shebang — finds whichever bash is first on PATH, not necessarily /bin/bash."
+      - code: "#!/usr/bin/env python3"
+        explain: "Portable Python 3 shebang — picks up the user's active python3 (venv, pyenv, system) from PATH."
+      - code: "#!/usr/bin/env -S node --experimental-vm-modules"
+        explain: "Pass a flag to node via env -S — required on Linux where the shebang only supports one argument after the interpreter."
+      - code: "#!/bin/sh"
+        explain: "POSIX-only shebang — widest compatibility, but limits you to POSIX sh syntax (no bash-isms)."
+    recipes:
+      - code: "chmod +x script.py && ./script.py"
+        explain: "Mark a Python script executable then run it directly — the shebang line tells the kernel which interpreter to use."
     gotchas: >
       Use <code>#!/usr/bin/env &lt;interp&gt;</code> for portability — it
       finds the interpreter via PATH instead of hard-coding
@@ -191,6 +329,8 @@ entries:
     description: "Secure-by-default JavaScript / TypeScript runtime (Node-compatible-ish)."
     syntax: "deno [run|test|fmt|lint|task|install] [--allow-<perm>] [<file>]"
     os: [cross-platform]
+    danger: safe
+    modern: "<code>deno</code> is itself the modern alternative — built-in TypeScript, secure by default, no node_modules"
     flags:
       - flag: "run <file>"
         description: "Execute a script."
@@ -207,51 +347,30 @@ entries:
       - flag: "fmt"
         description: "Format code (built-in)."
     examples:
-      - "deno run --allow-net server.ts"
-      - "deno test"
-      - "deno install --allow-net -n serve https://deno.land/std/http/file_server.ts"
+      - code: "deno run --allow-net server.ts"
+        explain: "Run a TypeScript HTTP server granting only network access — all other permissions (disk, env, subprocess) are denied."
+      - code: "deno test"
+        explain: "Run the built-in test runner against all test files — no configuration or dependencies required."
+      - code: "deno install --allow-net -n serve https://deno.land/std/http/file_server.ts"
+        explain: "Install a remote script as a local CLI command named 'serve' with network-only permissions."
+    recipes:
+      - code: "deno run --allow-read --allow-net fetch_and_save.ts"
+        explain: "Run a script with minimum required permissions — principle of least privilege in action."
+      - code: "deno fmt && deno lint"
+        explain: "Format then lint the project with Deno's built-in tools — no config files or npm dependencies needed."
     see_also: ["node", "bun"]
     references:
       - "https://docs.deno.com"
-
-  - name: "bun"
-    description: "Fast all-in-one JavaScript runtime + package manager + bundler + test runner."
-    syntax: "bun [run|install|add|x|test|build] [<args>...]"
-    os: [linux, macos, cross-platform]
-    flags:
-      - flag: "run <script>"
-        description: "Execute a JS/TS file or package.json script."
-      - flag: "install"
-        description: "Install dependencies (10-30× faster than npm)."
-      - flag: "add <pkg>"
-        description: "Add a dependency."
-      - flag: "x <pkg>"
-        description: "Run a one-off package binary (npx equivalent)."
-      - flag: "test"
-        description: "Run built-in test runner."
-      - flag: "build"
-        description: "Bundle for production."
-    examples:
-      - "bun install"
-      - "bun run dev"
-      - "bun x create-react-app my-app"
-    gotchas: >
-      Node-compatible for most APIs but not 100% — some native modules
-      (notably anything with N-API quirks) still break. For
-      production-critical Node apps, validate compatibility first.
-      Windows support shipped in 2024 but is still less mature than
-      Linux/macOS.
-    see_also: ["node", "npm", "deno"]
-    references:
-      - "https://bun.sh/docs"
 
   - name: "uv"
     description: "Fast Python package + project manager (Rust, drop-in for pip + venv + pip-tools)."
     syntax: "uv [pip|venv|run|add|sync|tool] [<args>...]"
     os: [cross-platform]
+    danger: caution
+    modern: "<code>uv</code> is itself the modern replacement for pip + venv + pip-tools + pipx in one binary"
     flags:
       - flag: "pip install <pkg>"
-        description: "Drop-in pip replacement (10-100× faster)."
+        description: "Drop-in pip replacement (10–100× faster)."
       - flag: "venv [<path>]"
         description: "Create a virtual environment (default: .venv)."
       - flag: "add <pkg>"
@@ -263,10 +382,19 @@ entries:
       - flag: "tool install <pkg>"
         description: "Install a Python CLI tool isolated (pipx equivalent)."
     examples:
-      - "uv venv && source .venv/bin/activate"
-      - "uv pip install requests"
-      - "uv run pytest"
-      - "uv tool install ruff"
+      - code: "uv venv && source .venv/bin/activate"
+        explain: "Create a .venv virtual environment and activate it — the modern replacement for python3 -m venv."
+      - code: "uv pip install requests"
+        explain: "Install a package into the active environment using uv's fast resolver — syntax is identical to pip."
+      - code: "uv run pytest"
+        explain: "Run pytest inside the project environment without explicitly activating it first — uv handles venv discovery automatically."
+      - code: "uv tool install ruff"
+        explain: "Install the ruff linter as an isolated CLI tool — equivalent to pipx install but faster."
+    recipes:
+      - code: "uv sync && uv run python -m myapp"
+        explain: "Install all locked dependencies then run the application — a single-command reproducible bootstrap for any project."
+      - code: "uv pip compile requirements.in -o requirements.txt"
+        explain: "Generate a fully pinned requirements.txt from abstract requirements — the pip-tools workflow, but 10× faster."
     see_also: ["pip", "pipx", "poetry"]
     references:
       - "https://docs.astral.sh/uv/"
@@ -275,6 +403,7 @@ entries:
     description: "Run Go — build, test, format, manage modules."
     syntax: "go [run|build|test|fmt|mod|install|get] [<args>...]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "run <file>"
         description: "Compile and run in one step."
@@ -291,18 +420,28 @@ entries:
       - flag: "vet ./..."
         description: "Static analysis."
     examples:
-      - "go run ."
-      - "go build -o bin/server ./cmd/server"
-      - "go test -race -cover ./..."
-      - "go install github.com/user/tool@latest"
+      - code: "go run ."
+        explain: "Compile and immediately run the package in the current directory — the fastest way to try a Go program."
+      - code: "go build -o bin/server ./cmd/server"
+        explain: "Compile the cmd/server package into a binary at bin/server — the standard layout for multi-command Go projects."
+      - code: "go test -race -cover ./..."
+        explain: "Run all tests recursively with race-condition detection and coverage reporting — the standard CI invocation."
+      - code: "go install github.com/user/tool@latest"
+        explain: "Build and install a Go tool from the internet into $GOBIN — the idiomatic way to distribute Go CLIs."
+    recipes:
+      - code: "go build ./... && go vet ./... && go test ./..."
+        explain: "Build everything, run static analysis, then run all tests — a minimal but complete CI pipeline for a Go project."
+      - code: "GOOS=linux GOARCH=amd64 go build -o dist/server-linux ./cmd/server"
+        explain: "Cross-compile a Linux amd64 binary from any host OS — Go's built-in cross-compilation requires no extra toolchain."
     see_also: ["rustc", "node"]
     references:
       - "https://pkg.go.dev/cmd/go"
 
   - name: "rustc"
     description: "Rust compiler — rarely invoked directly, usually wrapped by cargo."
-    syntax: "rustc [-O] [--release] [--edition <year>] [-o <out>] <file.rs>"
+    syntax: "rustc [-O] [--edition <year>] [-o <out>] [--explain <code>] <file.rs>"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-O"
         description: "Optimise."
@@ -313,9 +452,15 @@ entries:
       - flag: "--explain <code>"
         description: "Explain an error code (e.g. E0382)."
     examples:
-      - "rustc hello.rs && ./hello"
-      - "rustc -O -o release src/main.rs"
-      - "rustc --explain E0382"
+      - code: "rustc hello.rs && ./hello"
+        explain: "Compile a single Rust file to a binary and run it — the quickest path for a standalone experiment."
+      - code: "rustc -O -o release src/main.rs"
+        explain: "Compile with optimisations into a binary named 'release' — useful for quick single-file benchmarks."
+      - code: "rustc --explain E0382"
+        explain: "Get a detailed explanation of a Rust error code — more verbose than the inline compiler hint."
+    recipes:
+      - code: "rustc --edition 2021 -O -o /tmp/bench bench.rs && /tmp/bench"
+        explain: "Compile a single-file benchmark with the 2021 edition and optimisations, then run it immediately."
     gotchas: >
       For real projects always use <code>cargo build</code> / <code>cargo
       run</code> — <code>rustc</code> doesn't know about Cargo.toml,
@@ -324,3 +469,121 @@ entries:
     see_also: ["cargo", "rustup"]
     references:
       - "https://doc.rust-lang.org/rustc/"
+
+  - name: "pyenv"
+    description: "Install and switch between multiple Python interpreter versions."
+    syntax: "pyenv [install|global|local|shell|versions|rehash] [<version>]"
+    os: [linux, macos]
+    danger: caution
+    modern: "<code>uv</code> can install and pin Python versions too — <code>uv python install 3.12</code> — and is faster"
+    flags:
+      - flag: "install <version>"
+        description: "Download and build a Python version (e.g. 3.12.3)."
+      - flag: "global <version>"
+        description: "Set the system-wide default Python version."
+      - flag: "local <version>"
+        description: "Write a .python-version file in the current directory."
+      - flag: "shell <version>"
+        description: "Override the version for the current shell session only."
+      - flag: "versions"
+        description: "List all installed versions (active one is starred)."
+      - flag: "rehash"
+        description: "Rebuild shims after installing a new version or package."
+    examples:
+      - code: "pyenv install 3.12.3"
+        explain: "Download and compile Python 3.12.3 — pyenv builds from source so the exact patch version is pinned."
+      - code: "pyenv local 3.11.9"
+        explain: "Pin the current directory to Python 3.11.9 by writing a .python-version file — overrides the global default."
+    recipes:
+      - code: "pyenv install 3.12.3 && pyenv global 3.12.3"
+        explain: "Install Python 3.12.3 and make it the system-wide default — the standard first-setup workflow."
+      - code: "pyenv local 3.11.9 && python3 -m venv .venv && source .venv/bin/activate"
+        explain: "Pin the project Python version and create a virtualenv with it — guarantees reproducibility across machines."
+    gotchas: >
+      pyenv works by prepending shims to PATH — if your shell doesn't
+      source <code>eval "$(pyenv init -)"</code> in its rc file, pyenv
+      commands run but the version switching has no effect. Run
+      <code>pyenv doctor</code> to diagnose setup issues.
+    see_also: ["python3", "uv", "pip"]
+    references:
+      - "https://github.com/pyenv/pyenv"
+
+  - name: "java"
+    description: "Run compiled Java programs and inspect the JVM."
+    syntax: "java [-cp <classpath>] [-jar <file>] [-D<prop>=<val>] [<class> [args]]"
+    os: [cross-platform]
+    danger: safe
+    flags:
+      - flag: "-cp <path>"
+        description: "Classpath — directories and JARs to search for classes."
+      - flag: "-jar <file>"
+        description: "Run an executable JAR file."
+      - flag: "-D<key>=<val>"
+        description: "Set a system property accessible via System.getProperty()."
+      - flag: "-Xmx<size>"
+        description: "Maximum heap size (e.g. -Xmx512m, -Xmx2g)."
+      - flag: "-version"
+        description: "Print the JVM version and exit."
+    examples:
+      - code: "java -version"
+        explain: "Print the active JVM version — confirms which JDK is on PATH and whether it's Oracle, OpenJDK, etc."
+      - code: "java -jar app.jar"
+        explain: "Run a self-contained executable JAR — the standard distribution format for Java applications."
+      - code: "java -Xmx512m -cp build/classes com.example.Main"
+        explain: "Launch a class with a 512 MB heap cap and an explicit classpath — common for tuning long-running services."
+    recipes:
+      - code: "javac Hello.java && java Hello"
+        explain: "Compile a single Java file and run it immediately — the minimal compile-run loop without a build tool."
+      - code: "java -jar app.jar --spring.profiles.active=prod -Dserver.port=8080"
+        explain: "Start a Spring Boot fat-JAR in production mode on port 8080 — typical container entrypoint pattern."
+    gotchas: >
+      <code>java</code> and <code>javac</code> versions must match —
+      code compiled with JDK 21 cannot run on JRE 11. Use
+      <code>SDKMAN!</code> (<code>sdk install java 21-tem</code>) or
+      <code>jenv</code> to manage multiple JDK versions on one machine.
+    see_also: ["javac", "mvn", "gradle"]
+    references:
+      - "https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html"
+
+  - name: "dotnet"
+    description: "Run, build, test, and publish .NET (C#/F#/VB) projects."
+    syntax: "dotnet [run|build|test|publish|add|restore|new] [<args>...]"
+    os: [cross-platform]
+    danger: caution
+    flags:
+      - flag: "run"
+        description: "Build and run the project in the current directory."
+      - flag: "build [-c <config>]"
+        description: "Compile the project (Debug by default, use -c Release for prod)."
+      - flag: "test"
+        description: "Discover and run tests via the built-in test host."
+      - flag: "publish -c Release -o <dir>"
+        description: "Produce a self-contained or framework-dependent publish artifact."
+      - flag: "add package <pkg>"
+        description: "Add a NuGet package reference to the project file."
+      - flag: "new <template>"
+        description: "Scaffold a project from a template (e.g. webapi, console, blazor)."
+      - flag: "--version"
+        description: "Print the .NET SDK version."
+    examples:
+      - code: "dotnet --version"
+        explain: "Print the active .NET SDK version — confirms the SDK is installed and shows which version is selected by global.json."
+      - code: "dotnet run"
+        explain: "Build the project in the current directory and start it — the standard dev-loop entry point."
+      - code: "dotnet test --logger trx"
+        explain: "Run all tests and write results in TRX (Visual Studio test result) format — common in CI pipelines."
+    recipes:
+      - code: "dotnet new webapi -n MyApi && cd MyApi && dotnet run"
+        explain: "Scaffold a minimal ASP.NET Core Web API project and start it — the fastest way to get a new HTTP service running."
+      - code: "dotnet publish -c Release -o dist --self-contained -r linux-x64"
+        explain: "Produce a self-contained Linux x64 binary in dist/ — no .NET runtime required on the target machine."
+    gotchas: >
+      Multiple SDK versions can coexist; a <code>global.json</code> in
+      the repo root pins the exact SDK version used by all
+      <code>dotnet</code> commands in that tree. Without it, the latest
+      installed SDK is used, which can break builds if the team is on
+      different versions. Use <code>dotnet --list-sdks</code> to see
+      what's installed.
+    see_also: ["java", "go"]
+    references:
+      - "https://learn.microsoft.com/dotnet/core/tools/"

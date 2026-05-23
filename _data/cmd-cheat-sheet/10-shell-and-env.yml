@@ -8,22 +8,31 @@ batch:
     aliases, history, redirection, and the small but mighty
     <code>which</code>/<code>man</code>/<code>read</code> trio. Everything
     here works in bash and zsh; POSIX shells (dash, ash) cover most of it.
-  last_updated: "2026-05-21"
+  last_updated: "2026-05-23"
 
 entries:
   - name: "echo"
     description: "Print arguments to stdout."
     syntax: "echo [-n] [-e] <string>..."
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-n"
         description: "Do not append a trailing newline."
       - flag: "-e"
         description: "Interpret backslash escapes (\\n, \\t, …)."
     examples:
-      - "echo \"Hello, $USER\""
-      - "echo -n waiting && sleep 1"
-      - "echo -e \"line1\\nline2\""
+      - code: "echo \"Hello, $USER\""
+        explain: "Print a greeting interpolating the current username from the environment — the simplest sanity check that variable expansion works."
+      - code: "echo -n waiting && sleep 1"
+        explain: "Print text without a trailing newline, then sleep — the -n flag keeps the cursor on the same line while the process runs."
+      - code: "echo -e \"line1\\nline2\""
+        explain: "Use -e to interpret \\n as an actual newline — produces two lines of output without a heredoc."
+    recipes:
+      - code: "echo \"Build finished at $(date)\" >> build.log"
+        explain: "Append a timestamped message to a log file — combines command substitution with output redirection."
+      - code: "echo \"$PATH\" | tr ':' '\\n'"
+        explain: "Split PATH on colons to print one directory per line — useful for auditing or debugging path entries."
     gotchas: >
       <code>echo</code> is a shell builtin AND a binary; behaviour differs
       slightly across both. For anything beyond trivial output, prefer
@@ -34,9 +43,10 @@ entries:
       - "help echo  (bash builtin)"
 
   - name: "printf"
-    description: "Format and print — like C's printf."
+    description: "Format and print — like C's printf, portable across POSIX shells."
     syntax: "printf <format> [<arg>...]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "%s"
         description: "String specifier."
@@ -49,8 +59,17 @@ entries:
       - flag: "%-<n>s"
         description: "Left-align string in a field of width n."
     examples:
-      - "printf \"%s: %d\\n\" \"errors\" 0"
-      - "printf '%-20s %s\\n' name email"
+      - code: "printf \"%s: %d\\n\" \"errors\" 0"
+        explain: "Print a labelled integer with a newline — more portable than echo because the format string makes intent explicit."
+      - code: "printf '%-20s %s\\n' name email"
+        explain: "Print a left-aligned 20-character column header followed by a second field — handy for building tabular output."
+      - code: "printf '%05d\\n' 42"
+        explain: "Zero-pad an integer to 5 digits — useful when generating sortable filenames or report fields."
+    recipes:
+      - code: "printf '%s\\n' \"$@\""
+        explain: "Print each positional argument on its own line — the safe alternative to echo when arguments may start with a dash."
+      - code: "printf 'Host: %s\\nPort: %d\\n' \"$HOST\" \"$PORT\" >> config.log"
+        explain: "Write a structured multi-line config summary to a log file using printf's format string for consistent alignment."
     see_also: ["echo"]
     references:
       - "man 1 printf"
@@ -59,6 +78,7 @@ entries:
     description: "Mark a shell variable as exported to child processes."
     syntax: "export [-p] [-n] [<name>[=<value>]...]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-p"
         description: "Print all exported variables in re-importable form."
@@ -67,9 +87,17 @@ entries:
       - flag: "<name>=<value>"
         description: "Assign and export in one step."
     examples:
-      - "export EDITOR=nvim"
-      - "export PATH=\"$HOME/.local/bin:$PATH\""
-      - "export -p   # list exported vars"
+      - code: "export EDITOR=nvim"
+        explain: "Set EDITOR to nvim and export it so child processes (git, crontab) pick it up as the default editor."
+      - code: "export PATH=\"$HOME/.local/bin:$PATH\""
+        explain: "Prepend a local bin directory to PATH so user-installed binaries shadow system ones without sudo."
+      - code: "export -p"
+        explain: "List every exported variable in declare -x form — useful for capturing the environment or debugging what a child process will see."
+    recipes:
+      - code: "export PATH=\"$HOME/.local/bin:$PATH\""
+        explain: "Prepend your local bin directory to PATH — the canonical way to install tools without touching system directories."
+      - code: "export DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1"
+        explain: "Enable BuildKit for both docker build and docker-compose in one line — commonly placed in ~/.bashrc for all sessions."
     gotchas: >
       An assignment without <code>export</code>
       (<code>FOO=bar</code>) sets a shell variable that child processes
@@ -83,15 +111,24 @@ entries:
     description: "Print the environment, or run a command with a modified one."
     syntax: "env [-i] [<name>=<value>...] [<cmd> [args...]]"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-i"
         description: "Start with an empty environment."
       - flag: "-u <name>"
         description: "Remove a variable before running cmd."
     examples:
-      - "env | sort"
-      - "env -i PATH=/usr/bin BAR=baz ./script.sh"
-      - "env DEBUG=1 npm test"
+      - code: "env | sort"
+        explain: "Print all environment variables alphabetically — easier to read than the raw unsorted output."
+      - code: "env -i PATH=/usr/bin BAR=baz ./script.sh"
+        explain: "Run a script with a clean environment containing only the explicitly listed variables — useful for reproducibility testing."
+      - code: "env DEBUG=1 npm test"
+        explain: "Inject a variable for a single command without permanently exporting it — keeps the shell environment clean."
+    recipes:
+      - code: "env | grep -i proxy"
+        explain: "Check which proxy variables are currently set — useful when debugging network connectivity inside corporate environments."
+      - code: "env -u HTTP_PROXY curl https://example.com"
+        explain: "Run curl with the HTTP_PROXY variable stripped — lets you bypass the configured proxy for one request without unsetting it globally."
     gotchas: >
       The shebang line <code>#!/usr/bin/env python3</code> uses
       <code>env</code> to look up Python in PATH — portable across distros
@@ -104,6 +141,7 @@ entries:
     description: "Create a shorthand for a longer command."
     syntax: "alias [<name>='<replacement>']"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "(no args)"
         description: "Print every defined alias."
@@ -112,9 +150,17 @@ entries:
       - flag: "<name>"
         description: "Show what one specific alias expands to."
     examples:
-      - "alias ll='ls -lah'"
-      - "alias gst='git status -sb'"
-      - "alias  # list all"
+      - code: "alias ll='ls -lah'"
+        explain: "Define ll as a long-format human-readable listing including dotfiles — one of the most common quality-of-life aliases."
+      - code: "alias gst='git status -sb'"
+        explain: "Create a short alias for git status with short/branch format — saves typing in git-heavy workflows."
+      - code: "alias"
+        explain: "List every alias currently active in the shell — useful for auditing what shortcuts are defined."
+    recipes:
+      - code: "alias gs='git status' && echo \"alias gs='git status'\" >> ~/.bashrc"
+        explain: "Define an alias for the current session and immediately persist it to .bashrc so it survives restarts."
+      - code: "alias mkcd='mkdir -p \"$1\" && cd \"$1\"'"
+        explain: "Define a combined mkdir+cd alias — note that complex aliases with arguments often work better as shell functions."
     gotchas: >
       Aliases are shell-local — define them in <code>~/.bashrc</code> /
       <code>~/.zshrc</code> for persistence. They don't expand inside
@@ -129,6 +175,7 @@ entries:
     description: "Show or manipulate the command history."
     syntax: "history [-c] [-d <offset>] [<count>]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-c"
         description: "Clear current session's history."
@@ -137,9 +184,17 @@ entries:
       - flag: "-w"
         description: "Write current session to the history file."
     examples:
-      - "history"
-      - "history | grep ssh"
-      - "!42   # re-run history entry 42"
+      - code: "history"
+        explain: "Print the full command history with line numbers for the current session — the starting point for re-running past commands."
+      - code: "history | grep ssh"
+        explain: "Search history for ssh commands — useful for recalling a connection string you used days ago."
+      - code: "!42"
+        explain: "Re-execute history entry number 42 exactly — fast way to repeat a long command without retyping it."
+    recipes:
+      - code: "history | grep ssh"
+        explain: "Find recent ssh commands in your history — combine with awk to extract just the command text or pipe to a fuzzy finder."
+      - code: "HISTCONTROL=ignoreboth HISTSIZE=10000 HISTFILESIZE=20000"
+        explain: "Set in ~/.bashrc to deduplicate history, ignore space-prefixed commands, and keep a large history file across sessions."
     gotchas: >
       Bash truncates history to <code>HISTSIZE</code> entries; the file
       to <code>HISTFILESIZE</code>. Multi-shell users want
@@ -153,12 +208,21 @@ entries:
     description: "Show the full path to a command (or that it's an alias / builtin)."
     syntax: "which [-a] <name>"
     os: [linux, macos, cross-platform, android]
+    danger: safe
+    modern: "Prefer <code>command -v</code> in scripts — POSIX-portable and aware of builtins."
     flags:
       - flag: "-a"
         description: "Print all matches in PATH, not just the first."
     examples:
-      - "which python3"
-      - "which -a node"
+      - code: "which python3"
+        explain: "Show the full path of the python3 binary that will run — confirms which installation is active when multiple exist."
+      - code: "which -a node"
+        explain: "List every node binary found in PATH — reveals shadowed versions from nvm, Homebrew, or system packages."
+    recipes:
+      - code: "command -v python3 || echo 'not found'"
+        explain: "POSIX-portable check for a command's existence — safer than which in scripts because it covers builtins and handles missing commands cleanly."
+      - code: "which git && git --version"
+        explain: "Verify git is on the path and then print its version — a quick two-step sanity check before running a pipeline."
     gotchas: >
       <code>which</code> doesn't know about aliases or shell functions —
       <code>type</code> does. Prefer <code>command -v</code> in scripts
@@ -171,15 +235,24 @@ entries:
     description: "Tell you what a name is — alias, builtin, function, or external binary."
     syntax: "type [-a] [-t] <name>..."
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-a"
         description: "All matches (aliases, builtins, AND each binary in PATH)."
       - flag: "-t"
         description: "Just the kind (alias / keyword / function / builtin / file)."
     examples:
-      - "type ls"
-      - "type -a echo"
-      - "type -t which"
+      - code: "type ls"
+        explain: "Show what ls resolves to — on many systems it reveals an alias like 'ls --color=auto' set by the distro."
+      - code: "type -a echo"
+        explain: "List every definition of echo — shows both the shell builtin and the external /usr/bin/echo binary."
+      - code: "type -t which"
+        explain: "Print just the classification ('file') — useful in scripts that branch on whether a name is a function, alias, or binary."
+    recipes:
+      - code: "type -t \"$cmd\" 2>/dev/null || echo \"$cmd not found\""
+        explain: "Script-safe check that prints the command type or 'not found' — cleaner than parsing which output."
+      - code: "type -a python python3 2>/dev/null"
+        explain: "Show all Python-related entries across aliases, functions, and PATH — useful for diagnosing environment conflicts."
     see_also: ["which", "command"]
     references:
       - "help type  (bash builtin)"
@@ -188,6 +261,7 @@ entries:
     description: "Show the manual page for a command, syscall, or function."
     syntax: "man [<section>] <name>"
     os: [linux, macos, cross-platform, android]
+    danger: safe
     flags:
       - flag: "<section>"
         description: "Section number: 1=commands, 2=syscalls, 3=libc, 5=files, 7=misc, 8=admin."
@@ -196,9 +270,17 @@ entries:
       - flag: "-f <name>"
         description: "One-line description (same as whatis)."
     examples:
-      - "man ssh"
-      - "man 5 ssh_config"
-      - "man -k ssh"
+      - code: "man ssh"
+        explain: "Open the ssh manual page — the authoritative reference for every flag, config file, and behaviour."
+      - code: "man 5 ssh_config"
+        explain: "Open section 5 (file formats) for ssh_config — needed when the default section 1 (command) page isn't what you want."
+      - code: "man -k ssh"
+        explain: "Search all man page names and descriptions for 'ssh' — equivalent to apropos, useful for discovering related commands."
+    recipes:
+      - code: "man bash | grep -A3 'HISTCONTROL'"
+        explain: "Search the bash man page for a specific variable and show the three lines after its definition — faster than scrolling through the full page."
+      - code: "MANPAGER='less -R' man curl"
+        explain: "Use less with ANSI colour support for a colourised man page — set in .bashrc to apply globally."
     gotchas: >
       Inside man: <code>/pattern</code> search, <code>n</code>/<code>N</code>
       next/prev, <code>q</code> quit. For colourised man pages set
@@ -213,6 +295,7 @@ entries:
     description: "Read one line from stdin into shell variables."
     syntax: "read [-p <prompt>] [-s] [-r] [-t <sec>] [-a <arr>] <var>..."
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "-p <prompt>"
         description: "Print the prompt before reading."
@@ -225,8 +308,17 @@ entries:
       - flag: "-a <arr>"
         description: "Read into an array, splitting on IFS."
     examples:
-      - "read -rp \"Name: \" name && echo \"hi $name\""
-      - "read -srp \"Pass: \" pw"
+      - code: "read -rp \"Name: \" name && echo \"hi $name\""
+        explain: "Prompt the user for their name, read the response raw (no backslash interpretation), and greet them — the canonical interactive input pattern."
+      - code: "read -srp \"Pass: \" pw"
+        explain: "Read a password silently (-s suppresses echo) with a prompt — pw is now set in the shell without the value appearing on screen."
+      - code: "read -t 10 -rp \"Continue? [y/N] \" ans || ans=N"
+        explain: "Wait up to 10 seconds for a yes/no answer and default to N on timeout — useful in automated pipelines that can also be run interactively."
+    recipes:
+      - code: "while IFS= read -r line; do echo \">> $line\"; done < file.txt"
+        explain: "Read a file line by line without mangling whitespace or backslashes — the canonical safe loop for processing text files in bash."
+      - code: "read -ra parts <<< \"$csv_line\" && echo \"${parts[0]}\""
+        explain: "Split a CSV line into an array using a herestring — faster than spawning cut or awk for simple field extraction."
     gotchas: >
       Always use <code>read -r</code> in scripts — without it, backslashes
       get interpreted as line continuations. <code>while IFS= read -r
@@ -241,6 +333,7 @@ entries:
     description: "Plumb stdin / stdout / stderr to files, pipes, and each other."
     syntax: "cmd [> file] [>> file] [< file] [2> file] [2>&1] [<<EOF...EOF] [<(cmd)]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "> file"
         description: "Redirect stdout to file (overwrite)."
@@ -263,10 +356,17 @@ entries:
       - flag: "<(cmd)"
         description: "Process substitution — treat cmd's stdout as a file."
     examples:
-      - "make build > build.log 2>&1"
-      - "cmd 2>/dev/null    # silence errors"
-      - "diff <(sort a.txt) <(sort b.txt)"
-      - "cat <<EOF > config.yml\nkey: value\nEOF"
+      - code: "make build > build.log 2>&1"
+        explain: "Capture both stdout and stderr from a build into a single log file — the 2>&1 must follow the > redirect, not precede it."
+      - code: "cmd 2>/dev/null"
+        explain: "Discard all stderr output — useful when a command is noisy about expected errors like missing files."
+      - code: "diff <(sort a.txt) <(sort b.txt)"
+        explain: "Compare two sorted files without creating temporary files — process substitution feeds each sort's stdout as a named pseudo-file to diff."
+    recipes:
+      - code: "make build > build.log 2>&1 && echo OK || { cat build.log; exit 1; }"
+        explain: "Run a build capturing all output, then print the log and exit non-zero only on failure — useful in CI scripts."
+      - code: "cat <<'EOF' > config.yml\nkey: value\nEOF"
+        explain: "Write a multi-line heredoc to a file in one command — single-quoting EOF prevents variable expansion inside the block."
     gotchas: >
       Order matters: <code>cmd &gt; file 2&gt;&amp;1</code> sends both to
       <code>file</code>, but <code>cmd 2&gt;&amp;1 &gt; file</code> sends
@@ -281,14 +381,20 @@ entries:
     description: "Remove one or more shell aliases."
     syntax: "unalias [-a] <name>..."
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-a"
         description: "Remove all aliases."
       - flag: "<name>"
         description: "Remove the named alias."
     examples:
-      - "unalias ll"
-      - "unalias -a"
+      - code: "unalias ll"
+        explain: "Remove the ll alias for this session — the original command it shadowed is immediately accessible again."
+      - code: "unalias -a"
+        explain: "Remove every alias defined in the current shell — useful for debugging whether an alias is interfering with a script."
+    recipes:
+      - code: "unalias ls 2>/dev/null; ls --color=auto"
+        explain: "Remove a potentially conflicting ls alias before running ls with an explicit flag — ensures the raw binary is called."
     see_also: ["alias"]
     references:
       - "help unalias  (bash builtin)"
@@ -297,14 +403,22 @@ entries:
     description: "Print environment variables."
     syntax: "printenv [<name>...]"
     os: [linux, macos, cross-platform, android]
+    danger: safe
     flags:
       - flag: "(no args)"
         description: "Print every env var = value."
       - flag: "<name>"
         description: "Print just that variable's value, no name= prefix."
     examples:
-      - "printenv"
-      - "printenv HOME"
+      - code: "printenv"
+        explain: "Dump the entire environment — equivalent to env but without the ability to run a command."
+      - code: "printenv HOME"
+        explain: "Print just the value of HOME with no name= prefix — cleaner than echo \"$HOME\" when the value needs to go into a script variable."
+      - code: "printenv JAVA_HOME || echo 'JAVA_HOME not set'"
+        explain: "Check whether a variable is set and print its value, or emit a diagnostic — printenv exits non-zero if the variable is absent."
+    recipes:
+      - code: "printenv | grep -i path"
+        explain: "List all PATH-related environment variables — useful for diagnosing tool-discovery issues across different runtime environments."
     see_also: ["env", "export"]
     references:
       - "man 1 printenv"
@@ -313,6 +427,7 @@ entries:
     description: "Set shell options or positional parameters; with no args, print all shell vars."
     syntax: "set [-e|-u|-x|-o <opt>|+<flag>] [-- <args>...]"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-e"
         description: "errexit — exit immediately on any command failure."
@@ -325,9 +440,17 @@ entries:
       - flag: "+<flag>"
         description: "Disable that flag (set -x trace on, set +x trace off)."
     examples:
-      - "set -euo pipefail"
-      - "set +x"
-      - "set -- a b c   # \\$1=a \\$2=b \\$3=c"
+      - code: "set -euo pipefail"
+        explain: "Enable strict mode — exit on error, treat unset variables as errors, and propagate pipeline failures — the standard header for safe bash scripts."
+      - code: "set +x"
+        explain: "Turn off xtrace debugging that was enabled earlier — useful to stop verbose output after the section you were tracing."
+      - code: "set -- a b c"
+        explain: "Replace the positional parameters with a, b, c so $1=a, $2=b, $3=c — handy inside functions or when reprocessing arguments."
+    recipes:
+      - code: "set -euo pipefail\ntrap 'echo \"Error on line $LINENO\"' ERR"
+        explain: "Canonical strict-mode header for bash scripts — strict options plus an ERR trap that names the failing line number."
+      - code: "{ set -x; some_command; set +x; } 2>&1 | grep '^+'"
+        explain: "Trace only one command's expansion and filter for the xtrace lines — non-destructively instruments a single step in a script."
     gotchas: >
       <code>set -euo pipefail</code> at the top of every bash script
       catches a huge class of bugs early. Shell options apply to the
@@ -340,14 +463,25 @@ entries:
     description: "Remove a shell variable or function."
     syntax: "unset [-v|-f] <name>..."
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "-v"
         description: "Variables only (default)."
       - flag: "-f"
         description: "Functions only."
     examples:
-      - "unset FOO"
-      - "unset -f myfn"
+      - code: "unset FOO"
+        explain: "Remove the variable FOO from the shell and environment — child processes launched after this will no longer see it."
+      - code: "unset -f myfn"
+        explain: "Remove a shell function definition — useful for reloading a function from a sourced file without restarting the shell."
+    recipes:
+      - code: "unset HTTP_PROXY HTTPS_PROXY && curl https://example.com"
+        explain: "Strip proxy variables for one command sequence — cleaner than temporarily overriding them and avoids polluting child processes."
+    gotchas: >
+      Unsetting critical variables like <code>PATH</code>, <code>HOME</code>,
+      or <code>IFS</code> can break the shell session completely —
+      commands won't be found and scripts will misbehave silently.
+      Always double-check the name before unsetting an env variable.
     see_also: ["export", "set"]
     references:
       - "help unset  (bash builtin)"
@@ -357,6 +491,7 @@ entries:
     description: "Directory stack — push the current dir + cd somewhere new, then pop back."
     syntax: "pushd <dir>   |   popd   |   dirs"
     os: [cross-platform]
+    danger: safe
     flags:
       - flag: "pushd <dir>"
         description: "cd to dir and push the previous dir onto the stack."
@@ -367,10 +502,17 @@ entries:
       - flag: "dirs -v"
         description: "Stack with numbered entries — handy for cd ~<n>."
     examples:
-      - "pushd /tmp"
-      - "pushd ~/src"
-      - "dirs -v"
-      - "popd"
+      - code: "pushd /tmp"
+        explain: "Navigate to /tmp and save the current directory on the stack — a single popd brings you straight back."
+      - code: "pushd ~/src"
+        explain: "Stack another directory — you can pushd multiple times and popd in reverse order to retrace your path."
+      - code: "dirs -v"
+        explain: "Show the numbered directory stack — each entry is reachable with cd ~<n> without popping."
+    recipes:
+      - code: "pushd /etc && sudo cp nginx.conf nginx.conf.bak && popd"
+        explain: "Edit a config in another directory and return home in one compound command — pushd/popd keeps the workflow tidy."
+      - code: "pushd \"$(git rev-parse --show-toplevel)\""
+        explain: "Push the git repo root onto the stack — popd returns you to wherever you were when you ran the command."
     see_also: ["cd", "dirs"]
     references:
       - "help pushd  (bash builtin)"
@@ -379,14 +521,24 @@ entries:
     description: "Execute a script in the current shell (so its vars/aliases persist)."
     syntax: "source <file> [args...]   |   . <file>"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: ". <file>"
         description: "POSIX-portable spelling — works in dash/ash too."
       - flag: "source <file>"
         description: "Bash/zsh-specific alias for the dot operator."
     examples:
-      - "source ~/.bashrc"
-      - ". ./venv/bin/activate"
+      - code: "source ~/.bashrc"
+        explain: "Reload your shell configuration without starting a new session — picks up alias or export changes immediately."
+      - code: ". ./venv/bin/activate"
+        explain: "Activate a Python virtual environment in the current shell — the dot form works even in POSIX sh."
+      - code: "source ./lib.sh && setup_environment"
+        explain: "Load helper functions from a library script, then call one of them — the functions remain available for the rest of the session."
+    recipes:
+      - code: "source ~/.bashrc && echo 'Shell reloaded'"
+        explain: "Reload the shell config and confirm success — handy after editing .bashrc to verify there are no syntax errors."
+      - code: ". \"$(brew --prefix)/etc/profile.d/z.sh\""
+        explain: "Source the z directory-jumping utility installed via Homebrew — the pattern applies to any shell plugin that needs to run in the current shell."
     gotchas: >
       Running a script via <code>./script.sh</code> spawns a subshell —
       any <code>export</code>/<code>cd</code>/alias inside doesn't
@@ -401,13 +553,22 @@ entries:
     description: "Concatenate args and execute them as a shell command."
     syntax: "eval <command-string>"
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "<args>"
         description: "Joined with spaces and re-parsed by the shell — double interpretation."
     examples:
-      - "cmd='ls -la'; eval \"$cmd\""
-      - "eval \"$(ssh-agent -s)\""
-      - "eval \"$(direnv hook bash)\""
+      - code: "cmd='ls -la'; eval \"$cmd\""
+        explain: "Execute a command stored in a variable — the shell re-parses the string so flags and arguments are properly split."
+      - code: "eval \"$(ssh-agent -s)\""
+        explain: "Start ssh-agent and capture its output (variable assignments and exports) into the current shell — the canonical pattern for agent setup."
+      - code: "eval \"$(direnv hook bash)\""
+        explain: "Register direnv's hook in the current shell by evaluating the shell code it emits — used in .bashrc to enable automatic env loading."
+    recipes:
+      - code: "eval \"$(ssh-agent -s)\" && ssh-add ~/.ssh/id_ed25519"
+        explain: "Start the SSH agent in the current shell and add your key in one compound command — ready for passwordless Git operations."
+      - code: "eval \"$(conda shell.bash hook)\""
+        explain: "Activate conda's shell integration in the current session — the standard way to initialise conda from .bashrc."
     gotchas: >
       <code>eval</code> double-parses its input — any user-supplied
       string is a shell injection vector. Reach for it only when you
@@ -421,6 +582,7 @@ entries:
     description: "Run a command when the shell receives a signal or exits."
     syntax: "trap '<cmd>' <signal>..."
     os: [cross-platform]
+    danger: caution
     flags:
       - flag: "EXIT / 0"
         description: "Fire on shell exit — cleanup hook."
@@ -433,9 +595,45 @@ entries:
       - flag: "trap - <signal>"
         description: "Reset the handler back to default."
     examples:
-      - "trap 'rm -f /tmp/lock.$$' EXIT"
-      - "trap 'echo interrupted' INT"
-      - "trap 'echo \"line $LINENO failed\"' ERR"
+      - code: "trap 'rm -f /tmp/lock.$$' EXIT"
+        explain: "Register a cleanup command that removes a PID-specific lock file whenever the script exits, whether normally or via an error."
+      - code: "trap 'echo interrupted' INT"
+        explain: "Catch Ctrl+C and print a message instead of silently dying — gives scripts a chance to display status before aborting."
+      - code: "trap 'echo \"line $LINENO failed\"' ERR"
+        explain: "Print the line number of any failing command — far easier to debug than a silent non-zero exit buried in a long script."
+    recipes:
+      - code: "tmpdir=$(mktemp -d) && trap 'rm -rf \"$tmpdir\"' EXIT"
+        explain: "Create a temporary directory and guarantee it's deleted on exit — the canonical pattern for safe temporary file handling in scripts."
+      - code: "trap 'echo \"Caught SIGTERM — shutting down\"; exit 0' TERM"
+        explain: "Handle container SIGTERM gracefully — lets a long-running script log a clean shutdown message before the process exits."
     see_also: ["kill", "set"]
     references:
       - "help trap  (bash builtin)"
+
+  - name: "command"
+    description: "Run a command, bypassing aliases and functions, or test whether it exists."
+    syntax: "command [-v|-V|-p] <name> [args...]"
+    os: [cross-platform]
+    danger: safe
+    flags:
+      - flag: "-v"
+        description: "Print the path or definition of name — like which but POSIX and alias-aware."
+      - flag: "-V"
+        description: "Verbose description — same as type."
+      - flag: "-p"
+        description: "Use the system default PATH, ignoring the current one."
+    examples:
+      - code: "command -v git"
+        explain: "Print git's path if it exists, exit non-zero if not — the POSIX-portable way to check for a command in scripts."
+      - code: "command ls"
+        explain: "Run the real ls binary, bypassing any alias — useful when you want un-aliased output inside a script."
+      - code: "command -p id"
+        explain: "Run id using the system default PATH — guards against a compromised PATH in privileged scripts."
+    recipes:
+      - code: "command -v docker &>/dev/null || { echo 'Docker not installed'; exit 1; }"
+        explain: "Abort a script early if Docker is missing — the standard guard pattern before running Docker-dependent steps."
+      - code: "for tool in git curl jq; do command -v \"$tool\" || echo \"missing: $tool\"; done"
+        explain: "Check a list of required tools and report which ones are absent — useful at the top of a setup script."
+    see_also: ["which", "type"]
+    references:
+      - "help command  (bash builtin)"

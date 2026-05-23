@@ -6,7 +6,7 @@ batch:
   description: >
     Pack, unpack, and compress. tar is the workhorse on Unix; zip / 7z
     are the cross-platform standards.
-  last_updated: "2026-05-21"
+  last_updated: "2026-05-23"
 
 entries:
   - name: "tar"
@@ -21,51 +21,95 @@ entries:
       - flag: "t"
         description: "List contents."
       - flag: "v"
-        description: "Verbose — list each file."
+        description: "Verbose — list each file processed."
       - flag: "f <archive>"
-        description: "Archive filename (- for stdin/stdout)."
+        description: "Archive filename (use - for stdin/stdout)."
       - flag: "z"
-        description: "Compress with gzip (.tar.gz / .tgz)."
+        description: "Compress/decompress with gzip (.tar.gz / .tgz)."
       - flag: "j"
-        description: "Compress with bzip2 (.tar.bz2)."
+        description: "Compress/decompress with bzip2 (.tar.bz2)."
       - flag: "J"
-        description: "Compress with xz (.tar.xz)."
+        description: "Compress/decompress with xz (.tar.xz)."
       - flag: "-C <dir>"
-        description: "Change to dir before reading/writing (great for relative paths)."
+        description: "Change to dir before reading/writing (controls relative paths in the archive)."
       - flag: "--exclude=<pat>"
         description: "Skip files matching the glob."
+      - flag: "--zstd"
+        description: "Compress/decompress with zstd (.tar.zst) — GNU tar 1.31+ and macOS 13+."
     examples:
-      - "tar czvf backup.tar.gz ~/Documents"
-      - "tar xzvf backup.tar.gz -C /tmp/restore"
-      - "tar tzvf backup.tar.gz | head"
+      - code: "tar czf backup.tar.gz ~/Documents"
+        explain: >
+          Create (<code>c</code>) a gzip-compressed (<code>z</code>) archive file
+          (<code>f</code>) named backup.tar.gz from ~/Documents — the flags run together,
+          <code>f</code> last so the filename immediately follows.
+      - code: "tar xzvf backup.tar.gz -C /tmp/restore"
+        explain: >
+          Extract (<code>x</code>) the gzip archive (<code>z</code>) verbosely (<code>v</code>)
+          into /tmp/restore (<code>-C</code>), creating the directory hierarchy there instead
+          of in the current working directory.
+      - code: "tar tf backup.tar.gz | head"
+        explain: >
+          List (<code>t</code>) the contents of the archive without extracting, then show
+          only the first ten entries — useful for a quick sanity-check before unpacking.
+    recipes:
+      - code: "tar czf - ./dist | ssh user@host 'cat > /backups/dist.tar.gz'"
+        explain: >
+          Stream a compressed archive of ./dist directly over SSH — <code>-f -</code> writes
+          to stdout which is piped into the remote <code>cat</code>, avoiding any temp file.
+      - code: "find . -name '*.log' -print0 | tar czf logs.tar.gz --null -T -"
+        explain: >
+          Feed a null-delimited file list from <code>find</code> into tar via <code>-T -</code>;
+          <code>--null</code> handles filenames with spaces or newlines safely.
+    danger: "caution"
     gotchas: >
-      Argument order matters with single-letter flags — <code>c</code>,
-      <code>x</code>, <code>t</code> come first; <code>f &lt;archive&gt;</code>
-      must directly precede the filename. Long options
-      (<code>--create</code>, <code>--extract</code>) are more forgiving.
-      Always verify <code>-C</code> when extracting untrusted archives —
-      tarballs can contain absolute paths or <code>../</code> traversals
-      (the classic "tar slip" attack).
-    see_also: ["gzip", "xz", "zip"]
+      Argument order matters — <code>c</code>, <code>x</code>, or <code>t</code> must
+      come first; <code>f &lt;archive&gt;</code> must directly precede the filename.
+      Long options (<code>--create</code>, <code>--extract</code>) are more forgiving.
+      Always inspect with <code>tar tf</code> before extracting untrusted archives —
+      tarballs can embed absolute paths or <code>../</code> traversals (the classic
+      "tar slip" attack). Use <code>-C</code> and consider
+      <code>--strip-components</code> to control where files land.
+    see_also: ["gzip", "xz", "zip", "zstd"]
     references:
       - "man 1 tar"
 
   - name: "zip"
-    description: "Create a ZIP archive (cross-platform)."
-    syntax: "zip [-r] [-9] [-e] <archive>.zip <files>..."
+    description: "Create a ZIP archive — the portable cross-platform format."
+    syntax: "zip [-r] [-9] [-e] [-x <pat>] <archive>.zip <files>..."
     os: [linux, macos, windows, cross-platform, android]
     flags:
       - flag: "-r"
         description: "Recurse into directories."
       - flag: "-9"
-        description: "Best compression."
+        description: "Best (slowest) compression ratio."
       - flag: "-e"
-        description: "Encrypt with a password (weak ZipCrypto — use 7z for real security)."
+        description: "Encrypt with a password (ZipCrypto — weak; use 7z AES for real security)."
+      - flag: "-u"
+        description: "Update — add only new or changed files to an existing archive."
+      - flag: "-d <entry>"
+        description: "Delete a specific entry from the archive."
       - flag: "-x <pat>"
         description: "Exclude files matching pattern."
     examples:
-      - "zip -r project.zip ./src"
-      - "zip -9 -r site.zip _site -x '*.DS_Store'"
+      - code: "zip -r project.zip ./src"
+        explain: >
+          Recursively (<code>-r</code>) pack the entire src/ directory tree into project.zip,
+          preserving relative paths so extraction recreates the same layout.
+      - code: "zip -9 -r site.zip _site -x '*.DS_Store'"
+        explain: >
+          Create a maximum-compression archive of _site/ while excluding macOS metadata files,
+          keeping the ZIP clean for cross-platform distribution.
+    recipes:
+      - code: "zip -r release.zip dist/ -x 'dist/**/*.map'"
+        explain: >
+          Package a production build without source maps — the glob excludes any .map file
+          anywhere under dist/, reducing archive size and avoiding leaking source info.
+    danger: "caution"
+    gotchas: >
+      <code>-e</code> uses ZipCrypto which is trivially crackable; use 7z with AES-256
+      (<code>-p -mhe=on</code>) for any sensitive data. ZIP stores paths relative to
+      the current directory, so run from the project root to get clean relative paths
+      inside the archive.
     see_also: ["unzip", "tar", "7z"]
     references:
       - "man 1 zip"
@@ -80,130 +124,279 @@ entries:
       - flag: "-o"
         description: "Overwrite existing files without prompting."
       - flag: "-d <dir>"
-        description: "Extract into the given directory."
+        description: "Extract into the given directory (created if absent)."
       - flag: "-q"
-        description: "Quiet."
+        description: "Quiet — suppress output."
+      - flag: "-n"
+        description: "Never overwrite — skip files that already exist."
+      - flag: "-p"
+        description: "Pipe a single entry to stdout without creating any files."
     examples:
-      - "unzip download.zip"
-      - "unzip -l backup.zip"
-      - "unzip -d /tmp/extract pkg.zip"
+      - code: "unzip -l backup.zip"
+        explain: >
+          List every entry in the archive — names, sizes, and dates — without
+          extracting anything, useful for inspection before unpacking.
+      - code: "unzip -d /tmp/extract pkg.zip"
+        explain: >
+          Extract all files from pkg.zip into /tmp/extract/, creating the directory
+          automatically and reproducing the original path structure beneath it.
+      - code: "unzip -p archive.zip config/app.yml | grep secret"
+        explain: >
+          Pipe a single file from inside the archive to stdout and grep it, without
+          writing anything to disk.
+    recipes:
+      - code: "unzip -oq release.zip -d /var/www/app && echo 'deployed'"
+        explain: >
+          Quietly extract and overwrite an existing deployment tree in one step,
+          then confirm success — suitable for a deploy script.
+    danger: "caution"
+    gotchas: >
+      Without <code>-d</code> extraction lands in the current directory, which can
+      scatter files everywhere if the ZIP lacks a top-level directory. Always inspect
+      with <code>-l</code> first, or extract into a fresh subdirectory.
     see_also: ["zip", "tar", "7z"]
     references:
       - "man 1 unzip"
 
   - name: "gzip"
-    description: "Single-file gzip compression (.gz)."
+    description: "Single-file gzip compression (.gz) — the universal Unix compression tool."
     syntax: "gzip [-d] [-k] [-<level>] <file>..."
     os: [linux, macos, cross-platform, android]
     flags:
-      - flag: "-d / gunzip"
-        description: "Decompress."
+      - flag: "-d"
+        description: "Decompress (equivalent to running gunzip)."
       - flag: "-k"
-        description: "Keep the original file (gzip deletes it by default)."
+        description: "Keep the original file — by default gzip replaces it with the .gz."
       - flag: "-<1..9>"
-        description: "Compression level (1=fast, 9=small)."
+        description: "Compression level (1=fastest, 9=smallest; default 6)."
       - flag: "-r"
-        description: "Recursively compress files in a directory."
+        description: "Recursively compress all files in a directory tree in place."
+      - flag: "-l"
+        description: "List compression stats for a .gz file without decompressing."
+      - flag: "-c"
+        description: "Write to stdout, leaving the original unchanged."
     examples:
-      - "gzip server.log"
-      - "gunzip backup.sql.gz"
-      - "gzip -9k large.bin"
+      - code: "gzip -9k large.bin"
+        explain: >
+          Compress large.bin at maximum ratio (<code>-9</code>) while keeping the original
+          (<code>-k</code>), producing large.bin.gz alongside it.
+      - code: "gunzip backup.sql.gz"
+        explain: >
+          Decompress backup.sql.gz back to backup.sql, removing the .gz file — <code>gunzip</code>
+          is shorthand for <code>gzip -d</code>.
+      - code: "gzip -l server.log.gz"
+        explain: >
+          Display the compressed size, uncompressed size, and ratio for server.log.gz
+          without decompressing it.
+    recipes:
+      - code: "tar cf - ./data | gzip -9 > data.tar.gz"
+        explain: >
+          Pipe a raw tar stream through gzip with maximum compression to produce data.tar.gz —
+          equivalent to <code>tar czf</code> but lets you swap in any compressor mid-pipeline.
+    danger: "caution"
+    modern: >
+      <code>zstd</code> compresses faster than gzip at similar or better ratios and
+      supports multithreading — prefer it when both sides control the toolchain.
     gotchas: >
-      <code>gzip</code> works on one file at a time. For multiple files
-      bundle with <code>tar</code> first
-      (<code>tar czf bundle.tar.gz dir/</code>) — that's the
-      <code>.tar.gz</code> convention.
-    see_also: ["tar", "xz", "bzip2"]
+      <code>gzip</code> operates on one file at a time and cannot pack directories.
+      Bundle with <code>tar</code> first (<code>tar czf bundle.tar.gz dir/</code>) —
+      that is the origin of the <code>.tar.gz</code> convention.
+    see_also: ["tar", "xz", "bzip2", "zstd"]
     references:
       - "man 1 gzip"
 
   - name: "7z"
-    description: "7-Zip — high-ratio compression, supports many archive formats."
-    syntax: "7z [a|x|l] [-p<pwd>] <archive>.7z [<files>...]"
+    description: "7-Zip — high-ratio compression with strong encryption, supports many formats."
+    syntax: "7z [a|x|e|l|t] [-p<pwd>] [-mhe=on] <archive>.7z [<files>...]"
     os: [linux, macos, windows, cross-platform]
     flags:
       - flag: "a"
         description: "Add to (or create) an archive."
       - flag: "x"
-        description: "Extract preserving full paths."
+        description: "Extract preserving full internal directory paths."
       - flag: "e"
-        description: "Extract to current directory, ignoring paths."
+        description: "Extract to current directory, collapsing all paths."
       - flag: "l"
-        description: "List contents."
+        description: "List archive contents."
+      - flag: "t"
+        description: "Test archive integrity."
       - flag: "-p<pwd>"
-        description: "Set/use a password."
+        description: "Set or use a password (AES-256 encryption)."
       - flag: "-mhe=on"
-        description: "Encrypt filenames too (with password)."
+        description: "Encrypt filenames as well as file content (requires -p)."
+      - flag: "-mx=<0..9>"
+        description: "Compression level (0=store, 9=ultra)."
     examples:
-      - "7z a backup.7z ./project"
-      - "7z x archive.7z"
-      - "7z a -p -mhe=on secure.7z secrets/"
-    see_also: ["zip", "tar"]
+      - code: "7z a backup.7z ./project"
+        explain: >
+          Create backup.7z containing the entire project/ directory tree, using
+          default compression — fast and produces small archives.
+      - code: "7z a -p -mhe=on secure.7z secrets/"
+        explain: >
+          Pack secrets/ with AES-256 encryption and filename encryption (<code>-mhe=on</code>)
+          so even the directory listing is hidden without the password.
+      - code: "7z l archive.7z"
+        explain: >
+          List all entries in archive.7z — names, sizes, dates, and CRC — without
+          extracting anything.
+    recipes:
+      - code: "7z a -mx=9 -mmt=on release.7z ./dist"
+        explain: >
+          Create a maximum-compression multi-threaded 7z archive of the dist/ build output —
+          <code>-mmt=on</code> enables parallel LZMA2 compression across all cores.
+    danger: "caution"
+    gotchas: >
+      On Linux/macOS the binary may be named <code>7za</code> (standalone) or
+      <code>7zz</code> depending on how it was installed. The <code>e</code> command
+      strips paths — use <code>x</code> to preserve the directory structure. 7z does
+      not preserve Unix ownership or permissions; use tar for that.
+    see_also: ["zip", "tar", "xz"]
     references:
       - "man 1 7z"
+      - "https://www.7-zip.org/recover.html"
 
   - name: "xz"
-    description: "LZMA2 compression — small archives at the cost of CPU time."
-    syntax: "xz [-d] [-k] [-<level>] <file>"
+    description: "LZMA2 compression — smallest archives at the cost of CPU time."
+    syntax: "xz [-d] [-k] [-<level>] [-T <n>] <file>"
     os: [linux, macos, cross-platform]
     flags:
-      - flag: "-d / unxz"
-        description: "Decompress."
+      - flag: "-d"
+        description: "Decompress (equivalent to running unxz)."
       - flag: "-k"
         description: "Keep the original file."
-      - flag: "-T <n>"
-        description: "Use n threads (0 = auto, all cores)."
       - flag: "-<1..9>"
-        description: "Compression level (default 6; 9e is extreme)."
+        description: "Compression level (default 6; -9e is extreme)."
+      - flag: "-T <n>"
+        description: "Use n threads (0 = all cores) — multithreading supported since xz 5.2."
+      - flag: "-l"
+        description: "List compressed file metadata and ratio without decompressing."
+      - flag: "-c"
+        description: "Write to stdout, leaving the original file intact."
     examples:
-      - "xz -T0 big.tar"
-      - "unxz dump.sql.xz"
-      - "tar cJf snap.tar.xz ./project"
-    see_also: ["gzip", "zstd", "tar"]
+      - code: "xz -T0 -9 big.tar"
+        explain: >
+          Compress big.tar using all CPU cores (<code>-T0</code>) at the maximum compression
+          level, producing big.tar.xz — slower than gzip but typically 20–30% smaller.
+      - code: "unxz dump.sql.xz"
+        explain: >
+          Decompress dump.sql.xz back to dump.sql, removing the .xz file — <code>unxz</code>
+          is shorthand for <code>xz -d</code>.
+      - code: "tar cJf snap.tar.xz ./project"
+        explain: >
+          Create a tar archive and compress it with xz in one step using tar's
+          <code>J</code> flag — the standard way to produce <code>.tar.xz</code> files.
+    recipes:
+      - code: "xz -kc -T0 bigfile.img | ssh user@host 'xz -d > /data/bigfile.img'"
+        explain: >
+          Compress to stdout (<code>-kc</code>) using all cores, pipe over SSH, and decompress
+          on the remote end — reduces transfer bytes with no temp file on either side.
+    danger: "caution"
+    modern: >
+      <code>zstd</code> compresses and decompresses far faster than xz at similar
+      ratios; prefer zstd for interactive use and reserve xz for distribution archives
+      where download size is critical.
+    gotchas: >
+      xz is single-threaded by default and noticeably slow — always add <code>-T0</code>
+      for large files. Decompression is also slower than gzip; factor that into pipelines
+      where decompression speed matters (e.g. frequent restores from backup).
+    see_also: ["gzip", "zstd", "bzip2", "tar"]
     references:
       - "man 1 xz"
 
   - name: "bzip2"
-    description: "Block-sorting compression — better ratio than gzip, slower."
+    description: "Block-sorting Burrows–Wheeler compression — better ratio than gzip, slower."
     syntax: "bzip2 [-d] [-k] [-<level>] <file>..."
     os: [linux, macos, cross-platform]
     flags:
-      - flag: "-d / bunzip2"
-        description: "Decompress."
+      - flag: "-d"
+        description: "Decompress (equivalent to bunzip2)."
       - flag: "-k"
         description: "Keep the original file."
       - flag: "-<1..9>"
-        description: "Compression level (default 9)."
+        description: "Compression level (default 9 — also controls block size)."
+      - flag: "-c"
+        description: "Write to stdout, leaving the original file intact."
+      - flag: "-t"
+        description: "Test archive integrity without decompressing."
     examples:
-      - "bzip2 -k server.log"
-      - "bunzip2 dump.sql.bz2"
-      - "tar cjf snap.tar.bz2 ./project"
+      - code: "bzip2 -k server.log"
+        explain: >
+          Compress server.log to server.log.bz2 while keeping the original (<code>-k</code>),
+          useful when you want both the compressed archive and the live log file.
+      - code: "bunzip2 dump.sql.bz2"
+        explain: >
+          Decompress dump.sql.bz2 back to dump.sql — <code>bunzip2</code> is shorthand
+          for <code>bzip2 -d</code>.
+      - code: "tar cjf snap.tar.bz2 ./project"
+        explain: >
+          Create a .tar.bz2 archive using tar's <code>j</code> flag — the classic
+          way to produce bzip2-compressed tarballs.
+    recipes:
+      - code: "bzip2 -dc old.tar.bz2 | tar xf - -C /tmp/restore"
+        explain: >
+          Decompress a .tar.bz2 to stdout and pipe into tar for extraction — useful
+          when you need to hand-control the pipeline, e.g. to add pv for progress.
+    danger: "caution"
+    modern: >
+      <code>zstd</code> is dramatically faster than bzip2 at comparable or better
+      compression ratios. Prefer zstd for new archives; bzip2 remains relevant only
+      for reading legacy <code>.tar.bz2</code> files.
     gotchas: >
-      Mostly superseded by xz (better ratio) and zstd (much faster);
-      still ubiquitous in legacy <code>.tar.bz2</code> archives.
+      bzip2 does not support multithreading natively — use <code>pbzip2</code> for
+      parallel compression. Mostly superseded by xz (better ratio) and zstd (far
+      faster); still ubiquitous in legacy <code>.tar.bz2</code> source tarballs.
     see_also: ["gzip", "xz", "zstd"]
     references:
       - "man 1 bzip2"
 
   - name: "zstd"
-    description: "Facebook's fast compression — gzip-level speed, xz-ish ratio."
-    syntax: "zstd [-d] [-<level>] [-T <n>] [-k] <file>..."
+    description: "Zstandard — fast compression balancing gzip's speed with xz's ratio."
+    syntax: "zstd [-d] [-<level>] [-T <n>] [-k] [--long] <file>..."
     os: [linux, macos, cross-platform]
     flags:
-      - flag: "-d / unzstd"
-        description: "Decompress (.zst)."
+      - flag: "-d"
+        description: "Decompress .zst files (equivalent to unzstd)."
       - flag: "-<1..19>"
-        description: "Compression level (default 3; --long for higher)."
+        description: "Compression level (default 3; higher levels are slower with diminishing returns)."
       - flag: "-T <n>"
         description: "Number of threads (0 = all cores)."
       - flag: "-k"
-        description: "Keep the original file."
+        description: "Keep the original file — zstd replaces it by default."
       - flag: "--long"
-        description: "Wider window — better ratio, more memory."
+        description: "Enable long-range matching (wider window) for better ratio on large redundant data."
+      - flag: "-c"
+        description: "Write compressed output to stdout."
+      - flag: "--train"
+        description: "Build a compression dictionary from sample files for better ratio on small files."
     examples:
-      - "zstd -19 -T0 big.tar"
-      - "unzstd dump.sql.zst"
-      - "tar --zstd -cf snap.tar.zst ./project"
+      - code: "zstd -19 -T0 big.tar"
+        explain: >
+          Compress big.tar at near-maximum ratio using all CPU cores — level 19 is much
+          slower than default 3 but zstd is still faster than xz at comparable ratios.
+      - code: "unzstd dump.sql.zst"
+        explain: >
+          Decompress dump.sql.zst back to dump.sql — <code>unzstd</code> is shorthand
+          for <code>zstd -d</code> and decompresses at very high speed.
+      - code: "tar --zstd -cf snap.tar.zst ./project"
+        explain: >
+          Create a .tar.zst archive using tar's built-in zstd support — requires
+          GNU tar 1.31+ or macOS 13+; produces files in the modern .tar.zst convention.
+    recipes:
+      - code: "zstd -T0 -c db.dump | ssh user@host 'zstd -d > /backups/db.dump'"
+        explain: >
+          Compress a database dump to stdout across all cores and decompress on the remote
+          end — high throughput with no temp files, ideal for large nightly backups.
+      - code: "find ./logs -name '*.log' | xargs zstd -T0 --rm"
+        explain: >
+          Compress every .log file in parallel using all cores and remove the originals
+          (<code>--rm</code>) — bulk log rotation in one command.
+    danger: "caution"
+    gotchas: >
+      <code>.zst</code> is not as universally supported as <code>.gz</code> — check
+      that the target system has zstd installed before shipping an archive. Default
+      level 3 is the sweet spot; going above level 9 rarely justifies the CPU cost
+      unless ratio is paramount and <code>--long</code> applies.
     see_also: ["gzip", "xz", "tar"]
     references:
       - "man 1 zstd"
+      - "https://facebook.github.io/zstd/"
