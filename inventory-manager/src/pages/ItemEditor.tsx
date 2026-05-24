@@ -9,6 +9,7 @@ import Header from '../components/Header';
 import FieldInput from '../components/FieldInput';
 import PhotoGrid from '../components/PhotoGrid';
 import PlatformBadges from '../components/PlatformBadges';
+import FieldHelpButton from '../components/FieldHelpButton';
 import Spinner from '../components/Spinner';
 import {
   inventoryCreateItemFn,
@@ -319,7 +320,10 @@ export default function ItemEditor() {
               {folder.platformTags?.includes('ebay') && (
                 <>
                   <label className="flex flex-col gap-1 text-sm">
-                    <span className="text-[var(--text-muted)]">eBay Format</span>
+                    <span className="text-[var(--text-muted)] flex items-center gap-2">
+                      eBay Format
+                      <FieldHelpButton fieldKey="ebay-format" />
+                    </span>
                     <select
                       value={ebay.format}
                       onChange={(e) =>
@@ -336,7 +340,10 @@ export default function ItemEditor() {
                   </label>
 
                   <label className="flex flex-col gap-1 text-sm">
-                    <span className="text-[var(--text-muted)]">eBay Duration</span>
+                    <span className="text-[var(--text-muted)] flex items-center gap-2">
+                      eBay Duration
+                      <FieldHelpButton fieldKey="ebay-duration" />
+                    </span>
                     <select
                       value={ebay.duration}
                       onChange={(e) => patchEbay({ duration: e.target.value })}
@@ -351,7 +358,10 @@ export default function ItemEditor() {
                   </label>
 
                   <label className="flex flex-col gap-1 text-sm">
-                    <span className="text-[var(--text-muted)]">eBay Category ID</span>
+                    <span className="text-[var(--text-muted)] flex items-center gap-2">
+                      eBay Category ID
+                      <FieldHelpButton fieldKey="ebay-category" />
+                    </span>
                     <input
                       value={ebay.categoryId ?? ''}
                       onChange={(e) => patchEbay({ categoryId: e.target.value || null })}
@@ -361,7 +371,10 @@ export default function ItemEditor() {
                   </label>
 
                   <label className="flex flex-col gap-1 text-sm">
-                    <span className="text-[var(--text-muted)]">eBay Condition ID</span>
+                    <span className="text-[var(--text-muted)] flex items-center gap-2">
+                      eBay Condition ID
+                      <FieldHelpButton fieldKey="ebay-condition" />
+                    </span>
                     <select
                       value={ebay.conditionId ?? ''}
                       onChange={(e) =>

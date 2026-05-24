@@ -367,6 +367,26 @@ columns and stamps the tag into each column's `platforms[]` (the color-coded
 header badges). Stripping a tag is non-destructive: `ensureTagColumns` keeps
 the columns + item data and just drops the tag from `platforms[]`.
 
+### Per-field syntax help (the ⓔ button)
+
+Next to the ⓘ column-name popover sits an **ⓔ "explain"** button
+(`components/FieldHelpButton.tsx`) that opens a modal documenting the required
+**syntax/format and allowed values per platform** for that field — e.g. the
+`category` field explains eBay's numeric leaf-category ID, Facebook's Google
+product taxonomy, idealo's `categoryPath`, etc. It also appears next to the
+eBay-only Export-sidebar inputs (Category ID, Condition ID, Format, Duration)
+via synthetic keys `ebay-category` / `ebay-condition` / `ebay-format` /
+`ebay-duration`.
+
+The prose lives in `src/platformHelp.ts` (`PLATFORM_FIELD_HELP` keyed
+`fieldKey → platformId`, plus `FIELD_HELP_INTRO` and the eBay-listing entries).
+`fieldHelpSections(fieldKey)` merges that prose with the live registry
+(`platformsForField`, `PLATFORM_BY_ID`) and the `ebay.ts` enums, so column
+names, required flags, and the eBay dropdown values never drift. **To extend
+it:** add/edit an entry under `PLATFORM_FIELD_HELP[field][platform]` — a missing
+entry falls back to a generic "exported as-is" note, so partial coverage is
+safe.
+
 ### Platforms, formats & quirks
 
 | Platform | Formats | Notes |
@@ -535,6 +555,7 @@ store.ts                # Zustand (auth + folders + items + selection + toasts);
 types.ts                # FieldDef, FolderDoc, ItemDoc, FIELD_TYPES
 platforms.ts            # platform registry (data-only mirror) + schema/overlap helpers
 ebay.ts                 # EBAY_CONDITION_IDS, EBAY_DURATIONS, EBAY_FORMATS
+platformHelp.ts         # per-field × per-platform syntax/format guidance (the ⓔ button doc) + fieldHelpSections()
 fieldFormat.ts          # formatFieldValue(def, value): read-only display text for table cells
 index.css               # Tailwind import + CSS custom properties for the dark theme
 components/
@@ -544,7 +565,8 @@ components/
   FieldInput.tsx        # one component per FieldType, incl. EAN+Scan
   BarcodeScanner.tsx    # camera modal, BarcodeDetector loop
   PhotoGrid.tsx         # drag-to-reorder, drop-to-upload, delete
-  PlatformBadges.tsx    # color-coded platform badges + per-column exact-name info popover
+  PlatformBadges.tsx    # color-coded platform badges + per-column exact-name info popover + ⓔ help button
+  FieldHelpButton.tsx   # ⓔ "explain" button: modal with per-platform syntax/format/args (reads platformHelp.ts)
   PlatformTagSelector.tsx # toggle chips for a folder's platform tags
   ImportDialog.tsx      # CSV/JSON/Platform-CSV paste-or-file, dry-run preview, commit
   ExportDialog.tsx      # platform checkboxes + CSV/XML toggle; JSZip-zips 2+ files

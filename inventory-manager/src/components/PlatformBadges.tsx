@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PLATFORM_BY_ID, platformsForField } from '../platforms';
+import FieldHelpButton from './FieldHelpButton';
 
 const badgeCls =
   'inline-block text-[10px] leading-none px-1.5 py-0.5 rounded border';
@@ -46,6 +47,7 @@ export default function PlatformBadges({
           i
         </button>
       )}
+      {overlaps.length > 0 && <FieldHelpButton fieldKey={fieldKey} />}
       {open && (
         <div className="absolute z-20 top-5 left-0 w-60 bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg p-2 shadow-lg text-[var(--text)]">
           <div className="text-[10px] uppercase text-[var(--text-muted)] mb-1">
