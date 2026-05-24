@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { inventoryImportFn } from '../firebase';
 import { PLATFORMS } from '../platforms';
 import { useStore } from '../store';
+import Spinner from './Spinner';
 
 interface Props {
   folderId: string;
@@ -28,7 +29,7 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
   const [format, setFormat] = useState<'csv' | 'json' | 'platform-csv'>('csv');
   const [platform, setPlatform] = useState(platformOptions[0] ?? 'ebay');
   const [summary, setSummary] = useState<Summary | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<'preview' | 'commit' | null>(null);
 
   if (!open) return null;
 
@@ -51,7 +52,7 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
       addToast('Paste data or pick a file first.', 'error');
       return;
     }
-    setBusy(true);
+    setBusy('preview');
     try {
       const res = await inventoryImportFn({
         folderId,
@@ -64,12 +65,12 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Dry-run failed', 'error');
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
   async function commit() {
-    setBusy(true);
+    setBusy('commit');
     try {
       const res = await inventoryImportFn({
         folderId,
@@ -88,7 +89,7 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Import failed', 'error');
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
@@ -212,16 +213,18 @@ export default function ImportDialog({ folderId, open, onClose, onImported }: Pr
           </button>
           <button
             onClick={runDryRun}
-            disabled={busy || !data.trim()}
-            className="px-4 py-2 rounded border border-[var(--accent)] text-[var(--accent)] hover:bg-[var(--bg)] text-sm font-semibold disabled:opacity-50 transition-colors"
+            disabled={busy !== null || !data.trim()}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded border border-[var(--accent)] text-[var(--accent)] hover:bg-[var(--bg)] text-sm font-semibold disabled:opacity-50 transition-colors"
           >
-            {busy ? 'Working…' : 'Preview'}
+            {busy === 'preview' && <Spinner />}
+            {busy === 'preview' ? 'Working…' : 'Preview'}
           </button>
           <button
             onClick={commit}
-            disabled={busy || !summary}
-            className="px-4 py-2 rounded bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
+            disabled={busy !== null || !summary}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
           >
+            {busy === 'commit' && <Spinner />}
             Commit
           </button>
         </div>

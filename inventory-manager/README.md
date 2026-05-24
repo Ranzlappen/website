@@ -535,6 +535,7 @@ store.ts                # Zustand (auth + folders + items + selection + toasts);
 types.ts                # FieldDef, FolderDoc, ItemDoc, FIELD_TYPES
 platforms.ts            # platform registry (data-only mirror) + schema/overlap helpers
 ebay.ts                 # EBAY_CONDITION_IDS, EBAY_DURATIONS, EBAY_FORMATS
+fieldFormat.ts          # formatFieldValue(def, value): read-only display text for table cells
 index.css               # Tailwind import + CSS custom properties for the dark theme
 components/
   AdminGuard.tsx        # blocks non-admin routes
@@ -547,11 +548,13 @@ components/
   PlatformTagSelector.tsx # toggle chips for a folder's platform tags
   ImportDialog.tsx      # CSV/JSON/Platform-CSV paste-or-file, dry-run preview, commit
   ExportDialog.tsx      # platform checkboxes + CSV/XML toggle; JSZip-zips 2+ files
-  ConfirmDialog.tsx     # reusable yes/no modal
+  ConfirmDialog.tsx     # reusable yes/no modal; awaits async onConfirm, stays open + spins until resolved
+  Spinner.tsx           # inline currentColor SVG spinner (animate-spin); shown on every in-flight DB-action button
+  EditableCell.tsx      # click-to-edit table cell; reuses FieldInput, commits on Enter/blur (Esc cancels)
 pages/
   Login.tsx
   Dashboard.tsx         # folder tree + create (with platform tags)/rename/duplicate dialogs
-  FolderTable.tsx       # item table for one folder; header platform badges; Export… dialog
+  FolderTable.tsx       # item table for one folder; renders the full fieldSchema with inline-editable cells; header platform badges; Export… dialog
   SchemaEditor.tsx      # per-folder platform tags + fieldSchema editor
   ItemEditor.tsx        # full item form + photo grid + per-tag readiness + eBay sidebar; auto-saves
   ExportCenter.tsx      # cross-folder /export: per-platform ready/blocked tally + Export… dialog
