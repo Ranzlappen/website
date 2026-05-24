@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import { useStore } from './store';
@@ -12,6 +12,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Editor = lazy(() => import('./pages/Editor'));
 const Users = lazy(() => import('./pages/Users'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function LoadingScreen() {
   return (
@@ -55,7 +56,7 @@ export default function App() {
           <Route element={<AdminGuard />}>
             <Route path="/users" element={<Users />} />
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
       <Toast />

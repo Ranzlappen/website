@@ -15,6 +15,7 @@ const ItemEditor = lazy(() => import('./pages/ItemEditor'));
 const ExportCenter = lazy(() => import('./pages/ExportCenter'));
 const Search = lazy(() => import('./pages/Search'));
 const Trash = lazy(() => import('./pages/Trash'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function LoadingScreen() {
   return (
@@ -63,7 +64,7 @@ export default function App() {
             <Route path="/search" element={<Search />} />
             <Route path="/trash" element={<Trash />} />
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
       <Toast />
