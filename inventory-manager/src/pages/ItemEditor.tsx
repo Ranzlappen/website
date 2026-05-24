@@ -9,6 +9,7 @@ import Header from '../components/Header';
 import FieldInput from '../components/FieldInput';
 import PhotoGrid from '../components/PhotoGrid';
 import PlatformBadges from '../components/PlatformBadges';
+import Spinner from '../components/Spinner';
 import {
   inventoryCreateItemFn,
   inventoryDuplicateItemFn,
@@ -45,6 +46,7 @@ export default function ItemEditor() {
   const [ebay, setEbay] = useState<EbayBlock>(defaultEbayBlock());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [dupBusy, setDupBusy] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const dirtyRef = useRef(false);
   const saveTimerRef = useRef<number | null>(null);
@@ -199,6 +201,7 @@ export default function ItemEditor() {
             {item && (
               <button
                 onClick={async () => {
+                  setDupBusy(true);
                   try {
                     const res = await inventoryDuplicateItemFn({
                       itemId: item.id,
@@ -211,18 +214,23 @@ export default function ItemEditor() {
                       err instanceof Error ? err.message : 'Duplicate failed',
                       'error',
                     );
+                  } finally {
+                    setDupBusy(false);
                   }
                 }}
-                className="px-3 py-1.5 rounded border border-[var(--border)] text-[var(--text)] text-xs hover:border-[var(--accent)] transition-colors"
+                disabled={dupBusy}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-[var(--border)] text-[var(--text)] text-xs hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
               >
+                {dupBusy && <Spinner />}
                 Duplicate item
               </button>
             )}
             <button
               onClick={() => save()}
               disabled={saving}
-              className="px-3 py-1.5 rounded bg-[var(--accent)] text-[var(--bg)] text-xs font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-[var(--accent)] text-[var(--bg)] text-xs font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
             >
+              {saving && <Spinner />}
               Save now
             </button>
           </div>

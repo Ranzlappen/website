@@ -3,10 +3,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import BulkActionBar from '../components/BulkActionBar';
 import ConfirmDialog from '../components/ConfirmDialog';
+import EditableCell from '../components/EditableCell';
 import ImportDialog from '../components/ImportDialog';
 import ExportDialog from '../components/ExportDialog';
 import PhotoLightbox from '../components/PhotoLightbox';
 import PlatformBadges from '../components/PlatformBadges';
+import Spinner from '../components/Spinner';
 import {
   inventoryDeleteFolderFn,
   inventoryDeleteItemFn,
@@ -16,6 +18,7 @@ import {
   inventoryListFoldersFn,
   inventoryListItemsFn,
   inventoryToggleEbaySyncFn,
+  inventoryUpdateItemFn,
 } from '../firebase';
 import { useStore } from '../store';
 import type { FolderDoc, ItemDoc } from '../types';
@@ -76,6 +79,9 @@ export default function FolderTable() {
   const [dupCopyItems, setDupCopyItems] = useState(false);
   const [dupBusy, setDupBusy] = useState(false);
   const [lightboxItem, setLightboxItem] = useState<ItemDoc | null>(null);
+  const [dupBusyIds, setDupBusyIds] = useState<Set<string>>(new Set());
+  const [ebayBusyIds, setEbayBusyIds] = useState<Set<string>>(new Set());
+  const [exportBusy, setExportBusy] = useState<'csv' | 'json' | null>(null);
   const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(
     null,
   );
@@ -153,12 +159,45 @@ export default function FolderTable() {
     });
   }
 
+  function markBusy(
+    setter: typeof setDupBusyIds,
+    id: string,
+    busy: boolean,
+  ) {
+    setter((prev) => {
+      const next = new Set(prev);
+      if (busy) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
   async function toggleEbay(item: ItemDoc, enabled: boolean) {
+    markBusy(setEbayBusyIds, item.id, true);
     try {
       const res = await inventoryToggleEbaySyncFn({ itemId: item.id, enabled });
       upsertItem({ ...item, ebay: res.data.ebay });
+      addToast(enabled ? 'Included in exports' : 'Excluded from exports', 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Toggle failed', 'error');
+    } finally {
+      markBusy(setEbayBusyIds, item.id, false);
+    }
+  }
+
+  async function saveCell(it: ItemDoc, key: string, next: unknown) {
+    try {
+      // Send the full merged fields object — the backend validates the entire
+      // schema (required fields included), so a one-key partial would be rejected.
+      const res = await inventoryUpdateItemFn({
+        itemId: it.id,
+        fields: { ...it.fields, [key]: next },
+      });
+      upsertItem(res.data);
+      addToast('Saved', 'success');
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Save failed', 'error');
+      throw err; // let EditableCell revert to the prior value
     }
   }
 
@@ -168,14 +207,14 @@ export default function FolderTable() {
       await inventoryDeleteItemFn({ itemId: pendingDelete.id });
       removeItem(pendingDelete.id);
       addToast('Item deleted', 'success');
+      setPendingDelete(null);
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Delete failed', 'error');
-    } finally {
-      setPendingDelete(null);
     }
   }
 
   async function duplicateItem(it: ItemDoc) {
+    markBusy(setDupBusyIds, it.id, true);
     try {
       const res = await inventoryDuplicateItemFn({ itemId: it.id });
       upsertItem(res.data);
@@ -187,11 +226,14 @@ export default function FolderTable() {
       );
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Duplicate failed', 'error');
+    } finally {
+      markBusy(setDupBusyIds, it.id, false);
     }
   }
 
   async function exportFolder(format: 'csv' | 'json') {
     if (!folderId) return;
+    setExportBusy(format);
     try {
       const res = await inventoryExportFn({ folderId, format });
       downloadFile(
@@ -199,8 +241,11 @@ export default function FolderTable() {
         res.data.body,
         format === 'json' ? 'application/json' : 'text/csv',
       );
+      addToast(`Exported ${res.data.filename}`, 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Export failed', 'error');
+    } finally {
+      setExportBusy(null);
     }
   }
 
@@ -222,11 +267,10 @@ export default function FolderTable() {
       walk(folder.id);
       removeFolders(Array.from(allIds));
       addToast(`Deleted ${res.data.deletedFolderCount} folder(s)`, 'success');
+      setPendingFolderDelete(false);
       navigate('/');
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Delete failed', 'error');
-    } finally {
-      setPendingFolderDelete(false);
     }
   }
 
@@ -307,14 +351,18 @@ export default function FolderTable() {
             </button>
             <button
               onClick={() => exportFolder('csv')}
-              className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
+              disabled={exportBusy !== null}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
             >
+              {exportBusy === 'csv' && <Spinner />}
               Export CSV
             </button>
             <button
               onClick={() => exportFolder('json')}
-              className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
+              disabled={exportBusy !== null}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
             >
+              {exportBusy === 'json' && <Spinner />}
               Export JSON
             </button>
             <button
@@ -366,7 +414,7 @@ export default function FolderTable() {
                     />
                   </th>
                   <th className="px-3 py-2 text-left w-12">Photo</th>
-                  {folder.fieldSchema.slice(0, 5).map((f) => {
+                  {folder.fieldSchema.map((f) => {
                     const active = sort?.key === f.key;
                     return (
                       <th key={f.key} className="px-3 py-2 text-left align-top">
@@ -400,7 +448,7 @@ export default function FolderTable() {
                 {filtered.length === 0 && (
                   <tr>
                     <td
-                      colSpan={folder.fieldSchema.slice(0, 5).length + 5}
+                      colSpan={folder.fieldSchema.length + 5}
                       className="px-3 py-8 text-center text-[var(--text-muted)]"
                     >
                       No items{search ? ' match this filter' : ' yet'}.
@@ -438,17 +486,27 @@ export default function FolderTable() {
                         <div className="w-10 h-10 rounded bg-[var(--bg)] border border-[var(--border)]" />
                       )}
                     </td>
-                    {folder.fieldSchema.slice(0, 5).map((f) => (
-                      <td key={f.key} className="px-3 py-2 truncate max-w-xs">
-                        {String(it.fields?.[f.key] ?? '')}
+                    {folder.fieldSchema.map((f) => (
+                      <td key={f.key} className="px-3 py-2 max-w-xs">
+                        <EditableCell
+                          def={f}
+                          value={it.fields?.[f.key]}
+                          onSave={(next) => saveCell(it, f.key, next)}
+                        />
                       </td>
                     ))}
                     <td className="px-3 py-2 text-center">
-                      <input
-                        type="checkbox"
-                        checked={!!it.ebay?.syncEnabled}
-                        onChange={(e) => toggleEbay(it, e.target.checked)}
-                      />
+                      <span className="inline-flex items-center justify-center gap-1.5">
+                        <input
+                          type="checkbox"
+                          checked={!!it.ebay?.syncEnabled}
+                          disabled={ebayBusyIds.has(it.id)}
+                          onChange={(e) => toggleEbay(it, e.target.checked)}
+                        />
+                        {ebayBusyIds.has(it.id) && (
+                          <Spinner className="text-[var(--text-muted)]" />
+                        )}
+                      </span>
                     </td>
                     <td className="px-3 py-2 text-center">
                       <StatusBadge status={it.ebay?.listingStatus ?? 'none'} />
@@ -462,8 +520,10 @@ export default function FolderTable() {
                       </Link>
                       <button
                         onClick={() => duplicateItem(it)}
-                        className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] mr-3"
+                        disabled={dupBusyIds.has(it.id)}
+                        className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--accent)] disabled:opacity-50 mr-3"
                       >
+                        {dupBusyIds.has(it.id) && <Spinner />}
                         Duplicate
                       </button>
                       <button
@@ -592,8 +652,9 @@ export default function FolderTable() {
               <button
                 onClick={submitDuplicate}
                 disabled={!dupName.trim() || dupBusy}
-                className="px-4 py-2 rounded bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
               >
+                {dupBusy && <Spinner />}
                 {dupBusy ? 'Working…' : 'Duplicate'}
               </button>
             </div>

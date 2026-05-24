@@ -4,6 +4,7 @@ import { useStore } from '../store';
 import type { FieldDef, FolderDoc } from '../types';
 import FieldInput from './FieldInput';
 import FolderPicker from './FolderPicker';
+import Spinner from './Spinner';
 
 interface Props {
   folder: FolderDoc;
@@ -24,13 +25,19 @@ export default function BulkActionBar({
 }: Props) {
   const addToast = useStore((s) => s.addToast);
   const [busy, setBusy] = useState(false);
+  const [runKey, setRunKey] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>(null);
   const [moveTarget, setMoveTarget] = useState<string | null>(null);
   const [fieldKey, setFieldKey] = useState<string>(folder.fieldSchema[0]?.key ?? '');
   const [fieldValue, setFieldValue] = useState<unknown>(null);
 
-  async function run(action: BulkAction, payload?: Record<string, unknown>) {
+  async function run(
+    action: BulkAction,
+    payload?: Record<string, unknown>,
+    key?: string,
+  ) {
     setBusy(true);
+    setRunKey(key ?? action);
     try {
       const res = await inventoryBulkUpdateFn({
         itemIds: selectedIds,
@@ -52,6 +59,7 @@ export default function BulkActionBar({
       );
     } finally {
       setBusy(false);
+      setRunKey(null);
     }
   }
 
@@ -78,24 +86,27 @@ export default function BulkActionBar({
               disabled={busy}
               onClick={() => {
                 if (!confirm(`Delete ${selectedIds.length} item(s)?`)) return;
-                run('delete');
+                run('delete', undefined, 'delete');
               }}
-              className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--danger)] hover:text-[var(--danger)] disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--danger)] hover:text-[var(--danger)] disabled:opacity-50 transition-colors"
             >
+              {runKey === 'delete' && <Spinner />}
               Delete
             </button>
             <button
               disabled={busy}
-              onClick={() => run('toggleEbay', { enabled: true })}
-              className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
+              onClick={() => run('toggleEbay', { enabled: true }, 'include')}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
             >
+              {runKey === 'include' && <Spinner />}
               Include in export
             </button>
             <button
               disabled={busy}
-              onClick={() => run('toggleEbay', { enabled: false })}
-              className="px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
+              onClick={() => run('toggleEbay', { enabled: false }, 'exclude')}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded border border-[var(--border)] hover:border-[var(--accent)] disabled:opacity-50 transition-colors"
             >
+              {runKey === 'exclude' && <Spinner />}
               Exclude from export
             </button>
             <button
@@ -134,10 +145,12 @@ export default function BulkActionBar({
             <button
               disabled={busy || !moveTarget}
               onClick={() =>
-                moveTarget && run('move', { targetFolderId: moveTarget })
+                moveTarget &&
+                run('move', { targetFolderId: moveTarget }, 'move')
               }
-              className="px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
             >
+              {runKey === 'move' && <Spinner />}
               Move
             </button>
           </>
@@ -177,10 +190,11 @@ export default function BulkActionBar({
             <button
               disabled={busy}
               onClick={() =>
-                run('setField', { fieldKey, value: fieldValue })
+                run('setField', { fieldKey, value: fieldValue }, 'setField')
               }
-              className="px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
             >
+              {runKey === 'setField' && <Spinner />}
               Apply
             </button>
           </>

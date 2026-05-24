@@ -3,6 +3,7 @@ import JSZip from 'jszip';
 import { inventoryExportPlatformsFn, type PlatformExportFile } from '../firebase';
 import { getPlatform, type ExportFormatId } from '../platforms';
 import { useStore } from '../store';
+import Spinner from './Spinner';
 
 function mimeFor(ext: string): string {
   if (ext === 'xml') return 'application/xml';
@@ -171,8 +172,9 @@ export default function ExportDialog({ open, onClose, platforms, request, onDone
           <button
             onClick={runExport}
             disabled={busy || selected.length === 0}
-            className="px-4 py-2 rounded bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
           >
+            {busy && <Spinner />}
             {busy ? 'Generating…' : `Export ${selected.length || ''}`.trim()}
           </button>
         </div>

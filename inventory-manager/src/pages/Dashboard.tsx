@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import ConfirmDialog from '../components/ConfirmDialog';
 import PlatformTagSelector from '../components/PlatformTagSelector';
+import Spinner from '../components/Spinner';
 import {
   inventoryCreateFolderFn,
   inventoryDeleteFolderFn,
@@ -67,6 +68,7 @@ interface NodeActions {
   onDragEnd: () => void;
   onDrop: (target: FolderDoc | null) => void;
   draggingFolderId: string | null;
+  movingFolderId: string | null;
   hoverFolderId: string | null;
   setHoverFolderId: (id: string | null) => void;
 }
@@ -131,6 +133,9 @@ function FolderNode({
             {node.folder.itemCount}
           </span>
         </Link>
+        {actions.movingFolderId === node.folder.id && (
+          <Spinner className="text-[var(--text-muted)]" />
+        )}
         <button
           onClick={() => actions.onNewChild(node.folder)}
           title="New subfolder"
@@ -197,11 +202,13 @@ export default function Dashboard() {
   const [modalBusy, setModalBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<FolderDoc | null>(null);
   const [draggingFolderId, setDraggingFolderId] = useState<string | null>(null);
+  const [movingFolderId, setMovingFolderId] = useState<string | null>(null);
   const [hoverFolderId, setHoverFolderId] = useState<string | null>(null);
   const [rootHover, setRootHover] = useState(false);
 
   async function moveFolder(source: FolderDoc, targetParentId: string | null) {
     if (source.parentFolderId === targetParentId) return;
+    setMovingFolderId(source.id);
     try {
       await inventoryUpdateFolderFn({
         folderId: source.id,
@@ -218,6 +225,8 @@ export default function Dashboard() {
       );
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Move failed', 'error');
+    } finally {
+      setMovingFolderId(null);
     }
   }
 
@@ -314,10 +323,9 @@ export default function Dashboard() {
       walk(pendingDelete.id);
       removeFolders(Array.from(allIds));
       addToast(`Deleted ${res.data.deletedFolderCount} folder(s)`, 'success');
+      setPendingDelete(null);
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Delete failed', 'error');
-    } finally {
-      setPendingDelete(null);
     }
   }
 
@@ -341,6 +349,7 @@ export default function Dashboard() {
       if (src) moveFolder(src, target?.id ?? null);
     },
     draggingFolderId,
+    movingFolderId,
     hoverFolderId,
     setHoverFolderId,
   };
@@ -474,8 +483,9 @@ export default function Dashboard() {
               <button
                 onClick={submitModal}
                 disabled={!modalName.trim() || modalBusy}
-                className="px-4 py-2 rounded bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded bg-[var(--accent)] text-[var(--bg)] text-sm font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
               >
+                {modalBusy && <Spinner />}
                 {modalBusy
                   ? 'Working…'
                   : modal.mode === 'create'

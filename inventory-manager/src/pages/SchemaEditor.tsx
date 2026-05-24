@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import PlatformBadges from '../components/PlatformBadges';
 import PlatformTagSelector from '../components/PlatformTagSelector';
+import Spinner from '../components/Spinner';
 import { inventoryListFoldersFn, inventoryUpdateFolderFn } from '../firebase';
 import { ensureTagColumns } from '../platforms';
 import { useStore } from '../store';
@@ -269,8 +270,9 @@ export default function SchemaEditor() {
           <button
             onClick={save}
             disabled={saving}
-            className="px-4 py-2 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
           >
+            {saving && <Spinner />}
             {saving ? 'Saving…' : 'Save schema'}
           </button>
         </div>

@@ -9,6 +9,7 @@ import { useStore } from '../store';
 import type { PhotoRef } from '../types';
 import DrivePicker from './DrivePicker';
 import PhotoLightbox from './PhotoLightbox';
+import Spinner from './Spinner';
 
 interface Props {
   itemId: string;
@@ -45,6 +46,7 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
   const [urlImportOpen, setUrlImportOpen] = useState(false);
   const [urlInput, setUrlInput] = useState('');
   const [urlBusy, setUrlBusy] = useState(false);
+  const [deletingPaths, setDeletingPaths] = useState<Set<string>>(new Set());
   const [driveOpen, setDriveOpen] = useState(false);
 
   async function importFromUrl() {
@@ -106,6 +108,7 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
 
   async function deletePhoto(photo: PhotoRef) {
     if (!confirm(`Delete ${photo.filename}?`)) return;
+    setDeletingPaths((prev) => new Set(prev).add(photo.storagePath));
     try {
       const res = await inventoryDeletePhotoFn({
         itemId,
@@ -114,6 +117,12 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
       onChange(res.data.photos);
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Delete failed', 'error');
+    } finally {
+      setDeletingPaths((prev) => {
+        const next = new Set(prev);
+        next.delete(photo.storagePath);
+        return next;
+      });
     }
   }
 
@@ -185,8 +194,9 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
             type="button"
             onClick={() => fileRef.current?.click()}
             disabled={uploading || photos.length >= 24}
-            className="px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
           >
+            {uploading && <Spinner />}
             {uploading ? 'Uploading…' : '+ Upload'}
           </button>
         </div>
@@ -224,8 +234,9 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
             type="button"
             onClick={importFromUrl}
             disabled={urlBusy || !urlInput.trim()}
-            className="px-3 py-2 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded bg-[var(--accent)] text-[var(--bg)] font-semibold disabled:opacity-50 hover:bg-[var(--accent-hover)] transition-colors"
           >
+            {urlBusy && <Spinner />}
             {urlBusy ? 'Fetching…' : 'Add'}
           </button>
         </div>
@@ -297,8 +308,10 @@ export default function PhotoGrid({ itemId, photos, onChange }: Props) {
               <button
                 type="button"
                 onClick={() => deletePhoto(p)}
-                className="text-[10px] text-red-300 hover:text-red-100 shrink-0"
+                disabled={deletingPaths.has(p.storagePath)}
+                className="inline-flex items-center gap-1 text-[10px] text-red-300 hover:text-red-100 disabled:opacity-50 shrink-0"
               >
+                {deletingPaths.has(p.storagePath) && <Spinner />}
                 Delete
               </button>
             </div>
