@@ -26,6 +26,7 @@ const TopicRequestForm = lazy(() => import('./components/TopicRequestForm'));
 const MyVotes = lazy(() => import('./pages/MyVotes'));
 const Compare = lazy(() => import('./pages/Compare'));
 const Insights = lazy(() => import('./pages/Insights'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Admin pages
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
@@ -117,7 +118,11 @@ export default function App() {
                   <Route path="requests" element={<AdminRequests />} />
                   <Route path="moderation" element={<AdminModeration />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="*" element={<NotFound />} />
                 </Route>
+
+                {/* Catch-all 404 */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </ErrorBoundary>
