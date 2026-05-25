@@ -777,6 +777,17 @@ DATE: 2026-04-02
       backdropImg.style.transform = 'translate3d(0,' + y + 'px,0)';
     }
 
+    // Fade the backdrop from fully opaque to transparent over roughly half a
+    // viewport of scroll. Recomputed against innerHeight so it holds on every
+    // viewport size (and on resize/orientation change).
+    function applyBackdropFade() {
+      var fadeDistance = window.innerHeight * 0.5;
+      var opacity = fadeDistance > 0
+        ? Math.max(0, Math.min(1, 1 - window.scrollY / fadeDistance))
+        : 0;
+      backdropImg.style.opacity = opacity;
+    }
+
     function tickBackdrop() {
       var dy = targetY - currentY;
       if (Math.abs(dy) < 0.25) {
@@ -792,6 +803,7 @@ DATE: 2026-04-02
 
     function scheduleBackdrop() {
       targetY = window.scrollY * 0.35;
+      applyBackdropFade();
       if (reduceMotion) {
         currentY = targetY;
         applyBackdrop(currentY);
@@ -801,7 +813,9 @@ DATE: 2026-04-02
     }
 
     applyBackdrop(currentY);
+    applyBackdropFade();
     window.addEventListener('scroll', scheduleBackdrop, { passive: true });
+    window.addEventListener('resize', applyBackdropFade, { passive: true });
   }
 
 })();
