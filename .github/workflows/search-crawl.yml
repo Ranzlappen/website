@@ -1,0 +1,46 @@
+# Manual re-crawl of the external search index (search-external.json).
+# Runs the dependency-free search-crawler module, then commits the
+# refreshed index back to main so the next Pages deploy bundles it.
+# Trigger via the Actions "Run workflow" button whenever you want a refresh.
+name: Re-crawl external search index
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: search-crawl
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Crawl
+        working-directory: search-crawler
+        env:
+          # Auto-provided token raises the GitHub API rate limit 60 -> 5000/hr.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run crawl
+
+      - name: Commit refreshed index
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add search-external.json
+          if git diff --staged --quiet; then
+            echo "No changes to search-external.json."
+          else
+            git commit -m "chore: re-crawl external search index"
+            git push
+          fi

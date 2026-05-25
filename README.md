@@ -30,13 +30,14 @@ The repo contains **four independent modules** plus a nested Cloud Functions mod
 
 ### CI/CD at a glance
 
-Three GitHub Actions workflows live in [`.github/workflows/`](./.github/workflows). Each is scoped by path filter so unrelated changes don't trigger deploys.
+The GitHub Actions workflows live in [`.github/workflows/`](./.github/workflows) (see `CLAUDE.md` for the full table). Each is scoped by path filter so unrelated changes don't trigger deploys.
 
 | Workflow | Trigger | What it does |
 |---|---|---|
 | [`ci.yml`](./.github/workflows/ci.yml) | PR → `main` | Per-app lint/test/build, only for changed apps |
 | [`jekyll-gh-pages.yml`](./.github/workflows/jekyll-gh-pages.yml) | Push → `main` | Builds Jekyll + PolyVote + Blog Admin + Inventory Manager, deploys to GitHub Pages |
 | [`firebase-deploy.yml`](./.github/workflows/firebase-deploy.yml) | Push → `main` touching Firebase paths | Deploys Firestore rules, RTDB rules, Storage rules, `castBlogVote`, all Blog Admin callables, and all Inventory Manager callables |
+| [`search-crawl.yml`](./.github/workflows/search-crawl.yml) | Manual (`workflow_dispatch`) | Re-crawls external content (subdomains, GitHub Pages, repos, gists) via the `search-crawler` module and commits the refreshed `search-external.json` |
 
 Required secret for Firebase deploys: `FIREBASE_SERVICE_ACCOUNT`.
 
@@ -797,7 +798,7 @@ These features work automatically on every post — no setup needed:
 | Feature | What it does |
 |---------|-------------|
 | **Read Aloud** | Converts your article to speech with play/pause, speed, and volume controls (desktop only) |
-| **Search** | Full-text search across all posts — press `Ctrl+K` (or `Cmd+K` on Mac) to open |
+| **Search** | Grouped search across the whole presence — posts, pages, and reference pages (live from Jekyll) plus subdomains, GitHub Pages, repos, and gists (a committed crawl snapshot). Press `Ctrl+K` (or `Cmd+K` on Mac) to open. Privacy-first: nothing third-party loads at query time. Refresh the external slice via the **Re-crawl external search index** workflow (see below). |
 | **Reading Progress Bar** | Shows how far down the page the reader has scrolled |
 | **Dark / Light Theme** | Toggle between dark and light mode — preference is saved |
 | **Grid / List View** | Readers can switch between grid cards and a compact list on the blog page |

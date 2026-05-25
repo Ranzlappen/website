@@ -4,12 +4,13 @@ Personal blog + PolyVote community voting platform + Blog Admin dashboard + Inve
 
 ## Architecture
 
-**Hybrid project** with four independent builds:
+**Hybrid project** with four independent builds plus a build-time tooling module:
 
 - **Jekyll blog** (root) — Static site built by GitHub Pages. Posts in `_posts/`, layouts in `_layouts/`, includes in `_includes/`, pages in `pages/`. Config: `_config.yml`.
 - **PolyVote** (`polyvote/`) — React 19 SPA built with Vite. Backend: Firebase (Firestore, Auth, Cloud Functions). Deployed as a subfolder within the Jekyll `_site/`.
 - **Blog Admin** (`blog-admin/`) — React 19 SPA built with Vite for managing blog drafts and publishing. Uses Firebase (Firestore, Auth), CodeMirror 6 for Markdown editing, and Zustand for state. Deployed as a subfolder within the Jekyll `_site/`.
 - **Inventory Manager** (`inventory-manager/`) — React 19 SPA built with Vite for managing inventory with folders, custom per-folder field schemas, photos in Firebase Storage, CSV/JSON import-export, and **multi-platform export** (per-folder "platform tags" drive required columns + a per-platform CSV/TSV/XML export for eBay, Amazon, Kleinanzeigen, Whatnot, Facebook, idealo, billiger.de, Geizhals). Admin-only via Firebase Auth custom claim (same login as Blog Admin). Hidden from crawlers (robots.txt `Disallow: /inventory/` + `noindex` meta tags + not listed in nav). Deployed as a subfolder within the Jekyll `_site/` at `/inventory/`. **See [`inventory-manager/README.md`](./inventory-manager/README.md) for the architecture handbook** (data model, persistence, the platform registry + export formats, how to add field types or functions).
+- **Search Crawler** (`search-crawler/`) — Node 22, **dependency-free** build tooling (not deployed). Crawls off-site content (`*.ranzlappen.com` subdomains, `*.ranzlappen.github.io`, `github.com/Ranzlappen` repos + gists) and writes the committed static index `search-external.json`, which the blog's grouped cross-domain search merges with the Jekyll-generated `search.json`. Run on demand via the `search-crawl.yml` workflow or `npm run crawl`. **See [`search-crawler/README.md`](./search-crawler/README.md).**
 
 ## Build & Development
 
@@ -49,6 +50,14 @@ npm run lint                      # ESLint (flat config)
 npm run format                    # Prettier formatting
 ```
 
+### Search Crawler (Node)
+```bash
+cd search-crawler
+npm run crawl                     # Build ../search-external.json (web works; repos/gists need GITHUB_TOKEN)
+GITHUB_TOKEN=<pat> npm run crawl  # Include the repos/gists groups (raises API limit 60→5000/hr)
+npm run lint                      # node --check syntax pass (what CI runs)
+```
+
 ### Cloud Functions
 ```bash
 cd polyvote/functions
@@ -62,7 +71,7 @@ Production deploys of `castBlogVote`, the Blog Admin callables (`blogSaveDraft`,
 
 ## Key Conventions
 
-- **Module boundaries**: `polyvote/`, `blog-admin/`, `inventory-manager/`, and the Jekyll root (blog) are four independent modules, with `polyvote/functions/` as a fifth nested module. Each has its own `package.json`/`Gemfile`, TypeScript/ESLint/Tailwind config, and deploy path. Run install/lint/test/build/format from within the module's own directory (see **Build & Development**). Do **not** cross-import source between modules — there is no monorepo tooling and no shared package. If logic truly needs to be shared, duplicate it intentionally (e.g. `polyvote/functions/src/inventory/shared.ts` is mirrored in `inventory-manager/src/types.ts`, and the platform registry `polyvote/functions/src/inventory/platforms.ts` is mirrored data-only in `inventory-manager/src/platforms.ts` — backend keeps the value-transform functions the frontend doesn't need). Scope PRs to a single module when possible so CI's per-app path filters stay meaningful.
+- **Module boundaries**: `polyvote/`, `blog-admin/`, `inventory-manager/`, and the Jekyll root (blog) are four independent modules, with `polyvote/functions/` as a fifth nested module and `search-crawler/` as a sixth (dependency-free build tooling, not deployed). Each has its own `package.json`/`Gemfile`, TypeScript/ESLint/Tailwind config, and deploy path. Run install/lint/test/build/format from within the module's own directory (see **Build & Development**). Do **not** cross-import source between modules — there is no monorepo tooling and no shared package. If logic truly needs to be shared, duplicate it intentionally (e.g. `polyvote/functions/src/inventory/shared.ts` is mirrored in `inventory-manager/src/types.ts`, and the platform registry `polyvote/functions/src/inventory/platforms.ts` is mirrored data-only in `inventory-manager/src/platforms.ts` — backend keeps the value-transform functions the frontend doesn't need). Scope PRs to a single module when possible so CI's per-app path filters stay meaningful.
 - **Post status**: Posts use a `status` field in front matter (`published`, `draft`, `placeholder`, `unpublished`). Only `published` and `placeholder` appear in the sitemap and feed.
 - **Post categories**: Posts set a singular `category:` field in front matter. The string `"Projects"` (capitalized, exact match) is canonical and routes the post to `/projects/`; everything else lands on `/blog/`. Homepage and `/categories/` show all categories. Liquid's `==` is case-sensitive — keep the exact casing.
 - **Navigation**: Centralized in `_data/pages.yml` — single source of truth for nav and footer links. Reference pages are reached via the top-nav **References** entry, which routes to `/references/` — a hand-rolled index page (`pages/references/index.html`) that lists Spectrum, Electronics Fundamentals, and the CLI Cheat Sheet as cards. Don't add individual reference URLs to `_data/pages.yml`; add a new card to the index page instead.
@@ -70,6 +79,7 @@ Production deploys of `castBlogVote`, the Blog Admin callables (`blogSaveDraft`,
 - **Reference-table scaffolding**: The sticky tab strip + live-search + scrollable big-table pattern used by `/references/spectrum/` and `/references/cmd-cheat-sheet/` is shared. Styles live in `/assets/css/reference-table.css` (controls, tabs, search, sticky thead, `.is-sticky-col` hook for the pinned column, generic legend swatches, `.reference-badge` base, the `.cell-collapse` family). Behaviour lives in `/assets/js/reference-table.js` and exposes one function — `window.initReferenceTable({tableId, tabSelector, searchId, countId, emptyId, blurbId, batchDataId})` — that each page's thin wrapper calls with its own IDs. Per-page CSS files (`spectrum.css`, `cmd-cheat-sheet.css`) layer column widths and palette modifiers on top, scoped under `.reference-page--<slug>` so overrides cannot leak between pages. To add a third reference page: opt in via `<section class="reference-page reference-page--<slug>">`, load the shared CSS/JS before the per-page ones, and write a thin wrapper that calls `initReferenceTable`. The shared CSS also carries a tablet breakpoint (`641–1024px` drops the search box onto its own full-width row). The table wrapper is a bounded sticky scroll box (sticky thead + sticky `.is-sticky-col`) on **all** viewports including phones; on mobile the `max-height` is capped lower (`calc(100vh - header - 9rem)`) so the page footer sits cleanly below the box and stays reachable by scrolling past it (no static/un-pin override — an earlier touch-un-pin hack was removed because it killed the sticky header and let the footer bleed into the table). `/assets/js/resize-handle.js` is a shared, self-attaching util that replaces the tiny native textarea resize corner with a large pointer+keyboard drag grabber on any `textarea[data-resize]` or `.cmd-widget__textarea`; load it after whatever builds the textareas. The CLI cheat sheet's table adds three columns beyond Spectrum's pattern — **Recipes/Combos** (`recipes` = array of `{code, explain}`), **Modern alt** (`modern` string), and **Docs** (renders the existing `references` field) — and renders `examples` (now `{code, explain}` objects) as clickable buttons that open an explanation modal via `window.Glossary.openInline`. The per-row OS badge pills **and** the `danger` chip (`safe`/`caution`/`destructive`) render stacked beneath the command name inside the sticky first column (there is no standalone OS or Danger column). **Raw-HTML cells**: `description`, flag `description`, `modern`, and `gotchas` are emitted as raw HTML so inline `<code>` works — literal placeholder angle brackets (`<script>`, `<path>`, …) must be escaped (`&lt;…&gt;`) in the data or they break the table DOM (a literal `<script>` swallows the rest of the table so the footer renders inside it). `_data/cmd-cheat-sheet/lint.sh` fails the build if any rawtext/script tag lands inside the command table.
 - **cmd-widgets (Interactive Tools section on the CLI cheat sheet)**: Four browser-only widgets — chmod calculator, find builder, regex tester, curl composer — live on `/references/cmd-cheat-sheet/`. JS lives in `/assets/js/cmd-widget-core.js` (registry + `CMDW.mountAll()` + `CMDW.copyToClipboard()` + `CMDW.shellEscape()` + `CMDW.makeOutput()`/`CMDW.el()` helpers) and four `cmd-widget-<name>.js` files that each call `CMDW.register('<name>', factory)`. The entry point `cmd-widget-bundle.js` calls `mountAll()` on DOMContentLoaded; the loader scans for `<section data-cmd-widget="<name>">` and invokes the matching factory. Each factory builds its UI into a collapsible `<details>` shell via `CMDW.makeShell(root, title)` (returns the body element to append into; the title becomes the `<summary>` heading). Styles in `/assets/css/cmd-widgets.css`. Adding a fifth widget: create `cmd-widget-<name>.js` (call `CMDW.makeShell` first, append controls to the returned body), drop a `<section data-cmd-widget="<name>">` on the page, add the script tag, optionally hook a `see_also: ["widget-<name>"]` entry from a cmd row (the see-also renderer in `cmd-cheat-sheet.html` routes `widget-*` slugs to `#widget-<name>` instead of `#cmd-<slug>`). Per CLAUDE.md's "duplicate intentionally" rule, the widget core deliberately mirrors EF's pattern rather than importing it — they're independent.
 - **External apps**: The user's external apps (standalone subdomains like `ticked.ranzlappen.com`) are **not** in the navbar. They're listed in `_data/projects.yml` and rendered as a favicon strip in the footer via `_includes/footer.html`. Favicons are committed locally under `assets/images/favicons/` — **do not hotlink** upstream favicons (privacy-first: hotlinking leaks visitor IP/UA to the subdomain on every page load, before consent). To refresh a favicon, `curl` the upstream `<link rel="icon">` target into `assets/images/favicons/<name>.png` and commit.
+- **Search (blog)**: The `Ctrl/Cmd+K` modal (`_includes/search-modal.html`, `assets/js/search.js`) runs **client-side Lunr** over two merged indexes, rendering results **grouped by source** (order: `blog`, `pages`, `references`, `apps`, `gh-pages`, `repos`, `gists`). Local content is generated fresh by Jekyll into `/search.json` (posts + `site.html_pages` + reference pages, each tagged with a `group`); off-site content is a committed crawl snapshot in `/search-external.json` (produced by `search-crawler/`). The merge stays behind the existing **functional-cookie consent gate** and loads nothing third-party at query time beyond the already-gated Lunr CDN script — keep it that way. `url` is the Lunr `ref` and must stay unique across both files (local entries are root-relative, external are absolute). To widen scope, add a `{ url, group }` seed in `search-crawler/sources.config.js` (and a matching label in the `GROUPS` array in `search.js`) — don't add a query-time third-party search service.
 - **Firebase keys**: Public client-side keys in `_config.yml`, `polyvote/src/firebase.ts`, `blog-admin/src/firebase.ts`, and `inventory-manager/src/firebase.ts`. Security is enforced via Firestore rules, Storage rules, and Cloud Functions.
 - **Server-validated writes**: All client writes go through Cloud Functions (`httpsCallable`), never direct Firestore SDK writes. This applies to PolyVote user actions (votes, comments, requests), Blog Admin operations (drafts, publishing), **and** Inventory Manager operations (folders, items, photos, import/export, eBay CSV). Keep `blog-admin/src/firebase.ts` and `inventory-manager/src/firebase.ts` free of `addDoc`/`setDoc`/`updateDoc`/`deleteDoc`.
 - **Inventory Manager hiding**: The tool lives at `/inventory/` and must stay invisible to crawlers. Three layers guard this: `robots.txt` carries `Disallow: /inventory/`; the SPA's `index.html` ships `<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">`; nothing in `_data/pages.yml` or `_data/projects.yml` links to it. Do **not** add it to nav, footer, or any public-facing page.
@@ -80,7 +90,7 @@ Production deploys of `castBlogVote`, the Blog Admin callables (`blogSaveDraft`,
 
 ## Deployment & CI/CD
 
-Six GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger workflows are each scoped with `paths` / `paths-ignore` filters so they only fire when their inputs change; the other two are manual-trigger-capable.
+Seven GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger workflows are each scoped with `paths` / `paths-ignore` filters so they only fire when their inputs change; the other three are manual-trigger-capable.
 
 | Workflow | Trigger | Scope | Deploys |
 |---|---|---|---|
@@ -89,6 +99,7 @@ Six GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger
 | `feature-preview.yml` | Push → `test` + manual `workflow_dispatch` (with optional `ref` input, defaults to `test`) | Same `paths-ignore` as `jekyll-gh-pages.yml`. | Combined GitHub Pages artifact: main rebuilt at root (Jekyll + PolyVote + Blog Admin + Inventory Manager, identical to `jekyll-gh-pages.yml`'s output) plus the `test` branch (or dispatch `ref`) rebuilt **Jekyll-only** under `/test/` via `bundle exec jekyll build --baseurl /test`. Preview URL: `https://www.ranzlappen.com/test/` (custom domain serves the artifact root, no `/<repo>/` prefix). Shares the `pages` concurrency group with `jekyll-gh-pages.yml` so the two queue, never overlap. |
 | `firebase-deploy.yml` | Push → `main` (Firebase/Functions paths) + manual | Builds Cloud Functions, then deploys. | Firestore rules + indexes, RTDB rules, Storage rules, `castBlogVote`, all Blog Admin callables, admin user-management callables (`setUserRole`, `adminListUsers`, `adminBanUser`, `adminUnbanUser`), and all Inventory Manager callables (`inventory*`). |
 | `firebase-deploy-manual.yml` | Manual only (`workflow_dispatch`) | Accepts a `target` input passed straight to `firebase deploy --only`. Default `functions` redeploys every function in `polyvote/functions/src/index.ts` — future-proof for newly added functions. Shares the `firebase-deploy` concurrency group with the auto-deploy. | Whatever the `target` input specifies (default: all Cloud Functions). |
+| `search-crawl.yml` | Manual only (`workflow_dispatch`) | Runs the `search-crawler` module (Node 22, no install) with the auto-provided `GITHUB_TOKEN`, then commits a refreshed `search-external.json` back to `main` if it changed. The commit then triggers `jekyll-gh-pages.yml`, redeploying the site with the new index. `contents: write` permission; `search-crawl` concurrency group. | Commits `search-external.json` (no deploy itself). |
 
 **Preview limitations**: `feature-preview.yml` ships **Jekyll-only** under `/test/`. PolyVote, Blog Admin, and Inventory Manager are not rebuilt at the preview subpath because their Vite `base` and React Router `basename` are hardcoded to `/polyvote/`, `/blog-admin/`, and `/inventory/`. Navbar links to those apps will 404 inside the preview tree. To enable SPA previews later, make `base` env-driven in `polyvote/vite.config.ts`, `blog-admin/vite.config.ts`, `inventory-manager/vite.config.ts`, the three `main.tsx` files, PolyVote's `ShareButton.tsx`, and PolyVote's PWA manifest (defaults preserve current paths exactly).
 
@@ -103,6 +114,8 @@ Six GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger
 | `polyvote/functions/**` | functions | — | — | ✓ |
 | `firestore.rules` / `firestore.indexes.json` | — | — | — | ✓ |
 | `database.rules.json` / `storage.rules` | — | — | — | ✓ |
+| `search-crawler/**` (crawler code) | search-crawler | — | — | — |
+| `search-external.json` (crawl output) | — | ✓ | ✓ | — |
 | `CLAUDE.md` / `README.md` / `LICENSE` | — | — | — | — |
 
 **Concurrency**: CI cancels superseded runs per PR branch. Pages deploys (both `jekyll-gh-pages.yml` and `feature-preview.yml`) and Firebase deploys **queue** (no cancel) to avoid half-applied state.
@@ -178,6 +191,8 @@ Six GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger
 ├── pages/                      # Static pages (about, contact, privacy, references/*…)
 ├── feed.xml                    # Atom feed (custom, status-filtered)
 ├── sitemap.xml                 # Sitemap (custom, status-filtered)
+├── search.json                 # Local search index (posts + pages + references), Liquid-generated, group-tagged
+├── search-external.json        # External search index (subdomains/gh-pages/repos/gists), crawler-generated snapshot
 ├── .github/
 │   ├── dependabot.yml          # Weekly dependency updates
 │   └── workflows/
@@ -186,7 +201,12 @@ Six GitHub Actions workflows live in `.github/workflows/`. The four auto-trigger
 │       ├── feature-preview.yml         # Build + deploy main + `test` preview to Pages
 │       ├── firebase-deploy.yml         # Deploy Firestore/RTDB rules + castBlogVote + Blog Admin callables
 │       ├── firebase-deploy-manual.yml  # Manual Cloud Functions deploys (workflow_dispatch)
-│       └── jekyll-gh-pages.yml         # Build + deploy prod site to Pages
+│       ├── jekyll-gh-pages.yml         # Build + deploy prod site to Pages
+│       └── search-crawl.yml            # Manual re-crawl of search-external.json (workflow_dispatch)
+├── search-crawler/             # Dependency-free Node crawler → search-external.json (see README)
+│   ├── crawl.mjs               # Orchestrator entry point
+│   ├── sources.config.js       # Declarative seeds (web hosts + groups, github user, caps)
+│   └── src/                    # util / extract / web / github fetchers
 ├── blog-admin/
 │   ├── src/
 │   │   ├── components/         # Editor UI, auth, dialogs
