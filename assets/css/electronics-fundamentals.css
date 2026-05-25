@@ -98,7 +98,7 @@
    ========================================================================== */
 .electronics-section {
   margin-top: var(--space-2xl);
-  scroll-margin-top: calc(var(--header-height, 3.75rem) + var(--space-md));
+  scroll-margin-top: calc(var(--header-offset, 3.75rem) + var(--space-md));
 }
 .electronics-section + .electronics-section {
   border-top: 1px solid var(--c-border-light);
