@@ -311,33 +311,60 @@ main#main-content {
    The header drops out of `position: fixed` into `position: absolute` so it
    scrolls away with the page, and --header-offset collapses to 0 so anchored
    headings (and sticky page chrome) re-anchor to the very top of the viewport
-   instead of reserving the now-absent header's height. While the page is at the
-   top the header is still on screen, so the toggle stays INLINE with the search
-   and theme buttons. Only once the page is scrolled — the header has actually
-   left the viewport — does the toggle detach into a fixed corner floater so it
-   stays reachable without scrolling all the way back up. */
+   instead of reserving the now-absent header's height.
+
+   The pin toggle becomes `position: fixed` for the WHOLE unpinned state —
+   scroll 0 included — overlaying its in-header slot exactly, so it never moves
+   when the absolute header scrolls away beneath it. Position is constant; only
+   the chip backing transitions, so there is no teleport. The chip stays
+   invisible while the header is on screen and fades in (slightly faded) once
+   the header has actually left the viewport (.is-scrolled). */
 html[data-header-sticky="off"] {
   --header-offset: 0rem;
 }
 html[data-header-sticky="off"] .site-header {
   position: absolute;
 }
-html[data-header-sticky="off"].is-scrolled .header-sticky-toggle {
+html[data-header-sticky="off"] .header-sticky-toggle {
   position: fixed;
-  top: 0.6rem;
-  right: 0.6rem;
+  /* Vertically center the 2rem button in the header's real height. */
+  top: calc((var(--header-height) - 2rem) / 2);
+  /* Align the right edge to the .header-inner content edge (max-width box
+     centered with --space-lg padding); collapses to just the padding once the
+     viewport is narrower than --max-width. */
+  right: calc((100vw - min(100vw, var(--max-width))) / 2 + var(--space-lg));
   z-index: 1002;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  box-shadow: 0 2px 8px var(--c-card-shadow);
-  opacity: 0.5;
-  transition: color var(--transition-fast), background var(--transition-fast),
+  /* No chip while the header is on screen. Transparent 1px border keeps the
+     box size stable when the border color fades in. */
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  transition: color var(--transition-fast),
+              background var(--transition-base),
+              border-color var(--transition-base),
+              box-shadow var(--transition-base),
               opacity var(--transition-base);
 }
-/* Full opacity on interaction so the faded floater is always usable. */
+/* Header has scrolled away → fade in a subtle, slightly-faded chip. */
+html[data-header-sticky="off"].is-scrolled .header-sticky-toggle {
+  background: var(--c-surface);
+  border-color: var(--c-border);
+  box-shadow: 0 2px 8px var(--c-card-shadow);
+  opacity: 0.85;
+}
+/* Full opacity on interaction so the faded chip is always usable. */
 html[data-header-sticky="off"].is-scrolled .header-sticky-toggle:hover,
 html[data-header-sticky="off"].is-scrolled .header-sticky-toggle:focus-visible {
   opacity: 1;
+}
+/* Reserve the pin's vacated flex slot (it left the flow when it went fixed) so
+   search/theme — and the hamburger on mobile — don't shift. Margin on the pin's
+   left neighbor reproduces pin width + the lost gap at every breakpoint. */
+html[data-header-sticky="off"] .theme-toggle {
+  margin-right: calc(2rem + var(--space-sm));
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-header-sticky="off"] .header-sticky-toggle { transition: none; }
 }
 
 /* Mobile Menu Toggle */
@@ -2775,6 +2802,14 @@ html[data-header-sticky="off"].is-scrolled .header-sticky-toggle:focus-visible {
   .nav-desktop { display: none; }
   .mobile-menu-toggle { display: flex; }
 
+  /* The hamburger sits to the pin's right here, so push the fixed pin left by
+     the hamburger footprint (2rem wide + the nav-actions gap) to keep it over
+     its own in-header slot. */
+  html[data-header-sticky="off"] .header-sticky-toggle {
+    right: calc((100vw - min(100vw, var(--max-width))) / 2
+                + var(--space-lg) + 2rem + var(--space-sm));
+  }
+
   .post-nav { grid-template-columns: 1fr; }
 
   .hero { min-height: 50vh; }
@@ -3142,7 +3177,7 @@ html[data-header-sticky="off"].is-scrolled .header-sticky-toggle:focus-visible {
 .post-body[itemprop="articleBody"] h2,
 .page-body h2 {
   position: sticky;
-  top: var(--header-height);
+  top: var(--header-offset);
   z-index: 50;
   background: transparent;
   /* Full-bleed: margins pull the box out to the viewport edges (works
