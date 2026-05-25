@@ -123,6 +123,11 @@ DATE: 2026-04-02
         localStorage.setItem('headerSticky', 'off');
       }
       setStickyIcons();
+      // --header-offset just changed; let --header-offset-driven chrome (the
+      // sticky-h2 observer) re-anchor. Harmless no-op where nothing listens.
+      document.documentElement.dispatchEvent(
+        new CustomEvent('headersticky:change')
+      );
     });
   }
 
@@ -885,11 +890,11 @@ DATE: 2026-04-02
   });
   if (!headings.length || !('IntersectionObserver' in window)) return;
 
-  var rootEl    = document.documentElement;
-  var headerRem = parseFloat(getComputedStyle(rootEl).getPropertyValue('--header-height')) || 3.75;
-  var rootFont  = parseFloat(getComputedStyle(rootEl).fontSize) || 16;
-  var headerPx  = Math.round(headerRem * rootFont);
+  var rootEl = document.documentElement;
 
+  // One-time DOM. Sentinels and content-span wrapping never change when the
+  // header is pinned/unpinned, so they're built once — rebuild() below only
+  // recreates the observer, never re-inserts these.
   var sentinels = headings.map(function (h) {
     var s = document.createElement('div');
     s.className = 'sticky-h2-sentinel';
@@ -911,6 +916,7 @@ DATE: 2026-04-02
   });
 
   var passedSet = new Set();
+  var observer  = null;
 
   function applyState() {
     var lastPassedIdx = -1;
@@ -923,19 +929,36 @@ DATE: 2026-04-02
     });
   }
 
-  var observer = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      // intersectionRatio < 1 is true for elements both above AND below the
-      // adjusted root, so it can't tell us which side. Use the sentinel's
-      // viewport-relative top: < threshold = scrolled past, otherwise not.
-      if (entry.boundingClientRect.top < headerPx + 1) passedSet.add(entry.target);
-      else passedSet.delete(entry.target);
-    });
-    applyState();
-  }, {
-    threshold: [1],
-    rootMargin: '-' + (headerPx + 1) + 'px 0px 0px 0px'
-  });
+  // Anchor to --header-offset (collapses to 0 when the header is unpinned), not
+  // --header-height, so the stuck h2 pins where it actually sits — no gap. The
+  // observer's rootMargin is baked in at creation, so unpinning has to rebuild
+  // it; rebuild() is re-run on the headersticky:change event the toggle fires.
+  function rebuild() {
+    if (observer) observer.disconnect();
+    passedSet.clear();
 
-  sentinels.forEach(function (s) { observer.observe(s); });
+    var offsetRem = parseFloat(getComputedStyle(rootEl).getPropertyValue('--header-offset'));
+    if (isNaN(offsetRem)) offsetRem = 3.75;
+    var rootFont = parseFloat(getComputedStyle(rootEl).fontSize) || 16;
+    var offsetPx = Math.round(offsetRem * rootFont);
+
+    observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        // intersectionRatio < 1 is true for elements both above AND below the
+        // adjusted root, so it can't tell us which side. Use the sentinel's
+        // viewport-relative top: < threshold = scrolled past, otherwise not.
+        if (entry.boundingClientRect.top < offsetPx + 1) passedSet.add(entry.target);
+        else passedSet.delete(entry.target);
+      });
+      applyState();
+    }, {
+      threshold: [1],
+      rootMargin: '-' + (offsetPx + 1) + 'px 0px 0px 0px'
+    });
+
+    sentinels.forEach(function (s) { observer.observe(s); });
+  }
+
+  rebuild();
+  rootEl.addEventListener('headersticky:change', rebuild);
 })();
