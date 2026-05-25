@@ -190,6 +190,31 @@
     }
     if (o.sortable) initSorting();
 
+    // Publish the controls strip's real height as --reference-controls-h so the
+    // sticky table wrapper (reference-table.css) can pin exactly below it. The
+    // strip wraps to a taller multi-row stack on mobile (and grows with font
+    // scaling / long tab labels / the row-count text), so a hardcoded gap would
+    // let the z-10 controls cover the sticky thead. Mirrors main.js's
+    // JS-sets-a-CSS-var pattern for --header-offset.
+    var controls = (table.closest('.reference-container') || document)
+      .querySelector('.reference-controls');
+    function syncControlsHeight() {
+      if (!controls) return;
+      var mb = parseFloat(getComputedStyle(controls).marginBottom) || 0;
+      document.documentElement.style.setProperty(
+        '--reference-controls-h', (controls.offsetHeight + mb) + 'px'
+      );
+    }
+    syncControlsHeight();
+    if (controls && 'ResizeObserver' in window) {
+      new ResizeObserver(syncControlsHeight).observe(controls);
+    }
+    var rcResizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(rcResizeTimer);
+      rcResizeTimer = setTimeout(syncControlsHeight, 100);
+    }, { passive: true });
+
     applyFilters();
   }
 
