@@ -1978,6 +1978,20 @@ main#main-content {
   line-height: 1.4;
 }
 
+.search-group-label {
+  padding: var(--space-xs) var(--space-md);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+.search-group-label:not(:first-child) {
+  margin-top: var(--space-xs);
+  border-top: 1px solid var(--c-border);
+  padding-top: var(--space-sm);
+}
+
 .search-hint {
   padding: var(--space-sm) var(--space-lg);
   border-top: 1px solid var(--c-border);

@@ -22,6 +22,7 @@ jobs:
       functions: ${{ steps.filter.outputs.functions }}
       blog-admin: ${{ steps.filter.outputs.blog-admin }}
       inventory-manager: ${{ steps.filter.outputs.inventory-manager }}
+      search-crawler: ${{ steps.filter.outputs.search-crawler }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -56,6 +57,11 @@ jobs:
               - 'inventory-manager/**'
               - '!inventory-manager/.gitignore'
               - '!inventory-manager/README.md'
+              - '.github/workflows/ci.yml'
+            search-crawler:
+              - 'search-crawler/**'
+              - '!search-crawler/.gitignore'
+              - '!search-crawler/README.md'
               - '.github/workflows/ci.yml'
 
   polyvote:
@@ -170,12 +176,29 @@ jobs:
         working-directory: inventory-manager
         run: npm run build
 
+  search-crawler:
+    needs: changes
+    if: needs.changes.outputs.search-crawler == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Lint (syntax check)
+        working-directory: search-crawler
+        run: npm run lint
+
   # Aggregator: single required-check candidate for branch protection.
   # Runs after every app job and fails if any failed. Treats `skipped`
   # as a pass so PRs that don't touch a given app aren't blocked. Mark
   # this job (`ci-required`) as the required status check on `main`.
   ci-required:
-    needs: [changes, polyvote, functions, blog-admin, inventory-manager]
+    needs: [changes, polyvote, functions, blog-admin, inventory-manager, search-crawler]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -185,7 +208,7 @@ jobs:
             echo "changes job did not succeed: ${{ needs.changes.result }}"
             exit 1
           fi
-          for r in "${{ needs.polyvote.result }}" "${{ needs.functions.result }}" "${{ needs.blog-admin.result }}" "${{ needs.inventory-manager.result }}"; do
+          for r in "${{ needs.polyvote.result }}" "${{ needs.functions.result }}" "${{ needs.blog-admin.result }}" "${{ needs.inventory-manager.result }}" "${{ needs.search-crawler.result }}"; do
             case "$r" in
               success|skipped) ;;
               *) echo "App job did not succeed: $r"; exit 1 ;;

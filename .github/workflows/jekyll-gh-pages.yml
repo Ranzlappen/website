@@ -31,6 +31,10 @@ on:
       - '.github/dependabot.yml'
       - '.github/workflows/ci.yml'
       - '.github/workflows/firebase-deploy.yml'
+      - '.github/workflows/search-crawl.yml'
+      # Search crawler source (build tooling; its output search-external.json
+      # lives at repo root and is NOT ignored, so a re-crawl still deploys)
+      - 'search-crawler/**'
   workflow_dispatch:
 
 permissions:

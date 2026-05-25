@@ -1,0 +1,114 @@
+[
+  {
+    "title": "Color Picker · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/color-picker/",
+    "content": "Pick, convert between HEX, RGB, HSL, OKLCH, HSV — and check WCAG contrast. Color Picker · tools · ranzlappen All tools Color Picker Pick a color, see every format, check WCAG contrast against any partner. Foreground color Contrast check Large text Body text at 16 pixels. —",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "Flipper GUI Studio · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/flipper-gui/",
+    "content": "Visual GUI designer for Flipper Zero / Momentum apps. Drag-and-drop widgets, wire buttons, export drop-in C code. Flipper GUI Studio · tools · ranzlappen All tools Flipper GUI Studio Drag-and-drop visual editor for Flipper Zero / Momentum app GUIs. Multi-screen, button transitions, export as C. Pal…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "JSON Formatter · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/json-formatter/",
+    "content": "Pretty-print, minify, and validate JSON entirely in your browser. JSON Formatter · tools · ranzlappen All tools JSON Formatter Pretty-print, minify, and validate JSON — runs entirely in your browser. Input · Output Format Minify Validate Sample Clear Copy output Input Output",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "JWT Decoder · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/jwt/",
+    "content": "Decode a JSON Web Token JWT Decoder · tools · ranzlappen All tools JWT Decoder Inspect a JSON Web Token's header and payload. Nothing leaves the page. Signature is not verified. Anyone can craft a token with the same claims — only use this tool for inspection, never for trust decisions. Token Sampl…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "Markdown Preview · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/markdown/",
+    "content": "Live GitHub-Flavored Markdown preview, plus file import — convert HTML, CSV, JSON, DOCX, XLSX, PDF, and PPTX to Markdown in the browser. Markdown Preview · tools · ranzlappen All tools Markdown Preview Live GitHub-Flavored Markdown rendering, or import a file (HTML, CSV, JSON, DOCX, XLSX, PDF, PPTX…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "Metadata Studio · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/metadata-studio/",
+    "content": "Inspect, edit, strip, and extend metadata in any file — EXIF, XMP, IPTC, ID3, PDF info, Office core properties, ZIP entries — all client-side. Metadata Studio · tools · ranzlappen All tools Metadata Studio Inspect, edit, strip, and extend metadata in any file — EXIF, XMP, IPTC, ID3, PDF info, Offic…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "MOOD RADAR - Live Chat Pulse",
+    "url": "https://twitch-mood-radar.ranzlappen.com",
+    "content": "Real-time multi-platform chat mood analyzer with live visualizations MOOD RADAR - Live Chat Pulse MOOD RADAR ACCESS RESTRICTED AUTHENTICATE Skip to main content x HOW IT WORKS x Search This channel All channels (local) Global (logs.ivr.fi) Show bot messages Font Clear this user Sources Search 1 cha…",
+    "group": "apps",
+    "source": "twitch-mood-radar.ranzlappen.com"
+  },
+  {
+    "title": "Multi-Encoder · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/encoder/",
+    "content": "Convert text between Base64, Hex, URL, Binary, and ASCII encodings (UTF-8 safe). Multi-Encoder · tools · ranzlappen All tools Multi-Encoder Type plain text on the left; every encoding updates live. Edit any output to decode back. Plain text Sample Clear Encodings Edit any field to round-trip back t…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "OG Image Studio · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/og-studio/",
+    "content": "Compose 1200×630 social cards via the edge API. Title, subtitle, theme — live preview, copy URL, download PNG. OG Image Studio · tools · ranzlappen All tools OG Image Studio Compose 1200×630 social cards via the edge API. Live preview, copy URL, download PNG. Renders live via api.tools.ranzlappen.c…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "QR & Barcode Generator · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/qr-barcode/",
+    "content": "Generate QR codes, 2D matrix codes, and 1D barcodes with full design control, error-correction options, content presets, and multi-format export — entirely in the browser. QR & Barcode Generator · tools · ranzlappen All tools QR & Barcode Generator Every 1D & 2D symbology, with full design + error-…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "Regex Tester & Builder · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/regex/",
+    "content": "Live regex match highlighting plus a palette of common patterns. Regex Tester & Builder · tools · ranzlappen All tools Regex Tester & Builder Live match highlighting with a builder palette for the patterns you reach for most. Pattern g · global i · ignore case m · multiline s · dotall u · unicode y…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "Ticked",
+    "url": "https://ticked.ranzlappen.com",
+    "content": "Ticked ✔ Log 0 ⟳ Processes 0 Palette 🔥 0 day streak 0 this week ▾ Less More ✦ Log Entry Custom timestamp Log ✦ # ↵ Press Enter to log · timestamp is added automatically Log Time ↓ · Name ↓ ? 💾 How data is saved Your log entries are saved in your browser's localStorage — they persist across page r…",
+    "group": "apps",
+    "source": "ticked.ranzlappen.com"
+  },
+  {
+    "title": "tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com",
+    "content": "A growing collection of small, focused web utilities by Ranzlappen. tools · ranzlappen Live · v0.1 Small tools , sharp edges. A growing collection of fast, focused web utilities. Built in the browser, hosted on the edge, free to use. New tiles light up as tools ship. Live JSON Formatter Pretty-prin…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/",
+    "content": "A growing collection of small, focused web utilities by Ranzlappen. tools · ranzlappen Live · v0.1 Small tools , sharp edges. A growing collection of fast, focused web utilities. Built in the browser, hosted on the edge, free to use. New tiles light up as tools ship. Live JSON Formatter Pretty-prin…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "UUID & Hash Generator · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/uuid-hash/",
+    "content": "Generate UUID v4 / v7 and MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 hashes locally. UUID & Hash Generator · tools · ranzlappen All tools UUID & Hash Generator UUID v4 / v7 generation, plus MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 hashes. UUID New v4 New v7 v4 — Copy v7 — Copy Batch generator Count…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "Video Studio · tools · ranzlappen",
+    "url": "https://tools.ranzlappen.com/tools/video/",
+    "content": "Reverse, boomerang, trim, and re-encode video — runs entirely in your browser. Video Studio · tools · ranzlappen All tools Video Studio Reverse, boomerang, trim, and re-encode video — all in the browser, powered by ffmpeg.wasm. Source engine: idle Drop a video here or click to choose — mp4, webm, m…",
+    "group": "apps",
+    "source": "tools.ranzlappen.com"
+  }
+]

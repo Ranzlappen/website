@@ -1,0 +1,11 @@
+{
+  "name": "search-crawler",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "On-demand crawler that builds the static external search index (search-external.json) for ranzlappen.com. Dependency-free (Node 22 built-ins only).",
+  "scripts": {
+    "crawl": "node crawl.mjs",
+    "lint": "node --check crawl.mjs && node --check sources.config.js && node --check src/util.mjs && node --check src/extract.mjs && node --check src/web.mjs && node --check src/github.mjs"
+  }
+}
