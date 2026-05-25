@@ -248,11 +248,15 @@
    content horizontally without breaking the viewport-pinned header). The
    offsets key off --header-offset, so unpinning the header (which sets
    --header-offset: 0) reclaims that height: the box pins to the top and grows
-   taller. */
+   taller. They ALSO key off --reference-controls-h — the real measured height of
+   the (z-10) controls strip, published by reference-table.js — so the box pins
+   exactly below the controls instead of a hardcoded gap. Without this the
+   multi-row mobile controls stack overflows the gap and covers the sticky thead.
+   The 3.25rem/5.25rem are no-JS fallbacks only. */
 .reference-table-wrapper {
   position: sticky;
-  top: calc(var(--header-offset, var(--header-height, 3.75rem)) + 3.25rem);
-  max-height: calc(100vh - var(--header-offset, var(--header-height, 3.75rem)) - 4.25rem);
+  top: calc(var(--header-offset, var(--header-height, 3.75rem)) + var(--reference-controls-h, 3.25rem));
+  max-height: calc(100vh - var(--header-offset, var(--header-height, 3.75rem)) - var(--reference-controls-h, 3.25rem) - 1rem);
   overflow: auto;
   border: 1px solid var(--c-border);
   border-radius: var(--border-radius);
@@ -554,8 +558,8 @@
      bounded element with the footer in normal flow below it, the footer can't
      bleed into the table. */
   .reference-table-wrapper {
-    top: calc(var(--header-offset, var(--header-height, 3.75rem)) + 5.25rem);
-    max-height: calc(100vh - var(--header-offset, var(--header-height, 3.75rem)) - 9rem);
+    top: calc(var(--header-offset, var(--header-height, 3.75rem)) + var(--reference-controls-h, 5.25rem));
+    max-height: calc(100vh - var(--header-offset, var(--header-height, 3.75rem)) - var(--reference-controls-h, 5.25rem) - 3.75rem);
   }
   .reference-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
   .reference-table tbody td { padding: 0.65rem 0.6rem; overflow-wrap: anywhere; }
