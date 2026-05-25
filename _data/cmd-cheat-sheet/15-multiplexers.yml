@@ -1,0 +1,104 @@
+batch:
+  id: "multiplexers"
+  order: 15
+  name: "Terminal Multiplexers"
+  short_name: "Multiplexers"
+  description: >
+    Terminal multiplexers keep shell sessions alive across disconnects and
+    split one terminal into many panes and windows. tmux is the modern,
+    scriptable choice; GNU screen is the long-standing classic still found
+    on older servers.
+  last_updated: "2026-05-25"
+
+entries:
+  - name: "tmux"
+    description: "Modern terminal multiplexer — detachable sessions split into windows and panes, fully scriptable."
+    syntax: "tmux [new|attach|ls|kill-session] [-s <name>] [-t <target>]"
+    os: [linux, macos, cross-platform, android]
+    danger: caution
+    flags:
+      - flag: "new -s <name>"
+        description: "Create a new named session."
+      - flag: "attach -t <name>"
+        description: "Re-attach to an existing detached session (alias: <code>a</code>)."
+      - flag: "ls"
+        description: "List all running sessions and their window counts."
+      - flag: "kill-session -t <name>"
+        description: "Terminate a named session and all its panes."
+      - flag: "kill-server"
+        description: "Stop the tmux server and every session it manages."
+      - flag: "new -A -s <name>"
+        description: "Attach to the named session if it exists, otherwise create it — idempotent startup."
+      - flag: "rename-session -t <old> <new>"
+        description: "Rename an existing session."
+    examples:
+      - code: "tmux new -s work"
+        explain: "Start a fresh session named 'work' that survives SSH disconnects until you kill it."
+      - code: "tmux attach -t work"
+        explain: "Re-attach to the previously detached 'work' session, picking up exactly where you left off."
+      - code: "tmux ls"
+        explain: "List running sessions so you know which name to attach to — shows windows and whether each is attached."
+      - code: "tmux kill-session -t work"
+        explain: "Terminate the 'work' session and every process running inside it."
+    recipes:
+      - code: "tmux new -A -s main"
+        explain: "Attach to 'main' if it already exists, otherwise create it — drop this in your shell profile for a single persistent session."
+      - code: "Ctrl-b d  then  tmux attach"
+        explain: "Detach from the current session with the prefix (Ctrl-b) followed by d, then re-attach later from any terminal."
+      - code: "Ctrl-b %  /  Ctrl-b \"  /  Ctrl-b c"
+        explain: "Split the pane vertically (%), horizontally (\"), or open a new window (c) — all start with the Ctrl-b prefix."
+    gotchas: >
+      Almost every tmux key is preceded by the <em>prefix</em>, by default
+      <code>Ctrl-b</code> — press and release it, then the command key.
+      Detaching (<code>Ctrl-b d</code>) leaves the session and its processes
+      running in the background; only <code>kill-session</code> or exiting
+      every shell ends it. Config lives in <code>~/.tmux.conf</code>; reload
+      it with <code>Ctrl-b :source-file ~/.tmux.conf</code> without
+      restarting the server.
+    see_also: ["screen", "ssh"]
+    references:
+      - "man 1 tmux"
+      - "https://github.com/tmux/tmux/wiki"
+
+  - name: "screen"
+    description: "GNU Screen — the long-standing terminal multiplexer for detachable, persistent shell sessions."
+    syntax: "screen [-S <name>] [-r [<name>]] [-ls] [-d <name>]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    modern: "<code>tmux</code> is the actively developed, more scriptable successor"
+    flags:
+      - flag: "-S <name>"
+        description: "Start a new session with a given name."
+      - flag: "-r [<name>]"
+        description: "Re-attach to a detached session (name optional if only one)."
+      - flag: "-ls"
+        description: "List running screen sessions and their attach state."
+      - flag: "-d <name>"
+        description: "Detach a session that is currently attached elsewhere."
+      - flag: "-dr <name>"
+        description: "Force-detach then re-attach in one step — useful when a session is stuck attached on another terminal."
+      - flag: "-X <cmd>"
+        description: "Send a command to a running session without attaching."
+    examples:
+      - code: "screen -S deploy"
+        explain: "Start a named 'deploy' session that keeps running after you disconnect from SSH."
+      - code: "screen -ls"
+        explain: "List all sessions with their PIDs and attach state — read off the name or PID to re-attach."
+      - code: "screen -r deploy"
+        explain: "Re-attach to the detached 'deploy' session and resume the long-running task inside it."
+    recipes:
+      - code: "screen -dr deploy"
+        explain: "Detach the session from wherever it is attached and grab it here — recovers a session left attached on a dropped connection."
+      - code: "Ctrl-a d  then  screen -r"
+        explain: "Detach with the prefix (Ctrl-a) followed by d, then re-attach later; Ctrl-a c opens a new window, Ctrl-a n cycles windows."
+    gotchas: >
+      Screen's prefix key is <code>Ctrl-a</code>, which collides with the
+      shell's "move to start of line" binding — press <code>Ctrl-a a</code>
+      to send a literal <code>Ctrl-a</code> to the program. A session shown
+      as <code>(Attached)</code> in <code>-ls</code> but unreachable usually
+      means a dead terminal; use <code>-dr</code> to reclaim it. Scrollback
+      requires entering copy mode with <code>Ctrl-a [</code>.
+    see_also: ["tmux", "ssh"]
+    references:
+      - "man 1 screen"
+      - "https://www.gnu.org/software/screen/manual/"

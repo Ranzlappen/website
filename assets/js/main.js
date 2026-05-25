@@ -96,6 +96,46 @@ DATE: 2026-04-02
   }
 
   // -------------------------------------------------------
+  // Header Sticky Toggle (pin / unpin the header globally)
+  // -------------------------------------------------------
+  var stickyBtn = document.getElementById('header-sticky-toggle');
+  var iconPin = stickyBtn ? stickyBtn.querySelector('.icon-pin') : null;
+  var iconPinOff = stickyBtn ? stickyBtn.querySelector('.icon-pin-off') : null;
+
+  function setStickyIcons() {
+    var off = document.documentElement.getAttribute('data-header-sticky') === 'off';
+    if (iconPin && iconPinOff) {
+      iconPin.style.display = off ? 'none' : '';
+      iconPinOff.style.display = off ? '' : 'none';
+    }
+    if (stickyBtn) stickyBtn.setAttribute('aria-pressed', off ? 'false' : 'true');
+  }
+  setStickyIcons();
+
+  if (stickyBtn) {
+    stickyBtn.addEventListener('click', function () {
+      var off = document.documentElement.getAttribute('data-header-sticky') === 'off';
+      if (off) {
+        document.documentElement.removeAttribute('data-header-sticky');
+        localStorage.setItem('headerSticky', 'on');
+      } else {
+        document.documentElement.setAttribute('data-header-sticky', 'off');
+        localStorage.setItem('headerSticky', 'off');
+      }
+      setStickyIcons();
+    });
+  }
+
+  // Track page scroll on every page so the unpinned-header opacity rule (and any
+  // other scroll-dependent chrome) can react. The transparent→solid logic above
+  // only attaches its listener on hero pages, so this independent one always runs.
+  function updateScrolledState() {
+    document.documentElement.classList.toggle('is-scrolled', window.scrollY > 0);
+  }
+  updateScrolledState();
+  window.addEventListener('scroll', updateScrolledState, { passive: true });
+
+  // -------------------------------------------------------
   // View Toggle (Grid / List / Carousel)
   // -------------------------------------------------------
   var viewGrid = document.getElementById('view-grid');

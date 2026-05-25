@@ -1,0 +1,228 @@
+batch:
+  id: "security-and-crypto"
+  order: 18
+  name: "Security & Crypto"
+  short_name: "Security / Crypto"
+  description: >
+    Encrypt, sign, and hash data from the shell — GnuPG for OpenPGP keys and
+    signatures, OpenSSL for TLS certificates and raw crypto, ssh-keygen for
+    SSH key pairs, base64 for safe binary encoding, and the modern, minimal
+    age for file encryption.
+  last_updated: "2026-05-25"
+
+entries:
+  - name: "gpg"
+    description: "GnuPG — encrypt, decrypt, sign, and verify data using OpenPGP keys."
+    syntax: "gpg [-e] [-d] [-s] [--armor] [-r <recipient>] [<file>]"
+    os: [linux, macos, cross-platform, android]
+    danger: caution
+    flags:
+      - flag: "-e / --encrypt"
+        description: "Encrypt a file for one or more recipients."
+      - flag: "-d / --decrypt"
+        description: "Decrypt a file (output goes to stdout unless redirected)."
+      - flag: "-s / --sign"
+        description: "Create a cryptographic signature over the input."
+      - flag: "-r <recipient>"
+        description: "Encrypt for the named recipient (email or key ID)."
+      - flag: "-a / --armor"
+        description: "Produce ASCII-armored (text) output instead of binary."
+      - flag: "--verify <sig> [<file>]"
+        description: "Verify a detached or inline signature."
+      - flag: "-c / --symmetric"
+        description: "Encrypt with a passphrase only (symmetric, no recipient key)."
+      - flag: "--import / --export"
+        description: "Import a key from, or export a key to, a file."
+    examples:
+      - code: "gpg -c secret.txt"
+        explain: "Symmetrically encrypt the file with a passphrase, producing secret.txt.gpg — no keys to manage."
+      - code: "gpg -e -r alice@example.com report.pdf"
+        explain: "Encrypt report.pdf so only Alice can decrypt it, using her public key from your keyring."
+      - code: "gpg --verify release.tar.gz.sig release.tar.gz"
+        explain: "Check that the detached signature matches the archive and was made by a trusted key — verifies authenticity."
+    recipes:
+      - code: "gpg --armor --export alice@example.com > alice.asc"
+        explain: "Export Alice's public key as ASCII-armored text so it can be emailed or pasted into a key server."
+      - code: "tar czf - mydir | gpg -c -o backup.tar.gz.gpg"
+        explain: "Stream a compressed tarball straight into gpg for passphrase encryption — a one-line encrypted backup with no temp files."
+    gotchas: >
+      Symmetric (<code>-c</code>) encryption protects with a passphrase
+      alone; public-key (<code>-e -r</code>) needs the recipient's key in
+      your keyring (import it first). <code>--verify</code> only proves the
+      signature is valid for <em>some</em> key — you must separately confirm
+      that key actually belongs to who you think (check the fingerprint).
+      The agent caches your passphrase, so a failed decrypt may be a stale
+      cached value; restart <code>gpg-agent</code> if keys misbehave.
+    see_also: ["openssl", "age"]
+    references:
+      - "man 1 gpg"
+      - "https://www.gnupg.org/documentation/"
+
+  - name: "openssl"
+    description: "Swiss-army crypto toolkit — TLS certificates, key generation, hashing, and raw encryption."
+    syntax: "openssl <subcommand> [options...]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    flags:
+      - flag: "req"
+        description: "Create and process certificate signing requests (CSRs) and self-signed certs."
+      - flag: "x509"
+        description: "Display, convert, and sign X.509 certificates."
+      - flag: "genrsa / genpkey"
+        description: "Generate an RSA (or other) private key."
+      - flag: "s_client -connect <host>:<port>"
+        description: "Open a TLS connection to inspect a server's certificate and protocol."
+      - flag: "enc -aes-256-cbc"
+        description: "Symmetrically encrypt or decrypt data with AES-256."
+      - flag: "dgst -sha256"
+        description: "Compute a SHA-256 digest of the input."
+      - flag: "rand <n>"
+        description: "Emit <code>&lt;n&gt;</code> bytes of cryptographically secure random data."
+    examples:
+      - code: "openssl rand -base64 32"
+        explain: "Generate 32 bytes of secure random data encoded as base64 — a quick, strong password or secret key."
+      - code: "openssl s_client -connect example.com:443 -servername example.com"
+        explain: "Open a TLS handshake to inspect the server's certificate chain and negotiated protocol/cipher."
+      - code: "openssl x509 -in cert.pem -noout -text"
+        explain: "Print a certificate's full human-readable details (subject, issuer, validity, SANs) without re-encoding it."
+    recipes:
+      - code: "openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes"
+        explain: "Generate a 4096-bit key and a self-signed certificate valid for a year, with the key left unencrypted (-nodes) for server use."
+      - code: "echo | openssl s_client -connect host:443 2>/dev/null | openssl x509 -noout -dates"
+        explain: "Fetch a live server's certificate and print just its notBefore/notAfter dates — a one-line expiry check."
+    gotchas: >
+      <code>openssl</code> is really many sub-tools, each with its own
+      flags — <code>openssl &lt;cmd&gt; -help</code> lists them. The
+      <code>-nodes</code> flag means "no DES", i.e. <em>don't</em> encrypt
+      the private key — never use it for a key you'll store long-term. Many
+      one-liners online use deprecated algorithms (MD5, 1024-bit RSA);
+      prefer SHA-256 and ≥2048-bit (ideally 4096-bit) RSA or ECDSA.
+    see_also: ["gpg", "ssh-keygen", "base64"]
+    references:
+      - "man 1 openssl"
+      - "https://docs.openssl.org/"
+
+  - name: "ssh-keygen"
+    description: "Generate, manage, and convert SSH authentication key pairs."
+    syntax: "ssh-keygen [-t <type>] [-b <bits>] [-f <file>] [-C <comment>] [-p]"
+    os: [linux, macos, cross-platform, android]
+    danger: caution
+    flags:
+      - flag: "-t <type>"
+        description: "Key type — <code>ed25519</code> (recommended), <code>rsa</code>, or <code>ecdsa</code>."
+      - flag: "-b <bits>"
+        description: "Key size in bits (RSA only; use ≥4096)."
+      - flag: "-f <file>"
+        description: "Output key file path (default <code>~/.ssh/id_&lt;type&gt;</code>)."
+      - flag: "-C <comment>"
+        description: "Comment label embedded in the public key (often an email)."
+      - flag: "-p"
+        description: "Change (or add/remove) the passphrase on an existing key."
+      - flag: "-y -f <key>"
+        description: "Recompute the public key from an existing private key."
+      - flag: "-l -f <key>"
+        description: "Show a key's fingerprint."
+    examples:
+      - code: "ssh-keygen -t ed25519 -C \"me@example.com\""
+        explain: "Generate a modern, fast Ed25519 key pair labelled with your email — the recommended default for new keys."
+      - code: "ssh-keygen -t rsa -b 4096 -f ~/.ssh/deploy_key"
+        explain: "Create a 4096-bit RSA key at a custom path — useful for a dedicated deploy/CI key separate from your personal one."
+      - code: "ssh-keygen -l -f ~/.ssh/id_ed25519.pub"
+        explain: "Print the key's fingerprint so you can compare it against what a server reports — confirms you're trusting the right key."
+    recipes:
+      - code: "ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 && ssh-copy-id user@host"
+        explain: "Generate a key then install its public half on a remote host's authorized_keys so password-less login works."
+      - code: "ssh-keygen -p -f ~/.ssh/id_ed25519"
+        explain: "Add or change the passphrase protecting an existing private key without regenerating the key pair."
+    gotchas: >
+      The <code>.pub</code> file is the <em>public</em> half — safe to share
+      and copy to servers; the matching file without an extension is the
+      <em>private</em> key and must never leave the machine. Prefer
+      <code>ed25519</code> over RSA for new keys (smaller, faster, secure).
+      Always set a passphrase on personal keys; an unprotected private key is
+      a plaintext credential. Private keys must be mode <code>600</code> or
+      SSH refuses to use them.
+    see_also: ["openssl", "gpg"]
+    references:
+      - "man 1 ssh-keygen"
+
+  - name: "base64"
+    description: "Encode binary data to printable ASCII (and back) using the base64 alphabet."
+    syntax: "base64 [-d] [-w <cols>] [<file>]"
+    os: [linux, macos, cross-platform, android]
+    danger: safe
+    flags:
+      - flag: "-d / --decode"
+        description: "Decode base64 input back to its original bytes."
+      - flag: "-w <cols>"
+        description: "Wrap encoded output every <code>&lt;cols&gt;</code> characters (GNU; <code>-w 0</code> = no wrapping)."
+      - flag: "-i / --ignore-garbage"
+        description: "When decoding, skip non-alphabet characters instead of erroring."
+    examples:
+      - code: "base64 image.png > image.b64"
+        explain: "Encode a binary PNG into printable text — safe to embed in JSON, email, or a config file."
+      - code: "echo -n 'hello' | base64"
+        explain: "Encode a short string; -n avoids the trailing newline so the encoding is of exactly 'hello'."
+      - code: "base64 -d image.b64 > image.png"
+        explain: "Decode the text back into the original binary PNG — the exact inverse of encoding it."
+    recipes:
+      - code: "base64 -w 0 cert.pem | pbcopy"
+        explain: "Encode a certificate as a single unwrapped line and copy it to the clipboard (macOS) — handy for pasting into a secret store."
+      - code: "echo 'c2VjcmV0' | base64 -d"
+        explain: "Quickly decode a base64 token (e.g. from a JWT or Kubernetes secret) to read its plaintext value."
+    gotchas: >
+      base64 is <em>encoding, not encryption</em> — it provides zero
+      confidentiality; anyone can decode it instantly. Never use it to "hide"
+      a secret. The GNU <code>-w</code> wrap flag does not exist on macOS/BSD
+      base64 (which wraps differently); pipe through <code>tr -d '\n'</code>
+      for portable unwrapping. Encoded data is ~33% larger than the original.
+    see_also: ["openssl", "gpg"]
+    references:
+      - "man 1 base64"
+
+  - name: "age"
+    description: "Modern, minimal file-encryption tool with small keys and a deliberately tiny feature set."
+    syntax: "age [-e] [-d] [-r <recipient>] [-p] [-o <out>] [<file>]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    modern: "<code>age</code> is itself the modern alternative to <code>gpg</code> for simple file encryption"
+    flags:
+      - flag: "-e / --encrypt"
+        description: "Encrypt the input (the default action)."
+      - flag: "-d / --decrypt"
+        description: "Decrypt an age-encrypted file."
+      - flag: "-r <recipient>"
+        description: "Encrypt to a public-key recipient (an <code>age1...</code> string or SSH key)."
+      - flag: "-R <file>"
+        description: "Read recipients from a file (one per line)."
+      - flag: "-p / --passphrase"
+        description: "Encrypt with a passphrase instead of a key pair."
+      - flag: "-i <identity>"
+        description: "Use the given identity (private key) file when decrypting."
+      - flag: "-a / --armor"
+        description: "Produce ASCII-armored (PEM-like text) output."
+      - flag: "-o <out>"
+        description: "Write to the named output file instead of stdout."
+    examples:
+      - code: "age-keygen -o key.txt"
+        explain: "Generate an age key pair, writing the private identity to key.txt and printing the public recipient string."
+      - code: "age -r age1ql3z... -o secret.age secret.txt"
+        explain: "Encrypt secret.txt to a recipient's public key, writing the ciphertext to secret.age."
+      - code: "age -d -i key.txt secret.age > secret.txt"
+        explain: "Decrypt secret.age using your private identity file and recover the original plaintext."
+    recipes:
+      - code: "tar czf - mydir | age -p -o backup.tar.gz.age"
+        explain: "Stream a compressed tarball into age and encrypt it with a passphrase — a one-line, key-free encrypted backup."
+      - code: "age -R ~/.ssh/authorized_keys -o note.age note.txt"
+        explain: "Encrypt a note to every SSH key in a recipients file, so any of those key holders can decrypt it."
+    gotchas: >
+      The <em>private</em> identity file (from <code>age-keygen</code>) is a
+      plaintext secret — protect it like an SSH private key; anyone with it
+      can decrypt. age has no key management, expiry, or signing (by design)
+      — if you need signatures or a web of trust, use <code>gpg</code>. age
+      can encrypt to SSH public keys (<code>-R</code>/<code>-r</code>),
+      which is convenient when recipients already publish one.
+    see_also: ["gpg", "openssl", "ssh-keygen"]
+    references:
+      - "man 1 age"
+      - "https://github.com/FiloSottile/age"

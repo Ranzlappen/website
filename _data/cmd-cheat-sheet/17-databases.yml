@@ -1,0 +1,232 @@
+batch:
+  id: "databases"
+  order: 17
+  name: "Database CLIs"
+  short_name: "Databases"
+  description: >
+    Interactive command-line clients for the common databases — PostgreSQL
+    (psql), MySQL/MariaDB (mysql), file-based SQLite (sqlite3), the Redis
+    key-value store (redis-cli), and MongoDB's modern shell (mongosh).
+    Connect, run queries, and script one-off commands non-interactively.
+  last_updated: "2026-05-25"
+
+entries:
+  - name: "psql"
+    description: "PostgreSQL's interactive terminal — run SQL, inspect schemas, and script queries against a database."
+    syntax: "psql [-h <host>] [-p <port>] [-U <user>] [-d <db>] [-c <sql>] [-f <file>]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    flags:
+      - flag: "-h <host>"
+        description: "Connect to the server at the given host (default: local socket)."
+      - flag: "-p <port>"
+        description: "Connect on a non-default port (default 5432)."
+      - flag: "-U <user>"
+        description: "Connect as the named database role."
+      - flag: "-d <db>"
+        description: "Select the database to connect to."
+      - flag: "-c <sql>"
+        description: "Run a single SQL command non-interactively and exit."
+      - flag: "-f <file>"
+        description: "Execute SQL from a script file."
+      - flag: "-A -t"
+        description: "Unaligned, tuples-only output — clean values for piping into scripts."
+    examples:
+      - code: "psql -h db.example.com -U app -d production"
+        explain: "Open an interactive session against the production database on a remote host as the app role."
+      - code: "psql -d mydb -c 'SELECT count(*) FROM users;'"
+        explain: "Run a single query against mydb and exit — no interactive prompt, ideal for cron jobs."
+      - code: "psql -d mydb -f schema.sql"
+        explain: "Apply a SQL script file (e.g. a migration) to mydb in one shot."
+    recipes:
+      - code: "psql -d mydb -Atc 'SELECT email FROM users' > emails.txt"
+        explain: "Run a query in unaligned tuples-only mode so each email lands on its own line, ready to pipe or save."
+      - code: "pg_dump mydb | psql -h staging -d mydb"
+        explain: "Stream a dump of the local database straight into a fresh psql connection on staging — a quick clone with no intermediate file."
+    gotchas: >
+      Inside psql, <em>backslash</em> meta-commands differ from SQL:
+      <code>\l</code> lists databases, <code>\dt</code> lists tables,
+      <code>\d &lt;table&gt;</code> describes one, and <code>\q</code> quits.
+      Statements must end in a semicolon — a missing <code>;</code> leaves
+      you at the <code>-&gt;</code> continuation prompt. Set
+      <code>PGPASSWORD</code> or use a <code>~/.pgpass</code> file to avoid
+      interactive password prompts in scripts.
+    see_also: ["mysql", "sqlite3"]
+    references:
+      - "man 1 psql"
+      - "https://www.postgresql.org/docs/current/app-psql.html"
+
+  - name: "mysql"
+    description: "Interactive client for MySQL and MariaDB — run SQL, manage databases, and execute scripts."
+    syntax: "mysql [-h <host>] [-P <port>] [-u <user>] [-p] [-e <sql>] [<db>]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    flags:
+      - flag: "-h <host>"
+        description: "Connect to the server at the given host."
+      - flag: "-P <port>"
+        description: "Connect on a non-default port (default 3306). Note the capital P."
+      - flag: "-u <user>"
+        description: "Connect as the named MySQL user."
+      - flag: "-p"
+        description: "Prompt for the password (never put the value next to <code>-p</code> on the command line)."
+      - flag: "-e <sql>"
+        description: "Execute a SQL statement and exit, instead of opening the interactive prompt."
+      - flag: "-D <db>"
+        description: "Select the default database to use after connecting."
+      - flag: "-B"
+        description: "Batch mode — tab-separated, header-less output suitable for scripts."
+    examples:
+      - code: "mysql -u root -p"
+        explain: "Connect as root and prompt securely for the password — never type the password inline after -p."
+      - code: "mysql -h 10.0.0.5 -u app -p shopdb"
+        explain: "Connect to a remote MySQL server, authenticate as app, and open the shopdb database directly."
+      - code: "mysql -u app -p -e 'SHOW TABLES;' shopdb"
+        explain: "Run a single statement against shopdb and exit — the non-interactive form for scripts."
+    recipes:
+      - code: "mysql -u app -p -Be 'SELECT id,email FROM users' shopdb > users.tsv"
+        explain: "Run a query in batch mode so the result is plain tab-separated rows, redirected into a TSV file."
+      - code: "mysqldump -u root -p shopdb | mysql -h backup -u root -p shopdb"
+        explain: "Pipe a dump of shopdb straight into a MySQL client on the backup host — a one-line copy with no intermediate file."
+    gotchas: >
+      Putting the password directly after <code>-p</code> (e.g.
+      <code>-psecret</code>) is insecure — it shows in the process list and
+      shell history. Use a bare <code>-p</code> to be prompted, or a
+      <code>~/.my.cnf</code> with a <code>[client]</code> section. The port
+      flag is capital <code>-P</code>; lowercase <code>-p</code> is the
+      password. End statements with <code>;</code> or <code>\G</code> (the
+      latter prints rows vertically).
+    see_also: ["psql", "sqlite3"]
+    references:
+      - "man 1 mysql"
+      - "https://dev.mysql.com/doc/refman/8.0/en/mysql.html"
+
+  - name: "sqlite3"
+    description: "Command-line shell for SQLite — a serverless, single-file SQL database needing no daemon."
+    syntax: "sqlite3 [<file.db>] [<sql>] [-csv|-json|-html]"
+    os: [linux, macos, cross-platform, android]
+    danger: caution
+    flags:
+      - flag: "<file.db>"
+        description: "Open (or create) the given database file; omit for an in-memory database."
+      - flag: "-csv"
+        description: "Render query results as CSV."
+      - flag: "-json"
+        description: "Render query results as a JSON array of objects."
+      - flag: "-header"
+        description: "Include a column-name header row in the output."
+      - flag: "-line"
+        description: "Print one column per line — readable for wide rows."
+      - flag: "-readonly"
+        description: "Open the database file read-only, refusing any writes."
+    examples:
+      - code: "sqlite3 app.db"
+        explain: "Open the app.db file in an interactive shell — type .tables to list tables and .quit to exit."
+      - code: "sqlite3 app.db 'SELECT count(*) FROM events;'"
+        explain: "Run a single query against the file and exit, printing just the count — no interactive prompt."
+      - code: "sqlite3 -json app.db 'SELECT * FROM users LIMIT 5' "
+        explain: "Return the first five user rows as a JSON array — convenient for piping into jq or a script."
+    recipes:
+      - code: "sqlite3 -csv -header app.db 'SELECT * FROM sales' > sales.csv"
+        explain: "Export a whole table to a CSV file with a header row in one command — no separate dump tool needed."
+      - code: "sqlite3 app.db '.dump' | gzip > backup.sql.gz"
+        explain: "Produce a full SQL dump of the database and compress it on the fly into a portable, restorable backup."
+    gotchas: >
+      Dot-commands like <code>.tables</code>, <code>.schema</code>,
+      <code>.mode</code>, and <code>.quit</code> are sqlite3 shell features,
+      <em>not</em> SQL — they take no trailing semicolon, while SQL
+      statements do. SQLite uses file-level locking, so a single writer
+      blocks others; enable WAL mode (<code>PRAGMA journal_mode=WAL;</code>)
+      for better concurrent reads. The whole database is one file, so copy or
+      back it up by copying that file (ideally while no writer is active).
+    see_also: ["psql", "mysql"]
+    references:
+      - "man 1 sqlite3"
+      - "https://sqlite.org/cli.html"
+
+  - name: "redis-cli"
+    description: "Command-line client for Redis — issue commands against the in-memory key-value store."
+    syntax: "redis-cli [-h <host>] [-p <port>] [-a <pass>] [-n <db>] [<command> ...]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    flags:
+      - flag: "-h <host>"
+        description: "Connect to a Redis server at the given host (default 127.0.0.1)."
+      - flag: "-p <port>"
+        description: "Connect on a non-default port (default 6379)."
+      - flag: "-a <pass>"
+        description: "Authenticate with a password (prefer <code>REDISCLI_AUTH</code> to keep it out of history)."
+      - flag: "-n <db>"
+        description: "Select a numbered logical database (0–15 by default)."
+      - flag: "--scan"
+        description: "Iterate keys safely with SCAN instead of the blocking KEYS command."
+      - flag: "--stat"
+        description: "Print rolling server statistics (memory, clients, ops/sec)."
+    examples:
+      - code: "redis-cli ping"
+        explain: "Send PING and expect PONG — the fastest way to confirm a Redis server is reachable and responsive."
+      - code: "redis-cli -h cache.example.com -p 6380 -n 2"
+        explain: "Open an interactive session against a remote Redis on a custom port, selecting logical database 2."
+      - code: "redis-cli set session:42 active EX 3600"
+        explain: "Set a key with a 3600-second expiry from the shell, then exit — a one-shot non-interactive command."
+    recipes:
+      - code: "redis-cli --scan --pattern 'session:*' | xargs -r redis-cli del"
+        explain: "Iterate matching keys safely with SCAN, then delete them in bulk — never use the blocking KEYS in production."
+      - code: "redis-cli --stat"
+        explain: "Stream a one-line-per-second dashboard of memory, connected clients, and operations per second."
+    gotchas: >
+      Never run <code>KEYS *</code> on a production server — it scans the
+      entire keyspace and blocks every other client; use
+      <code>--scan</code>/<code>SCAN</code> for cursor-based iteration. The
+      <code>-a</code> password ends up in shell history and the process list;
+      set <code>REDISCLI_AUTH</code> instead. <code>FLUSHALL</code> and
+      <code>FLUSHDB</code> wipe data instantly with no confirmation — treat
+      them like <code>rm -rf</code>.
+    see_also: ["mongosh"]
+    references:
+      - "https://redis.io/docs/connect/cli/"
+
+  - name: "mongosh"
+    description: "MongoDB's modern JavaScript shell — connect, query collections, and run admin commands."
+    syntax: "mongosh [<uri>] [--host <h>] [--port <p>] [-u <user>] [--eval <js>] [--file <f>]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    modern: "<code>mongosh</code> replaces the legacy <code>mongo</code> shell removed in MongoDB 6+"
+    flags:
+      - flag: "<uri>"
+        description: "Connect using a full <code>mongodb://</code> connection string."
+      - flag: "--host <h>"
+        description: "Connect to the server at the given host."
+      - flag: "--port <p>"
+        description: "Connect on a non-default port (default 27017)."
+      - flag: "-u <user> -p"
+        description: "Authenticate as a user; bare <code>-p</code> prompts for the password."
+      - flag: "--eval <js>"
+        description: "Run a JavaScript expression and exit instead of opening the interactive shell."
+      - flag: "--file <f>"
+        description: "Execute a JavaScript file against the connection."
+      - flag: "--quiet"
+        description: "Suppress the startup banner — cleaner output for scripts."
+    examples:
+      - code: "mongosh"
+        explain: "Connect to the local MongoDB on the default port and open the interactive JS shell."
+      - code: "mongosh 'mongodb://app:secret@db1:27017/shop'"
+        explain: "Connect to a remote MongoDB using a full URI that carries the credentials, host, and target database."
+      - code: "mongosh --quiet --eval 'db.users.countDocuments()' shop"
+        explain: "Run a single JavaScript expression against the shop database and print just the result — script-friendly."
+    recipes:
+      - code: "mongosh --quiet --eval 'db.events.find().limit(5).toArray()' app | jq ."
+        explain: "Fetch five documents and pipe the JSON output through jq for pretty-printing and further filtering."
+      - code: "mongosh --file migrate.js 'mongodb://localhost/app'"
+        explain: "Run a migration script against the app database — keeps multi-statement logic in a versioned file."
+    gotchas: >
+      The shell language is JavaScript, not SQL — you call methods like
+      <code>db.collection.find({...})</code> and switch databases with
+      <code>use &lt;db&gt;</code>. Putting credentials in the URI exposes
+      them in shell history; prefer <code>-u user -p</code> with an
+      interactive prompt or an environment-based config. The legacy
+      <code>mongo</code> binary is gone in MongoDB 6+, so old tutorials using
+      it won't work — use <code>mongosh</code>.
+    see_also: ["redis-cli", "psql"]
+    references:
+      - "https://www.mongodb.com/docs/mongodb-shell/"

@@ -8,9 +8,11 @@
 
 /* ---- Desktop column min-widths ---- */
 .reference-page--cmd .reference-table {
-  min-width: 2050px;
+  min-width: 2400px;
 }
 .reference-page--cmd .reference-table .col-name     { min-width: 11rem; width: 11rem; }
+.reference-page--cmd .reference-table .col-os       { min-width: 9rem; }
+.reference-page--cmd .reference-table .col-danger   { min-width: 8rem; }
 .reference-page--cmd .reference-table .col-desc     { min-width: 14rem; }
 .reference-page--cmd .reference-table .col-syntax   { min-width: 17rem; }
 .reference-page--cmd .reference-table .col-flags    { min-width: 17rem; }
@@ -201,6 +203,18 @@
 .reference-page--cmd .col-name .cmd-os-badges {
   margin-top: 0.5rem;
 }
+/* The dedicated OS column shows the same badges with text labels, stacked
+   vertically so the column reads as a sortable/filterable list. */
+.cmd-os-badges--col {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+.cmd-os-badges--col .reference-badge {
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.reference-page--cmd .col-danger .reference-badge { font-size: 0.78rem; }
 /* Danger chip stacked beneath the OS pills in the sticky first column. */
 .reference-page--cmd .col-name .cmd-danger-cell {
   margin-top: 0.4rem;
@@ -267,6 +281,8 @@
   }
   /* Every non-sticky column = one viewport page minus the sticky col and
      the container's horizontal padding (2 × var(--space-md) ≈ 2rem). */
+  .reference-page--cmd .reference-table .col-os,
+  .reference-page--cmd .reference-table .col-danger,
   .reference-page--cmd .reference-table .col-desc,
   .reference-page--cmd .reference-table .col-syntax,
   .reference-page--cmd .reference-table .col-flags,

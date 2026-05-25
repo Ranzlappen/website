@@ -55,6 +55,10 @@ DATE: 2026-04-03
   --content-width: 48rem;
   --sidebar-width: 3rem;
   --header-height: 3.75rem;
+  /* Vertical space the fixed header reserves below the viewport top. Collapses
+     to 0 when the header is unpinned (data-header-sticky="off") so sticky page
+     chrome (e.g. the reference-table controls) re-anchors to the very top. */
+  --header-offset: var(--header-height);
   --border-radius: 0.5rem;
   --border-radius-sm: 0.25rem;
   --border-radius-lg: 0.75rem;
@@ -275,7 +279,8 @@ main#main-content {
 
 /* Theme Toggle */
 .theme-toggle,
-.search-toggle {
+.search-toggle,
+.header-sticky-toggle {
   background: none;
   border: none;
   color: var(--c-text-muted);
@@ -290,14 +295,49 @@ main#main-content {
   height: 2rem;
 }
 .theme-toggle:hover,
-.search-toggle:hover {
+.search-toggle:hover,
+.header-sticky-toggle:hover {
   color: var(--c-text);
   background: var(--c-accent-bg);
 }
 .theme-toggle svg,
-.search-toggle svg {
+.search-toggle svg,
+.header-sticky-toggle svg {
   width: 1.125rem;
   height: 1.125rem;
+}
+
+/* ---- Unpinned header (data-header-sticky="off") ----
+   The header drops out of `position: fixed` into `position: absolute` so it
+   scrolls away with the page (it still reserves its height at the top via
+   main#main-content's padding). The sticky toggle stays put as a `position:
+   fixed` floater: removed from flow, it consumes ZERO vertical space and sits
+   above all content via z-index, so the page scrolls fully behind it. */
+html[data-header-sticky="off"] {
+  --header-offset: 0rem;
+}
+html[data-header-sticky="off"] .site-header {
+  position: absolute;
+}
+html[data-header-sticky="off"] .header-sticky-toggle {
+  position: fixed;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 1002;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  box-shadow: 0 2px 8px var(--c-card-shadow);
+  transition: color var(--transition-fast), background var(--transition-fast),
+              opacity var(--transition-base);
+}
+/* Fade the floating toggle once the page is scrolled and the header has left,
+   so it's unobtrusive; full opacity at the top of the page or on interaction. */
+html[data-header-sticky="off"].is-scrolled .header-sticky-toggle {
+  opacity: 0.5;
+}
+html[data-header-sticky="off"].is-scrolled .header-sticky-toggle:hover,
+html[data-header-sticky="off"].is-scrolled .header-sticky-toggle:focus-visible {
+  opacity: 1;
 }
 
 /* Mobile Menu Toggle */

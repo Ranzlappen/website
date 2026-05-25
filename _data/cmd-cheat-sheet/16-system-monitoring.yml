@@ -1,0 +1,332 @@
+batch:
+  id: "system-monitoring"
+  order: 16
+  name: "System Monitoring"
+  short_name: "Monitoring"
+  description: >
+    Inspect what a machine is doing right now — live process and resource
+    views (top, htop), kernel and service logs (journalctl, dmesg), and
+    point-in-time snapshots of memory, uptime, and CPU/disk throughput
+    (free, uptime, vmstat, iostat).
+  last_updated: "2026-05-25"
+
+entries:
+  - name: "top"
+    description: "Live, refreshing view of running processes ranked by CPU or memory usage."
+    syntax: "top [-d <secs>] [-o <field>] [-p <pid>] [-b -n <count>]"
+    os: [linux, macos, cross-platform]
+    danger: safe
+    modern: "<code>htop</code> and <code>btop</code> offer colour, mouse support, and easier sorting"
+    flags:
+      - flag: "-d <secs>"
+        description: "Set the refresh delay between updates in seconds."
+      - flag: "-o <field>"
+        description: "Sort by a field (e.g. <code>%CPU</code> or <code>%MEM</code>); Linux uses <code>-o</code>, on macOS the syntax differs."
+      - flag: "-p <pid>"
+        description: "Monitor only the listed process IDs."
+      - flag: "-u <user>"
+        description: "Show only processes owned by the given user."
+      - flag: "-b"
+        description: "Batch mode — non-interactive plain output, suitable for piping or logging."
+      - flag: "-n <count>"
+        description: "In batch mode, refresh <code>&lt;count&gt;</code> times then exit."
+    examples:
+      - code: "top"
+        explain: "Open the live process monitor; press P to sort by CPU, M by memory, and q to quit."
+      - code: "top -d 2"
+        explain: "Refresh the display every 2 seconds instead of the default ~3, smoothing out short spikes."
+      - code: "top -b -n 1 > snapshot.txt"
+        explain: "Take a single non-interactive snapshot of all processes and save it to a file for later inspection."
+    recipes:
+      - code: "top -b -n 1 | head -20"
+        explain: "Grab a one-shot batch snapshot and show just the summary plus the top processes — handy inside scripts or over SSH."
+      - code: "top -p $(pgrep -d',' nginx)"
+        explain: "Monitor only the nginx worker processes by feeding their comma-separated PIDs from pgrep into -p."
+    gotchas: >
+      <code>top</code> flags differ between the Linux (procps) and macOS
+      (BSD) implementations — <code>-o %CPU</code> works on Linux but macOS
+      uses <code>-o cpu</code>. The first CPU% reading is averaged since
+      boot and is unreliable; trust the second refresh onward. Press
+      <code>h</code> inside top for the interactive key list.
+    see_also: ["htop", "ps", "free"]
+    references:
+      - "man 1 top"
+
+  - name: "htop"
+    description: "Interactive, colour process viewer with per-core meters, mouse support, and tree view."
+    syntax: "htop [-u <user>] [-p <pid>[,<pid>...]] [-t] [-d <tenths>]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    modern: "<code>btop</code> adds graphs and network/disk panels in a similar TUI"
+    flags:
+      - flag: "-u <user>"
+        description: "Show only processes owned by the given user."
+      - flag: "-p <pid>,..."
+        description: "Show only the listed process IDs."
+      - flag: "-t"
+        description: "Start in tree view, showing parent/child process relationships."
+      - flag: "-d <tenths>"
+        description: "Set the update delay in tenths of a second."
+      - flag: "-s <column>"
+        description: "Sort by the named column on startup (e.g. <code>PERCENT_CPU</code>)."
+    examples:
+      - code: "htop"
+        explain: "Open the interactive monitor; F6 changes the sort column, F9 sends a signal to the selected process, F10 quits."
+      - code: "htop -u www-data"
+        explain: "Show only processes owned by the www-data user — useful for isolating a web server's footprint."
+      - code: "htop -t"
+        explain: "Launch in tree view so you can see which parent process spawned each child."
+    recipes:
+      - code: "htop -p $(pgrep -d, python)"
+        explain: "Watch only the running Python processes by passing their PIDs from pgrep — narrows a noisy list to what matters."
+      - code: "sudo htop"
+        explain: "Run with root so you can send signals to (and see full command lines of) processes owned by other users."
+    gotchas: >
+      <code>htop</code> often isn't installed by default — add it via your
+      package manager. Sending a signal (<code>F9</code>) defaults to
+      <code>SIGTERM</code>; pick <code>SIGKILL</code> only as a last resort.
+      You can only signal or renice processes you own unless htop is run
+      with <code>sudo</code>. Use <code>F4</code> to filter and <code>F3</code>
+      to search by name.
+    see_also: ["top", "ps", "kill"]
+    references:
+      - "man 1 htop"
+      - "https://htop.dev"
+
+  - name: "journalctl"
+    description: "Query and display logs from the systemd journal — services, the kernel, and boot history."
+    syntax: "journalctl [-u <unit>] [-f] [-b] [-p <prio>] [--since <when>]"
+    os: [linux, root]
+    danger: safe
+    flags:
+      - flag: "-u <unit>"
+        description: "Show logs for a specific systemd unit (e.g. <code>nginx.service</code>)."
+      - flag: "-f"
+        description: "Follow — stream new log entries live as they are written."
+      - flag: "-b [<n>]"
+        description: "Show logs from the current boot, or boot <code>&lt;n&gt;</code> (<code>-1</code> = previous boot)."
+      - flag: "-p <prio>"
+        description: "Filter by priority (e.g. <code>err</code>, <code>warning</code>) and above."
+      - flag: "--since / --until <when>"
+        description: "Restrict the time window (e.g. <code>--since \"1 hour ago\"</code>)."
+      - flag: "-k"
+        description: "Show only kernel messages — the journal equivalent of <code>dmesg</code>."
+      - flag: "-n <count>"
+        description: "Show only the last <code>&lt;count&gt;</code> lines (like <code>tail</code>)."
+      - flag: "--no-pager"
+        description: "Print straight to stdout instead of paging through less."
+    examples:
+      - code: "journalctl -u nginx -f"
+        explain: "Follow the nginx service's logs live — equivalent to tail -f on its log file but pulled from the journal."
+      - code: "journalctl -b -p err"
+        explain: "Show error-priority and worse messages from the current boot — a fast way to spot what went wrong this session."
+      - code: "journalctl --since \"2026-05-25 09:00\" --until \"2026-05-25 10:00\""
+        explain: "Restrict output to a one-hour window to focus on an incident with a known time range."
+    recipes:
+      - code: "journalctl -u ssh.service --since today | grep -i failed"
+        explain: "Pull today's SSH service logs and filter for failed login attempts — a quick security spot-check."
+      - code: "sudo journalctl --vacuum-time=7d"
+        explain: "Trim the persistent journal to the last 7 days, reclaiming disk space without disabling logging."
+    gotchas: >
+      Without <code>sudo</code> or membership in the <code>systemd-journal</code>
+      group you see only your own user's logs, not system-wide entries. The
+      journal may be volatile (lost on reboot) unless
+      <code>Storage=persistent</code> is set in
+      <code>/etc/systemd/journal.conf</code>. Output is paged through
+      <code>less</code> by default — add <code>--no-pager</code> when piping.
+    see_also: ["dmesg", "systemctl", "less"]
+    references:
+      - "man 1 journalctl"
+
+  - name: "dmesg"
+    description: "Print the kernel ring buffer — boot messages, driver output, and hardware events."
+    syntax: "dmesg [-H] [-w] [-T] [-l <level>] [--clear]"
+    os: [linux, root]
+    danger: safe
+    modern: "<code>journalctl -k</code> reads the same kernel log via systemd with persistent history"
+    flags:
+      - flag: "-H"
+        description: "Human-readable output — colour, relative timestamps, and paging."
+      - flag: "-w"
+        description: "Wait and follow — print new kernel messages as they arrive."
+      - flag: "-T"
+        description: "Show human-readable wall-clock timestamps instead of seconds-since-boot."
+      - flag: "-l <level>"
+        description: "Filter by log level (e.g. <code>err</code>, <code>warn</code>)."
+      - flag: "--clear"
+        description: "Clear the ring buffer after printing (needs root)."
+    examples:
+      - code: "dmesg -H"
+        explain: "Browse the kernel log with colour, friendly timestamps, and paging — the most readable everyday form."
+      - code: "sudo dmesg -w"
+        explain: "Follow kernel messages live; plug in a USB device and watch the driver and device-node lines appear."
+      - code: "dmesg -l err,warn"
+        explain: "Show only error and warning level kernel messages — cuts through routine noise when hunting a hardware fault."
+    recipes:
+      - code: "sudo dmesg -T | grep -i 'usb\\|sda\\|error'"
+        explain: "Print wall-clock timestamps then filter for USB, disk, or error lines — a quick triage after a device misbehaves."
+      - code: "dmesg | tail -50"
+        explain: "Show the most recent 50 kernel messages, which usually contain whatever just happened (e.g. an OOM kill)."
+    gotchas: >
+      On many distributions reading <code>dmesg</code> now requires root
+      because <code>kernel.dmesg_restrict</code> is enabled — prefix with
+      <code>sudo</code> if you get "Operation not permitted". Default
+      timestamps are seconds since boot, which are hard to correlate with
+      real events; add <code>-T</code> for wall-clock time. The ring buffer
+      is fixed-size, so old messages are overwritten — use
+      <code>journalctl -k</code> for full history.
+    see_also: ["journalctl", "less"]
+    references:
+      - "man 1 dmesg"
+
+  - name: "free"
+    description: "Show total, used, and available system memory and swap in a single snapshot."
+    syntax: "free [-h] [-m|-g] [-s <secs>] [-t]"
+    os: [linux]
+    danger: safe
+    flags:
+      - flag: "-h"
+        description: "Human-readable units (auto-scales to KiB/MiB/GiB)."
+      - flag: "-m / -g"
+        description: "Force output in mebibytes (<code>-m</code>) or gibibytes (<code>-g</code>)."
+      - flag: "-s <secs>"
+        description: "Repeat the report every <code>&lt;secs&gt;</code> seconds until interrupted."
+      - flag: "-t"
+        description: "Add a total line summing RAM and swap."
+      - flag: "-w"
+        description: "Wide mode — split the buffers and cache columns apart."
+    examples:
+      - code: "free -h"
+        explain: "Show memory and swap usage in human-readable units — the at-a-glance memory check."
+      - code: "free -m -s 5"
+        explain: "Report memory in MiB and refresh every 5 seconds to watch usage trend during a load test."
+      - code: "free -h -t"
+        explain: "Add a total row combining physical RAM and swap, giving the overall memory picture in one line."
+    recipes:
+      - code: "free -h | awk '/Mem:/ {print $3 \" used of \" $2}'"
+        explain: "Extract just the used-versus-total memory figures into a one-line summary for a status script."
+      - code: "watch -n 2 free -h"
+        explain: "Re-run free every 2 seconds via watch for a continuously updating memory dashboard."
+    gotchas: >
+      The number that matters is the <code>available</code> column, not
+      <code>free</code> — Linux deliberately uses spare RAM for disk cache
+      (the <code>buff/cache</code> column), which it instantly reclaims when
+      programs need it. A small <code>free</code> with large
+      <code>available</code> is healthy, not a problem.
+    see_also: ["top", "vmstat", "uptime"]
+    references:
+      - "man 1 free"
+
+  - name: "uptime"
+    description: "Show how long the system has been running plus the 1-, 5-, and 15-minute load averages."
+    syntax: "uptime [-p] [-s]"
+    os: [linux, macos, cross-platform]
+    danger: safe
+    flags:
+      - flag: "-p"
+        description: "Pretty output — print only the uptime in words (e.g. \"up 3 days, 4 hours\")."
+      - flag: "-s"
+        description: "Print the exact date and time the system booted."
+    examples:
+      - code: "uptime"
+        explain: "Print the time, uptime, logged-in user count, and the three load averages in one line."
+      - code: "uptime -p"
+        explain: "Show just the human-readable uptime (\"up 5 days, 2 hours\") with no load or clock clutter."
+      - code: "uptime -s"
+        explain: "Print the precise boot timestamp — useful for confirming whether a server rebooted unexpectedly."
+    recipes:
+      - code: "watch -n 5 uptime"
+        explain: "Re-run uptime every 5 seconds to watch the load averages trend during a stress test."
+      - code: "uptime | awk -F'load average:' '{print $2}'"
+        explain: "Strip everything but the three load-average figures for feeding into a monitoring script."
+    gotchas: >
+      Load average counts processes that are running <em>or</em> waiting
+      (including on disk I/O), not just CPU usage — a load of 4 is healthy on
+      a 4-core box but saturated on a single core. Compare the figure to your
+      core count (<code>nproc</code>). The three numbers are the 1-, 5-, and
+      15-minute averages, so a high first number that is falling means a
+      spike that is passing.
+    see_also: ["top", "free", "vmstat"]
+    references:
+      - "man 1 uptime"
+
+  - name: "vmstat"
+    description: "Report virtual-memory, process, CPU, and I/O statistics sampled over an interval."
+    syntax: "vmstat [<delay> [<count>]] [-s] [-d] [-w]"
+    os: [linux]
+    danger: safe
+    flags:
+      - flag: "<delay> <count>"
+        description: "Sample every <code>&lt;delay&gt;</code> seconds, <code>&lt;count&gt;</code> times (omit count to run forever)."
+      - flag: "-s"
+        description: "Print a one-shot table of memory and event totals instead of the rolling report."
+      - flag: "-d"
+        description: "Show per-disk I/O statistics."
+      - flag: "-w"
+        description: "Wide output — wider columns that don't truncate large numbers."
+      - flag: "-S M"
+        description: "Display memory figures in megabytes instead of kilobytes."
+    examples:
+      - code: "vmstat 1 5"
+        explain: "Sample system stats every second, five times — the first row is averages since boot, the rest are live."
+      - code: "vmstat -s"
+        explain: "Dump a one-shot summary of memory totals and event counters (forks, context switches) since boot."
+      - code: "vmstat -d"
+        explain: "Show per-disk read/write totals to spot which device is taking the I/O load."
+    recipes:
+      - code: "vmstat 2 | awk 'NR>2 {print $1, $2, $13, $14}'"
+        explain: "Sample every 2 seconds and print just the runnable/blocked process counts and user/system CPU percentages."
+      - code: "vmstat 5 12 > vmstat.log"
+        explain: "Log a one-minute capture (5s × 12 samples) to a file for after-the-fact analysis of a performance dip."
+    gotchas: >
+      The first line of output is the <em>average since boot</em> and should
+      be ignored — only the lines after a delay sample reflect current
+      activity. High values in the <code>si</code>/<code>so</code> (swap
+      in/out) columns mean the system is thrashing swap and needs more RAM.
+      The <code>wa</code> CPU column is time waiting on I/O, which often
+      explains apparent slowness that isn't CPU-bound.
+    see_also: ["iostat", "free", "top"]
+    references:
+      - "man 8 vmstat"
+
+  - name: "iostat"
+    description: "Report CPU utilisation and per-device disk I/O throughput and latency."
+    syntax: "iostat [-x] [-d] [-h] [-m] [<interval> [<count>]]"
+    os: [linux]
+    danger: safe
+    flags:
+      - flag: "-x"
+        description: "Extended statistics — utilisation, queue size, await, and service times per device."
+      - flag: "-d"
+        description: "Show device (disk) statistics only, hiding the CPU report."
+      - flag: "-h"
+        description: "Human-readable units for throughput figures."
+      - flag: "-m"
+        description: "Display throughput in megabytes per second instead of blocks."
+      - flag: "<interval> <count>"
+        description: "Sample every <code>&lt;interval&gt;</code> seconds, <code>&lt;count&gt;</code> times."
+      - flag: "-p <dev>"
+        description: "Show statistics for a device and its individual partitions."
+    examples:
+      - code: "iostat -x 2"
+        explain: "Print extended per-device I/O stats every 2 seconds — watch the %util column to find a saturated disk."
+      - code: "iostat -dm 5 3"
+        explain: "Report disk-only throughput in MB/s, three samples five seconds apart, to gauge sustained write speed."
+      - code: "iostat -xp sda 1"
+        explain: "Show extended stats for sda and each of its partitions every second to pinpoint which partition is busy."
+    recipes:
+      - code: "iostat -x 1 | awk '$NF>80 {print}'"
+        explain: "Stream extended stats and flag any device whose last column (%util) exceeds 80% — a near-saturation alert."
+      - code: "iostat -xm 10 6 > io-capture.log"
+        explain: "Capture one minute of extended disk stats in MB/s (10s × 6) to a file for diagnosing an I/O stall after the fact."
+    gotchas: >
+      <code>iostat</code> ships in the <code>sysstat</code> package, which is
+      not always installed by default. As with <code>vmstat</code>, the first
+      report is the average since boot — ignore it and read subsequent
+      samples. The key fields in <code>-x</code> are <code>%util</code>
+      (how busy the device is) and <code>await</code> (average request
+      latency in ms); a high <code>await</code> with high <code>%util</code>
+      means the disk is the bottleneck.
+    see_also: ["vmstat", "top", "free"]
+    references:
+      - "man 1 iostat"

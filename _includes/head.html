@@ -63,6 +63,13 @@
     var t = localStorage.getItem('theme');
     if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
 
+    // Header stickiness preference. Default is sticky ("on"); only the explicit
+    // "off" value collapses it, applied before paint so the header doesn't flash
+    // fixed-then-static on load.
+    if (localStorage.getItem('headerSticky') === 'off') {
+      document.documentElement.setAttribute('data-header-sticky', 'off');
+    }
+
     // Bootstrap consent state synchronously so other scripts can check it
     var CC_KEY = 'cookie_consent', CC_VER = 1, CC_EXP = 365;
     try {
