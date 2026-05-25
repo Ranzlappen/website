@@ -32,7 +32,7 @@
   border: 1px solid var(--c-border);
   border-radius: var(--border-radius);
   padding: var(--space-md) var(--space-lg);
-  scroll-margin-top: calc(var(--header-height, 3.75rem) + 1rem);
+  scroll-margin-top: calc(var(--header-offset, 3.75rem) + 1rem);
 }
 .cmd-widget__title {
   font-size: 1.05rem;
