@@ -7,7 +7,7 @@ batch:
     Distribution package managers (apt, brew, pacman, dnf, apk, flatpak,
     snap) and language-level package managers (pip, pipx, npm, pnpm, cargo,
     gem, bundle). For each: install, remove, upgrade, search, and inspect.
-  last_updated: "2026-05-23"
+  last_updated: "2026-05-25"
 
 entries:
   - name: "apt"
@@ -760,3 +760,238 @@ entries:
     references:
       - "man 1 gem"
       - "https://guides.rubygems.org"
+
+  - name: "apt-get"
+    description: "Low-level Debian/Ubuntu package tool with a stable CLI contract — preferred over apt in scripts."
+    syntax: "apt-get [update|upgrade|dist-upgrade|install|remove|purge|autoremove] [<pkg>...]"
+    os: [linux, root]
+    danger: caution
+    modern: "<code>apt</code> is the friendlier interactive front-end; keep <code>apt-get</code> for scripts"
+    flags:
+      - flag: "update"
+        description: "Refresh the package index from configured repositories."
+      - flag: "upgrade"
+        description: "Upgrade installed packages without removing any (never adds new deps that need removals)."
+      - flag: "dist-upgrade"
+        description: "Upgrade and intelligently add/remove packages to satisfy new dependencies."
+      - flag: "install <pkg>"
+        description: "Install one or more packages and their dependencies."
+      - flag: "remove <pkg>"
+        description: "Remove a package but keep its config files."
+      - flag: "purge <pkg>"
+        description: "Remove a package together with its config files."
+      - flag: "autoremove"
+        description: "Drop orphaned dependencies no package needs any more."
+      - flag: "-y"
+        description: "Assume yes to all prompts — required for non-interactive scripts."
+      - flag: "install -f"
+        description: "Fix broken dependencies (e.g. after a failed <code>dpkg -i</code>)."
+    examples:
+      - code: "sudo apt-get update && sudo apt-get install -y nginx"
+        explain: "Refresh the index then install nginx non-interactively — the script-safe form that won't pause for prompts."
+      - code: "sudo apt-get install -f -y"
+        explain: "Fetch and install any missing dependencies to repair a broken package state, e.g. after a manual dpkg install."
+      - code: "sudo apt-get purge --auto-remove nginx"
+        explain: "Remove nginx with its config files and prune any dependencies that were only pulled in for it."
+    recipes:
+      - code: "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql"
+        explain: "Install with the noninteractive frontend so debconf never blocks on a config dialog — the canonical pattern inside Dockerfiles and CI."
+      - code: "sudo apt-get update && sudo apt-get dist-upgrade -y && sudo apt-get autoremove -y"
+        explain: "Full upgrade that lets dependency changes through, then prunes orphans — a thorough non-interactive maintenance sweep."
+    gotchas: >
+      Prefer <code>apt-get</code> over <code>apt</code> in scripts — its
+      output format and exit codes are a stable contract across releases,
+      whereas <code>apt</code> prints a warning that "its CLI is not stable".
+      <code>upgrade</code> never removes packages; use
+      <code>dist-upgrade</code> when an upgrade requires removals (e.g. a
+      kernel transition). Set <code>DEBIAN_FRONTEND=noninteractive</code> to
+      avoid debconf dialogs hanging an automated install.
+    see_also: ["apt", "dpkg"]
+    references:
+      - "man 8 apt-get"
+
+  - name: "winget"
+    description: "Windows Package Manager — Microsoft's official CLI for installing and updating Windows apps."
+    syntax: "winget [install|uninstall|upgrade|search|show|list] [<id>|<name>]"
+    os: [windows]
+    danger: caution
+    flags:
+      - flag: "install <id>"
+        description: "Install a package by its ID or name from the configured sources."
+      - flag: "uninstall <id>"
+        description: "Remove an installed package."
+      - flag: "upgrade [<id>]"
+        description: "Upgrade a named package, or list available upgrades when given no argument."
+      - flag: "upgrade --all"
+        description: "Upgrade every package that has a newer version available."
+      - flag: "search <term>"
+        description: "Search the repositories for packages matching a term."
+      - flag: "show <id>"
+        description: "Display detailed metadata for a package."
+      - flag: "list"
+        description: "List installed packages winget can manage."
+      - flag: "-e / --exact"
+        description: "Match the ID/name exactly rather than as a substring."
+    examples:
+      - code: "winget search vscode"
+        explain: "Search the winget repositories for Visual Studio Code and show the package IDs you can install."
+      - code: "winget install -e --id Microsoft.PowerShell"
+        explain: "Install PowerShell by its exact package ID — using --id with -e avoids accidentally matching a similarly named package."
+      - code: "winget upgrade --all"
+        explain: "Upgrade every installed package that has a newer version — the one-command system update."
+    recipes:
+      - code: "winget install --id Git.Git -e --silent --accept-package-agreements"
+        explain: "Silently install Git, auto-accepting the package agreement — the scriptable, unattended form for provisioning a machine."
+      - code: "winget export -o apps.json && winget import -i apps.json"
+        explain: "Export the installed package list to JSON, then re-import it on another machine to reproduce the same app set."
+    gotchas: >
+      Package <em>IDs</em> (e.g. <code>Microsoft.PowerShell</code>) are
+      stable; loose name matches can resolve to the wrong package, so pass
+      <code>--id</code> with <code>-e</code> for scripts. Unattended installs
+      need <code>--silent</code> plus
+      <code>--accept-package-agreements</code> and
+      <code>--accept-source-agreements</code>, or winget will block waiting
+      for input. winget ships with modern Windows 10/11 via "App Installer".
+    see_also: ["choco"]
+    references:
+      - "https://learn.microsoft.com/windows/package-manager/winget/"
+
+  - name: "choco"
+    description: "Chocolatey — a community-driven Windows package manager built on PowerShell and NuGet."
+    syntax: "choco [install|uninstall|upgrade|search|list|outdated] [<pkg>...]"
+    os: [windows]
+    danger: caution
+    modern: "<code>winget</code> is Microsoft's first-party alternative; Chocolatey has a larger community catalogue"
+    flags:
+      - flag: "install <pkg>"
+        description: "Install one or more packages from the Chocolatey community repository."
+      - flag: "uninstall <pkg>"
+        description: "Remove an installed package."
+      - flag: "upgrade <pkg>"
+        description: "Upgrade a package (<code>all</code> upgrades everything)."
+      - flag: "search <term>"
+        description: "Search the repository for matching packages."
+      - flag: "list"
+        description: "List locally installed Chocolatey packages."
+      - flag: "outdated"
+        description: "Show installed packages that have newer versions available."
+      - flag: "-y"
+        description: "Confirm all prompts automatically — required for unattended runs."
+      - flag: "--version <v>"
+        description: "Pin a specific package version to install."
+    examples:
+      - code: "choco install git -y"
+        explain: "Install Git, auto-confirming the prompts — must run from an elevated (Administrator) shell."
+      - code: "choco upgrade all -y"
+        explain: "Upgrade every installed Chocolatey package to its latest version in one unattended command."
+      - code: "choco search nodejs"
+        explain: "Search the community repository for Node.js packages and show their IDs and versions."
+    recipes:
+      - code: "choco install git vscode 7zip -y"
+        explain: "Install several developer tools in a single command — Chocolatey resolves and installs each in turn."
+      - code: "choco outdated && choco upgrade all -y"
+        explain: "List what has updates pending, then upgrade everything — a quick maintenance pass on a Windows box."
+    gotchas: >
+      Chocolatey must run from an <em>elevated</em> (Administrator)
+      PowerShell or cmd, and most operations need <code>-y</code> to skip
+      confirmation in scripts. The community feed is volunteer-maintained, so
+      a given package's quality and update cadence vary — verify the source
+      for anything sensitive. Packages install to
+      <code>C:\\ProgramData\\chocolatey</code>; pin versions with
+      <code>--version</code> for reproducible provisioning.
+    see_also: ["winget"]
+    references:
+      - "https://docs.chocolatey.org/"
+
+  - name: "zypper"
+    description: "openSUSE and SUSE Linux Enterprise package manager with strong dependency and repo handling."
+    syntax: "zypper [in|rm|up|dup|se|if|ref] [<pkg>...]"
+    os: [linux, root]
+    danger: caution
+    flags:
+      - flag: "in <pkg>"
+        description: "Install one or more packages (full form: <code>install</code>)."
+      - flag: "rm <pkg>"
+        description: "Remove a package (full form: <code>remove</code>)."
+      - flag: "up [<pkg>]"
+        description: "Update installed packages to newer versions within the current repos."
+      - flag: "dup"
+        description: "Distribution upgrade — the correct way to move a rolling Tumbleweed system forward."
+      - flag: "ref"
+        description: "Refresh repository metadata (<code>refresh</code>)."
+      - flag: "se <pat>"
+        description: "Search for packages by name or summary (<code>search</code>)."
+      - flag: "if <pkg>"
+        description: "Show detailed info for a package (<code>info</code>)."
+      - flag: "-n / --non-interactive"
+        description: "Assume the default answer to all prompts — for scripts."
+    examples:
+      - code: "sudo zypper ref && sudo zypper in neovim ripgrep"
+        explain: "Refresh repo metadata then install two packages — the openSUSE equivalent of apt update && apt install."
+      - code: "sudo zypper dup"
+        explain: "Perform a distribution upgrade — the supported way to update a rolling Tumbleweed system to the latest snapshot."
+      - code: "zypper se docker"
+        explain: "Search the repositories for Docker-related packages without root — search and info never need elevation."
+    recipes:
+      - code: "sudo zypper -n dup --allow-vendor-change"
+        explain: "Run a non-interactive distribution upgrade allowing packages to switch vendors — common when migrating repos on Tumbleweed."
+      - code: "sudo zypper ref && sudo zypper -n up"
+        explain: "Refresh metadata then update all packages without prompting — a hands-off maintenance update for a Leap system."
+    gotchas: >
+      On rolling <em>Tumbleweed</em>, use <code>zypper dup</code> (dist
+      upgrade), not <code>zypper up</code> — plain <code>up</code> can leave
+      a rolling release in a partially upgraded, inconsistent state. The
+      short subcommands (<code>in</code>, <code>rm</code>, <code>se</code>)
+      are aliases for the full words. Pass <code>-n</code> for
+      non-interactive scripts; otherwise zypper waits for a y/n answer.
+    see_also: ["dnf", "apt"]
+    references:
+      - "man 8 zypper"
+      - "https://en.opensuse.org/SDB:Zypper_usage"
+
+  - name: "nix-env"
+    description: "Imperative package manager for Nix — install, upgrade, and roll back packages per user profile."
+    syntax: "nix-env [-i|-e|-u|-q] [<pkg>...] [--rollback]"
+    os: [linux]
+    danger: caution
+    modern: "<code>nix profile</code> (with flakes) is the newer interface superseding <code>nix-env</code>"
+    flags:
+      - flag: "-i <pkg>"
+        description: "Install a package into the current user's Nix profile."
+      - flag: "-e <pkg>"
+        description: "Erase (uninstall) a package from the profile."
+      - flag: "-u [<pkg>]"
+        description: "Upgrade installed packages (all, or a named one)."
+      - flag: "-q"
+        description: "Query — list installed packages (<code>--installed</code>) or available ones (<code>-a</code>)."
+      - flag: "-qaP <pat>"
+        description: "Search available packages by attribute path matching a pattern."
+      - flag: "--rollback"
+        description: "Revert the profile to its previous generation."
+      - flag: "--list-generations"
+        description: "List every saved generation of the profile with timestamps."
+    examples:
+      - code: "nix-env -iA nixpkgs.ripgrep"
+        explain: "Install ripgrep by its attribute path (-A) from the nixpkgs channel — faster and unambiguous versus matching by name."
+      - code: "nix-env -qaP firefox"
+        explain: "Search available packages whose attribute path matches 'firefox', printing the path you'd pass to -iA."
+      - code: "nix-env --rollback"
+        explain: "Revert the user profile to the previous generation — instantly undo the last install or upgrade with no rebuild."
+    recipes:
+      - code: "nix-env -u && nix-env --list-generations"
+        explain: "Upgrade every package in the profile, then list the generation history so you can see (and later roll back to) each state."
+      - code: "nix-env -iA nixpkgs.git nixpkgs.curl && nix-collect-garbage -d"
+        explain: "Install two tools, then garbage-collect old generations to reclaim store space — a tidy install-and-clean pass."
+    gotchas: >
+      Prefer attribute-path installs (<code>-iA nixpkgs.&lt;name&gt;</code>)
+      over name matching (<code>-i &lt;name&gt;</code>) — the latter is slow
+      and can resolve ambiguously. Every change creates a new
+      <em>generation</em>, so <code>--rollback</code> always works, but old
+      generations pin store paths and consume disk until you run
+      <code>nix-collect-garbage -d</code>. On flakes-based setups,
+      <code>nix profile</code> is the modern replacement for
+      <code>nix-env</code>.
+    see_also: ["apt", "dnf"]
+    references:
+      - "man 1 nix-env"
+      - "https://nixos.org/manual/nix/stable/command-ref/nix-env"

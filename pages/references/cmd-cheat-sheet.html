@@ -170,6 +170,19 @@ The abbreviations / glossary system is shared site-wide:
         <input type="search" id="cmd-search" placeholder="Filter by name, flag, example…" autocomplete="off" spellcheck="false">
         <span class="reference-search__count" id="cmd-count" aria-live="polite"></span>
       </label>
+
+      <label class="reference-osfilter">
+        <span class="reference-osfilter__label">OS</span>
+        <select id="cmd-os-filter" aria-label="Filter by operating system or appliance">
+          <option value="">All</option>
+          <option value="linux">🐧 Linux</option>
+          <option value="macos">🍎 macOS</option>
+          <option value="windows">🪟 Windows</option>
+          <option value="cross-platform">⚙️ Cross-platform</option>
+          <option value="root">🛡 Root / sudo</option>
+          <option value="android">🤖 Android (Termux)</option>
+        </select>
+      </label>
     </div>
 
     <div class="reference-batch-blurb" id="cmd-batch-blurb" hidden></div>
@@ -193,6 +206,8 @@ The abbreviations / glossary system is shared site-wide:
         <thead>
           <tr>
             <th scope="col" class="col-name is-sticky-col">Command</th>
+            <th scope="col" class="col-os">OS / Appliance</th>
+            <th scope="col" class="col-danger">Danger</th>
             <th scope="col" class="col-desc">Description</th>
             <th scope="col" class="col-syntax">Syntax</th>
             <th scope="col" class="col-flags">Flags / Options</th>
@@ -215,8 +230,8 @@ The abbreviations / glossary system is shared site-wide:
               {%- if cmd.flags == nil or cmd.flags.size == 0 -%}<!-- LINT: {{ cmd.name }} ({{ batch.id }}) has no flags -->{% endif %}
               {%- if cmd.examples == nil or cmd.examples.size == 0 -%}<!-- LINT: {{ cmd.name }} ({{ batch.id }}) has no examples -->{% endif %}
               {%- for ex in cmd.examples -%}{%- if ex.code == nil or ex.explain == nil -%}<!-- LINT: {{ cmd.name }} ({{ batch.id }}) has an example missing code/explain -->{%- endif -%}{%- endfor -%}
-              <tr id="cmd-{{ cmd_slug }}" data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}">
-                <td class="col-name is-sticky-col">
+              <tr id="cmd-{{ cmd_slug }}" data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}" data-os="{{ cmd.os | join: ' ' }}" data-danger="{{ cmd.danger }}">
+                <td class="col-name is-sticky-col" data-sort="{{ cmd.name | escape }}">
                   <code class="mono">{{ cmd.name }}</code>
                   <div class="cmd-os-badges">
                     {% for o in cmd.os %}
@@ -234,6 +249,30 @@ The abbreviations / glossary system is shared site-wide:
                     {%- when "destructive" -%}<div class="cmd-danger-cell"><span class="reference-badge cmd-danger--destructive" title="Destructive — can cause irreversible data loss or system damage">⚠ destructive</span></div>
                     {%- when "caution" -%}<div class="cmd-danger-cell"><span class="reference-badge cmd-danger--caution" title="Caution — can overwrite, modify state, or surprise you">▲ caution</span></div>
                     {%- when "safe" -%}<div class="cmd-danger-cell"><span class="reference-badge cmd-danger--safe" title="Safe — read-only or trivially reversible in normal use">✓ safe</span></div>
+                  {%- endcase -%}
+                </td>
+                <td class="col-os" data-sort="{{ cmd.os | join: ' ' }}">
+                  {% if cmd.os and cmd.os.size > 0 %}
+                  <div class="cmd-os-badges cmd-os-badges--col">
+                    {% for o in cmd.os %}
+                      {%- case o -%}
+                        {%- when "linux"          -%}<span class="reference-badge cmd-os--linux"   title="Linux">🐧 Linux</span>
+                        {%- when "macos"          -%}<span class="reference-badge cmd-os--macos"   title="macOS">🍎 macOS</span>
+                        {%- when "windows"        -%}<span class="reference-badge cmd-os--windows" title="Windows">🪟 Windows</span>
+                        {%- when "cross-platform" -%}<span class="reference-badge cmd-os--cross"   title="Cross-platform">⚙️ Cross-platform</span>
+                        {%- when "root"           -%}<span class="reference-badge cmd-os--root"    title="Requires root / sudo">🛡 root</span>
+                        {%- when "android"        -%}<span class="reference-badge cmd-os--android" title="Android (Termux)">🤖 Termux</span>
+                      {%- endcase -%}
+                    {% endfor %}
+                  </div>
+                  {% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-danger" data-sort="{%- case cmd.danger -%}{%- when 'safe' -%}0{%- when 'caution' -%}1{%- when 'destructive' -%}2{%- else -%}3{%- endcase -%}">
+                  {%- case cmd.danger -%}
+                    {%- when "destructive" -%}<span class="reference-badge cmd-danger--destructive" title="Destructive — can cause irreversible data loss or system damage">⚠ destructive</span>
+                    {%- when "caution" -%}<span class="reference-badge cmd-danger--caution" title="Caution — can overwrite, modify state, or surprise you">▲ caution</span>
+                    {%- when "safe" -%}<span class="reference-badge cmd-danger--safe" title="Safe — read-only or trivially reversible in normal use">✓ safe</span>
+                    {%- else -%}<span class="cell-empty">—</span>
                   {%- endcase -%}
                 </td>
                 <td class="col-desc">{{ cmd.description }}</td>

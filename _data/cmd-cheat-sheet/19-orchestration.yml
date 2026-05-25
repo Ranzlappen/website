@@ -1,0 +1,152 @@
+batch:
+  id: "orchestration"
+  order: 19
+  name: "Container Orchestration"
+  short_name: "Orchestration"
+  description: >
+    Drive clustered and multi-container workloads — kubectl for talking to a
+    Kubernetes API server, helm for packaging and releasing Kubernetes apps
+    as charts, and docker compose for defining and running multi-container
+    stacks from a single YAML file.
+  last_updated: "2026-05-25"
+
+entries:
+  - name: "kubectl"
+    description: "The Kubernetes CLI — inspect, deploy, and manage resources against a cluster's API server."
+    syntax: "kubectl <verb> <resource> [<name>] [-n <namespace>] [-o <format>]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    flags:
+      - flag: "get <resource>"
+        description: "List resources of a type (e.g. <code>pods</code>, <code>svc</code>, <code>deploy</code>)."
+      - flag: "describe <resource> <name>"
+        description: "Show detailed state and recent events for one resource."
+      - flag: "apply -f <file>"
+        description: "Create or update resources to match a manifest (declarative)."
+      - flag: "delete <resource> <name>"
+        description: "Remove a resource from the cluster."
+      - flag: "logs <pod> [-f]"
+        description: "Print a pod's container logs; <code>-f</code> follows them live."
+      - flag: "exec -it <pod> -- <cmd>"
+        description: "Run a command inside a running container (e.g. <code>-- /bin/sh</code>)."
+      - flag: "-n <namespace>"
+        description: "Target a specific namespace instead of the default."
+      - flag: "-o <format>"
+        description: "Output format — <code>wide</code>, <code>yaml</code>, <code>json</code>, or <code>jsonpath=...</code>."
+    examples:
+      - code: "kubectl get pods -n production -o wide"
+        explain: "List all pods in the production namespace with extra columns (node, IP) for quick triage."
+      - code: "kubectl apply -f deployment.yaml"
+        explain: "Declaratively create or update the resources defined in the manifest — the standard GitOps-friendly deploy."
+      - code: "kubectl logs -f my-pod -c app"
+        explain: "Stream the live logs of the 'app' container in my-pod, like tail -f on its stdout."
+    recipes:
+      - code: "kubectl exec -it deploy/api -- /bin/sh"
+        explain: "Open an interactive shell inside a pod from the 'api' deployment — for debugging without changing the image."
+      - code: "kubectl rollout restart deploy/api && kubectl rollout status deploy/api"
+        explain: "Trigger a rolling restart of the api deployment then watch it until every replica is healthy again."
+    gotchas: >
+      Commands target whatever cluster and namespace the current
+      <em>context</em> selects — run <code>kubectl config current-context</code>
+      and pass <code>-n</code> explicitly to avoid acting on the wrong
+      cluster (a common cause of production accidents). Prefer
+      <code>apply -f</code> (declarative) over imperative
+      <code>create</code>/<code>edit</code> so manifests stay the source of
+      truth. <code>delete</code> is immediate and not undoable — double-check
+      the namespace and name.
+    see_also: ["helm", "docker compose"]
+    references:
+      - "https://kubernetes.io/docs/reference/kubectl/"
+
+  - name: "helm"
+    description: "The Kubernetes package manager — install, upgrade, and roll back applications packaged as charts."
+    syntax: "helm <command> [<release>] [<chart>] [-n <namespace>] [-f <values>]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    flags:
+      - flag: "install <release> <chart>"
+        description: "Install a chart as a named release into the cluster."
+      - flag: "upgrade <release> <chart>"
+        description: "Upgrade an existing release to a new chart or values (<code>-i</code> = install if absent)."
+      - flag: "uninstall <release>"
+        description: "Remove a release and all the resources it created."
+      - flag: "list"
+        description: "List installed releases in the current namespace (<code>-A</code> for all namespaces)."
+      - flag: "repo add <name> <url>"
+        description: "Register a chart repository so its charts can be installed by name."
+      - flag: "-f <values.yaml>"
+        description: "Override chart defaults with a custom values file."
+      - flag: "rollback <release> [<rev>]"
+        description: "Revert a release to a previous revision."
+      - flag: "--dry-run --debug"
+        description: "Render the chart and show what would be applied without touching the cluster."
+    examples:
+      - code: "helm repo add bitnami https://charts.bitnami.com/bitnami && helm repo update"
+        explain: "Register the Bitnami chart repo and refresh its index so its charts become installable by name."
+      - code: "helm install web bitnami/nginx -n web --create-namespace"
+        explain: "Install the nginx chart as a release named 'web' into a new 'web' namespace."
+      - code: "helm upgrade -i web bitnami/nginx -f prod-values.yaml"
+        explain: "Upgrade (or install if missing) the 'web' release applying custom production values from a file."
+    recipes:
+      - code: "helm upgrade -i web bitnami/nginx --dry-run --debug"
+        explain: "Render the chart with your values and print the resulting manifests without applying — verify before a real upgrade."
+      - code: "helm rollback web 1 && helm history web"
+        explain: "Roll the 'web' release back to revision 1, then list its revision history to confirm the rollback landed."
+    gotchas: >
+      A release name plus namespace must be unique — reusing a name in the
+      same namespace fails unless you <code>upgrade</code> instead of
+      <code>install</code>. Always run <code>helm repo update</code> after
+      adding a repo, or chart lookups use a stale index. Use
+      <code>upgrade -i</code> (install-if-absent) in CI so the same command
+      works whether the release exists yet or not, and
+      <code>--dry-run</code> to preview rendered manifests.
+    see_also: ["kubectl"]
+    references:
+      - "https://helm.sh/docs/"
+
+  - name: "docker compose"
+    description: "Define and run a multi-container application stack from a single compose YAML file."
+    syntax: "docker compose [-f <file>] <up|down|ps|logs|build|exec> [options]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    modern: "<code>docker compose</code> (v2 plugin) replaces the standalone <code>docker-compose</code> Python script"
+    flags:
+      - flag: "up [-d]"
+        description: "Create and start all services; <code>-d</code> runs them detached in the background."
+      - flag: "down [-v]"
+        description: "Stop and remove containers and networks; <code>-v</code> also removes named volumes."
+      - flag: "ps"
+        description: "List the containers managed by the compose project and their status."
+      - flag: "logs [-f] [<svc>]"
+        description: "Show (and optionally follow) logs for all services or one named service."
+      - flag: "build [<svc>]"
+        description: "Build or rebuild service images from their Dockerfiles."
+      - flag: "exec <svc> <cmd>"
+        description: "Run a command inside a running service container."
+      - flag: "-f <file>"
+        description: "Use a specific compose file (default <code>compose.yaml</code>/<code>docker-compose.yml</code>)."
+      - flag: "--build"
+        description: "With <code>up</code>, rebuild images before starting."
+    examples:
+      - code: "docker compose up -d"
+        explain: "Build (if needed) and start every service in the background — the standard way to bring a stack online."
+      - code: "docker compose logs -f web"
+        explain: "Follow the live logs of just the 'web' service to watch its output while the rest of the stack runs."
+      - code: "docker compose down -v"
+        explain: "Stop and remove the whole stack including named volumes — a full teardown that also discards persisted data."
+    recipes:
+      - code: "docker compose up -d --build && docker compose ps"
+        explain: "Rebuild images, start the stack detached, then list the containers to confirm every service came up healthy."
+      - code: "docker compose exec db psql -U app -d app"
+        explain: "Open a psql session inside the running 'db' service container without exposing the port to the host."
+    gotchas: >
+      Modern Docker ships <code>docker compose</code> (a v2 plugin, space not
+      hyphen); the legacy <code>docker-compose</code> Python script is
+      deprecated and may behave subtly differently. <code>down -v</code>
+      <em>deletes named volumes</em> — your database data goes with it, so
+      omit <code>-v</code> to preserve state. Compose namespaces resources by
+      the project name (the directory name by default), so running the same
+      file from two directories creates two independent stacks.
+    see_also: ["kubectl", "helm"]
+    references:
+      - "https://docs.docker.com/compose/"

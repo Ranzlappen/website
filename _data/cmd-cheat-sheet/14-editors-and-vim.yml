@@ -1,0 +1,185 @@
+batch:
+  id: "editors-and-vim"
+  order: 14
+  name: "Editors & vim"
+  short_name: "Editors / vim"
+  description: >
+    Terminal text editors and pagers — vim with its modal motions and
+    substitution syntax, the side-by-side vimdiff, the beginner-friendly
+    nano, and less as a read-only pager. Core motions, editing commands,
+    and search/replace live in each command's examples and recipes.
+  last_updated: "2026-05-25"
+
+entries:
+  - name: "vim"
+    description: "Modal terminal text editor — separate modes for moving, inserting, and issuing commands."
+    syntax: "vim [+<line>] [-R] [<file>...]"
+    os: [linux, macos, cross-platform, android]
+    danger: caution
+    modern: "<code>nvim</code> (Neovim) is a compatible fork with Lua config and async plugins"
+    flags:
+      - flag: "+<line>"
+        description: "Open the file with the cursor on line <code>&lt;line&gt;</code> (bare <code>+</code> jumps to the last line)."
+      - flag: "+/<pat>"
+        description: "Open and jump to the first line matching <code>&lt;pat&gt;</code>."
+      - flag: "-R"
+        description: "Read-only mode — guards against accidental edits while browsing."
+      - flag: "-d"
+        description: "Diff mode — equivalent to running <code>vimdiff</code> on the given files."
+      - flag: "-o / -O"
+        description: "Open the listed files in horizontal (<code>-o</code>) or vertical (<code>-O</code>) split windows."
+      - flag: "-p"
+        description: "Open each file in its own tab page."
+      - flag: "-u <vimrc>"
+        description: "Use the given config file instead of the default; <code>-u NONE</code> starts with no config at all."
+      - flag: "-c <cmd>"
+        description: "Run an Ex command after loading the first file (e.g. <code>-c 'set number'</code>)."
+    examples:
+      - code: "vim notes.txt"
+        explain: "Open notes.txt; vim starts in Normal (command) mode, so press i to begin inserting text."
+      - code: "vim +120 server.log"
+        explain: "Open server.log with the cursor placed on line 120 — handy for jumping straight to a stack-trace location."
+      - code: "vim -R /etc/hosts"
+        explain: "Open the file read-only so you can browse it with vim motions without risking an accidental save."
+      - code: "vim -O a.py b.py"
+        explain: "Open both files side by side in vertical splits — switch between windows with Ctrl-w then h/l."
+    recipes:
+      - code: ":%s/old/new/g"
+        explain: "Substitute every occurrence of 'old' with 'new' across the whole file (% = all lines, g = all matches on each line)."
+      - code: "dd / yy / p"
+        explain: "Delete the current line (dd), yank/copy it (yy), then paste it below the cursor (p) — the core cut/copy/paste motions."
+      - code: ":wq"
+        explain: "Write the buffer to disk and quit — type :q! instead to discard changes and force-quit without saving."
+      - code: "/pattern"
+        explain: "Search forward for 'pattern'; press n for the next match and N for the previous one."
+    gotchas: >
+      vim is <em>modal</em> — keystrokes mean different things in Normal,
+      Insert, and Visual mode. If typed text does nothing or beeps, you are
+      in Normal mode; press <code>i</code> to insert or <code>Esc</code> to
+      return to Normal. To exit when stuck, press <code>Esc</code> then type
+      <code>:q!</code> to quit discarding changes, or <code>:wq</code> to
+      save and quit. A leftover <code>.swp</code> file means a previous
+      session crashed or the file is open elsewhere.
+    see_also: ["vimdiff", "nano", "less"]
+    references:
+      - "man 1 vim"
+      - "https://www.vim.org/docs.php"
+
+  - name: "vimdiff"
+    description: "Open two to four files in vim with their differences highlighted side by side."
+    syntax: "vimdiff <file1> <file2> [<file3> [<file4>]]"
+    os: [linux, macos, cross-platform]
+    danger: caution
+    modern: "<code>nvim -d</code> for Neovim; <code>delta</code> or <code>git difftool</code> for richer diffs"
+    flags:
+      - flag: "-R"
+        description: "Open all files read-only so the diff can be reviewed without edits."
+      - flag: "-c 'set diffopt+=iwhite'"
+        description: "Pass an Ex command — here, make the diff ignore whitespace changes."
+    examples:
+      - code: "vimdiff config.old config.new"
+        explain: "Show the two config files in vertical splits with changed and missing lines colour-highlighted."
+      - code: "vimdiff -R a.txt b.txt"
+        explain: "Compare two files read-only — review the differences without any risk of editing either side."
+    recipes:
+      - code: "git config --global merge.tool vimdiff && git mergetool"
+        explain: "Register vimdiff as Git's merge tool, then launch it on every conflicted file during a merge."
+      - code: ":diffget / :diffput"
+        explain: "Inside vimdiff, pull the change under the cursor from the other window (:diffget) or push yours to it (:diffput); ]c and [c jump between hunks."
+    gotchas: >
+      The cursor controls which window is the <em>target</em> for
+      <code>:diffget</code>/<code>:diffput</code> — double-check which split
+      you are in before pushing changes. Use <code>:diffupdate</code> if the
+      highlighting goes stale after manual edits. Closing one split with
+      <code>:q</code> leaves the others in diff mode until you quit them too.
+    see_also: ["vim", "diff"]
+    references:
+      - "man 1 vimdiff"
+
+  - name: "nano"
+    description: "Small, approachable terminal editor with on-screen shortcut hints — no modes to learn."
+    syntax: "nano [-l] [+<line>[,<col>]] [<file>]"
+    os: [linux, macos, cross-platform, android]
+    danger: caution
+    modern: "<code>micro</code> offers a similar modeless feel with mouse and syntax-highlighting defaults"
+    flags:
+      - flag: "+<line>,<col>"
+        description: "Open with the cursor at the given line and (optional) column."
+      - flag: "-l"
+        description: "Show line numbers in the left margin."
+      - flag: "-w"
+        description: "Disable automatic line wrapping of long lines."
+      - flag: "-m"
+        description: "Enable mouse support for click-to-position."
+      - flag: "-i"
+        description: "Auto-indent new lines to match the previous line."
+      - flag: "-B"
+        description: "Save a backup of the previous version as <code>&lt;file&gt;~</code> on write."
+    examples:
+      - code: "nano /etc/hosts"
+        explain: "Open the hosts file; on-screen hints show ^O to save (WriteOut) and ^X to exit — ^ means the Ctrl key."
+      - code: "nano -l script.sh"
+        explain: "Open the script with line numbers shown in the margin — handy when chasing a reported line number."
+      - code: "nano +42 server.conf"
+        explain: "Jump straight to line 42 on open, skipping the manual scroll."
+    recipes:
+      - code: "EDITOR=nano crontab -e"
+        explain: "Force crontab to open in nano for this edit, even if the system default editor is vim."
+      - code: "sudo nano /etc/fstab"
+        explain: "Edit a root-owned system file with elevated privileges — nano writes only on Ctrl-O, so review before saving."
+    gotchas: >
+      Saving is <code>Ctrl-O</code> (WriteOut), <em>not</em>
+      <code>Ctrl-S</code> — and <code>Ctrl-X</code> exits, prompting to save
+      if there are unsaved changes. The <code>^</code> in the bottom bar
+      means the <code>Ctrl</code> key and <code>M-</code> means the
+      <code>Alt</code>/Meta key. Older builds wrap long lines by default,
+      which can mangle config files — pass <code>-w</code> to disable it.
+    see_also: ["vim", "less"]
+    references:
+      - "man 1 nano"
+      - "https://www.nano-editor.org/dist/latest/nano.html"
+
+  - name: "less"
+    description: "Scroll forward and backward through text or files one screen at a time — the default pager."
+    syntax: "less [-N] [-S] [+<cmd>] [<file>...]"
+    os: [linux, macos, cross-platform]
+    danger: safe
+    modern: "<code>bat</code> adds syntax highlighting and Git gutters while paging like less"
+    flags:
+      - flag: "-N"
+        description: "Show line numbers in the left margin."
+      - flag: "-S"
+        description: "Chop (do not wrap) long lines; scroll right with the arrow keys to see them."
+      - flag: "-R"
+        description: "Pass ANSI colour escape codes through so coloured output renders correctly."
+      - flag: "-F"
+        description: "Quit immediately if the content fits on one screen (don't page short files)."
+      - flag: "-X"
+        description: "Don't clear the screen on exit — leave the last page visible in the scrollback."
+      - flag: "+F"
+        description: "Start in follow mode, like <code>tail -f</code>; press Ctrl-C to stop following and scroll freely."
+      - flag: "+G"
+        description: "Jump to the end of the file on open."
+    examples:
+      - code: "less /var/log/syslog"
+        explain: "Page through the system log; press / to search forward, n for the next hit, and q to quit."
+      - code: "less -N -S wide.csv"
+        explain: "Page a wide CSV with line numbers and without wrapping, so columns stay aligned as you scroll right."
+      - code: "less +F app.log"
+        explain: "Open the log and follow new lines as they arrive, like tail -f, but Ctrl-C lets you scroll back through history."
+    recipes:
+      - code: "git log -p | less -R"
+        explain: "Pipe a coloured Git log into less and keep the colours intact with -R — better than letting Git open its own pager."
+      - code: "less +G /var/log/nginx/access.log"
+        explain: "Open the access log scrolled to the bottom so the most recent requests are on screen immediately."
+    gotchas: >
+      less is read-only — it never edits the file, so it's safe on huge or
+      production files (it doesn't load the whole file into memory). Inside
+      less, <code>/</code> searches forward, <code>?</code> backward,
+      <code>g</code>/<code>G</code> jump to the start/end, and <code>q</code>
+      quits. Coloured input looks garbled unless you pass <code>-R</code>.
+      The pager honours the <code>LESS</code> environment variable for
+      default flags.
+    see_also: ["vim", "nano"]
+    references:
+      - "man 1 less"

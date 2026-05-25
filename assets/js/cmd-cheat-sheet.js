@@ -12,6 +12,9 @@
       blurbId:     'cmd-batch-blurb',
       batchDataId: 'cmd-batch-data',
       rowsLabel:   'commands',
+      sortable:    true,
+      osFilterId:  'cmd-os-filter',
+      osAttr:      'data-os',
     });
   }
 
