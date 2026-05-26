@@ -3,10 +3,10 @@
 // stable key order + trailing newline for clean diffs on re-crawl.
 //
 //   node crawl.mjs            # local run (web works; GitHub needs token/quota)
-//   GITHUB_TOKEN=… node crawl.mjs
+//   GITHUB_TOKEN=... node crawl.mjs
 //
 // The web and GitHub phases are isolated so one failing never aborts the
-// other — a partial index is preferable to none.
+// other - a partial index is preferable to none.
 
 import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";

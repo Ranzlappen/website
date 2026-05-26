@@ -1,6 +1,6 @@
 // Crawl a GitHub user's public repos + gists via the REST API.
 // Uses process.env.GITHUB_TOKEN when present (raises the rate limit from
-// 60 to 5000/hr — the re-crawl workflow passes the Actions token).
+// 60 to 5000/hr - the re-crawl workflow passes the Actions token).
 // Handles Link-header pagination and backs off on 403 (rate limit).
 
 import { fetchWithTimeout, sleep, truncate } from "./util.mjs";
@@ -79,7 +79,7 @@ export async function crawlGitHub(config, crawl) {
       source: "github.com",
     });
   }
-  console.log(`  · indexed ${entries.length} repo(s)`);
+  console.log(`  - indexed ${entries.length} repo(s)`);
 
   console.log(`Fetching GitHub gists for ${user}`);
   const before = entries.length;
@@ -96,7 +96,7 @@ export async function crawlGitHub(config, crawl) {
       source: "gist.github.com",
     });
   }
-  console.log(`  · indexed ${entries.length - before} gist(s)`);
+  console.log(`  - indexed ${entries.length - before} gist(s)`);
 
   return entries;
 }

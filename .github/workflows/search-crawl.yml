@@ -1,7 +1,16 @@
 # Manual re-crawl of the external search index (search-external.json).
-# Runs the dependency-free search-crawler module, then commits the
-# refreshed index back to main so the next Pages deploy bundles it.
-# Trigger via the Actions "Run workflow" button whenever you want a refresh.
+# Runs the dependency-free search-crawler module, then opens a pull request
+# with the refreshed index (main is a protected branch, so we never push to
+# it directly). Trigger via the Actions "Run workflow" button whenever you
+# want a refresh; review + merge the PR to ship it (merging triggers the
+# normal Pages deploy).
+#
+# One-time setup: Settings > Actions > General > "Allow GitHub Actions to
+# create and approve pull requests" must be enabled.
+#
+# Note: the PR is opened with the built-in GITHUB_TOKEN, so CI does not auto-
+# run on it (a GITHUB_TOKEN-authored PR cannot trigger other workflows). The
+# change is data-only (search-external.json), so just merge the PR yourself.
 name: Re-crawl external search index
 
 on:
@@ -9,6 +18,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: search-crawl
@@ -33,14 +43,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run crawl
 
-      - name: Commit refreshed index
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add search-external.json
-          if git diff --staged --quiet; then
-            echo "No changes to search-external.json."
-          else
-            git commit -m "chore: re-crawl external search index"
-            git push
-          fi
+      - name: Open PR with refreshed index
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: search-external.json
+          branch: chore/search-index-refresh
+          delete-branch: true
+          commit-message: "chore: re-crawl external search index"
+          title: "chore: re-crawl external search index"
+          body: |
+            Automated refresh of `search-external.json` produced by the
+            **Re-crawl external search index** workflow.
+
+            Merge to ship the updated cross-domain search index (merging
+            triggers the normal Pages deploy).

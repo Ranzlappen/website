@@ -27,7 +27,7 @@ export async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
 export function truncate(str, n) {
   const s = (str || "").replace(/\s+/g, " ").trim();
   if (s.length <= n) return s;
-  return s.slice(0, n - 1).trimEnd() + "…";
+  return s.slice(0, n - 1).trimEnd() + "...";
 }
 
 // Keep the first entry seen per URL (the Lunr ref must be unique).
