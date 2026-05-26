@@ -111,7 +111,7 @@ export async function crawlWeb(seeds, crawl) {
         }
       }
     }
-    console.log(`  · indexed ${visited.size} page(s)`);
+    console.log(`  - indexed ${visited.size} page(s)`);
   }
 
   return entries;

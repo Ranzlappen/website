@@ -1,10 +1,10 @@
 // Declarative source list for the external search crawler.
 //
-// `web`    — hosts to crawl. Each seed is fetched, then expanded
+// `web`    - hosts to crawl. Each seed is fetched, then expanded
 //            sitemap-first (else a shallow same-host BFS) up to the caps
 //            in `crawl`. `group` tags every entry from that host.
-// `github` — the GitHub user whose public repos + gists are indexed.
-// `crawl`  — politeness + size limits shared by all web crawling.
+// `github` - the GitHub user whose public repos + gists are indexed.
+// `crawl`  - politeness + size limits shared by all web crawling.
 //
 // To add a seed, drop a new { url, group } into `web`. Groups must match
 // the taxonomy in ../assets/js/search.js and ../search-crawler/README.md.

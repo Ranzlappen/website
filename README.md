@@ -37,7 +37,7 @@ The GitHub Actions workflows live in [`.github/workflows/`](./.github/workflows)
 | [`ci.yml`](./.github/workflows/ci.yml) | PR → `main` | Per-app lint/test/build, only for changed apps |
 | [`jekyll-gh-pages.yml`](./.github/workflows/jekyll-gh-pages.yml) | Push → `main` | Builds Jekyll + PolyVote + Blog Admin + Inventory Manager, deploys to GitHub Pages |
 | [`firebase-deploy.yml`](./.github/workflows/firebase-deploy.yml) | Push → `main` touching Firebase paths | Deploys Firestore rules, RTDB rules, Storage rules, `castBlogVote`, all Blog Admin callables, and all Inventory Manager callables |
-| [`search-crawl.yml`](./.github/workflows/search-crawl.yml) | Manual (`workflow_dispatch`) | Re-crawls external content (subdomains, GitHub Pages, repos, gists) via the `search-crawler` module and commits the refreshed `search-external.json` |
+| [`search-crawl.yml`](./.github/workflows/search-crawl.yml) | Manual (`workflow_dispatch`) | Re-crawls external content (subdomains, GitHub Pages, repos, gists) via the `search-crawler` module and opens a PR with the refreshed `search-external.json` (merge it to redeploy) |
 
 Required secret for Firebase deploys: `FIREBASE_SERVICE_ACCOUNT`.
 

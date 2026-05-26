@@ -1,5 +1,5 @@
 // Dependency-free HTML / Markdown text extraction. Good enough for
-// search snippets — not a full DOM parser. (Note: SPA shells fetched
+// search snippets - not a full DOM parser. (Note: SPA shells fetched
 // without JS execution yield only their static title/meta + skeleton
 // text; see README "Limitations".)
 

@@ -69,10 +69,19 @@ npm run lint                  # node --check syntax pass (CI uses this)
 
 ## Refresh in production
 
-Trigger **Actions → "Re-crawl external search index" → Run workflow**
+Trigger **Actions -> "Re-crawl external search index" -> Run workflow**
 (`.github/workflows/search-crawl.yml`). It runs the crawler with the Actions
-token and commits an updated `search-external.json` to `main`, which then
-triggers the Pages deploy and ships the refreshed index.
+token and opens a **pull request** with the refreshed `search-external.json`
+(via `peter-evans/create-pull-request`). `main` is a protected branch, so the
+workflow never pushes there directly. Review and **merge the PR** to ship the
+new index — merging triggers the normal Pages deploy.
+
+Notes:
+- One-time setup: enable **Settings -> Actions -> General -> "Allow GitHub
+  Actions to create and approve pull requests"**, or the PR step fails.
+- The PR is opened with the built-in `GITHUB_TOKEN`, so CI workflows do not
+  auto-run on it (a GITHUB_TOKEN-authored PR can't trigger other workflows).
+  The change is data-only, so just merge it.
 
 ## Layout
 
