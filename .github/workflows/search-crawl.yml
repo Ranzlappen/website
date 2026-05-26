@@ -5,8 +5,12 @@
 # want a refresh; review + merge the PR to ship it (merging triggers the
 # normal Pages deploy).
 #
-# One-time setup: Settings > Actions > General > "Allow GitHub Actions to
-# create and approve pull requests" must be enabled.
+# The PR is opened with the pre-installed GitHub CLI (gh) — no third-party
+# action to download — pushing a side branch and calling `gh pr create`.
+#
+# One-time setup: Settings > Actions > General > Workflow permissions >
+# "Allow GitHub Actions to create and approve pull requests" must be enabled,
+# or `gh pr create` is rejected.
 #
 # Note: the PR is opened with the built-in GITHUB_TOKEN, so CI does not auto-
 # run on it (a GITHUB_TOKEN-authored PR cannot trigger other workflows). The
@@ -44,16 +48,24 @@ jobs:
         run: npm run crawl
 
       - name: Open PR with refreshed index
-        uses: peter-evans/create-pull-request@v7
-        with:
-          add-paths: search-external.json
-          branch: chore/search-index-refresh
-          delete-branch: true
-          commit-message: "chore: re-crawl external search index"
-          title: "chore: re-crawl external search index"
-          body: |
-            Automated refresh of `search-external.json` produced by the
-            **Re-crawl external search index** workflow.
-
-            Merge to ship the updated cross-domain search index (merging
-            triggers the normal Pages deploy).
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet -- search-external.json; then
+            echo "No changes to search-external.json; nothing to open."
+            exit 0
+          fi
+          BRANCH="chore/search-index-refresh"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add search-external.json
+          git commit -m "chore: re-crawl external search index"
+          git push --force-with-lease origin "$BRANCH"
+          if [ -n "$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')" ]; then
+            echo "PR already open for $BRANCH; pushed the update to it."
+          else
+            gh pr create --base main --head "$BRANCH" \
+              --title "chore: re-crawl external search index" \
+              --body "Automated refresh of \`search-external.json\` by the **Re-crawl external search index** workflow. Merge to ship the updated cross-domain search index (merging triggers the normal Pages deploy)."
+          fi
