@@ -72,9 +72,10 @@ npm run lint                  # node --check syntax pass (CI uses this)
 Trigger **Actions -> "Re-crawl external search index" -> Run workflow**
 (`.github/workflows/search-crawl.yml`). It runs the crawler with the Actions
 token and opens a **pull request** with the refreshed `search-external.json`
-(via `peter-evans/create-pull-request`). `main` is a protected branch, so the
-workflow never pushes there directly. Review and **merge the PR** to ship the
-new index — merging triggers the normal Pages deploy.
+(via the pre-installed `gh` CLI: pushes a side branch + `gh pr create`, no
+third-party action to download). `main` is a protected branch, so the workflow
+never pushes there directly. Review and **merge the PR** to ship the new index
+- merging triggers the normal Pages deploy.
 
 Notes:
 - One-time setup: enable **Settings -> Actions -> General -> "Allow GitHub
