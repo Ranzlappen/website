@@ -9,7 +9,7 @@
   {
     "title": "Flipper GUI Studio · tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/tools/flipper-gui/",
-    "content": "Visual GUI designer for Flipper Zero / Momentum apps. Drag-and-drop widgets, wire buttons, export drop-in C code. Flipper GUI Studio · tools · ranzlappen All tools Flipper GUI Studio Drag-and-drop visual editor for Flipper Zero / Momentum app GUIs. Multi-screen, button transitions, export as C. Pal…",
+    "content": "Visual GUI designer for Flipper Zero / Momentum apps. Drag-and-drop widgets, wire buttons, export drop-in C code. Flipper GUI Studio · tools · ranzlappen All tools Flipper GUI Studio Drag-and-drop visual editor for Flipper Zero / Momentum app GUIs. Multi-screen, button transitions, export as C. Pal...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
@@ -23,92 +23,234 @@
   {
     "title": "JWT Decoder · tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/tools/jwt/",
-    "content": "Decode a JSON Web Token JWT Decoder · tools · ranzlappen All tools JWT Decoder Inspect a JSON Web Token's header and payload. Nothing leaves the page. Signature is not verified. Anyone can craft a token with the same claims — only use this tool for inspection, never for trust decisions. Token Sampl…",
+    "content": "Decode a JSON Web Token JWT Decoder · tools · ranzlappen All tools JWT Decoder Inspect a JSON Web Token's header and payload. Nothing leaves the page. Signature is not verified. Anyone can craft a token with the same claims — only use this tool for inspection, never for trust decisions. Token Sampl...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
   {
     "title": "Markdown Preview · tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/tools/markdown/",
-    "content": "Live GitHub-Flavored Markdown preview, plus file import — convert HTML, CSV, JSON, DOCX, XLSX, PDF, and PPTX to Markdown in the browser. Markdown Preview · tools · ranzlappen All tools Markdown Preview Live GitHub-Flavored Markdown rendering, or import a file (HTML, CSV, JSON, DOCX, XLSX, PDF, PPTX…",
+    "content": "Live GitHub-Flavored Markdown preview, plus file import — convert HTML, CSV, JSON, DOCX, XLSX, PDF, and PPTX to Markdown in the browser. Markdown Preview · tools · ranzlappen All tools Markdown Preview Live GitHub-Flavored Markdown rendering, or import a file (HTML, CSV, JSON, DOCX, XLSX, PDF, PPTX...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
   {
     "title": "Metadata Studio · tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/tools/metadata-studio/",
-    "content": "Inspect, edit, strip, and extend metadata in any file — EXIF, XMP, IPTC, ID3, PDF info, Office core properties, ZIP entries — all client-side. Metadata Studio · tools · ranzlappen All tools Metadata Studio Inspect, edit, strip, and extend metadata in any file — EXIF, XMP, IPTC, ID3, PDF info, Offic…",
+    "content": "Inspect, edit, strip, and extend metadata in any file — EXIF, XMP, IPTC, ID3, PDF info, Office core properties, ZIP entries — all client-side. Metadata Studio · tools · ranzlappen All tools Metadata Studio Inspect, edit, strip, and extend metadata in any file — EXIF, XMP, IPTC, ID3, PDF info, Offic...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
   {
     "title": "MOOD RADAR - Live Chat Pulse",
     "url": "https://twitch-mood-radar.ranzlappen.com",
-    "content": "Real-time multi-platform chat mood analyzer with live visualizations MOOD RADAR - Live Chat Pulse MOOD RADAR ACCESS RESTRICTED AUTHENTICATE Skip to main content x HOW IT WORKS x Search This channel All channels (local) Global (logs.ivr.fi) Show bot messages Font Clear this user Sources Search 1 cha…",
+    "content": "Real-time multi-platform chat mood analyzer with live visualizations MOOD RADAR - Live Chat Pulse MOOD RADAR ACCESS RESTRICTED AUTHENTICATE Skip to main content x HOW IT WORKS x Search This channel All channels (local) Global (logs.ivr.fi) Show bot messages Font Clear this user Sources Search 1 cha...",
     "group": "apps",
     "source": "twitch-mood-radar.ranzlappen.com"
   },
   {
     "title": "Multi-Encoder · tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/tools/encoder/",
-    "content": "Convert text between Base64, Hex, URL, Binary, and ASCII encodings (UTF-8 safe). Multi-Encoder · tools · ranzlappen All tools Multi-Encoder Type plain text on the left; every encoding updates live. Edit any output to decode back. Plain text Sample Clear Encodings Edit any field to round-trip back t…",
+    "content": "Convert text between Base64, Hex, URL, Binary, and ASCII encodings (UTF-8 safe). Multi-Encoder · tools · ranzlappen All tools Multi-Encoder Type plain text on the left; every encoding updates live. Edit any output to decode back. Plain text Sample Clear Encodings Edit any field to round-trip back t...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
   {
     "title": "OG Image Studio · tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/tools/og-studio/",
-    "content": "Compose 1200×630 social cards via the edge API. Title, subtitle, theme — live preview, copy URL, download PNG. OG Image Studio · tools · ranzlappen All tools OG Image Studio Compose 1200×630 social cards via the edge API. Live preview, copy URL, download PNG. Renders live via api.tools.ranzlappen.c…",
+    "content": "Compose 1200×630 social cards via the edge API. Title, subtitle, theme — live preview, copy URL, download PNG. OG Image Studio · tools · ranzlappen All tools OG Image Studio Compose 1200×630 social cards via the edge API. Live preview, copy URL, download PNG. Renders live via api.tools.ranzlappen.c...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
   {
     "title": "QR & Barcode Generator · tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/tools/qr-barcode/",
-    "content": "Generate QR codes, 2D matrix codes, and 1D barcodes with full design control, error-correction options, content presets, and multi-format export — entirely in the browser. QR & Barcode Generator · tools · ranzlappen All tools QR & Barcode Generator Every 1D & 2D symbology, with full design + error-…",
+    "content": "Generate QR codes, 2D matrix codes, and 1D barcodes with full design control, error-correction options, content presets, and multi-format export — entirely in the browser. QR & Barcode Generator · tools · ranzlappen All tools QR & Barcode Generator Every 1D & 2D symbology, with full design + error-...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
   {
     "title": "Regex Tester & Builder · tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/tools/regex/",
-    "content": "Live regex match highlighting plus a palette of common patterns. Regex Tester & Builder · tools · ranzlappen All tools Regex Tester & Builder Live match highlighting with a builder palette for the patterns you reach for most. Pattern g · global i · ignore case m · multiline s · dotall u · unicode y…",
+    "content": "Live regex match highlighting plus a palette of common patterns. Regex Tester & Builder · tools · ranzlappen All tools Regex Tester & Builder Live match highlighting with a builder palette for the patterns you reach for most. Pattern g · global i · ignore case m · multiline s · dotall u · unicode y...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
   {
     "title": "Ticked",
     "url": "https://ticked.ranzlappen.com",
-    "content": "Ticked ✔ Log 0 ⟳ Processes 0 Palette 🔥 0 day streak 0 this week ▾ Less More ✦ Log Entry Custom timestamp Log ✦ # ↵ Press Enter to log · timestamp is added automatically Log Time ↓ · Name ↓ ? 💾 How data is saved Your log entries are saved in your browser's localStorage — they persist across page r…",
+    "content": "Ticked ✔ Log 0 ⟳ Processes 0 Palette 🔥 0 day streak 0 this week ▾ Less More ✦ Log Entry Custom timestamp Log ✦ # ↵ Press Enter to log · timestamp is added automatically Log Time ↓ · Name ↓ ? 💾 How data is saved Your log entries are saved in your browser's localStorage — they persist across page r...",
     "group": "apps",
     "source": "ticked.ranzlappen.com"
   },
   {
     "title": "tools · ranzlappen",
     "url": "https://tools.ranzlappen.com",
-    "content": "A growing collection of small, focused web utilities by Ranzlappen. tools · ranzlappen Live · v0.1 Small tools , sharp edges. A growing collection of fast, focused web utilities. Built in the browser, hosted on the edge, free to use. New tiles light up as tools ship. Live JSON Formatter Pretty-prin…",
+    "content": "A growing collection of small, focused web utilities by Ranzlappen. tools · ranzlappen Live · v0.1 Small tools , sharp edges. A growing collection of fast, focused web utilities. Built in the browser, hosted on the edge, free to use. New tiles light up as tools ship. Live JSON Formatter Pretty-prin...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
   {
     "title": "tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/",
-    "content": "A growing collection of small, focused web utilities by Ranzlappen. tools · ranzlappen Live · v0.1 Small tools , sharp edges. A growing collection of fast, focused web utilities. Built in the browser, hosted on the edge, free to use. New tiles light up as tools ship. Live JSON Formatter Pretty-prin…",
+    "content": "A growing collection of small, focused web utilities by Ranzlappen. tools · ranzlappen Live · v0.1 Small tools , sharp edges. A growing collection of fast, focused web utilities. Built in the browser, hosted on the edge, free to use. New tiles light up as tools ship. Live JSON Formatter Pretty-prin...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
   {
     "title": "UUID & Hash Generator · tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/tools/uuid-hash/",
-    "content": "Generate UUID v4 / v7 and MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 hashes locally. UUID & Hash Generator · tools · ranzlappen All tools UUID & Hash Generator UUID v4 / v7 generation, plus MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 hashes. UUID New v4 New v7 v4 — Copy v7 — Copy Batch generator Count…",
+    "content": "Generate UUID v4 / v7 and MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 hashes locally. UUID & Hash Generator · tools · ranzlappen All tools UUID & Hash Generator UUID v4 / v7 generation, plus MD5 / SHA-1 / SHA-256 / SHA-384 / SHA-512 hashes. UUID New v4 New v7 v4 — Copy v7 — Copy Batch generator Count...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
   },
   {
     "title": "Video Studio · tools · ranzlappen",
     "url": "https://tools.ranzlappen.com/tools/video/",
-    "content": "Reverse, boomerang, trim, and re-encode video — runs entirely in your browser. Video Studio · tools · ranzlappen All tools Video Studio Reverse, boomerang, trim, and re-encode video — all in the browser, powered by ffmpeg.wasm. Source engine: idle Drop a video here or click to choose — mp4, webm, m…",
+    "content": "Reverse, boomerang, trim, and re-encode video — runs entirely in your browser. Video Studio · tools · ranzlappen All tools Video Studio Reverse, boomerang, trim, and re-encode video — all in the browser, powered by ffmpeg.wasm. Source engine: idle Drop a video here or click to choose — mp4, webm, m...",
     "group": "apps",
     "source": "tools.ranzlappen.com"
+  },
+  {
+    "title": "court-procedure-guide",
+    "url": "https://github.com/Ranzlappen/court-procedure-guide",
+    "content": "Court Procedure Algorithm Guide Autism friendly, real time court procedure algorithm guide for watching court cams or sitting in the gallery. Key Features Phase based navigation Criminal/civil toggle Role perspective selector (judge/prosecution/defense/observer) Jurisdiction filter (federal/state)...",
+    "group": "repos",
+    "date": "2026-04-08",
+    "source": "github.com"
+  },
+  {
+    "title": "D2app",
+    "url": "https://github.com/Ranzlappen/D2app",
+    "content": "D2 Prototype A custom HarmonyOS wearable app for the Huawei Watch D2 . Features a live digital clock, real time heart rate monitoring, battery display, and a tappable interaction area — all in a dark theme optimized for round watch screens. How It Works The app is built with ArkTS (HarmonyOS Stage...",
+    "group": "repos",
+    "date": "2026-05-04",
+    "source": "github.com"
+  },
+  {
+    "title": "discord-musicbot",
+    "url": "https://github.com/Ranzlappen/discord-musicbot",
+    "content": "lightweight discord music bot for youtube and local music discord musicbot lightweight discord music bot for youtube and local music <img width=\"921\" height=\"553\" alt=\"image\" src=\"https://github.com/user attachments/assets/67482351 269a 45eb 9c87 4f7b588c2d4e\" / ⚠️ Attention! Using this bot extreme...",
+    "group": "repos",
+    "date": "2026-03-31",
+    "source": "github.com"
+  },
+  {
+    "title": "Exif",
+    "url": "https://github.com/Ranzlappen/Exif",
+    "content": "MetaTable Ultra lightweight, portable EXIF & metadata editor for Windows. One . No installation. Works offline. Reads everything. What is MetaTable? MetaTable is a minimal, fast GUI application that reads all metadata from any file type — images, videos, audio, PDFs, Office documents, and more — us...",
+    "group": "repos",
+    "date": "2026-04-08",
+    "source": "github.com"
+  },
+  {
+    "title": "Flipper",
+    "url": "https://github.com/Ranzlappen/Flipper",
+    "content": "Momentum App Framework A complete, beginner friendly starter repository for building JavaScript scripts and C language apps for the Flipper Zero running Momentum Firmware . Phone only friendly! You can develop, edit, and deploy JavaScript scripts using only your phone + the Flipper Mobile App. C ap...",
+    "group": "repos",
+    "date": "2026-05-24",
+    "source": "github.com"
+  },
+  {
+    "title": "gadget",
+    "url": "https://github.com/Ranzlappen/gadget",
+    "group": "repos",
+    "date": "2026-04-10",
+    "source": "github.com"
+  },
+  {
+    "title": "HardwareDash",
+    "url": "https://github.com/Ranzlappen/HardwareDash",
+    "content": "HardwareDash (Gadget) A modular Android app for monitoring and controlling device sensors, radios, cameras, audio, storage, and (on the rooted flavor) deeper system surfaces. Status (May 2026): Phase 0 of the modular refactor is complete on branch . The repo now has the full convention plugin layer...",
+    "group": "repos",
+    "date": "2026-05-26",
+    "source": "github.com"
+  },
+  {
+    "title": "intuino",
+    "url": "https://github.com/Ranzlappen/intuino",
+    "content": "IntuiNO — Intuitively Wrong An anti UX satirical experience that teaches UX design principles through 10 increasingly chaotic levels. Learn what NOT to do in user interface design — the hard way. Key Features 10 Progressive Levels of UX Chaos — Each level ramps up the confusion Boss Level — The Fin...",
+    "group": "repos",
+    "date": "2026-04-26",
+    "source": "github.com"
+  },
+  {
+    "title": "polyvote",
+    "url": "https://github.com/Ranzlappen/polyvote",
+    "group": "repos",
+    "date": "2026-04-06",
+    "source": "github.com"
+  },
+  {
+    "title": "repo-standards",
+    "url": "https://github.com/Ranzlappen/repo-standards",
+    "content": "Ranzlappen Repo Standards Upgrade any repo to v3.2.0 — the one step instruction To upgrade any repository to repo standards v3.2.0 , copy the master prompt from and paste it into a fresh Claude Code session opened in your target repo. Claude runs Phase 0 (migration planning) first, waits for your c...",
+    "group": "repos",
+    "date": "2026-05-24",
+    "source": "github.com"
+  },
+  {
+    "title": "synth-piano",
+    "url": "https://github.com/Ranzlappen/synth-piano",
+    "content": "just some hobby stuff Synth Piano Pre Release Download .exe synth piano for personal testing and songwriting/covering purposes default keybinds are (german keyboard layout) and [ ] TODO: better score import/playback logic, currently takes files with the format as score.json Changelog Prerelease 1 A...",
+    "group": "repos",
+    "date": "2025-09-10",
+    "source": "github.com"
+  },
+  {
+    "title": "Synth-piano-web",
+    "url": "https://github.com/Ranzlappen/Synth-piano-web",
+    "content": "Synth Piano (Android) A Kotlin/Compose port of Ranzlappen/synth piano, the Python tkinter synth. Touch keyboard, chord pads, score playback, USB MIDI in, WAV recording. Real time audio runs through Oboe on a C++ DSP core for sub 20ms latency. Quick Reference Thing Where App entry Compose UI JNI bri...",
+    "group": "repos",
+    "date": "2026-05-25",
+    "source": "github.com"
+  },
+  {
+    "title": "ticked",
+    "url": "https://github.com/Ranzlappen/ticked",
+    "content": "Ticked Process & Workflow Tracker — a fast, offline capable PWA for logging timestamped entries and tracking multi step processes through checkpoints. New here? If you just want to use the app, jump to Getting Started. If you're a developer (or Claude) working on the code, see Developer Setup. What...",
+    "group": "repos",
+    "date": "2026-04-25",
+    "source": "github.com"
+  },
+  {
+    "title": "tools",
+    "url": "https://github.com/Ranzlappen/tools",
+    "content": "tools A collection of small, focused utilities served from . The landing page is a static dashboard. Client only tools deploy alongside it via GitHub Pages. Tools that need a server (or a build step) run on Vercel at and are called from the browser by the relevant tool subpage. Quick Reference Item...",
+    "group": "repos",
+    "date": "2026-05-24",
+    "source": "github.com"
+  },
+  {
+    "title": "twitch-mood-radar",
+    "url": "https://github.com/Ranzlappen/twitch-mood-radar",
+    "content": "Mood Radar twitch mood radar.ranzlappen.com Real time Multi Platform Chat Mood Analyzer Analyzes the emotional tone of live chat across Twitch, Kick, YouTube, and Rumble in real time. Connect up to 10 simultaneous feeds and visualize chat mood through interactive charts, bubbles, timelines, and mor...",
+    "group": "repos",
+    "date": "2026-05-02",
+    "source": "github.com"
+  },
+  {
+    "title": "web_extension",
+    "url": "https://github.com/Ranzlappen/web_extension",
+    "content": "custom browser extension Opera Pageside — per domain CSS injection, container inspection, TTS reading, and video media downloads — packaged as a single Manifest V3 browser extension that works in Chromium browsers (Opera, Chrome, Edge) and Firefox. New here? If you just want to install and use the...",
+    "group": "repos",
+    "date": "2026-05-02",
+    "source": "github.com"
+  },
+  {
+    "title": "website",
+    "url": "https://github.com/Ranzlappen/website",
+    "content": "Hobby page ranzlappen.com — Blog + PolyVote + Blog Admin + Inventory Manager A hybrid static site: a dark themed Jekyll blog, the PolyVote community voting SPA, a Blog Admin publishing dashboard, and a private Inventory Manager. The blog itself needs no coding — everything routine can be done from...",
+    "group": "repos",
+    "date": "2026-05-26",
+    "source": "github.com"
+  },
+  {
+    "title": "worldmap",
+    "url": "https://github.com/Ranzlappen/worldmap",
+    "content": "Global Connections Interactive World Map Visualization An interactive world map with refined data points and multiple layers for exploring global and civilizational information. Features Interactive world map with zoom/pan Multiple data layers Coherent researched data entries Highly responsive layo...",
+    "group": "repos",
+    "date": "2026-04-15",
+    "source": "github.com"
   }
 ]
