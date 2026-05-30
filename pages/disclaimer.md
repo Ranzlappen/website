@@ -29,6 +29,10 @@ The **PolyVote** section of this site allows users to submit, vote on, and propo
 
 Any copyrighted material used on this blog is used under fair use guidelines for commentary, criticism, or educational purposes. If you believe your work has been used in a way that constitutes infringement, please contact me and I will address it promptly.
 
+## Reference Pages & Interactive Tools
+
+This site includes reference pages (the Electromagnetic Spectrum, Electronics Fundamentals, and the CLI Command Cheat Sheet) along with interactive tools such as calculators, a formula wheel, a resistor decoder, and command builders. All of this — including the calculations they produce, the "danger" badges on destructive commands, and any "modern alternative" suggestions — is provided for **general educational reference only**. It may contain errors or omissions and does **not** constitute professional engineering, electrical-safety, or security advice. Always verify against authoritative documentation and test commands in a safe, disposable environment before relying on any result.
+
 ## Browser Storage Viewer
 
 This site includes a browser storage viewer tool that displays cookies and other storage entries set by this site and its third-party services. The information shown is for transparency purposes only and should not be interpreted as a complete audit of all data stored by your browser. The tool reads what is accessible via standard browser APIs and may not reflect all storage set by third-party scripts.
