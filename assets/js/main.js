@@ -497,6 +497,41 @@ DATE: 2026-04-02
     ];
   }
 
+  // First-party localStorage keys this site sets, with what each is for.
+  // Keep in sync with /pages/privacy.md "Cookies & Local Storage" section.
+  // Entries with `prefix: true` match any key starting with `name`.
+  function getKnownStorageKeys() {
+    return [
+      { name: 'theme', purpose: 'Light/dark theme preference' },
+      { name: 'viewMode', purpose: 'Blog image view mode (e.g. carousel)' },
+      { name: 'headerSticky', purpose: 'Whether the site header stays pinned' },
+      { name: 'cookie_consent', purpose: 'Your cookie consent choice (kept 365 days)' },
+      { name: 'voted_', prefix: true, purpose: 'Per-post vote deduplication' },
+      { name: 'ef:state:', prefix: true, purpose: 'Electronics Fundamentals widget inputs' }
+    ];
+  }
+
+  function describeStorageKey(name) {
+    var known = getKnownStorageKeys();
+    for (var i = 0; i < known.length; i++) {
+      var k = known[i];
+      if (k.prefix ? name.indexOf(k.name) === 0 : name === k.name) return k.purpose;
+    }
+    return '';
+  }
+
+  function buildLocalStorageSectionHtml(items) {
+    var html = '';
+    html += '<div class="storage-section__info">';
+    html += '<strong>Note:</strong> <code>localStorage</code> stays on your device and is never sent anywhere. ';
+    html += 'The entries this site sets itself are <code>theme</code>, <code>viewMode</code>, <code>headerSticky</code>, ';
+    html += '<code>cookie_consent</code>, <code>voted_*</code> (vote dedup), and <code>ef:state:*</code> (Electronics widgets). ';
+    html += '<a href="/privacy/">See Privacy Policy</a>';
+    html += '</div>';
+    html += buildStorageCards(items);
+    return html;
+  }
+
   function parseStorage(storage) {
     var items = [];
     try {
@@ -593,12 +628,16 @@ DATE: 2026-04-02
     items.forEach(function (item) {
       var type = detectType(item.value);
       var size = byteSize(item.name + item.value);
+      var purpose = describeStorageKey(item.name);
       html += '<div class="cookie-card">';
       html += '  <div class="cookie-card__name">' + escapeHtml(truncate(item.name, 40)) + '</div>';
       html += '  <div class="cookie-card__grid">';
       html += '    <div class="cookie-card__field"><span class="cookie-card__label">Value</span><span class="cookie-card__value">' + escapeHtml(truncate(item.value, 120)) + '</span></div>';
       html += '    <div class="cookie-card__field"><span class="cookie-card__label">Type</span><span class="cookie-card__value">' + type + '</span></div>';
       html += '    <div class="cookie-card__field"><span class="cookie-card__label">Size</span><span class="cookie-card__value">' + size + '</span></div>';
+      if (purpose) {
+        html += '    <div class="cookie-card__field"><span class="cookie-card__label">Purpose</span><span class="cookie-card__value">' + escapeHtml(purpose) + '</span></div>';
+      }
       html += '  </div>';
       html += '</div>';
     });
@@ -657,7 +696,7 @@ DATE: 2026-04-02
     html += '<div class="storage-section__info">';
     html += '<strong>Note:</strong> JavaScript cannot read HttpOnly or third-party domain cookies. ';
     html += 'The &ldquo;Known Service Cookies&rdquo; below are documented by this site&rsquo;s integrated services. ';
-    html += '<a href="/pages/privacy/">See Privacy Policy</a>';
+    html += '<a href="/privacy/">See Privacy Policy</a>';
     html += '</div>';
 
     // Detected cookies subsection
@@ -692,7 +731,7 @@ DATE: 2026-04-02
 
     var html = '';
     html += buildSection('cookies', '🍪', 'Cookies', cookieCountLabel, false, buildCookieSectionHtml(cookies, knownCookies));
-    html += buildSection('local', '💾', 'localStorage', localItems ? localItems.length : 0, false, buildStorageCards(localItems));
+    html += buildSection('local', '💾', 'localStorage', localItems ? localItems.length : 0, false, buildLocalStorageSectionHtml(localItems));
     html += buildSection('session', '📋', 'sessionStorage', sessionItems ? sessionItems.length : 0, true, buildStorageCards(sessionItems));
 
     if (hasCacheApi) {

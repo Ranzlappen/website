@@ -7,7 +7,7 @@ permalink: /privacy/
 
 # Privacy Policy — RanzLappen
 
-**Last updated: 12 April 2026**
+**Last updated: 30 May 2026**
 
 ## Controller
 The controller within the meaning of the General Data Protection Regulation (GDPR) is me as a private individual:
@@ -52,9 +52,13 @@ The contact form uses **hCaptcha** for spam protection. hCaptcha may set cookies
 Contact form submissions are created as **public** GitHub Issues in the site's repository.  
 **Legal basis:** Consent + legitimate interest (abuse prevention).
 
-## Search (Lunr.js via unpkg CDN)
-The site's full-text search loads **Lunr.js** from the unpkg CDN. The search itself runs entirely in the browser.  
+## Search & Charts (Lunr.js & Chart.js via CDN)
+The site's full-text search loads **Lunr.js** from the unpkg CDN, and blog posts that include charts load **Chart.js** from the jsDelivr CDN. Both libraries run entirely in your browser; loading them from a CDN exposes your IP address and browser info to that CDN. Both are blocked until you grant functional consent.  
 **Legal basis:** Consent.
+
+## Reference Pages & Interactive Tools
+The reference pages (Electromagnetic Spectrum, Electronics Fundamentals, CLI Command Cheat Sheet) and all of their interactive tools — the electronics calculators, the formula wheel, the resistor decoder, and the chmod / find / regex / curl builders — run **entirely in your browser**. No input you type into them is sent to any server. Any state these tools remember (e.g. a calculator's last values) is stored only in your browser's `localStorage` and never leaves your device.  
+**Legal basis:** Not applicable — no personal data is processed.
 
 ## Read Aloud
 The read aloud feature uses the browser’s built-in **Web Speech API**. No data is sent to any external service — everything happens locally.
@@ -66,13 +70,22 @@ This site does **not** use Google Analytics or any other tracking/analytics serv
 This site implements a **cookie consent banner** in compliance with GDPR and TTDSG. Before any third-party services are loaded, you are asked for explicit consent. You can choose between two categories:
 
 - **Essential** (always active): localStorage for theme preference, view mode, and consent choice.
-- **Functional Services** (opt-in): Firebase (voting & PolyVote), Giscus (comments), hCaptcha (spam protection), Lunr.js/unpkg (search).
+- **Functional Services** (opt-in): Firebase (voting & PolyVote), Giscus (comments), hCaptcha (spam protection), Lunr.js/unpkg (search), Chart.js/jsDelivr (charts on posts).
 
 Third-party scripts are **blocked by default** and only loaded after your explicit consent. You can change your choice at any time via the “Cookie Settings” link in the footer.  
 Consent is stored in `localStorage` under the key `cookie_consent` for 365 days.
 
 ## Cookies & Local Storage
-This site does not set any first-party cookies. It only uses `localStorage` for theme, view mode, voting state, consent preference, and vote deduplication.  
+This site does not set any first-party cookies. It only uses `localStorage`, which stays on your device and is never transmitted. The site's own `localStorage` keys are:
+
+- `theme` — light/dark theme preference
+- `viewMode` — blog image view mode (e.g. carousel)
+- `headerSticky` — whether the site header stays pinned
+- `cookie_consent` — your consent choice (kept for 365 days)
+- `voted_<post-slug>` — per-post vote deduplication
+- `ef:state:*` — saved input values for the Electronics Fundamentals interactive widgets
+
+You can inspect every one of these (and any cookies set by third-party services) at any time via the **Storage Inspector** (the 🍪 button in the footer).  
 Third-party services (Firebase, hCaptcha) may set their own functional cookies **only after consent**.
 
 ## Third-Party Services Summary
@@ -132,7 +145,13 @@ Third-party services (Firebase, hCaptcha) may set their own functional cookies *
       </tr>
       <tr>
         <td style="padding: 11px 10px; font-weight: 500;">unpkg CDN</td>
-        <td style="padding: 11px 8px;">Search library delivery</td>
+        <td style="padding: 11px 8px;">Search library (Lunr.js) delivery</td>
+        <td style="padding: 11px 8px;">IP address, browser info</td>
+        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
+      </tr>
+      <tr>
+        <td style="padding: 11px 10px; font-weight: 500;">jsDelivr CDN</td>
+        <td style="padding: 11px 8px;">Chart library (Chart.js) delivery</td>
         <td style="padding: 11px 8px;">IP address, browser info</td>
         <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
       </tr>
