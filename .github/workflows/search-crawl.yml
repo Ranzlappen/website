@@ -10,7 +10,9 @@
 #
 # One-time setup: Settings > Actions > General > Workflow permissions >
 # "Allow GitHub Actions to create and approve pull requests" must be enabled,
-# or `gh pr create` is rejected.
+# or `gh pr create` is rejected. If it is off, the PR step does NOT fail the
+# run — the crawl + branch push already succeeded, so it falls back to printing
+# a compare link in the job summary for you to open the PR manually.
 #
 # Note: the PR is opened with the built-in GITHUB_TOKEN, so CI does not auto-
 # run on it (a GITHUB_TOKEN-authored PR cannot trigger other workflows). The
@@ -62,10 +64,33 @@ jobs:
           git add search-external.json
           git commit -m "chore: re-crawl external search index"
           git push --force-with-lease origin "$BRANCH"
+
+          COMPARE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/main...${BRANCH}?expand=1"
+
           if [ -n "$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')" ]; then
             echo "PR already open for $BRANCH; pushed the update to it."
-          else
-            gh pr create --base main --head "$BRANCH" \
+            exit 0
+          fi
+
+          # Opening a PR with the built-in GITHUB_TOKEN requires Settings >
+          # Actions > General > Workflow permissions > "Allow GitHub Actions to
+          # create and approve pull requests". If that is off, `gh pr create` is
+          # rejected. The crawl + branch push above already succeeded, so treat
+          # a PR-open failure as non-fatal: surface a compare link and keep the
+          # run green instead of stranding the pushed branch behind a red job.
+          if gh pr create --base main --head "$BRANCH" \
               --title "chore: re-crawl external search index" \
-              --body "Automated refresh of \`search-external.json\` by the **Re-crawl external search index** workflow. Merge to ship the updated cross-domain search index (merging triggers the normal Pages deploy)."
+              --body "Automated refresh of \`search-external.json\` by the **Re-crawl external search index** workflow. Merge to ship the updated cross-domain search index (merging triggers the normal Pages deploy)."; then
+            echo "Opened PR for $BRANCH."
+          else
+            echo "::warning title=PR not opened automatically::Refreshed index was pushed to '$BRANCH', but the PR could not be opened. Enable Settings > Actions > General > Workflow permissions > 'Allow GitHub Actions to create and approve pull requests', or open it manually: $COMPARE_URL"
+            {
+              echo "### External search index refreshed — open the PR manually"
+              echo ""
+              echo "The crawl succeeded and the refreshed \`search-external.json\` was pushed to the \`$BRANCH\` branch, but the workflow could not open a pull request automatically (the GITHUB_TOKEN lacks PR-create permission)."
+              echo ""
+              echo "**To finish:** [open the PR for \`$BRANCH\`]($COMPARE_URL)."
+              echo ""
+              echo "To let future runs open it automatically, enable **Settings → Actions → General → Workflow permissions → \"Allow GitHub Actions to create and approve pull requests\"**."
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
