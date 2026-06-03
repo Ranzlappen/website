@@ -324,6 +324,12 @@ html[data-header-sticky="off"] {
 }
 html[data-header-sticky="off"] .site-header {
   position: absolute;
+  /* The solid-state backdrop-filter (added on scroll by main.js) creates a
+     containing block for the position:fixed pin, anchoring it to this header —
+     so when the header scrolls away (absolute), the pin scrolls away with it.
+     Drop it while unpinned so the pin stays viewport-fixed. */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 html[data-header-sticky="off"] .header-sticky-toggle {
   position: fixed;
