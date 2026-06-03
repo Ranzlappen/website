@@ -39,9 +39,9 @@ export default defineConfig({
         scope: '/polyvote/',
         start_url: '/polyvote/',
         icons: [
-          { src: '/polyvote/pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/polyvote/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/polyvote/pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '/polyvote/pwa-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/polyvote/pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/polyvote/pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
     }),

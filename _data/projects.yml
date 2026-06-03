@@ -22,20 +22,20 @@
 
 - name: "PolyVote (alpha)"
   url: /polyvote/
-  favicon: /assets/images/favicons/polyvote.svg
+  favicon: /assets/images/favicons/polyvote.png
 
 - name: "tools"
   url: "https://tools.ranzlappen.com/"
-  favicon: /assets/images/favicons/tools.svg
+  favicon: /assets/images/favicons/tools.png
 
 - name: "EM Spectrum Reference"
   url: /references/spectrum/
-  favicon: /assets/images/favicons/spectrum.svg
+  favicon: /assets/images/favicons/spectrum.png
 
 - name: "Electronics Fundamentals"
   url: /references/electronics-fundamentals/
-  favicon: /assets/images/favicons/electronics-fundamentals.svg
+  favicon: /assets/images/favicons/electronics-fundamentals.png
 
 - name: "CLI Command Cheat Sheet"
   url: /references/cmd-cheat-sheet/
-  favicon: /assets/images/favicons/cmd-cheat-sheet.svg
+  favicon: /assets/images/favicons/cmd-cheat-sheet.png

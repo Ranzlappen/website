@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#4ade80" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-  <!-- ballot-box body -->
-  <rect x="15" y="35" width="70" height="50"/>
-  <!-- ballot slot above the box -->
-  <line x1="32" y1="22" x2="68" y2="22"/>
-</svg>
