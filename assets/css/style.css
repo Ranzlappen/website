@@ -520,6 +520,24 @@ html[data-header-sticky="off"] .theme-toggle {
   height: 1rem;
 }
 
+/* Landing-page category buttons (replace the single CTA — see _includes/hero.html) */
+.hero-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-md);
+}
+.hero-cta--block {
+  flex: 0 1 11rem;
+  justify-content: center;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.95rem;
+}
+@media (max-width: 30rem) {
+  .hero-buttons { flex-direction: column; align-items: stretch; }
+  .hero-cta--block { flex-basis: auto; }
+}
+
 /* ============================================================
    Main Content
    ============================================================ */
@@ -3300,8 +3318,9 @@ html[data-splash="show"] .brand-splash {
   pointer-events: none;
 }
 .brand-splash__media {
-  width: clamp(96px, 26vw, 132px);
+  width: clamp(180px, 46vw, 300px);
   height: auto;
+  opacity: 0.88;
   filter: drop-shadow(0 0 26px rgba(56, 132, 255, 0.3));
 }
 .brand-splash__media--static { display: none; }
