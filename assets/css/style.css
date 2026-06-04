@@ -3309,7 +3309,9 @@ html[data-splash="show"] .brand-splash {
      `contain` margins blend seamlessly into the backdrop on either theme. */
   background: #0a121d;
   opacity: 1;
-  transition: opacity 0.45s ease;
+  /* ~the clip's last 25% (≈0.375s of the 1.5s clip): the fade is triggered at
+     75% of playtime so emblem + backdrop fade out together with the clip. */
+  transition: opacity 0.375s ease;
 }
 .brand-splash.is-hiding {
   opacity: 0;
