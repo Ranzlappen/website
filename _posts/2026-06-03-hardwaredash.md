@@ -63,7 +63,7 @@ _TODO: Explain the technical approach — the stack, the architecture, and anyth
 _TODO: Add setup/usage instructions, a live demo link, or install steps._
 
 - **Repository:** [github.com/Ranzlappen/HardwareDash](https://github.com/Ranzlappen/HardwareDash)
-- **Live demo:** _TODO: add a link if there is one._
+- **Live demo:** [Latest stable Version legacy proof of concept](https://github.com/Ranzlappen/HardwareDash/releases/tag/v1.0.117)
 
 <h2 id="roadmap">Roadmap</h2>
 
