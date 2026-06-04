@@ -5,7 +5,7 @@
    worker deliberately ignores those paths and never caches them. */
 "use strict";
 
-const CACHE_VERSION = "ranzlappen-v6";
+const CACHE_VERSION = "ranzlappen-v7";
 const PRECACHE = CACHE_VERSION + "-precache";
 const RUNTIME = CACHE_VERSION + "-runtime";
 
@@ -19,7 +19,7 @@ const PRECACHE_URLS = [
   "/assets/css/style.css",
   "/assets/js/main.js",
   "/assets/images/loader/brand-loader.mp4",
-  "/assets/images/loader/brand-loader-poster.png",
+  "/assets/images/loader/brand-loader-poster.webp",
   "/icons/favicon.ico",
   "/icons/favicon-16x16.png",
   "/icons/favicon-32x32.png",

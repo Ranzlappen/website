@@ -520,6 +520,22 @@ html[data-header-sticky="off"] .theme-toggle {
   height: 1rem;
 }
 
+/* Landing-page category buttons (replace the single CTA — see _includes/hero.html).
+   Stacked vertically, uniform width, centered. */
+.hero-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+.hero-cta--block {
+  width: 14rem;
+  max-width: 100%;
+  justify-content: center;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.95rem;
+}
+
 /* ============================================================
    Main Content
    ============================================================ */
@@ -3289,9 +3305,9 @@ html[data-splash="show"] .brand-splash {
   z-index: 100000; /* above skip-link (9999) and every modal/header */
   align-items: center;
   justify-content: center;
-  /* Matches the emblem art's built-in dark-blue backdrop (~#050d19) so the tile
-     blends seamlessly on either theme — the icon universe is a dark glassy shield. */
-  background: #050d19;
+  /* Matches the loader clip's dark-blue corner (~#0a121d) so the full-bleed
+     `contain` margins blend seamlessly into the backdrop on either theme. */
+  background: #0a121d;
   opacity: 1;
   transition: opacity 0.45s ease;
 }
@@ -3299,10 +3315,16 @@ html[data-splash="show"] .brand-splash {
   opacity: 0;
   pointer-events: none;
 }
+/* Full-bleed emblem: the clip/poster is a square on the same dark-blue tile as
+   the backdrop, so `contain` fills the viewport edge-to-edge with no seam and
+   never crops the "R". */
 .brand-splash__media {
-  width: clamp(96px, 26vw, 132px);
-  height: auto;
-  filter: drop-shadow(0 0 26px rgba(56, 132, 255, 0.3));
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  object-fit: contain;
+  opacity: 0.88;
+  filter: drop-shadow(0 0 60px rgba(56, 132, 255, 0.32));
 }
 .brand-splash__media--static { display: none; }
 .brand-splash__sr {
