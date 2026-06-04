@@ -40,10 +40,17 @@ layout: default
     if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
 
     function preload() {
+      // Dedupe (newest-first order is preserved), then cap to the 20 newest
+      // pictures so a growing archive can't turn this into a heavy prefetch.
       var seen = Object.create(null);
-      imgs.forEach(function (src) {
-        if (!src || seen[src]) return;
+      var unique = [];
+      for (var i = 0; i < imgs.length && unique.length < 20; i++) {
+        var src = imgs[i];
+        if (!src || seen[src]) continue;
         seen[src] = true;
+        unique.push(src);
+      }
+      unique.forEach(function (src) {
         var img = new Image();
         img.decoding = 'async';
         img.src = src; // kicks off the fetch; reference held until load settles

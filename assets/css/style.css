@@ -3318,8 +3318,9 @@ html[data-splash="show"] .brand-splash {
   pointer-events: none;
 }
 .brand-splash__media {
-  width: clamp(96px, 26vw, 132px);
+  width: clamp(180px, 46vw, 300px);
   height: auto;
+  opacity: 0.88;
   filter: drop-shadow(0 0 26px rgba(56, 132, 255, 0.3));
 }
 .brand-splash__media--static { display: none; }
