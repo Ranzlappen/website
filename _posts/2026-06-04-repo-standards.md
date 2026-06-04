@@ -7,7 +7,7 @@ category: "Projects"
 tags: [github, standards, automation, security, documentation, claude]
 image: /assets/images/repo-standards/repo-standards-hero.webp
 backdrop: /assets/images/repo-standards/repo-standards-hero.webp
-status: placeholder
+status: published
 series: "project-showcases"
 series_order: 9
 comments: true

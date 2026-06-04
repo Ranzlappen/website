@@ -7,7 +7,7 @@ category: "Projects"
 tags: [discord, music-bot, python, self-hosted, youtube, audio]
 image: /assets/images/discord-musicbot/discord-musicbot-hero.webp
 backdrop: /assets/images/discord-musicbot/discord-musicbot-hero.webp
-status: placeholder
+status: published
 series: "project-showcases"
 series_order: 5
 comments: true

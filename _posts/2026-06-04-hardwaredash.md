@@ -7,7 +7,7 @@ category: "Projects"
 tags: [android, hardware, automation, proof-of-concept, modular, rooted, sensors]
 image: /assets/images/hardwaredash/hardwaredash-hero.webp
 backdrop: /assets/images/hardwaredash/hardwaredash-hero.webp
-status: placeholder
+status: published
 series: "project-showcases"
 series_order: 3
 comments: true

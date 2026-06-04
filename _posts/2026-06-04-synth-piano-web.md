@@ -7,7 +7,7 @@ category: "Projects"
 tags: [android, synthesizer, midi, music, apk, jetpack-compose, audio]
 image: /assets/images/synth-piano/synth-piano-hero.webp
 backdrop: /assets/images/synth-piano/synth-piano-hero.webp
-status: placeholder
+status: published
 series: "project-showcases"
 series_order: 4
 comments: true
