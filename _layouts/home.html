@@ -1,10 +1,10 @@
 ---
 layout: default
-# Landing page is a lean "hub": the hero + three category buttons only — no
-# article cards are linked here, to keep the first paint fast and the next
-# click cheap. After the page finishes loading we warm the browser cache with
-# every post's hero/cover image (see the preloader below) so the Blog /
-# Projects / Categories pages render their images near-instantly.
+# Landing page is a lean "hub": the hero + three buttons (Blog / Projects /
+# References) only — no article cards are linked here, to keep the first paint
+# fast and the next click cheap. After the page finishes loading we warm the
+# browser cache with every post's hero/cover image (see the preloader below) so
+# the Blog / Projects pages render their images near-instantly.
 ---
 
 {% include hero.html %}
@@ -28,8 +28,16 @@ layout: default
 <script>
   // Warm the browser cache with the category/post hero images AFTER the landing
   // page has loaded, while the browser is idle. The images aren't shown here, so
-  // this is pure prefetch: when the visitor clicks through to Blog / Projects /
-  // Categories (or a post), the covers/backdrops come from cache and paint fast.
+  // this is pure prefetch: clicking through to Blog / Projects (or a post) then
+  // paints the covers/backdrops from cache.
+  //
+  // Three rules keep this from ever getting in the visitor's way:
+  //   1. It only starts after `load`, during an idle slice.
+  //   2. It fetches ONE image at a time at the lowest priority, so it never
+  //      saturates the connection pool — there's nothing for a real navigation
+  //      to queue behind, and it doesn't re-trigger the page's loading bar.
+  //   3. The moment the page is being left (`pagehide`), it stops the chain and
+  //      cancels the in-flight request, handing all bandwidth to the next page.
   (function () {
     var imgs = window.__heroPreload || [];
     if (!imgs.length) return;
@@ -39,34 +47,58 @@ layout: default
     var conn = navigator.connection || navigator.webkitConnection;
     if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
 
-    function preload() {
-      // Dedupe (newest-first order is preserved), then cap to the 20 newest
-      // pictures so a growing archive can't turn this into a heavy prefetch.
-      var seen = Object.create(null);
-      var unique = [];
-      for (var i = 0; i < imgs.length && unique.length < 20; i++) {
-        var src = imgs[i];
-        if (!src || seen[src]) continue;
-        seen[src] = true;
-        unique.push(src);
-      }
-      unique.forEach(function (src) {
-        var img = new Image();
-        img.decoding = 'async';
-        img.src = src; // kicks off the fetch; reference held until load settles
-        img.onload = img.onerror = function () { img.onload = img.onerror = null; };
-      });
+    // Dedupe (newest-first order is preserved), then cap to the 20 newest
+    // pictures so a growing archive can't turn this into a heavy prefetch.
+    var seen = Object.create(null);
+    var queue = [];
+    for (var i = 0; i < imgs.length && queue.length < 20; i++) {
+      var src = imgs[i];
+      if (src && !seen[src]) { seen[src] = true; queue.push(src); }
+    }
+    if (!queue.length) return;
+
+    var stopped = false;
+    var current = null;
+    var idx = 0;
+
+    function next() {
+      if (stopped || idx >= queue.length) { current = null; return; }
+      var img = new Image();
+      current = img;
+      if ('fetchPriority' in img) img.fetchPriority = 'low'; // deprioritize vs. navigation
+      img.decoding = 'async';
+      img.onload = img.onerror = function () {
+        img.onload = img.onerror = null;
+        if (current === img) current = null;
+        next(); // chain the next one only after this finishes — concurrency of 1
+      };
+      idx++;
+      img.src = queue[idx - 1];
     }
 
-    function schedule() {
+    function stop() {
+      if (stopped) return;
+      stopped = true;
+      if (current) {
+        current.onload = current.onerror = null;
+        current.src = ''; // cancel the in-flight image request
+        current = null;
+      }
+    }
+
+    // Cancel as the visitor leaves so a click never waits on prefetch traffic.
+    window.addEventListener('pagehide', stop);
+
+    function start() {
+      if (stopped) return;
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(preload, { timeout: 3000 });
+        requestIdleCallback(next, { timeout: 3000 });
       } else {
-        setTimeout(preload, 1200);
+        setTimeout(next, 1200);
       }
     }
 
-    if (document.readyState === 'complete') schedule();
-    else window.addEventListener('load', schedule, { once: true });
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
   })();
 </script>
