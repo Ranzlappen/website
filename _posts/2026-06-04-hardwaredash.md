@@ -51,11 +51,14 @@ Instead of juggling dozens of separate tools, you get one coherent dashboard wit
 
 Everything is organized so users can explore hardware behavior interactively while also scripting automated workflows.
 
+<!-- TODO: deferred — re-enable this carousel once real screenshots are added
+     (dashboard.webp / automation.webp / radios.webp).
 <div class="carousel">
   <img src="/assets/images/hardwaredash/dashboard.webp" alt="HardwareDash dashboard showing live sensor tiles and status cards">
   <img src="/assets/images/hardwaredash/automation.webp" alt="Automation rule editor interface for creating hardware-triggered actions">
   <img src="/assets/images/hardwaredash/radios.webp" alt="Radio control panel with Wi-Fi, Bluetooth, NFC and sub-GHz options">
 </div>
+-->
 
 <h2 id="architecture">Modular Architecture & Dual Flavors</h2>
 
