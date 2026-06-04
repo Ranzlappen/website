@@ -1,47 +1,65 @@
 ---
 layout: default
-# [Status field update] Added status == "published" filter to both grid and list post loops.
+# Landing page is a lean "hub": the hero + three category buttons only — no
+# article cards are linked here, to keep the first paint fast and the next
+# click cheap. After the page finishes loading we warm the browser cache with
+# every post's hero/cover image (see the preloader below) so the Blog /
+# Projects / Categories pages render their images near-instantly.
 ---
 
 {% include hero.html %}
 
-<section class="page-content" aria-label="Recent posts">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">Recent Posts</h2>
+{% comment %}
+  Hero/cover image preload list — every published/placeholder post's `image`
+  (the card cover shown on /blog/ and /projects/) plus its `backdrop` (the
+  parallax hero on the post page). Deduped again in JS. First-party, same-origin
+  images only, so no consent gate is needed.
+{% endcomment %}
+<script>
+  window.__heroPreload = [
+  {%- for post in site.posts -%}
+    {%- if post.status == "published" or post.status == "placeholder" -%}
+      {%- if post.image %}"{{ post.image | relative_url }}",{% endif -%}
+      {%- if post.backdrop and post.backdrop != post.image %}"{{ post.backdrop | relative_url }}",{% endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+  ];
+</script>
+<script>
+  // Warm the browser cache with the category/post hero images AFTER the landing
+  // page has loaded, while the browser is idle. The images aren't shown here, so
+  // this is pure prefetch: when the visitor clicks through to Blog / Projects /
+  // Categories (or a post), the covers/backdrops come from cache and paint fast.
+  (function () {
+    var imgs = window.__heroPreload || [];
+    if (!imgs.length) return;
 
-      <!-- View Toggle -->
-      <div class="view-toggle" role="group" aria-label="View mode">
-        <button id="view-grid" class="active" aria-label="Grid view" type="button">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-          </svg>
-        </button>
-        <button id="view-list" aria-label="List view" type="button">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
-          </svg>
-        </button>
-      </div>
-    </div>
+    // Respect Data Saver / very slow links — don't burn metered data prefetching
+    // images the visitor may never see.
+    var conn = navigator.connection || navigator.webkitConnection;
+    if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) return;
 
-    <!-- Grid View -->
-    <div class="posts-grid" id="posts-grid">
-      {% for post in site.posts %}
-        {% if post.status == "published" or post.status == "placeholder" %}
-          {% include post-card.html post=post %}
-        {% endif %}
-      {% endfor %}
-    </div>
+    function preload() {
+      var seen = Object.create(null);
+      imgs.forEach(function (src) {
+        if (!src || seen[src]) return;
+        seen[src] = true;
+        var img = new Image();
+        img.decoding = 'async';
+        img.src = src; // kicks off the fetch; reference held until load settles
+        img.onload = img.onerror = function () { img.onload = img.onerror = null; };
+      });
+    }
 
-    <!-- List View -->
-    <div class="posts-list" id="posts-list" hidden>
-      {% for post in site.posts %}
-        {% if post.status == "published" or post.status == "placeholder" %}
-          {% include post-list-item.html post=post %}
-        {% endif %}
-      {% endfor %}
-    </div>
-  </div>
-</section>
+    function schedule() {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(preload, { timeout: 3000 });
+      } else {
+        setTimeout(preload, 1200);
+      }
+    }
+
+    if (document.readyState === 'complete') schedule();
+    else window.addEventListener('load', schedule, { once: true });
+  })();
+</script>

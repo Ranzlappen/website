@@ -520,6 +520,24 @@ html[data-header-sticky="off"] .theme-toggle {
   height: 1rem;
 }
 
+/* Landing-page category buttons (replace the single CTA — see _includes/hero.html) */
+.hero-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-md);
+}
+.hero-cta--block {
+  flex: 0 1 11rem;
+  justify-content: center;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.95rem;
+}
+@media (max-width: 30rem) {
+  .hero-buttons { flex-direction: column; align-items: stretch; }
+  .hero-cta--block { flex-basis: auto; }
+}
+
 /* ============================================================
    Main Content
    ============================================================ */
