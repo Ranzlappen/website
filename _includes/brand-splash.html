@@ -1,0 +1,56 @@
+<!-- Brand splash / onboarding loader.
+     Shown once per browser session (gated in head.html's pre-paint bootstrap via
+     <html data-splash="show">). Hidden by default so a no-JS / repeat-visit load
+     never paints it. Honors prefers-reduced-motion by swapping the animation for
+     a static poster and skipping the fade. -->
+<div class="brand-splash" id="brand-splash" role="status" aria-live="polite">
+  <video class="brand-splash__media brand-splash__media--anim"
+         src="{{ '/assets/images/loader/brand-loader.mp4' | relative_url }}"
+         poster="{{ '/assets/images/loader/brand-loader-poster.png' | relative_url }}"
+         width="140" height="140"
+         autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+  <img class="brand-splash__media brand-splash__media--static"
+       src="{{ '/assets/images/loader/brand-loader-poster.png' | relative_url }}"
+       alt="" width="140" height="140" decoding="async">
+  <span class="brand-splash__sr">Loading…</span>
+</div>
+<script>
+  (function () {
+    var root = document.documentElement;
+    if (root.getAttribute('data-splash') !== 'show') return;
+    var el = document.getElementById('brand-splash');
+    // Mark shown immediately so navigating away mid-splash still counts as "once".
+    try { sessionStorage.setItem('brandSplashShown', '1'); } catch (e) {}
+
+    // Reduced motion: the CSS already swaps the <video> for the static poster, so
+    // pause the (hidden) clip too rather than let it decode/play behind the scenes.
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        var v = el.querySelector('.brand-splash__media--anim');
+        if (v && v.pause) { v.removeAttribute('autoplay'); v.pause(); }
+      }
+    } catch (e) {}
+
+    var MIN_MS = 900;            // minimum on-screen time so it doesn't just flash
+    var start = Date.now();
+    var done = false;
+
+    function dismiss() {
+      if (done) return;
+      done = true;
+      var wait = Math.max(0, MIN_MS - (Date.now() - start));
+      setTimeout(function () {
+        var finish = function () {
+          root.removeAttribute('data-splash');
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        };
+        el.classList.add('is-hiding');
+        el.addEventListener('transitionend', finish, { once: true });
+        setTimeout(finish, 600); // fallback if transitionend never fires
+      }, wait);
+    }
+
+    if (document.readyState === 'complete') dismiss();
+    else window.addEventListener('load', dismiss);
+  })();
+</script>
