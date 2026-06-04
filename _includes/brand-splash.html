@@ -1,0 +1,45 @@
+<!-- Brand splash / onboarding loader.
+     Shown once per browser session (gated in head.html's pre-paint bootstrap via
+     <html data-splash="show">). Hidden by default so a no-JS / repeat-visit load
+     never paints it. Honors prefers-reduced-motion by swapping the animation for
+     a static poster and skipping the fade. -->
+<div class="brand-splash" id="brand-splash" role="status" aria-live="polite">
+  <img class="brand-splash__img brand-splash__img--anim"
+       src="{{ '/assets/images/loader/brand-loader.webp' | relative_url }}"
+       alt="" width="240" height="240" decoding="async" fetchpriority="high">
+  <img class="brand-splash__img brand-splash__img--static"
+       src="{{ '/assets/images/loader/brand-loader-poster.png' | relative_url }}"
+       alt="" width="240" height="240" decoding="async">
+  <span class="brand-splash__sr">Loading…</span>
+</div>
+<script>
+  (function () {
+    var root = document.documentElement;
+    if (root.getAttribute('data-splash') !== 'show') return;
+    var el = document.getElementById('brand-splash');
+    // Mark shown immediately so navigating away mid-splash still counts as "once".
+    try { sessionStorage.setItem('brandSplashShown', '1'); } catch (e) {}
+
+    var MIN_MS = 900;            // minimum on-screen time so it doesn't just flash
+    var start = Date.now();
+    var done = false;
+
+    function dismiss() {
+      if (done) return;
+      done = true;
+      var wait = Math.max(0, MIN_MS - (Date.now() - start));
+      setTimeout(function () {
+        var finish = function () {
+          root.removeAttribute('data-splash');
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        };
+        el.classList.add('is-hiding');
+        el.addEventListener('transitionend', finish, { once: true });
+        setTimeout(finish, 600); // fallback if transitionend never fires
+      }, wait);
+    }
+
+    if (document.readyState === 'complete') dismiss();
+    else window.addEventListener('load', dismiss);
+  })();
+</script>
