@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Court Procedure Guide">
+  <rect fill="#1b2330" width="64" height="64" rx="14"/>
+  <path d="M32 12 14 20v3h36v-3L32 12Z" fill="#cbd5e1"/>
+  <rect x="20" y="26" width="4" height="20" fill="#94a3b8"/>
+  <rect x="30" y="26" width="4" height="20" fill="#94a3b8"/>
+  <rect x="40" y="26" width="4" height="20" fill="#94a3b8"/>
+  <rect x="14" y="48" width="36" height="4" rx="2" fill="#cbd5e1"/>
+</svg>
