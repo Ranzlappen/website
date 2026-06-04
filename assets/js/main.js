@@ -980,6 +980,11 @@ DATE: 2026-04-02
     if (isNaN(offsetRem)) offsetRem = 3.75;
     var rootFont = parseFloat(getComputedStyle(rootEl).fontSize) || 16;
     var offsetPx = Math.round(offsetRem * rootFont);
+    // The read-aloud sticky bar (when reading) pushes h2's down by its height,
+    // published in px on --tts-bar-offset; fold it in so .is-stuck fires where
+    // the h2 actually pins.
+    var barPx = parseFloat(getComputedStyle(rootEl).getPropertyValue('--tts-bar-offset')) || 0;
+    offsetPx += Math.round(barPx);
 
     observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -1000,4 +1005,5 @@ DATE: 2026-04-02
 
   rebuild();
   rootEl.addEventListener('headersticky:change', rebuild);
+  rootEl.addEventListener('ttsbar:change', rebuild);
 })();

@@ -138,11 +138,17 @@
     // Force reflow so the transition triggers
     void stickyBar.offsetHeight;
     stickyBar.classList.add('is-visible');
+    // Publish the bar's height so sticky h2's pin below it (--tts-bar-offset).
+    document.documentElement.style.setProperty('--tts-bar-offset', stickyBar.offsetHeight + 'px');
+    document.documentElement.dispatchEvent(new CustomEvent('ttsbar:change'));
   }
 
   function hideStickyBar() {
     if (!stickyBar) return;
     stickyBar.classList.remove('is-visible');
+    // Re-anchor sticky h2's flush below the header as the bar slides out.
+    document.documentElement.style.setProperty('--tts-bar-offset', '0px');
+    document.documentElement.dispatchEvent(new CustomEvent('ttsbar:change'));
     stickyBar.addEventListener('transitionend', function handler() {
       stickyBar.removeEventListener('transitionend', handler);
       stickyBar.setAttribute('hidden', '');

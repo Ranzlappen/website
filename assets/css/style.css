@@ -59,6 +59,10 @@ DATE: 2026-04-03
      to 0 when the header is unpinned (data-header-sticky="off") so sticky page
      chrome (e.g. the reference-table controls) re-anchors to the very top. */
   --header-offset: var(--header-height);
+  /* Height the read-aloud sticky toolbar occupies below the header while
+     reading; 0 when hidden. Published in px by read-aloud.js so sticky h2's
+     stack below the bar (see .tts-sticky-bar / .post-body h2). */
+  --tts-bar-offset: 0px;
   --border-radius: 0.5rem;
   --border-radius-sm: 0.25rem;
   --border-radius-lg: 0.75rem;
@@ -1284,7 +1288,7 @@ html[data-header-sticky="off"] .theme-toggle {
   margin-bottom: var(--space-md);
   padding-top: var(--space-md);
   border-top: 1px solid var(--c-border);
-  scroll-margin-top: calc(var(--header-offset) + 1rem);
+  scroll-margin-top: calc(var(--header-offset) + var(--tts-bar-offset) + 1rem);
 }
 
 .post-body h3 {
@@ -2684,7 +2688,7 @@ html[data-header-sticky="off"] .theme-toggle {
 /* Sticky TTS Toolbar (fixed below header when reading aloud) */
 .tts-sticky-bar {
   position: fixed;
-  top: var(--header-height);
+  top: var(--header-offset);
   left: 0;
   right: 0;
   z-index: 999;
@@ -3183,7 +3187,7 @@ html[data-header-sticky="off"] .theme-toggle {
 .post-body[itemprop="articleBody"] h2,
 .page-body h2 {
   position: sticky;
-  top: var(--header-offset);
+  top: calc(var(--header-offset) + var(--tts-bar-offset));
   z-index: 50;
   background: transparent;
   /* Full-bleed: margins pull the box out to the viewport edges (works
