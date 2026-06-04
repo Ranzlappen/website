@@ -7,7 +7,7 @@ category: "Media"
 tags: ["statistics-misuse", "media-bias", "politics-data", "manipulation", "mean-median", "cherry-picking"]
 image: /assets/images/partisan-slant/partisan-slant-hero.webp
 backdrop: /assets/images/partisan-slant/partisan-slant-hero.webp
-status: placeholder
+status: published
 series: "media-trust"
 series_order: 2
 comments: true
@@ -20,6 +20,8 @@ comments: true
 <li><a href="#common-techniques">Common Techniques of Statistical Manipulation</a></li>
 <li><a href="#selection-bias">Selection Bias: When the Sample Itself Is the Deception</a></li>
 <li><a href="#mean-vs-median">Mean vs. Median: A Favorite Trick in Economic Reporting</a></li>
+<li><a href="#correlation-causation">Correlation, Causation, and the Confounded Headline</a></li>
+<li><a href="#survivorship-bias">Survivorship Bias: The Data That Never Shows Up</a></li>
 <li><a href="#case-studies">Classic and Recent Case Studies</a></li>
 <li><a href="#visual-tricks">The Role of Visuals and Graphs</a></li>
 <li><a href="#continuity-illusion">The Continuity Illusion: Journalists’ Delirious Love of the Connecting Line</a></li>
@@ -30,6 +32,7 @@ comments: true
 <li><a href="#missing-uncertainty">Ignoring Uncertainty: Missing Error Bars and Confidence Intervals</a></li>
 <li><a href="#dunkelziffer">The Dark Figure: Ignoring the Dunkelziffer (Unreported Cases)</a></li>
 <li><a href="#impacts">Impacts on Public Opinion and Democracy</a></li>
+<li><a href="#self-defense">A Reader's Self-Defense Checklist</a></li>
 <li><a href="#key-takeaways">Key Takeaways</a></li>
 <li><a href="#conclusion">Conclusion</a></li>
 <li><a href="#sources">Sources</a></li>
@@ -37,6 +40,8 @@ comments: true
 </nav>
 
 <h2 id="introduction">Introduction</h2>
+
+> **Related in this series (media-trust):** &nbsp;**1.** [Western Media Trust Crisis: Independent Journalism & Open AI Rise](/blog/2026/03/31/independent-journalism/) &nbsp;·&nbsp; **2.** Statistics Misuse (this article) &nbsp;·&nbsp; **3.** [The Atrocious Intrusive Landscape of Advertising](/blog/2026/04/04/advertisement/)
 
 Statistics should inform public debate. Instead, media outlets and politicians frequently exploit them to advance agendas.<sup><a href="#source-1">[1]</a></sup> Confusion over basic measures — such as the difference between mean, median, and mode — creates openings for deception.<sup><a href="#source-2">[2]</a></sup> Selective reporting, omitted context, and visual tricks turn neutral numbers into persuasive weapons. This article examines proven techniques, real-world examples, and practical ways to spot manipulation without favoring any political side.
 
@@ -66,7 +71,7 @@ The result is a chart or headline that looks authoritative but rests on a skewed
 
 Income and wealth statistics offer the clearest illustration. The mean (arithmetic average) sums all values and divides by the count; it is highly sensitive to extreme outliers. The median is the middle value in an ordered list and resists skew. In highly unequal distributions, the mean can dramatically exceed the median.
 
-Media reports on “average income” or “average wage growth” often cite the mean, making conditions appear better for typical households than they are.<sup><a href=”#source-5”>[5]</a></sup> Politicians similarly highlight whichever figure supports their narrative on inequality or economic success. The mode — the most frequent value — rarely appears in such debates because it adds little drama.
+Media reports on “average income” or “average wage growth” often cite the mean, making conditions appear better for typical households than they are.<sup><a href="#source-5">[5]</a></sup> Politicians similarly highlight whichever figure supports their narrative on inequality or economic success. The mode — the most frequent value — rarely appears in such debates because it adds little drama.
 
 <div class="chart-container" role="figure" aria-label="Mean vs Median Household Income 2000–2024">
   <canvas data-chart="line"
@@ -76,9 +81,27 @@ Media reports on “average income” or “average wage growth” often cite th
   </canvas>
 </div>
 
+The gap is not hypothetical. The Census Bureau reported median U.S. household income of $83,730 in 2024, while the *mean* sits substantially higher because top earners pull the average up; the Gini index of 0.49 — near its highest level in records going back to 1967 — quantifies exactly how skewed the distribution is.<sup><a href="#source-11">[11]</a></sup> When a headline announces that "average income rose," it is usually the mean that moved, and the mean can climb in a year when the *typical* household — the one at the median — saw no statistically significant change at all. The honest question to ask of any "average" is: *which* average, and how wide is the gap to the median?
+
+<h2 id="correlation-causation">Correlation, Causation, and the Confounded Headline</h2>
+
+Perhaps the single most abused inference in popular reporting is the leap from "two things move together" to "one caused the other." Correlation is a measurement; causation is a claim — and the gap between them is where most pseudo-scientific headlines live.
+
+The classic teaching example is ice-cream sales and drowning deaths, which rise and fall together across the year. Neither causes the other; a hidden third variable — summer heat — drives both. That hidden variable is called a **confounder**, and the entire discipline of statistics exists in large part to detect and adjust for it. Reporting that omits the confounder can make almost any spurious pairing look like a discovery: countries that drink more coffee live longer (wealth confounds), neighborhoods with more bookstores have higher test scores (income confounds), regions with more storks have more babies (population size confounds).
+
+The tell is usually linguistic. Watch for verbs that quietly upgrade a correlation into a cause — "linked to," "associated with," and "tied to" are honest hedges, while "causes," "drives," and "leads to" are claims that demand a controlled study or a plausible mechanism behind them. A responsible chart of two correlated lines should say what was *held constant*; a manipulative one simply lets the reader's pattern-matching brain supply the causal arrow for free.
+
+<h2 id="survivorship-bias">Survivorship Bias: The Data That Never Shows Up</h2>
+
+Survivorship bias is selection bias's quieter cousin: it distorts conclusions not by who is over-counted but by who is *missing entirely* from the dataset because they did not "survive" to be measured.
+
+The canonical case comes from World War II. Statistician Abraham Wald was asked where to add armor to bombers, given a chart of bullet-hole density on the planes that returned. The intuitive answer — reinforce where the holes cluster — is exactly backwards. The returning planes are the *survivors*; the holes show where a bomber can be hit and still fly home. The armor belongs where the returning planes show *no* damage, because planes hit there never came back to be counted.
+
+The modern equivalents are everywhere. "Successful founders dropped out of college" ignores the far larger population of dropouts whose startups failed and who never make the magazine profile. "This supplement works — look at all these glowing reviews" ignores everyone who tried it, saw nothing, and quietly stopped. "Old buildings were built to last" forgets that the flimsy old buildings already fell down. Whenever a dataset is assembled from the winners, the losers' absence is itself a data point — and a deeply misleading one when ignored.
+
 <h2 id="case-studies">Classic and Recent Case Studies</h2>
 
-Darrell Huff’s 1954 book *How to Lie with Statistics* catalogued many enduring tricks that remain relevant.<sup><a href=”#source-9”>[9]</a></sup> One modern example involved congressional testimony using a graph of Planned Parenthood funding versus cancer screenings that reversed the time axis to imply causation where none existed. Fact-checkers rated the presentation “Pants on Fire” false.<sup><a href=”#source-4”>[4]</a></sup>
+Darrell Huff’s 1954 book *How to Lie with Statistics* catalogued many enduring tricks that remain relevant.<sup><a href="#source-9">[9]</a></sup> One modern example involved congressional testimony using a graph of Planned Parenthood funding versus cancer screenings that reversed the time axis to imply causation where none existed. Fact-checkers rated the presentation “Pants on Fire” false.<sup><a href="#source-4">[4]</a></sup>
 
 Economic and crime data frequently face scrutiny. Claims of record-low unemployment under one administration or dramatic crime drops under another have prompted accusations of selective time frames or data reclassification. Voter-fraud or election-integrity statistics often rely on tiny samples or unverified anecdotes presented as systemic evidence. Each side accuses the other; the pattern persists regardless of who holds power.
 
@@ -135,13 +158,27 @@ Polls, surveys, and small-sample studies almost never display margins of error o
 
 <h3 id="dunkelziffer">The Dark Figure: Ignoring the Dunkelziffer (Unreported Cases)</h3>
 
-One of the most overlooked deceptions is pretending official statistics capture reality in full. The German term *Dunkelziffer* (literally “dark figure”) describes the vast number of crimes, incidents, or events that go unreported or unrecorded. For violent crime in the U.S., studies show only about 40 % of incidents are reported to police; for property crime the figure is even lower.<sup><a href=”#source-7”>[7]</a></sup> Charts of “official crime rates” therefore show only the visible tip of the iceberg.
+One of the most overlooked deceptions is pretending official statistics capture reality in full. The German term *Dunkelziffer* (literally “dark figure”) describes the vast number of crimes, incidents, or events that go unreported or unrecorded. The U.S. Bureau of Justice Statistics' National Crime Victimization Survey — which interviews households directly rather than counting police reports — found that only about 45 % of violent victimizations were reported to police in 2023, and the share is lower still for property crime.<sup><a href="#source-7">[7]</a></sup> Charts of “official crime rates” therefore show only the visible tip of the iceberg.
 
 Media outlets on every side routinely cite FBI or police statistics as definitive proof that “crime is down” or “crime is exploding”—without ever mentioning the hidden portion. When reporting rates change (due to distrust, fear, or policy shifts), the official numbers can move dramatically even if actual crime stays stable. Honest reporting would acknowledge this uncertainty instead of treating the charted line as the complete story.
 
 <h2 id="impacts">Impacts on Public Opinion and Democracy</h2>
 
 Repeated exposure to skewed statistics erodes trust in institutions and data itself.<sup><a href="#source-6">[6]</a></sup> Voters make decisions based on distorted pictures of inequality, crime, economic health, or policy effectiveness. Policy debates become polarized around competing narratives rather than shared facts. Over time, this weakens democratic accountability.
+
+<h2 id="self-defense">A Reader's Self-Defense Checklist</h2>
+
+Spotting statistical deception does not require an advanced degree — just a short list of questions asked reflexively before a number changes your mind. The UK Parliament's guidance on inappropriate use of statistics distils much of this into a single principle: always trace a figure back to its primary source and original context.<sup><a href="#source-3">[3]</a></sup> Practical checks:
+
+- **Which average?** If a story says "average," find out whether it means the mean or the median, and how far apart they are. In any skewed distribution — income, house prices, wait times — the choice is the message.
+- **Compared to what, and since when?** A percentage with no baseline and no time window is a rhetorical device, not a measurement. Ask what the figure was before the highlighted period and what it did after.
+- **Where is the zero?** Glance at the y-axis. If it does not start at zero (and the quantity is one where zero is meaningful), mentally rescale before reacting to the slope.
+- **Who was counted — and who wasn't?** Probe the sample for selection and survivorship bias. A poll of volunteers, app users, or returning customers describes only that group, never the whole.
+- **Correlation or causation?** Note the verb. "Linked to" is a hedge; "causes" is a claim that needs a mechanism or a controlled study behind it.
+- **Where is the uncertainty?** A result with no margin of error, confidence interval, or sample size is presenting noise as fact. A 2-point lead inside a ±4-point margin is a tie.
+- **What's the dark figure?** For anything counted by an institution — crimes, infections, complaints — ask how much never gets reported, and whether the reporting *rate* itself is what changed.<sup><a href="#source-7">[7]</a></sup>
+
+None of these checks require recomputing the data. They simply force the claim to show its work — and most manipulative statistics fail the moment they are asked to.
 
 <h2 id="key-takeaways">Key Takeaways</h2>
 
@@ -152,6 +189,9 @@ Repeated exposure to skewed statistics erodes trust in institutions and data its
 - Critical consumers should always ask: Which measure of “average”? What is the full time frame? What data was excluded?
 - Visuals can lie through inappropriate chart types, truncated scales, clutter, omitted uncertainty, cherry-picked periods, and by ignoring the *Dunkelziffer*—always verify the raw data and chart construction behind the pretty picture.
 - Selection bias hides in the sampling method itself; always check who was actually measured and who was left out.
+- Survivorship bias is the data that never appears: winners get counted, losers vanish, and the absence is itself a (misread) data point.
+- Correlation is a measurement, not a cause; watch the verb ("linked to" vs. "causes") and hunt for the hidden confounder before accepting a causal headline.
+- A short reflexive checklist — which average, compared to what, where is zero, who was counted, correlation or causation, where is the uncertainty, what is the dark figure — defuses most everyday statistical manipulation.
 
 <h2 id="conclusion">Conclusion</h2>
 
@@ -166,8 +206,9 @@ Statistics remain essential tools for understanding society. When media outlets 
   <li id="source-4"><a href="https://yipinstitute.org/article/misuse-of-statistics-abortion" target="_blank" rel="noopener">YIP Institute. The Misuse of Statistics in Politics: Abortion.</a></li>
   <li id="source-5"><a href="https://www.forbes.com/sites/jeffreydorfman/2017/08/17/how-to-spot-a-lie-with-economic-statistics/" target="_blank" rel="noopener">Forbes (2017). How To (Spot A) Lie With Economic Statistics.</a></li>
   <li id="source-6"><a href="https://www.brookings.edu/articles/around-the-halls-the-cost-of-compromising-federal-data/" target="_blank" rel="noopener">Brookings Institution (2023). The Cost of Compromising Federal Data.</a></li>
-  <li id="source-7"><a href="https://www.pewresearch.org/short-reads/2023/10/18/how-americans-view-data-privacy/" target="_blank" rel="noopener">Pew Research Center (2023). How Americans View Data Privacy.</a></li>
+  <li id="source-7"><a href="https://bjs.ojp.gov/data-collection/ncvs" target="_blank" rel="noopener">Bureau of Justice Statistics — National Crime Victimization Survey (NCVS).</a> — Criminal Victimization, 2023: ~45% of violent victimizations reported to police; the survey measures the unreported "dark figure" directly.</li>
   <li id="source-8"><a href="https://www.nsc.org/road-safety/safety-topics/fatality-estimates" target="_blank" rel="noopener">National Safety Council (2024). Motor Vehicle Fatality Data.</a></li>
   <li id="source-9">Darrell Huff (1954). <em>How to Lie with Statistics.</em></li>
   <li id="source-10">Edward Tufte (2001). <em>The Visual Display of Quantitative Information.</em></li>
+  <li id="source-11"><a href="https://www.census.gov/library/publications/2025/demo/p60-286.html" target="_blank" rel="noopener">U.S. Census Bureau (2025). Income in the United States: 2024 (P60-286).</a> — Median household income $83,730; Gini index 0.49 (near record high), illustrating the mean–median gap.</li>
 </ol>
