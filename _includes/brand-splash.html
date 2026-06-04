@@ -38,14 +38,17 @@
 
     var MIN_MS = 900;            // minimum on-screen time so it doesn't just flash
     var MAX_MS = 9000;           // hard cap so the splash can never get stuck
+    var FADE_AT = 0.75;          // begin the fade at 75% of the clip so the 25%
+                                 // overlay fade ends right as the clip does
     var start = Date.now();
     var done = false;
 
-    // The splash now waits on TWO gates before fading: the page has finished
-    // loading AND the animation has played through once (so it never gets cut
-    // off mid-loop). Whichever finishes last wins; a hard cap backstops both.
+    // The splash fades on TWO gates: the page has finished loading AND the clip
+    // has reached its last quarter. The overlay's own opacity fade (CSS, ~0.375s
+    // = the clip's last 25%) takes the emblem AND the dark backdrop out together,
+    // revealing the page beneath. Whichever gate is last wins; a hard cap backstops.
     var pageLoaded = false;
-    var animDone = false;
+    var animReady = false;
 
     function fade() {
       if (done) return;
@@ -63,22 +66,29 @@
     }
 
     function maybeDismiss() {
-      if (pageLoaded && animDone) fade();
+      if (pageLoaded && animReady) fade();
     }
 
     // Gate 1: page load.
     if (document.readyState === 'complete') pageLoaded = true;
     else window.addEventListener('load', function () { pageLoaded = true; maybeDismiss(); }, { once: true });
 
-    // Gate 2: one full play of the clip. Reduced-motion (or a missing/failed
+    // Gate 2: clip reaches its last 25%. Reduced-motion (or a missing/failed
     // video) satisfies it immediately so we fall back to the load + MIN_MS floor.
     if (reduceMotion || !video) {
-      animDone = true;
+      animReady = true;
     } else {
-      var markAnimDone = function () { animDone = true; maybeDismiss(); };
-      video.loop = false; // play exactly once, then fade
-      video.addEventListener('ended', markAnimDone, { once: true });
-      video.addEventListener('error', markAnimDone, { once: true });
+      var markReady = function () { animReady = true; maybeDismiss(); };
+      video.loop = false; // play exactly once
+      var onTime = function () {
+        if (video.duration && video.currentTime >= video.duration * FADE_AT) {
+          video.removeEventListener('timeupdate', onTime);
+          markReady();
+        }
+      };
+      video.addEventListener('timeupdate', onTime);
+      video.addEventListener('ended', markReady, { once: true }); // fallback
+      video.addEventListener('error', markReady, { once: true });
     }
 
     // Backstop: never let the overlay outlive MAX_MS even if a gate never fires.
