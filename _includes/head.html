@@ -19,8 +19,10 @@
 {% if page.image %}<meta name="twitter:image" content="{{ page.image | absolute_url }}">{% endif %}
 
 <!-- Favicon & Manifest -->
-<link rel="icon" type="image/png" href="{{ '/assets/images/favicon.png' | relative_url }}" sizes="32x32">
-<link rel="apple-touch-icon" href="{{ '/assets/images/favicon.png' | relative_url }}">
+<link rel="icon" href="{{ '/icons/favicon.ico' | relative_url }}" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ '/icons/favicon-32x32.png' | relative_url }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ '/icons/favicon-16x16.png' | relative_url }}">
+<link rel="apple-touch-icon" href="{{ '/icons/apple-touch-icon.png' | relative_url }}">
 <link rel="manifest" href="{{ '/site.webmanifest' | relative_url }}">
 
 <!-- RSS (Atom feed) -->
