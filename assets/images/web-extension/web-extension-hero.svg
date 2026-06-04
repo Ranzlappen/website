@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Web Extension — placeholder">
+  <rect fill="#241c0e" width="1200" height="630"/>
+  <rect fill="#3a2e16" x="60" y="50" width="1080" height="529" rx="16"/>
+  <text x="600" y="290" text-anchor="middle" fill="#fbbf24" font-family="sans-serif" font-size="47" font-weight="700">Web Extension</text>
+  <text x="600" y="359" text-anchor="middle" fill="#b09a78" font-family="sans-serif" font-size="26">Project hero image</text>
+  <text x="600" y="554" text-anchor="middle" fill="#b09a78" font-family="sans-serif" font-size="21" opacity="0.7">placeholder — replace with real media</text>
+</svg>

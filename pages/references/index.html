@@ -113,6 +113,45 @@ updated). Favicons committed locally under assets/images/favicons/.
         </a>
       </li>
 
+      {%- comment -%}
+        Court Procedure Guide — SCAFFOLD CARD.
+        TODO: point href at the real reference page once it exists (e.g. /references/court-procedure-guide/);
+        for now it links to the source repo. Replace the blurb/meta with real content.
+      {%- endcomment -%}
+      <li class="references-card">
+        <a class="references-card__link" href="https://github.com/Ranzlappen/court-procedure-guide">
+          <span class="references-card__icon" aria-hidden="true">
+            <img src="{{ '/assets/images/favicons/court-procedure-guide.svg' | relative_url }}" alt="">
+          </span>
+          <div class="references-card__body">
+            <h2 class="references-card__title">Court Procedure Guide</h2>
+            <p class="references-card__blurb">Placeholder — a step-by-step guide to court procedure. Replace this blurb with the real description once the reference page is built.</p>
+            <p class="references-card__meta"><strong>Scaffold</strong> · content coming soon</p>
+          </div>
+          <span class="references-card__cta" aria-hidden="true">Open →</span>
+        </a>
+      </li>
+
+      {%- comment -%}
+        Worldmap — HIDDEN SCAFFOLD CARD.
+        Intentionally commented out so it does not render publicly yet (icon + markup ready below).
+        TODO: confirm the repo/page URL, then uncomment to publish.
+
+      <li class="references-card">
+        <a class="references-card__link" href="https://github.com/Ranzlappen/worldmap">
+          <span class="references-card__icon" aria-hidden="true">
+            <img src="{{ '/assets/images/favicons/worldmap.svg' | relative_url }}" alt="">
+          </span>
+          <div class="references-card__body">
+            <h2 class="references-card__title">Worldmap</h2>
+            <p class="references-card__blurb">Placeholder — interactive world map reference. Replace this blurb with the real description.</p>
+            <p class="references-card__meta"><strong>Scaffold</strong> · hidden until ready</p>
+          </div>
+          <span class="references-card__cta" aria-hidden="true">Open →</span>
+        </a>
+      </li>
+      {%- endcomment -%}
+
     </ul>
 
   </div>
