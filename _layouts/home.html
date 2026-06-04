@@ -33,11 +33,11 @@ layout: default
   //
   // Three rules keep this from ever getting in the visitor's way:
   //   1. It only starts after `load`, during an idle slice.
-  //   2. It fetches ONE image at a time at the lowest priority, so it never
-  //      saturates the connection pool — there's nothing for a real navigation
-  //      to queue behind, and it doesn't re-trigger the page's loading bar.
-  //   3. The moment the page is being left (`pagehide`), it stops the chain and
-  //      cancels the in-flight request, handing all bandwidth to the next page.
+  //   2. It fetches at most 3 images at a time at the lowest priority, so it
+  //      never saturates the connection pool — there's little for a real
+  //      navigation to queue behind, and it doesn't re-trigger the loading bar.
+  //   3. The moment the page is being left (`pagehide`), it stops the queue and
+  //      cancels every in-flight request, handing all bandwidth to the next page.
   (function () {
     var imgs = window.__heroPreload || [];
     if (!imgs.length) return;
@@ -57,33 +57,40 @@ layout: default
     }
     if (!queue.length) return;
 
+    var CONCURRENCY = 3;
     var stopped = false;
-    var current = null;
+    var inFlight = [];   // images currently loading, so stop() can cancel them
     var idx = 0;
 
-    function next() {
-      if (stopped || idx >= queue.length) { current = null; return; }
+    function loadOne() {
+      if (stopped || idx >= queue.length) return;
       var img = new Image();
-      current = img;
       if ('fetchPriority' in img) img.fetchPriority = 'low'; // deprioritize vs. navigation
       img.decoding = 'async';
       img.onload = img.onerror = function () {
         img.onload = img.onerror = null;
-        if (current === img) current = null;
-        next(); // chain the next one only after this finishes — concurrency of 1
+        var at = inFlight.indexOf(img);
+        if (at !== -1) inFlight.splice(at, 1);
+        loadOne(); // refill the slot only after this one settles — pool of 3
       };
+      inFlight.push(img);
       idx++;
       img.src = queue[idx - 1];
+    }
+
+    function pump() {
+      var slots = CONCURRENCY - inFlight.length;
+      for (var k = 0; k < slots; k++) loadOne();
     }
 
     function stop() {
       if (stopped) return;
       stopped = true;
-      if (current) {
-        current.onload = current.onerror = null;
-        current.src = ''; // cancel the in-flight image request
-        current = null;
-      }
+      inFlight.forEach(function (img) {
+        img.onload = img.onerror = null;
+        img.src = ''; // cancel the in-flight image request
+      });
+      inFlight.length = 0;
     }
 
     // Cancel as the visitor leaves so a click never waits on prefetch traffic.
@@ -92,9 +99,9 @@ layout: default
     function start() {
       if (stopped) return;
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(next, { timeout: 3000 });
+        requestIdleCallback(pump, { timeout: 3000 });
       } else {
-        setTimeout(next, 1200);
+        setTimeout(pump, 1200);
       }
     }
 
