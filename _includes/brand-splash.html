@@ -7,11 +7,11 @@
   <video class="brand-splash__media brand-splash__media--anim"
          src="{{ '/assets/images/loader/brand-loader.mp4' | relative_url }}"
          poster="{{ '/assets/images/loader/brand-loader-poster.png' | relative_url }}"
-         width="240" height="240"
-         autoplay muted playsinline preload="auto" aria-hidden="true"></video>
+         width="140" height="140"
+         autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
   <img class="brand-splash__media brand-splash__media--static"
        src="{{ '/assets/images/loader/brand-loader-poster.png' | relative_url }}"
-       alt="" width="240" height="240" decoding="async">
+       alt="" width="140" height="140" decoding="async">
   <span class="brand-splash__sr">Loading…</span>
 </div>
 <script>
@@ -22,32 +22,20 @@
     // Mark shown immediately so navigating away mid-splash still counts as "once".
     try { sessionStorage.setItem('brandSplashShown', '1'); } catch (e) {}
 
-    var video = el.querySelector('.brand-splash__media--anim');
-    var reduceMotion = false;
-    try {
-      reduceMotion = window.matchMedia &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    } catch (e) {}
-
     // Reduced motion: the CSS already swaps the <video> for the static poster, so
     // pause the (hidden) clip too rather than let it decode/play behind the scenes.
-    if (reduceMotion && video && video.pause) {
-      video.removeAttribute('autoplay');
-      video.pause();
-    }
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        var v = el.querySelector('.brand-splash__media--anim');
+        if (v && v.pause) { v.removeAttribute('autoplay'); v.pause(); }
+      }
+    } catch (e) {}
 
     var MIN_MS = 900;            // minimum on-screen time so it doesn't just flash
-    var MAX_MS = 9000;           // hard cap so the splash can never get stuck
     var start = Date.now();
     var done = false;
 
-    // The splash now waits on TWO gates before fading: the page has finished
-    // loading AND the animation has played through once (so it never gets cut
-    // off mid-loop). Whichever finishes last wins; a hard cap backstops both.
-    var pageLoaded = false;
-    var animDone = false;
-
-    function fade() {
+    function dismiss() {
       if (done) return;
       done = true;
       var wait = Math.max(0, MIN_MS - (Date.now() - start));
@@ -62,28 +50,7 @@
       }, wait);
     }
 
-    function maybeDismiss() {
-      if (pageLoaded && animDone) fade();
-    }
-
-    // Gate 1: page load.
-    if (document.readyState === 'complete') pageLoaded = true;
-    else window.addEventListener('load', function () { pageLoaded = true; maybeDismiss(); }, { once: true });
-
-    // Gate 2: one full play of the clip. Reduced-motion (or a missing/failed
-    // video) satisfies it immediately so we fall back to the load + MIN_MS floor.
-    if (reduceMotion || !video) {
-      animDone = true;
-    } else {
-      var markAnimDone = function () { animDone = true; maybeDismiss(); };
-      video.loop = false; // play exactly once, then fade
-      video.addEventListener('ended', markAnimDone, { once: true });
-      video.addEventListener('error', markAnimDone, { once: true });
-    }
-
-    // Backstop: never let the overlay outlive MAX_MS even if a gate never fires.
-    setTimeout(function () { pageLoaded = true; animDone = true; maybeDismiss(); }, MAX_MS);
-
-    maybeDismiss();
+    if (document.readyState === 'complete') dismiss();
+    else window.addEventListener('load', dismiss);
   })();
 </script>
