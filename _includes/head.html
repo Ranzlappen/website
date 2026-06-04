@@ -85,15 +85,6 @@
       document.documentElement.setAttribute('data-header-sticky', 'off');
     }
 
-    // Brand splash / onboarding loader: shown once per browser session, decided
-    // before paint so the overlay covers the page with no flash. The dismissal
-    // logic + the sessionStorage write live in _includes/brand-splash.html.
-    try {
-      if (!sessionStorage.getItem('brandSplashShown')) {
-        document.documentElement.setAttribute('data-splash', 'show');
-      }
-    } catch (e) {}
-
     // Bootstrap consent state synchronously so other scripts can check it
     var CC_KEY = 'cookie_consent', CC_VER = 1, CC_EXP = 365;
     try {
