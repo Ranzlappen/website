@@ -33,6 +33,8 @@ HardwareDash (also known as Gadget) is a modular Android application designed as
 
 The project lives in the Ranzlappen/HardwareDash repository, with active development happening on the legacy/refactor branch (`claude/refactor-2026`), where Phase 0 of a major modular refactor has just been completed.
 
+**Try the latest stable build:** The most recent stable proof-of-concept is [release v1.0.117](https://github.com/Ranzlappen/HardwareDash/releases/tag/v1.0.117) — grab the APK there to run it today. Everything after that release is part of the in-progress **2.0 beta**, which is being rebuilt on the `claude/refactor-2026` branch.
+
 <h2 id="vision">The Vision: Proof of Concept for Exploration & Automation</h2>
 
 At its core, HardwareDash aims to give power users, developers, and tinkerers a single place to inspect, control, and automate almost every hardware surface Android exposes — and deeper system surfaces on rooted devices. 
