@@ -5,7 +5,7 @@
    worker deliberately ignores those paths and never caches them. */
 "use strict";
 
-const CACHE_VERSION = "ranzlappen-v3";
+const CACHE_VERSION = "ranzlappen-v4";
 const PRECACHE = CACHE_VERSION + "-precache";
 const RUNTIME = CACHE_VERSION + "-runtime";
 
