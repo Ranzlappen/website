@@ -7,7 +7,7 @@ category: "Projects"
 tags: [android, theme, miui, design]
 image: /assets/images/miui-theme/miui-theme-hero.svg
 backdrop: /assets/images/miui-theme/miui-theme-hero.svg
-status: published
+status: unpublished
 series: "project-showcases"
 series_order: 10
 comments: true
