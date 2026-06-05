@@ -63,7 +63,6 @@ The clearest, most replicated finding in the literature is the **positive-polari
 
 That does not make dark mode worthless — it makes its benefits *conditional*. The table below summarizes where each mode tends to win:
 
-<div style="overflow-x: auto;">
 <table>
 <thead>
 <tr>
@@ -105,7 +104,6 @@ That does not make dark mode worthless — it makes its benefits *conditional*. 
 </tr>
 </tbody>
 </table>
-</div>
 
 The astigmatism point deserves emphasis because it directly contradicts the "dark mode is gentler on the eyes" folklore. Roughly one in three adults has some degree of astigmatism, and for them bright text on a dark background is prone to **halation** — light bleeding past the edges of each glyph so characters look fuzzy, glowing, or shimmery — which makes dark mode *harder* to read, not easier.<sup><a href="#source-5">[5]</a></sup> Where dark mode does have a defensible visual-comfort case is for users with cloudy ocular media such as cataracts, where reducing the overall light field cuts down on scatter.<sup><a href="#source-1">[1]</a></sup>
 

@@ -668,54 +668,37 @@ By default the y-axis starts at zero. To let Chart.js auto-scale, add `data-zero
 <details>
 <summary><h2>Add a Data Table</h2></summary>
 
-Add responsive data tables to any blog post using HTML `<table>` tags with inline styles. This gives you full control over column widths, alignment, and emphasis while keeping the table scrollable on mobile.
+Just write a plain **Markdown table** — the site styles every table in a post or page automatically to match the reference pages (the [Electromagnetic Spectrum](https://www.ranzlappen.com/references/spectrum/) and [Electronics Fundamentals](https://www.ranzlappen.com/references/electronics/) big tables): a rounded, bordered card on a dark surface with a soft shadow, an uppercase header row that stays pinned while the card scrolls, light row separators, comfortable padding, and a hover highlight. **No inline styles, no `style="…"` attributes, no wrapper `<div>` needed** — the shared CSS does all of it.
+
+### The look (shared site-wide)
+
+The styling lives in `assets/css/style.css` under **"Content tables (blog posts + static pages)"** and targets every `table` inside `.post-body` (posts) and `.page-body` (static pages like Privacy). It deliberately mirrors the reference-page table styling (`assets/css/reference-table.css`, `spectrum.css`, `electronics-fundamentals.css`) so tables look the same everywhere on the site. **The only table that intentionally differs is the [CLI Command Cheat Sheet](https://www.ranzlappen.com/references/cmd-cheat-sheet/)**, which uses its own sortable/filterable scaffolding. You don't opt in — any table you write gets the look.
 
 ### Paste this template into your post
 
-```html
-<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%;">
-  <table style="width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.4; min-width: 640px; table-layout: auto;">
-    <thead>
-      <tr>
-        <th style="text-align: left; padding: 11px 10px; width: 37%;">Column A</th>
-        <th style="text-align: center; padding: 11px 8px; width: 18%;">Column B</th>
-        <th style="text-align: left; padding: 11px 8px; width: 23%;">Column C</th>
-        <th style="text-align: center; padding: 11px 8px; width: 22%;">Column D</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">Row 1 data</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">42</td>
-        <td style="padding: 11px 8px;">Description text</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">73</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">Row 2 data</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">38</td>
-        <td style="padding: 11px 8px;">Another description</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">56</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+```markdown
+| Column A          | Column B | Description                | Count |
+|-------------------|:--------:|----------------------------|:-----:|
+| **Row 1 label**   | 42       | What this row is about     | 73    |
+| **Row 2 label**   | 38       | Another short description  | 56    |
 ```
+
+That renders as the same card-style table used across the site.
 
 ### How it works
 
-- **Scroll wrapper:** `<div style="overflow-x: auto;">` enables horizontal scrolling on small screens instead of breaking the layout
-- **`min-width: 640px`** prevents the table from becoming unreadably narrow on mobile — it scrolls instead
-- **Column widths:** Set via `width: 25%` etc. on `<th>` — percentages keep proportions consistent
-- **Alignment:** Use `text-align: left` or `text-align: center` on individual `<th>` and `<td>` elements
-- **Emphasis:** Add `font-weight: 500` to highlight key data cells (typically the first column and numeric values)
+- **Card + scroll wrapper:** the CSS turns the `table` itself into a rounded, bordered scroll container — wide tables scroll horizontally on small screens instead of breaking the layout. No wrapper `<div>` required.
+- **Sticky header:** the header row (`thead`) stays pinned to the top of the card as you scroll, exactly like the reference tables.
+- **Alignment:** control column alignment with the Markdown separator row — `:---` (left, the default), `:---:` (center), `---:` (right). Center numeric/status columns for readability.
+- **Emphasis:** wrap the first cell of each row in `**bold**` to highlight the row label (matches the convention in the existing post tables).
+- **Theme-aware:** colors come from the site's CSS variables, so tables track the active dark/light theme automatically.
 
 ### Tips
 
-- Adjust column widths by changing the `width` percentages on `<th>` elements — they should add up to 100%
-- To add or remove columns, copy/delete `<th>` and `<td>` elements and adjust the widths
-- Center-align numeric columns with `text-align: center` for better readability
-- The `-webkit-overflow-scrolling: touch` property enables smooth scrolling on iOS Safari
-- You can also use simple Markdown tables (`| Col | Col |`) for basic cases, but HTML tables give you more control over styling
+- Prefer Markdown tables — they're the lightest to write and the easiest to read in source. They cover essentially every blog need.
+- If you need richer cell content (e.g. a `<sup>` citation, a list, or inline `<code>`), you can write a **plain HTML `<table>`** instead — leave the inline `style` attributes off and it picks up the same shared styling. (Cell-level overrides via `style="…"` still work if you ever truly need one, but you almost never will.)
+- Don't re-introduce `style="width: …"`, `border-collapse: collapse`, or a wrapping `<div style="overflow-x: auto">` — those were the old per-table approach and now just fight the shared CSS. Strip them and let the site style the table.
+- Keep header labels short — they render uppercase and letter-spaced like the reference tables.
 
 </details>
 
@@ -1283,7 +1266,7 @@ Jekyll and PolyVote share a visual identity so the embedded app feels native: Je
 | Enable a parallax backdrop  | Add `backdrop: /assets/images/.../hero.webp` to the post's front matter |
 | Use the author dashboard    | Visit `/blog-admin/` (or `npm run dev` inside `blog-admin/`) and log in |
 | Add a bar chart             | Use `<canvas data-chart="bar">` inside `<div class="chart-container">` |
-| Add a data table            | Use `<table>` inside `<div style="overflow-x: auto;">` in your post |
+| Add a data table            | Write a plain Markdown table (`\| Col \| Col \|`) — it's auto-styled like the reference pages |
 | Add source citations        | Use `<sup><a href="#source-1">[1]</a></sup>` inline + `<ol>` at bottom |
 | Upload an image for a post  | Upload to `assets/images/` on GitHub, reference in your post   |
 | Run PolyVote locally        | `cd polyvote && npm install && npm run dev`                    |

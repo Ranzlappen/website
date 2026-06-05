@@ -1372,22 +1372,68 @@ html[data-header-sticky="off"] .theme-toggle {
   margin: var(--space-2xl) 0;
 }
 
-.post-body table {
+/* Content tables (blog posts + static pages) — styled to match the reference
+   pages (see reference-table.css / spectrum.css / electronics-fundamentals.css):
+   a rounded, bordered card on a surface background with a soft shadow, an
+   uppercase sticky header row on a contrasting surface, generous cell padding,
+   light row separators, and a row-hover highlight. Plain Markdown tables
+   (`| … |`) and bare HTML `<table>`s both pick this up automatically — no inline
+   styles or wrapper div needed. The `display: block; overflow-x: auto` turns the
+   card itself into a horizontal scroll container so wide tables scroll on narrow
+   screens instead of breaking the layout (the rounded corners clip cleanly). */
+.post-body table,
+.page-body table {
   display: block;
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
-  border-collapse: collapse;
-  margin-bottom: var(--space-md);
-}
-.post-body th, .post-body td {
-  padding: var(--space-sm) var(--space-md);
-  text-align: left;
-  border-bottom: 1px solid var(--c-border);
-}
-.post-body th {
-  font-weight: 600;
+  -webkit-overflow-scrolling: touch;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: var(--space-lg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  background: var(--c-surface);
+  box-shadow: 0 4px 16px var(--c-card-shadow);
+  font-size: 0.92rem;
   color: var(--c-text);
+}
+.post-body thead th,
+.page-body thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--c-surface-alt);
+  color: var(--c-text);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.85rem 1rem 0.7rem;
+  border-bottom: 2px solid var(--c-border);
+}
+.post-body tbody td,
+.post-body tbody th,
+.page-body tbody td,
+.page-body tbody th {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--c-border-light);
+  line-height: 1.5;
+}
+.post-body tbody tr:hover td,
+.post-body tbody tr:hover th,
+.page-body tbody tr:hover td,
+.page-body tbody tr:hover th {
+  background: var(--c-surface-alt);
+}
+.post-body tbody tr:last-child td,
+.post-body tbody tr:last-child th,
+.page-body tbody tr:last-child td,
+.page-body tbody tr:last-child th {
+  border-bottom: 0;
 }
 
 /* Post TOC Nav */
@@ -1414,10 +1460,6 @@ html[data-header-sticky="off"] .theme-toggle {
 .post-body nav a {
   text-decoration: none;
 }
-.post-body thead tr {
-  border-bottom: 2px solid var(--c-border);
-}
-
 /* Post Tags */
 .post-tags {
   display: flex;
