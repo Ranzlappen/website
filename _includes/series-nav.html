@@ -13,21 +13,27 @@
     {% if series_info.description %}
     <p class="series-nav__desc">{{ series_info.description }}</p>
     {% endif %}
-    <ol class="series-nav__list">
-      {% for p in series_posts %}
-        {% if p.url == page.url %}
-          <li class="series-nav__item series-nav__item--current" aria-current="page">
-            <span class="series-nav__number">{{ p.series_order }}</span>
-            <span>{{ p.title }}</span>
-          </li>
-        {% else %}
-          <li class="series-nav__item">
-            <span class="series-nav__number">{{ p.series_order }}</span>
-            <a href="{{ p.url | relative_url }}">{{ p.title }}</a>
-          </li>
-        {% endif %}
-      {% endfor %}
-    </ol>
+    <details class="series-nav__details">
+      <summary class="series-nav__toggle">
+        <span class="series-nav__toggle-show">Show all {{ series_posts.size }} parts</span>
+        <span class="series-nav__toggle-hide">Hide parts</span>
+      </summary>
+      <ol class="series-nav__list">
+        {% for p in series_posts %}
+          {% if p.url == page.url %}
+            <li class="series-nav__item series-nav__item--current" aria-current="page">
+              <span class="series-nav__number">{{ p.series_order }}</span>
+              <span>{{ p.title }}</span>
+            </li>
+          {% else %}
+            <li class="series-nav__item">
+              <span class="series-nav__number">{{ p.series_order }}</span>
+              <a href="{{ p.url | relative_url }}">{{ p.title }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ol>
+    </details>
   </nav>
   {% endif %}
 {% endif %}

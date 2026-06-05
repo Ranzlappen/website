@@ -1538,10 +1538,34 @@ html[data-header-sticky="off"] .theme-toggle {
   margin: var(--space-xs) 0 var(--space-md);
   line-height: 1.5;
 }
+.series-nav__details {
+  margin-top: var(--space-xs);
+}
+.series-nav__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--c-accent);
+  user-select: none;
+}
+.series-nav__toggle::-webkit-details-marker { display: none; }
+.series-nav__toggle::before {
+  content: "▸";
+  font-size: 0.7rem;
+  transition: transform var(--transition-fast);
+}
+.series-nav__details[open] .series-nav__toggle::before { transform: rotate(90deg); }
+.series-nav__toggle-hide { display: none; }
+.series-nav__details[open] .series-nav__toggle-show { display: none; }
+.series-nav__details[open] .series-nav__toggle-hide { display: inline; }
 .series-nav__list {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: var(--space-sm) 0 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
