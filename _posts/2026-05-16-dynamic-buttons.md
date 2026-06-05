@@ -7,7 +7,7 @@ category: "Projects"
 tags: [ui, web, css, experiment]
 image: /assets/images/dynamic-buttons/dynamic-buttons-hero.svg
 backdrop: /assets/images/dynamic-buttons/dynamic-buttons-hero.svg
-status: published
+status: unpublished
 series: "project-showcases"
 series_order: 13
 comments: true
