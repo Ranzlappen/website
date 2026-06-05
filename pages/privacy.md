@@ -90,80 +90,18 @@ Third-party services (Firebase, hCaptcha) may set their own functional cookies *
 
 ## Third-Party Services Summary
 
-<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%;">
-  <table style="width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.4; min-width: 640px; table-layout: auto;">
-    <thead>
-      <tr>
-        <th style="text-align: left; padding: 11px 10px; width: 25%;">Service</th>
-        <th style="text-align: left; padding: 11px 8px; width: 25%;">Purpose</th>
-        <th style="text-align: left; padding: 11px 8px; width: 30%;">Data collected</th>
-        <th style="text-align: center; padding: 11px 8px; width: 20%;">Sets cookies?</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">GitHub Pages</td>
-        <td style="padding: 11px 8px;">Hosting</td>
-        <td style="padding: 11px 8px;">Server logs</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">Giscus</td>
-        <td style="padding: 11px 8px;">Comments</td>
-        <td style="padding: 11px 8px;">GitHub account (login required)</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">Firebase Realtime DB</td>
-        <td style="padding: 11px 8px;">Blog post voting</td>
-        <td style="padding: 11px 8px;">Hashed IP (anonymous)</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">May set functional cookies</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">Firebase Auth</td>
-        <td style="padding: 11px 8px;">PolyVote authentication</td>
-        <td style="padding: 11px 8px;">Anonymous user ID</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">May set functional cookies</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">Firebase Firestore</td>
-        <td style="padding: 11px 8px;">PolyVote data storage</td>
-        <td style="padding: 11px 8px;">Topics, votes, requests (anonymous ID)</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">May set functional cookies</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">hCaptcha</td>
-        <td style="padding: 11px 8px;">Spam protection</td>
-        <td style="padding: 11px 8px;">See hCaptcha privacy policy</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">Yes (bot detection)</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">ipify</td>
-        <td style="padding: 11px 8px;">IP detection for voting</td>
-        <td style="padding: 11px 8px;">IP address (hashed only)</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">unpkg CDN</td>
-        <td style="padding: 11px 8px;">Search library (Lunr.js) delivery</td>
-        <td style="padding: 11px 8px;">IP address, browser info</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">jsDelivr CDN</td>
-        <td style="padding: 11px 8px;">Chart library (Chart.js) delivery</td>
-        <td style="padding: 11px 8px;">IP address, browser info</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">No</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">Ko-fi</td>
-        <td style="padding: 11px 8px;">External donation link</td>
-        <td style="padding: 11px 8px;">Only if you click through</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">See Ko-fi policy</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+| Service | Purpose | Data collected | Sets cookies? |
+|---|---|---|:---:|
+| **GitHub Pages** | Hosting | Server logs | No |
+| **Giscus** | Comments | GitHub account (login required) | No |
+| **Firebase Realtime DB** | Blog post voting | Hashed IP (anonymous) | May set functional cookies |
+| **Firebase Auth** | PolyVote authentication | Anonymous user ID | May set functional cookies |
+| **Firebase Firestore** | PolyVote data storage | Topics, votes, requests (anonymous ID) | May set functional cookies |
+| **hCaptcha** | Spam protection | See hCaptcha privacy policy | Yes (bot detection) |
+| **ipify** | IP detection for voting | IP address (hashed only) | No |
+| **unpkg CDN** | Search library (Lunr.js) delivery | IP address, browser info | No |
+| **jsDelivr CDN** | Chart library (Chart.js) delivery | IP address, browser info | No |
+| **Ko-fi** | External donation link | Only if you click through | See Ko-fi policy |
 
 ## Transfers to third countries
 Some services (Google Firebase, GitHub, unpkg, hCaptcha) are based in the USA.  

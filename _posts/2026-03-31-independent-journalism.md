@@ -46,44 +46,12 @@ The American picture is the starkest. Pew Research Center's longitudinal trackin
 
 <h3 id="data-snapshot">US vs Europe Data Snapshot</h3>
 
-<div style="overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%;">
-  <table style="width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.4; min-width: 100%; table-layout: auto;">
-    <thead>
-      <tr>
-        <th style="text-align: left; padding: 11px 10px; width: 37%;">Country/Region</th>
-        <th style="text-align: center; padding: 11px 8px; width: 18%;">Trust in News (%)</th>
-        <th style="text-align: left; padding: 11px 8px; width: 23%;">Change Since 2015</th>
-        <th style="text-align: center; padding: 11px 8px; width: 22%;">Fake News Concern (%)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">United States</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">30</td>
-        <td style="padding: 11px 8px;">Stable (low)</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">73</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">Germany</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">45</td>
-        <td style="padding: 11px 8px;">-15pp</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">~46 (Western Europe)</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">United Kingdom</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">35</td>
-        <td style="padding: 11px 8px;">-16pp</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">~46 (Western Europe)</td>
-      </tr>
-      <tr>
-        <td style="padding: 11px 10px; font-weight: 500;">Western Europe</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">40–50 (avg)</td>
-        <td style="padding: 11px 8px;">Declining</td>
-        <td style="text-align: center; padding: 11px 8px; font-weight: 500;">46</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+| Country/Region | Trust in News (%) | Change Since 2015 | Fake News Concern (%) |
+|---|:---:|---|:---:|
+| **United States** | 30 | Stable (low) | 73 |
+| **Germany** | 45 | -15pp | ~46 (Western Europe) |
+| **United Kingdom** | 35 | -16pp | ~46 (Western Europe) |
+| **Western Europe** | 40–50 (avg) | Declining | 46 |
 
 *Source: Reuters Institute Digital News Report 2025*<sup><a href="#source-1">[1]</a></sup>
 
