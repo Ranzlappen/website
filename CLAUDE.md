@@ -1,15 +1,16 @@
 # ranzlappen.com
 
-Personal blog + PolyVote community voting platform + Blog Admin dashboard + Inventory Manager, hosted on GitHub Pages.
+Personal blog + PolyVote community voting platform + Blog Admin dashboard + Inventory Manager + Tabletop game engine, hosted on GitHub Pages.
 
 ## Architecture
 
-**Hybrid project** with four independent builds plus a build-time tooling module:
+**Hybrid project** with five independent builds plus a build-time tooling module:
 
 - **Jekyll blog** (root) — Static site built by GitHub Pages. Posts in `_posts/`, layouts in `_layouts/`, includes in `_includes/`, pages in `pages/`. Config: `_config.yml`.
 - **PolyVote** (`polyvote/`) — React 19 SPA built with Vite. Backend: Firebase (Firestore, Auth, Cloud Functions). Deployed as a subfolder within the Jekyll `_site/`.
 - **Blog Admin** (`blog-admin/`) — React 19 SPA built with Vite for managing blog drafts and publishing. Uses Firebase (Firestore, Auth), CodeMirror 6 for Markdown editing, and Zustand for state. Deployed as a subfolder within the Jekyll `_site/`.
 - **Inventory Manager** (`inventory-manager/`) — React 19 SPA built with Vite for managing inventory with folders, custom per-folder field schemas, photos in Firebase Storage, CSV/JSON import-export, and **multi-platform export** (per-folder "platform tags" drive required columns + a per-platform CSV/TSV/XML export for eBay, Amazon, Kleinanzeigen, Whatnot, Facebook, idealo, billiger.de, Geizhals). Admin-only via Firebase Auth custom claim (same login as Blog Admin). Hidden from crawlers (robots.txt `Disallow: /inventory/` + `noindex` meta tags + not listed in nav). Deployed as a subfolder within the Jekyll `_site/` at `/inventory/`. **See [`inventory-manager/README.md`](./inventory-manager/README.md) for the architecture handbook** (data model, persistence, the platform registry + export formats, how to add field types or functions).
+- **Tabletop** (`games/`) — React 19 SPA built with Vite: a **reusable browser game engine for card and board games**. The engine core (`games/src/engine/`) is framework-agnostic TypeScript (state, players, turns, phases, a deterministic seeded RNG, pure `applyAction` reducer, serialization, undo/redo, registries) with no React/Firebase imports; the React layer (`games/src/ui/`), persistence (`games/src/storage/`) and a backend-agnostic multiplayer `SyncAdapter` (`games/src/net/` — a zero-config cross-tab Local adapter plus an optional Firebase RTDB adapter, default local) sit on top. Ships three playable demo games (Crown Rush — card; Lantern Hunt — board; Lantern/Relic Run — hybrid), three themes, an all-SVG/CSS asset library, and 50 Vitest tests. Modes: solo vs bots, hot-seat, online rooms (join by code/link, presence, ready, reconnect). Deployed as a subfolder within the Jekyll `_site/` at `/games/`. **See [`games/README.md`](./games/README.md) and the handbook at [`games/docs/wiki/README.md`](./games/docs/wiki/README.md)** (architecture, engine concepts, how to add a card/board/hybrid game, assets, themes, Firebase, testing, accessibility, performance, API reference).
 - **Search Crawler** (`search-crawler/`) — Node 22, **dependency-free** build tooling (not deployed). Crawls off-site content (`*.ranzlappen.com` subdomains, `*.ranzlappen.github.io`, `github.com/Ranzlappen` repos + gists) and writes the committed static index `search-external.json`, which the blog's grouped cross-domain search merges with the Jekyll-generated `search.json`. Run on demand via the `search-crawl.yml` workflow or `npm run crawl`. **See [`search-crawler/README.md`](./search-crawler/README.md).**
 
 ## Build & Development
@@ -50,6 +51,17 @@ npm run lint                      # ESLint (flat config)
 npm run format                    # Prettier formatting
 ```
 
+### Tabletop game engine (React/Vite)
+```bash
+cd games
+npm install                       # Install dependencies
+npm run dev                       # Local dev server (/games/)
+npm run build                     # Production build (tsc -b + vite build)
+npm run lint                      # ESLint (flat config)
+npm test                          # Vitest (engine core + demos + render smoke)
+npm run format                    # Prettier formatting
+```
+
 ### Search Crawler (Node)
 ```bash
 cd search-crawler
@@ -71,7 +83,7 @@ Production deploys of `castBlogVote`, the Blog Admin callables (`blogSaveDraft`,
 
 ## Key Conventions
 
-- **Module boundaries**: `polyvote/`, `blog-admin/`, `inventory-manager/`, and the Jekyll root (blog) are four independent modules, with `polyvote/functions/` as a fifth nested module and `search-crawler/` as a sixth (dependency-free build tooling, not deployed). Each has its own `package.json`/`Gemfile`, TypeScript/ESLint/Tailwind config, and deploy path. Run install/lint/test/build/format from within the module's own directory (see **Build & Development**). Do **not** cross-import source between modules — there is no monorepo tooling and no shared package. If logic truly needs to be shared, duplicate it intentionally (e.g. `polyvote/functions/src/inventory/shared.ts` is mirrored in `inventory-manager/src/types.ts`, and the platform registry `polyvote/functions/src/inventory/platforms.ts` is mirrored data-only in `inventory-manager/src/platforms.ts` — backend keeps the value-transform functions the frontend doesn't need). Scope PRs to a single module when possible so CI's per-app path filters stay meaningful.
+- **Module boundaries**: `polyvote/`, `blog-admin/`, `inventory-manager/`, `games/`, and the Jekyll root (blog) are five independent modules, with `polyvote/functions/` as a sixth nested module and `search-crawler/` as a seventh (dependency-free build tooling, not deployed). The `games/` module enforces its own internal layering on top of this: `games/src/engine/` is framework-agnostic (no React/Firebase); the React/network/storage layers depend on the engine, never the reverse (see `games/docs/wiki/architecture.md`). Each has its own `package.json`/`Gemfile`, TypeScript/ESLint/Tailwind config, and deploy path. Run install/lint/test/build/format from within the module's own directory (see **Build & Development**). Do **not** cross-import source between modules — there is no monorepo tooling and no shared package. If logic truly needs to be shared, duplicate it intentionally (e.g. `polyvote/functions/src/inventory/shared.ts` is mirrored in `inventory-manager/src/types.ts`, and the platform registry `polyvote/functions/src/inventory/platforms.ts` is mirrored data-only in `inventory-manager/src/platforms.ts` — backend keeps the value-transform functions the frontend doesn't need). Scope PRs to a single module when possible so CI's per-app path filters stay meaningful.
 - **Post status**: Posts use a `status` field in front matter (`published`, `draft`, `placeholder`, `unpublished`). Only `published` and `placeholder` appear in the sitemap and feed.
 - **Post categories**: Posts set a singular `category:` field in front matter. The string `"Projects"` (capitalized, exact match) is canonical and routes the post to `/projects/`; everything else lands on `/blog/`. Homepage and `/categories/` show all categories. Liquid's `==` is case-sensitive — keep the exact casing.
 - **Post hero images**: A post's `image:` (card cover, rendered 600×340) and `backdrop:` (full-bleed parallax hero on the post page) live at `/assets/images/<slug>/<slug>-hero.webp` (usually the same file for both). They double as the homepage prefetch payload (see the landing-page hub in `_layouts/home.html`), so keep them lean: **genuine WebP** (not a JPEG/PNG renamed `.webp` — browsers sniff content so a mislabeled file still renders, but it bloats the file and ships EXIF), ~1280px wide, metadata stripped, **target ≤50 KB**. Encode with `cwebp -q 80 -m 6 -metadata none in.png -o out.webp`, and for stubborn photos size-target instead (`cwebp -mt -m 6 -pass 10 -size 50000 -metadata none …`). Some heroes are SVG (vector, already tiny) — those are fine as-is.
@@ -101,13 +113,13 @@ Seven GitHub Actions workflows live in `.github/workflows/`. The four auto-trigg
 | Workflow | Trigger | Scope | Deploys |
 |---|---|---|---|
 | `ci.yml` | PR → `main` | Per-app jobs gated by `dorny/paths-filter` — only changed apps run lint/test/build. | Nothing (validation only). |
-| `jekyll-gh-pages.yml` | Push → `main` | Skips docs, Firebase configs, Cloud Functions, and Firestore/RTDB/Storage rules. | Full site to GitHub Pages (Jekyll + PolyVote + Blog Admin + Inventory Manager). |
-| `feature-preview.yml` | Push → `test` + manual `workflow_dispatch` (with optional `ref` input, defaults to `test`) | Same `paths-ignore` as `jekyll-gh-pages.yml`. | Combined GitHub Pages artifact: main rebuilt at root (Jekyll + PolyVote + Blog Admin + Inventory Manager, identical to `jekyll-gh-pages.yml`'s output) plus the `test` branch (or dispatch `ref`) rebuilt **Jekyll-only** under `/test/` via `bundle exec jekyll build --baseurl /test`. Preview URL: `https://www.ranzlappen.com/test/` (custom domain serves the artifact root, no `/<repo>/` prefix). Shares the `pages` concurrency group with `jekyll-gh-pages.yml` so the two queue, never overlap. |
+| `jekyll-gh-pages.yml` | Push → `main` | Skips docs, Firebase configs, Cloud Functions, and Firestore/RTDB/Storage rules. | Full site to GitHub Pages (Jekyll + PolyVote + Blog Admin + Inventory Manager + Tabletop/games). |
+| `feature-preview.yml` | Push → `test` + manual `workflow_dispatch` (with optional `ref` input, defaults to `test`) | Same `paths-ignore` as `jekyll-gh-pages.yml`. | Combined GitHub Pages artifact: main rebuilt at root (Jekyll + PolyVote + Blog Admin + Inventory Manager + Tabletop/games, identical to `jekyll-gh-pages.yml`'s output) plus the `test` branch (or dispatch `ref`) rebuilt **Jekyll-only** under `/test/` via `bundle exec jekyll build --baseurl /test`. Preview URL: `https://www.ranzlappen.com/test/` (custom domain serves the artifact root, no `/<repo>/` prefix). Shares the `pages` concurrency group with `jekyll-gh-pages.yml` so the two queue, never overlap. |
 | `firebase-deploy.yml` | Push → `main` (Firebase/Functions paths) + manual | Builds Cloud Functions, then deploys. | Firestore rules + indexes, RTDB rules, Storage rules, `castBlogVote`, all Blog Admin callables, admin user-management callables (`setUserRole`, `adminListUsers`, `adminBanUser`, `adminUnbanUser`), and all Inventory Manager callables (`inventory*`). |
 | `firebase-deploy-manual.yml` | Manual only (`workflow_dispatch`) | Accepts a `target` input passed straight to `firebase deploy --only`. Default `functions` redeploys every function in `polyvote/functions/src/index.ts` — future-proof for newly added functions. Shares the `firebase-deploy` concurrency group with the auto-deploy. | Whatever the `target` input specifies (default: all Cloud Functions). |
 | `search-crawl.yml` | Manual only (`workflow_dispatch`) | Runs the `search-crawler` module (Node 22, no install) with the auto-provided `GITHUB_TOKEN`, then opens a PR with the refreshed `search-external.json` via the pre-installed `gh` CLI (pushes a side branch + `gh pr create`; main is protected, so it never pushes there directly — and no third-party action to download). Merging the PR triggers `jekyll-gh-pages.yml` and redeploys with the new index. `contents: write` + `pull-requests: write`; `search-crawl` concurrency group. **One-time setup:** enable Settings → Actions → "Allow GitHub Actions to create and approve pull requests". The bot PR is GITHUB_TOKEN-authored, so CI does not auto-run on it (a data-only change — just merge it). | Opens a PR bumping `search-external.json` (no deploy itself). |
 
-**Preview limitations**: `feature-preview.yml` ships **Jekyll-only** under `/test/`. PolyVote, Blog Admin, and Inventory Manager are not rebuilt at the preview subpath because their Vite `base` and React Router `basename` are hardcoded to `/polyvote/`, `/blog-admin/`, and `/inventory/`. Navbar links to those apps will 404 inside the preview tree. To enable SPA previews later, make `base` env-driven in `polyvote/vite.config.ts`, `blog-admin/vite.config.ts`, `inventory-manager/vite.config.ts`, the three `main.tsx` files, PolyVote's `ShareButton.tsx`, and PolyVote's PWA manifest (defaults preserve current paths exactly).
+**Preview limitations**: `feature-preview.yml` ships **Jekyll-only** under `/test/`. PolyVote, Blog Admin, Inventory Manager, and Tabletop/games are not rebuilt at the preview subpath because their Vite `base` and React Router `basename` are hardcoded to `/polyvote/`, `/blog-admin/`, `/inventory/`, and `/games/`. Navbar links to those apps will 404 inside the preview tree. To enable SPA previews later, make `base` env-driven in `polyvote/vite.config.ts`, `blog-admin/vite.config.ts`, `inventory-manager/vite.config.ts`, `games/vite.config.ts`, the four `main.tsx` files, PolyVote's `ShareButton.tsx`, and PolyVote's PWA manifest (defaults preserve current paths exactly).
 
 **What fires on a given change:**
 
@@ -117,6 +129,7 @@ Seven GitHub Actions workflows live in `.github/workflows/`. The four auto-trigg
 | `polyvote/src/**` | polyvote | ✓ | ✓ (rebuilt from main only) | — |
 | `blog-admin/src/**` | blog-admin | ✓ | ✓ (rebuilt from main only) | — |
 | `inventory-manager/src/**` | inventory-manager | ✓ | ✓ (rebuilt from main only) | — |
+| `games/**` (engine/UI/tests) | games (lint + test + build) | ✓ | ✓ (rebuilt from main only) | — |
 | `polyvote/functions/**` | functions | — | — | ✓ |
 | `firestore.rules` / `firestore.indexes.json` | — | — | — | ✓ |
 | `database.rules.json` / `storage.rules` | — | — | — | ✓ |
@@ -134,9 +147,9 @@ Seven GitHub Actions workflows live in `.github/workflows/`. The four auto-trigg
 - `FIREBASE_SERVICE_ACCOUNT` (JSON service-account key) for `firebase-deploy.yml`.
 - `GOOGLE_DRIVE_API_KEY` (Firebase Functions secret, set via `firebase functions:secrets:set`) for the inventory `inventoryListDriveFolder` callable. Restrict the key to the Drive API in the GCP console. **This secret MUST exist in the project for ANY functions deploy to succeed** — `firebase deploy` analyzes the *entire* functions codebase and validates every `defineSecret`-declared secret up front, even functions excluded from the `--only TARGETS`; in non-interactive (CI) mode an unset secret aborts the whole deploy (rules included) before anything is applied (this broke `firebase-deploy.yml` once — the fix is to set the secret, a placeholder value is enough to pass analysis). `inventoryListDriveFolder` is still excluded from `firebase-deploy.yml`'s auto-deploy `TARGETS` (so the auto-deploy never tries to bind/redeploy it); deploy it manually (`firebase deploy --only functions:inventoryListDriveFolder`) or via `firebase-deploy-manual.yml` once a real key is stored. The Drive folder picker is unavailable until a real key is set, but the rest of inventory deploys fine **as long as the secret exists**.
 
-**Dependabot** (`.github/dependabot.yml`): weekly updates for all four npm packages (polyvote, polyvote/functions, blog-admin, inventory-manager), bundler, and GitHub Actions. Minor+patch are grouped. Each PR runs CI — `ci.yml` triggers on every PR to `main` (no `paths:` filter) so the `ci-required` aggregator always appears as a status check.
+**Dependabot** (`.github/dependabot.yml`): weekly updates for all five npm packages (polyvote, polyvote/functions, blog-admin, inventory-manager, games), bundler, and GitHub Actions. Minor+patch are grouped. Each PR runs CI — `ci.yml` triggers on every PR to `main` (no `paths:` filter) so the `ci-required` aggregator always appears as a status check.
 
-**Auto-merge** (`.github/workflows/dependabot-auto-merge.yml`): every Dependabot PR is queued for GitHub native auto-merge (`gh pr merge --auto --merge`) and lands once required status checks pass. **Requires branch protection on `main` to mark `ci-required` as a required status check** — without that, `--auto` merges immediately without waiting and a failing CI won't block the merge (this happened with PR #236, a `firebase-admin` v12→v13 major bump whose `functions` job failed but landed anyway because no required check was configured). `ci-required` is a single aggregator job in `ci.yml` that succeeds only when every conditional app job (`polyvote`, `functions`, `blog-admin`, `inventory-manager`) either passed or was skipped via path filter; mark it required and the conditional-job deadlock problem disappears.
+**Auto-merge** (`.github/workflows/dependabot-auto-merge.yml`): every Dependabot PR is queued for GitHub native auto-merge (`gh pr merge --auto --merge`) and lands once required status checks pass. **Requires branch protection on `main` to mark `ci-required` as a required status check** — without that, `--auto` merges immediately without waiting and a failing CI won't block the merge (this happened with PR #236, a `firebase-admin` v12→v13 major bump whose `functions` job failed but landed anyway because no required check was configured). `ci-required` is a single aggregator job in `ci.yml` that succeeds only when every conditional app job (`polyvote`, `functions`, `blog-admin`, `inventory-manager`, `games`) either passed or was skipped via path filter; mark it required and the conditional-job deadlock problem disappears.
 
 **Manual fallbacks**:
 - Trigger `firebase-deploy-manual.yml` via `workflow_dispatch` (preferred) — deploys via GitHub Actions using the shared service-account secret. Default target is `functions` (all Cloud Functions); override with any `--only` target, e.g. `functions:blogSaveDraft,functions:blogPublishToGitHub` or `functions,database,firestore`.
@@ -147,16 +160,17 @@ Seven GitHub Actions workflows live in `.github/workflows/`. The four auto-trigg
 
 ## Tech Stack
 
-| Layer | Blog | PolyVote | Blog Admin | Inventory Manager |
-|-------|------|----------|------------|-------------------|
-| Framework | Jekyll (Ruby) | React 19 + TypeScript | React 19 + TypeScript | React 19 + TypeScript |
-| Styling | Custom CSS — main `style.css` (~3,200 lines), per-page stylesheets (`spectrum.css`, `electronics-fundamentals.css`, `cmd-cheat-sheet.css`), the shared `abbreviations.css`, and the shared `reference-table.css` (sticky-tab + live-search big-table scaffolding used by Spectrum and the CLI cheat sheet) | Tailwind CSS v3 + Framer Motion | Tailwind CSS v4 (via `@tailwindcss/vite`) | Tailwind CSS v4 (via `@tailwindcss/vite`) |
-| Router | — | react-router-dom v6 | react-router-dom v7 | react-router-dom v7 |
-| State | Vanilla JS | Zustand | Zustand | Zustand |
-| Backend | GitHub Pages (static) | Firebase (Firestore, Auth, Functions) | Firebase (Firestore, Auth) | Firebase (Firestore, Auth, Storage) |
-| Comments | Giscus (GitHub Discussions) | Firebase subcollections | — | — |
-| Editor | — | — | CodeMirror 6 | — |
-| Deployment | `jekyll-gh-pages.yml` → GitHub Pages | Built by `jekyll-gh-pages.yml` into `_site/polyvote/` | Built by `jekyll-gh-pages.yml` into `_site/blog-admin/` | Built by `jekyll-gh-pages.yml` into `_site/inventory/` |
+| Layer | Blog | PolyVote | Blog Admin | Inventory Manager | Tabletop (games) |
+|-------|------|----------|------------|-------------------|------------------|
+| Framework | Jekyll (Ruby) | React 19 + TypeScript | React 19 + TypeScript | React 19 + TypeScript | React 19 + TypeScript (framework-agnostic engine core) |
+| Styling | Custom CSS — main `style.css` (~3,200 lines), per-page stylesheets (`spectrum.css`, `electronics-fundamentals.css`, `cmd-cheat-sheet.css`), the shared `abbreviations.css`, and the shared `reference-table.css` (sticky-tab + live-search big-table scaffolding used by Spectrum and the CLI cheat sheet) | Tailwind CSS v3 + Framer Motion | Tailwind CSS v4 (via `@tailwindcss/vite`) | Tailwind CSS v4 (via `@tailwindcss/vite`) | Tailwind CSS v4 + CSS-variable theme system (3 skins) |
+| Router | — | react-router-dom v6 | react-router-dom v7 | react-router-dom v7 | react-router-dom v7 |
+| State | Vanilla JS | Zustand | Zustand | Zustand | Engine reducers + MatchClient; Zustand for UI |
+| Backend | GitHub Pages (static) | Firebase (Firestore, Auth, Functions) | Firebase (Firestore, Auth) | Firebase (Firestore, Auth, Storage) | Local (localStorage + BroadcastChannel); optional Firebase RTDB |
+| Comments | Giscus (GitHub Discussions) | Firebase subcollections | — | — | — |
+| Editor | — | — | CodeMirror 6 | — | — |
+| Testing | — | Vitest | — | — | Vitest (50 tests) |
+| Deployment | `jekyll-gh-pages.yml` → GitHub Pages | Built by `jekyll-gh-pages.yml` into `_site/polyvote/` | Built by `jekyll-gh-pages.yml` into `_site/blog-admin/` | Built by `jekyll-gh-pages.yml` into `_site/inventory/` | Built by `jekyll-gh-pages.yml` into `_site/games/` |
 
 ## Project Structure
 
@@ -234,6 +248,19 @@ Seven GitHub Actions workflows live in `.github/workflows/`. The four auto-trigg
 │   │   └── index.css           # Tailwind import + theme variables
 │   ├── eslint.config.js        # ESLint flat config
 │   └── vite.config.ts          # base: '/inventory/'
+├── games/                      # Tabletop — reusable card/board game engine SPA (base: '/games/')
+│   ├── src/
+│   │   ├── engine/             # Framework-agnostic core: types, rng, match (applyAction), client (undo/redo), serialize, registry, cards, board, dice, rules
+│   │   ├── games/              # GameDefinitions (crown-rush, lantern-hunt, relic-run) + views/ (React view per game)
+│   │   ├── net/                # SyncAdapter: local (cross-tab) + Firebase RTDB (optional) + selector
+│   │   ├── storage/            # localStorage save/load
+│   │   ├── ui/                 # theme, assets (SVG cards/dice/pawns), components, hooks, GameSurface, store
+│   │   ├── pages/              # Home (gallery), Setup, Play, Online, Room, NotFound
+│   │   └── __tests__/          # Vitest suite (engine + demos + render smoke)
+│   ├── docs/wiki/              # Handbook (architecture, engine concepts, creating games, Firebase, a11y, API…)
+│   ├── eslint.config.js        # ESLint flat config
+│   ├── vitest.config.ts        # jsdom test env
+│   └── vite.config.ts          # base: '/games/'
 └── polyvote/
     ├── src/
     │   ├── components/         # React components
