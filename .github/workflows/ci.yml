@@ -22,6 +22,7 @@ jobs:
       functions: ${{ steps.filter.outputs.functions }}
       blog-admin: ${{ steps.filter.outputs.blog-admin }}
       inventory-manager: ${{ steps.filter.outputs.inventory-manager }}
+      games: ${{ steps.filter.outputs.games }}
       search-crawler: ${{ steps.filter.outputs.search-crawler }}
     steps:
       - name: Checkout
@@ -57,6 +58,12 @@ jobs:
               - 'inventory-manager/**'
               - '!inventory-manager/.gitignore'
               - '!inventory-manager/README.md'
+              - '.github/workflows/ci.yml'
+            games:
+              - 'games/**'
+              - '!games/.gitignore'
+              - '!games/README.md'
+              - '!games/docs/**'
               - '.github/workflows/ci.yml'
             search-crawler:
               - 'search-crawler/**'
@@ -176,6 +183,37 @@ jobs:
         working-directory: inventory-manager
         run: npm run build
 
+  games:
+    needs: changes
+    if: needs.changes.outputs.games == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: games/package-lock.json
+
+      - name: Install dependencies
+        working-directory: games
+        run: npm ci
+
+      - name: Lint
+        working-directory: games
+        run: npm run lint
+
+      - name: Test
+        working-directory: games
+        run: npm test
+
+      - name: Build
+        working-directory: games
+        run: npm run build
+
   search-crawler:
     needs: changes
     if: needs.changes.outputs.search-crawler == 'true'
@@ -198,7 +236,7 @@ jobs:
   # as a pass so PRs that don't touch a given app aren't blocked. Mark
   # this job (`ci-required`) as the required status check on `main`.
   ci-required:
-    needs: [changes, polyvote, functions, blog-admin, inventory-manager, search-crawler]
+    needs: [changes, polyvote, functions, blog-admin, inventory-manager, games, search-crawler]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -208,7 +246,7 @@ jobs:
             echo "changes job did not succeed: ${{ needs.changes.result }}"
             exit 1
           fi
-          for r in "${{ needs.polyvote.result }}" "${{ needs.functions.result }}" "${{ needs.blog-admin.result }}" "${{ needs.inventory-manager.result }}" "${{ needs.search-crawler.result }}"; do
+          for r in "${{ needs.polyvote.result }}" "${{ needs.functions.result }}" "${{ needs.blog-admin.result }}" "${{ needs.inventory-manager.result }}" "${{ needs.games.result }}" "${{ needs.search-crawler.result }}"; do
             case "$r" in
               success|skipped) ;;
               *) echo "App job did not succeed: $r"; exit 1 ;;

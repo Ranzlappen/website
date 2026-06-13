@@ -1,0 +1,277 @@
+@import 'tailwindcss';
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Tabletop design system.
+
+   Three skins are selected via `data-theme` on <html>: classic (green felt),
+   neon (dark arcade), and parchment (warm fantasy). Every visual surface reads
+   from these custom properties so a new skin is just one more block below.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root,
+[data-theme='classic'] {
+  --tt-bg: #0e2a22;
+  --tt-bg-2: #0a201a;
+  --tt-felt: radial-gradient(circle at 50% 18%, #1d6a4f 0%, #134a37 55%, #0c3527 100%);
+  --tt-surface: #143b30;
+  --tt-surface-2: #1b4b3c;
+  --tt-ink: #f3efe2;
+  --tt-muted: #a9c4b6;
+  --tt-accent: #e0b341;
+  --tt-accent-2: #4fd1a5;
+  --tt-border: rgba(255, 255, 255, 0.12);
+  --tt-card-face: #fbf7ec;
+  --tt-card-ink: #1a1a1a;
+  --tt-card-red: #c1342b;
+  --tt-card-black: #1a1a1a;
+  --tt-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --tt-glow: none;
+}
+
+[data-theme='neon'] {
+  --tt-bg: #07060f;
+  --tt-bg-2: #05040b;
+  --tt-felt: radial-gradient(circle at 50% 15%, #1a1346 0%, #0d0a2a 55%, #07060f 100%);
+  --tt-surface: #120f2b;
+  --tt-surface-2: #1b1640;
+  --tt-ink: #eaf6ff;
+  --tt-muted: #8ea0c8;
+  --tt-accent: #21e6c1;
+  --tt-accent-2: #ff4d9d;
+  --tt-border: rgba(120, 200, 255, 0.22);
+  --tt-card-face: #14112e;
+  --tt-card-ink: #eaf6ff;
+  --tt-card-red: #ff5b8a;
+  --tt-card-black: #5ad7ff;
+  --tt-shadow: 0 0 24px rgba(33, 230, 193, 0.25);
+  --tt-glow: 0 0 14px rgba(33, 230, 193, 0.55);
+}
+
+[data-theme='parchment'] {
+  --tt-bg: #3a2c1d;
+  --tt-bg-2: #2d2114;
+  --tt-felt: radial-gradient(circle at 50% 15%, #6b5234 0%, #4f3c25 55%, #3a2c1d 100%);
+  --tt-surface: #f3e6cc;
+  --tt-surface-2: #e7d4b0;
+  --tt-ink: #2f2415;
+  --tt-muted: #6b5a40;
+  --tt-accent: #a8521f;
+  --tt-accent-2: #3f7d52;
+  --tt-border: rgba(60, 40, 20, 0.25);
+  --tt-card-face: #fbf2dd;
+  --tt-card-ink: #3a2c1d;
+  --tt-card-red: #a8521f;
+  --tt-card-black: #3a2c1d;
+  --tt-shadow: 0 8px 22px rgba(40, 26, 10, 0.4);
+  --tt-glow: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--tt-ink);
+  background: var(--tt-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.tt-app {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 20% -10%, rgba(255, 255, 255, 0.04), transparent 40%),
+    var(--tt-bg);
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+.tt-btn {
+  appearance: none;
+  border: 1px solid var(--tt-border);
+  background: var(--tt-surface);
+  color: var(--tt-ink);
+  font: inherit;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border-radius: 0.7rem;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
+}
+.tt-btn:hover:not(:disabled) {
+  background: var(--tt-surface-2);
+  transform: translateY(-1px);
+}
+.tt-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.tt-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.tt-btn:focus-visible {
+  outline: 3px solid var(--tt-accent-2);
+  outline-offset: 2px;
+}
+.tt-btn--primary {
+  background: var(--tt-accent);
+  color: #1a1408;
+  border-color: transparent;
+  box-shadow: var(--tt-glow);
+}
+.tt-btn--primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--tt-accent) 88%, white);
+}
+.tt-btn--ghost {
+  background: transparent;
+}
+
+/* ── Surfaces ──────────────────────────────────────────────────────────── */
+.tt-panel {
+  background: var(--tt-surface);
+  border: 1px solid var(--tt-border);
+  border-radius: 1rem;
+  box-shadow: var(--tt-shadow);
+}
+.tt-felt {
+  background: var(--tt-felt);
+  border-radius: 1.25rem;
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.35),
+    var(--tt-shadow);
+}
+
+/* ── Playing cards ─────────────────────────────────────────────────────── */
+.tt-card {
+  --w: 76px;
+  width: var(--w);
+  height: calc(var(--w) * 1.4);
+  border-radius: calc(var(--w) * 0.1);
+  background: var(--tt-card-face);
+  color: var(--tt-card-ink);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  position: relative;
+  user-select: none;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+.tt-card--button {
+  cursor: pointer;
+}
+.tt-card--button:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
+}
+.tt-card--selected {
+  transform: translateY(-14px);
+  box-shadow: 0 0 0 3px var(--tt-accent), 0 14px 24px rgba(0, 0, 0, 0.5);
+}
+.tt-card:focus-visible {
+  outline: 3px solid var(--tt-accent-2);
+  outline-offset: 2px;
+}
+
+/* ── Board cells / tokens ──────────────────────────────────────────────── */
+.tt-cell {
+  border: 1px solid var(--tt-border);
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  place-items: center;
+  transition:
+    background 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.12s ease;
+}
+.tt-cell--wall {
+  background: rgba(0, 0, 0, 0.45);
+  border-color: rgba(0, 0, 0, 0.5);
+}
+.tt-cell--legal {
+  cursor: pointer;
+  background: color-mix(in srgb, var(--tt-accent-2) 30%, transparent);
+  box-shadow: inset 0 0 0 2px var(--tt-accent-2);
+}
+.tt-cell--legal:hover {
+  background: color-mix(in srgb, var(--tt-accent-2) 50%, transparent);
+}
+
+/* ── Misc ──────────────────────────────────────────────────────────────── */
+.tt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--tt-border);
+  background: var(--tt-surface-2);
+}
+.tt-link {
+  color: var(--tt-accent-2);
+  text-decoration: none;
+  font-weight: 600;
+}
+.tt-link:hover {
+  text-decoration: underline;
+}
+
+@keyframes tt-pop {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.tt-pop {
+  animation: tt-pop 0.22s ease;
+}
+@keyframes tt-roll {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+.tt-rolling {
+  animation: tt-roll 0.5s ease;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--tt-border);
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -24,6 +24,9 @@ on:
       - 'blog-admin/.gitignore'
       - 'inventory-manager/README.md'
       - 'inventory-manager/.gitignore'
+      - 'games/README.md'
+      - 'games/.gitignore'
+      - 'games/docs/**'
       # Firebase resources (deployed by firebase-deploy.yml, not bundled into the site)
       - 'polyvote/.firebaserc'
       - 'polyvote/firebase.json'
@@ -84,6 +87,7 @@ jobs:
             polyvote/package-lock.json
             blog-admin/package-lock.json
             inventory-manager/package-lock.json
+            games/package-lock.json
 
       - name: PolyVote – Install dependencies
         working-directory: polyvote
@@ -109,6 +113,14 @@ jobs:
         working-directory: inventory-manager
         run: npm run build
 
+      - name: Games – Install dependencies
+        working-directory: games
+        run: npm ci
+
+      - name: Games – Build
+        working-directory: games
+        run: npm run build
+
       - name: Copy PolyVote into _site
         run: |
           sudo chown -R $(whoami) _site
@@ -119,6 +131,9 @@ jobs:
 
       - name: Copy Inventory Manager into _site
         run: cp -r inventory-manager/dist _site/inventory
+
+      - name: Copy Games into _site
+        run: cp -r games/dist _site/games
 
       # ---- Preview build (test branch / dispatch ref) into _site/test/ ----
       # actions/jekyll-build-pages@v1 doesn't expose --baseurl, so we run
