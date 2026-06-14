@@ -13,10 +13,10 @@ permalink: /privacy/
 The controller within the meaning of the General Data Protection Regulation (GDPR) is me as a private individual:
 
 **RanzLappen**  
-Contact: Via the [Contact page](https://www.ranzlappen.com/contact) or by opening a GitHub issue in the repository.
+Contact: Via the [Contact page](https://ranzlappen.com/contact) or by opening a GitHub issue in the repository.
 
 ## Scope
-This privacy policy applies to the website https://www.ranzlappen.com/ (including all subpages and the PolyVote feature). The site is purely private and non-commercial.
+This privacy policy applies to the website https://ranzlappen.com/ (including all subpages and the PolyVote feature). The site is purely private and non-commercial.
 
 ## Legal bases for processing
 I process personal data exclusively on the following legal bases of the GDPR:

@@ -6,7 +6,6 @@ DATE: 2026-04-02
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-  <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   {% include head.html %}
 </head>
 <body{% if page.layout == 'post' %} class="has-voting-bar{% if page.backdrop %} has-backdrop{% endif %}"{% endif %}>
