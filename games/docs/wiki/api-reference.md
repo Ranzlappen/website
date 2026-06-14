@@ -114,6 +114,9 @@ makeRoomCode(): string
 
 interface SyncAdapter {
   kind: 'local' | 'firebase';
+  serverAuthoritative: boolean;           // firebase = server arbiter; local = client host
+  ensureIdentity(): Promise<string>;      // local id, or anonymous-auth uid
+  startMatch(roomId): Promise<void>;       // server-authoritative start (host-gated)
   createRoom({ gameId, host }) ; joinRoom(roomId, { id, name }) ; leaveRoom ;
   setReady ; setPresence ; setStatus ;
   pushState(roomId, state, viewerId?) ;           // host; per-viewer slot when viewerId given

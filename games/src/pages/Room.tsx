@@ -1,13 +1,16 @@
 /**
- * Online room — lobby (presence, ready, start) then host-authoritative play.
+ * Online room — lobby (presence, ready, start) then synchronized play.
  *
- * Non-host clients never write game state: they `submitAction`, and the host
- * validates + applies each action with `applyAction`, then publishes the
- * resulting state. For games with hidden information the host publishes a
- * per-player *redacted* view (`redactFor`), so a peer's slot never contains
- * another player's hand. The full authoritative state lives in the host's
- * memory (and a `_shared` slot the host reads for reconnect/recovery — lock
- * that slot to the host in production RTDB rules).
+ * Two backends, one UI:
+ *  - **Local** (cross-tab): host-authoritative on the client. The host consumes
+ *    the action queue, applies moves, and publishes per-viewer redacted state.
+ *  - **Firebase**: server-authoritative. A Cloud Function validates + applies
+ *    moves (actor = authenticated uid) and writes each player's redacted slot;
+ *    clients only `submitAction` and read their own slot. Even the host can't
+ *    cheat, and a peer can't read another player's hidden state.
+ *
+ * The difference is isolated to `adapter.serverAuthoritative`: the client
+ * host-relay effect and direct state seeding run only for the local backend.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -29,15 +32,14 @@ import {
 } from '../ui/components';
 import { GameSurface } from '../ui/GameSurface';
 import { useUiStore } from '../ui/store';
-import { getClientId } from '../ui/identity';
 
 export default function Room() {
   const { roomId = '' } = useParams();
   const navigate = useNavigate();
   const playerName = useUiStore((s) => s.playerName);
-  const clientId = useMemo(() => getClientId(), []);
   const adapter = useMemo(() => getSyncAdapter(), []);
 
+  const [clientId, setClientId] = useState<string | null>(null);
   const [room, setRoom] = useState<RoomMeta | null>(null);
   const [matchState, setMatchState] = useState<MatchState | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -46,12 +48,25 @@ export default function Room() {
   const def = room ? getGame(room.gameId) : undefined;
   const isHost = room?.players.find((p) => p.id === clientId)?.isHost ?? false;
 
-  // Host-only authoritative state + de-dupe set for processed action ids.
+  // Local host-relay only: authoritative state + processed-action de-dupe.
   const hostStateRef = useRef<MatchState | null>(null);
   const processedRef = useRef<Set<string>>(new Set());
 
+  // Resolve this client's backend identity (local id, or anonymous uid).
+  useEffect(() => {
+    let active = true;
+    adapter
+      .ensureIdentity()
+      .then((id) => active && setClientId(id))
+      .catch(() => active && setError('Could not sign in to play online.'));
+    return () => {
+      active = false;
+    };
+  }, [adapter]);
+
   // Join + subscribe (render view + presence).
   useEffect(() => {
+    if (!clientId) return;
     let active = true;
     let unsubRoom = () => {};
     let unsubState = () => {};
@@ -66,7 +81,6 @@ export default function Room() {
       if (!active) return;
       setJoined(true);
       unsubRoom = adapter.subscribeRoom(roomId, setRoom);
-      // Render from this player's (redacted) slot, falling back to shared.
       unsubState = adapter.subscribeState(roomId, setMatchState, clientId);
     })();
     return () => {
@@ -77,12 +91,12 @@ export default function Room() {
     };
   }, [roomId, adapter, clientId, playerName]);
 
-  // Host: consume the action queue, validate+apply, publish per-viewer state.
+  // Local backend only: the host consumes the action queue and publishes state.
   useEffect(() => {
-    if (!isHost || !def) return;
+    if (adapter.serverAuthoritative || !isHost || !def) return;
     const publish = async (state: MatchState) => {
       hostStateRef.current = state;
-      await adapter.pushState(roomId, state); // shared/full (host recovery)
+      await adapter.pushState(roomId, state);
       if (def.redact) {
         for (const p of state.players) {
           await adapter.pushState(roomId, redactFor(def, state, p.id), p.id);
@@ -90,12 +104,9 @@ export default function Room() {
       }
       if (state.status === 'finished') await adapter.setStatus(roomId, 'finished');
     };
-
     const offState = adapter.subscribeState(roomId, (s) => {
-      // Seed authority on (re)connect from the shared/full slot.
       if (s && !hostStateRef.current) hostStateRef.current = s;
     });
-
     const offActions = adapter.subscribeActions(roomId, async (pending) => {
       for (const env of pending) {
         if (processedRef.current.has(env.id)) continue;
@@ -107,7 +118,6 @@ export default function Room() {
         if (result.ok) await publish(result.state);
       }
     });
-
     return () => {
       offState();
       offActions();
@@ -115,11 +125,16 @@ export default function Room() {
   }, [isHost, def, roomId, adapter]);
 
   const startMatch = async () => {
-    if (!room || !def) return;
-    const players = [...room.players]
-      .sort((a, b) => a.seat - b.seat)
-      .map((p) => ({ id: p.id, name: p.name }));
+    if (!room || !def || !clientId) return;
     try {
+      if (adapter.serverAuthoritative) {
+        await adapter.startMatch(roomId);
+        return;
+      }
+      // Local host relay: seed + publish directly.
+      const players = [...room.players]
+        .sort((a, b) => a.seat - b.seat)
+        .map((p) => ({ id: p.id, name: p.name }));
       const state = createMatch(def, { matchId: roomId, seed: `${roomId}-${Date.now()}`, players });
       processedRef.current = new Set();
       hostStateRef.current = state;
@@ -135,13 +150,17 @@ export default function Room() {
     }
   };
 
-  // Everyone dispatches by submitting an action; the host applies it.
+  // Dispatch = submit an action. Local queues it for the host; Firebase calls
+  // the arbiter, which rejects illegal moves (surfaced here).
   const dispatch = (action: GameAction) => {
-    adapter.submitAction(roomId, clientId, action);
+    if (!clientId) return;
+    adapter
+      .submitAction(roomId, clientId, action)
+      .catch((e) => setError(e instanceof Error ? e.message : 'Move failed.'));
   };
 
   const leave = async () => {
-    await adapter.leaveRoom(roomId, clientId);
+    if (clientId) await adapter.leaveRoom(roomId, clientId);
     navigate('/online');
   };
 
@@ -158,7 +177,7 @@ export default function Room() {
     );
   }
 
-  if (!joined || !room) {
+  if (!joined || !room || !clientId) {
     return (
       <PageShell>
         <Loading label="Joining room…" />

@@ -29,7 +29,7 @@ npm run format   # prettier
 | Dice / rules | `src/engine/dice.ts`, `rules.ts` | Deterministic dice + composable legality helpers. |
 | Demo games | `src/games/` | Crown Rush (card), Lantern Hunt (board), Relic Run (hybrid). |
 | Persistence | `src/storage/` | Save/load to `localStorage`. |
-| Multiplayer | `src/net/` | `SyncAdapter` interface + Local (cross-tab) and Firebase RTDB adapters. |
+| Multiplayer | `src/net/` | `SyncAdapter` interface — Local (cross-tab, client host-relay) + Firebase (server-authoritative via Cloud Function arbiter). |
 | React UI | `src/ui/` | Themes, assets (SVG cards/dice/pawns), shared components, hooks, GameSurface. |
 | Game views | `src/games/views/` | One React view per game, kept out of the engine. |
 | Pages | `src/pages/` | Gallery, setup, play, online hub, room. |

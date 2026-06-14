@@ -18,6 +18,7 @@ import {
   type RoomStatus,
   type SyncAdapter,
 } from './adapter';
+import { getClientId } from './identity';
 
 const ROOM_PREFIX = 'tabletop:room:';
 const STATE_PREFIX = 'tabletop:state:';
@@ -35,6 +36,8 @@ type StateSub = { viewer?: string; cb: (s: MatchState | null) => void };
 
 export class LocalSyncAdapter implements SyncAdapter {
   readonly kind = 'local' as const;
+  // The local backend uses a client host relay, not a server arbiter.
+  readonly serverAuthoritative = false;
   private channel: BroadcastChannel | null =
     typeof BroadcastChannel !== 'undefined'
       ? new BroadcastChannel('tabletop-sync')
@@ -130,6 +133,17 @@ export class LocalSyncAdapter implements SyncAdapter {
     } catch {
       /* ignore */
     }
+  }
+
+  // ── identity / lifecycle ──────────────────────────────────────────────────
+  async ensureIdentity(): Promise<string> {
+    return getClientId();
+  }
+
+  async startMatch(): Promise<void> {
+    // Local play is host-relayed on the client; Room.tsx seeds the match
+    // directly rather than going through the adapter.
+    throw new Error('startMatch is server-authoritative only.');
   }
 
   // ── rooms ────────────────────────────────────────────────────────────────

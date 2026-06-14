@@ -61,6 +61,19 @@ export interface SyncAdapter {
   /** A short, human-shareable label for the backend (shown in the UI). */
   readonly kind: 'local' | 'firebase';
 
+  /**
+   * When true, a Cloud Function (not a client host) validates and applies moves
+   * and writes state — clients only `submitAction` and read their own slot. When
+   * false, a client host relays actions (local cross-tab backend).
+   */
+  readonly serverAuthoritative: boolean;
+
+  /** Resolve this client's player id for the backend (local id, or anon uid). */
+  ensureIdentity(): Promise<string>;
+
+  /** Server-authoritative only: ask the server (host-gated) to start the match. */
+  startMatch(roomId: string): Promise<void>;
+
   createRoom(opts: CreateRoomOptions): Promise<RoomMeta>;
   joinRoom(roomId: string, player: JoinInfo): Promise<RoomMeta>;
   leaveRoom(roomId: string, playerId: string): Promise<void>;

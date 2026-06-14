@@ -16,37 +16,50 @@ import type { GameAction, MatchState } from '../engine';
 import {
   makeRoomCode,
   withPresence,
-  type ActionEnvelope,
   type CreateRoomOptions,
   type JoinInfo,
   type RoomMeta,
   type RoomStatus,
   type SyncAdapter,
 } from './adapter';
-import { getFirebaseApp } from './firebaseClient';
+import { callGames, ensureAnonUid, getFirebaseApp } from './firebaseClient';
 
 const ROOMS = 'games-rooms';
 const STATES = 'games-states';
-const ACTIONS = 'games-actions';
-const SHARED = '_shared';
 
 type Db = import('firebase/database').Database;
 
 export class FirebaseSyncAdapter implements SyncAdapter {
   readonly kind = 'firebase' as const;
+  // Moves are validated + applied by a Cloud Function; clients never write state.
+  readonly serverAuthoritative = true;
   private dbPromise: Promise<Db> | null = null;
 
   private async db(): Promise<Db> {
     if (!this.dbPromise) {
-      this.dbPromise = import('firebase/database').then(({ getDatabase }) =>
-        getDatabase(getFirebaseApp()),
-      );
+      this.dbPromise = (async () => {
+        await ensureAnonUid(); // RTDB rules require auth
+        const { getDatabase } = await import('firebase/database');
+        return getDatabase(getFirebaseApp());
+      })();
     }
     return this.dbPromise;
   }
 
   private async mod() {
     return import('firebase/database');
+  }
+
+  async ensureIdentity(): Promise<string> {
+    return ensureAnonUid();
+  }
+
+  async startMatch(roomId: string): Promise<void> {
+    const res = await callGames<{ roomId: string }, { ok: boolean }>(
+      'gamesCreateMatch',
+      { roomId },
+    );
+    if (!res.ok) throw new Error('The server could not start the match.');
   }
 
   async createRoom(opts: CreateRoomOptions): Promise<RoomMeta> {
@@ -125,7 +138,6 @@ export class FirebaseSyncAdapter implements SyncAdapter {
     if (room && room.players.length === 0) {
       await remove(ref(db, `${ROOMS}/${roomId}`));
       await remove(ref(db, `${STATES}/${roomId}`));
-      await remove(ref(db, `${ACTIONS}/${roomId}`));
     }
   }
 
@@ -153,29 +165,23 @@ export class FirebaseSyncAdapter implements SyncAdapter {
     await this.transactRoom(roomId, (r) => ({ ...r, status }));
   }
 
-  async pushState(roomId: string, state: MatchState, viewer?: string): Promise<void> {
-    const { ref, runTransaction } = await this.mod();
-    const db = await this.db();
-    const slot = viewer ?? SHARED;
-    await runTransaction(ref(db, `${STATES}/${roomId}/${slot}`), (current) => {
-      const cur = current as MatchState | null;
-      if (cur && cur.version > state.version) return cur; // newer wins
-      return state;
-    });
+  // State is owned by the server arbiter; clients never write it directly.
+  async pushState(): Promise<void> {
+    /* no-op: gamesSubmitAction / gamesCreateMatch write state server-side */
   }
 
-  async submitAction(roomId: string, playerId: string, action: GameAction): Promise<void> {
-    const { ref, push, set } = await this.mod();
-    const db = await this.db();
-    const r = push(ref(db, `${ACTIONS}/${roomId}`));
-    const envelope: ActionEnvelope = { id: r.key!, playerId, action, at: Date.now() };
-    await set(r, envelope);
+  async submitAction(roomId: string, _playerId: string, action: GameAction): Promise<void> {
+    // The server derives the actor from the authenticated uid; playerId is
+    // ignored. Reject on an illegal move so the UI can surface the reason.
+    const res = await callGames<
+      { roomId: string; action: GameAction },
+      { ok: boolean; error?: string }
+    >('gamesSubmitAction', { roomId, action });
+    if (!res.ok) throw new Error(res.error ?? 'Move rejected.');
   }
 
-  async ackAction(roomId: string, id: string): Promise<void> {
-    const { ref, remove } = await this.mod();
-    const db = await this.db();
-    await remove(ref(db, `${ACTIONS}/${roomId}/${id}`));
+  async ackAction(): Promise<void> {
+    /* no-op: there is no client action queue in server-authoritative mode */
   }
 
   subscribeRoom(roomId: string, cb: (room: RoomMeta | null) => void): () => void {
@@ -194,26 +200,20 @@ export class FirebaseSyncAdapter implements SyncAdapter {
     cb: (state: MatchState | null) => void,
     viewer?: string,
   ): () => void {
+    // Clients may read only their own slot (enforced by RTDB rules).
+    const slot = viewer ?? '_full';
     let off = () => {};
     this.mod().then(async ({ ref, onValue }) => {
       const db = await this.db();
-      off = onValue(ref(db, `${STATES}/${roomId}`), (snap) => {
-        const all = (snap.val() ?? {}) as Record<string, MatchState>;
-        cb((viewer && all[viewer]) || all[SHARED] || null);
+      off = onValue(ref(db, `${STATES}/${roomId}/${slot}`), (snap) => {
+        cb((snap.val() as MatchState | null) ?? null);
       });
     });
     return () => off();
   }
 
-  subscribeActions(roomId: string, cb: (pending: ActionEnvelope[]) => void): () => void {
-    let off = () => {};
-    this.mod().then(async ({ ref, onValue }) => {
-      const db = await this.db();
-      off = onValue(ref(db, `${ACTIONS}/${roomId}`), (snap) => {
-        const all = (snap.val() ?? {}) as Record<string, ActionEnvelope>;
-        cb(Object.values(all).sort((a, b) => a.at - b.at));
-      });
-    });
-    return () => off();
+  subscribeActions(): () => void {
+    // No client action queue: the server arbiter applies moves directly.
+    return () => {};
   }
 }

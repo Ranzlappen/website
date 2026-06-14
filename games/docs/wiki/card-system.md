@@ -55,11 +55,11 @@ concern: `GameSurface` computes a `viewerId` (the current player in hot-seat, or
 and renders everyone else's as backs (`<PlayingCard forceBack />`).
 
 > Online, hidden state is protected by the game's optional `redact(game, viewerId)`
-> hook: the host publishes a per-player redacted view so a peer's synced slot
-> never contains another player's hand (Crown Rush and Relic Run implement it).
-> This is enforced for honest clients; full cryptographic enforcement needs the
-> `_shared` slot locked to the host in production rules — see
-> [Firebase Multiplayer](./firebase-multiplayer.md).
+> hook (Crown Rush and Relic Run implement it). On the Firebase backend this is
+> **server-enforced**: a Cloud Function writes each player's redacted view to a
+> slot only that player can read (RTDB rules), and the full state is server-only.
+> On the local cross-tab backend the client host publishes the same redacted
+> views. See [Firebase Multiplayer](./firebase-multiplayer.md).
 
 See **Crown Rush** (`src/games/crown-rush.ts`) for a complete worked example:
 draw/discard, reshuffle when the stock empties, and a three-of-a-kind win.

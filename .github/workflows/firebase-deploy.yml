@@ -82,4 +82,5 @@ jobs:
           TARGETS="$TARGETS,functions:inventoryImport,functions:inventoryExport,functions:inventoryExportPlatforms"
           TARGETS="$TARGETS,functions:inventoryFindByEan,functions:inventorySearchItems"
           TARGETS="$TARGETS,functions:inventoryListDeleted,functions:inventoryRestoreItem,functions:inventoryRestoreFolder,functions:inventoryPurgeDeleted"
+          TARGETS="$TARGETS,functions:gamesCreateMatch,functions:gamesSubmitAction"
           firebase deploy --only "$TARGETS" --non-interactive --force

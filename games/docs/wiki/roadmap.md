@@ -4,13 +4,14 @@ The engine is production-minded and complete for the shipped scope. Natural next
 steps, roughly in priority order:
 
 ## Multiplayer hardening
-- **Server-validated moves** for anti-cheat. Play is now host-authoritative
-  (clients submit actions; the host validates + applies + publishes), and hidden
-  info is redacted per-player — but there is no neutral *server* arbiter. Move
-  validation into a Cloud Function (reusing the repo's callable pattern) for
-  untrusted competitive play, and lock the `_shared` full-state slot to the host
-  in RTDB rules.
-- **Spectators** and **rejoin-by-seat** (claim an empty seat on reconnect).
+- **Done — server-validated moves.** The Firebase backend is server-authoritative:
+  the `gamesSubmitAction` / `gamesCreateMatch` Cloud Functions validate + apply
+  every move (actor = authenticated uid), and RTDB rules deny all client state
+  writes while letting each client read only its own redacted slot. The local
+  backend keeps the lighter client host-relay for zero-config play.
+- **Remaining:** tighter lobby `.validate` rules; **spectators** and
+  **rejoin-by-seat** (claim an empty seat on reconnect); optional App Check on
+  the arbiter callables.
 
 ## Engine
 - **Replay player** UI on top of the existing action log (the data is already

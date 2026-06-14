@@ -9,7 +9,18 @@ adapter, and the app chooses one at runtime.
 | Adapter | Backend | When used | Setup |
 |---|---|---|---|
 | `LocalSyncAdapter` | `localStorage` + `BroadcastChannel` | **Default.** Always available. | None. |
-| `FirebaseSyncAdapter` | Firebase Realtime Database | When enabled **and** configured | One-time rules + URL (below). |
+| `FirebaseSyncAdapter` | Firebase RTDB + Cloud Functions (server arbiter) | When enabled **and** configured | One-time setup (below). |
+
+The two backends use **different trust models** behind the same interface,
+selected by `adapter.serverAuthoritative`:
+
+- **Local** — *client* host-authoritative: a client host relays the action queue,
+  applies moves, and publishes per-viewer redacted state. Great for cross-tab dev
+  and friendly play.
+- **Firebase** — *server* authoritative: a Cloud Function validates and applies
+  every move (the actor is the **authenticated uid**, so it can't be spoofed) and
+  writes each player's redacted slot. Even the host can't cheat, and a peer can't
+  read another player's hidden state.
 
 `getSyncAdapter()` returns Firebase when the net mode is `firebase` *and*
 `firebaseAvailable()`, otherwise the local adapter. The choice is memoized and
@@ -28,74 +39,68 @@ full multiplayer with no backend at all:
 
 It also means the offline experience never loads the Firebase SDK.
 
-## Enabling Firebase (open-internet multiplayer)
+## Enabling Firebase (open-internet, server-authoritative)
 
-Real-time sync uses the Realtime Database. Two one-time steps:
+Most of the wiring ships in the repo and deploys automatically. One-time setup:
 
-1. **Configure the database URL.** Set `databaseURL` in
-   `src/net/firebaseClient.ts` to your project's RTDB URL (the default-region
-   value is pre-filled; change it if your RTDB lives elsewhere).
-2. **Add RTDB rules** permitting reads/writes under `/games-rooms` and
-   `/games-states`. A minimal (development) ruleset:
+1. **Database URL.** Set `databaseURL` in `src/net/firebaseClient.ts` to your
+   project's RTDB URL (the default-region value is pre-filled; change it if your
+   RTDB lives elsewhere).
+2. **Enable Anonymous Auth** in the Firebase console (Authentication →
+   Sign-in method). Online play signs each client in anonymously; the uid is the
+   player identity that both the RTDB rules and the arbiter key off.
+3. **Deploy** — already automated. The arbiter callables
+   (`gamesCreateMatch`, `gamesSubmitAction`, in `polyvote/functions/src/games/`)
+   and the RTDB rules (`polyvote/database.rules.json`) deploy via
+   `firebase-deploy.yml`. The committed rules are:
 
    ```json
-   {
-     "rules": {
-       "games-rooms":   { ".read": true, ".write": true },
-       "games-states":  { ".read": true, ".write": true },
-       "games-actions": { ".read": true, ".write": true }
-     }
-   }
+   "games-rooms":  { "$room": { ".read": "auth != null", ".write": "auth != null" } },
+   "games-states": { "$room": { "$slot": { ".read": "$slot === auth.uid", ".write": false } } }
    ```
 
-   These dev rules are permissive. For a hardened deployment, restrict the
-   `games-states/<room>/_shared` (full authoritative state) slot so only the
-   host may read it, and validate writes per node — see *Known limitations*.
+   i.e. only authenticated clients touch the lobby, **no client may write game
+   state** (only the server, via the admin SDK), and a client may read **only its
+   own slot** (`games-states/<room>/<uid>`). The authoritative `_full` slot is
+   server-only and unreadable by any client.
+4. Pick **Firebase** as the backend on the Online page.
 
-   Then pick **Firebase** as the backend on the Online page.
+The adapter lazy-loads `firebase/database`, `firebase/auth` and
+`firebase/functions` (kept out of the main bundle until used) and wires
+`onDisconnect` on `presence/<uid>` so a closed tab marks the right player
+offline even after the roster reindexes — enabling reconnect/resume.
 
-The adapter dynamically imports `firebase/database` (so it stays out of the main
-bundle until used) and wires `onDisconnect` so a closed tab automatically marks
-the player disconnected, enabling reconnect/resume.
-
-## Synchronization model (host-authoritative)
-
-Non-host clients **never write game state**. The flow:
+## Synchronization model (server-authoritative)
 
 1. The current player's UI is the only one enabled (`GameSurface` disables
-   everyone else). They `submitAction(roomId, playerId, action)` — written to
-   the `games-actions` queue.
-2. The **host** consumes the queue, validates + applies each action with the
-   pure `applyAction`, and publishes the resulting state.
-3. For games that declare a `redact` hook, the host writes a **per-player
-   redacted** view to `games-states/<room>/<playerId>` (so a peer's slot can't
-   contain another player's hand) plus the full authoritative state to a
-   `_shared` slot it reads for reconnect/recovery. Games with no hidden
-   information just use `_shared`.
-4. `pushState` and the action queue use transactions / version guards, so
-   simultaneous joins, ready toggles, presence updates and state writes can't
-   clobber each other, and stale snapshots are rejected.
+   everyone else). They `submitAction(roomId, action)`, which calls the
+   `gamesSubmitAction` Cloud Function.
+2. The function reads the authoritative `_full` state, sets the **actor from the
+   authenticated uid** (clients can't spoof it), runs the same deterministic
+   `applyAction`, and — on a legal move — commits the new state with a
+   **version compare-and-set** so concurrent submits can't clobber.
+3. It then writes each player's **redacted** view to `games-states/<room>/<uid>`
+   (via `redactFor`), the only slot that client can read. Illegal moves are
+   rejected and surfaced in the UI; state is never written.
+4. `gamesCreateMatch` (host-gated by `room.hostId === uid`) seeds/restarts the
+   match server-side.
 
-Because only the host mutates state, a malicious client can't push an arbitrary
-board; the worst it can do is submit an action, which the host validates and
-drops if illegal.
+The local backend keeps the lighter *client* host-relay (action queue +
+per-viewer push) for zero-config cross-tab play; the model differences are
+isolated behind `adapter.serverAuthoritative`.
 
-## Known limitations
+## Known limitations / notes
 
-- **Full trust still rests on the host.** A custom client could submit
-  out-of-turn actions; the host rejects them via `validate`, but there is no
-  *server* arbiter. For untrusted, competitive play, move the validation into a
-  Cloud Function (reusing the repo's callable pattern) — see the Roadmap.
-- **Hidden information is enforced for honest clients, not yet cryptographically.**
-  Per-player slots are redacted, but the `_shared` full state is readable under
-  the permissive dev rules. Lock `_shared` to the host in production rules (above)
-  to close that gap; the UI never reads it on non-host clients.
-- **Host reconnect:** if the host reloads mid-game it reseeds authority from the
-  `_shared` slot; if that slot was locked down or cleared, the host can restart
-  the round with **Play again**.
-- The default-region `databaseURL` is a placeholder until set for your project;
-  the app falls back to local mode automatically when Firebase isn't configured.
+- **Lobby integrity is light.** Room metadata (join/ready/presence) is still
+  client-written under `auth != null`; a crafted client could tamper with lobby
+  fields. The security-critical paths — match creation and every move — are
+  fully server-validated, and `gamesCreateMatch` re-checks the host. Tighten the
+  lobby with `.validate` rules if you need it.
+- **Host reconnect** (local backend) reseeds from the shared slot; on the
+  Firebase backend the server owns state, so any client (including a reloaded
+  host) simply resubscribes.
+- The default-region `databaseURL` is a placeholder until set; the app falls back
+  to local mode automatically when Firebase isn't configured.
 
 > No secrets are committed. The Firebase web config is public, client-safe
-> config (the same keys used elsewhere on the site); security is enforced by
-> rules.
+> config; security is enforced by RTDB rules + the server arbiter.

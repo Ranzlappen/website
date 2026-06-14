@@ -10,7 +10,6 @@ import {
 } from '../net';
 import { PageShell, ErrorBanner } from '../ui/components';
 import { useUiStore } from '../ui/store';
-import { getClientId } from '../ui/identity';
 
 export default function Online() {
   const navigate = useNavigate();
@@ -26,9 +25,10 @@ export default function Online() {
     setError(null);
     try {
       const adapter = getSyncAdapter();
+      const id = await adapter.ensureIdentity();
       const room = await adapter.createRoom({
         gameId,
-        host: { id: getClientId(), name: playerName },
+        host: { id, name: playerName },
       });
       navigate(`/room/${room.roomId}`);
     } catch (e) {
