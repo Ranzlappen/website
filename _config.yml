@@ -61,6 +61,7 @@ exclude:
   - polyvote
   - blog-admin
   - inventory-manager
+  - games
   - search-crawler
 
 # Plugins (GitHub Pages compatible)
