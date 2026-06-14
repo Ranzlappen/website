@@ -29,6 +29,6 @@ export function requirePhase(ctx: ReducerContext, phase: string): Verdict {
 }
 
 /** Generic boolean guard with a custom message. */
-export function require(condition: boolean, reason: string): Verdict {
+export function check(condition: boolean, reason: string): Verdict {
   return condition ? true : reason;
 }
