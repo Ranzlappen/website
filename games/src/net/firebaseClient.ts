@@ -7,11 +7,11 @@
  * switched on, so the offline/local experience never pays for the Firebase SDK.
  *
  * NOTE: real-time multiplayer uses the Realtime Database. The `databaseURL`
- * below is the project's default-region URL; if your project's RTDB lives in a
- * different region, set it here. Enabling Firebase multiplayer also requires
- * Realtime Database rules permitting reads/writes under `/games-rooms` and
- * `/games-states` — see docs/wiki/firebase-multiplayer.md. Until then the app
- * uses the local cross-tab adapter automatically.
+ * below points at this project's RTDB in the **europe-west1** region. The games
+ * RTDB rules (`/games-rooms`, `/games-states`) and the server arbiter functions
+ * deploy from the repo via firebase-deploy.yml — see
+ * docs/wiki/firebase-multiplayer.md. When Firebase isn't reachable the app uses
+ * the local cross-tab adapter automatically.
  */
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 
@@ -19,7 +19,7 @@ export const firebaseConfig = {
   apiKey: 'AIzaSyByEwHUnausbBmyRT928uGTRw5ZvszjjiM',
   authDomain: 'proven-concept-436717-q3.firebaseapp.com',
   projectId: 'proven-concept-436717-q3',
-  databaseURL: 'https://proven-concept-436717-q3-default-rtdb.firebaseio.com',
+  databaseURL: 'https://proven-concept-436717-q3-default-rtdb.europe-west1.firebasedatabase.app',
   storageBucket: 'proven-concept-436717-q3.firebasestorage.app',
   messagingSenderId: '420991269376',
   appId: '1:420991269376:web:8b2d0bcac98ffd92abb6e5',
