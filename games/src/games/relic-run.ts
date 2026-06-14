@@ -172,7 +172,7 @@ export const relicRun: GameDefinition<RelicState, RelicAction> = {
     if (action.type === 'PLAY') {
       const phase = Rules.requirePhase(ctx, 'action');
       if (phase !== true) return phase;
-      return Rules.require(
+      return Rules.check(
         game.hands[ctx.actor].some((c) => c.id === action.payload?.cardId),
         'That card is not in your hand.',
       );

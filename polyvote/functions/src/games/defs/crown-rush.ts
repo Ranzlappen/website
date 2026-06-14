@@ -101,7 +101,7 @@ export const crownRush: GameDefinition<CrownState, CrownAction> = {
     if (action.type === 'DISCARD') {
       if (!game.hasDrawn) return 'Draw a card before discarding.';
       const hand = game.hands[ctx.actor] ?? [];
-      return Rules.require(
+      return Rules.check(
         hand.some((c) => c.id === action.payload?.cardId),
         'That card is not in your hand.',
       );

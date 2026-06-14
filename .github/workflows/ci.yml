@@ -129,6 +129,10 @@ jobs:
         working-directory: polyvote/functions
         run: npm test
 
+      - name: Build
+        working-directory: polyvote/functions
+        run: npm run build
+
   blog-admin:
     needs: changes
     if: needs.changes.outputs.blog-admin == 'true'

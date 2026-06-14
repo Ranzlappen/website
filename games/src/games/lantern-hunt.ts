@@ -97,7 +97,7 @@ export const lanternHunt: GameDefinition<LanternState, LanternAction> = {
     if (base !== true) return base;
 
     if (action.type === 'ROLL') {
-      return Rules.require(game.die === null, 'You have already rolled — now move.');
+      return Rules.check(game.die === null, 'You have already rolled — now move.');
     }
     if (action.type === 'MOVE') {
       if (game.die === null) return 'Roll the die before moving.';
@@ -105,9 +105,9 @@ export const lanternHunt: GameDefinition<LanternState, LanternAction> = {
       const cell = action.payload?.cell;
       if (cell === game.positions[ctx.actor]) {
         // Staying put is only allowed when there is nowhere to go.
-        return Rules.require(targets.length === 0, 'You must move when you can.');
+        return Rules.check(targets.length === 0, 'You must move when you can.');
       }
-      return Rules.require(
+      return Rules.check(
         !!cell && targets.includes(cell),
         'That cell is out of reach.',
       );
