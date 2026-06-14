@@ -54,10 +54,12 @@ concern: `GameSurface` computes a `viewerId` (the current player in hot-seat, or
 "you" online) and passes it to the view, which reveals only that player's hand
 and renders everyone else's as backs (`<PlayingCard forceBack />`).
 
-> For fully secure hidden information online (so a peer can't read your hand from
-> the synced snapshot), add a server-side per-player state filter. The current
-> local/offline and cross-tab modes share full state; this is documented as a
-> known limitation in [Firebase Multiplayer](./firebase-multiplayer.md).
+> Online, hidden state is protected by the game's optional `redact(game, viewerId)`
+> hook: the host publishes a per-player redacted view so a peer's synced slot
+> never contains another player's hand (Crown Rush and Relic Run implement it).
+> This is enforced for honest clients; full cryptographic enforcement needs the
+> `_shared` slot locked to the host in production rules — see
+> [Firebase Multiplayer](./firebase-multiplayer.md).
 
 See **Crown Rush** (`src/games/crown-rush.ts`) for a complete worked example:
 draw/discard, reshuffle when the stock empties, and a three-of-a-kind win.

@@ -15,8 +15,10 @@ applyAction<G>(def, state, action): ApplyResult<G>
 //  → { ok: true,  state, action } | { ok: false, error, state }
 
 nextPlayer(order, current): PlayerId
-botAction<G>(def, state): GameAction | null      // via def.ai
-legalActions<G>(def, state): GameAction[]         // via def.enumerate
+botAction<G>(def, state): GameAction | null       // via def.ai
+pickBotAction<G>(def, state): GameAction | null    // ai, validated; falls back to a legal action
+legalActions<G>(def, state): GameAction[]          // via def.enumerate
+redactFor<G>(def, state, viewerId): MatchState<G>  // per-viewer hidden-info redaction (via def.redact)
 ```
 
 ## GameDefinition
@@ -114,10 +116,15 @@ interface SyncAdapter {
   kind: 'local' | 'firebase';
   createRoom({ gameId, host }) ; joinRoom(roomId, { id, name }) ; leaveRoom ;
   setReady ; setPresence ; setStatus ;
-  pushState(roomId, state) ;
+  pushState(roomId, state, viewerId?) ;           // host; per-viewer slot when viewerId given
+  submitAction(roomId, playerId, action) ;        // non-host clients
+  ackAction(roomId, actionId) ;                    // host
   subscribeRoom(roomId, cb) → off ;
-  subscribeState(roomId, cb) → off ;
+  subscribeState(roomId, cb, viewerId?) → off ;    // viewer slot, falls back to shared
+  subscribeActions(roomId, cb) → off ;             // host consumes the queue
 }
+
+// helpers: makeRoomCode(), withPresence(room), actionId()
 ```
 
 ## Storage (`src/storage/local`)

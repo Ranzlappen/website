@@ -266,6 +266,17 @@ export const relicRun: GameDefinition<RelicState, RelicAction> = {
     return { type: 'PASS' };
   },
 
+  redact(game, viewerId) {
+    // Hide opponents' action-card hands and the draw deck's order; keep counts.
+    const hide = (cards: ActionCard[], tag: string): ActionCard[] =>
+      cards.map((_, i) => ({ id: `hidden-${tag}-${i}`, kind: 'leap' }));
+    const hands: Record<PlayerId, ActionCard[]> = {};
+    for (const [id, hand] of Object.entries(game.hands)) {
+      hands[id] = id === viewerId ? hand : hide(hand, id);
+    }
+    return { ...game, hands, deck: hide(game.deck, 'deck') };
+  },
+
   describeAction(action, state: MatchState<RelicState>) {
     const name =
       state.players.find((p) => p.id === action.playerId)?.name ?? 'Someone';

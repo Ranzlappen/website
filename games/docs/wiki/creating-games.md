@@ -79,6 +79,7 @@ Reference: **`src/games/relic-run.ts`** — cards **and** board **and** tokens.
 | `ai(game, ctx)` | A smarter bot for solo play (auto-driven by the Play screen). |
 | `endIf(game, ctx)` | Declarative end-of-game check (alternative to `events.endGame`). |
 | `describeAction(action, state)` | Human-readable event-log lines. |
+| `redact(game, viewerId)` | Per-viewer hidden-info filtering for online play (hide opponents' hands). Omit for games with no hidden information. |
 
 ## Writing the view
 

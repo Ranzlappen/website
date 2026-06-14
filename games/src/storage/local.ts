@@ -12,6 +12,9 @@ import {
 const PREFIX = 'tabletop:save:';
 const INDEX_KEY = 'tabletop:saves';
 
+/** Keep at most this many saved matches; oldest are pruned automatically. */
+export const MAX_SAVES = 25;
+
 export interface SaveMeta {
   matchId: string;
   gameId: string;
@@ -44,6 +47,9 @@ export function saveMatch(state: MatchState): void {
   };
   const list = readIndex().filter((m) => m.matchId !== state.matchId);
   list.unshift(meta);
+  // Prune the oldest saves beyond the cap so localStorage can't grow forever.
+  const overflow = list.splice(MAX_SAVES);
+  for (const old of overflow) localStorage.removeItem(PREFIX + old.matchId);
   writeIndex(list);
 }
 

@@ -41,11 +41,16 @@ Real-time sync uses the Realtime Database. Two one-time steps:
    ```json
    {
      "rules": {
-       "games-rooms":  { ".read": true, ".write": true },
-       "games-states": { ".read": true, ".write": true }
+       "games-rooms":   { ".read": true, ".write": true },
+       "games-states":  { ".read": true, ".write": true },
+       "games-actions": { ".read": true, ".write": true }
      }
    }
    ```
+
+   These dev rules are permissive. For a hardened deployment, restrict the
+   `games-states/<room>/_shared` (full authoritative state) slot so only the
+   host may read it, and validate writes per node — see *Known limitations*.
 
    Then pick **Firebase** as the backend on the Online page.
 
@@ -53,20 +58,41 @@ The adapter dynamically imports `firebase/database` (so it stays out of the main
 bundle until used) and wires `onDisconnect` so a closed tab automatically marks
 the player disconnected, enabling reconnect/resume.
 
-## Synchronization model
+## Synchronization model (host-authoritative)
 
-Turn-based, last-writer-by-version: only the **current** player's controls are
-enabled (`GameSurface` disables everyone else), so a move is applied locally via
-`applyAction`, then `pushState(roomId, newState)` publishes the authoritative
-snapshot. Peers receive it through their subscription and re-render.
-`pushState` rejects snapshots with an older `version`, guarding against
-out-of-order delivery.
+Non-host clients **never write game state**. The flow:
+
+1. The current player's UI is the only one enabled (`GameSurface` disables
+   everyone else). They `submitAction(roomId, playerId, action)` — written to
+   the `games-actions` queue.
+2. The **host** consumes the queue, validates + applies each action with the
+   pure `applyAction`, and publishes the resulting state.
+3. For games that declare a `redact` hook, the host writes a **per-player
+   redacted** view to `games-states/<room>/<playerId>` (so a peer's slot can't
+   contain another player's hand) plus the full authoritative state to a
+   `_shared` slot it reads for reconnect/recovery. Games with no hidden
+   information just use `_shared`.
+4. `pushState` and the action queue use transactions / version guards, so
+   simultaneous joins, ready toggles, presence updates and state writes can't
+   clobber each other, and stale snapshots are rejected.
+
+Because only the host mutates state, a malicious client can't push an arbitrary
+board; the worst it can do is submit an action, which the host validates and
+drops if illegal.
 
 ## Known limitations
 
-- **Hidden information** (e.g. a card hand) is present in the synced full state,
-  so a determined peer could read it. Securing it requires a server that filters
-  per-player views (a Cloud Function or trusted host) — see the Roadmap.
+- **Full trust still rests on the host.** A custom client could submit
+  out-of-turn actions; the host rejects them via `validate`, but there is no
+  *server* arbiter. For untrusted, competitive play, move the validation into a
+  Cloud Function (reusing the repo's callable pattern) — see the Roadmap.
+- **Hidden information is enforced for honest clients, not yet cryptographically.**
+  Per-player slots are redacted, but the `_shared` full state is readable under
+  the permissive dev rules. Lock `_shared` to the host in production rules (above)
+  to close that gap; the UI never reads it on non-host clients.
+- **Host reconnect:** if the host reloads mid-game it reseeds authority from the
+  `_shared` slot; if that slot was locked down or cleared, the host can restart
+  the round with **Play again**.
 - The default-region `databaseURL` is a placeholder until set for your project;
   the app falls back to local mode automatically when Firebase isn't configured.
 

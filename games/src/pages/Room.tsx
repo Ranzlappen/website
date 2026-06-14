@@ -1,10 +1,21 @@
-/** Online room — lobby (presence, ready, start) then synchronized play. */
-import { useEffect, useMemo, useState } from 'react';
+/**
+ * Online room — lobby (presence, ready, start) then host-authoritative play.
+ *
+ * Non-host clients never write game state: they `submitAction`, and the host
+ * validates + applies each action with `applyAction`, then publishes the
+ * resulting state. For games with hidden information the host publishes a
+ * per-player *redacted* view (`redactFor`), so a peer's slot never contains
+ * another player's hand. The full authoritative state lives in the host's
+ * memory (and a `_shared` slot the host reads for reconnect/recovery — lock
+ * that slot to the host in production RTDB rules).
+ */
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   applyAction,
   createMatch,
   getGame,
+  redactFor,
   type GameAction,
   type MatchState,
 } from '../engine';
@@ -32,6 +43,14 @@ export default function Room() {
   const [error, setError] = useState<string | null>(null);
   const [joined, setJoined] = useState(false);
 
+  const def = room ? getGame(room.gameId) : undefined;
+  const isHost = room?.players.find((p) => p.id === clientId)?.isHost ?? false;
+
+  // Host-only authoritative state + de-dupe set for processed action ids.
+  const hostStateRef = useRef<MatchState | null>(null);
+  const processedRef = useRef<Set<string>>(new Set());
+
+  // Join + subscribe (render view + presence).
   useEffect(() => {
     let active = true;
     let unsubRoom = () => {};
@@ -47,7 +66,8 @@ export default function Room() {
       if (!active) return;
       setJoined(true);
       unsubRoom = adapter.subscribeRoom(roomId, setRoom);
-      unsubState = adapter.subscribeState(roomId, setMatchState);
+      // Render from this player's (redacted) slot, falling back to shared.
+      unsubState = adapter.subscribeState(roomId, setMatchState, clientId);
     })();
     return () => {
       active = false;
@@ -57,8 +77,42 @@ export default function Room() {
     };
   }, [roomId, adapter, clientId, playerName]);
 
-  const def = room ? getGame(room.gameId) : undefined;
-  const isHost = room?.players.find((p) => p.id === clientId)?.isHost ?? false;
+  // Host: consume the action queue, validate+apply, publish per-viewer state.
+  useEffect(() => {
+    if (!isHost || !def) return;
+    const publish = async (state: MatchState) => {
+      hostStateRef.current = state;
+      await adapter.pushState(roomId, state); // shared/full (host recovery)
+      if (def.redact) {
+        for (const p of state.players) {
+          await adapter.pushState(roomId, redactFor(def, state, p.id), p.id);
+        }
+      }
+      if (state.status === 'finished') await adapter.setStatus(roomId, 'finished');
+    };
+
+    const offState = adapter.subscribeState(roomId, (s) => {
+      // Seed authority on (re)connect from the shared/full slot.
+      if (s && !hostStateRef.current) hostStateRef.current = s;
+    });
+
+    const offActions = adapter.subscribeActions(roomId, async (pending) => {
+      for (const env of pending) {
+        if (processedRef.current.has(env.id)) continue;
+        processedRef.current.add(env.id);
+        const base = hostStateRef.current;
+        await adapter.ackAction(roomId, env.id);
+        if (!base) continue;
+        const result = applyAction(def, base, { ...env.action, playerId: env.playerId });
+        if (result.ok) await publish(result.state);
+      }
+    });
+
+    return () => {
+      offState();
+      offActions();
+    };
+  }, [isHost, def, roomId, adapter]);
 
   const startMatch = async () => {
     if (!room || !def) return;
@@ -67,23 +121,23 @@ export default function Room() {
       .map((p) => ({ id: p.id, name: p.name }));
     try {
       const state = createMatch(def, { matchId: roomId, seed: `${roomId}-${Date.now()}`, players });
-      await adapter.pushState(roomId, state);
+      processedRef.current = new Set();
+      hostStateRef.current = state;
       await adapter.setStatus(roomId, 'playing');
+      await adapter.pushState(roomId, state);
+      if (def.redact) {
+        for (const p of state.players) {
+          await adapter.pushState(roomId, redactFor(def, state, p.id), p.id);
+        }
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not start.');
     }
   };
 
+  // Everyone dispatches by submitting an action; the host applies it.
   const dispatch = (action: GameAction) => {
-    if (!def || !matchState) return;
-    const result = applyAction(def, matchState, { ...action, playerId: clientId });
-    if (result.ok) {
-      setMatchState(result.state);
-      adapter.pushState(roomId, result.state);
-      if (result.state.status === 'finished') adapter.setStatus(roomId, 'finished');
-    } else {
-      setError(result.error);
-    }
+    adapter.submitAction(roomId, clientId, action);
   };
 
   const leave = async () => {
@@ -125,10 +179,7 @@ export default function Room() {
         <span className="tt-chip" style={{ background: 'var(--tt-accent)', color: '#1a1408', fontSize: '1rem' }}>
           Room {room.roomId}
         </span>
-        <button
-          className="tt-btn"
-          onClick={() => navigator.clipboard?.writeText(window.location.href)}
-        >
+        <button className="tt-btn" onClick={() => navigator.clipboard?.writeText(window.location.href)}>
           🔗 Copy invite link
         </button>
         <button className="tt-btn tt-btn--ghost" style={{ marginLeft: 'auto' }} onClick={leave}>
@@ -161,10 +212,7 @@ export default function Room() {
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button
-              className="tt-btn"
-              onClick={() => adapter.setReady(roomId, clientId, !me?.ready)}
-            >
+            <button className="tt-btn" onClick={() => adapter.setReady(roomId, clientId, !me?.ready)}>
               {me?.ready ? "I'm not ready" : "I'm ready"}
             </button>
             {isHost && (
@@ -184,8 +232,8 @@ export default function Room() {
             )}
           </div>
           <p style={{ color: 'var(--tt-muted)', fontSize: '0.85rem', margin: 0 }}>
-            Share the room code or invite link. Open a second browser tab and
-            join with the same code to test multiplayer locally.
+            Share the room code or invite link. Open a second browser tab and join
+            with the same code to test multiplayer locally.
           </p>
         </div>
       )}

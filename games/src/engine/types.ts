@@ -145,6 +145,14 @@ export interface GameDefinition<
 
   /** Optional human-readable description of an action for the event log. */
   describeAction?(action: A, state: MatchState<G>): string;
+
+  /**
+   * Optional per-viewer redaction for networked play: return a copy of the
+   * game state with information `viewerId` must not see removed/anonymized
+   * (e.g. opponents' hidden hands). When omitted, the full state is shared —
+   * fine for local/hot-seat and for games with no hidden information.
+   */
+  redact?(game: G, viewerId: PlayerId): G;
 }
 
 /** Result of applying an action. On failure the original state is returned. */

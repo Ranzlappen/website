@@ -194,6 +194,17 @@ export const crownRush: GameDefinition<CrownState, CrownAction> = {
     return { type: 'DISCARD', payload: { cardId: worst.id } };
   },
 
+  redact(game, viewerId) {
+    // Hide opponents' hand contents and the face-down stock order; keep counts.
+    const hide = (cards: Cards.Card[], tag: string): Cards.Card[] =>
+      cards.map((_, i) => ({ id: `hidden-${tag}-${i}`, faceUp: false }));
+    const hands: Record<PlayerId, Cards.Card[]> = {};
+    for (const [id, hand] of Object.entries(game.hands)) {
+      hands[id] = id === viewerId ? hand : hide(hand, id);
+    }
+    return { ...game, hands, draw: hide(game.draw, 'stock') };
+  },
+
   describeAction(action, state: MatchState<CrownState>) {
     const name = (id?: PlayerId) =>
       state.players.find((p) => p.id === id)?.name ?? 'Someone';

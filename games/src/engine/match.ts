@@ -158,6 +158,43 @@ export function legalActions<G>(
 }
 
 /**
+ * Choose a bot action that is guaranteed to be legal: prefer the game's `ai`
+ * policy, fall back to the first legal action from `enumerate`, and return null
+ * only when there is genuinely nothing to do. This prevents a buggy `ai`
+ * (returning an illegal move) from stalling a bot's turn.
+ */
+export function pickBotAction<G>(
+  def: GameDefinition<G>,
+  state: MatchState<G>,
+): GameAction | null {
+  if (state.status !== 'active') return null;
+  const isLegal = (action: GameAction): boolean =>
+    applyAction(def, state, action).ok;
+
+  const preferred = botAction(def, state);
+  if (preferred && isLegal(preferred)) return preferred;
+
+  for (const candidate of legalActions(def, state)) {
+    if (isLegal(candidate)) return candidate;
+  }
+  return null;
+}
+
+/**
+ * Return a copy of `state` with information hidden from `viewerId` removed,
+ * using the game's optional `redact` hook. Used by the networking layer to
+ * avoid leaking hidden information (e.g. opponents' hands) in synced snapshots.
+ */
+export function redactFor<G>(
+  def: GameDefinition<G>,
+  state: MatchState<G>,
+  viewerId: PlayerId,
+): MatchState<G> {
+  if (!def.redact) return state;
+  return { ...state, game: def.redact(state.game, viewerId) };
+}
+
+/**
  * Apply an action to a match, returning a brand-new state (the input is never
  * mutated). Illegal actions return `{ ok: false }` with the unchanged state so
  * callers can surface the reason without corrupting the game.

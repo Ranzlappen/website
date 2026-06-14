@@ -4,12 +4,19 @@
  * Implements the identical contract as the local adapter, so the lobby and
  * online-play UI are backend-agnostic. The `firebase/database` SDK is imported
  * dynamically so it stays out of the main bundle until Firebase multiplayer is
- * actually used. Presence is wired through `onDisconnect` so a closed tab marks
- * the player disconnected automatically (enabling reconnect/resume).
+ * actually used.
+ *
+ * Concurrency: every room mutation runs inside a `runTransaction` so two
+ * simultaneous joins / ready toggles / presence updates can't clobber each
+ * other. Presence is keyed by player **id** (not seat index) and wired through
+ * `onDisconnect`, so a closed tab marks the right player offline automatically
+ * even if the roster reindexes — enabling reconnect/resume.
  */
-import type { MatchState } from '../engine';
+import type { GameAction, MatchState } from '../engine';
 import {
   makeRoomCode,
+  withPresence,
+  type ActionEnvelope,
   type CreateRoomOptions,
   type JoinInfo,
   type RoomMeta,
@@ -20,6 +27,8 @@ import { getFirebaseApp } from './firebaseClient';
 
 const ROOMS = 'games-rooms';
 const STATES = 'games-states';
+const ACTIONS = 'games-actions';
+const SHARED = '_shared';
 
 type Db = import('firebase/database').Database;
 
@@ -44,127 +53,129 @@ export class FirebaseSyncAdapter implements SyncAdapter {
     const { ref, get, set } = await this.mod();
     const db = await this.db();
     let roomId = makeRoomCode();
-    while ((await get(ref(db, `${ROOMS}/${roomId}`))).exists()) {
-      roomId = makeRoomCode();
-    }
+    while ((await get(ref(db, `${ROOMS}/${roomId}`))).exists()) roomId = makeRoomCode();
     const room: RoomMeta = {
       roomId,
       gameId: opts.gameId,
       hostId: opts.host.id,
       status: 'lobby',
       createdAt: Date.now(),
+      presence: { [opts.host.id]: true },
       players: [
-        {
-          id: opts.host.id,
-          name: opts.host.name,
-          seat: 0,
-          ready: false,
-          connected: true,
-          isHost: true,
-        },
+        { id: opts.host.id, name: opts.host.name, seat: 0, ready: false, connected: true, isHost: true },
       ],
     };
     await set(ref(db, `${ROOMS}/${roomId}`), room);
-    return room;
+    return withPresence(room);
+  }
+
+  /** Atomically mutate a room; `mutate` returns the new room or undefined to abort. */
+  private async transactRoom(
+    roomId: string,
+    mutate: (room: RoomMeta) => RoomMeta | undefined,
+  ): Promise<RoomMeta | null> {
+    const { ref, runTransaction } = await this.mod();
+    const db = await this.db();
+    const res = await runTransaction(ref(db, `${ROOMS}/${roomId}`), (current) => {
+      if (!current) return current; // room gone → abort, leave as-is
+      const next = mutate(current as RoomMeta);
+      return next ?? current;
+    });
+    const val = res.snapshot.val() as RoomMeta | null;
+    return val ? withPresence(val) : null;
   }
 
   async joinRoom(roomId: string, player: JoinInfo): Promise<RoomMeta> {
-    const { ref, get, set } = await this.mod();
+    const { ref, get } = await this.mod();
     const db = await this.db();
     const snap = await get(ref(db, `${ROOMS}/${roomId}`));
     if (!snap.exists()) throw new Error(`Room ${roomId} not found.`);
-    const room = snap.val() as RoomMeta;
-    room.players = room.players ?? [];
-    if (room.status !== 'lobby' && !room.players.some((p) => p.id === player.id)) {
+    const existing = snap.val() as RoomMeta;
+    if (existing.status !== 'lobby' && !(existing.players ?? []).some((p) => p.id === player.id)) {
       throw new Error('That game has already started.');
     }
-    if (!room.players.some((p) => p.id === player.id)) {
-      room.players.push({
-        id: player.id,
-        name: player.name,
-        seat: room.players.length,
-        ready: false,
-        connected: true,
-        isHost: false,
-      });
-      await set(ref(db, `${ROOMS}/${roomId}`), room);
-    }
-    return room;
+    const room = await this.transactRoom(roomId, (r) => {
+      r.players = r.players ?? [];
+      if (!r.players.some((p) => p.id === player.id)) {
+        r.players.push({
+          id: player.id,
+          name: player.name,
+          seat: r.players.length,
+          ready: false,
+          connected: true,
+          isHost: false,
+        });
+        r.presence = { ...r.presence, [player.id]: true };
+      }
+      return r;
+    });
+    return room ?? withPresence(existing);
   }
 
   async leaveRoom(roomId: string, playerId: string): Promise<void> {
-    const { ref, get, set, remove } = await this.mod();
+    const { ref, remove } = await this.mod();
     const db = await this.db();
-    const snap = await get(ref(db, `${ROOMS}/${roomId}`));
-    if (!snap.exists()) return;
-    const room = snap.val() as RoomMeta;
-    room.players = (room.players ?? []).filter((p) => p.id !== playerId);
-    if (room.players.length === 0) {
+    const room = await this.transactRoom(roomId, (r) => {
+      r.players = (r.players ?? []).filter((p) => p.id !== playerId);
+      if (r.presence) delete r.presence[playerId];
+      if (r.players.length === 0) return r; // emptied; we remove below
+      if (!r.players.some((p) => p.isHost)) r.players[0].isHost = true;
+      return r;
+    });
+    if (room && room.players.length === 0) {
       await remove(ref(db, `${ROOMS}/${roomId}`));
       await remove(ref(db, `${STATES}/${roomId}`));
-      return;
+      await remove(ref(db, `${ACTIONS}/${roomId}`));
     }
-    if (!room.players.some((p) => p.isHost)) room.players[0].isHost = true;
-    await set(ref(db, `${ROOMS}/${roomId}`), room);
-  }
-
-  private async patchPlayer(
-    roomId: string,
-    playerId: string,
-    patch: Partial<RoomMeta['players'][number]>,
-  ) {
-    const { ref, get, set } = await this.mod();
-    const db = await this.db();
-    const snap = await get(ref(db, `${ROOMS}/${roomId}`));
-    if (!snap.exists()) return;
-    const room = snap.val() as RoomMeta;
-    room.players = (room.players ?? []).map((p) =>
-      p.id === playerId ? { ...p, ...patch } : p,
-    );
-    await set(ref(db, `${ROOMS}/${roomId}`), room);
   }
 
   async setReady(roomId: string, playerId: string, ready: boolean) {
-    await this.patchPlayer(roomId, playerId, { ready });
+    await this.transactRoom(roomId, (r) => {
+      r.players = (r.players ?? []).map((p) => (p.id === playerId ? { ...p, ready } : p));
+      return r;
+    });
   }
 
   async setPresence(roomId: string, playerId: string, connected: boolean) {
     const { ref, onDisconnect } = await this.mod();
     const db = await this.db();
-    await this.patchPlayer(roomId, playerId, { connected });
+    await this.transactRoom(roomId, (r) => {
+      r.presence = { ...r.presence, [playerId]: connected };
+      return r;
+    });
     if (connected) {
-      // Best-effort: when this client drops, flip its flag automatically so
-      // peers see the disconnect and can offer reconnect/resume.
-      const seat = await this.seatOf(roomId, playerId);
-      if (seat >= 0) {
-        onDisconnect(
-          ref(db, `${ROOMS}/${roomId}/players/${seat}/connected`),
-        ).set(false);
-      }
+      // Keyed by id, so it stays correct even if the roster reindexes.
+      onDisconnect(ref(db, `${ROOMS}/${roomId}/presence/${playerId}`)).set(false);
     }
   }
 
-  private async seatOf(roomId: string, playerId: string): Promise<number> {
-    const { ref, get } = await this.mod();
-    const db = await this.db();
-    const snap = await get(ref(db, `${ROOMS}/${roomId}`));
-    if (!snap.exists()) return -1;
-    const room = snap.val() as RoomMeta;
-    return (room.players ?? []).findIndex((p) => p.id === playerId);
-  }
-
   async setStatus(roomId: string, status: RoomStatus) {
-    const { ref, update } = await this.mod();
-    const db = await this.db();
-    await update(ref(db, `${ROOMS}/${roomId}`), { status });
+    await this.transactRoom(roomId, (r) => ({ ...r, status }));
   }
 
-  async pushState(roomId: string, state: MatchState): Promise<void> {
-    const { ref, get, set } = await this.mod();
+  async pushState(roomId: string, state: MatchState, viewer?: string): Promise<void> {
+    const { ref, runTransaction } = await this.mod();
     const db = await this.db();
-    const snap = await get(ref(db, `${STATES}/${roomId}`));
-    if (snap.exists() && (snap.val() as MatchState).version > state.version) return;
-    await set(ref(db, `${STATES}/${roomId}`), state);
+    const slot = viewer ?? SHARED;
+    await runTransaction(ref(db, `${STATES}/${roomId}/${slot}`), (current) => {
+      const cur = current as MatchState | null;
+      if (cur && cur.version > state.version) return cur; // newer wins
+      return state;
+    });
+  }
+
+  async submitAction(roomId: string, playerId: string, action: GameAction): Promise<void> {
+    const { ref, push, set } = await this.mod();
+    const db = await this.db();
+    const r = push(ref(db, `${ACTIONS}/${roomId}`));
+    const envelope: ActionEnvelope = { id: r.key!, playerId, action, at: Date.now() };
+    await set(r, envelope);
+  }
+
+  async ackAction(roomId: string, id: string): Promise<void> {
+    const { ref, remove } = await this.mod();
+    const db = await this.db();
+    await remove(ref(db, `${ACTIONS}/${roomId}/${id}`));
   }
 
   subscribeRoom(roomId: string, cb: (room: RoomMeta | null) => void): () => void {
@@ -172,7 +183,7 @@ export class FirebaseSyncAdapter implements SyncAdapter {
     this.mod().then(async ({ ref, onValue }) => {
       const db = await this.db();
       off = onValue(ref(db, `${ROOMS}/${roomId}`), (snap) => {
-        cb(snap.exists() ? (snap.val() as RoomMeta) : null);
+        cb(snap.exists() ? withPresence(snap.val() as RoomMeta) : null);
       });
     });
     return () => off();
@@ -181,12 +192,26 @@ export class FirebaseSyncAdapter implements SyncAdapter {
   subscribeState(
     roomId: string,
     cb: (state: MatchState | null) => void,
+    viewer?: string,
   ): () => void {
     let off = () => {};
     this.mod().then(async ({ ref, onValue }) => {
       const db = await this.db();
       off = onValue(ref(db, `${STATES}/${roomId}`), (snap) => {
-        cb(snap.exists() ? (snap.val() as MatchState) : null);
+        const all = (snap.val() ?? {}) as Record<string, MatchState>;
+        cb((viewer && all[viewer]) || all[SHARED] || null);
+      });
+    });
+    return () => off();
+  }
+
+  subscribeActions(roomId: string, cb: (pending: ActionEnvelope[]) => void): () => void {
+    let off = () => {};
+    this.mod().then(async ({ ref, onValue }) => {
+      const db = await this.db();
+      off = onValue(ref(db, `${ACTIONS}/${roomId}`), (snap) => {
+        const all = (snap.val() ?? {}) as Record<string, ActionEnvelope>;
+        cb(Object.values(all).sort((a, b) => a.at - b.at));
       });
     });
     return () => off();

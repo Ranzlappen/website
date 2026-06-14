@@ -33,7 +33,7 @@ npm run format   # prettier
 | React UI | `src/ui/` | Themes, assets (SVG cards/dice/pawns), shared components, hooks, GameSurface. |
 | Game views | `src/games/views/` | One React view per game, kept out of the engine. |
 | Pages | `src/pages/` | Gallery, setup, play, online hub, room. |
-| Tests | `src/__tests__/` | 50 tests: RNG determinism, match flow, cards, board, serialization, client, each demo, render smoke. |
+| Tests | `src/__tests__/` | 64 tests: RNG determinism, match flow, cards, board, serialization, client, each demo, render smoke. |
 | Docs | `docs/wiki/` | The handbook — start at [`docs/wiki/README.md`](./docs/wiki/README.md). |
 
 ## Design principles

@@ -4,12 +4,13 @@ The engine is production-minded and complete for the shipped scope. Natural next
 steps, roughly in priority order:
 
 ## Multiplayer hardening
-- **Server-authoritative hidden information.** Filter per-player views so a
-  synced snapshot can't leak a hidden hand (a Cloud Function host, or move
-  validation in a trusted function). Today's sync shares full state.
+- **Server-validated moves** for anti-cheat. Play is now host-authoritative
+  (clients submit actions; the host validates + applies + publishes), and hidden
+  info is redacted per-player — but there is no neutral *server* arbiter. Move
+  validation into a Cloud Function (reusing the repo's callable pattern) for
+  untrusted competitive play, and lock the `_shared` full-state slot to the host
+  in RTDB rules.
 - **Spectators** and **rejoin-by-seat** (claim an empty seat on reconnect).
-- **Server-validated moves** for anti-cheat, reusing the existing
-  Cloud-Functions pattern from the rest of the repo.
 
 ## Engine
 - **Replay player** UI on top of the existing action log (the data is already
