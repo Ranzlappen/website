@@ -2,12 +2,14 @@
 import { Board } from '../../engine';
 import { Die, Pawn, Token, SEAT_COLORS } from '../../ui/assets';
 import { PlayerBadge } from '../../ui/components';
+import { useRollFlash } from '../../ui/hooks';
 import { legalTargets, type LanternState } from '../lantern-hunt';
 import { registerView } from './registry';
 import type { GameViewProps } from './types';
 
 function LanternHuntView({ state, dispatch, viewerId, canAct }: GameViewProps<LanternState>) {
   const game = state.game;
+  const rolling = useRollFlash(game.die);
   const { width, height } = game.grid;
   const current = state.turn.current;
   const targets = new Set(canAct ? legalTargets(game, current) : []);
@@ -82,7 +84,7 @@ function LanternHuntView({ state, dispatch, viewerId, canAct }: GameViewProps<La
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         {game.die !== null ? (
-          <Die value={game.die} rolling />
+          <Die value={game.die} rolling={rolling} />
         ) : (
           <button
             className="tt-btn tt-btn--primary"

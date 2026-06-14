@@ -36,3 +36,41 @@ export function getFirebaseApp(): FirebaseApp {
 export function isFirebaseConfigured(): boolean {
   return Boolean(firebaseConfig.databaseURL);
 }
+
+let authReady: Promise<string> | null = null;
+
+/**
+ * Sign in anonymously and resolve the uid. Online play is server-authoritative:
+ * the uid is the player's identity (RTDB rules + the arbiter key off it), so a
+ * client can't act as another player. Memoized; the `firebase/auth` SDK is
+ * imported lazily so the offline/local experience never downloads it. Requires
+ * Anonymous Auth to be enabled in the Firebase console.
+ */
+export function ensureAnonUid(): Promise<string> {
+  if (!authReady) {
+    authReady = (async () => {
+      const { getAuth, onAuthStateChanged, signInAnonymously } = await import(
+        'firebase/auth'
+      );
+      const auth = getAuth(getFirebaseApp());
+      return new Promise<string>((resolve, reject) => {
+        const unsub = onAuthStateChanged(auth, (user) => {
+          if (user) {
+            unsub();
+            resolve(user.uid);
+          }
+        });
+        if (!auth.currentUser) signInAnonymously(auth).catch(reject);
+      });
+    })();
+  }
+  return authReady;
+}
+
+/** Call a games Cloud Function (lazy-loads `firebase/functions`). */
+export async function callGames<Req, Res>(name: string, data: Req): Promise<Res> {
+  const { getFunctions, httpsCallable } = await import('firebase/functions');
+  const fn = httpsCallable<Req, Res>(getFunctions(getFirebaseApp()), name);
+  const res = await fn(data);
+  return res.data;
+}

@@ -147,3 +147,6 @@ export {
   inventoryRestoreFolder,
   inventoryPurgeDeleted,
 } from "./inventory/trash";
+
+// Tabletop: server-authoritative online game arbiter (validates + applies moves)
+export { gamesCreateMatch, gamesSubmitAction } from "./games/arbiter";

@@ -30,10 +30,9 @@ export interface CreateMatchOptions {
 }
 
 function uid(prefix: string): string {
-  const rand =
-    typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID().slice(0, 8)
-      : Math.random().toString(36).slice(2, 10);
+  // Server copy: matchId is always supplied by the arbiter (the room id), so
+  // this fallback is rarely used; avoid the browser `crypto` global here.
+  const rand = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
   return `${prefix}_${rand}`;
 }
 

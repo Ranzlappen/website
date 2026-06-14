@@ -1,6 +1,6 @@
 # Testing Guide
 
-Tests run on **Vitest** (jsdom environment). 50 tests live in
+Tests run on **Vitest** (jsdom environment). 64 tests live in
 `src/__tests__/`.
 
 ```bash
@@ -22,6 +22,9 @@ npm run test:watch # watch mode
 | `crown-rush.test.ts` | Deal counts, draw→discard flow, win on three of a kind, illegal sequences. |
 | `lantern-hunt.test.ts` | Roll→move, reachable rejection, third-lantern win. |
 | `relic-run.test.ts` | Phase gating, pass/turn flow, Ward card → fourth relic win. |
+| `engine-helpers.test.ts` | `pickBotAction` falls back when `ai` is illegal; `redactFor` hides opponents' hands/stock. |
+| `net.test.ts` | LocalSyncAdapter: create/join, ready + presence-by-id, shared vs per-viewer state, stale-version rejection, action relay + ack, room teardown. |
+| `storage.test.ts` | save/load/list/delete and the `MAX_SAVES` prune. |
 | `app.test.tsx` | Gallery lists all games; setup screen renders; every game view mounts without crashing. |
 
 ## Testing strategy

@@ -25,6 +25,20 @@
           }
         }
       }
+    },
+    "games-rooms": {
+      "$room": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "games-states": {
+      "$room": {
+        "$slot": {
+          ".read": "$slot === auth.uid",
+          ".write": false
+        }
+      }
     }
   }
 }

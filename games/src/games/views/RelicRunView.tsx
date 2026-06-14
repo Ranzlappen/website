@@ -1,6 +1,7 @@
 /** Relic Run table view: loop track, pawns, dice, relic tokens, action cards. */
 import { Die, Pawn, Token, SEAT_COLORS } from '../../ui/assets';
 import { PlayerBadge } from '../../ui/components';
+import { useRollFlash } from '../../ui/hooks';
 import { CARD_LABEL, CARD_TEXT, type RelicState } from '../relic-run';
 import { registerView } from './registry';
 import type { GameViewProps } from './types';
@@ -9,6 +10,7 @@ const CELL_ICON: Record<string, string> = { relic: '🗿', card: '🃏', empty: 
 
 function RelicRunView({ state, dispatch, viewerId, canAct }: GameViewProps<RelicState>) {
   const game = state.game;
+  const rolling = useRollFlash(game.die);
   const phase = state.turn.phase;
   const myHand = game.hands[viewerId] ?? [];
   const pawnsAt = (index: number) =>
@@ -62,7 +64,7 @@ function RelicRunView({ state, dispatch, viewerId, canAct }: GameViewProps<Relic
 
       {/* Dice / actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        {game.die !== null && <Die value={game.die} size={48} />}
+        {game.die !== null && <Die value={game.die} size={48} rolling={rolling} />}
         {phase === 'roll' && (
           <button
             className="tt-btn tt-btn--primary"
