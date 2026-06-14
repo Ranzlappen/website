@@ -1,0 +1,37 @@
+---
+layout: null
+---
+# {{ site.title }}
+
+> {{ site.description }}
+
+This is the personal site of {{ site.author.name }}: a blog plus a small set of
+hands-on technical reference guides and browser tools. Content spans passion
+projects, electronics, software experiments, and curiosity-driven write-ups.
+
+## Main sections
+
+- [Blog]({{ '/blog/' | absolute_url }}): Articles, experiments, and write-ups.
+- [Projects]({{ '/projects/' | absolute_url }}): Posts about things I've built.
+- [References]({{ '/references/' | absolute_url }}): Index of the reference guides below.
+- [About]({{ '/about/' | absolute_url }}): Who I am and what this site is.
+- [Contact]({{ '/contact/' | absolute_url }}): How to get in touch.
+
+## Reference guides
+
+- [EM Spectrum]({{ '/references/spectrum/' | absolute_url }}): Searchable, sortable reference of the electromagnetic spectrum bands.
+- [Electronics Fundamentals]({{ '/references/electronics-fundamentals/' | absolute_url }}): Interactive primer on core electronics concepts.
+- [CLI Command Cheat Sheet]({{ '/references/cmd-cheat-sheet/' | absolute_url }}): Searchable command reference with interactive tools (chmod, find, regex, curl).
+
+## Recent posts
+{% assign recent = site.posts | where_exp: "p", "p.status == 'published' or p.status == 'placeholder'" %}
+{% for post in recent limit:20 %}
+- [{{ post.title | strip_html }}]({{ post.url | absolute_url }}){% if post.description %}: {{ post.description | strip_html | truncate: 140 }}{% endif %}
+{% endfor %}
+
+## Optional
+
+- [Atom feed]({{ '/feed.xml' | absolute_url }}): Full post feed.
+- [Sitemap]({{ '/sitemap.xml' | absolute_url }}): All indexable URLs.
+</content>
+</invoke>

@@ -6,10 +6,19 @@
 # ============================================================
 title: "RanzLappen"
 tagline: "Projects, Curiosities & Everything In Between"
-description: "A personal blog about passion projects, random experiments, and whatever catches my attention."
+description: "A personal blog by RanzLappen about passion projects, electronics and software experiments, hands-on reference guides, and whatever curiosity sparks next."
 url: "https://www.ranzlappen.com"
 baseurl: ""
 repository: "Ranzlappen/website"
+
+# Social / SEO defaults (consumed by jekyll-seo-tag).
+# `logo` feeds the JSON-LD publisher; `twitter` enables Twitter card output
+# (summary fits the square icon). A default social `image` is set per-document
+# in the `defaults:` block below (jekyll-seo-tag reads page.image, not site.image).
+logo: /icons/icon-512.png
+twitter:
+  username: MatthiasBro
+  card: summary
 
 # Author
 author:
@@ -36,6 +45,13 @@ paginate_path: "/blog/page:num/"
 
 # Collections & Defaults
 defaults:
+  # Default social-share image for any document without its own. Front matter
+  # wins, so posts keep their hero image; pages and the homepage fall back to
+  # the site icon. Only consumed by jekyll-seo-tag (og:image / twitter:image).
+  - scope:
+      path: ""
+    values:
+      image: /icons/icon-512.png
   - scope:
       path: ""
       type: "posts"
