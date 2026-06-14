@@ -92,6 +92,31 @@ body {
     var(--tt-bg);
 }
 
+/* ── App header ────────────────────────────────────────────────────────── */
+.tt-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem; /* row-gap column-gap — wraps instead of overflowing */
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--tt-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--tt-bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+@media (max-width: 30rem) {
+  .tt-header {
+    padding: 0.6rem 0.85rem;
+    gap: 0.35rem 0.85rem;
+  }
+  /* Keep the theme picker, drop the redundant label word to save width. */
+  .tt-header__theme-text {
+    display: none;
+  }
+}
+
 /* ── Buttons ───────────────────────────────────────────────────────────── */
 .tt-btn {
   appearance: none;
