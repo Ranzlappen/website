@@ -24,10 +24,10 @@ projects, electronics, software experiments, and curiosity-driven write-ups.
 - [CLI Command Cheat Sheet]({{ '/references/cmd-cheat-sheet/' | absolute_url }}): Searchable command reference with interactive tools (chmod, find, regex, curl).
 
 ## Recent posts
-{% assign recent = site.posts | where_exp: "p", "p.status == 'published' or p.status == 'placeholder'" %}
-{% for post in recent limit:20 %}
+{% assign count = 0 %}
+{% for post in site.posts %}{% if post.status == "published" or post.status == "placeholder" %}{% if count < 20 %}
 - [{{ post.title | strip_html }}]({{ post.url | absolute_url }}){% if post.description %}: {{ post.description | strip_html | truncate: 140 }}{% endif %}
-{% endfor %}
+{% assign count = count | plus: 1 %}{% endif %}{% endif %}{% endfor %}
 
 ## Optional
 
