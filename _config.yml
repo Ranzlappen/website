@@ -20,6 +20,11 @@ twitter:
   username: MatthiasBro
   card: summary
 
+# Search-engine ownership verification (emitted site-wide by jekyll-seo-tag).
+webmaster_verifications:
+  google: YajPB0wGuLIjxwUYMtU7dbEpVAuIjnOXrYR_2mRmUS0
+  bing: F77DFE78F7CE09D0DBC60CFB2FA27E51
+
 # Author
 author:
   name: "RanzLappen"
