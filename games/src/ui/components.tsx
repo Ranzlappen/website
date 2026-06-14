@@ -14,20 +14,7 @@ export function Header() {
   const theme = useUiStore((s) => s.theme);
   const setTheme = useUiStore((s) => s.setTheme);
   return (
-    <header
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        padding: '0.75rem 1.25rem',
-        borderBottom: '1px solid var(--tt-border)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        background: 'color-mix(in srgb, var(--tt-bg) 88%, transparent)',
-        backdropFilter: 'blur(8px)',
-      }}
-    >
+    <header className="tt-header">
       <Link
         to="/"
         className="tt-link"
@@ -38,7 +25,7 @@ export function Header() {
         </span>
         <strong>Tabletop</strong>
       </Link>
-      <nav style={{ display: 'flex', gap: '1rem', marginLeft: '0.5rem' }}>
+      <nav style={{ display: 'flex', gap: '1rem' }}>
         <Link to="/" className="tt-link">
           Games
         </Link>
@@ -48,10 +35,12 @@ export function Header() {
       </nav>
       <div style={{ marginLeft: 'auto' }}>
         <label style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ color: 'var(--tt-muted)' }}>Theme</span>
+          <span className="tt-header__theme-text" style={{ color: 'var(--tt-muted)' }}>
+            Theme
+          </span>
           <select
             className="tt-btn"
-            style={{ padding: '0.35rem 0.5rem' }}
+            style={{ padding: '0.35rem 0.5rem', maxWidth: '9rem' }}
             value={theme}
             onChange={(e) => setTheme(e.target.value as never)}
             aria-label="Choose a visual theme"
