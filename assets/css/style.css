@@ -1714,7 +1714,11 @@ html[data-header-sticky="off"] .theme-toggle {
   right: 0.5rem;
   width: var(--sidebar-width);
   max-height: calc(100vh - var(--header-height) - 2rem);
-  z-index: 50;
+  /* Sits above the full-bleed sticky h2 banner (z-index: 50) so the section
+     vote cards aren't covered when an h2 pins past them (matches the mobile
+     voting bar's z-index: 60). The h2's text content is inset to the content
+     column, so only its transparent/bg bleed reaches the sidebar's margin. */
+  z-index: 60;
   display: flex;
   flex-direction: column;
   gap: 2px;
