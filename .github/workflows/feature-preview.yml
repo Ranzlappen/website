@@ -65,7 +65,7 @@ jobs:
     steps:
       # ---- Production build (from main) into _site/ root ----
       - name: Checkout main
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: main
 
@@ -139,7 +139,7 @@ jobs:
       # actions/jekyll-build-pages@v1 doesn't expose --baseurl, so we run
       # Jekyll directly via Bundler against a separate working tree.
       - name: Checkout preview ref
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.ref || 'test' }}
           path: _preview-source
