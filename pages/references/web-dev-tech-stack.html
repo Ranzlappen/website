@@ -1,0 +1,420 @@
+---
+layout: default
+title: Web Dev Tech Stack Reference
+description: A searchable, sortable reference to the modern web development stack — languages, runtimes, frontend & meta-frameworks, build tools, styling, state/data, backend, databases, ORMs, hosting, DevOps, version control, testing, and package managers — with use cases, prerequisites, maturity, learning curve, alternatives, gotchas, and docs for React, Vue, Svelte, Next.js, Vite, Tailwind, Node, TypeScript, PHP, Vercel, Docker, PostgreSQL, and ~110 more.
+permalink: /references/web-dev-tech-stack/
+---
+
+{%- comment -%}
+=================================================================================
+Web Dev Tech Stack Reference Page
+---------------------------------------------------------------------------------
+Data source: _data/web-dev-tech-stack/*.yml — one file per category. Files are
+read by Jekyll into the site.data["web-dev-tech-stack"] hash, keyed by basename,
+and iterated alphabetically. The numeric prefixes (01-, 02-, …) determine
+display order.
+
+Each YAML file has a `batch` map (id, order, name, short_name, description,
+last_updated) and an `entries` array. Every entry in `entries` is one row.
+
+Layout, controls, search, sticky-thead, sticky first column, badge base, and
+the cell-collapse pattern come from /assets/css/reference-table.css and
+/assets/js/reference-table.js. This page layers the maturity / learning-curve /
+layer / license palettes and column widths on top via
+/assets/css/web-dev-tech-stack.css and wires up the shared init plus the
+example-modal handler via /assets/js/web-dev-tech-stack.js.
+
+The shared secondary <select> filter mechanism (osFilterId / osAttr — it ANDs a
+token against any data-<attr>) is reused here as a LAYER filter (data-layer).
+
+The abbreviations / glossary system is shared site-wide:
+  data:   _data/abbreviations/web-dev-tech-stack.yml
+  markup: _includes/abbreviations-section.html
+  styles: /assets/css/abbreviations.css
+  script: /assets/js/abbreviations.js
+=================================================================================
+{%- endcomment -%}
+{%- assign webdev_data = site.data["web-dev-tech-stack"] | sort -%}
+{%- assign abbreviations = site.data.abbreviations["web-dev-tech-stack"] -%}
+
+{%- comment -%} Most recent last_updated + totals. {%- endcomment -%}
+{%- assign latest_update = "" -%}
+{%- assign total_entries = 0 -%}
+{%- assign total_categories = 0 -%}
+{%- for entry in webdev_data -%}
+  {%- if entry[1].batch -%}
+    {%- assign total_categories = total_categories | plus: 1 -%}
+    {%- assign rows = entry[1].entries | default: empty -%}
+    {%- assign total_entries = total_entries | plus: rows.size -%}
+    {%- assign d = entry[1].batch.last_updated | default: "" -%}
+    {%- if d != "" and d > latest_update -%}{%- assign latest_update = d -%}{%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<link rel="stylesheet" href="{{ '/assets/css/abbreviations.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/css/reference-table.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/css/web-dev-tech-stack.css' | relative_url }}">
+
+<section class="reference-page reference-page--webdev">
+  <div class="reference-container">
+
+    <header class="reference-hero">
+      <p class="reference-hero__eyebrow">Reference</p>
+      <h1 class="reference-hero__title">Web Dev Tech Stack</h1>
+      <p class="reference-hero__lede">
+        A state-of-the-art map of the modern web development stack &mdash; the
+        languages, runtimes, frameworks, build tools, styling systems, state
+        &amp; data libraries, backends, databases, ORMs, hosting platforms,
+        DevOps tooling, version control, testing kit, and package managers you
+        actually assemble apps from. Each technology carries what it is, when to
+        reach for it, what to learn first, how mature it is, how steep the
+        learning curve is, what it pairs with, the alternatives, the gotcha that
+        bites people, and a link to the docs.
+      </p>
+      <p class="reference-hero__howto">
+        <strong>How to use:</strong> pick a category tab, narrow by
+        <strong>Layer</strong> (frontend / backend / tooling&hellip;), or filter
+        live by typing into the search box (matches across name, tagline,
+        description, use cases, features, and more). <strong>Click any column
+        header</strong> to sort &mdash; Maturity, Learning Curve, and Since are
+        ranked sorts. <strong>Tap any code example</strong> for a plain-English
+        explanation, and tap any highlighted term for what it stands for.
+        <strong>Prerequisites</strong>, <strong>Pairs well with</strong>, and
+        <strong>Alternatives</strong> link straight to the matching row. The
+        technology column stays pinned as you scroll horizontally.
+      </p>
+      <div class="reference-hero__meta">
+        <span class="reference-hero__meta-item">
+          <strong>{{ total_categories }}</strong> categories
+        </span>
+        <span class="reference-hero__meta-item">
+          <strong>{{ total_entries }}</strong> technologies
+        </span>
+        {% if latest_update != "" %}
+        <span class="reference-hero__meta-item">
+          Last updated <time datetime="{{ latest_update }}"><strong>{{ latest_update }}</strong></time>
+        </span>
+        {% endif %}
+      </div>
+    </header>
+
+    <section class="reference-legend">
+      <h2>Maturity</h2>
+      <p>How established and production-proven a technology is right now.</p>
+      <ul class="reference-legend__list">
+        <li><span class="reference-badge webdev-maturity--standard">★ standard</span> Industry-standard / default choice</li>
+        <li><span class="reference-badge webdev-maturity--mainstream">● mainstream</span> Widely adopted &amp; safe</li>
+        <li><span class="reference-badge webdev-maturity--rising">▲ rising</span> Gaining traction, newer</li>
+        <li><span class="reference-badge webdev-maturity--legacy">▼ legacy</span> Mature but fading / maintenance mode</li>
+      </ul>
+      <h2 class="reference-legend__subhead">Learning Curve</h2>
+      <p>Roughly how much effort it takes to get productive.</p>
+      <ul class="reference-legend__list">
+        <li><span class="reference-badge webdev-lc--gentle">gentle</span> Pick up in a day or two</li>
+        <li><span class="reference-badge webdev-lc--moderate">moderate</span> A few weeks to feel fluent</li>
+        <li><span class="reference-badge webdev-lc--steep">steep</span> Significant ramp-up / deep concepts</li>
+      </ul>
+      <h2 class="reference-legend__subhead">Layer</h2>
+      <p>Where a technology sits in the stack. Many span more than one &mdash;
+        use the <strong>Layer</strong> filter above the table to narrow by one.</p>
+      <ul class="reference-legend__list">
+        <li><span class="reference-legend__swatch webdev-layer--language"       aria-hidden="true">{ }</span> Language</li>
+        <li><span class="reference-legend__swatch webdev-layer--frontend"       aria-hidden="true">▤</span> Frontend</li>
+        <li><span class="reference-legend__swatch webdev-layer--backend"        aria-hidden="true">⚙</span> Backend</li>
+        <li><span class="reference-legend__swatch webdev-layer--fullstack"      aria-hidden="true">▦</span> Full-stack</li>
+        <li><span class="reference-legend__swatch webdev-layer--styling"        aria-hidden="true">◈</span> Styling</li>
+        <li><span class="reference-legend__swatch webdev-layer--database"       aria-hidden="true">▤</span> Database</li>
+        <li><span class="reference-legend__swatch webdev-layer--tooling"        aria-hidden="true">🔧</span> Tooling</li>
+        <li><span class="reference-legend__swatch webdev-layer--infrastructure" aria-hidden="true">☁</span> Infrastructure</li>
+      </ul>
+    </section>
+
+    {% include abbreviations-section.html
+       data=abbreviations
+       heading="Web Dev Glossary"
+       intro="Click any term to see a beginner-friendly explanation. Cross-references inside an explanation open in a stacked modal — Escape closes them one at a time." %}
+
+    <div class="reference-controls">
+      <nav class="reference-tabs" role="tablist" aria-label="Technology categories">
+        <button type="button" class="reference-tab is-active" data-batch="all" role="tab" aria-selected="true">
+          All
+        </button>
+        {% for entry in webdev_data %}
+          {% assign b = entry[1].batch %}
+          {% if b %}
+          <button type="button" class="reference-tab" data-batch="{{ b.id }}" role="tab" aria-selected="false" title="{{ b.name | escape }}">
+            {{ b.short_name | default: b.name }}
+          </button>
+          {% endif %}
+        {% endfor %}
+      </nav>
+
+      <label class="reference-search">
+        <span class="reference-search__icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <input type="search" id="webdev-search" placeholder="Filter by name, use case, feature…" autocomplete="off" spellcheck="false">
+        <span class="reference-search__count" id="webdev-count" aria-live="polite"></span>
+      </label>
+
+      <label class="reference-osfilter">
+        <span class="reference-osfilter__label">Layer</span>
+        <select id="webdev-layer-filter" aria-label="Filter by stack layer">
+          <option value="">All</option>
+          <option value="language">{ } Language</option>
+          <option value="frontend">▤ Frontend</option>
+          <option value="backend">⚙ Backend</option>
+          <option value="fullstack">▦ Full-stack</option>
+          <option value="styling">◈ Styling</option>
+          <option value="database">▤ Database</option>
+          <option value="tooling">🔧 Tooling</option>
+          <option value="infrastructure">☁ Infrastructure</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="reference-batch-blurb" id="webdev-batch-blurb" hidden></div>
+    {%- comment -%} Category descriptions kept in a hidden data island for the active-tab blurb. {%- endcomment -%}
+    <script type="application/json" id="webdev-batch-data">
+      {
+        {%- assign batch_entries = "" | split: "" -%}
+        {%- for entry in webdev_data -%}{%- if entry[1].batch -%}{%- assign batch_entries = batch_entries | push: entry -%}{%- endif -%}{%- endfor -%}
+        {% for entry in batch_entries %}
+          {%- assign b = entry[1].batch -%}
+          "{{ b.id }}": {
+            "name": {{ b.name | jsonify }},
+            "description": {{ b.description | jsonify }}
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      }
+    </script>
+
+    <div class="reference-table-wrapper has-snap-cols" role="region" aria-label="Web dev tech stack reference table" tabindex="0">
+      <table class="reference-table" id="webdev-table">
+        <thead>
+          <tr>
+            <th scope="col" class="col-name is-sticky-col">Technology</th>
+            <th scope="col" class="col-layer">Layer</th>
+            <th scope="col" class="col-maturity">Maturity</th>
+            <th scope="col" class="col-lc">Learning Curve</th>
+            <th scope="col" class="col-since">Since</th>
+            <th scope="col" class="col-what">What it is</th>
+            <th scope="col" class="col-uses">Use cases</th>
+            <th scope="col" class="col-prereqs">Prerequisites</th>
+            <th scope="col" class="col-features">Key features</th>
+            <th scope="col" class="col-pairs">Pairs well with</th>
+            <th scope="col" class="col-alts">Alternatives</th>
+            <th scope="col" class="col-example">Example</th>
+            <th scope="col" class="col-gotchas">Gotchas</th>
+            <th scope="col" class="col-builtin">Built in</th>
+            <th scope="col" class="col-maint">Maintained by</th>
+            <th scope="col" class="col-license">License</th>
+            <th scope="col" class="col-docs">Docs</th>
+          </tr>
+        </thead>
+        <tbody data-abbr-decorate>
+          {% for entry in webdev_data %}
+            {% assign batch_data = entry[1] %}
+            {% assign batch = batch_data.batch %}
+            {% if batch %}
+            {% for tech in batch_data.entries %}
+              {%- assign tech_slug = tech.slug | default: tech.name | slugify -%}
+              {%- comment -%} Build-time lint — minimum quality bar via grep-able HTML comments. Run _data/web-dev-tech-stack/lint.sh after `jekyll build`. {%- endcomment -%}
+              {%- if tech.description == nil or tech.description == "" -%}<!-- LINT: {{ tech.name }} ({{ batch.id }}) has no description -->{% endif %}
+              {%- if tech.use_cases == nil or tech.use_cases.size == 0 -%}<!-- LINT: {{ tech.name }} ({{ batch.id }}) has no use_cases -->{% endif %}
+              {%- if tech.maturity == nil or tech.maturity == "" -%}<!-- LINT: {{ tech.name }} ({{ batch.id }}) has no maturity -->{% endif %}
+              {%- if tech.layer == nil or tech.layer.size == 0 -%}<!-- LINT: {{ tech.name }} ({{ batch.id }}) has no layer -->{% endif %}
+              {%- if tech.docs == nil or tech.docs.size == 0 -%}<!-- LINT: {{ tech.name }} ({{ batch.id }}) has no docs -->{% endif %}
+              {%- if tech.example and tech.example.code and tech.example.explain == nil -%}<!-- LINT: {{ tech.name }} ({{ batch.id }}) example missing explain -->{% endif %}
+              <tr id="row-{{ tech_slug }}" data-batch="{{ batch.id }}" data-batch-name="{{ batch.short_name | default: batch.name | escape }}" data-layer="{{ tech.layer | join: ' ' }}">
+                <td class="col-name is-sticky-col" data-sort="{{ tech.name | escape }}">
+                  <span class="webdev-name">{{ tech.name }}</span>
+                  {% if tech.tagline %}<span class="webdev-tagline">{{ tech.tagline | markdownify | replace: '<p>', '' | replace: '</p>', '' | strip }}</span>{% endif %}
+                  <div class="webdev-name-badges">
+                    {%- case tech.maturity -%}
+                      {%- when "industry-standard" -%}<span class="reference-badge webdev-maturity--standard" title="Industry-standard / default choice">★ standard</span>
+                      {%- when "mainstream" -%}<span class="reference-badge webdev-maturity--mainstream" title="Widely adopted and safe">● mainstream</span>
+                      {%- when "rising" -%}<span class="reference-badge webdev-maturity--rising" title="Gaining traction, newer">▲ rising</span>
+                      {%- when "legacy" -%}<span class="reference-badge webdev-maturity--legacy" title="Mature but fading / maintenance mode">▼ legacy</span>
+                    {%- endcase -%}
+                    {% for l in tech.layer %}
+                      {%- case l -%}
+                        {%- when "language"       -%}<span class="reference-badge webdev-layer--language"       title="Language">{ }</span>
+                        {%- when "frontend"       -%}<span class="reference-badge webdev-layer--frontend"       title="Frontend">▤</span>
+                        {%- when "backend"        -%}<span class="reference-badge webdev-layer--backend"        title="Backend">⚙</span>
+                        {%- when "fullstack"      -%}<span class="reference-badge webdev-layer--fullstack"      title="Full-stack">▦</span>
+                        {%- when "styling"        -%}<span class="reference-badge webdev-layer--styling"        title="Styling">◈</span>
+                        {%- when "database"       -%}<span class="reference-badge webdev-layer--database"       title="Database">▣</span>
+                        {%- when "tooling"        -%}<span class="reference-badge webdev-layer--tooling"        title="Tooling">🔧</span>
+                        {%- when "infrastructure" -%}<span class="reference-badge webdev-layer--infrastructure" title="Infrastructure">☁</span>
+                      {%- endcase -%}
+                    {% endfor %}
+                  </div>
+                </td>
+                <td class="col-layer" data-sort="{{ tech.layer | join: ' ' }}">
+                  {% if tech.layer and tech.layer.size > 0 %}
+                  <div class="webdev-layer-badges">
+                    {% for l in tech.layer %}
+                      {%- case l -%}
+                        {%- when "language"       -%}<span class="reference-badge webdev-layer--language"       title="Language">{ } Language</span>
+                        {%- when "frontend"       -%}<span class="reference-badge webdev-layer--frontend"       title="Frontend">▤ Frontend</span>
+                        {%- when "backend"        -%}<span class="reference-badge webdev-layer--backend"        title="Backend">⚙ Backend</span>
+                        {%- when "fullstack"      -%}<span class="reference-badge webdev-layer--fullstack"      title="Full-stack">▦ Full-stack</span>
+                        {%- when "styling"        -%}<span class="reference-badge webdev-layer--styling"        title="Styling">◈ Styling</span>
+                        {%- when "database"       -%}<span class="reference-badge webdev-layer--database"       title="Database">▣ Database</span>
+                        {%- when "tooling"        -%}<span class="reference-badge webdev-layer--tooling"        title="Tooling">🔧 Tooling</span>
+                        {%- when "infrastructure" -%}<span class="reference-badge webdev-layer--infrastructure" title="Infrastructure">☁ Infra</span>
+                      {%- endcase -%}
+                    {% endfor %}
+                  </div>
+                  {% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-maturity" data-sort="{%- case tech.maturity -%}{%- when 'industry-standard' -%}0{%- when 'mainstream' -%}1{%- when 'rising' -%}2{%- when 'legacy' -%}3{%- else -%}4{%- endcase -%}">
+                  {%- case tech.maturity -%}
+                    {%- when "industry-standard" -%}<span class="reference-badge webdev-maturity--standard" title="Industry-standard / default choice">★ standard</span>
+                    {%- when "mainstream" -%}<span class="reference-badge webdev-maturity--mainstream" title="Widely adopted and safe">● mainstream</span>
+                    {%- when "rising" -%}<span class="reference-badge webdev-maturity--rising" title="Gaining traction, newer">▲ rising</span>
+                    {%- when "legacy" -%}<span class="reference-badge webdev-maturity--legacy" title="Mature but fading / maintenance mode">▼ legacy</span>
+                    {%- else -%}<span class="cell-empty">—</span>
+                  {%- endcase -%}
+                </td>
+                <td class="col-lc" data-sort="{%- case tech.learning_curve -%}{%- when 'gentle' -%}0{%- when 'moderate' -%}1{%- when 'steep' -%}2{%- else -%}3{%- endcase -%}">
+                  {%- case tech.learning_curve -%}
+                    {%- when "gentle" -%}<span class="reference-badge webdev-lc--gentle" title="Pick up in a day or two">gentle</span>
+                    {%- when "moderate" -%}<span class="reference-badge webdev-lc--moderate" title="A few weeks to feel fluent">moderate</span>
+                    {%- when "steep" -%}<span class="reference-badge webdev-lc--steep" title="Significant ramp-up / deep concepts">steep</span>
+                    {%- else -%}<span class="cell-empty">—</span>
+                  {%- endcase -%}
+                </td>
+                <td class="col-since mono" data-sort="{{ tech.first_released | default: 9999 }}">
+                  {% if tech.first_released %}{{ tech.first_released }}{% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-what">{% if tech.description %}{{ tech.description | markdownify }}{% else %}<span class="cell-empty">—</span>{% endif %}</td>
+                <td class="col-uses">
+                  {% if tech.use_cases and tech.use_cases.size > 0 %}
+                    {%- assign first_use = tech.use_cases | first -%}
+                    <details class="cell-collapse"{% if tech.use_cases.size <= 2 %} open{% endif %}>
+                      <summary>
+                        <span class="cell-collapse__count">{{ tech.use_cases.size }}</span>
+                        <span class="cell-collapse__label">{% if tech.use_cases.size == 1 %}use case{% else %}use cases{% endif %}</span>
+                        {% if tech.use_cases.size > 2 %}
+                        <span class="cell-collapse__preview">{{ first_use | replace: '`', '' | truncate: 60 }}</span>
+                        <span class="cell-collapse__more">Show all</span>
+                        {% endif %}
+                      </summary>
+                      <ul class="cell-list">
+                        {% for u in tech.use_cases %}<li>{{ u | markdownify | replace: '<p>', '' | replace: '</p>', '' | strip }}</li>{% endfor %}
+                      </ul>
+                    </details>
+                  {% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-prereqs">
+                  {% if tech.prerequisites and tech.prerequisites.size > 0 %}
+                    <ul class="webdev-link-list">
+                      {%- for p in tech.prerequisites -%}
+                        <li>{% if p.slug %}<a href="#row-{{ p.slug }}">{{ p.name }}</a>{% else %}{{ p.name }}{% endif %}</li>
+                      {%- endfor -%}
+                    </ul>
+                  {% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-features">
+                  {% if tech.key_features and tech.key_features.size > 0 %}
+                    {%- assign first_feat = tech.key_features | first -%}
+                    <details class="cell-collapse"{% if tech.key_features.size <= 2 %} open{% endif %}>
+                      <summary>
+                        <span class="cell-collapse__count">{{ tech.key_features.size }}</span>
+                        <span class="cell-collapse__label">{% if tech.key_features.size == 1 %}feature{% else %}features{% endif %}</span>
+                        {% if tech.key_features.size > 2 %}
+                        <span class="cell-collapse__preview">{{ first_feat | replace: '`', '' | truncate: 60 }}</span>
+                        <span class="cell-collapse__more">Show all</span>
+                        {% endif %}
+                      </summary>
+                      <ul class="cell-list">
+                        {% for f in tech.key_features %}<li>{{ f | markdownify | replace: '<p>', '' | replace: '</p>', '' | strip }}</li>{% endfor %}
+                      </ul>
+                    </details>
+                  {% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-pairs">
+                  {% if tech.pairs_well_with and tech.pairs_well_with.size > 0 %}
+                    <ul class="webdev-link-list">
+                      {%- for p in tech.pairs_well_with -%}
+                        <li>{% if p.slug %}<a href="#row-{{ p.slug }}">{{ p.name }}</a>{% else %}{{ p.name }}{% endif %}</li>
+                      {%- endfor -%}
+                    </ul>
+                  {% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-alts">
+                  {% if tech.alternatives and tech.alternatives.size > 0 %}
+                    <ul class="webdev-link-list">
+                      {%- for a in tech.alternatives -%}
+                        <li>{% if a.slug %}<a href="#row-{{ a.slug }}">{{ a.name }}</a>{% else %}{{ a.name }}{% endif %}</li>
+                      {%- endfor -%}
+                    </ul>
+                  {% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-example">
+                  {% if tech.example and tech.example.code %}
+                    <button type="button" class="webdev-example" data-heading="{{ tech.name | escape }}" data-explain="{{ tech.example.explain | escape }}" title="{{ tech.example.explain | escape }}" aria-label="{{ tech.example.code | escape }} — tap for explanation">
+                      <code class="mono webdev-example__code abbr-decorate-code">{{ tech.example.code | escape }}</code>
+                    </button>
+                  {% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-gotchas">
+                  {% if tech.gotchas %}{{ tech.gotchas | markdownify }}{% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-builtin" data-sort="{{ tech.language | default: '' | escape }}">
+                  {% if tech.language %}{{ tech.language }}{% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-maint" data-sort="{{ tech.maintained_by | default: '' | escape }}">
+                  {% if tech.maintained_by %}{{ tech.maintained_by }}{% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-license" data-sort="{{ tech.license | default: '' | escape }}">
+                  {% if tech.license %}
+                    {%- assign lic = tech.license | downcase -%}
+                    {%- assign lic_class = "webdev-license--proprietary" -%}
+                    {%- if lic contains "mit" or lic contains "apache" or lic contains "bsd" or lic contains "isc" or lic contains "zlib" or lic contains "unlicense" -%}{%- assign lic_class = "webdev-license--permissive" -%}
+                    {%- elsif lic contains "gpl" or lic contains "mpl" or lic contains "eclipse" or lic contains "cddl" -%}{%- assign lic_class = "webdev-license--copyleft" -%}
+                    {%- elsif lic contains "bsl" or lic contains "sspl" or lic contains "elastic" or lic contains "source-available" or lic contains "business source" -%}{%- assign lic_class = "webdev-license--source-available" -%}
+                    {%- endif -%}
+                    <span class="reference-badge {{ lic_class }}">{{ tech.license }}</span>
+                  {% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+                <td class="col-docs">
+                  {% if tech.docs and tech.docs.size > 0 %}
+                    <ul class="webdev-docs-list">
+                      {%- for d in tech.docs -%}
+                        <li>
+                          {%- if d.url -%}
+                            <a href="{{ d.url }}" target="_blank" rel="noopener noreferrer">{{ d.label | default: d.url | split: "://" | last | truncate: 32 }}</a>
+                          {%- elsif d contains "://" -%}
+                            <a href="{{ d }}" target="_blank" rel="noopener noreferrer">{{ d | split: "://" | last | truncate: 32 }}</a>
+                          {%- else -%}
+                            <code class="mono">{{ d }}</code>
+                          {%- endif -%}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {% else %}<span class="cell-empty">—</span>{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <p class="reference-empty" id="webdev-empty" hidden>
+        No technologies match your filters.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<script src="{{ '/assets/js/abbreviations.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/reference-table.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/web-dev-tech-stack.js' | relative_url }}" defer></script>

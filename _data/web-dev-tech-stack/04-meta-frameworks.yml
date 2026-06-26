@@ -1,0 +1,418 @@
+batch:
+  id: "meta-frameworks"
+  order: 4
+  name: "Full-stack Meta-frameworks"
+  short_name: "Meta-frameworks"
+  description: >
+    The frameworks that wrap a UI library with routing, data loading, and a
+    server — turning React, Vue, or Svelte into something you can ship end to
+    end. They own rendering strategy (SSR, SSG, ISR, RSC, islands) and the
+    build pipeline, so the choice here usually decides how your whole app is
+    deployed.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Next.js"
+    slug: "next-js"
+    tagline: "The default full-stack React framework."
+    layer: [fullstack, frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      Vercel's React meta-framework and the most common way to ship a React app
+      in production. The modern App Router is built on
+      <span class="abbr-link" data-abbr="RSC">React Server Components</span> and
+      supports every rendering mode —
+      <span class="abbr-link" data-abbr="SSR">SSR</span>,
+      <span class="abbr-link" data-abbr="SSG">SSG</span>, and
+      <span class="abbr-link" data-abbr="ISR">ISR</span> — alongside server
+      actions, file-system routing, and built-in image and font optimization.
+    use_cases:
+      - "Production React apps that need SSR or SSG out of the box."
+      - "Content sites, dashboards, and e-commerce on one framework."
+      - "Teams that want routing, data fetching, and an API layer bundled."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "App Router built on React Server Components."
+      - "SSR, SSG, and ISR per route — mix and match."
+      - "Server actions and file-system routing."
+      - "Built-in image, font, and script optimization."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Vercel", slug: "vercel" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "TanStack Query", slug: "tanstack-query" }
+    alternatives:
+      - { name: "React Router", slug: "react-router" }
+      - { name: "Remix", slug: "remix" }
+      - { name: "Astro", slug: "astro" }
+    example:
+      lang: "bash"
+      code: "npx create-next-app@latest"
+      explain: "Scaffold a new Next.js app with the official CLI, picking the App Router and TypeScript."
+    gotchas: >
+      The App Router's server/client split is a real mental shift — the
+      `"use client"` boundary, where data fetching may run, and caching
+      defaults all trip people up. It also leans toward Vercel's platform;
+      self-hosting works but some features (ISR, image optimization) need extra
+      setup elsewhere.
+    maintained_by: "Vercel + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "nextjs.org", url: "https://nextjs.org" }
+
+  - name: "React Router"
+    slug: "react-router"
+    tagline: "Routing library turned full-stack React framework."
+    layer: [fullstack, frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2014
+    description: >
+      Long the de-facto router for React, v7 absorbed Remix's framework
+      features so the same package now spans a plain client-side router up to a
+      full <span class="abbr-link" data-abbr="SSR">SSR</span> framework with
+      loaders, actions, and nested routing. You adopt it as a library or opt
+      into "framework mode" for the batteries-included experience.
+    use_cases:
+      - "Client-side routing in any React SPA."
+      - "Full-stack React apps wanting loaders/actions without Next.js."
+      - "Migrating an existing Remix app — it's the same code now."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Nested routes with data loaders and actions."
+      - "Works as a plain router or a full SSR framework."
+      - "Framework mode is the former Remix, merged in."
+      - "Vite-based dev and build in framework mode."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Remix", slug: "remix" }
+      - { name: "TanStack Router", slug: "" }
+    example:
+      lang: "bash"
+      code: "npx create-react-router@latest"
+      explain: "Scaffold a new React Router app in framework mode (the former Remix template)."
+    gotchas: >
+      The Remix-to-React-Router-v7 merge means docs, tutorials, and package
+      names from before the rename now point at "framework mode" — expect
+      confusion about which name and version a given guide assumes. Library
+      mode and framework mode also look quite different.
+    maintained_by: "Remix team (Shopify) + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "reactrouter.com", url: "https://reactrouter.com" }
+
+  - name: "Nuxt"
+    slug: "nuxt"
+    tagline: "The full-stack framework for Vue."
+    layer: [fullstack, frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      Vue's meta-framework — what Next.js is to React. It adds file-system
+      routing, <span class="abbr-link" data-abbr="SSR">SSR</span> /
+      <span class="abbr-link" data-abbr="SSG">SSG</span>, auto-imports, and a
+      server engine (Nitro) that deploys to almost any host or edge runtime. A
+      large module ecosystem covers auth, content, images, and SEO.
+    use_cases:
+      - "Production Vue apps needing SSR, SSG, or hybrid rendering."
+      - "Content-heavy sites via Nuxt Content."
+      - "Teams wanting Vue with conventions and auto-imports."
+    prerequisites:
+      - { name: "Vue", slug: "vue" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "File-system routing and component auto-imports."
+      - "SSR, SSG, and hybrid rendering per route."
+      - "Nitro server engine deploys anywhere, including the edge."
+      - "Rich module ecosystem (content, image, auth, SEO)."
+    pairs_well_with:
+      - { name: "Vue", slug: "vue" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+    alternatives:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "SvelteKit", slug: "sveltekit" }
+      - { name: "Astro", slug: "astro" }
+    example:
+      lang: "bash"
+      code: "npx nuxi@latest init my-app"
+      explain: "Create a new Nuxt project with the nuxi CLI."
+    gotchas: >
+      The magic — auto-imports, implicit server/client boundaries, and module
+      conventions — is convenient until something breaks and you have to figure
+      out where a function came from. Pinning module versions across a Nuxt
+      major upgrade can also be fiddly.
+    maintained_by: "Nuxt core team + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "nuxt.com", url: "https://nuxt.com" }
+
+  - name: "SvelteKit"
+    slug: "sveltekit"
+    tagline: "The official app framework for Svelte."
+    layer: [fullstack, frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2022
+    description: >
+      Svelte's full-stack framework, built on
+      <span class="abbr-link" data-abbr="Vite">Vite</span>. It adds
+      file-system routing, load functions, form actions, and an adapter system
+      that targets Node, serverless, static, or
+      <span class="abbr-link" data-abbr="Edge Runtime">edge</span> hosts —
+      mixing <span class="abbr-link" data-abbr="SSR">SSR</span>,
+      <span class="abbr-link" data-abbr="SSG">SSG</span>, and SPA rendering per
+      route.
+    use_cases:
+      - "Production Svelte apps with SSR or static output."
+      - "Small-to-medium apps wanting minimal boilerplate."
+      - "Sites deployed to varied hosts via swappable adapters."
+    prerequisites:
+      - { name: "Svelte", slug: "svelte" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "File-system routing with load functions and form actions."
+      - "Adapters for Node, serverless, static, and edge targets."
+      - "Per-route choice of SSR, SSG, or client rendering."
+      - "Vite-powered dev server with fast HMR."
+    pairs_well_with:
+      - { name: "Svelte", slug: "svelte" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+    alternatives:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Nuxt", slug: "nuxt" }
+      - { name: "Astro", slug: "astro" }
+    example:
+      lang: "bash"
+      code: "npx sv create my-app"
+      explain: "Scaffold a new SvelteKit project with the sv CLI."
+    gotchas: >
+      You must pick the right adapter for your host — deploy errors often trace
+      back to using `adapter-auto` or the wrong target. And SvelteKit rides
+      Svelte's own churn, so a Svelte 5 runes migration ripples into your app
+      code too.
+    maintained_by: "Svelte core team (Vercel-sponsored) + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "svelte.dev/docs/kit", url: "https://svelte.dev/docs/kit" }
+
+  - name: "Astro"
+    slug: "astro"
+    tagline: "Content-first framework that ships zero JS by default."
+    layer: [fullstack, frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A framework optimized for content-heavy sites. Its islands architecture
+      renders pages to static HTML and ships
+      <span class="abbr-link" data-abbr="SSG">JavaScript only for the
+      interactive components</span> you explicitly hydrate — and those islands
+      can be React, Vue, Svelte, or Solid in the same project. It also supports
+      <span class="abbr-link" data-abbr="SSR">SSR</span> when you need a server.
+    use_cases:
+      - "Blogs, docs, and marketing sites where speed and SEO matter."
+      - "Content sites that need a few interactive islands, not a full SPA."
+      - "Mixing components from React, Vue, and Svelte in one project."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Islands architecture — zero JS shipped by default."
+      - "Use React, Vue, Svelte, or Solid components together."
+      - "Static output by default, SSR via adapters."
+      - "Built-in content collections with typed frontmatter."
+    pairs_well_with:
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "React", slug: "react" }
+      - { name: "Vite", slug: "vite" }
+    alternatives:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Gatsby", slug: "gatsby" }
+      - { name: "Nuxt", slug: "nuxt" }
+    example:
+      lang: "bash"
+      code: "npm create astro@latest"
+      explain: "Scaffold a new Astro site with the official setup wizard."
+    gotchas: >
+      It shines for content but fights you for app-like UI — heavily
+      interactive dashboards with shared client state cut against the islands
+      grain. Watch the hydration directives (`client:load` vs `client:visible`):
+      over-hydrating quietly throws away Astro's zero-JS advantage.
+    maintained_by: "Astro Technology Company + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "astro.build", url: "https://astro.build" }
+
+  - name: "Gatsby"
+    slug: "gatsby"
+    tagline: "The React static-site generator that defined the JAMstack era."
+    layer: [fullstack, frontend]
+    maturity: legacy
+    learning_curve: moderate
+    first_released: 2015
+    description: >
+      A React <span class="abbr-link" data-abbr="SSG">static-site
+      generator</span> built around a GraphQL data layer that pulls content
+      from CMSes, Markdown, and APIs at build time. It popularized the JAMstack
+      but has lost momentum to Next.js and Astro since the Netlify acquisition,
+      and is best treated as a legacy choice for new projects.
+    use_cases:
+      - "Maintaining existing Gatsby sites and their plugin ecosystem."
+      - "Content sites sourcing from many CMSes via one GraphQL layer."
+      - "Static marketing and documentation sites (legacy stacks)."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "GraphQL", slug: "graphql-yoga" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Unified GraphQL data layer over many sources."
+      - "Large plugin ecosystem for CMSes and transforms."
+      - "Image optimization and progressive loading built in."
+      - "Static output with optional SSR / DSG modes."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Netlify", slug: "netlify" }
+    alternatives:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Astro", slug: "astro" }
+    example:
+      lang: "bash"
+      code: "npm init gatsby"
+      explain: "Scaffold a new Gatsby site with the official starter wizard."
+    gotchas: >
+      Momentum has clearly shifted away — issues and plugins go stale, and the
+      GraphQL-everything data layer is a lot of ceremony for a simple site.
+      Reach for Astro or Next.js on greenfield work; keep Gatsby for sites
+      already built on it.
+    maintained_by: "Netlify"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "gatsbyjs.com", url: "https://www.gatsbyjs.com" }
+
+  - name: "Qwik"
+    slug: "qwik"
+    tagline: "Resumability instead of hydration — instant-loading apps."
+    layer: [fullstack, frontend]
+    maturity: rising
+    learning_curve: steep
+    first_released: 2022
+    description: >
+      A framework built around <em>resumability</em>: instead of replaying app
+      setup on the client (<span class="abbr-link" data-abbr="SSR">hydration</span>),
+      it serializes execution state into the HTML and resumes exactly where the
+      server left off, downloading JavaScript only as the user interacts. The
+      goal is constant startup time regardless of app size.
+    use_cases:
+      - "Large apps where hydration cost dominates startup time."
+      - "Content + commerce sites needing fast interactivity at scale."
+      - "Teams willing to adopt a newer model for time-to-interactive."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "React", slug: "react" }
+    key_features:
+      - "Resumability — no hydration replay on load."
+      - "Fine-grained lazy loading of JS per interaction."
+      - "JSX syntax familiar to React developers."
+      - "Qwik City meta-framework for routing and SSR."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Astro", slug: "astro" }
+      - { name: "SolidJS", slug: "solidjs" }
+    example:
+      lang: "bash"
+      code: "npm create qwik@latest"
+      explain: "Scaffold a new Qwik (Qwik City) app with the official CLI."
+    gotchas: >
+      Resumability changes how you write code — the `$` boundaries that mark
+      lazy-loadable, serializable code are unfamiliar and easy to get wrong,
+      and not every value can be serialized across the server/client gap. The
+      ecosystem is also much smaller than React's or Vue's.
+    maintained_by: "Builder.io + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "qwik.dev", url: "https://qwik.dev" }
+
+  - name: "Remix"
+    slug: "remix"
+    tagline: "Web-standards full-stack framework — now charting its own course."
+    layer: [fullstack, frontend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2021
+    description: >
+      A full-stack framework built on web fundamentals — `fetch`, `Request` /
+      `Response`, forms, and progressive enhancement — with nested routes,
+      loaders, and actions. Its framework features merged into
+      <span class="abbr-link" data-abbr="Vite">React Router</span> v7, and the
+      Remix name is now being reframed as a standalone, model-agnostic
+      full-stack framework (the v3 direction).
+    use_cases:
+      - "Apps that lean on web standards and progressive enhancement."
+      - "Form-heavy UIs where loaders/actions map cleanly to routes."
+      - "Following the framework's v3 standalone direction."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Loaders and actions colocated with nested routes."
+      - "Built on Web Fetch API Request/Response primitives."
+      - "Progressive enhancement — forms work without JS."
+      - "Framework features now live inside React Router v7."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+    alternatives:
+      - { name: "React Router", slug: "react-router" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "SvelteKit", slug: "sveltekit" }
+    example:
+      lang: "tsx"
+      code: |-
+        export async function loader() {
+          return { posts: await db.posts.findMany() };
+        }
+        export default function Posts({ loaderData }) {
+          return <ul>{loaderData.posts.map(p => <li key={p.id}>{p.title}</li>)}</ul>;
+        }
+      explain: "A route loader fetches data on the server; the component renders it — the loader/action model Remix popularized."
+    gotchas: >
+      Remix's identity is in flux — its React framework features became React
+      Router v7, while the Remix name is being repositioned as a separate v3
+      project. Check carefully which "Remix" a tutorial or package means before
+      starting new work.
+    maintained_by: "Remix team (Shopify) + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "remix.run", url: "https://remix.run" }

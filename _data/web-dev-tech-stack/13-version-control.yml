@@ -1,0 +1,312 @@
+batch:
+  id: "version-control"
+  order: 13
+  name: "Version Control & Code Hosting"
+  short_name: "Version Control"
+  description: >
+    How code gets tracked, shared, and reviewed — Git underneath nearly everything,
+    the big hosting platforms built on top (GitHub, GitLab, Bitbucket), the official
+    command-line tool for working with them (GitHub CLI), and the distributed VCS
+    that Git largely displaced (Mercurial).
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Git"
+    slug: "git"
+    tagline: "The distributed version control system everyone uses."
+    layer: [tooling]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2005
+    description: >
+      The distributed version-control standard — every clone is a full repository
+      with complete history, so branching, committing, and diffing are local and
+      fast. Created by Linus Torvalds to manage Linux kernel development, it's now the
+      substrate beneath essentially all modern code hosting and
+      <span class="abbr-link" data-abbr="CI/CD">CI/CD</span>.
+    use_cases:
+      - "Tracking history and collaborating on virtually any codebase."
+      - "Branch-per-feature workflows and pull/merge requests."
+      - "The foundation every hosting platform and CI pipeline builds on."
+    prerequisites:
+      - { name: "A command line / shell", slug: "" }
+    key_features:
+      - "Distributed — every clone has the full history."
+      - "Cheap, fast local branching and merging."
+      - "Content-addressed, integrity-checked object store (SHA hashes)."
+      - "Staging area for crafting precise commits."
+    pairs_well_with:
+      - { name: "GitHub", slug: "github" }
+      - { name: "GitHub CLI", slug: "github-cli" }
+      - { name: "GitHub Actions", slug: "github-actions" }
+    alternatives:
+      - { name: "Mercurial", slug: "mercurial" }
+      - { name: "Subversion (SVN)", slug: "" }
+      - { name: "Perforce", slug: "" }
+    example:
+      lang: "bash"
+      code: |-
+        git switch -c feature
+        git add -A && git commit -m "Add feature"
+        git push -u origin feature
+      explain: >
+        Create a feature branch, stage and commit all changes, then push it upstream
+        to open a pull request.
+    gotchas: >
+      The mental model — staging area, detached HEAD, the difference between `merge`,
+      `rebase`, and `reset` — is genuinely hard, and the CLI's terminology is
+      famously inconsistent. Force-pushing a shared branch (`push --force`) rewrites
+      history others depend on; prefer `--force-with-lease` and never rewrite `main`.
+    maintained_by: "Git community (Junio Hamano, maintainer)"
+    language: "C"
+    license: "GPL-2.0"
+    docs:
+      - { label: "git-scm.com/doc", url: "https://git-scm.com/doc" }
+
+  - name: "GitHub"
+    slug: "github"
+    tagline: "The dominant code-hosting and collaboration platform."
+    layer: [tooling, infrastructure]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2008
+    description: >
+      The largest code-hosting platform — Git repositories plus the social and
+      collaboration layer on top: pull requests, code review, issues, Actions
+      <span class="abbr-link" data-abbr="CI/CD">CI/CD</span>, Packages, Pages, and
+      now Copilot. Its network effects make it the default home for open source and a
+      huge share of private development. (Microsoft owns it.)
+    use_cases:
+      - "Hosting public and private Git repos with code review."
+      - "Open-source collaboration via forks and pull requests."
+      - "Issues, project boards, Actions CI/CD, and Pages hosting."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+    key_features:
+      - "Pull requests with inline review and required checks."
+      - "Issues, Discussions, and project boards."
+      - "Built-in CI/CD (Actions), Packages, and Pages."
+      - "The largest open-source community and network effect."
+    pairs_well_with:
+      - { name: "Git", slug: "git" }
+      - { name: "GitHub Actions", slug: "github-actions" }
+      - { name: "GitHub CLI", slug: "github-cli" }
+      - { name: "GitHub Pages", slug: "github-pages" }
+    alternatives:
+      - { name: "GitLab", slug: "gitlab" }
+      - { name: "Bitbucket", slug: "bitbucket" }
+    example:
+      lang: "bash"
+      code: |-
+        git remote add origin git@github.com:user/repo.git
+        git push -u origin main
+      explain: >
+        Point a local repo at a GitHub remote over SSH and push the main branch to
+        publish it.
+    gotchas: >
+      It's a **proprietary**, centralized service — convenient, but it means trusting
+      a single vendor with your code, CI, and issues. Free private repos are generous,
+      yet advanced security and admin features sit in paid tiers, and the network
+      effect creates real lock-in around issues, PRs, and Actions that aren't portable.
+    maintained_by: "GitHub (Microsoft)"
+    language: "Ruby / Go (platform)"
+    license: "proprietary"
+    docs:
+      - { label: "docs.github.com", url: "https://docs.github.com" }
+
+  - name: "GitLab"
+    slug: "gitlab"
+    tagline: "An all-in-one DevOps platform with built-in CI/CD."
+    layer: [tooling, infrastructure]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2011
+    description: >
+      A single DevOps platform spanning the whole lifecycle — Git hosting, code
+      review (merge requests), issues, a container registry, security scanning, and
+      tightly integrated <span class="abbr-link" data-abbr="CI/CD">CI/CD</span>.
+      Its big differentiator is being **self-hostable**: the open-core Community
+      Edition can run entirely on your own infrastructure.
+    use_cases:
+      - "Self-hosted Git + CI/CD where data sovereignty matters."
+      - "End-to-end DevOps (plan → code → build → deploy) in one tool."
+      - "Teams wanting an integrated registry and security scanning."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+    key_features:
+      - "Merge requests with built-in review and CI gates."
+      - "Integrated CI/CD (`.gitlab-ci.yml`) and container registry."
+      - "Self-hostable open-core Community Edition."
+      - "Issues, epics, and DevOps lifecycle tooling in one place."
+    pairs_well_with:
+      - { name: "Git", slug: "git" }
+      - { name: "GitLab CI/CD", slug: "gitlab-ci" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+    alternatives:
+      - { name: "GitHub", slug: "github" }
+      - { name: "Bitbucket", slug: "bitbucket" }
+    example:
+      lang: "bash"
+      code: |-
+        git remote add origin git@gitlab.com:group/project.git
+        git push -u origin main
+      explain: >
+        Add a GitLab remote and push the main branch — the integrated CI runs your
+        `.gitlab-ci.yml` automatically.
+    gotchas: >
+      **Open-core**: the MIT Community Edition is real, but many enterprise features
+      (advanced security, compliance, multiple MR approvers) require the paid tiers.
+      Self-hosting GitLab is resource-hungry and operationally heavy — budget for the
+      RAM and the upgrade cadence before committing.
+    maintained_by: "GitLab Inc. + OSS community"
+    language: "Ruby / Go"
+    license: "open-core (MIT CE + proprietary)"
+    docs:
+      - { label: "docs.gitlab.com", url: "https://docs.gitlab.com" }
+
+  - name: "Bitbucket"
+    slug: "bitbucket"
+    tagline: "Atlassian's Git hosting, tight with Jira."
+    layer: [tooling, infrastructure]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2008
+    description: >
+      Atlassian's code-hosting platform — Git repositories with pull requests and
+      Bitbucket Pipelines <span class="abbr-link" data-abbr="CI/CD">CI/CD</span>, but
+      its real draw is deep integration with the rest of the Atlassian suite (Jira,
+      Confluence, Trello). Most common in organizations already standardized on Jira.
+    use_cases:
+      - "Teams already on Jira/Confluence wanting native integration."
+      - "Private Git hosting with built-in Pipelines CI/CD."
+      - "Enterprise Atlassian shops standardizing their toolchain."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+    key_features:
+      - "Native Jira and Confluence integration."
+      - "Pull requests with inline code review."
+      - "Bitbucket Pipelines for in-platform CI/CD."
+      - "Cloud and self-managed (Data Center) options."
+    pairs_well_with:
+      - { name: "Git", slug: "git" }
+      - { name: "Jira", slug: "" }
+    alternatives:
+      - { name: "GitHub", slug: "github" }
+      - { name: "GitLab", slug: "gitlab" }
+    example:
+      lang: "bash"
+      code: |-
+        git remote add origin git@bitbucket.org:team/repo.git
+        git push -u origin main
+      explain: >
+        Add a Bitbucket remote and push the main branch; pull requests then link
+        automatically to referenced Jira issues.
+    gotchas: >
+      It's **proprietary** and most compelling only if you're already in the Atlassian
+      ecosystem — its open-source community is far smaller than GitHub's. Atlassian also
+      retired Mercurial support in 2020, so Bitbucket is Git-only now, and its market
+      momentum has cooled relative to GitHub and GitLab.
+    maintained_by: "Atlassian"
+    language: "Java / proprietary"
+    license: "proprietary"
+    docs:
+      - { label: "support.atlassian.com/bitbucket-cloud", url: "https://support.atlassian.com/bitbucket-cloud/" }
+
+  - name: "GitHub CLI"
+    slug: "github-cli"
+    tagline: "Drive GitHub — PRs, issues, repos — from the terminal."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      The official command-line tool (`gh`) for GitHub — manage pull requests,
+      issues, releases, repositories, and Actions runs without leaving the terminal.
+      It wraps the GitHub <span class="abbr-link" data-abbr="API">API</span> with
+      ergonomic commands and supports scripting and an extension system, making it a
+      staple in automation and CI scripts (this site's deploy tooling uses it).
+    use_cases:
+      - "Opening, reviewing, and merging PRs from the terminal."
+      - "Scripting GitHub workflows in CI (creating PRs, releases)."
+      - "Cloning, forking, and managing repos without the web UI."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "GitHub", slug: "github" }
+    key_features:
+      - "PR, issue, release, and repo management from the shell."
+      - "Authenticated wrapper over the GitHub API (`gh api`)."
+      - "Extension system for custom commands."
+      - "Scriptable — ideal inside Actions and automation."
+    pairs_well_with:
+      - { name: "GitHub", slug: "github" }
+      - { name: "Git", slug: "git" }
+      - { name: "GitHub Actions", slug: "github-actions" }
+    alternatives:
+      - { name: "glab (GitLab CLI)", slug: "" }
+      - { name: "hub", slug: "" }
+    example:
+      lang: "bash"
+      code: |-
+        gh pr create --fill
+        gh pr merge --auto --squash
+      explain: >
+        Open a pull request from the current branch, then queue it for auto-merge
+        (squash) once required checks pass.
+    gotchas: >
+      It's GitHub-only — `gh` doesn't talk to GitLab or Bitbucket (use `glab` for
+      GitLab). In CI it needs an authenticated token with the right scopes, and the
+      default `GITHUB_TOKEN` sometimes lacks permissions (e.g. creating PRs that
+      trigger further workflows), so reach for a PAT when automation gets ambitious.
+    maintained_by: "GitHub (Microsoft)"
+    language: "Go"
+    license: "MIT"
+    docs:
+      - { label: "cli.github.com", url: "https://cli.github.com/manual/" }
+
+  - name: "Mercurial"
+    slug: "mercurial"
+    tagline: "A distributed VCS that Git largely eclipsed."
+    layer: [tooling]
+    maturity: legacy
+    learning_curve: moderate
+    first_released: 2005
+    description: >
+      A distributed version-control system born the same year as Git, with a
+      reputation for a cleaner, more consistent command set (`hg`). It powered major
+      projects (Mozilla, parts of Facebook) and still survives at some large shops,
+      but Git's network effect — especially via GitHub — left it a niche choice today.
+    use_cases:
+      - "Maintaining legacy repositories already on Mercurial."
+      - "Teams that prefer its simpler, more uniform CLI to Git's."
+      - "Very large monorepos where its scaling extensions shine."
+    prerequisites:
+      - { name: "A command line / shell", slug: "" }
+    key_features:
+      - "Distributed model with full local history (like Git)."
+      - "More consistent, approachable command set than Git."
+      - "Extensible via a Python plugin system."
+      - "Scales to very large repos with extensions (e.g. at Meta)."
+    pairs_well_with:
+      - { name: "Python", slug: "python" }
+    alternatives:
+      - { name: "Git", slug: "git" }
+      - { name: "Subversion (SVN)", slug: "" }
+    example:
+      lang: "bash"
+      code: |-
+        hg clone https://example.com/repo
+        hg commit -m "Update"
+        hg push
+      explain: >
+        Clone a Mercurial repository, commit a change, and push it back — the rough
+        analog of Git's clone/commit/push.
+    gotchas: >
+      The ecosystem has shrunk dramatically — GitHub dropped Mercurial support and
+      Bitbucket removed it entirely in 2020, so hosting and tooling options are thin.
+      For new projects, Git is the pragmatic default; pick `hg` only for an existing
+      Mercurial codebase or a deliberate preference.
+    maintained_by: "Mercurial community"
+    language: "Python"
+    license: "GPL-2.0"
+    docs:
+      - { label: "mercurial-scm.org", url: "https://www.mercurial-scm.org/doc/" }

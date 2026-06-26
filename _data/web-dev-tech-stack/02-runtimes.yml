@@ -1,0 +1,317 @@
+batch:
+  id: "runtimes"
+  order: 2
+  name: "Runtimes & JS Engines"
+  short_name: "Runtimes"
+  description: >
+    Where JavaScript runs outside the browser — the server runtimes (Node, Deno,
+    Bun), the V8 engine that powers most of them, and the edge platforms
+    (Cloudflare Workers and the broader edge-runtime family) that run code on a
+    global network of points of presence rather than a single server.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Node.js"
+    slug: "node-js"
+    tagline: "The runtime that brought JavaScript to the server."
+    layer: [backend, tooling]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2009
+    description: >
+      The original server-side JavaScript runtime, built on Google's
+      <span class="abbr-link" data-abbr="V8">V8</span> engine with an
+      event-driven, non-blocking I/O model. It anchors the entire JS toolchain —
+      almost every build tool, framework, and package runs on it — and its npm
+      ecosystem is the largest package registry in existence.
+    use_cases:
+      - "Backend APIs, servers, and full-stack frameworks (Next.js, Nest)."
+      - "The runtime under nearly all JS build tooling and CLIs."
+      - "Real-time services using its event loop and streams."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Event-driven, non-blocking I/O on a single-threaded event loop."
+      - "The npm registry — the largest package ecosystem anywhere."
+      - "Native ESM, the test runner, and `--watch` mode built in."
+      - "Yearly major releases — one Active LTS at a time."
+    pairs_well_with:
+      - { name: "Express", slug: "express" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "npm", slug: "npm" }
+      - { name: "Vite", slug: "vite" }
+    alternatives:
+      - { name: "Deno", slug: "deno" }
+      - { name: "Bun", slug: "bun" }
+    example:
+      lang: "bash"
+      code: |-
+        node --version   # v26.x (Current); v24 is Active LTS
+        node server.js
+      explain: "Check the version and run a script — Node 26 is Current, 24 is Active LTS, 22 is Maintenance."
+    gotchas: >
+      Years of churn left two module systems coexisting — older CommonJS
+      (`require`) and modern <span class="abbr-link" data-abbr="ESM">ESM</span>
+      (`import`) — and mixing them across packages still causes friction. New
+      code should be ESM. Also pick an LTS line (24 or 22) for production, not the
+      Current release.
+    maintained_by: "OpenJS Foundation + OSS community"
+    language: "C++ / JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "nodejs.org", url: "https://nodejs.org" }
+      - { label: "Node.js Docs", url: "https://nodejs.org/docs/latest/api/" }
+
+  - name: "Deno"
+    slug: "deno"
+    tagline: "A secure, batteries-included runtime from Node's creator."
+    layer: [backend, tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2018
+    description: >
+      A modern JavaScript and TypeScript runtime built in Rust on
+      <span class="abbr-link" data-abbr="V8">V8</span>, created by Node's original
+      author to fix its early design regrets. It runs TypeScript with no build
+      step, is secure by default (explicit permission flags for file, network, and
+      env access), and Deno 2 added strong npm compatibility.
+    use_cases:
+      - "TypeScript-first backends and scripts with no build step."
+      - "Secure-by-default tooling where permission sandboxing matters."
+      - "Edge functions and serverless on Deno Deploy."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "First-class TypeScript — runs `.ts` directly, no config."
+      - "Secure by default — explicit `--allow-net`/`--allow-read` flags."
+      - "Built-in formatter, linter, test runner, and bundler."
+      - "Web-standard APIs (`fetch`, `Request`) and npm compatibility (Deno 2)."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Hono", slug: "hono" }
+      - { name: "Fresh", slug: "" }
+    alternatives:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Bun", slug: "bun" }
+    example:
+      lang: "bash"
+      code: |-
+        deno run --allow-net server.ts
+      explain: "Run a TypeScript file directly — Deno requires the explicit --allow-net flag for network access."
+    gotchas: >
+      Despite Deno 2's npm compatibility, some packages that depend on deep Node
+      internals or native addons still don't run cleanly — verify your critical
+      dependencies. The default global install pulls remote URL imports, which can
+      surprise teams used to a single `package.json` lockfile.
+    maintained_by: "Deno Land Inc. + OSS community"
+    language: "Rust"
+    license: "MIT"
+    docs:
+      - { label: "deno.com", url: "https://deno.com" }
+      - { label: "Deno Manual", url: "https://docs.deno.com" }
+
+  - name: "Bun"
+    slug: "bun"
+    tagline: "The fast all-in-one runtime, bundler, and package manager."
+    layer: [backend, tooling]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2022
+    description: >
+      A blazing-fast JavaScript runtime written in Zig on Apple's JavaScriptCore
+      engine (not <span class="abbr-link" data-abbr="V8">V8</span>), bundling a
+      runtime, package manager, bundler, and test runner into one binary. It aims
+      for drop-in Node compatibility while being dramatically faster at install
+      and startup. Anthropic acquired Bun in December 2025 — it powers Claude Code
+      and stays MIT-licensed and open source.
+    use_cases:
+      - "Fast local dev — install, run, test, and bundle from one tool."
+      - "Node-compatible backends wanting quicker startup and installs."
+      - "Scripts and tooling where the all-in-one binary cuts setup."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Runtime + package manager + bundler + test runner in one binary."
+      - "Built on JavaScriptCore for fast startup; very fast `bun install`."
+      - "Drop-in Node compatibility for most packages and APIs."
+      - "Native TypeScript and JSX execution with no build step."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Hono", slug: "hono" }
+      - { name: "Vite", slug: "vite" }
+    alternatives:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Deno", slug: "deno" }
+    example:
+      lang: "bash"
+      code: |-
+        bun install        # fast install
+        bun run index.ts   # run TypeScript directly
+      explain: "Bun installs dependencies and runs a TypeScript file directly — one binary, no separate toolchain."
+    gotchas: >
+      Compatibility is *most* of Node, not all — packages leaning on obscure Node
+      internals or native addons can still break, so test production-critical
+      dependencies before switching. Being the youngest runtime here, it's the
+      least battle-tested at scale despite its momentum.
+    maintained_by: "Anthropic (acq. Dec 2025) + OSS community"
+    language: "Zig"
+    license: "MIT"
+    docs:
+      - { label: "bun.sh", url: "https://bun.sh" }
+      - { label: "Bun Docs", url: "https://bun.sh/docs" }
+
+  - name: "V8"
+    slug: "v8"
+    tagline: "Google's JavaScript engine that powers Chrome and Node."
+    layer: [tooling]
+    maturity: industry-standard
+    learning_curve: steep
+    first_released: 2008
+    description: >
+      Google's open-source, high-performance JavaScript and WebAssembly engine
+      written in C++. It compiles JS to machine code with a
+      <span class="abbr-link" data-abbr="JIT">JIT</span> compiler and powers
+      Chrome, Node.js, Deno, Electron, and Cloudflare's edge — you rarely use it
+      directly, but nearly everything you run sits on top of it.
+    use_cases:
+      - "The engine embedded in Chrome, Node.js, Deno, and Electron."
+      - "Powering Cloudflare Workers' isolate-based edge runtime."
+      - "Embedding a JS engine inside a C++ application."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "JIT compilation of JavaScript to native machine code."
+      - "Generational garbage collector tuned for web workloads."
+      - "Runs WebAssembly alongside JavaScript."
+      - "Lightweight isolates enable thousands of sandboxes per process."
+    pairs_well_with:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Deno", slug: "deno" }
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+    alternatives:
+      - { name: "JavaScriptCore", slug: "" }
+      - { name: "SpiderMonkey", slug: "" }
+    example:
+      lang: "bash"
+      code: |-
+        node --v8-options | head   # inspect V8 flags under Node
+      explain: "V8 isn't used directly — here it's surfaced through Node's --v8-options flag passthrough."
+    gotchas: >
+      You almost never touch V8 directly — it's an implementation detail of the
+      runtime you actually use. The trap is over-tuning to its JIT quirks
+      (hidden-class deopts, micro-benchmarks) when the engine is so fast that
+      readable code wins in practice.
+    maintained_by: "Google"
+    language: "C++"
+    license: "BSD-3-Clause"
+    docs:
+      - { label: "v8.dev", url: "https://v8.dev" }
+      - { label: "V8 Docs", url: "https://v8.dev/docs" }
+
+  - name: "Cloudflare Workers"
+    slug: "cloudflare-workers"
+    tagline: "Serverless code running on V8 isolates at the edge."
+    layer: [backend, infrastructure]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2017
+    description: >
+      A serverless platform that runs your code on
+      <span class="abbr-link" data-abbr="V8">V8</span> isolates across
+      Cloudflare's global edge network — close to users, with near-zero cold
+      starts. The underlying runtime, `workerd`, is open source, and Workers use
+      web-standard APIs plus a storage suite (KV, D1, R2, Durable Objects) rather
+      than full Node.
+    use_cases:
+      - "Low-latency edge APIs and middleware close to users."
+      - "Serverless functions with near-zero cold starts at global scale."
+      - "Static-site backends paired with Cloudflare Pages."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "V8 isolates — near-zero cold starts, not per-request containers."
+      - "Global edge network — code runs near every user."
+      - "Storage suite: KV, D1 (SQLite), R2, Durable Objects."
+      - "Open-source `workerd` runtime with web-standard APIs."
+    pairs_well_with:
+      - { name: "Hono", slug: "hono" }
+      - { name: "Cloudflare Pages", slug: "cloudflare-pages" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Edge runtimes", slug: "edge-runtime" }
+      - { name: "Deno", slug: "deno" }
+      - { name: "AWS", slug: "aws" }
+    example:
+      lang: "ts"
+      code: |-
+        export default {
+          async fetch(req: Request): Promise<Response> {
+            return new Response("Hello from the edge");
+          },
+        };
+      explain: "A Worker exports a fetch handler using web-standard Request/Response — it runs on a V8 isolate at the edge."
+    gotchas: >
+      It's not Node — there's no filesystem, long-running processes are limited,
+      and CPU time per request is capped, so you rely on web-standard APIs and
+      Cloudflare's storage primitives instead of arbitrary npm packages. Code
+      written for a full Node server won't lift-and-shift unchanged.
+    maintained_by: "Cloudflare"
+    language: "C++ / Rust (workerd)"
+    license: "Apache-2.0 (workerd)"
+    docs:
+      - { label: "workers.cloudflare.com", url: "https://workers.cloudflare.com" }
+      - { label: "Workers Docs", url: "https://developers.cloudflare.com/workers/" }
+
+  - name: "Edge runtimes"
+    slug: "edge-runtime"
+    tagline: "The web-standard runtime model behind edge & serverless functions."
+    layer: [backend, infrastructure]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2021
+    description: >
+      A family of lightweight runtimes — Vercel Edge Functions, Netlify Edge,
+      Deno Deploy, and the WinterCG-aligned standard — that run a restricted,
+      web-standard JavaScript environment (`fetch`, `Request`, `Response`,
+      `Web Streams`) on global infrastructure rather than full Node. The trade is
+      faster cold starts and global distribution for a smaller API surface.
+    use_cases:
+      - "Latency-sensitive middleware, redirects, and personalization."
+      - "Lightweight serverless functions distributed near users."
+      - "Framework edge rendering (Next.js, SvelteKit) at the network edge."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Web-standard APIs (`fetch`, `Request`, `Response`, streams)."
+      - "Fast cold starts and global distribution over single-region servers."
+      - "WinterCG-aligned API surface for portability across providers."
+      - "Restricted vs Node — no filesystem, limited CPU/runtime per request."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Hono", slug: "hono" }
+      - { name: "Vercel", slug: "vercel" }
+    alternatives:
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Deno", slug: "deno" }
+    example:
+      lang: "ts"
+      code: |-
+        export const config = { runtime: "edge" };
+
+        export default function handler(req: Request) {
+          return new Response("Hello from the edge");
+        }
+      explain: "A Vercel Edge Function — opting into the edge runtime and returning a web-standard Response."
+    gotchas: >
+      "Edge" means a *restricted* runtime, not just a faster Node — Node-only
+      APIs, native addons, and many npm packages won't run, and CPU/time limits
+      are tight. Reach for it for light, latency-sensitive logic; keep heavy or
+      Node-dependent work on a regular server runtime.
+    maintained_by: "Vercel / Netlify / WinterCG + others"
+    language: "JavaScript / C++"
+    license: "varies (mostly permissive)"
+    docs:
+      - { label: "WinterCG", url: "https://wintercg.org" }
+      - { label: "Vercel Edge Functions", url: "https://vercel.com/docs/functions/edge-functions" }

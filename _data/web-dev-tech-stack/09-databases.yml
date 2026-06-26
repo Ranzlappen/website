@@ -1,0 +1,479 @@
+batch:
+  id: "databases"
+  order: 9
+  name: "Databases & Datastores"
+  short_name: "Databases"
+  description: >
+    Where the data lives — the battle-tested relational engines (PostgreSQL,
+    MySQL, SQLite), the document and key-value stores (MongoDB, Redis), and the
+    managed/serverless platforms that wrap them with auth, realtime, and
+    branching (Firestore, Supabase, PlanetScale, Neon). Watch the licenses here:
+    several once-open stores moved to source-available terms.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "PostgreSQL"
+    slug: "postgresql"
+    tagline: "The world's most advanced open-source relational database."
+    layer: [database]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 1996
+    description: >
+      The default open-source relational database for new projects — a mature,
+      standards-compliant SQL engine known for correctness, extensibility, and a
+      deep feature set: rich types (JSONB, arrays, ranges), full-text search,
+      window functions, and an extension ecosystem (PostGIS, pgvector). Most
+      modern <span class="abbr-link" data-abbr="ORM">ORMs</span> and serverless
+      platforms target it first.
+    use_cases:
+      - "The default relational store for new web and SaaS backends."
+      - "Workloads mixing relational data with JSON or vector/geo queries."
+      - "Anything needing strong ACID guarantees and complex queries."
+    prerequisites:
+      - { name: "SQL", slug: "" }
+    key_features:
+      - "Full ACID compliance and rich SQL (window functions, CTEs)."
+      - "JSONB for schemaless data alongside relational tables."
+      - "Extensions: PostGIS (geo), pgvector (embeddings), and more."
+      - "MVCC concurrency and robust replication."
+    pairs_well_with:
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "Drizzle", slug: "drizzle" }
+      - { name: "Supabase", slug: "supabase" }
+      - { name: "Neon", slug: "neon" }
+    alternatives:
+      - { name: "MySQL", slug: "mysql" }
+      - { name: "SQLite", slug: "sqlite" }
+      - { name: "MongoDB", slug: "mongodb" }
+    example:
+      lang: "sql"
+      code: |-
+        CREATE TABLE users (id serial PRIMARY KEY, email text UNIQUE);
+        INSERT INTO users (email) VALUES ('a@b.com');
+      explain: >
+        Create a table with an auto-incrementing primary key and a unique
+        constraint, then insert a row.
+    gotchas: >
+      Connection-heavy: each connection is a process, so serverless functions
+      that open connections per-invocation exhaust the server — you need a pooler
+      (PgBouncer, or a platform like Neon/Supabase that bundles one). Tuning
+      `VACUUM` and autovacuum on write-heavy tables is a real operational concern.
+    maintained_by: "PostgreSQL Global Development Group"
+    language: "C"
+    license: "PostgreSQL License"
+    docs:
+      - { label: "postgresql.org/docs", url: "https://www.postgresql.org/docs/" }
+
+  - name: "MySQL"
+    slug: "mysql"
+    tagline: "The ubiquitous open-source relational database."
+    layer: [database]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 1995
+    description: >
+      One of the most widely deployed relational databases, the "M" in the
+      classic LAMP stack and the default behind much of the PHP web. Owned by
+      Oracle and dual-licensed (GPL plus a commercial license), with the
+      community-driven fork MariaDB as a drop-in alternative. Reliable, fast on
+      read-heavy workloads, and supported by every host and
+      <span class="abbr-link" data-abbr="ORM">ORM</span>.
+    use_cases:
+      - "Classic LAMP / PHP web apps and WordPress sites."
+      - "Read-heavy applications with well-understood schemas."
+      - "Projects on hosts where MySQL is the default offering."
+    prerequisites:
+      - { name: "SQL", slug: "" }
+    key_features:
+      - "ACID transactions via the InnoDB storage engine."
+      - "Mature replication and broad hosting support everywhere."
+      - "Pluggable storage engines (InnoDB, MyISAM)."
+      - "MariaDB fork as a drop-in, fully open alternative."
+    pairs_well_with:
+      - { name: "Laravel", slug: "laravel" }
+      - { name: "PlanetScale", slug: "planetscale" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "PHP", slug: "php" }
+    alternatives:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "SQLite", slug: "sqlite" }
+      - { name: "PlanetScale", slug: "planetscale" }
+    example:
+      lang: "sql"
+      code: |-
+        CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255) UNIQUE);
+        INSERT INTO users (email) VALUES ('a@b.com');
+      explain: >
+        Create a table with an auto-incrementing key and insert a row — note
+        MySQL's AUTO_INCREMENT and VARCHAR length versus Postgres.
+    gotchas: >
+      Feature parity with Postgres lags in places — historically weaker support
+      for advanced SQL, stricter SQL-mode quirks, and gotchas around default
+      character sets (use `utf8mb4`, not the legacy `utf8`, for full Unicode).
+      The dual GPL/commercial license matters if you embed or redistribute it.
+    maintained_by: "Oracle Corporation"
+    language: "C++"
+    license: "GPL-2.0"
+    docs:
+      - { label: "dev.mysql.com/doc", url: "https://dev.mysql.com/doc/" }
+
+  - name: "SQLite"
+    slug: "sqlite"
+    tagline: "A zero-config, embedded SQL database in a single file."
+    layer: [database]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2000
+    description: >
+      A self-contained, serverless, zero-configuration SQL database engine — the
+      entire database is a single file on disk and the engine is a library linked
+      into your app, with no separate process to run. It is the most widely
+      deployed database in the world (every phone, browser, and OS ships it) and
+      is increasingly used for production web apps at the edge.
+    use_cases:
+      - "Embedded storage in mobile, desktop, and CLI apps."
+      - "Local development, tests, and prototypes — no server to run."
+      - "Edge / low-traffic web apps (often via Turso/libSQL or LiteFS)."
+    prerequisites:
+      - { name: "SQL", slug: "" }
+    key_features:
+      - "Entire database is one portable file; no server process."
+      - "Zero configuration — link the library and open a file."
+      - "Full transactional ACID even across crashes."
+      - "Tiny, public-domain, and embedded almost everywhere."
+    pairs_well_with:
+      - { name: "Drizzle", slug: "drizzle" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "Bun", slug: "bun" }
+    alternatives:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "MySQL", slug: "mysql" }
+    example:
+      lang: "bash"
+      code: "sqlite3 app.db 'CREATE TABLE users(id INTEGER PRIMARY KEY, email TEXT);'"
+      explain: >
+        Create (or open) the file app.db and run SQL against it with the sqlite3
+        CLI — no server needed.
+    gotchas: >
+      Single-writer by design — concurrent writes serialize, so it's a poor fit
+      for write-heavy, high-concurrency multi-user backends without a layer like
+      libSQL/Turso. It's also loosely typed by default (type affinity, not strict
+      types) unless you opt into `STRICT` tables.
+    maintained_by: "D. Richard Hipp / SQLite Consortium"
+    language: "C"
+    license: "Public Domain"
+    docs:
+      - { label: "sqlite.org/docs.html", url: "https://www.sqlite.org/docs.html" }
+
+  - name: "MongoDB"
+    slug: "mongodb"
+    tagline: "The popular document database for flexible, JSON-like data."
+    layer: [database]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2009
+    description: >
+      A document-oriented <span class="abbr-link" data-abbr="NoSQL">NoSQL</span>
+      database that stores records as flexible, JSON-like BSON documents instead
+      of rows in tables — so the schema can vary per document and nested data
+      lives together. Popular for its developer-friendly model and horizontal
+      scaling; its managed Atlas service is the common way to run it. Licensed
+      under the source-available SSPL, not an OSI-approved open-source license.
+    use_cases:
+      - "Apps with flexible or rapidly-evolving schemas."
+      - "Content, catalogs, and event data that fit a document shape."
+      - "Horizontally-scaled workloads via sharding (often on Atlas)."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Flexible JSON-like (BSON) documents, no fixed schema."
+      - "Aggregation pipeline for complex transformations."
+      - "Built-in sharding for horizontal scale and replica sets."
+      - "Managed Atlas service with search and vector search."
+    pairs_well_with:
+      - { name: "Mongoose", slug: "mongoose" }
+      - { name: "Express", slug: "express" }
+      - { name: "Node.js", slug: "node-js" }
+    alternatives:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Firebase Firestore", slug: "firestore" }
+    example:
+      lang: "js"
+      code: |-
+        db.users.insertOne({ email: 'a@b.com', roles: ['admin'] });
+      explain: >
+        Insert a document into the users collection — note the nested array;
+        there's no table schema to declare first.
+    gotchas: >
+      Schema flexibility is a double-edged sword — without discipline (or an ODM
+      like Mongoose) data drifts into inconsistent shapes. Multi-document
+      transactions exist but cost more than in a relational DB, and modeling
+      relationships you'd join in SQL often means denormalizing. The SSPL license
+      blocks offering MongoDB itself as a managed service.
+    maintained_by: "MongoDB, Inc."
+    language: "C++"
+    license: "SSPL"
+    docs:
+      - { label: "mongodb.com/docs", url: "https://www.mongodb.com/docs/" }
+
+  - name: "Redis"
+    slug: "redis"
+    tagline: "Blazing-fast in-memory key-value store, cache, and message broker."
+    layer: [database]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2009
+    description: >
+      An in-memory data-structure store used as a cache, key-value database, and
+      message broker. It keeps data in RAM (with optional persistence to disk)
+      for sub-millisecond access, and offers rich types — strings, hashes, lists,
+      sets, sorted sets, streams, and pub/sub. After a 2024 move to
+      source-available terms, Redis 8 (2025) re-added the
+      <span class="abbr-link" data-abbr="OSI">OSI</span>-approved AGPLv3 as a
+      license option.
+    use_cases:
+      - "Caching layer in front of a slower primary database."
+      - "Sessions, rate limiting, and ephemeral counters."
+      - "Job queues, pub/sub, leaderboards (sorted sets), and streams."
+    prerequisites: []
+    key_features:
+      - "Sub-millisecond in-memory reads and writes."
+      - "Rich data types: hashes, lists, sets, sorted sets, streams."
+      - "Pub/sub and stream messaging primitives."
+      - "Optional persistence (RDB snapshots, AOF) and replication."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Django", slug: "django" }
+      - { name: "Express", slug: "express" }
+      - { name: "Laravel", slug: "laravel" }
+    alternatives:
+      - { name: "MongoDB", slug: "mongodb" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    example:
+      lang: "bash"
+      code: |-
+        redis-cli SET session:42 "active" EX 3600
+        redis-cli GET session:42
+      explain: >
+        Store a key with a 3600-second expiry, then read it back — typical
+        session/cache usage from the Redis CLI.
+    gotchas: >
+      It's memory-bound — your dataset must fit in RAM, and eviction policies
+      decide what gets dropped when it's full, so it's usually a cache or
+      secondary store, not your system of record. The 2024–2025 license churn
+      (SSPL/RSALv2, then AGPLv3 re-added in Redis 8) spawned the Valkey fork;
+      check which license your distro/cloud ships.
+    maintained_by: "Redis Ltd. + OSS community"
+    language: "C"
+    license: "AGPLv3 / RSALv2 / SSPL"
+    docs:
+      - { label: "redis.io/docs", url: "https://redis.io/docs/latest/" }
+
+  - name: "Firebase Firestore"
+    slug: "firestore"
+    tagline: "Google's serverless document database with realtime sync."
+    layer: [database]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2017
+    description: >
+      A fully-managed, serverless <span class="abbr-link"
+      data-abbr="NoSQL">NoSQL</span> document database from Google's Firebase
+      <span class="abbr-link" data-abbr="PaaS">platform</span>. Clients subscribe
+      to documents and queries and receive realtime updates as data changes, with
+      offline caching on mobile and web. Access control lives in declarative
+      security rules rather than a server, making it popular for client-driven
+      apps without a backend.
+    use_cases:
+      - "Realtime apps — chat, collaboration, live dashboards."
+      - "Mobile/web apps wanting offline sync with no server to run."
+      - "MVPs that lean on Firebase Auth, Storage, and Functions together."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Realtime listeners push changes to clients instantly."
+      - "Offline persistence and automatic sync on reconnect."
+      - "Declarative security rules instead of server-side authz."
+      - "Tight integration with Firebase Auth, Storage, and Functions."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Firebase Hosting", slug: "firebase-hosting" }
+    alternatives:
+      - { name: "Supabase", slug: "supabase" }
+      - { name: "MongoDB", slug: "mongodb" }
+    example:
+      lang: "ts"
+      code: |-
+        import { collection, addDoc } from 'firebase/firestore';
+        await addDoc(collection(db, 'users'), { email: 'a@b.com' });
+      explain: >
+        Add a document to the users collection from the client SDK — security
+        rules, not a server, decide whether the write is allowed.
+    gotchas: >
+      It's proprietary lock-in and the data model bends queries — no joins, no
+      arbitrary `WHERE`/aggregation, every multi-field query needs a composite
+      index, and you denormalize heavily. Billing is per document read/write, so
+      naive realtime listeners or fan-out writes can run up a surprising bill.
+    maintained_by: "Google (Firebase / Google Cloud)"
+    language: "proprietary (Go/C++ internally)"
+    license: "proprietary"
+    docs:
+      - { label: "firebase.google.com/docs/firestore", url: "https://firebase.google.com/docs/firestore" }
+
+  - name: "Supabase"
+    slug: "supabase"
+    tagline: "The open-source Firebase alternative, built on Postgres."
+    layer: [database, backend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      An open-source backend-as-a-service that bundles a full PostgreSQL database
+      with auth, file storage, edge functions, and realtime subscriptions —
+      positioned as a Firebase alternative, but on a real relational engine you
+      can query with SQL and take with you. It auto-generates a
+      <span class="abbr-link" data-abbr="REST">REST</span> and GraphQL
+      <span class="abbr-link" data-abbr="API">API</span> from your schema and
+      enforces access with Postgres row-level security.
+    use_cases:
+      - "Full app backends wanting Postgres plus auth, storage, and realtime."
+      - "Teams that want a Firebase-like DX without leaving SQL."
+      - "Projects that may later self-host the open-source stack."
+    prerequisites:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "SQL", slug: "" }
+    key_features:
+      - "A real Postgres database, queryable in plain SQL."
+      - "Built-in auth, storage, edge functions, and realtime."
+      - "Auto-generated REST and GraphQL APIs from your schema."
+      - "Row-level security policies for client-direct access."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Drizzle", slug: "drizzle" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    alternatives:
+      - { name: "Firebase Firestore", slug: "firestore" }
+      - { name: "Neon", slug: "neon" }
+      - { name: "PlanetScale", slug: "planetscale" }
+    example:
+      lang: "ts"
+      code: |-
+        const { data } = await supabase.from('users').select('email');
+      explain: >
+        Query the users table from the client SDK — the call hits an
+        auto-generated REST API and is gated by row-level security policies.
+    gotchas: >
+      The client-direct model lives or dies by row-level security — forget to
+      enable RLS on a table and it's world-readable/writable. "Open-source" is
+      true of the stack, but self-hosting the whole platform is non-trivial; most
+      teams use the managed cloud and inherit its pricing.
+    maintained_by: "Supabase, Inc. + OSS community"
+    language: "TypeScript / Elixir / Go"
+    license: "Apache-2.0"
+    docs:
+      - { label: "supabase.com/docs", url: "https://supabase.com/docs" }
+
+  - name: "PlanetScale"
+    slug: "planetscale"
+    tagline: "Serverless MySQL on Vitess with database branching."
+    layer: [database]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2021
+    description: >
+      A managed, serverless MySQL-compatible database platform built on Vitess
+      (the sharding layer that scaled YouTube). Its signature feature is
+      Git-style database branching: spin off a branch, change the schema, and
+      merge it back as a non-blocking, online deploy request. PlanetScale
+      removed its free tier in April 2024, so it now starts around $39/month.
+    use_cases:
+      - "MySQL apps that need horizontal scale via Vitess sharding."
+      - "Teams wanting schema changes as reviewable, non-blocking deploys."
+      - "Production MySQL workloads with serverless connection handling."
+    prerequisites:
+      - { name: "MySQL", slug: "mysql" }
+      - { name: "SQL", slug: "" }
+    key_features:
+      - "Git-style branching with online, non-blocking schema deploys."
+      - "Built on Vitess for transparent horizontal sharding."
+      - "Serverless connection pooling friendly to edge/functions."
+      - "Insights and query analysis built in."
+    pairs_well_with:
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "Drizzle", slug: "drizzle" }
+      - { name: "Next.js", slug: "next-js" }
+    alternatives:
+      - { name: "Neon", slug: "neon" }
+      - { name: "MySQL", slug: "mysql" }
+      - { name: "Supabase", slug: "supabase" }
+    example:
+      lang: "bash"
+      code: "pscale branch create my-db add-users-table"
+      explain: >
+        Create a schema branch off the production database — you change it in
+        isolation, then merge via a deploy request.
+    gotchas: >
+      The free tier is gone (since April 2024), so it's a paid service from the
+      start — factor that against free-tier rivals. Because it's Vitess, some
+      MySQL features are constrained: foreign-key enforcement is limited and
+      cross-shard transactions/joins don't behave like single-node MySQL.
+    maintained_by: "PlanetScale, Inc."
+    language: "Go (Vitess)"
+    license: "proprietary"
+    docs:
+      - { label: "planetscale.com/docs", url: "https://planetscale.com/docs" }
+
+  - name: "Neon"
+    slug: "neon"
+    tagline: "Serverless Postgres with instant database branching."
+    layer: [database]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A serverless PostgreSQL platform that separates storage from compute, so
+      databases scale to zero when idle and spin up on demand, and you can branch
+      the entire database (data and schema) instantly like Git for development or
+      preview environments. The core is Apache-2.0 licensed. Neon was acquired by
+      Databricks in May 2025 (~$1B), which kept the free tier and lowered prices.
+    use_cases:
+      - "Serverless and edge apps wanting Postgres that scales to zero."
+      - "Per-pull-request preview databases via instant branching."
+      - "Cost-sensitive projects with spiky or intermittent traffic."
+    prerequisites:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "SQL", slug: "" }
+    key_features:
+      - "Separated storage/compute — scales to zero when idle."
+      - "Instant copy-on-write branching of the whole database."
+      - "Serverless driver works over HTTP/WebSocket from the edge."
+      - "Apache-2.0 core; standard Postgres wire protocol."
+    pairs_well_with:
+      - { name: "Drizzle", slug: "drizzle" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    alternatives:
+      - { name: "Supabase", slug: "supabase" }
+      - { name: "PlanetScale", slug: "planetscale" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    example:
+      lang: "bash"
+      code: "neon branches create --name preview/pr-123"
+      explain: >
+        Create an instant copy-on-write branch of your database for a preview
+        environment, sharing storage with the parent until it diverges.
+    gotchas: >
+      Scale-to-zero means a cold start — the first query after idle pays a
+      wake-up latency, which matters for user-facing requests (keep a paid
+      compute warm if it does). Long-lived pooled connections and very
+      write-heavy steady workloads fit the serverless billing model less well
+      than spiky ones.
+    maintained_by: "Neon (Databricks) + OSS community"
+    language: "Rust"
+    license: "Apache-2.0"
+    docs:
+      - { label: "neon.com/docs", url: "https://neon.com/docs" }

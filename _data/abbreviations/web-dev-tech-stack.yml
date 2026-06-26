@@ -1,0 +1,234 @@
+# Glossary for /references/web-dev-tech-stack/
+# Schema: term, full_form, explanation (folded scalar with optional inline HTML).
+# Cross-reference other terms via <span class="abbr-link" data-abbr="TERM">TERM</span>.
+# Keep alphabetical by term.
+
+- term: "AOT"
+  full_form: "Ahead-of-Time compilation"
+  explanation: >-
+    Compiling code to its final form <em>before</em> it runs, at build time,
+    rather than while it runs. The opposite of
+    <span class="abbr-link" data-abbr="JIT">JIT</span>. Frameworks like Angular
+    AOT-compile templates so the browser ships less work; bundlers AOT-transform
+    your source so the runtime stays lean.
+
+- term: "API"
+  full_form: "Application Programming Interface"
+  aliases: ["apis"]
+  explanation: >-
+    A defined contract for talking to a piece of software — the set of
+    functions, endpoints, or messages it exposes. On the web this usually means
+    an HTTP <span class="abbr-link" data-abbr="REST">REST</span> or
+    <span class="abbr-link" data-abbr="GraphQL">GraphQL</span> endpoint your
+    frontend calls to read and write data.
+
+- term: "Bundler"
+  full_form: "module bundler"
+  aliases: ["bundlers", "bundling", "bundle"]
+  explanation: >-
+    A tool that walks your import graph and stitches many source modules into a
+    few optimized files a browser can load efficiently — applying
+    <span class="abbr-link" data-abbr="Tree-shaking">tree-shaking</span>,
+    minification, and code-splitting along the way. Vite (Rollup), webpack,
+    esbuild, and Parcel are bundlers.
+
+- term: "CDN"
+  full_form: "Content Delivery Network"
+  explanation: >-
+    A globally distributed fleet of caching servers that serves your static
+    assets (and increasingly compute) from a location physically close to each
+    visitor, cutting latency. Hosts like Vercel, Netlify, and Cloudflare put
+    your build on a CDN automatically.
+
+- term: "CI/CD"
+  full_form: "Continuous Integration / Continuous Delivery (or Deployment)"
+  aliases: ["ci", "cd", "ci cd"]
+  explanation: >-
+    A pipeline that automatically builds, tests, and ships your code on every
+    push. <em>CI</em> runs your test suite and linters to catch breakage early;
+    <em>CD</em> deploys the passing build to staging or production. GitHub
+    Actions and GitLab CI are common runners.
+
+- term: "CJS"
+  full_form: "CommonJS"
+  aliases: ["commonjs", "require"]
+  explanation: >-
+    Node's original module system, using <code>require()</code> and
+    <code>module.exports</code>. Largely superseded by
+    <span class="abbr-link" data-abbr="ESM">ESM</span> (<code>import</code>/<code>export</code>),
+    though the two still have to interoperate, which is a frequent source of
+    "cannot use import statement outside a module" friction.
+
+- term: "CSR"
+  full_form: "Client-Side Rendering"
+  explanation: >-
+    Rendering the page in the browser with JavaScript after an initial near-empty
+    HTML shell loads. The default for a plain
+    <span class="abbr-link" data-abbr="SPA">SPA</span>. Fast for subsequent
+    navigation, but the first paint and SEO suffer versus
+    <span class="abbr-link" data-abbr="SSR">SSR</span> /
+    <span class="abbr-link" data-abbr="SSG">SSG</span>.
+
+- term: "DOM"
+  full_form: "Document Object Model"
+  explanation: >-
+    The browser's live, in-memory tree of objects representing the HTML on the
+    page. JavaScript reads and mutates the DOM to change what's shown. Frameworks
+    like React keep a <em>virtual</em> DOM and diff it against the real one to
+    minimize expensive updates.
+
+- term: "ESM"
+  full_form: "ECMAScript Modules"
+  aliases: ["es modules", "esmodules", "import"]
+  explanation: >-
+    The standard JavaScript module system — <code>import</code> and
+    <code>export</code> — built into browsers and Node. Statically analyzable, so
+    bundlers can <span class="abbr-link" data-abbr="Tree-shaking">tree-shake</span>
+    unused code. The modern replacement for
+    <span class="abbr-link" data-abbr="CJS">CommonJS</span>.
+
+- term: "GraphQL"
+  full_form: "Graph Query Language"
+  explanation: >-
+    An API query language where the client asks for exactly the fields it needs
+    in a single request, against a typed schema — avoiding the over-/under-fetching
+    of fixed <span class="abbr-link" data-abbr="REST">REST</span> endpoints.
+    Served by Apollo Server, GraphQL Yoga, and others; queried with Apollo Client
+    or urql.
+
+- term: "HMR"
+  full_form: "Hot Module Replacement"
+  aliases: ["hot reload", "hot reloading"]
+  explanation: >-
+    A dev-server feature that swaps an edited module into the running app
+    <em>without</em> a full page reload, preserving component state. The reason
+    Vite and similar tools feel instant while you code.
+
+- term: "IaaS"
+  full_form: "Infrastructure as a Service"
+  explanation: >-
+    Cloud that rents you raw building blocks — virtual machines, storage,
+    networking — that you configure yourself (AWS EC2, GCP Compute Engine). More
+    control and more work than a
+    <span class="abbr-link" data-abbr="PaaS">PaaS</span> like Vercel, which hides
+    the servers entirely.
+
+- term: "ISR"
+  full_form: "Incremental Static Regeneration"
+  explanation: >-
+    A Next.js technique that serves
+    <span class="abbr-link" data-abbr="SSG">statically generated</span> pages but
+    re-builds individual pages in the background on a schedule or on-demand — so
+    you get static speed without a full rebuild when content changes.
+
+- term: "JAMstack"
+  full_form: "JavaScript, APIs, and Markup"
+  aliases: ["jam stack"]
+  explanation: >-
+    An architecture that pre-renders markup at build time and serves it from a
+    <span class="abbr-link" data-abbr="CDN">CDN</span>, with dynamic bits handled
+    by JavaScript calling <span class="abbr-link" data-abbr="API">APIs</span>.
+    No always-on application server. Astro, Gatsby, and Eleventy lean this way.
+
+- term: "JIT"
+  full_form: "Just-in-Time compilation"
+  explanation: >-
+    Compiling or generating code <em>while the program runs</em>, on demand. The
+    counterpart to <span class="abbr-link" data-abbr="AOT">AOT</span>. V8
+    JIT-compiles hot JavaScript to machine code; Tailwind's older JIT engine
+    generated CSS classes on demand as it saw them used.
+
+- term: "ORM"
+  full_form: "Object-Relational Mapping"
+  aliases: ["orms"]
+  explanation: >-
+    A library that lets you read and write database rows as typed objects/records
+    in your language instead of hand-writing SQL strings. Prisma, Drizzle, and
+    TypeORM are TypeScript ORMs; they trade some raw control for type-safety and
+    productivity.
+
+- term: "PaaS"
+  full_form: "Platform as a Service"
+  explanation: >-
+    Cloud that runs your app from source or a container without you managing
+    servers, OS, or scaling — you push code, it deploys. Vercel, Netlify, Render,
+    and Railway are PaaS. Compare <span class="abbr-link" data-abbr="IaaS">IaaS</span>
+    (you manage the machines) and <span class="abbr-link" data-abbr="SaaS">SaaS</span>
+    (finished software).
+
+- term: "REST"
+  full_form: "Representational State Transfer"
+  aliases: ["restful", "rest api"]
+  explanation: >-
+    An API style built on HTTP verbs (GET/POST/PUT/DELETE) and resource URLs,
+    where each endpoint returns a fixed shape of data. Simple and ubiquitous;
+    <span class="abbr-link" data-abbr="GraphQL">GraphQL</span> and RPC are the
+    main alternatives when fixed shapes cause over-fetching.
+
+- term: "RSC"
+  full_form: "React Server Components"
+  explanation: >-
+    React components that run only on the server, render to a special stream, and
+    ship <em>zero</em> JavaScript to the browser for themselves — letting you read
+    a database directly in a component while keeping the client bundle small. The
+    backbone of the Next.js App Router.
+
+- term: "SaaS"
+  full_form: "Software as a Service"
+  explanation: >-
+    Finished, hosted software you use over the web on a subscription — Gmail,
+    Figma, Notion. The thing you often <em>build</em> with this stack, as opposed
+    to the <span class="abbr-link" data-abbr="PaaS">PaaS</span> /
+    <span class="abbr-link" data-abbr="IaaS">IaaS</span> you build it <em>on</em>.
+
+- term: "SPA"
+  full_form: "Single-Page Application"
+  aliases: ["spas"]
+  explanation: >-
+    A web app that loads one HTML document and then rewrites the page in-place
+    with JavaScript as you navigate, instead of fetching a fresh page from the
+    server each time. React, Vue, and Svelte apps are SPAs by default; meta-frameworks
+    add <span class="abbr-link" data-abbr="SSR">SSR</span> on top.
+
+- term: "SSG"
+  full_form: "Static Site Generation"
+  aliases: ["static site generator", "static generation"]
+  explanation: >-
+    Pre-rendering every page to plain HTML at <em>build</em> time, then serving
+    those files from a <span class="abbr-link" data-abbr="CDN">CDN</span>. The
+    fastest and cheapest way to serve content that doesn't change per-request.
+    Jekyll, Astro, Hugo, and Next.js (static export) do this.
+
+- term: "SSR"
+  full_form: "Server-Side Rendering"
+  explanation: >-
+    Rendering the full HTML for each request <em>on the server</em>, so the
+    browser gets meaningful content on first paint (good for SEO and perceived
+    speed), then "hydrates" it into an interactive
+    <span class="abbr-link" data-abbr="SPA">SPA</span>. Next.js, Nuxt, SvelteKit,
+    and Remix/React Router do this.
+
+- term: "Transpile"
+  full_form: "transpilation (source-to-source compile)"
+  aliases: ["transpiler", "transpiling", "transpiled"]
+  explanation: >-
+    Translating source code from one language or syntax level to another at the
+    same level of abstraction — TypeScript → JavaScript, or modern JS → older JS
+    for legacy browsers. Babel, SWC, esbuild, and tsc are transpilers.
+
+- term: "Tree-shaking"
+  full_form: "tree-shaking (dead-code elimination)"
+  aliases: ["tree shaking", "treeshaking"]
+  explanation: >-
+    A bundler optimization that drops exports your code never imports, so unused
+    library code doesn't ship to the browser. Relies on the static structure of
+    <span class="abbr-link" data-abbr="ESM">ESM</span> imports.
+
+- term: "WASM"
+  full_form: "WebAssembly"
+  aliases: ["webassembly"]
+  explanation: >-
+    A fast, low-level binary instruction format that runs in the browser (and on
+    servers) at near-native speed. Lets languages like Rust, C++, and Go run on
+    the web alongside JavaScript — used for games, codecs, image editing, and
+    compute-heavy tools.

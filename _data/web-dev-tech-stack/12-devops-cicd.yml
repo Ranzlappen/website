@@ -1,0 +1,473 @@
+batch:
+  id: "devops-cicd"
+  order: 12
+  name: "DevOps, CI/CD & Containers"
+  short_name: "DevOps"
+  description: >
+    The plumbing that ships and runs your code — containers (Docker), orchestration
+    (Kubernetes), pipeline runners (GitHub Actions, GitLab CI, Jenkins),
+    infrastructure-as-code (Terraform, Ansible), and the web server (Nginx) that
+    fronts it all. This is where a working app becomes a deployed, reproducible system.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Docker"
+    slug: "docker"
+    tagline: "Package an app and its dependencies into a portable container."
+    layer: [tooling, infrastructure]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2013
+    description: >
+      The tool that made Linux containers mainstream — bundle your app, runtime,
+      and dependencies into an image that runs identically on a laptop,
+      <span class="abbr-link" data-abbr="CI/CD">CI/CD</span> runner, or production
+      server. A `Dockerfile` describes the build, the image is the artifact, and a
+      container is a running instance. Docker Compose orchestrates multi-container
+      local stacks.
+    use_cases:
+      - "Reproducible dev environments — \"works on my machine\" becomes \"works in the image\"."
+      - "Packaging an app for deployment to any container host or orchestrator."
+      - "Spinning up databases and services locally via Compose."
+    prerequisites:
+      - { name: "A command line / shell", slug: "" }
+      - { name: "Linux fundamentals", slug: "" }
+    key_features:
+      - "Dockerfile build → immutable, layered images."
+      - "Compose for multi-container local stacks."
+      - "OCI image format runs on any compliant runtime."
+      - "Huge public registry (Docker Hub) of base images."
+    pairs_well_with:
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "GitHub Actions", slug: "github-actions" }
+      - { name: "Nginx", slug: "nginx" }
+    alternatives:
+      - { name: "Podman", slug: "" }
+      - { name: "containerd", slug: "" }
+    example:
+      lang: "dockerfile"
+      code: |-
+        FROM node:22-alpine
+        WORKDIR /app
+        COPY package*.json ./
+        RUN npm ci --omit=dev
+        COPY . .
+        CMD ["node", "server.js"]
+      explain: >
+        A minimal Node image — copy lockfiles first so the dependency layer caches,
+        then copy source and set the start command.
+    gotchas: >
+      Layer ordering makes or breaks build caching — copy `package.json` and install
+      *before* copying source, or every code change reinstalls everything. Also note
+      the licensing split: the Docker Engine/CLI are Apache-2.0, but **Docker Desktop**
+      is proprietary and requires a paid subscription for larger companies (the daemon
+      itself stays free).
+    maintained_by: "Docker, Inc. + OSS community"
+    language: "Go"
+    license: "Apache-2.0"
+    docs:
+      - { label: "docs.docker.com", url: "https://docs.docker.com" }
+
+  - name: "Kubernetes"
+    slug: "kubernetes"
+    tagline: "Orchestrate containers across a cluster, declaratively."
+    layer: [infrastructure]
+    maturity: industry-standard
+    learning_curve: steep
+    first_released: 2014
+    description: >
+      The de-facto container orchestrator — you declare the desired state
+      (\"run 3 replicas of this image, expose it on this port\") in YAML and the
+      control loop continuously reconciles reality toward it: scheduling pods,
+      restarting crashed ones, rolling out updates, and load-balancing. Born at
+      Google, now stewarded by the <span class="abbr-link" data-abbr="CDN">CNCF</span>.
+    use_cases:
+      - "Running microservices at scale with self-healing and autoscaling."
+      - "Multi-environment deploys with declarative, version-controlled config."
+      - "Workloads that outgrow a single host or a simple PaaS."
+    prerequisites:
+      - { name: "Docker", slug: "docker" }
+      - { name: "Networking & Linux fundamentals", slug: "" }
+    key_features:
+      - "Declarative desired-state reconciliation."
+      - "Self-healing, rolling updates, and horizontal autoscaling."
+      - "Service discovery and built-in load balancing."
+      - "Extensible via CRDs, operators, and Helm charts."
+    pairs_well_with:
+      - { name: "Docker", slug: "docker" }
+      - { name: "Terraform", slug: "terraform" }
+      - { name: "Nginx", slug: "nginx" }
+    alternatives:
+      - { name: "Docker Swarm", slug: "" }
+      - { name: "Nomad", slug: "" }
+      - { name: "Amazon ECS", slug: "" }
+    example:
+      lang: "yaml"
+      code: |-
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata: { name: web }
+        spec:
+          replicas: 3
+          selector: { matchLabels: { app: web } }
+          template:
+            metadata: { labels: { app: web } }
+            spec:
+              containers:
+                - name: web
+                  image: ghcr.io/me/web:latest
+      explain: >
+        A Deployment keeping 3 replicas of an image running — the scheduler places
+        them and restarts any that die.
+    gotchas: >
+      The steepest curve in this batch — pods, services, ingress, RBAC, and YAML
+      sprawl are a lot before you ship anything. **Don't reach for it too early**:
+      a single container on a PaaS or VM is far simpler until you genuinely need
+      multi-node scaling and self-healing.
+    maintained_by: "CNCF (originally Google) + OSS community"
+    language: "Go"
+    license: "Apache-2.0"
+    docs:
+      - { label: "kubernetes.io", url: "https://kubernetes.io/docs/home/" }
+
+  - name: "GitHub Actions"
+    slug: "github-actions"
+    tagline: "CI/CD baked into your GitHub repo, triggered by events."
+    layer: [tooling, infrastructure]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2019
+    description: >
+      GitHub's native <span class="abbr-link" data-abbr="CI/CD">CI/CD</span> —
+      define workflows as YAML files in `.github/workflows/` that run on repo events
+      (push, pull request, release, schedule, manual dispatch). Jobs run on
+      GitHub-hosted or self-hosted runners, and a large marketplace of reusable
+      actions covers most build/test/deploy steps. This very site deploys through it.
+    use_cases:
+      - "Building, testing, and linting on every pull request."
+      - "Deploying to GitHub Pages, cloud hosts, or a registry on merge."
+      - "Scheduled jobs (cron) and manual workflow_dispatch runs."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "GitHub", slug: "github" }
+    key_features:
+      - "YAML workflows triggered by repo events."
+      - "Marketplace of reusable, versioned actions."
+      - "GitHub-hosted and self-hosted runners."
+      - "Matrix builds, secrets, environments, and concurrency groups."
+    pairs_well_with:
+      - { name: "GitHub", slug: "github" }
+      - { name: "Docker", slug: "docker" }
+      - { name: "GitHub Pages", slug: "github-pages" }
+    alternatives:
+      - { name: "GitLab CI/CD", slug: "gitlab-ci" }
+      - { name: "Jenkins", slug: "jenkins" }
+      - { name: "CircleCI", slug: "" }
+    example:
+      lang: "yaml"
+      code: |-
+        name: CI
+        on: [push, pull_request]
+        jobs:
+          test:
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v4
+              - run: npm ci && npm test
+      explain: >
+        A workflow that checks out the repo and runs the test suite on every push
+        and pull request.
+    gotchas: >
+      It's a **proprietary** platform locked to GitHub — workflows aren't portable to
+      other hosts. Pin third-party actions to a full commit SHA (not a mutable tag) as
+      a supply-chain safeguard, and watch minute-based billing on private repos with
+      heavy matrix builds.
+    maintained_by: "GitHub (Microsoft)"
+    language: "YAML (workflows); runners in Go/TypeScript"
+    license: "proprietary"
+    docs:
+      - { label: "docs.github.com/actions", url: "https://docs.github.com/actions" }
+
+  - name: "GitLab CI/CD"
+    slug: "gitlab-ci"
+    tagline: "Pipelines defined in .gitlab-ci.yml, built into the platform."
+    layer: [tooling, infrastructure]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2015
+    description: >
+      GitLab's integrated <span class="abbr-link" data-abbr="CI/CD">CI/CD</span> —
+      a single `.gitlab-ci.yml` at the repo root defines stages and jobs that run on
+      GitLab Runners. Tightly woven into the rest of the GitLab DevOps platform
+      (issues, registry, environments, review apps), so the pipeline, the code, and
+      the deploy all live in one place.
+    use_cases:
+      - "End-to-end DevOps on a single self-hostable platform."
+      - "Pipelines with stages, manual gates, and environment deploys."
+      - "Teams wanting CI, registry, and issue tracking in one tool."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "GitLab", slug: "gitlab" }
+    key_features:
+      - "Single `.gitlab-ci.yml` with stages and jobs."
+      - "Self-hosted or GitLab-hosted runners."
+      - "Built-in container registry, environments, and review apps."
+      - "Includes, templates, and parent-child pipelines for reuse."
+    pairs_well_with:
+      - { name: "GitLab", slug: "gitlab" }
+      - { name: "Docker", slug: "docker" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+    alternatives:
+      - { name: "GitHub Actions", slug: "github-actions" }
+      - { name: "Jenkins", slug: "jenkins" }
+    example:
+      lang: "yaml"
+      code: |-
+        stages: [test, deploy]
+        test:
+          stage: test
+          script: npm ci && npm test
+        deploy:
+          stage: deploy
+          script: ./deploy.sh
+          only: [main]
+      explain: >
+        A two-stage pipeline — run tests on every push, then deploy only on the
+        main branch.
+    gotchas: >
+      **Open-core**: the MIT-licensed Community Edition covers the basics, but a lot
+      of CI/CD niceties (advanced security scanning, multiple approvers, some compliance
+      controls) sit behind the proprietary paid tiers. Self-managed runners need real
+      maintenance, and pipeline YAML grows complex fast on big monorepos.
+    maintained_by: "GitLab Inc."
+    language: "Ruby/Go (platform); YAML (pipelines)"
+    license: "open-core (MIT CE + proprietary)"
+    docs:
+      - { label: "docs.gitlab.com/ci", url: "https://docs.gitlab.com/ee/ci/" }
+
+  - name: "Terraform"
+    slug: "terraform"
+    tagline: "Provision cloud infrastructure as declarative, versioned code."
+    layer: [tooling, infrastructure]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2014
+    description: >
+      The dominant infrastructure-as-code tool — declare cloud resources
+      (servers, networks, <span class="abbr-link" data-abbr="IaaS">IaaS</span>
+      buckets, DNS, databases) in HCL, and Terraform computes a plan and applies it,
+      tracking what exists in a state file. Provider plugins cover
+      <span class="abbr-link" data-abbr="API">AWS</span>, GCP, Azure, Cloudflare,
+      and hundreds more.
+    use_cases:
+      - "Reproducible, reviewable provisioning of cloud infrastructure."
+      - "Multi-environment (dev/staging/prod) parity from one codebase."
+      - "Managing DNS, networking, and managed services as code."
+    prerequisites:
+      - { name: "A cloud provider account", slug: "" }
+      - { name: "Networking fundamentals", slug: "" }
+    key_features:
+      - "Declarative HCL with plan/apply diffing."
+      - "State file tracks managed resources."
+      - "Hundreds of providers via a plugin registry."
+      - "Modules for reusable, composable infrastructure."
+    pairs_well_with:
+      - { name: "AWS", slug: "aws" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "Ansible", slug: "ansible" }
+    alternatives:
+      - { name: "OpenTofu", slug: "" }
+      - { name: "Pulumi", slug: "" }
+      - { name: "AWS CloudFormation", slug: "" }
+    example:
+      lang: "hcl"
+      code: |-
+        resource "aws_s3_bucket" "assets" {
+          bucket = "my-app-assets"
+          tags   = { Env = "prod" }
+        }
+      explain: >
+        Declare an S3 bucket — `terraform apply` creates it and records it in state
+        so future runs reconcile changes.
+    gotchas: >
+      **No longer open source**: HashiCorp relicensed Terraform from MPL-2.0 to the
+      Business Source License (BSL 1.1, source-available) in August 2023, which spawned
+      the community **OpenTofu** fork (still MPL-2.0) — choose deliberately. Operationally,
+      the state file is sensitive and must be stored remotely with locking, or concurrent
+      applies corrupt it. (HashiCorp was acquired by IBM in 2024.)
+    maintained_by: "HashiCorp (IBM)"
+    language: "Go"
+    license: "BSL 1.1"
+    docs:
+      - { label: "developer.hashicorp.com/terraform", url: "https://developer.hashicorp.com/terraform" }
+
+  - name: "Ansible"
+    slug: "ansible"
+    tagline: "Agentless configuration management via YAML playbooks."
+    layer: [tooling, infrastructure]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2012
+    description: >
+      An agentless automation tool — describe the desired state of your servers in
+      YAML \"playbooks\" and Ansible connects over plain SSH to apply them, no agent
+      to install on targets. Idempotent modules mean re-running a playbook only changes
+      what's drifted, making it a staple for config management, app deployment, and
+      orchestration.
+    use_cases:
+      - "Configuring and patching fleets of servers consistently."
+      - "App deployment and release orchestration over SSH."
+      - "One-off ad-hoc commands across many hosts."
+    prerequisites:
+      - { name: "Python", slug: "python" }
+      - { name: "SSH & Linux fundamentals", slug: "" }
+    key_features:
+      - "Agentless — runs over SSH, nothing to install on targets."
+      - "Idempotent modules; re-runs only fix drift."
+      - "YAML playbooks and reusable roles."
+      - "Ansible Galaxy registry of community roles/collections."
+    pairs_well_with:
+      - { name: "Terraform", slug: "terraform" }
+      - { name: "Docker", slug: "docker" }
+      - { name: "Python", slug: "python" }
+    alternatives:
+      - { name: "Puppet", slug: "" }
+      - { name: "Chef", slug: "" }
+      - { name: "SaltStack", slug: "" }
+    example:
+      lang: "yaml"
+      code: |-
+        - hosts: web
+          become: true
+          tasks:
+            - name: Install nginx
+              ansible.builtin.apt:
+                name: nginx
+                state: present
+      explain: >
+        A playbook that installs nginx on every host in the `web` group, only making
+        a change if it isn't already present.
+    gotchas: >
+      Great for configuration, awkward for provisioning — pair it with Terraform rather
+      than fighting to create cloud infrastructure from playbooks. Large playbooks run
+      slowly (SSH per task, per host), and \"idempotent\" only holds if you use proper
+      modules instead of raw `shell`/`command` tasks.
+    maintained_by: "Red Hat (IBM) + OSS community"
+    language: "Python"
+    license: "GPL-3.0"
+    docs:
+      - { label: "docs.ansible.com", url: "https://docs.ansible.com" }
+
+  - name: "Nginx"
+    slug: "nginx"
+    tagline: "High-performance web server, reverse proxy, and load balancer."
+    layer: [infrastructure]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2004
+    description: >
+      An event-driven web server renowned for serving static files and acting as a
+      reverse proxy / load balancer in front of application servers. Its low memory
+      footprint under high concurrency made it the standard front door for web apps —
+      terminating TLS, routing requests, caching, and fronting upstreams (it also
+      powers many a <span class="abbr-link" data-abbr="CDN">CDN</span> edge).
+    use_cases:
+      - "Serving static assets and SPA builds efficiently."
+      - "Reverse-proxying and load-balancing app servers (Node, PHP-FPM, etc.)."
+      - "TLS termination, caching, and rate limiting at the edge."
+    prerequisites:
+      - { name: "HTTP & networking fundamentals", slug: "" }
+      - { name: "Linux fundamentals", slug: "" }
+    key_features:
+      - "Event-driven architecture — high concurrency, low memory."
+      - "Reverse proxy, load balancer, and TLS terminator."
+      - "Static file serving and response caching."
+      - "Config-driven routing with `server` / `location` blocks."
+    pairs_well_with:
+      - { name: "Docker", slug: "docker" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+    alternatives:
+      - { name: "Apache HTTP Server", slug: "" }
+      - { name: "Caddy", slug: "" }
+      - { name: "HAProxy", slug: "" }
+    example:
+      lang: "nginx"
+      code: |-
+        server {
+          listen 80;
+          location / {
+            proxy_pass http://localhost:3000;
+          }
+        }
+      explain: >
+        Listen on port 80 and reverse-proxy every request to a Node app running on
+        port 3000.
+    gotchas: >
+      The config language is its own DSL with sharp edges — `location` matching
+      precedence, trailing-slash behavior on `proxy_pass`, and `try_files` ordering
+      trip up newcomers. Reload (`nginx -s reload`) instead of restart to apply
+      changes without dropping connections. F5 owns the project today.
+    maintained_by: "F5, Inc. + OSS community"
+    language: "C"
+    license: "BSD-2-Clause"
+    docs:
+      - { label: "nginx.org/en/docs", url: "https://nginx.org/en/docs/" }
+
+  - name: "Jenkins"
+    slug: "jenkins"
+    tagline: "The veteran self-hosted CI server, extensible to a fault."
+    layer: [tooling, infrastructure]
+    maturity: legacy
+    learning_curve: steep
+    first_released: 2011
+    description: >
+      The original open-source automation server — a self-hosted
+      <span class="abbr-link" data-abbr="CI/CD">CI/CD</span> engine driven by a vast
+      plugin ecosystem and \"Pipeline as code\" via a `Jenkinsfile` (Groovy).
+      Predates the cloud-native runners and remains entrenched in enterprises, though
+      newer teams usually reach for GitHub Actions or GitLab CI instead.
+    use_cases:
+      - "Self-hosted CI/CD where data must stay on-prem."
+      - "Legacy enterprise pipelines already built on Jenkins."
+      - "Highly customized builds needing a specific plugin."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "Server administration", slug: "" }
+    key_features:
+      - "Pipeline as code via a Groovy `Jenkinsfile`."
+      - "Thousands of plugins for almost any integration."
+      - "Distributed builds across controller + agents."
+      - "Fully self-hosted — no vendor lock-in."
+    pairs_well_with:
+      - { name: "Docker", slug: "docker" }
+      - { name: "Git", slug: "git" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+    alternatives:
+      - { name: "GitHub Actions", slug: "github-actions" }
+      - { name: "GitLab CI/CD", slug: "gitlab-ci" }
+      - { name: "TeamCity", slug: "" }
+    example:
+      lang: "groovy"
+      code: |-
+        pipeline {
+          agent any
+          stages {
+            stage('Test') {
+              steps { sh 'npm ci && npm test' }
+            }
+          }
+        }
+      explain: >
+        A declarative Jenkinsfile pipeline with one stage that installs dependencies
+        and runs the test suite.
+    gotchas: >
+      Powerful but high-maintenance — you own the server, the agents, the upgrades,
+      and a sprawling plugin set whose interdependencies and CVEs need constant
+      tending. The plugin-heavy model that was once its strength now reads as legacy
+      next to managed cloud CI; pick it deliberately, usually for on-prem constraints.
+    maintained_by: "Jenkins community (CDF)"
+    language: "Java"
+    license: "MIT"
+    docs:
+      - { label: "jenkins.io/doc", url: "https://www.jenkins.io/doc/" }

@@ -47,6 +47,20 @@ updated). Favicons committed locally under assets/images/favicons/.
   {%- endif -%}
 {%- endfor -%}
 
+{%- comment -%} Web dev tech stack metadata {%- endcomment -%}
+{%- assign webdev_page = site.pages | where: "permalink", "/references/web-dev-tech-stack/" | first -%}
+{%- assign webdev_batches = site.data["web-dev-tech-stack"] -%}
+{%- assign webdev_rows = 0 -%}
+{%- assign webdev_updated = "" -%}
+{%- for entry in webdev_batches -%}
+  {%- if entry[1].batch -%}
+    {%- assign rows = entry[1].entries | default: empty -%}
+    {%- assign webdev_rows = webdev_rows | plus: rows.size -%}
+    {%- assign d = entry[1].batch.last_updated | default: "" -%}
+    {%- if d != "" and d > webdev_updated -%}{%- assign webdev_updated = d -%}{%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+
 <link rel="stylesheet" href="{{ '/assets/css/references-index.css' | relative_url }}">
 
 <section class="references-index">
@@ -107,6 +121,23 @@ updated). Favicons committed locally under assets/images/favicons/.
             <p class="references-card__meta">
               <strong>{{ cmd_rows }}</strong> commands
               {% if cmd_updated != "" %} · updated <time datetime="{{ cmd_updated }}">{{ cmd_updated }}</time>{% endif %}
+            </p>
+          </div>
+          <span class="references-card__cta" aria-hidden="true">Open →</span>
+        </a>
+      </li>
+
+      <li class="references-card">
+        <a class="references-card__link" href="{{ '/references/web-dev-tech-stack/' | relative_url }}">
+          <span class="references-card__icon" aria-hidden="true">
+            <img src="{{ '/assets/images/favicons/web-dev-tech-stack.png?v=1' | relative_url }}" alt="">
+          </span>
+          <div class="references-card__body">
+            <h2 class="references-card__title">Web Dev Tech Stack</h2>
+            <p class="references-card__blurb">{{ webdev_page.description | strip_html | truncate: 180 }}</p>
+            <p class="references-card__meta">
+              <strong>{{ webdev_rows }}</strong> technologies
+              {% if webdev_updated != "" %} · updated <time datetime="{{ webdev_updated }}">{{ webdev_updated }}</time>{% endif %}
             </p>
           </div>
           <span class="references-card__cta" aria-hidden="true">Open →</span>
