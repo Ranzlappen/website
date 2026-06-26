@@ -1,0 +1,430 @@
+batch:
+  id: "state-data"
+  order: 7
+  name: "State & Data Fetching"
+  short_name: "State/Data"
+  description: >
+    Managing client state and server data in the browser — global stores (Redux
+    Toolkit, Zustand, Jotai, MobX), async server-state caches that handle
+    fetching, caching, and revalidation (TanStack Query, SWR), a dedicated
+    GraphQL client (Apollo), and state machines for complex flows (XState). Most
+    apps end up pairing a small client store with a data-fetching library.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Redux Toolkit"
+    slug: "redux-toolkit"
+    tagline: "The official, opinionated, batteries-included Redux."
+    layer: [frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2019
+    description: >
+      The modern, recommended way to write Redux. Plain Redux (2015) demanded
+      heavy boilerplate; Redux Toolkit ("RTK") wraps it with `createSlice`,
+      Immer-powered "mutating" reducers, the Thunk middleware, and configured
+      stores — cutting the ceremony dramatically. RTK Query adds a built-in
+      data-fetching/caching layer for talking to an
+      <span class="abbr-link" data-abbr="API">API</span>.
+    use_cases:
+      - "Large apps wanting a single predictable, debuggable global store."
+      - "Teams that value Redux DevTools time-travel and strict conventions."
+      - "Codebases standardizing on RTK Query for server-state caching."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "createSlice generates actions + reducers with Immer's mutating syntax."
+      - "configureStore wires DevTools and sensible middleware by default."
+      - "RTK Query for data fetching, caching, and invalidation."
+      - "Strong TypeScript inference throughout."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "TanStack Query", slug: "tanstack-query" }
+    alternatives:
+      - { name: "Zustand", slug: "zustand" }
+      - { name: "Jotai", slug: "jotai" }
+      - { name: "MobX", slug: "mobx" }
+    example:
+      lang: "ts"
+      code: |-
+        const counter = createSlice({
+          name: 'counter',
+          initialState: { n: 0 },
+          reducers: { inc: s => { s.n++; } },
+        });
+      explain: "createSlice + Immer let you write 's.n++' and still get an immutable update."
+    gotchas: >
+      It's still Redux underneath — actions, reducers, selectors, and a single
+      store are more architecture than small apps need. The "mutating" reducer
+      syntax only works because Immer is inside `createSlice`; mutating state
+      anywhere else still breaks things.
+    maintained_by: "Redux team + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "redux-toolkit.js.org", url: "https://redux-toolkit.js.org" }
+
+  - name: "Zustand"
+    slug: "zustand"
+    tagline: "A tiny, hooks-based store with almost no boilerplate."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2019
+    description: >
+      A minimal state-management library from the Poimandres collective. You
+      create a store with a single hook and read or update state from any
+      component — no providers, reducers, or action types required. It's tiny,
+      unopinionated, works outside React, and has become the go-to lightweight
+      alternative to Redux.
+    use_cases:
+      - "Apps wanting global state without Redux's ceremony."
+      - "Sharing state across components with a single hook."
+      - "Lightweight stores in libraries or non-React contexts."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Single create() hook — no context provider needed."
+      - "Selector subscriptions to minimize re-renders."
+      - "Middleware for persistence, Immer, and Redux DevTools."
+      - "Tiny bundle; usable outside React."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "TanStack Query", slug: "tanstack-query" }
+    alternatives:
+      - { name: "Jotai", slug: "jotai" }
+      - { name: "Redux Toolkit", slug: "redux-toolkit" }
+      - { name: "MobX", slug: "mobx" }
+    example:
+      lang: "ts"
+      code: |-
+        const useStore = create(set => ({
+          n: 0,
+          inc: () => set(s => ({ n: s.n + 1 })),
+        }));
+      explain: "One hook defines state and actions; any component calls useStore() to read or update."
+    gotchas: >
+      The freedom is a double edge — no enforced structure means large apps can
+      drift into ad-hoc stores and tangled updates. Naive selectors that return
+      new objects can over-render, so reach for `useShallow` or fine-grained
+      selectors as the store grows.
+    maintained_by: "Poimandres (pmndrs) + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "zustand.docs.pmnd.rs", url: "https://zustand.docs.pmnd.rs" }
+
+  - name: "Jotai"
+    slug: "jotai"
+    tagline: "Bottom-up atomic state for React."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      An atomic state-management library from Daishi Kato (Poimandres). State is
+      built from small, composable `atom`s that you read and write with a
+      `useAtom` hook, and derived atoms recompute automatically when their
+      dependencies change. The bottom-up, primitive-first model avoids a single
+      monolithic store and the re-render pitfalls of context.
+    use_cases:
+      - "Fine-grained shared state without a single global store."
+      - "Derived/computed state that recomputes from dependencies."
+      - "React apps wanting Recoil-style atoms with a smaller footprint."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Composable atoms as the unit of state."
+      - "Derived atoms recompute from their dependencies."
+      - "No provider required for the default store."
+      - "Integrations for persistence, Query, and async atoms."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "TanStack Query", slug: "tanstack-query" }
+    alternatives:
+      - { name: "Zustand", slug: "zustand" }
+      - { name: "Redux Toolkit", slug: "redux-toolkit" }
+      - { name: "MobX", slug: "mobx" }
+    example:
+      lang: "ts"
+      code: |-
+        const countAtom = atom(0);
+        const doubledAtom = atom(get => get(countAtom) * 2);
+      explain: "A primitive atom plus a derived atom that recomputes whenever the first changes."
+    gotchas: >
+      Atomic thinking is a different mental model — many tiny atoms can sprawl,
+      and tracking which derived atom depends on what gets harder at scale.
+      Async atoms integrate with Suspense, which is powerful but adds its own
+      learning curve.
+    maintained_by: "Daishi Kato / Poimandres + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "jotai.org", url: "https://jotai.org" }
+
+  - name: "MobX"
+    slug: "mobx"
+    tagline: "Transparent reactive state via observables."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2015
+    description: >
+      A state library built on transparent functional-reactive programming: you
+      mark state as `observable`, derive values with `computed`, and components
+      wrapped in `observer` re-render automatically when the data they read
+      changes. You mutate state directly — MobX tracks the dependency graph and
+      updates only what's affected, an OOP-friendly contrast to Redux's
+      immutable flow.
+    use_cases:
+      - "Apps preferring mutable, object-oriented state over reducers."
+      - "Complex derived/computed values that must stay in sync."
+      - "Teams wanting automatic, fine-grained re-render tracking."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Observable state with automatic dependency tracking."
+      - "Computed values cached and recomputed only when needed."
+      - "observer components re-render on exactly the reads that change."
+      - "Direct mutation — no immutable-update boilerplate."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Redux Toolkit", slug: "redux-toolkit" }
+      - { name: "Zustand", slug: "zustand" }
+      - { name: "Jotai", slug: "jotai" }
+    example:
+      lang: "ts"
+      code: |-
+        class Store { n = 0; constructor() { makeAutoObservable(this); }
+          inc() { this.n++; } }
+      explain: "makeAutoObservable makes every field observable; an observer component re-renders when n changes."
+    gotchas: >
+      The "magic" reactivity can surprise you — forget the `observer` wrapper and
+      a component silently won't update, and reading observables outside a
+      tracked context misses changes. The mutable, decorator-heavy style is a
+      sharp philosophical break from the immutable Redux ecosystem.
+    maintained_by: "Michel Weststrate + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "mobx.js.org", url: "https://mobx.js.org" }
+
+  - name: "TanStack Query"
+    slug: "tanstack-query"
+    tagline: "Async server-state — fetching, caching, revalidation done right."
+    layer: [frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2019
+    description: >
+      The de-facto standard for managing *server* state in the browser (formerly
+      React Query). It handles fetching, caching, background revalidation,
+      deduping, pagination, and mutations behind a `useQuery`/`useMutation` hook
+      — so you stop hand-rolling loading flags and stale-data bugs around your
+      <span class="abbr-link" data-abbr="API">API</span> calls. It's transport-
+      agnostic (works with
+      <span class="abbr-link" data-abbr="REST">REST</span>,
+      <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>, or anything that
+      returns a promise) and ships adapters for React, Vue, Svelte, and Solid.
+    use_cases:
+      - "Caching and revalidating REST/GraphQL data without a global store."
+      - "Pagination, infinite scroll, and optimistic mutations."
+      - "Eliminating manual loading/error/stale state boilerplate."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "useQuery / useMutation hooks with smart caching by key."
+      - "Background refetching, deduping, and stale-while-revalidate."
+      - "Infinite queries, pagination, and optimistic updates."
+      - "Framework adapters for React, Vue, Svelte, and Solid."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Zustand", slug: "zustand" }
+      - { name: "tRPC", slug: "trpc" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "SWR", slug: "swr" }
+      - { name: "Apollo Client", slug: "apollo-client" }
+      - { name: "RTK Query", slug: "redux-toolkit" }
+    example:
+      lang: "tsx"
+      code: |-
+        const { data, isLoading } = useQuery({
+          queryKey: ['todos'],
+          queryFn: () => fetch('/api/todos').then(r => r.json()),
+        });
+      explain: "One hook fetches, caches by key, and exposes loading/error state automatically."
+    gotchas: >
+      It manages *server* state, not client state — don't reach for it to hold UI
+      state like modal toggles (use a store for that). Cache keys and
+      `staleTime`/`gcTime` tuning matter: a wrong key shares or splits caches in
+      surprising ways, and defaults that feel "too eager" to refetch trip people up.
+    maintained_by: "Tanner Linsley / TanStack + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "tanstack.com/query", url: "https://tanstack.com/query" }
+
+  - name: "SWR"
+    slug: "swr"
+    tagline: "Lightweight data fetching with stale-while-revalidate."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2019
+    description: >
+      A small React data-fetching library from Vercel, named after the HTTP
+      `stale-while-revalidate` strategy: return cached data first, then refetch
+      in the background and update. A single `useSWR(key, fetcher)` hook gives
+      you caching, revalidation on focus/reconnect, and deduping with minimal
+      setup — a lighter-touch alternative to TanStack Query.
+    use_cases:
+      - "Simple, fast data fetching in React (especially Next.js) apps."
+      - "Auto-revalidating reads on window focus and network reconnect."
+      - "Lightweight caching without configuring a full query client."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "useSWR hook: cache-first, revalidate-in-background."
+      - "Revalidation on focus, reconnect, and interval."
+      - "Request deduping and optimistic mutate()."
+      - "Tiny footprint; first-class Next.js integration."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "TanStack Query", slug: "tanstack-query" }
+      - { name: "Apollo Client", slug: "apollo-client" }
+    example:
+      lang: "tsx"
+      code: |-
+        const { data, error, isLoading } = useSWR('/api/user', fetcher);
+      explain: "Returns cached data immediately, then revalidates in the background and re-renders."
+    gotchas: >
+      It's intentionally lean — for heavy needs like infinite pagination,
+      complex mutations, or fine-grained cache control, TanStack Query offers
+      more out of the box. Aggressive default revalidation (refetch on focus) can
+      surprise you; disable it per-call when it isn't wanted.
+    maintained_by: "Vercel + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "swr.vercel.app", url: "https://swr.vercel.app" }
+
+  - name: "Apollo Client"
+    slug: "apollo-client"
+    tagline: "The full-featured GraphQL client with a normalized cache."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: steep
+    first_released: 2016
+    description: >
+      A comprehensive client for talking to a
+      <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>
+      <span class="abbr-link" data-abbr="API">API</span>. Its headline feature is
+      a normalized in-memory cache that stores entities by ID and keeps queries
+      across the app consistent, plus `useQuery`/`useMutation` hooks, optimistic
+      UI, subscriptions, and local-state management. Powerful, but heavier than
+      transport-agnostic fetch libraries.
+    use_cases:
+      - "Apps with a substantial GraphQL API needing entity-level caching."
+      - "Consistent shared data across many components via a normalized cache."
+      - "GraphQL subscriptions, optimistic UI, and pagination."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "GraphQL", slug: "" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Normalized cache keyed by entity ID for cross-query consistency."
+      - "useQuery / useMutation hooks plus subscriptions."
+      - "Optimistic responses and cache updates."
+      - "Local state can live alongside server data in the cache."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "TanStack Query", slug: "tanstack-query" }
+      - { name: "SWR", slug: "swr" }
+      - { name: "urql", slug: "" }
+    example:
+      lang: "tsx"
+      code: |-
+        const { data, loading } = useQuery(gql`
+          query { me { id name } }
+        `);
+      explain: "Runs the GraphQL query, normalizes the result into the cache, and exposes loading state."
+    gotchas: >
+      The normalized cache is the power *and* the complexity — cache
+      normalization, type policies, and manual cache updates after mutations are
+      a real learning curve. It's GraphQL-only and comparatively heavy; for REST
+      or simple needs a fetch-based library is lighter. urql is a leaner GraphQL
+      alternative.
+    maintained_by: "Apollo (apollographql) + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "apollographql.com/docs/react", url: "https://www.apollographql.com/docs/react" }
+
+  - name: "XState"
+    slug: "xstate"
+    tagline: "State machines and statecharts for predictable logic."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: steep
+    first_released: 2017
+    description: >
+      A library for modeling application logic as finite state machines and
+      statecharts. Instead of scattered booleans, you declare explicit states and
+      the transitions between them, so impossible states become unrepresentable.
+      It's framework-agnostic — usable in React, Vue, Node, or vanilla JS — and
+      pairs with visual tooling from Stately to design and inspect machines.
+    use_cases:
+      - "Complex multi-step flows (wizards, checkout, auth) with clear states."
+      - "Eliminating impossible/invalid UI states via explicit transitions."
+      - "Logic you want to visualize, document, and test as a diagram."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Finite state machines and hierarchical/parallel statecharts."
+      - "Guards, actions, and invoked actors/services."
+      - "Framework-agnostic core with React/Vue/Svelte bindings."
+      - "Visual editor and inspector from Stately."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Zustand", slug: "zustand" }
+      - { name: "Redux Toolkit", slug: "redux-toolkit" }
+    example:
+      lang: "ts"
+      code: |-
+        const toggle = createMachine({
+          initial: 'off',
+          states: { off: { on: { TOGGLE: 'on' } }, on: { on: { TOGGLE: 'off' } } },
+        });
+      explain: "A two-state machine where a TOGGLE event flips between off and on — no impossible states."
+    gotchas: >
+      Statecharts are a paradigm shift — the upfront modeling and dense API
+      (actors, guards, context, services) are overkill for simple state and have
+      a steep curve. Reach for it when flows are genuinely complex; a boolean or
+      a small store is fine for the rest.
+    maintained_by: "Stately (David Khourshid) + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "stately.ai/docs/xstate", url: "https://stately.ai/docs/xstate" }

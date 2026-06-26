@@ -1,0 +1,349 @@
+batch:
+  id: "package-managers"
+  order: 15
+  name: "Package Managers & Registries"
+  short_name: "Package Mgrs"
+  description: >
+    How your project gets its dependencies — the CLIs that resolve, download,
+    and link packages (npm, pnpm, Yarn, Bun), the registries they pull from (the
+    public npm registry), the equivalent in other ecosystems (Composer for PHP),
+    and the build orchestrators that make big monorepos fast (Turborepo). They
+    all read a manifest, build a lock file, and populate a dependency tree — they
+    just differ on speed, disk usage, and how strict that tree is.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "npm"
+    slug: "npm"
+    tagline: "The default package manager that ships with Node."
+    layer: [tooling]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2010
+    description: >
+      Node.js's built-in package manager and the original gateway to the
+      <span class="abbr-link" data-abbr="JavaScript">JavaScript</span> ecosystem.
+      It reads `package.json`, resolves a dependency tree into a flat
+      `node_modules`, writes a `package-lock.json` for reproducible installs, and
+      runs your scripts (`npm run …`). It's the baseline every other JS package
+      manager is measured against.
+    use_cases:
+      - "Default dependency management for any Node/JS project."
+      - "Running project scripts and publishing packages to the registry."
+      - "Lowest-friction choice when no special speed/disk needs exist."
+    prerequisites:
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Ships with Node — zero extra install."
+      - "Flat node_modules with package-lock.json for reproducibility."
+      - "Workspaces for basic monorepo support."
+      - "npx for running package binaries without installing them."
+    pairs_well_with:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "npm registry", slug: "npm-registry" }
+    alternatives:
+      - { name: "pnpm", slug: "pnpm" }
+      - { name: "Yarn", slug: "yarn" }
+      - { name: "Bun (package manager)", slug: "bun-pm" }
+    example:
+      lang: "bash"
+      code: "npm install && npm run build"
+      explain: "Install all dependencies from package.json, then run the build script."
+    gotchas: >
+      The flat `node_modules` is *non-deterministic in layout* and permissive —
+      it lets you import packages you never declared (phantom dependencies),
+      which breaks when a manager like pnpm enforces strictness. It's also the
+      slowest and most disk-hungry of the major managers on large installs.
+    maintained_by: "npm, Inc. (GitHub / Microsoft)"
+    language: "JavaScript"
+    license: "Artistic-2.0"
+    docs:
+      - { label: "docs.npmjs.com", url: "https://docs.npmjs.com" }
+
+  - name: "pnpm"
+    slug: "pnpm"
+    tagline: "Fast, disk-efficient, and strict about your dependency tree."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2017
+    description: >
+      A drop-in npm alternative that stores every package version once in a
+      global content-addressed store and hard-links it into each project's
+      `node_modules`, so ten projects sharing a dependency cost the disk space
+      of one. Its non-flat layout is strict — you can only import what you
+      actually declared — which kills phantom-dependency bugs and makes it a
+      favorite for the monorepo crowd.
+    use_cases:
+      - "Monorepos and machines with many projects (huge disk savings)."
+      - "Teams that want a strict, phantom-dependency-free node_modules."
+      - "Faster CI installs than npm or classic Yarn."
+    prerequisites:
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Content-addressed global store + hard links — install once, reuse everywhere."
+      - "Strict, symlinked node_modules — no phantom dependencies."
+      - "First-class workspaces for monorepos."
+      - "Compatible with the npm registry and package.json scripts."
+    pairs_well_with:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Turborepo", slug: "turborepo" }
+      - { name: "npm registry", slug: "npm-registry" }
+    alternatives:
+      - { name: "npm", slug: "npm" }
+      - { name: "Yarn", slug: "yarn" }
+      - { name: "Bun (package manager)", slug: "bun-pm" }
+    example:
+      lang: "bash"
+      code: "pnpm install && pnpm -r build"
+      explain: "Install dependencies into the shared store, then run the build script across every workspace package."
+    gotchas: >
+      The symlinked, non-flat layout occasionally trips tooling that assumes a
+      flat `node_modules` or resolves modules by walking the real filesystem path
+      — a few legacy packages need a `node-linker=hoisted` escape hatch. The
+      strictness that catches phantom deps can also surface latent bugs the day
+      you switch from npm.
+    maintained_by: "pnpm team + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "pnpm.io", url: "https://pnpm.io" }
+
+  - name: "Yarn"
+    slug: "yarn"
+    tagline: "The manager that pushed npm to get faster and deterministic."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      A package manager born at Meta to fix early npm's speed and determinism
+      problems — it introduced lock files and parallel installs that npm later
+      adopted. Yarn Classic (v1) behaves like npm; Yarn Berry (v2+) is a rewrite
+      with Plug'n'Play, which skips `node_modules` entirely and resolves modules
+      from a single zipped cache.
+    use_cases:
+      - "Projects already standardized on Yarn workspaces."
+      - "Plug'n'Play setups that want to eliminate node_modules."
+      - "Teams wanting plugin-extensible install behavior."
+    prerequisites:
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Deterministic lock file and parallel installs."
+      - "Workspaces for monorepos (Classic and Berry)."
+      - "Yarn Berry's Plug'n'Play removes node_modules."
+      - "Plugin architecture for extending the CLI."
+    pairs_well_with:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "npm registry", slug: "npm-registry" }
+      - { name: "Turborepo", slug: "turborepo" }
+    alternatives:
+      - { name: "npm", slug: "npm" }
+      - { name: "pnpm", slug: "pnpm" }
+      - { name: "Bun (package manager)", slug: "bun-pm" }
+    example:
+      lang: "bash"
+      code: "yarn install && yarn build"
+      explain: "Install dependencies and run the build script via the Yarn CLI."
+    gotchas: >
+      Yarn Classic (v1) and Yarn Berry (v2+) are almost two different tools —
+      Berry's Plug'n'Play breaks packages that expect a real `node_modules`, so
+      many Berry users fall back to the `node-modules` linker. Pick a major
+      version deliberately; mixing advice from both eras causes confusion.
+    maintained_by: "Yarn team + OSS community (originally Meta)"
+    language: "TypeScript"
+    license: "BSD-2-Clause"
+    docs:
+      - { label: "yarnpkg.com", url: "https://yarnpkg.com" }
+
+  - name: "Bun (package manager)"
+    slug: "bun-pm"
+    tagline: "`bun install` — an absurdly fast npm-compatible installer."
+    layer: [tooling]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2022
+    description: >
+      The package-manager half of the Bun runtime — `bun install` reads your
+      existing `package.json` and installs from the npm registry, but does it
+      many times faster than npm or Yarn thanks to a native (Zig) implementation
+      and an aggressive global cache. It's a drop-in installer you can adopt even
+      if the rest of your stack still runs on Node.
+    use_cases:
+      - "Drastically faster dependency installs in dev and CI."
+      - "Drop-in `bun install` replacement on existing Node projects."
+      - "Greenfield projects already using the Bun runtime end-to-end."
+    prerequisites:
+      - { name: "Bun", slug: "bun" }
+    key_features:
+      - "Native (Zig) installer — dramatically faster than npm/Yarn."
+      - "Reads package.json + works with the npm registry."
+      - "Global cache with hard links for fast, deduplicated installs."
+      - "Built into the Bun runtime alongside its bundler and test runner."
+    pairs_well_with:
+      - { name: "Bun", slug: "bun" }
+      - { name: "npm registry", slug: "npm-registry" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "npm", slug: "npm" }
+      - { name: "pnpm", slug: "pnpm" }
+      - { name: "Yarn", slug: "yarn" }
+    example:
+      lang: "bash"
+      code: "bun install"
+      explain: "Install all dependencies from package.json using Bun's native installer."
+    gotchas: >
+      The installer is the most battle-tested part of Bun, but edge cases in
+      lifecycle scripts, peer-dependency resolution, and lockfile interop with
+      other managers still surface. Bun was acquired by Anthropic in December
+      2025 and stays MIT-licensed; the project remains young relative to npm and
+      pnpm.
+    maintained_by: "Bun team (Anthropic)"
+    language: "Zig"
+    license: "MIT"
+    docs:
+      - { label: "bun.sh/docs", url: "https://bun.sh/docs/cli/install" }
+
+  - name: "npm registry"
+    slug: "npm-registry"
+    tagline: "The public warehouse — 3M+ packages every JS manager pulls from."
+    layer: [tooling, infrastructure]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2010
+    description: >
+      The public registry at `registry.npmjs.org` that hosts over three million
+      <span class="abbr-link" data-abbr="JavaScript">JavaScript</span> packages —
+      the default source that npm, pnpm, Yarn, and Bun all download from. It's a
+      hosted service (not open-source software you self-host), exposing a simple
+      <span class="abbr-link" data-abbr="HTTP">HTTP</span>
+      <span class="abbr-link" data-abbr="API">API</span> for fetching package
+      tarballs and metadata, plus auth for publishing.
+    use_cases:
+      - "The default install source for every major JS package manager."
+      - "Publishing and distributing open-source JS/TS libraries."
+      - "Scoped + private packages for org-internal distribution."
+    prerequisites:
+      - { name: "npm", slug: "npm" }
+    key_features:
+      - "3M+ packages — the largest software registry in the world."
+      - "Simple HTTP API for tarballs and version metadata."
+      - "Scoped packages (@org/pkg) and private publishing."
+      - "Mirrorable behind a proxy/cache (Verdaccio, Artifactory)."
+    pairs_well_with:
+      - { name: "npm", slug: "npm" }
+      - { name: "pnpm", slug: "pnpm" }
+      - { name: "Yarn", slug: "yarn" }
+      - { name: "Bun (package manager)", slug: "bun-pm" }
+    alternatives:
+      - { name: "GitHub Packages", slug: "" }
+      - { name: "JSR", slug: "" }
+    example:
+      lang: "bash"
+      code: "npm config get registry"
+      explain: "Print the active registry URL — defaults to https://registry.npmjs.org/."
+    gotchas: >
+      It's a single hosted service, so it's a supply-chain and availability
+      choke point — typosquatting, dependency-confusion, and the occasional
+      unpublished package (the infamous left-pad incident) all stem from trusting
+      a public registry. Pin versions, use a lock file, and consider a caching
+      proxy for CI.
+    maintained_by: "npm, Inc. (GitHub / Microsoft)"
+    language: "Hosted service"
+    license: "proprietary"
+    docs:
+      - { label: "docs.npmjs.com", url: "https://docs.npmjs.com/cli/v10/using-npm/registry" }
+
+  - name: "Composer"
+    slug: "composer"
+    tagline: "The dependency manager that modernized PHP."
+    layer: [tooling]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2012
+    description: >
+      The standard dependency manager for <span class="abbr-link" data-abbr="PHP">PHP</span>
+      — it reads a `composer.json`, resolves a compatible set of packages from
+      the Packagist registry, writes a `composer.lock` for reproducible installs,
+      and generates a PSR-4 autoloader so you never write `require` statements by
+      hand. It's the tool that made the modern PHP framework ecosystem (Laravel,
+      Symfony) possible.
+    use_cases:
+      - "Dependency management for any modern PHP project."
+      - "Installing and updating frameworks like Laravel or Symfony."
+      - "Autoloading classes via the generated PSR-4 autoloader."
+    prerequisites:
+      - { name: "PHP", slug: "php" }
+    key_features:
+      - "composer.json manifest + composer.lock for reproducible installs."
+      - "Pulls from the Packagist registry by default."
+      - "Generates a PSR-4 / classmap autoloader automatically."
+      - "Per-project dependencies (no global install soup)."
+    pairs_well_with:
+      - { name: "PHP", slug: "php" }
+      - { name: "Laravel", slug: "laravel" }
+    alternatives:
+      - { name: "PEAR", slug: "" }
+    example:
+      lang: "bash"
+      code: "composer require laravel/framework"
+      explain: "Add Laravel to a PHP project, resolving and locking a compatible version into composer.json."
+    gotchas: >
+      Resolving large dependency graphs can be slow and memory-hungry — bumping
+      PHP's `memory_limit` for Composer is a common ritual. And always commit
+      `composer.lock`: without it, `composer install` resolves fresh versions and
+      you lose reproducibility across environments.
+    maintained_by: "Composer team + OSS community"
+    language: "PHP"
+    license: "MIT"
+    docs:
+      - { label: "getcomposer.org", url: "https://getcomposer.org" }
+
+  - name: "Turborepo"
+    slug: "turborepo"
+    tagline: "High-performance build orchestration for JS/TS monorepos."
+    layer: [tooling]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2021
+    description: >
+      A monorepo build system from Vercel that sits on top of your package
+      manager's workspaces and makes big repos fast through aggressive caching —
+      it builds a task dependency graph, runs tasks in parallel, and skips any
+      work whose inputs haven't changed (locally and via a shared remote cache).
+      It's a task runner, not a package manager: pair it with npm, pnpm, or Yarn
+      workspaces.
+    use_cases:
+      - "Speeding up build/test/lint tasks across a JS/TS monorepo."
+      - "Sharing a remote build cache across a team and CI."
+      - "Orchestrating task pipelines with explicit dependencies."
+    prerequisites:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "pnpm", slug: "pnpm" }
+    key_features:
+      - "Content-aware caching — never rebuild unchanged tasks."
+      - "Remote cache shared across machines and CI."
+      - "Parallel task execution from a dependency graph (turbo.json)."
+      - "Layers on top of npm/pnpm/Yarn workspaces."
+    pairs_well_with:
+      - { name: "pnpm", slug: "pnpm" }
+      - { name: "Vercel", slug: "vercel" }
+      - { name: "Next.js", slug: "next-js" }
+    alternatives:
+      - { name: "Nx", slug: "" }
+      - { name: "Lerna", slug: "" }
+      - { name: "Bazel", slug: "" }
+    example:
+      lang: "bash"
+      code: "turbo run build test --filter=web"
+      explain: "Run build and test for the 'web' package and its dependencies, reusing cached results where inputs are unchanged."
+    gotchas: >
+      The cache only helps if your task `inputs`/`outputs` in `turbo.json` are
+      declared accurately — get them wrong and you'll either cache stale results
+      or never get a cache hit. It's an orchestrator on top of workspaces, not a
+      replacement for your package manager.
+    maintained_by: "Vercel + OSS community"
+    language: "Rust"
+    license: "MIT"
+    docs:
+      - { label: "turborepo.com", url: "https://turborepo.com" }

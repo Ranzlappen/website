@@ -1,0 +1,420 @@
+batch:
+  id: "styling"
+  order: 6
+  name: "Styling & CSS Tooling"
+  short_name: "Styling"
+  description: >
+    How you write and ship CSS — from utility-first engines (Tailwind, UnoCSS)
+    and the classic preprocessor (Sass) to CSS-in-JS runtimes (styled-components,
+    Emotion), zero-runtime CSS-in-TS (vanilla-extract), locally-scoped CSS
+    Modules, and the plugin transformer (PostCSS) that quietly powers half of
+    them.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Tailwind CSS"
+    slug: "tailwind-css"
+    tagline: "Utility-first CSS you compose in your markup."
+    layer: [styling, frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2017
+    description: >
+      A utility-first framework where you style by composing tiny classes
+      (`flex`, `pt-4`, `text-center`) directly in markup instead of writing
+      bespoke CSS files. The compiler scans your templates and emits only the
+      utilities you actually use, keeping the shipped stylesheet small. v4
+      rewrote the engine in Rust ("Oxide") with
+      <span class="abbr-link" data-abbr="Tree-shaking">tree-shaking</span>-style
+      JIT generation and a CSS-first config (`@theme`) that drops the old
+      `tailwind.config.js` for most projects.
+    use_cases:
+      - "Rapidly styling component-based UIs without context-switching to CSS files."
+      - "Design systems where spacing, color, and type scales are enforced by tokens."
+      - "Teams that want consistent, low-specificity CSS with tiny production bundles."
+    prerequisites:
+      - { name: "CSS", slug: "css" }
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "Utility classes mapped to a configurable design-token scale."
+      - "v4 Rust engine ('Oxide') with Lightning CSS built in — no PostCSS setup needed."
+      - "CSS-first config via the @theme directive (no JS config file required)."
+      - "JIT compilation emits only the classes your templates reference."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "PostCSS", slug: "postcss" }
+      - { name: "Alpine.js", slug: "alpine-js" }
+    alternatives:
+      - { name: "UnoCSS", slug: "unocss" }
+      - { name: "Sass", slug: "sass" }
+      - { name: "CSS Modules", slug: "css-modules" }
+    example:
+      lang: "html"
+      code: '<button class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">Save</button>'
+      explain: "A styled button built entirely from utility classes — no separate CSS rule needed."
+    gotchas: >
+      Markup gets verbose — long `class` strings are the trade for never writing
+      CSS, so lean on component extraction or `@apply` sparingly. v4's CSS-first
+      config and Rust engine are a real migration from v3's `tailwind.config.js`;
+      older tutorials and plugins may not match.
+    maintained_by: "Tailwind Labs"
+    language: "Rust / TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "tailwindcss.com", url: "https://tailwindcss.com" }
+
+  - name: "Sass"
+    slug: "sass"
+    tagline: "The veteran CSS preprocessor — variables, nesting, mixins."
+    layer: [styling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2006
+    description: >
+      The original CSS preprocessor. You write `.scss` (or indented `.sass`)
+      with variables, nesting, mixins, functions, and partials, and Sass
+      <span class="abbr-link" data-abbr="Transpile">compiles</span> it down to
+      plain CSS. The modern reference implementation is Dart Sass. Native CSS
+      custom properties and nesting now cover some of what Sass pioneered, but
+      its modules, loops, and mixins still go beyond the platform.
+    use_cases:
+      - "Large hand-written stylesheets that benefit from partials and mixins."
+      - "Design systems built on Sass maps, functions, and loops."
+      - "Legacy and CMS-themed projects where Sass is already the standard."
+    prerequisites:
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Variables, nesting, mixins, and functions for DRY stylesheets."
+      - "@use / @forward module system replacing the old global @import."
+      - "Partials and loops to generate repetitive CSS programmatically."
+      - "Dart Sass is the canonical, actively maintained compiler."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "PostCSS", slug: "postcss" }
+    alternatives:
+      - { name: "PostCSS", slug: "postcss" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "CSS Modules", slug: "css-modules" }
+    example:
+      lang: "scss"
+      code: |-
+        $brand: #2563eb;
+        .btn {
+          background: $brand;
+          &:hover { background: darken($brand, 8%); }
+        }
+      explain: "A variable plus nested &:hover rule that compiles to two flat CSS selectors."
+    gotchas: >
+      Native CSS caught up — nesting and custom properties are now built into
+      browsers, so reach for Sass for its *programmatic* features (loops, maps,
+      mixins), not just nesting. The legacy `@import` is deprecated; use
+      `@use`/`@forward`, and the old JS-based LibSass is dead — use Dart Sass.
+    maintained_by: "Sass core team + OSS community"
+    language: "Dart"
+    license: "MIT"
+    docs:
+      - { label: "sass-lang.com", url: "https://sass-lang.com" }
+
+  - name: "PostCSS"
+    slug: "postcss"
+    tagline: "Transform CSS with JavaScript plugins."
+    layer: [styling, tooling]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2013
+    description: >
+      A tool that parses CSS into an abstract syntax tree and lets JavaScript
+      plugins transform it — Autoprefixer adds vendor prefixes, `postcss-preset-env`
+      polyfills future syntax, others minify or lint. PostCSS does almost nothing
+      on its own; it's the plugin pipeline that build tools and frameworks
+      (including older Tailwind) run CSS through.
+    use_cases:
+      - "Auto-adding vendor prefixes via Autoprefixer in a build pipeline."
+      - "Polyfilling modern CSS syntax for older browsers."
+      - "Powering a framework's CSS transform step (e.g. Tailwind v3)."
+    prerequisites:
+      - { name: "CSS", slug: "css" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Plugin architecture — compose transforms over a CSS AST."
+      - "Autoprefixer and postcss-preset-env are the canonical plugins."
+      - "Integrates into Vite, webpack, and most bundlers out of the box."
+      - "Each plugin is small and single-purpose, Unix-style."
+    pairs_well_with:
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "Webpack", slug: "webpack" }
+    alternatives:
+      - { name: "Sass", slug: "sass" }
+      - { name: "Lightning CSS", slug: "" }
+    example:
+      lang: "js"
+      code: |-
+        // postcss.config.js
+        export default { plugins: { autoprefixer: {} } };
+      explain: "Registers Autoprefixer so the build adds vendor prefixes automatically."
+    gotchas: >
+      It's infrastructure, not a feature — PostCSS alone changes nothing, so its
+      value lives entirely in the plugins you enable. Don't confuse it with a
+      preprocessor like Sass: it transforms CSS rather than giving you a richer
+      authoring language (though plugins can emulate parts of that).
+    maintained_by: "Andrey Sitnik + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "postcss.org", url: "https://postcss.org" }
+
+  - name: "CSS Modules"
+    slug: "css-modules"
+    tagline: "Locally-scoped CSS class names, by default."
+    layer: [styling, frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2015
+    description: >
+      A bundler convention, not a library: you write plain CSS in a
+      `*.module.css` file, import it into a component, and the build renames each
+      class to a unique, locally-scoped identifier. This kills the global
+      namespace collisions that plague large CSS codebases while keeping you in
+      ordinary CSS. Supported natively by Vite, webpack, and Next.js.
+    use_cases:
+      - "Component-scoped styles in React/Vue without a CSS-in-JS runtime."
+      - "Avoiding global class-name collisions in large codebases."
+      - "Teams that prefer real CSS files over utility classes or template literals."
+    prerequisites:
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Class names auto-hashed to be locally scoped per file."
+      - "Plain CSS authoring — no new syntax to learn."
+      - "Built into Vite, webpack, Parcel, and Next.js."
+      - "`composes` keyword to share rules between local classes."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "React", slug: "react" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Sass", slug: "sass" }
+    alternatives:
+      - { name: "vanilla-extract", slug: "vanilla-extract" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "Emotion", slug: "emotion" }
+    example:
+      lang: "tsx"
+      code: |-
+        import styles from './Button.module.css';
+        export const Button = () => <button className={styles.primary}>Go</button>;
+      explain: "The imported object maps your local class names to the build's hashed, scoped versions."
+    gotchas: >
+      Dynamic, prop-driven styling is awkward — you compose static classes rather
+      than interpolate values, so runtime-themed styles need CSS variables or a
+      different tool. Class names are strings on the imported object, so typos
+      fail silently unless you add TypeScript typing.
+    maintained_by: "OSS community (bundler-implemented)"
+    language: "CSS"
+    license: "MIT"
+    docs:
+      - { label: "CSS Modules repo", url: "https://github.com/css-modules/css-modules" }
+
+  - name: "styled-components"
+    slug: "styled-components"
+    tagline: "CSS-in-JS — styled React components via tagged templates."
+    layer: [styling, frontend]
+    maturity: legacy
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      The library that popularized CSS-in-JS for React: you write real CSS inside
+      tagged template literals to produce styled components, with props driving
+      dynamic styles and automatic scoping. It's runtime-based — styles are
+      generated as the app renders — which is now seen as a cost versus
+      zero-runtime alternatives. Active development has slowed and the
+      maintainers have flagged it as in maintenance mode.
+    use_cases:
+      - "Existing React codebases already built on styled-components."
+      - "Highly dynamic, prop-driven component styling."
+      - "Co-locating styles with components in a single file."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "CSS", slug: "css" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Tagged-template CSS that produces scoped styled components."
+      - "Props and theme context drive dynamic styles at runtime."
+      - "Automatic critical-CSS extraction during SSR."
+      - "ThemeProvider for app-wide design tokens."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Emotion", slug: "emotion" }
+      - { name: "vanilla-extract", slug: "vanilla-extract" }
+      - { name: "CSS Modules", slug: "css-modules" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+    example:
+      lang: "tsx"
+      code: |-
+        const Button = styled.button`
+          background: ${p => p.primary ? '#2563eb' : '#e5e7eb'};
+          padding: 0.5rem 1rem;
+        `;
+      explain: "A styled button whose background reacts to the primary prop at render time."
+    gotchas: >
+      The runtime cost is the headline knock — generating styles during render
+      hurts performance and clashes with React Server Components, which is why the
+      ecosystem is drifting to zero-runtime options. The project is now in
+      maintenance mode, so prefer Emotion or a zero-runtime tool for greenfield apps.
+    maintained_by: "Max Stoiber + OSS (maintenance mode)"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "styled-components.com", url: "https://styled-components.com" }
+
+  - name: "Emotion"
+    slug: "emotion"
+    tagline: "Performant, framework-flexible CSS-in-JS."
+    layer: [styling, frontend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2017
+    description: >
+      A CSS-in-JS library offering both a styled-components-style API and a `css`
+      prop for inline styles. It's known for being faster and lighter than its
+      predecessors and is framework-flexible — widely used standalone and as the
+      styling engine under component libraries like MUI. Like all runtime
+      CSS-in-JS, it carries a render-time cost that newer zero-runtime tools avoid.
+    use_cases:
+      - "React apps wanting CSS-in-JS with strong performance."
+      - "Component libraries needing a flexible styling primitive (e.g. MUI)."
+      - "Dynamic, theme-driven styles co-located with components."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "CSS", slug: "css" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Two APIs — the css prop and a styled() factory."
+      - "Source maps and labels for debuggable generated classes."
+      - "Powers popular component libraries such as MUI."
+      - "Smaller, faster runtime than older CSS-in-JS libraries."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "styled-components", slug: "styled-components" }
+      - { name: "vanilla-extract", slug: "vanilla-extract" }
+      - { name: "CSS Modules", slug: "css-modules" }
+    example:
+      lang: "tsx"
+      code: |-
+        import { css } from '@emotion/react';
+        const style = css`color: #2563eb; font-weight: 600;`;
+        export const Label = () => <span css={style}>Hi</span>;
+      explain: "The css prop attaches generated, scoped styles directly to the element."
+    gotchas: >
+      It's still runtime CSS-in-JS — styles are computed during render, which
+      adds overhead and complicates React Server Components, so SSR streaming
+      needs care. For new apps prioritizing performance, a zero-runtime option
+      like vanilla-extract or utility CSS may be a better fit.
+    maintained_by: "Emotion team + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "emotion.sh", url: "https://emotion.sh" }
+
+  - name: "UnoCSS"
+    slug: "unocss"
+    tagline: "The instant, on-demand atomic CSS engine."
+    layer: [styling, frontend]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2021
+    description: >
+      An atomic-CSS engine by Anthony Fu that generates utility classes on demand
+      from your source, with no fixed set of rules — everything is defined through
+      presets you compose, including a Tailwind/Windi-compatible preset. It's
+      built for speed (no parsing of a huge CSS file) and is highly extensible
+      via custom rules, shortcuts, and variants.
+    use_cases:
+      - "Utility-first styling with faster builds and full customization."
+      - "Projects wanting Tailwind-like utilities but a pluggable engine."
+      - "Defining bespoke design-system utilities via presets and rules."
+    prerequisites:
+      - { name: "CSS", slug: "css" }
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "On-demand generation — only classes you use are produced."
+      - "Preset-driven; Tailwind-compatible preset included."
+      - "Custom rules, shortcuts, and variants for bespoke utilities."
+      - "First-class Vite integration and a fast core engine."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "Vue", slug: "vue" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "CSS Modules", slug: "css-modules" }
+    example:
+      lang: "html"
+      code: '<div class="flex items-center gap-2 p-4 text-blue-600">UnoCSS</div>'
+      explain: "Tailwind-style utilities generated on demand by UnoCSS's default preset."
+    gotchas: >
+      The flexibility is also the cost — without a chosen preset you get no
+      utilities at all, and config differs enough from Tailwind that copy-pasted
+      Tailwind snippets may need preset tweaks. A smaller ecosystem and
+      documentation surface than Tailwind means more self-service.
+    maintained_by: "Anthony Fu + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "unocss.dev", url: "https://unocss.dev" }
+
+  - name: "vanilla-extract"
+    slug: "vanilla-extract"
+    tagline: "Zero-runtime, type-safe CSS-in-TypeScript."
+    layer: [styling, frontend]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2021
+    description: >
+      A CSS-in-TS library where you author styles in `.css.ts` files using
+      TypeScript, and the build
+      <span class="abbr-link" data-abbr="Transpile">compiles</span> them to static
+      CSS at build time — so there's zero styling runtime in the browser. You get
+      type-checked class names, theme contracts, and variables with the safety of
+      TypeScript and none of the render-time cost of styled-components/Emotion.
+    use_cases:
+      - "Type-safe styling with no client-side CSS-in-JS runtime."
+      - "Design systems wanting compile-time-checked theme contracts."
+      - "Performance-sensitive React/SSR apps avoiding runtime style generation."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Styles compiled to static CSS — zero runtime cost."
+      - "Type-safe class names, themes, and variables."
+      - "createTheme / theme contracts for design tokens."
+      - "Build-plugin integrations for Vite, webpack, and esbuild."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "CSS Modules", slug: "css-modules" }
+      - { name: "Emotion", slug: "emotion" }
+      - { name: "styled-components", slug: "styled-components" }
+    example:
+      lang: "ts"
+      code: |-
+        // button.css.ts
+        import { style } from '@vanilla-extract/css';
+        export const primary = style({ background: '#2563eb', padding: '0.5rem 1rem' });
+      explain: "Authored in TypeScript, this compiles to a static, scoped CSS class at build time."
+    gotchas: >
+      Styles are static by design — there's no per-render dynamic interpolation
+      like runtime CSS-in-JS, so prop-driven variation uses `recipes`, variants,
+      or CSS variables instead. It needs a build-tool plugin and a TypeScript
+      setup, so it isn't a drop-in for plain-JS or no-build projects.
+    maintained_by: "Seek (vanilla-extract team) + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "vanilla-extract.style", url: "https://vanilla-extract.style" }

@@ -1,0 +1,462 @@
+batch:
+  id: "frontend-frameworks"
+  order: 3
+  name: "Frontend UI Frameworks"
+  short_name: "Frontend"
+  description: >
+    Component libraries and reactive frameworks for building browser UIs — from
+    the heavyweight ecosystems (React, Angular) to the compiler-driven
+    lightweights (Svelte, Solid) and the HTML-first minimalists (Alpine, htmx).
+    Most pair with a meta-framework and a build tool rather than standing alone.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "React"
+    slug: "react"
+    tagline: "The component library that defined modern frontend."
+    layer: [frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2013
+    description: >
+      A declarative JavaScript library for building user interfaces from
+      composable components. Uses a virtual
+      <span class="abbr-link" data-abbr="DOM">DOM</span> and one-way data flow,
+      and ships as a view layer you compose with a router, build tool, and state
+      solution — or adopt a meta-framework that bundles those for you.
+    use_cases:
+      - "Interactive SPAs and dashboards with lots of dynamic state."
+      - "Design systems and reusable component libraries."
+      - "The base layer under a meta-framework like Next.js."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "HTML", slug: "html" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Function components with hooks for state and side-effects."
+      - "Virtual DOM diffing and reconciliation."
+      - "React Server Components for zero-JS server rendering."
+      - "The largest ecosystem and job market of any UI library."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "TanStack Query", slug: "tanstack-query" }
+    alternatives:
+      - { name: "Vue", slug: "vue" }
+      - { name: "Svelte", slug: "svelte" }
+      - { name: "SolidJS", slug: "solidjs" }
+      - { name: "Angular", slug: "angular" }
+    example:
+      lang: "tsx"
+      code: |-
+        function Counter() {
+          const [n, setN] = useState(0);
+          return <button onClick={() => setN(n + 1)}>Count: {n}</button>;
+        }
+      explain: >
+        A function component using the useState hook — clicking the button
+        increments state and React re-renders just this component.
+    gotchas: >
+      React is *just* the view layer — you assemble routing, data fetching, and
+      a build tool yourself (or adopt a meta-framework). The rules of hooks (no
+      conditional hooks) and stale-closure bugs trip up newcomers.
+    maintained_by: "Meta + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "react.dev", url: "https://react.dev" }
+
+  - name: "Vue"
+    slug: "vue"
+    tagline: "The approachable, progressively adoptable framework."
+    layer: [frontend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2014
+    description: >
+      A progressive framework with single-file components (`.vue` files bundling
+      template, script, and style). Its reactivity system tracks dependencies
+      automatically, and you can drop it into a page or scale up to a full
+      <span class="abbr-link" data-abbr="SPA">SPA</span> with Vue Router and
+      Pinia.
+    use_cases:
+      - "SPAs where a gentle learning curve and clear conventions matter."
+      - "Progressive enhancement — sprinkle Vue onto existing pages."
+      - "Teams wanting batteries-included official router + store."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "HTML", slug: "html" }
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Single-file components with scoped styles."
+      - "Composition API with automatic, fine-grained reactivity."
+      - "Official router (Vue Router) and store (Pinia)."
+      - "Experimental Vapor mode compiles away the virtual DOM."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "Nuxt", slug: "nuxt" }
+      - { name: "Pinia", slug: "pinia" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "React", slug: "react" }
+      - { name: "Svelte", slug: "svelte" }
+      - { name: "Angular", slug: "angular" }
+    example:
+      lang: "vue"
+      code: |-
+        <script setup>
+        import { ref } from 'vue'
+        const n = ref(0)
+        </script>
+        <template><button @click="n++">Count: {{ n }}</button></template>
+      explain: >
+        A single-file component using the Composition API — a reactive ref drives
+        the template, and clicking the button increments it.
+    gotchas: >
+      Two API styles coexist — the older Options API and the newer Composition
+      API (`<script setup>`); tutorials mix them, which confuses beginners.
+      Prefer the Composition API for new code.
+    maintained_by: "Evan You / Vue core team + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "vuejs.org", url: "https://vuejs.org" }
+
+  - name: "Svelte"
+    slug: "svelte"
+    tagline: "A compiler, not a runtime — reactivity that disappears at build."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2016
+    description: >
+      A UI framework that shifts work to a compile step: it
+      <span class="abbr-link" data-abbr="Transpile">compiles</span> your
+      components into small, imperative vanilla JS that updates the
+      <span class="abbr-link" data-abbr="DOM">DOM</span> directly, so there's
+      almost no framework runtime to ship. Svelte 5's *runes* (`$state`,
+      `$derived`, `$effect`) make reactivity explicit and fine-grained.
+    use_cases:
+      - "Performance- and bundle-size-sensitive apps and widgets."
+      - "Embeddable components dropped into other sites."
+      - "Developers who want less boilerplate than React."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "HTML", slug: "html" }
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Compile-time reactivity — minimal runtime overhead."
+      - "Runes ($state/$derived/$effect) for explicit signals."
+      - "Scoped styles and transitions built in."
+      - "Tiny bundles versus virtual-DOM frameworks."
+    pairs_well_with:
+      - { name: "SvelteKit", slug: "sveltekit" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Vue", slug: "vue" }
+      - { name: "SolidJS", slug: "solidjs" }
+      - { name: "React", slug: "react" }
+    example:
+      lang: "svelte"
+      code: |-
+        <script>
+          let n = $state(0);
+        </script>
+        <button onclick={() => n++}>Count: {n}</button>
+      explain: >
+        A Svelte 5 component using the $state rune — the compiler turns it into
+        direct DOM updates, so clicking the button re-renders just the count.
+    gotchas: >
+      Svelte 5 replaced the old `let`-is-reactive magic and `$:` labels with
+      runes — a real migration. Older tutorials and libraries written for Svelte
+      4 won't match current syntax.
+    maintained_by: "Svelte core team (Vercel-sponsored) + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "svelte.dev", url: "https://svelte.dev" }
+
+  - name: "Angular"
+    slug: "angular"
+    tagline: "Google's batteries-included, opinionated framework."
+    layer: [frontend]
+    maturity: industry-standard
+    learning_curve: steep
+    first_released: 2016
+    description: >
+      A complete, opinionated framework (not just a view layer) from Google,
+      built around TypeScript, dependency injection, and a powerful CLI. Recent
+      versions move to standalone components, explicit Signals, and zoneless
+      change detection, modernizing what was a heavyweight reputation.
+    use_cases:
+      - "Large enterprise apps needing strong structure and conventions."
+      - "Teams that want routing, forms, HTTP, and i18n in one package."
+      - "Long-lived codebases where consistency beats flexibility."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "Full framework: router, forms, HTTP client, DI, CLI."
+      - "Signals + zoneless change detection in modern versions."
+      - "Standalone components (no NgModules required)."
+      - "First-class TypeScript and RxJS integration."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "RxJS", slug: "rxjs" }
+    alternatives:
+      - { name: "React", slug: "react" }
+      - { name: "Vue", slug: "vue" }
+    example:
+      lang: "ts"
+      code: |-
+        @Component({
+          selector: 'app-counter',
+          template: `<button (click)="n.set(n() + 1)">Count: {{ n() }}</button>`,
+        })
+        export class Counter { n = signal(0); }
+      explain: >
+        A standalone component using a signal — calling n.set() updates the
+        signal and Angular re-renders the template that reads n().
+    gotchas: >
+      The steepest curve of the mainstream frameworks — DI, decorators, modules
+      vs standalone, and RxJS are a lot to absorb at once. The framework has also
+      churned its idioms (modules → standalone, zones → signals) across versions.
+    maintained_by: "Google + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "angular.dev", url: "https://angular.dev" }
+
+  - name: "SolidJS"
+    slug: "solidjs"
+    tagline: "React-like ergonomics with true fine-grained reactivity."
+    layer: [frontend]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2021
+    description: >
+      A reactive UI library with JSX that looks like React but has no virtual
+      <span class="abbr-link" data-abbr="DOM">DOM</span>. Components run once;
+      fine-grained signals update only the exact DOM nodes that depend on changed
+      state, giving excellent performance and tiny bundles.
+    use_cases:
+      - "Performance-critical UIs where React's re-render model is a bottleneck."
+      - "Developers who like JSX but want finer reactivity."
+      - "Interactive widgets with a minimal footprint."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Fine-grained signals — no virtual DOM, no re-renders."
+      - "JSX syntax familiar to React developers."
+      - "SolidStart meta-framework for SSR."
+      - "Very small runtime and fast benchmarks."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "React", slug: "react" }
+      - { name: "Svelte", slug: "svelte" }
+      - { name: "Preact", slug: "preact" }
+    example:
+      lang: "tsx"
+      code: |-
+        function Counter() {
+          const [n, setN] = createSignal(0);
+          return <button onClick={() => setN(n() + 1)}>Count: {n()}</button>;
+        }
+      explain: >
+        A Solid component — the body runs once and the signal n() is read inside
+        JSX, so only that text node updates when it changes (no re-render).
+    gotchas: >
+      It *looks* like React but isn't — components run once, so destructuring
+      props or calling a signal outside a tracking scope silently breaks
+      reactivity. The mental model differs more than the syntax suggests.
+    maintained_by: "Ryan Carniato + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "solidjs.com", url: "https://www.solidjs.com" }
+
+  - name: "Preact"
+    slug: "preact"
+    tagline: "A 3 KB React-compatible alternative."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2015
+    description: >
+      A fast, ~3 KB alternative to React with the same modern API. A
+      `preact/compat` shim lets most React libraries run on it unchanged, so you
+      can shrink an existing React app's bundle or build new lightweight widgets.
+    use_cases:
+      - "Bundle-size-sensitive apps and embeddable widgets."
+      - "Drop-in shrink of an existing React app via preact/compat."
+      - "Browser extensions and ads where every KB counts."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "React", slug: "react" }
+    key_features:
+      - "~3 KB runtime with React-compatible hooks API."
+      - "preact/compat aliases most React libraries."
+      - "Signals package for fine-grained reactivity."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "React", slug: "react" }
+      - { name: "SolidJS", slug: "solidjs" }
+    example:
+      lang: "bash"
+      code: "npm create preact@latest"
+      explain: "Scaffold a new Preact project with the official CLI."
+    gotchas: >
+      "React-compatible" is ~95% — some libraries lean on React internals and
+      need the `preact/compat` alias configured, and a few don't work at all.
+      Test third-party React components before committing.
+    maintained_by: "Jason Miller + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "preactjs.com", url: "https://preactjs.com" }
+
+  - name: "Alpine.js"
+    slug: "alpine-js"
+    tagline: "jQuery for the modern web — behavior in your markup."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2019
+    description: >
+      A tiny (~15 KB) framework for sprinkling reactive behavior directly into
+      HTML via `x-` attributes — no build step, no components, no virtual
+      <span class="abbr-link" data-abbr="DOM">DOM</span>. Ideal for adding
+      interactivity to server-rendered pages.
+    use_cases:
+      - "Adding interactivity to server-rendered HTML (Laravel, Rails, Django)."
+      - "Small dropdowns, modals, tabs without a full SPA framework."
+      - "Projects that want zero build tooling."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Declarative x-data / x-show / x-on attributes in markup."
+      - "No build step — drop in a single script tag."
+      - "Tiny footprint, pairs with Tailwind for the 'TALL' stack."
+    pairs_well_with:
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "Laravel", slug: "laravel" }
+    alternatives:
+      - { name: "htmx", slug: "htmx" }
+      - { name: "Svelte", slug: "svelte" }
+    example:
+      lang: "html"
+      code: '<div x-data="{ n: 0 }"><button @click="n++" x-text="n"></button></div>'
+      explain: "An inline counter — Alpine reads x-data state and updates x-text on click, no build step."
+    gotchas: >
+      Great for sprinkles, painful for real app state — there's no component
+      model or routing, so complex UIs become a tangle of attributes. Reach for
+      a real framework once logic outgrows the markup.
+    maintained_by: "Caleb Porzio + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "alpinejs.dev", url: "https://alpinejs.dev" }
+
+  - name: "Lit"
+    slug: "lit"
+    tagline: "Tiny library for fast, standards-based Web Components."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2019
+    description: >
+      A lightweight library from Google for building reusable
+      <span class="abbr-link" data-abbr="DOM">Web Components</span> — custom
+      elements that work in any framework or none. Uses tagged-template literals
+      for fast, declarative rendering with reactive properties.
+    use_cases:
+      - "Framework-agnostic design systems and shared component libraries."
+      - "Components that must work across React, Vue, and plain HTML."
+      - "Long-lived widgets built on web standards, not a framework."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "HTML", slug: "html" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Standards-based custom elements — run anywhere."
+      - "Reactive properties with efficient template rendering."
+      - "~5 KB core; decorators for ergonomic TypeScript."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Vite", slug: "vite" }
+    alternatives:
+      - { name: "Svelte", slug: "svelte" }
+      - { name: "Stencil", slug: "" }
+    example:
+      lang: "ts"
+      code: |-
+        @customElement('my-counter')
+        class MyCounter extends LitElement {
+          @property({type: Number}) n = 0;
+          render() { return html`<button @click=${() => this.n++}>${this.n}</button>`; }
+        }
+      explain: >
+        A Web Component defined with Lit — the reactive `n` property re-renders
+        the template (a tagged-template literal) whenever it changes.
+    gotchas: >
+      Web Components bring their own quirks — Shadow DOM style encapsulation,
+      form-association gaps, and SSR that's less mature than framework rendering.
+      Great for portable widgets, less so for full apps.
+    maintained_by: "Google + OSS community"
+    language: "TypeScript"
+    license: "BSD-3-Clause"
+    docs:
+      - { label: "lit.dev", url: "https://lit.dev" }
+
+  - name: "htmx"
+    slug: "htmx"
+    tagline: "Access AJAX, WebSockets & more straight from HTML attributes."
+    layer: [frontend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      A small library that lets any HTML element issue HTTP requests and swap the
+      returned HTML fragment into the page via attributes (`hx-get`, `hx-post`,
+      `hx-target`). It pushes rendering back to the server, shrinking or
+      eliminating client-side JavaScript for many apps.
+    use_cases:
+      - "Server-rendered apps that want SPA-like interactivity without a JS framework."
+      - "Backends in Go, Python, PHP, or Ruby driving the UI with HTML fragments."
+      - "Teams minimizing frontend build complexity."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "A backend framework", slug: "" }
+    key_features:
+      - "AJAX, WebSockets, SSE via HTML attributes — minimal JS."
+      - "Server returns HTML fragments, not JSON."
+      - "~14 KB, no build step, no dependencies."
+    pairs_well_with:
+      - { name: "Django", slug: "django" }
+      - { name: "FastAPI", slug: "fastapi" }
+      - { name: "Alpine.js", slug: "alpine-js" }
+    alternatives:
+      - { name: "Alpine.js", slug: "alpine-js" }
+      - { name: "React", slug: "react" }
+    example:
+      lang: "html"
+      code: '<button hx-post="/clicked" hx-swap="outerHTML">Click me</button>'
+      explain: "On click, htmx POSTs to /clicked and replaces the button with the HTML the server returns."
+    gotchas: >
+      The interactivity ceiling is real — rich client-side state (drag-drop,
+      complex forms, offline) still wants a JS framework. And every interaction
+      is a server round-trip, so latency and endpoint sprawl can grow.
+    maintained_by: "Big Sky Software + OSS community"
+    language: "JavaScript"
+    license: "BSD-2-Clause"
+    docs:
+      - { label: "htmx.org", url: "https://htmx.org" }

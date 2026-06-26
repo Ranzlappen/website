@@ -1,0 +1,469 @@
+batch:
+  id: "testing-quality"
+  order: 14
+  name: "Testing & Code Quality"
+  short_name: "Testing"
+  description: >
+    The safety net and the style police — test runners that prove your code
+    works (Vitest, Jest), browser drivers that exercise the real thing end-to-end
+    (Playwright, Cypress), and the static-analysis tooling that catches bugs and
+    bikeshedding before review (ESLint, Prettier, the TypeScript type-checker).
+    Storybook rounds it out by isolating components for visual and interaction
+    testing.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Vitest"
+    slug: "vitest"
+    tagline: "The Vite-native test runner — Jest's API, a fraction of the wait."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A blazing-fast unit-test framework built on top of Vite, so it reuses your
+      app's existing config, transforms, and
+      <span class="abbr-link" data-abbr="ESM">ESM</span> handling instead of
+      duplicating them. The API is intentionally Jest-compatible (`describe`,
+      `it`, `expect`), so most Jest suites migrate with little more than a config
+      swap — but you get instant
+      <span class="abbr-link" data-abbr="HMR">HMR</span>-style watch mode and
+      native TypeScript out of the box.
+    use_cases:
+      - "Unit and component tests in any Vite-based project (React, Vue, Svelte, Solid)."
+      - "Fast watch-mode TDD with instant re-runs on save."
+      - "Migrating a slow Jest suite to a faster, ESM-native runner."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Shares the project's Vite config — no separate transform pipeline."
+      - "Jest-compatible API and assertions for easy migration."
+      - "Native ESM + TypeScript, no Babel transpile step required."
+      - "Watch mode with smart re-runs, plus a browser-mode for real-DOM tests."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "Testing Library", slug: "testing-library" }
+      - { name: "Playwright", slug: "playwright" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Jest", slug: "jest" }
+      - { name: "Cypress", slug: "cypress" }
+    example:
+      lang: "bash"
+      code: "npm install -D vitest && npx vitest"
+      explain: "Install Vitest as a dev dependency and launch it in watch mode."
+    gotchas: >
+      It's Jest-*compatible*, not Jest — globals are off by default (enable
+      `globals: true` or import from `vitest`), and module mocking
+      (`vi.mock`) hoists differently than Jest's `jest.mock`. Suites leaning on
+      Jest internals or exotic transforms can need real porting work.
+    maintained_by: "Vitest team (VoidZero, now Cloudflare)"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "vitest.dev", url: "https://vitest.dev" }
+
+  - name: "Jest"
+    slug: "jest"
+    tagline: "The long-reigning batteries-included JS test framework."
+    layer: [tooling]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2014
+    description: >
+      The framework that made testing JavaScript pleasant — a zero-config runner
+      with built-in assertions, mocking, snapshot testing, and parallel
+      execution all in one package. For years it was the default for React and
+      most of the Node ecosystem; it now uses a Babel
+      <span class="abbr-link" data-abbr="Transpile">transpile</span> step to run
+      modern syntax, which is part of why
+      <span class="abbr-link" data-abbr="ESM">ESM</span>-native runners feel
+      faster.
+    use_cases:
+      - "Unit and integration tests for Node and React codebases."
+      - "Snapshot testing of serialized output and component trees."
+      - "Mature projects already standardized on the Jest API."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "All-in-one: runner, assertions, mocks, and snapshots."
+      - "Parallel test execution across worker processes."
+      - "Rich snapshot and inline-snapshot testing."
+      - "Huge ecosystem of presets and matchers."
+    pairs_well_with:
+      - { name: "Testing Library", slug: "testing-library" }
+      - { name: "Babel", slug: "babel" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Vitest", slug: "vitest" }
+      - { name: "Playwright", slug: "playwright" }
+    example:
+      lang: "js"
+      code: |-
+        test('adds 1 + 2', () => {
+          expect(1 + 2).toBe(3);
+        });
+      explain: "A minimal Jest test using the global test() and expect() helpers."
+    gotchas: >
+      <span class="abbr-link" data-abbr="ESM">ESM</span> support is still a sore
+      spot — Jest historically assumed
+      <span class="abbr-link" data-abbr="CJS">CJS</span> and needs Babel or
+      experimental flags to run native modules, and its global
+      <span class="abbr-link" data-abbr="JSDOM">JSDOM</span> environment is
+      slower to spin up than Vite-based runners. Many new Vite projects pick
+      Vitest instead.
+    maintained_by: "OpenJS Foundation (originally Meta)"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "jestjs.io", url: "https://jestjs.io" }
+
+  - name: "Playwright"
+    slug: "playwright"
+    tagline: "Cross-browser end-to-end testing that actually stays green."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2020
+    description: >
+      Microsoft's browser automation and end-to-end testing framework that drives
+      Chromium, Firefox, and WebKit through one
+      <span class="abbr-link" data-abbr="API">API</span>. Auto-waiting on
+      elements, network interception, and test isolation per browser context kill
+      most of the flakiness that plagued older
+      <span class="abbr-link" data-abbr="E2E">E2E</span> tools, and a code
+      generator + trace viewer make writing and debugging tests fast.
+    use_cases:
+      - "End-to-end testing of web apps across all three browser engines."
+      - "Cross-browser regression and visual testing in CI."
+      - "Scripted browser automation and scraping."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "One API across Chromium, Firefox, and WebKit."
+      - "Auto-waiting and web-first assertions reduce flaky tests."
+      - "Codegen recorder + trace viewer for debugging."
+      - "Parallel execution with isolated browser contexts."
+    pairs_well_with:
+      - { name: "GitHub Actions", slug: "github-actions" }
+      - { name: "Vitest", slug: "vitest" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Cypress", slug: "cypress" }
+      - { name: "Testing Library", slug: "testing-library" }
+    example:
+      lang: "ts"
+      code: |-
+        test('homepage has title', async ({ page }) => {
+          await page.goto('https://example.com');
+          await expect(page).toHaveTitle(/Example/);
+        });
+      explain: "A Playwright test navigates to a page and asserts on its title using the fixture-injected page object."
+    gotchas: >
+      The browser binaries are a heavyweight install (`npx playwright install`)
+      and CI images balloon accordingly. And like all
+      <span class="abbr-link" data-abbr="E2E">E2E</span> testing it's slower and
+      more brittle than unit tests — keep the E2E layer thin and push logic
+      coverage down into unit tests.
+    maintained_by: "Microsoft + OSS community"
+    language: "TypeScript"
+    license: "Apache-2.0"
+    docs:
+      - { label: "playwright.dev", url: "https://playwright.dev" }
+
+  - name: "Cypress"
+    slug: "cypress"
+    tagline: "End-to-end testing with a developer experience people love."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2017
+    description: >
+      A browser <span class="abbr-link" data-abbr="E2E">E2E</span> testing tool
+      famous for its developer experience — tests run inside a live browser with
+      a time-travel UI that lets you step through every command and see the app
+      at each point. It auto-waits and retries assertions, and bundles its own
+      runner, assertion library, and dashboard.
+    use_cases:
+      - "End-to-end and integration testing with interactive debugging."
+      - "Component testing for React, Vue, and Angular in a real browser."
+      - "Teams that value a polished test-authoring experience."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Time-travel debugging — snapshots of every command step."
+      - "Automatic waiting and retry-ability on assertions."
+      - "Built-in test runner, assertions, and mocking."
+      - "Component-testing mode alongside full E2E."
+    pairs_well_with:
+      - { name: "Testing Library", slug: "testing-library" }
+      - { name: "GitHub Actions", slug: "github-actions" }
+    alternatives:
+      - { name: "Playwright", slug: "playwright" }
+      - { name: "Testing Library", slug: "testing-library" }
+    example:
+      lang: "js"
+      code: |-
+        cy.visit('/login');
+        cy.get('[data-cy=submit]').click();
+        cy.url().should('include', '/dashboard');
+      explain: "A Cypress test visits a page, clicks a button, and asserts the resulting URL."
+    gotchas: >
+      Historically single-browser (Chromium-family) and same-origin bound — its
+      architecture runs inside the browser, which limits multi-tab and
+      cross-origin flows that Playwright handles natively. Many teams that need
+      true cross-browser coverage have shifted to Playwright.
+    maintained_by: "Cypress.io + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "cypress.io", url: "https://www.cypress.io" }
+
+  - name: "Testing Library"
+    slug: "testing-library"
+    tagline: "Test your UI the way users actually use it."
+    layer: [tooling]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2018
+    description: >
+      A family of lightweight DOM-testing utilities (React Testing Library, Vue
+      Testing Library, and friends) built on one guiding principle: query the
+      <span class="abbr-link" data-abbr="DOM">DOM</span> by what a user sees —
+      roles, labels, text — not by implementation details like CSS classes or
+      component internals. It's not a runner; it plugs into Vitest or Jest.
+    use_cases:
+      - "Accessible, user-centric component tests for React/Vue/Svelte."
+      - "Avoiding brittle tests coupled to internal markup or class names."
+      - "Encouraging accessibility-friendly markup via role-based queries."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Vitest", slug: "vitest" }
+      - { name: "Jest", slug: "jest" }
+    key_features:
+      - "Queries by role, label, and text — not by CSS selectors."
+      - "Encourages accessible markup as a side-effect."
+      - "Runner-agnostic — works with Vitest or Jest."
+      - "user-event companion library for realistic interactions."
+    pairs_well_with:
+      - { name: "Vitest", slug: "vitest" }
+      - { name: "Jest", slug: "jest" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "Cypress", slug: "cypress" }
+      - { name: "Playwright", slug: "playwright" }
+    example:
+      lang: "tsx"
+      code: |-
+        render(<Counter />);
+        await userEvent.click(screen.getByRole('button'));
+        expect(screen.getByText('Count: 1')).toBeInTheDocument();
+      explain: "Render a component, click its button by accessible role, and assert on the visible text."
+    gotchas: >
+      It's a query layer, not a test runner — you still need Vitest or Jest plus
+      <span class="abbr-link" data-abbr="JSDOM">JSDOM</span> underneath. The
+      philosophy bites if you reach for `container.querySelector` or test
+      internal state; the library deliberately makes implementation-detail
+      testing awkward.
+    maintained_by: "Testing Library team + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "testing-library.com", url: "https://testing-library.com" }
+
+  - name: "ESLint"
+    slug: "eslint"
+    tagline: "The pluggable linter that keeps JS/TS honest."
+    layer: [tooling]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2013
+    description: >
+      The de-facto standard linter for JavaScript and TypeScript — it
+      statically analyzes code to catch bugs (unused vars, unreachable code,
+      bad <span class="abbr-link" data-abbr="API">API</span> usage) and enforce
+      style and best-practice rules. Everything is a plugin, so frameworks ship
+      their own rule sets; the modern flat-config format (`eslint.config.js`) is
+      now the default.
+    use_cases:
+      - "Catching bugs and enforcing conventions across a JS/TS codebase."
+      - "Framework-specific rules (React hooks, import order, a11y)."
+      - "Pre-commit and CI gates that block bad patterns from merging."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Pluggable rule architecture with thousands of community rules."
+      - "Flat config (eslint.config.js) is the modern default."
+      - "Autofix for many rules (`--fix`)."
+      - "TypeScript support via typescript-eslint."
+    pairs_well_with:
+      - { name: "Prettier", slug: "prettier" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "GitHub Actions", slug: "github-actions" }
+    alternatives:
+      - { name: "Biome", slug: "" }
+      - { name: "Oxlint", slug: "" }
+    example:
+      lang: "bash"
+      code: "npx eslint . --fix"
+      explain: "Lint the whole project and auto-apply fixes for every rule that supports them."
+    gotchas: >
+      The flat-config migration (ESLint 9) broke a lot of older `.eslintrc`
+      setups and plugins — config examples online are split between the two
+      formats. Don't make ESLint enforce *formatting* (indentation, quotes); hand
+      that to Prettier and let ESLint focus on code-quality rules.
+    maintained_by: "OpenJS Foundation + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "eslint.org", url: "https://eslint.org" }
+
+  - name: "Prettier"
+    slug: "prettier"
+    tagline: "Opinionated formatting that ends the whitespace wars."
+    layer: [tooling]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2017
+    description: >
+      An opinionated code formatter that reprints your code from its
+      <span class="abbr-link" data-abbr="AST">AST</span> to a single consistent
+      style — it ignores how you typed it and enforces uniform quotes, spacing,
+      and line-wrapping. By design it has very few options, so teams stop arguing
+      about style and just run it on save and in CI.
+    use_cases:
+      - "Auto-formatting JS/TS/CSS/HTML/Markdown to a single house style."
+      - "Eliminating style debates in code review entirely."
+      - "Format-on-save in the editor plus a CI format check."
+    prerequisites:
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Opinionated — minimal config, one canonical output."
+      - "Formats JS, TS, CSS, HTML, JSON, Markdown, YAML, and more."
+      - "Editor integrations for format-on-save."
+      - "Pairs with ESLint via eslint-config-prettier."
+    pairs_well_with:
+      - { name: "ESLint", slug: "eslint" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Biome", slug: "" }
+      - { name: "dprint", slug: "" }
+    example:
+      lang: "bash"
+      code: "npx prettier --write ."
+      explain: "Reformat every supported file in the project to Prettier's canonical style."
+    gotchas: >
+      Its few-options philosophy is a feature, not a bug — if you fight it over
+      trivial style preferences you'll lose. Run `eslint-config-prettier` so
+      ESLint's stylistic rules don't conflict with Prettier's output, or the two
+      will undo each other.
+    maintained_by: "Prettier team + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "prettier.io", url: "https://prettier.io" }
+
+  - name: "TypeScript (tsc)"
+    slug: "tsc"
+    tagline: "The type-checker as a quality gate — `tsc --noEmit`."
+    layer: [tooling, language]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2012
+    description: >
+      The TypeScript compiler isn't just a
+      <span class="abbr-link" data-abbr="Transpile">transpiler</span> — run as
+      `tsc --noEmit` it becomes a powerful static-analysis gate that catches
+      whole classes of bugs (null access, wrong argument types, typos in
+      property names) before code runs, with no output files. In modern stacks
+      a tool like Vite or esbuild handles the
+      <span class="abbr-link" data-abbr="Transpile">transpile</span>, leaving
+      `tsc` to do pure type-checking in CI.
+    use_cases:
+      - "CI type-check gate (`tsc --noEmit`) separate from bundling."
+      - "Catching type errors before runtime across a whole codebase."
+      - "Generating `.d.ts` declaration files for published libraries."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Whole-program type checking with `--noEmit` for a pure gate."
+      - "Declaration-file (`.d.ts`) emission for libraries."
+      - "Incremental and project-references builds for monorepos."
+      - "TypeScript 7 (\"Corsa\") is a native Go port targeting ~10x speed."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "ESLint", slug: "eslint" }
+      - { name: "Vite", slug: "vite" }
+    alternatives:
+      - { name: "Flow", slug: "" }
+      - { name: "JSDoc types", slug: "" }
+    example:
+      lang: "bash"
+      code: "npx tsc --noEmit"
+      explain: "Type-check the whole project without emitting any JavaScript — a pure correctness gate."
+    gotchas: >
+      On large codebases the classic JS-based `tsc` is *slow*, which is why teams
+      split bundling (fast, by esbuild/Vite) from type-checking (`tsc --noEmit`,
+      in CI). The Go-native rewrite shipping as TypeScript 7 targets roughly a
+      10x speedup; the preview is the `@typescript/native-preview` (`tsgo`)
+      package.
+    maintained_by: "Microsoft + OSS community"
+    language: "TypeScript / Go"
+    license: "Apache-2.0"
+    docs:
+      - { label: "typescriptlang.org", url: "https://www.typescriptlang.org" }
+
+  - name: "Storybook"
+    slug: "storybook"
+    tagline: "A workshop for building and testing UI components in isolation."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      A development environment that renders your UI components in isolation,
+      outside the app, so you can build, document, and test each one across its
+      states ("stories"). It doubles as living design-system documentation and a
+      base for visual-regression and interaction testing, working with React,
+      Vue, Svelte, Angular, and Web Components.
+    use_cases:
+      - "Building and reviewing components in isolation from the app."
+      - "Living design-system and component documentation."
+      - "Visual-regression and interaction testing of UI states."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "React", slug: "react" }
+    key_features:
+      - "Renders components in isolation across all their states."
+      - "Auto-generated docs from stories and component types."
+      - "Interaction + visual-regression testing via addons."
+      - "Framework-agnostic — React, Vue, Svelte, Angular, Web Components."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "Testing Library", slug: "testing-library" }
+      - { name: "Playwright", slug: "playwright" }
+    alternatives:
+      - { name: "Ladle", slug: "" }
+      - { name: "Histoire", slug: "" }
+    example:
+      lang: "bash"
+      code: "npx storybook@latest init"
+      explain: "Add Storybook to an existing project, auto-detecting the framework and build tool."
+    gotchas: >
+      It's a second build to configure and maintain — addons, framework presets,
+      and major-version upgrades all carry overhead, and large story sets get
+      slow. Keep stories close to components and lean on the Vite builder to keep
+      startup fast.
+    maintained_by: "Storybook team + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "storybook.js.org", url: "https://storybook.js.org" }

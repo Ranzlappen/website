@@ -1,0 +1,507 @@
+batch:
+  id: "backend-frameworks"
+  order: 8
+  name: "Backend Frameworks & APIs"
+  short_name: "Backend"
+  description: >
+    Server-side frameworks for building HTTP APIs and web apps — from the
+    minimal, unopinionated Node staples (Express, Fastify) to the
+    batteries-included giants (Laravel, Django) and the type-safe modern wave
+    (NestJS, FastAPI, tRPC). They handle routing, validation, and serialization;
+    pick one to match your language and how much structure you want imposed.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Express"
+    slug: "express"
+    tagline: "The minimal, ubiquitous Node web framework."
+    layer: [backend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2010
+    description: >
+      The de-facto standard <span class="abbr-link" data-abbr="API">web
+      API</span> framework for Node.js — a thin, unopinionated layer over the
+      HTTP server giving you routing and a middleware pipeline, and almost
+      nothing else. You assemble validation, auth, and an
+      <span class="abbr-link" data-abbr="ORM">ORM</span> yourself. Express 5
+      finally shipped after years on 4.x, modernizing async error handling.
+    use_cases:
+      - "Lightweight REST APIs and microservices in Node."
+      - "Prototypes and glue services where you want minimal ceremony."
+      - "Teaching the fundamentals of HTTP routing and middleware."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Minimal core: routing plus a middleware chain."
+      - "Enormous ecosystem of compatible middleware packages."
+      - "Express 5 awaits rejected promises in route handlers."
+      - "Runs almost anywhere Node does."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    alternatives:
+      - { name: "Fastify", slug: "fastify" }
+      - { name: "Hono", slug: "hono" }
+      - { name: "NestJS", slug: "nestjs" }
+    example:
+      lang: "js"
+      code: |-
+        const app = require('express')();
+        app.get('/', (req, res) => res.send('hello'));
+        app.listen(3000);
+      explain: >
+        A complete Express server — register a GET route handler, then listen on
+        port 3000.
+    gotchas: >
+      Unopinionated means *you* own every decision — validation, structure, and
+      error handling are bolt-ons, so large Express codebases drift in style.
+      Most middleware is community-maintained and varies in quality; vet what you
+      depend on.
+    maintained_by: "OpenJS Foundation + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "expressjs.com", url: "https://expressjs.com" }
+
+  - name: "Fastify"
+    slug: "fastify"
+    tagline: "Fast, low-overhead Node framework built around JSON schemas."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      A Node.js web framework focused on throughput and developer experience.
+      Its headline feature is schema-based validation and serialization — you
+      declare a JSON Schema per route and Fastify validates input and compiles a
+      fast serializer for the response, which also feeds automatic
+      <span class="abbr-link" data-abbr="OpenAPI">OpenAPI</span> docs.
+    use_cases:
+      - "High-throughput REST APIs where Express overhead matters."
+      - "Services that benefit from schema validation and typed routes."
+      - "Plugin-structured apps using Fastify's encapsulation model."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "JSON Schema validation and compiled fast serialization."
+      - "Encapsulated plugin architecture for modular apps."
+      - "Strong TypeScript support and route type inference."
+      - "Lifecycle hooks and built-in structured logging (Pino)."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    alternatives:
+      - { name: "Express", slug: "express" }
+      - { name: "NestJS", slug: "nestjs" }
+      - { name: "Hono", slug: "hono" }
+    example:
+      lang: "js"
+      code: |-
+        const app = require('fastify')();
+        app.get('/', async () => ({ hello: 'world' }));
+        app.listen({ port: 3000 });
+      explain: >
+        A Fastify server — return a plain object from an async handler and
+        Fastify serializes it to JSON automatically.
+    gotchas: >
+      The schema-first model is the win and the friction — skipping schemas
+      throws away most of Fastify's speed and type safety. Its plugin
+      encapsulation (decorators, `register` scope) is powerful but trips up
+      newcomers expecting Express-style global middleware.
+    maintained_by: "Fastify team (OpenJS Foundation) + OSS"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "fastify.dev", url: "https://fastify.dev" }
+
+  - name: "NestJS"
+    slug: "nestjs"
+    tagline: "Opinionated, Angular-inspired TypeScript backend framework."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: steep
+    first_released: 2017
+    description: >
+      A structured, opinionated Node.js framework written in TypeScript whose
+      architecture borrows heavily from Angular — modules, providers, and
+      dependency injection. It runs on top of Express or Fastify and adds a
+      consistent project structure plus first-class support for
+      <span class="abbr-link" data-abbr="REST">REST</span>,
+      <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>, WebSockets, and
+      microservices.
+    use_cases:
+      - "Large, long-lived backends where structure and conventions matter."
+      - "Enterprise teams wanting DI, modules, and testability out of the box."
+      - "APIs spanning REST, GraphQL, and microservice transports."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Dependency injection and modular architecture (Angular-style)."
+      - "Decorators for controllers, routes, guards, and pipes."
+      - "Runs on Express or Fastify adapters interchangeably."
+      - "First-class REST, GraphQL, WebSocket, and microservice support."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "TypeORM", slug: "typeorm" }
+      - { name: "GraphQL Yoga", slug: "graphql-yoga" }
+    alternatives:
+      - { name: "Express", slug: "express" }
+      - { name: "Fastify", slug: "fastify" }
+      - { name: "FastAPI", slug: "fastapi" }
+    example:
+      lang: "ts"
+      code: |-
+        @Controller('cats')
+        export class CatsController {
+          @Get()
+          findAll(): string { return 'all cats'; }
+        }
+      explain: >
+        A NestJS controller — the @Controller and @Get decorators wire the class
+        method to the GET /cats route.
+    gotchas: >
+      The heaviest learning curve of the Node frameworks — DI, modules,
+      providers, decorators, and metadata reflection are a lot before you write
+      real logic. Overkill for a small service, and the abstraction layers can
+      obscure what plain Express would make obvious.
+    maintained_by: "Kamil Myśliwiec + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "nestjs.com", url: "https://nestjs.com" }
+
+  - name: "Hono"
+    slug: "hono"
+    tagline: "Ultrafast web framework that runs on any JS runtime."
+    layer: [backend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A tiny, ultrafast web framework with an Express-like
+      <span class="abbr-link" data-abbr="API">API</span> that runs on virtually
+      any JavaScript runtime — Cloudflare Workers, Deno, Bun, Node, and other
+      edge platforms — from a single codebase. It leans on Web Standard
+      `Request`/`Response` objects, which is what makes it portable to edge
+      runtimes that lack Node APIs.
+    use_cases:
+      - "Edge APIs on Cloudflare Workers, Deno Deploy, or Bun."
+      - "Portable services you want to run on multiple runtimes."
+      - "Latency-sensitive endpoints close to the user."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Runs on Workers, Deno, Bun, Node — one codebase."
+      - "Built on Web Standard Request/Response, not Node-only APIs."
+      - "Tiny footprint and a very fast router (RegExpRouter)."
+      - "Typed middleware, RPC mode, and validators built in."
+    pairs_well_with:
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+      - { name: "Bun", slug: "bun" }
+      - { name: "Deno", slug: "deno" }
+      - { name: "Drizzle", slug: "drizzle" }
+    alternatives:
+      - { name: "Express", slug: "express" }
+      - { name: "Fastify", slug: "fastify" }
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+    example:
+      lang: "ts"
+      code: |-
+        import { Hono } from 'hono';
+        const app = new Hono();
+        app.get('/', (c) => c.text('hello'));
+        export default app;
+      explain: >
+        A Hono app — handlers take a context `c` and return a Response; exporting
+        it deploys straight to an edge runtime.
+    gotchas: >
+      Being runtime-agnostic means you must avoid Node-only APIs (`fs`,
+      `process`) if you want the edge targets, and each platform has its own
+      bindings and deploy story. The ecosystem is younger than Express's, so some
+      integrations you'd take for granted aren't there yet.
+    maintained_by: "Yusuke Wada + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "hono.dev", url: "https://hono.dev" }
+
+  - name: "Laravel"
+    slug: "laravel"
+    tagline: "PHP's batteries-included, developer-happiness framework."
+    layer: [backend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2011
+    description: >
+      The dominant full-stack PHP framework — opinionated and
+      batteries-included, with the Eloquent
+      <span class="abbr-link" data-abbr="ORM">ORM</span>, Blade templating,
+      routing, queues, auth scaffolding, and a deep first-party ecosystem
+      (Breeze, Sanctum, Livewire, Forge). It aims to make common web tasks
+      elegant rather than make you wire libraries together.
+    use_cases:
+      - "Full-stack web apps and server-rendered sites in PHP."
+      - "SaaS products needing auth, billing, queues, and admin fast."
+      - "Teams that value convention and a cohesive first-party ecosystem."
+    prerequisites:
+      - { name: "PHP", slug: "php" }
+      - { name: "Composer", slug: "composer" }
+      - { name: "SQL", slug: "" }
+    key_features:
+      - "Eloquent ORM with expressive Active Record models."
+      - "Blade templating and Artisan CLI scaffolding."
+      - "Built-in queues, scheduling, events, and broadcasting."
+      - "Cohesive first-party stack: Breeze, Sanctum, Livewire, Forge."
+    pairs_well_with:
+      - { name: "MySQL", slug: "mysql" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Alpine.js", slug: "alpine-js" }
+      - { name: "Redis", slug: "redis" }
+    alternatives:
+      - { name: "Django", slug: "django" }
+      - { name: "NestJS", slug: "nestjs" }
+    example:
+      lang: "bash"
+      code: "composer create-project laravel/laravel my-app"
+      explain: >
+        Scaffold a fresh Laravel application with Composer, PHP's package
+        manager.
+    gotchas: >
+      The convenience comes with "magic" — facades, service-container
+      auto-resolution, and Eloquent's Active Record hide a lot, which is
+      productive until you need to debug or optimize it. Eloquent's lazy loading
+      makes N+1 query problems easy to write accidentally.
+    maintained_by: "Taylor Otwell / Laravel LLC + OSS"
+    language: "PHP"
+    license: "MIT"
+    docs:
+      - { label: "laravel.com", url: "https://laravel.com" }
+
+  - name: "Django"
+    slug: "django"
+    tagline: "Python's batteries-included framework with a killer admin."
+    layer: [backend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2005
+    description: >
+      A mature, batteries-included Python web framework following a
+      "model–template–view" pattern. It ships an
+      <span class="abbr-link" data-abbr="ORM">ORM</span>, an auto-generated admin
+      interface, auth, migrations, forms, and security defaults out of the box —
+      famous for letting you build a data-driven site fast without choosing a
+      stack of libraries.
+    use_cases:
+      - "Content- and data-heavy sites needing a real admin interface."
+      - "Full-stack Python web apps and server-rendered pages."
+      - "REST APIs via Django REST Framework on top of the ORM."
+    prerequisites:
+      - { name: "Python", slug: "python" }
+      - { name: "SQL", slug: "" }
+    key_features:
+      - "Powerful ORM with migrations baked in."
+      - "Auto-generated admin site from your models."
+      - "Built-in auth, forms, sessions, and security middleware."
+      - "Async views and a huge package ecosystem (DRF, Channels)."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Redis", slug: "redis" }
+      - { name: "htmx", slug: "htmx" }
+      - { name: "Python", slug: "python" }
+    alternatives:
+      - { name: "FastAPI", slug: "fastapi" }
+      - { name: "Laravel", slug: "laravel" }
+    example:
+      lang: "bash"
+      code: "django-admin startproject mysite && python manage.py runserver"
+      explain: >
+        Scaffold a Django project and start the development server on
+        localhost:8000.
+    gotchas: >
+      It's opinionated and monolithic — great when your app fits the
+      model-template-view mold, heavier than you want for a tiny JSON API (where
+      FastAPI fits better). The synchronous ORM is the historical core; async
+      support exists but isn't as seamless as a from-scratch async framework.
+    maintained_by: "Django Software Foundation + OSS"
+    language: "Python"
+    license: "BSD-3-Clause"
+    docs:
+      - { label: "djangoproject.com", url: "https://www.djangoproject.com" }
+
+  - name: "FastAPI"
+    slug: "fastapi"
+    tagline: "Async Python APIs driven by type hints, with free OpenAPI docs."
+    layer: [backend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2018
+    description: >
+      A modern, high-performance Python framework for building
+      <span class="abbr-link" data-abbr="API">APIs</span>, built on Starlette and
+      Pydantic. You annotate function parameters with Python type hints and
+      FastAPI uses them to validate requests, serialize responses, and generate
+      interactive <span class="abbr-link" data-abbr="OpenAPI">OpenAPI</span> docs
+      automatically — all async-first.
+    use_cases:
+      - "Async JSON APIs and microservices in Python."
+      - "ML/data-science model serving with typed request bodies."
+      - "Any API where auto-generated OpenAPI docs save time."
+    prerequisites:
+      - { name: "Python", slug: "python" }
+    key_features:
+      - "Type-hint-driven request validation via Pydantic."
+      - "Automatic interactive OpenAPI/Swagger documentation."
+      - "Async-first on the ASGI standard (Starlette under the hood)."
+      - "Dependency-injection system for shared logic and auth."
+    pairs_well_with:
+      - { name: "Python", slug: "python" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Redis", slug: "redis" }
+      - { name: "htmx", slug: "htmx" }
+    alternatives:
+      - { name: "Django", slug: "django" }
+      - { name: "Express", slug: "express" }
+    example:
+      lang: "python"
+      code: |-
+        from fastapi import FastAPI
+        app = FastAPI()
+
+        @app.get("/")
+        def root():
+            return {"hello": "world"}
+      explain: >
+        A FastAPI app — the return value is serialized to JSON, and an
+        interactive docs page is generated automatically at /docs.
+    gotchas: >
+      "Fast to write" doesn't include the data layer — FastAPI has no built-in
+      ORM, so you bring SQLAlchemy/SQLModel and wire migrations yourself. Mixing
+      sync and async code, or doing blocking I/O in an async route, quietly
+      stalls the event loop.
+    maintained_by: "Sebastián Ramírez + OSS community"
+    language: "Python"
+    license: "MIT"
+    docs:
+      - { label: "fastapi.tiangolo.com", url: "https://fastapi.tiangolo.com" }
+
+  - name: "tRPC"
+    slug: "trpc"
+    tagline: "End-to-end typesafe APIs for TypeScript — no schema, no codegen."
+    layer: [backend, fullstack]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2020
+    description: >
+      A library for building end-to-end typesafe
+      <span class="abbr-link" data-abbr="API">APIs</span> in a TypeScript
+      codebase. Unlike <span class="abbr-link" data-abbr="REST">REST</span> or
+      <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>, there's no
+      schema language or code generation — the server's procedure types flow
+      directly to the client through TypeScript inference, so a backend change
+      becomes a client-side type error instantly.
+    use_cases:
+      - "Full-stack TypeScript monorepos sharing one type system."
+      - "Next.js apps wanting typed server calls without REST boilerplate."
+      - "Teams that own both ends and want refactors to stay type-safe."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "No schema, no codegen — types inferred from the server."
+      - "Autocomplete and compile-time errors across the client/server boundary."
+      - "Adapters for Next.js, Express, Fastify, and more."
+      - "Pairs with TanStack Query for client-side caching."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "TanStack Query", slug: "tanstack-query" }
+      - { name: "Prisma", slug: "prisma" }
+    alternatives:
+      - { name: "GraphQL Yoga", slug: "graphql-yoga" }
+      - { name: "NestJS", slug: "nestjs" }
+    example:
+      lang: "ts"
+      code: |-
+        const appRouter = router({
+          hello: publicProcedure.query(() => 'world'),
+        });
+        export type AppRouter = typeof appRouter;
+      explain: >
+        A tRPC router — exporting its type lets the client call
+        `trpc.hello.query()` with full autocomplete and no manual API contract.
+    gotchas: >
+      It's TypeScript-to-TypeScript only — there's no public, language-agnostic
+      contract, so it's a poor fit for third-party consumers, mobile teams on
+      other stacks, or public APIs (reach for REST/GraphQL there). The magic also
+      tightly couples client and server, which only works in a shared codebase.
+    maintained_by: "Alex Johansson + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "trpc.io", url: "https://trpc.io" }
+
+  - name: "GraphQL Yoga"
+    slug: "graphql-yoga"
+    tagline: "A batteries-included, spec-compliant GraphQL server."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2018
+    description: >
+      A fully-featured <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>
+      server from The Guild, built on the GraphQL.js reference implementation. It
+      is runtime-agnostic (Node, Bun, Deno, Workers) thanks to Web Standard
+      `Request`/`Response`, ships sensible defaults — subscriptions, file
+      uploads, and a built-in GraphiQL explorer — and plugs into the Envelop
+      plugin ecosystem.
+    use_cases:
+      - "Standing up a GraphQL API server with minimal config."
+      - "Graphs that need subscriptions, uploads, or the Envelop plugin system."
+      - "GraphQL endpoints on edge runtimes alongside Node."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Spec-compliant on the GraphQL.js reference implementation."
+      - "Runtime-agnostic: Node, Bun, Deno, Cloudflare Workers."
+      - "Subscriptions, file uploads, and GraphiQL built in."
+      - "Extensible via the Envelop plugin ecosystem."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Apollo Client", slug: "apollo-client" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "NestJS", slug: "nestjs" }
+    alternatives:
+      - { name: "tRPC", slug: "trpc" }
+      - { name: "NestJS", slug: "nestjs" }
+    example:
+      lang: "ts"
+      code: |-
+        import { createYoga, createSchema } from 'graphql-yoga';
+        const yoga = createYoga({
+          schema: createSchema({ typeDefs: 'type Query { hello: String }', resolvers: { Query: { hello: () => 'world' } } }),
+        });
+      explain: >
+        A Yoga server from a schema and resolvers — serve the `yoga` handler from
+        any runtime to expose the GraphQL endpoint plus GraphiQL.
+    gotchas: >
+      Yoga is the *server* — you still design the schema and write resolvers, and
+      GraphQL's own footguns (N+1 resolver queries needing DataLoader, query-depth
+      and complexity limits to prevent abuse) are on you. For simple typed
+      internal APIs, tRPC is often less ceremony.
+    maintained_by: "The Guild + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "the-guild.dev/graphql/yoga-server", url: "https://the-guild.dev/graphql/yoga-server" }

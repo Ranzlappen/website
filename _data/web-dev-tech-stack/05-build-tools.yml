@@ -1,0 +1,457 @@
+batch:
+  id: "build-tools"
+  order: 5
+  name: "Build Tools & Bundlers"
+  short_name: "Build Tools"
+  description: >
+    The machinery that turns source into shippable assets — dev servers,
+    bundlers, transpilers, and minifiers. The current story is a generational
+    shift from JavaScript-based tooling (webpack, Babel) to Rust- and Go-based
+    speed (Vite, esbuild, SWC, Rolldown), with Vite as the de-facto default for
+    new projects.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Vite"
+    slug: "vite"
+    tagline: "The default frontend build tool — instant dev, optimized builds."
+    layer: [tooling, frontend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      A frontend build tool that serves source over native
+      <span class="abbr-link" data-abbr="ESM">ES modules</span> in development
+      — no bundling, so the dev server starts instantly and
+      <span class="abbr-link" data-abbr="HMR">HMR</span> stays fast as the app
+      grows — and produces an optimized
+      <span class="abbr-link" data-abbr="Bundler">bundle</span> for production
+      (currently via <span class="abbr-link" data-abbr="Tree-shaking">Rollup</span>,
+      migrating to the Rust-based Rolldown). It's framework-agnostic, with
+      official plugins for React, Vue, Svelte, and more.
+    use_cases:
+      - "Default build tool for new React, Vue, or Svelte projects."
+      - "Fast local dev with instant startup and HMR."
+      - "Library builds via its library mode."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "No-bundle native-ESM dev server — instant startup."
+      - "Fast HMR that stays flat as the app grows."
+      - "Rollup-based production builds (moving to Rolldown)."
+      - "Rich plugin API, compatible with many Rollup plugins."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Vue", slug: "vue" }
+      - { name: "Vitest", slug: "vitest" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "webpack", slug: "webpack" }
+      - { name: "Parcel", slug: "parcel" }
+      - { name: "Turbopack", slug: "turbopack" }
+    example:
+      lang: "bash"
+      code: "npm create vite@latest"
+      explain: "Scaffold a new Vite project, choosing a framework template (React, Vue, Svelte…)."
+    gotchas: >
+      Dev runs on native ESM while production is bundled by Rollup, so the two
+      pipelines can differ — a bug that only shows up in the production build
+      usually traces to that gap or to a dependency that isn't valid ESM.
+      VoidZero, Vite's maintainer, was acquired by Cloudflare in June 2026, but
+      Vite stays MIT-licensed, open source, and vendor-neutral.
+    maintained_by: "VoidZero (Cloudflare) + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "vite.dev", url: "https://vite.dev" }
+
+  - name: "webpack"
+    slug: "webpack"
+    tagline: "The long-reigning bundler that powered the SPA era."
+    layer: [tooling, frontend]
+    maturity: mainstream
+    learning_curve: steep
+    first_released: 2012
+    description: >
+      The bundler that defined frontend builds for a decade. Its loader and
+      plugin model can transform virtually any asset, and code-splitting plus
+      <span class="abbr-link" data-abbr="Tree-shaking">tree-shaking</span> made
+      large <span class="abbr-link" data-abbr="SPA">SPAs</span> shippable.
+      Still everywhere in established codebases, but new projects increasingly
+      pick Vite for speed and simpler config.
+    use_cases:
+      - "Maintaining and extending existing webpack codebases."
+      - "Complex builds needing fine-grained loader/plugin control."
+      - "Apps with non-standard asset pipelines."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Loader system transforms any asset type."
+      - "Code splitting and tree-shaking."
+      - "Huge plugin ecosystem built over a decade."
+      - "Module Federation for micro-frontends."
+    pairs_well_with:
+      - { name: "Babel", slug: "babel" }
+      - { name: "SWC", slug: "swc" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Vite", slug: "vite" }
+      - { name: "Turbopack", slug: "turbopack" }
+      - { name: "Parcel", slug: "parcel" }
+    example:
+      lang: "bash"
+      code: "npm install --save-dev webpack webpack-cli"
+      explain: "Install webpack and its CLI; configuration lives in webpack.config.js."
+    gotchas: >
+      The config is famously sprawling — loaders, plugins, and resolve rules
+      pile up, and builds get slow on large apps. It's mature rather than
+      cutting-edge; greenfield projects usually start with Vite instead unless
+      they need a webpack-specific feature like Module Federation.
+    maintained_by: "webpack team + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "webpack.js.org", url: "https://webpack.js.org" }
+
+  - name: "esbuild"
+    slug: "esbuild"
+    tagline: "An extremely fast bundler and minifier written in Go."
+    layer: [tooling, frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      A <span class="abbr-link" data-abbr="Bundler">bundler</span>,
+      <span class="abbr-link" data-abbr="Transpile">transpiler</span>, and
+      minifier written in Go that's one to two orders of magnitude faster than
+      JavaScript-based tools. It powers dependency pre-bundling inside Vite and
+      many other toolchains, and works standalone for fast library or server
+      builds.
+    use_cases:
+      - "Blazing-fast transpilation and bundling in larger toolchains."
+      - "Bundling Node.js / serverless backends and CLIs."
+      - "Library builds where build speed matters most."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Go-based — 10–100× faster than JS bundlers."
+      - "Bundling, transpiling (TS/JSX), and minification in one tool."
+      - "Used under the hood by Vite and others."
+      - "Simple API and small, predictable output."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    alternatives:
+      - { name: "Rollup", slug: "rollup" }
+      - { name: "SWC", slug: "swc" }
+      - { name: "Rolldown", slug: "rolldown" }
+    example:
+      lang: "bash"
+      code: "npx esbuild app.tsx --bundle --minify --outfile=out.js"
+      explain: "Bundle and minify a TypeScript/JSX entry into a single output file."
+    gotchas: >
+      Speed comes from doing less — esbuild deliberately skips full type
+      checking (it strips types, it doesn't verify them) and has a smaller
+      plugin ecosystem than Rollup or webpack. Run `tsc --noEmit` separately
+      for type safety, and check plugin coverage before relying on it as your
+      only bundler.
+    maintained_by: "Evan Wallace + OSS community"
+    language: "Go"
+    license: "MIT"
+    docs:
+      - { label: "esbuild.github.io", url: "https://esbuild.github.io" }
+
+  - name: "Rollup"
+    slug: "rollup"
+    tagline: "The bundler of choice for JavaScript libraries."
+    layer: [tooling, frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2015
+    description: >
+      A <span class="abbr-link" data-abbr="Bundler">bundler</span> that
+      pioneered <span class="abbr-link" data-abbr="ESM">ES module</span>-based
+      <span class="abbr-link" data-abbr="Tree-shaking">tree-shaking</span> and
+      produces clean, minimal output — which made it the default for publishing
+      libraries. Vite uses Rollup for its production builds, so its plugin
+      ecosystem reaches far beyond standalone use.
+    use_cases:
+      - "Bundling JavaScript/TypeScript libraries for publishing."
+      - "Producing clean ESM, CJS, and UMD outputs from one source."
+      - "The production-build engine inside Vite."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Best-in-class tree-shaking and clean output."
+      - "Multiple output formats (ESM, CJS, UMD) at once."
+      - "Mature, well-documented plugin API."
+      - "Powers Vite's production bundling."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "esbuild", slug: "esbuild" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "esbuild", slug: "esbuild" }
+      - { name: "webpack", slug: "webpack" }
+      - { name: "Rolldown", slug: "rolldown" }
+    example:
+      lang: "bash"
+      code: "npx rollup src/index.js --file dist/bundle.js --format esm"
+      explain: "Bundle a library entry into a single ES-module file."
+    gotchas: >
+      Rollup is tuned for libraries, not apps — it has no dev server, and
+      app-style features (HMR, asset handling) come from Vite layered on top.
+      It's also JavaScript-based, so it's slower than esbuild; the Rust-based
+      Rolldown is being built as its faster successor.
+    maintained_by: "Rollup team + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "rollupjs.org", url: "https://rollupjs.org" }
+
+  - name: "Parcel"
+    slug: "parcel"
+    tagline: "The zero-config bundler that just works."
+    layer: [tooling, frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2017
+    description: >
+      A <span class="abbr-link" data-abbr="Bundler">bundler</span> built around
+      zero configuration — point it at an HTML entry and it infers the rest,
+      installing transforms as needed. It caches aggressively and uses Rust- and
+      SWC-based internals for speed, making it a low-ceremony choice for small
+      to medium projects.
+    use_cases:
+      - "Quick prototypes and small apps with no config overhead."
+      - "Bundling static sites and multi-page apps from HTML entries."
+      - "Beginners who want a bundler that works without setup."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Zero-config — infers transforms from the entry."
+      - "Aggressive multi-core caching for fast rebuilds."
+      - "Built-in dev server with HMR."
+      - "Rust/SWC-based internals for speed."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "SWC", slug: "swc" }
+    alternatives:
+      - { name: "Vite", slug: "vite" }
+      - { name: "webpack", slug: "webpack" }
+      - { name: "esbuild", slug: "esbuild" }
+    example:
+      lang: "bash"
+      code: "npx parcel index.html"
+      explain: "Start a dev server and bundle starting from an HTML entry — no config file needed."
+    gotchas: >
+      Zero-config is great until you need to customize — escaping the defaults
+      is less documented than webpack's or Vite's explicit config. Its mindshare
+      has also shrunk as Vite became the default low-config option, so community
+      help is thinner.
+    maintained_by: "Parcel team + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "parceljs.org", url: "https://parceljs.org" }
+
+  - name: "Turbopack"
+    slug: "turbopack"
+    tagline: "Vercel's Rust-based successor to webpack."
+    layer: [tooling, frontend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2022
+    description: >
+      An incremental <span class="abbr-link" data-abbr="Bundler">bundler</span>
+      written in Rust by Vercel, designed as webpack's successor for large
+      apps. It ships inside Next.js — powering its dev server and, increasingly,
+      production builds — with function-level incremental computation so only
+      what changed is recomputed.
+    use_cases:
+      - "Fast dev and builds inside Next.js."
+      - "Large React apps where webpack build times hurt."
+      - "Teams on the Vercel/Next.js stack adopting the default tooling."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Rust-based with function-level incremental computation."
+      - "Powers the Next.js dev server and builds."
+      - "Fast HMR that scales to large apps."
+      - "Designed as a drop-in webpack replacement in Next.js."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "React", slug: "react" }
+      - { name: "SWC", slug: "swc" }
+    alternatives:
+      - { name: "Vite", slug: "vite" }
+      - { name: "webpack", slug: "webpack" }
+      - { name: "Rolldown", slug: "rolldown" }
+    example:
+      lang: "bash"
+      code: "next dev --turbopack"
+      explain: "Run the Next.js dev server with the Turbopack bundler enabled."
+    gotchas: >
+      Turbopack is tightly coupled to Next.js — it isn't a general-purpose,
+      standalone bundler you drop into any project the way Vite is. It's also
+      newer than its rivals, so feature parity with webpack loaders and the
+      surrounding ecosystem is still filling in.
+    maintained_by: "Vercel"
+    language: "Rust"
+    license: "MIT"
+    docs:
+      - { label: "turbo.build/pack", url: "https://turbo.build/pack" }
+
+  - name: "SWC"
+    slug: "swc"
+    tagline: "A Rust-based platform for fast JS/TS transpilation."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2019
+    description: >
+      The "Speedy Web Compiler" — a Rust-based platform that
+      <span class="abbr-link" data-abbr="Transpile">transpiles</span> and
+      minifies JavaScript and TypeScript far faster than Babel. Next.js uses it
+      to replace Babel and Terser, and many test runners and bundlers plug it
+      in for fast TS/JSX compilation.
+    use_cases:
+      - "Drop-in faster replacement for Babel in build pipelines."
+      - "Fast TypeScript/JSX transforms inside Next.js and test runners."
+      - "Custom transforms via SWC plugins (Wasm)."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Rust-based — far faster than Babel."
+      - "Transpiles TS/JSX and minifies JS."
+      - "Powers Next.js's compilation and minification."
+      - "Wasm plugin system for custom transforms."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Jest", slug: "jest" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Babel", slug: "babel" }
+      - { name: "esbuild", slug: "esbuild" }
+    example:
+      lang: "bash"
+      code: "npx swc src --out-dir dist"
+      explain: "Transpile a TypeScript/JSX source directory to JavaScript with the SWC CLI."
+    gotchas: >
+      Like esbuild, SWC transpiles without full type checking — types are
+      stripped, not verified — so keep `tsc` in your pipeline. Its plugin
+      ecosystem is smaller than Babel's, and authoring SWC (Wasm) plugins is far
+      more involved than a Babel plugin.
+    maintained_by: "SWC project + OSS community"
+    language: "Rust"
+    license: "Apache-2.0"
+    docs:
+      - { label: "swc.rs", url: "https://swc.rs" }
+
+  - name: "Babel"
+    slug: "babel"
+    tagline: "The JavaScript compiler that brought modern syntax everywhere."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2014
+    description: >
+      The classic JavaScript <span class="abbr-link" data-abbr="Transpile">transpiler</span>
+      — it lets you write modern JS (and JSX, TypeScript) and compiles it down
+      to syntax older browsers understand. Its preset and plugin system shaped a
+      generation of build tooling; newer projects often swap it for SWC or
+      esbuild on speed, but it remains ubiquitous for its plugin ecosystem.
+    use_cases:
+      - "Transpiling modern JS/JSX/TS for broad browser support."
+      - "Custom AST transforms via Babel plugins."
+      - "Maintaining toolchains and codebases built around Babel."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Presets (@babel/preset-env, -react, -typescript)."
+      - "Vast plugin ecosystem for syntax and AST transforms."
+      - "Targets specific browsers via browserslist."
+      - "The reference implementation for new JS proposals."
+    pairs_well_with:
+      - { name: "webpack", slug: "webpack" }
+      - { name: "Jest", slug: "jest" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "SWC", slug: "swc" }
+      - { name: "esbuild", slug: "esbuild" }
+      - { name: "TSC", slug: "tsc" }
+    example:
+      lang: "bash"
+      code: "npx babel src --out-dir dist --presets @babel/preset-env"
+      explain: "Compile a source directory to broadly-compatible JavaScript using preset-env."
+    gotchas: >
+      Babel is JavaScript-based and slow on large codebases — the main reason
+      SWC and esbuild displaced it for raw transpilation. It still wins on
+      plugin breadth, so the common pattern is fast tools for builds and Babel
+      only where a specific plugin is required.
+    maintained_by: "Babel team + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "babeljs.io", url: "https://babeljs.io" }
+
+  - name: "Rolldown"
+    slug: "rolldown"
+    tagline: "Rust-based, Rollup-compatible bundler — Vite's future engine."
+    layer: [tooling, frontend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2024
+    description: >
+      A <span class="abbr-link" data-abbr="Bundler">bundler</span> written in
+      Rust that aims to be a drop-in, Rollup-compatible replacement at a
+      fraction of the build time. It's being adopted as Vite's production
+      bundler (shipped as "rolldown-vite"), unifying the dev and build paths and
+      replacing the current esbuild + Rollup split.
+    use_cases:
+      - "Faster production builds inside Vite (rolldown-vite)."
+      - "Dropping into Rollup-based pipelines for a speed boost."
+      - "Bundling large apps and libraries where build time matters."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Rollup", slug: "rollup" }
+    key_features:
+      - "Rust-based — far faster than Rollup."
+      - "Rollup-compatible API and plugin interface."
+      - "Becoming Vite's production bundler (rolldown-vite)."
+      - "Built by the VoidZero team alongside Vite and Oxc."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "Rollup", slug: "rollup" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Rollup", slug: "rollup" }
+      - { name: "esbuild", slug: "esbuild" }
+      - { name: "Turbopack", slug: "turbopack" }
+    example:
+      lang: "bash"
+      code: "npm install --save-dev rolldown"
+      explain: "Install Rolldown; its CLI and config mirror Rollup's so existing setups port over."
+    gotchas: >
+      It's still maturing — Rollup compatibility is high but not perfect, so
+      exotic plugins or edge-case config may not port cleanly yet. Maintained by
+      VoidZero (acquired by Cloudflare in June 2026) and MIT-licensed, it stays
+      open source and vendor-neutral alongside Vite.
+    maintained_by: "VoidZero (Cloudflare) + OSS community"
+    language: "Rust"
+    license: "MIT"
+    docs:
+      - { label: "rolldown.rs", url: "https://rolldown.rs" }

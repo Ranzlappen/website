@@ -1,0 +1,307 @@
+/* ============================================================================
+   Web Dev Tech Stack — page-specific overrides
+   Layers on top of /assets/css/reference-table.css.
+   Defines the maturity / learning-curve / layer / license badge palettes,
+   column widths, and the cell layouts. Everything is scoped under
+   `.reference-page--webdev` (or page-specific class names) so nothing leaks to
+   other reference pages.
+   ========================================================================== */
+
+/* ---- Desktop column min-widths ---- */
+.reference-page--webdev .reference-table {
+  min-width: 2900px;
+}
+.reference-page--webdev .reference-table .col-name     { min-width: 13rem; width: 13rem; }
+.reference-page--webdev .reference-table .col-layer    { min-width: 9rem; }
+.reference-page--webdev .reference-table .col-maturity { min-width: 8rem; }
+.reference-page--webdev .reference-table .col-lc       { min-width: 8rem; }
+.reference-page--webdev .reference-table .col-since    { min-width: 5rem; }
+.reference-page--webdev .reference-table .col-what     { min-width: 18rem; }
+.reference-page--webdev .reference-table .col-uses     { min-width: 16rem; }
+.reference-page--webdev .reference-table .col-prereqs  { min-width: 10rem; }
+.reference-page--webdev .reference-table .col-features { min-width: 16rem; }
+.reference-page--webdev .reference-table .col-pairs    { min-width: 11rem; }
+.reference-page--webdev .reference-table .col-alts     { min-width: 11rem; }
+.reference-page--webdev .reference-table .col-example  { min-width: 16rem; }
+.reference-page--webdev .reference-table .col-gotchas  { min-width: 16rem; }
+.reference-page--webdev .reference-table .col-builtin  { min-width: 9rem; }
+.reference-page--webdev .reference-table .col-maint    { min-width: 10rem; }
+.reference-page--webdev .reference-table .col-license  { min-width: 8rem; }
+.reference-page--webdev .reference-table .col-docs     { min-width: 11rem; }
+
+.reference-page--webdev .reference-table .col-example,
+.reference-page--webdev .reference-table .col-what,
+.reference-page--webdev .reference-table .col-gotchas {
+  overflow-wrap: anywhere;
+}
+
+/* ---- Sticky first column: name + tagline + stacked badges ---- */
+.webdev-name {
+  display: block;
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--c-text);
+  line-height: 1.25;
+}
+.webdev-tagline {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--c-text-muted);
+  line-height: 1.35;
+}
+.webdev-name-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+.webdev-name-badges .reference-badge { font-size: 0.72rem; }
+
+/* ---- Layer column (stacked text-labelled pills) ---- */
+.webdev-layer-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+.webdev-layer-badges .reference-badge {
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.reference-page--webdev .col-maturity .reference-badge,
+.reference-page--webdev .col-lc .reference-badge { font-size: 0.78rem; }
+
+/* ---- Cross-link lists (prerequisites / pairs / alternatives) ---- */
+.webdev-link-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.webdev-link-list li { margin: 0 0 0.2rem; }
+.reference-page--webdev .webdev-link-list a {
+  color: var(--c-accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--c-accent-border);
+}
+.reference-page--webdev .webdev-link-list a:hover { border-bottom-style: solid; }
+
+/* ---- Docs cell ---- */
+.webdev-docs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+.webdev-docs-list li { margin: 0 0 0.2rem; }
+.webdev-docs-list code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--c-text-muted);
+}
+.reference-page--webdev .col-docs a {
+  color: var(--c-accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--c-accent-border);
+  overflow-wrap: anywhere;
+}
+.reference-page--webdev .col-docs a:hover { border-bottom-style: solid; }
+
+/* ---- Example button (clickable, opens an explanation modal) ---- */
+.webdev-example {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 0;
+  padding: 0.45rem 0.6rem;
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border-light);
+  border-radius: 4px;
+  cursor: pointer;
+  font: inherit;
+  position: relative;
+  transition: border-color var(--transition-fast),
+              background var(--transition-fast);
+}
+.webdev-example:hover,
+.webdev-example:focus-visible {
+  border-color: var(--c-accent-border);
+  background: var(--c-accent-bg);
+}
+.webdev-example:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 1px;
+}
+/* Subtle "?" affordance so it reads as explain-on-tap. */
+.webdev-example::after {
+  content: "?";
+  position: absolute;
+  top: 0.25rem;
+  right: 0.35rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--c-text-faint);
+  border: 1px solid var(--c-border-light);
+  border-radius: 999px;
+  width: 0.95rem;
+  height: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.webdev-example:hover::after,
+.webdev-example:focus-visible::after { color: var(--c-accent); border-color: var(--c-accent-border); }
+.webdev-example__code {
+  font-family: var(--f-mono);
+  font-size: 0.8rem;
+  color: var(--c-text);
+  background: transparent;
+  border: 0;
+  padding: 0 1rem 0 0;            /* clear the ? badge */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  display: block;
+}
+.webdev-example__code .abbr-trigger {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+  cursor: help;
+}
+
+/* ---- Maturity badges ---- */
+.webdev-maturity--standard,
+.webdev-maturity--mainstream,
+.webdev-maturity--rising,
+.webdev-maturity--legacy {
+  border: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.webdev-maturity--standard   { background: #14532d44; color: #4ade80; border: 1px solid #22c55e66; }
+.webdev-maturity--mainstream { background: #1e3a8a44; color: #60a5fa; border: 1px solid #3b82f666; }
+.webdev-maturity--rising     { background: #78350f33; color: #fbbf24; border: 1px solid #f59e0b66; }
+.webdev-maturity--legacy     { background: #3f3f4644; color: #a1a1aa; border: 1px solid #71717a66; }
+[data-theme="light"] .webdev-maturity--standard   { background: #dcfce7; color: #15803d; border-color: #16a34a55; }
+[data-theme="light"] .webdev-maturity--mainstream { background: #dbeafe; color: #1d4ed8; border-color: #2563eb55; }
+[data-theme="light"] .webdev-maturity--rising     { background: #fef3c7; color: #b45309; border-color: #d9770655; }
+[data-theme="light"] .webdev-maturity--legacy     { background: #e4e4e7; color: #52525b; border-color: #a1a1aa55; }
+
+/* ---- Learning-curve badges ---- */
+.webdev-lc--gentle,
+.webdev-lc--moderate,
+.webdev-lc--steep {
+  border: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.webdev-lc--gentle   { background: #16653433; color: #4ade80; border: 1px solid #22c55e55; }
+.webdev-lc--moderate { background: #78350f33; color: #fbbf24; border: 1px solid #f59e0b66; }
+.webdev-lc--steep    { background: #7f1d1d44; color: #f87171; border: 1px solid #ef444466; }
+[data-theme="light"] .webdev-lc--gentle   { background: #dcfce7; color: #15803d; border-color: #16a34a55; }
+[data-theme="light"] .webdev-lc--moderate { background: #fef3c7; color: #b45309; border-color: #d9770655; }
+[data-theme="light"] .webdev-lc--steep    { background: #fee2e2; color: #b91c1c; border-color: #dc262655; }
+
+/* ---- License badges ---- */
+.webdev-license--permissive,
+.webdev-license--copyleft,
+.webdev-license--proprietary,
+.webdev-license--source-available {
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.webdev-license--permissive       { background: #16653433; color: #4ade80; border: 1px solid #22c55e44; }
+.webdev-license--copyleft         { background: #78350f33; color: #fbbf24; border: 1px solid #f59e0b44; }
+.webdev-license--source-available { background: #1e3a8a44; color: #60a5fa; border: 1px solid #3b82f644; }
+.webdev-license--proprietary      { background: #3f3f4644; color: #a1a1aa; border: 1px solid #71717a44; }
+[data-theme="light"] .webdev-license--permissive       { background: #dcfce7; color: #15803d; border-color: #16a34a44; }
+[data-theme="light"] .webdev-license--copyleft         { background: #fef3c7; color: #b45309; border-color: #d9770644; }
+[data-theme="light"] .webdev-license--source-available { background: #dbeafe; color: #1d4ed8; border-color: #2563eb44; }
+[data-theme="light"] .webdev-license--proprietary      { background: #e4e4e7; color: #52525b; border-color: #a1a1aa44; }
+
+/* ---- Layer badge palette ----
+   Eight modifiers that set --swatch-bg (used by .reference-legend__swatch)
+   and override .reference-badge background. Each pair sets both the dark
+   default and the [data-theme="light"] override. */
+.webdev-layer--language,
+.webdev-layer--frontend,
+.webdev-layer--backend,
+.webdev-layer--fullstack,
+.webdev-layer--styling,
+.webdev-layer--database,
+.webdev-layer--tooling,
+.webdev-layer--infrastructure {
+  border: 0;
+  color: #ffffff;
+  line-height: 1;
+}
+.webdev-layer--language       { --swatch-bg: #6366f1; background: #6366f1; color: #ffffff; }
+.webdev-layer--frontend       { --swatch-bg: #06b6d4; background: #06b6d4; color: #08313a; }
+.webdev-layer--backend        { --swatch-bg: #8b5cf6; background: #8b5cf6; color: #ffffff; }
+.webdev-layer--fullstack      { --swatch-bg: #14b8a6; background: #14b8a6; color: #06342f; }
+.webdev-layer--styling        { --swatch-bg: #ec4899; background: #ec4899; color: #ffffff; }
+.webdev-layer--database       { --swatch-bg: #f97316; background: #f97316; color: #2a1505; }
+.webdev-layer--tooling        { --swatch-bg: #64748b; background: #64748b; color: #ffffff; }
+.webdev-layer--infrastructure { --swatch-bg: #3b82f6; background: #3b82f6; color: #ffffff; }
+
+[data-theme="light"] .webdev-layer--language       { --swatch-bg: #4f46e5; background: #4f46e5; color: #ffffff; }
+[data-theme="light"] .webdev-layer--frontend       { --swatch-bg: #0891b2; background: #0891b2; color: #ffffff; }
+[data-theme="light"] .webdev-layer--backend        { --swatch-bg: #7c3aed; background: #7c3aed; color: #ffffff; }
+[data-theme="light"] .webdev-layer--fullstack      { --swatch-bg: #0d9488; background: #0d9488; color: #ffffff; }
+[data-theme="light"] .webdev-layer--styling        { --swatch-bg: #db2777; background: #db2777; color: #ffffff; }
+[data-theme="light"] .webdev-layer--database       { --swatch-bg: #ea580c; background: #ea580c; color: #ffffff; }
+[data-theme="light"] .webdev-layer--tooling        { --swatch-bg: #475569; background: #475569; color: #ffffff; }
+[data-theme="light"] .webdev-layer--infrastructure { --swatch-bg: #2563eb; background: #2563eb; color: #ffffff; }
+
+/* ---- Legend sub-heading ---- */
+.reference-page--webdev .reference-legend__subhead {
+  font-size: 1rem;
+  margin: var(--space-md) 0 var(--space-xs);
+  color: var(--c-text);
+}
+
+/* ---- Mobile: column-snap layout (mirrors the cmd cheat sheet) ---- */
+@media (max-width: 640px) {
+  .reference-page--webdev .reference-table-wrapper.has-snap-cols {
+    scroll-padding-left: 9rem;       /* matches col-name width below */
+  }
+  .reference-page--webdev .reference-table {
+    table-layout: fixed;
+    font-size: 0.825rem;
+    min-width: 0;                    /* override the desktop floor */
+  }
+  .reference-page--webdev .reference-table .col-name {
+    width: 9rem;
+    min-width: 9rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  /* Every non-sticky column = one viewport page minus the sticky col and
+     the container's horizontal padding. */
+  .reference-page--webdev .reference-table .col-layer,
+  .reference-page--webdev .reference-table .col-maturity,
+  .reference-page--webdev .reference-table .col-lc,
+  .reference-page--webdev .reference-table .col-since,
+  .reference-page--webdev .reference-table .col-what,
+  .reference-page--webdev .reference-table .col-uses,
+  .reference-page--webdev .reference-table .col-prereqs,
+  .reference-page--webdev .reference-table .col-features,
+  .reference-page--webdev .reference-table .col-pairs,
+  .reference-page--webdev .reference-table .col-alts,
+  .reference-page--webdev .reference-table .col-example,
+  .reference-page--webdev .reference-table .col-gotchas,
+  .reference-page--webdev .reference-table .col-builtin,
+  .reference-page--webdev .reference-table .col-maint,
+  .reference-page--webdev .reference-table .col-license,
+  .reference-page--webdev .reference-table .col-docs {
+    width: calc(100vw - 11rem);
+    min-width: 0;
+  }
+}

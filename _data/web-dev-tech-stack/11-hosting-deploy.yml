@@ -1,0 +1,490 @@
+batch:
+  id: "hosting-deploy"
+  order: 11
+  name: "Hosting & Deploy Platforms"
+  short_name: "Hosting"
+  description: >
+    Where your site or app actually runs — from git-push frontend clouds
+    (Vercel, Netlify) and edge static hosts (Cloudflare Pages, GitHub Pages) to
+    full Heroku-style PaaS (Render, Railway, Fly.io), the Firebase suite, and
+    the IaaS giant AWS. Most pair a global CDN with serverless or container
+    compute and deploy straight from a git push.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Vercel"
+    slug: "vercel"
+    tagline: "The frontend cloud — git-push deploys and the home of Next.js."
+    layer: [infrastructure, fullstack]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2015
+    description: >
+      A frontend-focused <span class="abbr-link" data-abbr="PaaS">PaaS</span> and
+      the company behind Next.js. Connect a git repo and every push deploys to a
+      global edge network with serverless and edge functions; every branch and
+      pull request gets its own preview URL. Optimized for
+      <span class="abbr-link" data-abbr="SSR">SSR</span> and
+      <span class="abbr-link" data-abbr="SSG">SSG</span> frontends.
+    use_cases:
+      - "Deploying Next.js, SvelteKit, Astro, or any modern frontend in seconds."
+      - "Per-branch preview deployments for reviewing changes."
+      - "Serverless and edge functions colocated with the frontend."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Git-push deploys with automatic preview URLs per branch/PR."
+      - "Global edge network plus serverless and edge functions."
+      - "First-class Next.js support (ISR, image optimization, RSC)."
+      - "Built-in analytics, environment variables, and instant rollbacks."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "SvelteKit", slug: "sveltekit" }
+      - { name: "Neon", slug: "neon" }
+      - { name: "GitHub", slug: "github" }
+    alternatives:
+      - { name: "Netlify", slug: "netlify" }
+      - { name: "Cloudflare Pages", slug: "cloudflare-pages" }
+      - { name: "AWS", slug: "aws" }
+    example:
+      lang: "bash"
+      code: "npx vercel --prod"
+      explain: >
+        Deploy the current project to production from the CLI — Vercel builds it
+        and serves it on the global edge network.
+    gotchas: >
+      The free Hobby tier is non-commercial — production apps need a paid plan.
+      Bandwidth and serverless-function usage are metered, so high-traffic or
+      heavy edge workloads can get expensive, and you're somewhat locked into
+      Vercel's build conventions for the best Next.js features.
+    maintained_by: "Vercel Inc."
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "vercel.com/docs", url: "https://vercel.com/docs" }
+
+  - name: "Netlify"
+    slug: "netlify"
+    tagline: "The platform that popularized JAMstack git-push deploys."
+    layer: [infrastructure, fullstack]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2014
+    description: >
+      A frontend deployment platform that pioneered the
+      <span class="abbr-link" data-abbr="JAMstack">JAMstack</span> workflow:
+      connect a git repo and each push builds and deploys to a global
+      <span class="abbr-link" data-abbr="CDN">CDN</span>. It bundles edge
+      functions, serverless functions, form handling, identity, and deploy
+      previews for static sites and SPAs.
+    use_cases:
+      - "Static sites and SPAs deployed straight from a git push."
+      - "JAMstack apps wanting forms, identity, and functions out of the box."
+      - "Deploy previews on every pull request."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Git-push builds with deploy previews per branch/PR."
+      - "Global CDN with instant cache invalidation and rollbacks."
+      - "Edge and serverless functions; built-in forms and identity."
+      - "Netlify CLI and a generous static-hosting free tier."
+    pairs_well_with:
+      - { name: "Astro", slug: "astro" }
+      - { name: "Gatsby", slug: "gatsby" }
+      - { name: "SvelteKit", slug: "sveltekit" }
+      - { name: "GitHub", slug: "github" }
+    alternatives:
+      - { name: "Vercel", slug: "vercel" }
+      - { name: "Cloudflare Pages", slug: "cloudflare-pages" }
+      - { name: "GitHub Pages", slug: "github-pages" }
+    example:
+      lang: "bash"
+      code: "netlify deploy --prod"
+      explain: >
+        Build and push the site to production via the Netlify CLI, serving it
+        from the global CDN.
+    gotchas: >
+      Build-minute and bandwidth quotas on lower tiers can bite busy sites, and
+      serverless-function cold starts and execution limits apply. Its SSR
+      framework support has historically trailed Vercel's tight Next.js
+      integration, though adapters close most of the gap.
+    maintained_by: "Netlify, Inc."
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "docs.netlify.com", url: "https://docs.netlify.com" }
+
+  - name: "Cloudflare Pages"
+    slug: "cloudflare-pages"
+    tagline: "Static sites and functions on Cloudflare's global edge."
+    layer: [infrastructure, fullstack]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A JAMstack hosting platform that serves static sites and full-stack apps
+      from Cloudflare's global edge, with dynamic logic running on Cloudflare
+      Workers. It git-deploys like Vercel and Netlify but runs everything on the
+      same vast <span class="abbr-link" data-abbr="CDN">CDN</span> and
+      <span class="abbr-link" data-abbr="edge runtime">edge runtime</span> that
+      fronts a large share of the web.
+    use_cases:
+      - "Static sites and SPAs served from a huge global edge network."
+      - "Full-stack apps whose backend runs on Cloudflare Workers."
+      - "Projects already using Cloudflare DNS, R2, D1, or KV."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+    key_features:
+      - "Git-push deploys with unlimited preview deployments."
+      - "Functions powered by Cloudflare Workers at the edge."
+      - "Tight integration with R2, D1, KV, and Durable Objects."
+      - "Generous free tier with unmetered static bandwidth."
+    pairs_well_with:
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+      - { name: "Hono", slug: "hono" }
+      - { name: "Astro", slug: "astro" }
+      - { name: "Drizzle", slug: "drizzle" }
+    alternatives:
+      - { name: "Vercel", slug: "vercel" }
+      - { name: "Netlify", slug: "netlify" }
+      - { name: "GitHub Pages", slug: "github-pages" }
+    example:
+      lang: "bash"
+      code: "npx wrangler pages deploy ./dist"
+      explain: >
+        Deploy a built static directory to Cloudflare Pages using the Wrangler
+        CLI, serving it from the edge.
+    gotchas: >
+      Functions run on the Workers runtime, not full Node.js — some Node APIs
+      and packages don't work without the `nodejs_compat` flag, and there are
+      bundle-size and CPU-time limits per request. Cloudflare also acquired
+      VoidZero (the Vite team) in 2026, tightening its build-tooling story.
+    maintained_by: "Cloudflare, Inc."
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "developers.cloudflare.com/pages", url: "https://developers.cloudflare.com/pages" }
+
+  - name: "GitHub Pages"
+    slug: "github-pages"
+    tagline: "Free static hosting served straight from a GitHub repo."
+    layer: [infrastructure]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2008
+    description: >
+      Free static-site hosting from GitHub: point it at a repository or branch
+      and it serves the files over a <span class="abbr-link" data-abbr="CDN">CDN</span>
+      with HTTPS and optional custom domains. It can build Jekyll sites
+      automatically, or you can deploy any prebuilt
+      <span class="abbr-link" data-abbr="SSG">SSG</span> output via GitHub
+      Actions — this very site runs on it.
+    use_cases:
+      - "Project docs, personal blogs, and portfolios with zero hosting cost."
+      - "Jekyll sites built automatically from a repo."
+      - "Any static-site-generator output deployed via GitHub Actions."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "GitHub", slug: "github" }
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "Free static hosting with HTTPS and custom-domain support."
+      - "Built-in Jekyll build, or deploy any SSG via Actions."
+      - "Served over a global CDN straight from a branch or artifact."
+      - "No servers, no config beyond a repo setting or workflow."
+    pairs_well_with:
+      - { name: "GitHub Actions", slug: "github-actions" }
+      - { name: "Astro", slug: "astro" }
+      - { name: "GitHub", slug: "github" }
+    alternatives:
+      - { name: "Cloudflare Pages", slug: "cloudflare-pages" }
+      - { name: "Netlify", slug: "netlify" }
+      - { name: "Firebase Hosting", slug: "firebase-hosting" }
+    example:
+      lang: "yaml"
+      code: |-
+        - uses: actions/deploy-pages@v4
+          with:
+            artifact_name: github-pages
+      explain: >
+        A GitHub Actions step that publishes a built site artifact to GitHub
+        Pages — the deploy half of a typical build-then-deploy workflow.
+    gotchas: >
+      It's static-only — no server-side code, databases, or serverless
+      functions, so dynamic features need a separate backend. Soft usage limits
+      apply (~1 GB site, ~100 GB/month bandwidth, ~10 builds/hour), and the
+      built-in Jekyll runs a pinned, restricted plugin set — custom plugins need
+      a Actions build instead.
+    maintained_by: "GitHub (Microsoft)"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "docs.github.com/pages", url: "https://docs.github.com/pages" }
+
+  - name: "AWS"
+    slug: "aws"
+    tagline: "The hyperscale cloud — every infrastructure primitive, à la carte."
+    layer: [infrastructure, fullstack]
+    maturity: industry-standard
+    learning_curve: steep
+    first_released: 2006
+    description: >
+      Amazon Web Services — the largest
+      <span class="abbr-link" data-abbr="IaaS">IaaS</span>/<span class="abbr-link" data-abbr="PaaS">PaaS</span>
+      cloud, offering hundreds of building-block services: S3 for storage, EC2
+      for VMs, Lambda for serverless, CloudFront as a
+      <span class="abbr-link" data-abbr="CDN">CDN</span>, RDS for databases, and
+      Amplify for frontend hosting. Unmatched breadth and scale, at the cost of
+      real complexity.
+    use_cases:
+      - "Large-scale production systems needing fine-grained control."
+      - "Serverless backends (Lambda + API Gateway + DynamoDB)."
+      - "Hosting anything from a static S3 site to a Kubernetes cluster."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "Docker", slug: "docker" }
+      - { name: "Terraform", slug: "terraform" }
+    key_features:
+      - "Hundreds of services: S3, EC2, Lambda, CloudFront, RDS, DynamoDB."
+      - "Global regions and availability zones for scale and redundancy."
+      - "Fine-grained IAM permissions and VPC networking."
+      - "Amplify for git-push frontend + serverless backend hosting."
+    pairs_well_with:
+      - { name: "Terraform", slug: "terraform" }
+      - { name: "Docker", slug: "docker" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "GitHub Actions", slug: "github-actions" }
+    alternatives:
+      - { name: "Vercel", slug: "vercel" }
+      - { name: "Render", slug: "render" }
+      - { name: "Firebase Hosting", slug: "firebase-hosting" }
+    example:
+      lang: "bash"
+      code: "aws s3 sync ./dist s3://my-site --delete"
+      explain: >
+        Upload a built static site to an S3 bucket (commonly fronted by
+        CloudFront) — one of the simplest ways to host on AWS.
+    gotchas: >
+      The breadth is the curse — IAM, VPCs, regions, and the sheer service count
+      make the learning curve the steepest here. Per-second metered billing can
+      surprise you (egress fees, idle resources), so set budgets and alerts.
+      Most teams reach for a higher-level PaaS unless they truly need AWS's reach.
+    maintained_by: "Amazon"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "docs.aws.amazon.com", url: "https://docs.aws.amazon.com" }
+
+  - name: "Render"
+    slug: "render"
+    tagline: "A modern Heroku — simple PaaS for web services and databases."
+    layer: [infrastructure, fullstack]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2019
+    description: >
+      A developer-friendly <span class="abbr-link" data-abbr="PaaS">PaaS</span>
+      pitched as a modern Heroku: connect a repo and Render builds and runs web
+      services, background workers, cron jobs, static sites, and managed Postgres
+      or Redis. It handles TLS, deploys, and autoscaling so you don't touch
+      <span class="abbr-link" data-abbr="IaaS">IaaS</span> plumbing.
+    use_cases:
+      - "Deploying a backend API + managed Postgres without DevOps overhead."
+      - "Teams migrating off Heroku wanting a similar git-push workflow."
+      - "Background workers, cron jobs, and static sites in one place."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "Docker", slug: "docker" }
+    key_features:
+      - "Git-push deploys for web services, workers, and static sites."
+      - "Managed PostgreSQL and Redis with automatic backups."
+      - "Free TLS, autoscaling, and zero-downtime deploys."
+      - "Infrastructure-as-code via a `render.yaml` blueprint."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Express", slug: "express" }
+      - { name: "Docker", slug: "docker" }
+      - { name: "Prisma", slug: "prisma" }
+    alternatives:
+      - { name: "Railway", slug: "railway" }
+      - { name: "Fly.io", slug: "fly-io" }
+      - { name: "AWS", slug: "aws" }
+    example:
+      lang: "yaml"
+      code: |-
+        services:
+          - type: web
+            name: api
+            env: node
+            buildCommand: npm ci && npm run build
+            startCommand: npm start
+      explain: >
+        A `render.yaml` blueprint declaring a Node web service — Render builds
+        and runs it from your repo on every push.
+    gotchas: >
+      The free tier spins services down after inactivity, so the first request
+      after an idle period suffers a cold-start delay. It's simpler but less
+      configurable than raw AWS, and pricing can climb once you scale instances
+      or add managed databases.
+    maintained_by: "Render"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "render.com/docs", url: "https://render.com/docs" }
+
+  - name: "Fly.io"
+    slug: "fly-io"
+    tagline: "Run containers and VMs close to your users, worldwide."
+    layer: [infrastructure, fullstack]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2020
+    description: >
+      A platform for running full applications — packaged as containers and
+      booted as lightweight Firecracker VMs (Fly Machines) — in regions around
+      the globe, so compute sits close to users. Unlike a static
+      <span class="abbr-link" data-abbr="CDN">CDN</span>, it runs your actual
+      server processes and databases at the edge.
+    use_cases:
+      - "Latency-sensitive apps deployed near users in multiple regions."
+      - "Running any Dockerized app or stateful service globally."
+      - "Edge-deployed Postgres or full backend processes (not just functions)."
+    prerequisites:
+      - { name: "Docker", slug: "docker" }
+      - { name: "Git", slug: "git" }
+    key_features:
+      - "Deploy Docker containers as fast-booting micro-VMs (Fly Machines)."
+      - "Run app instances in many regions for low latency."
+      - "Persistent volumes and managed Postgres at the edge."
+      - "Anycast networking and a `fly.toml` config + flyctl CLI."
+    pairs_well_with:
+      - { name: "Docker", slug: "docker" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Phoenix / Elixir", slug: "" }
+      - { name: "Prisma", slug: "prisma" }
+    alternatives:
+      - { name: "Render", slug: "render" }
+      - { name: "Railway", slug: "railway" }
+      - { name: "AWS", slug: "aws" }
+    example:
+      lang: "bash"
+      code: "fly deploy"
+      explain: >
+        Build the app's Docker image and roll it out to your configured regions
+        as Fly Machines using the flyctl CLI.
+    gotchas: >
+      Multi-region brings real distributed-systems complexity — data replication,
+      region routing, and consistency are on you. It's more hands-on than a
+      git-push PaaS, occasional platform reliability hiccups have been reported,
+      and stateful volumes are pinned to a single region per volume.
+    maintained_by: "Fly.io, Inc."
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "fly.io/docs", url: "https://fly.io/docs" }
+
+  - name: "Railway"
+    slug: "railway"
+    tagline: "Developer-friendly PaaS with usage-based pricing and instant deploys."
+    layer: [infrastructure, fullstack]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      A polished <span class="abbr-link" data-abbr="PaaS">PaaS</span> built for a
+      smooth developer experience: connect a repo and Railway autodetects the
+      stack, provisions databases, wires up environment variables, and deploys —
+      all billed by actual usage rather than fixed instance tiers. Strong on
+      visual service graphs and one-click templates.
+    use_cases:
+      - "Quickly standing up a full app + database for side projects or MVPs."
+      - "Teams wanting usage-based billing instead of fixed dyno tiers."
+      - "Spinning up Postgres, Redis, or MySQL alongside an app in clicks."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "Docker", slug: "docker" }
+    key_features:
+      - "Auto-detected builds (Nixpacks) or your own Dockerfile."
+      - "One-click managed Postgres, MySQL, Redis, and MongoDB."
+      - "Usage-based pricing metered to actual compute and bandwidth."
+      - "Visual service graph, env-var sharing, and PR environments."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Express", slug: "express" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "Docker", slug: "docker" }
+    alternatives:
+      - { name: "Render", slug: "render" }
+      - { name: "Fly.io", slug: "fly-io" }
+      - { name: "Heroku", slug: "" }
+    example:
+      lang: "bash"
+      code: "railway up"
+      explain: >
+        Build and deploy the current project to Railway from the CLI — it
+        detects the stack and ships it without manual config.
+    gotchas: >
+      Usage-based billing is flexible but can make costs hard to predict for
+      always-on services; watch the metered meter on long-running workloads.
+      Railway removed its perpetual free tier (now a trial credit), and as a
+      smaller platform it has less regional reach than the hyperscalers.
+    maintained_by: "Railway Corp."
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "docs.railway.com", url: "https://docs.railway.com" }
+
+  - name: "Firebase Hosting"
+    slug: "firebase-hosting"
+    tagline: "Fast static & SPA hosting in Google's Firebase suite."
+    layer: [infrastructure]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2014
+    description: >
+      Google's static and single-page-app hosting within the Firebase platform:
+      it serves your build over a global <span class="abbr-link" data-abbr="CDN">CDN</span>
+      with automatic HTTPS and integrates with Cloud Functions or Cloud Run for
+      dynamic routes. It slots naturally beside Firebase Auth, Firestore, and
+      Storage for a batteries-included app backend.
+    use_cases:
+      - "Hosting SPAs (React, Angular, Vue) alongside Firebase Auth + Firestore."
+      - "Static sites needing a CDN, HTTPS, and easy custom domains."
+      - "Dynamic routes proxied to Cloud Functions or Cloud Run."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Firestore", slug: "firestore" }
+    key_features:
+      - "Global CDN with automatic HTTPS and atomic deploys/rollbacks."
+      - "Rewrites to Cloud Functions and Cloud Run for dynamic content."
+      - "Preview channels for sharing pre-release builds."
+      - "Tight integration with Firebase Auth, Firestore, and Storage."
+    pairs_well_with:
+      - { name: "Firestore", slug: "firestore" }
+      - { name: "React", slug: "react" }
+      - { name: "Angular", slug: "angular" }
+      - { name: "Vite", slug: "vite" }
+    alternatives:
+      - { name: "Netlify", slug: "netlify" }
+      - { name: "Cloudflare Pages", slug: "cloudflare-pages" }
+      - { name: "GitHub Pages", slug: "github-pages" }
+    example:
+      lang: "bash"
+      code: "firebase deploy --only hosting"
+      explain: >
+        Upload the configured public build directory to Firebase Hosting,
+        serving it over Google's CDN with automatic HTTPS.
+    gotchas: >
+      Hosting itself is static — dynamic logic means wiring up Cloud Functions or
+      Cloud Run, which adds cost and cold starts. You're tied into Google's
+      ecosystem, and Spark (free) plan quotas on storage and bandwidth are modest,
+      so busy sites move to the metered Blaze plan.
+    maintained_by: "Google"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "firebase.google.com/docs/hosting", url: "https://firebase.google.com/docs/hosting" }

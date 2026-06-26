@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Web Dev Tech Stack">
+  <defs>
+    <linearGradient id="wd-tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#142033"/>
+      <stop offset="1" stop-color="#0a121d"/>
+    </linearGradient>
+    <linearGradient id="wd-emblem" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <filter id="wd-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.1" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="48" height="48" rx="11" fill="url(#wd-tile)"/>
+  <rect x="0.75" y="0.75" width="46.5" height="46.5" rx="10.25" fill="none" stroke="#3b82f6" stroke-opacity="0.28" stroke-width="1.5"/>
+  <g filter="url(#wd-glow)">
+    <path d="M24 9 L38 16 L24 23 L10 16 Z" fill="url(#wd-emblem)"/>
+    <path d="M10 23.5 L24 30.5 L38 23.5 L34.4 21.7 L24 27 L13.6 21.7 Z" fill="url(#wd-emblem)" fill-opacity="0.78"/>
+    <path d="M10 31 L24 38 L38 31 L34.4 29.2 L24 34.5 L13.6 29.2 Z" fill="url(#wd-emblem)" fill-opacity="0.55"/>
+  </g>
+</svg>

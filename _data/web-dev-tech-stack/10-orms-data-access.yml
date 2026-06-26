@@ -1,0 +1,342 @@
+batch:
+  id: "orms-data-access"
+  order: 10
+  name: "ORMs & Data Access"
+  short_name: "ORMs/Data"
+  description: >
+    Libraries that sit between your code and the database — from schema-first
+    TypeScript ORMs (Prisma, Drizzle) to decorator and Active-Record veterans
+    (TypeORM, Sequelize), a bare query builder (Knex), and the standard MongoDB
+    ODM (Mongoose). They trade raw SQL control for type safety, migrations, and
+    ergonomics.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "Prisma"
+    slug: "prisma"
+    tagline: "The schema-first TypeScript ORM with end-to-end type safety."
+    layer: [backend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2019
+    description: >
+      A schema-first <span class="abbr-link" data-abbr="ORM">ORM</span> for
+      Node.js and TypeScript: you describe your models in a `schema.prisma` file
+      and Prisma generates a fully typed client plus SQL migrations. Prisma 7
+      (Nov 2025) removed the Rust query engine — the client is now pure
+      TypeScript/WebAssembly, cutting bundle size ~85–90%, working on the edge,
+      and starting cold far faster.
+    use_cases:
+      - "TypeScript backends that want autocompleted, type-safe queries."
+      - "Teams who want declarative migrations from a single schema file."
+      - "Serverless and edge functions (post-v7, with no native binary)."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    key_features:
+      - "Single `schema.prisma` source of truth for models + migrations."
+      - "Generated, fully typed client — autocomplete on every query."
+      - "Prisma Migrate for versioned schema changes; Prisma Studio GUI."
+      - "v7: pure TS/WASM engine — edge-compatible, smaller, faster cold starts."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "tRPC", slug: "trpc" }
+      - { name: "Neon", slug: "neon" }
+    alternatives:
+      - { name: "Drizzle", slug: "drizzle" }
+      - { name: "TypeORM", slug: "typeorm" }
+      - { name: "Sequelize", slug: "sequelize" }
+    example:
+      lang: "ts"
+      code: |-
+        const user = await prisma.user.findUnique({
+          where: { email: 'a@b.com' },
+          include: { posts: true },
+        });
+      explain: >
+        Fetch one user by email and eagerly load their posts — the result is
+        fully typed, including the nested posts relation.
+    gotchas: >
+      Before v7 the Rust query engine shipped as a native binary that bloated
+      bundles and broke on some edge/serverless runtimes — pin to v7+ if you
+      target the edge. Long-running connection pools in serverless still need
+      Prisma Accelerate or a pooler like PgBouncer to avoid exhausting connections.
+    maintained_by: "Prisma Data, Inc. + OSS community"
+    language: "TypeScript"
+    license: "Apache-2.0"
+    docs:
+      - { label: "prisma.io/docs", url: "https://www.prisma.io/docs" }
+
+  - name: "Drizzle"
+    slug: "drizzle"
+    tagline: "A lightweight, SQL-like TypeScript ORM built for the edge."
+    layer: [backend]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2022
+    description: >
+      A code-first, headless TypeScript
+      <span class="abbr-link" data-abbr="ORM">ORM</span> whose query API mirrors
+      SQL — if you know SQL, you already know Drizzle. You declare your schema in
+      TypeScript, ship a tiny zero-dependency runtime, and get full type
+      inference, making it a favourite for serverless and edge deployments.
+    use_cases:
+      - "Serverless and edge runtimes where bundle size and cold starts matter."
+      - "Developers who want SQL-shaped queries with full type inference."
+      - "Projects that prefer schema-in-TypeScript over a separate DSL file."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    key_features:
+      - "SQL-like query builder — thin abstraction, no hidden magic."
+      - "Tiny, zero-dependency runtime; serverless/edge-friendly."
+      - "Schema declared in TypeScript with full inference."
+      - "drizzle-kit for migrations; Drizzle Studio for browsing data."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Neon", slug: "neon" }
+      - { name: "Hono", slug: "hono" }
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+    alternatives:
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "Knex.js", slug: "knex" }
+      - { name: "Kysely", slug: "" }
+    example:
+      lang: "ts"
+      code: |-
+        const rows = await db.select()
+          .from(users)
+          .where(eq(users.email, 'a@b.com'));
+      explain: >
+        A SQL-shaped select — the fluent builder reads like the query it
+        generates, and `rows` is typed from the `users` schema.
+    gotchas: >
+      The SQL-like surface means less hand-holding than Prisma — you write more
+      explicit joins and relational queries yourself. The relational query API
+      and migration tooling have matured fast but still churn between minor
+      versions, so read the changelog before upgrading.
+    maintained_by: "Drizzle Team + OSS community"
+    language: "TypeScript"
+    license: "Apache-2.0"
+    docs:
+      - { label: "orm.drizzle.team", url: "https://orm.drizzle.team" }
+
+  - name: "TypeORM"
+    slug: "typeorm"
+    tagline: "Decorator-based ORM with Active Record and Data Mapper patterns."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      A mature TypeScript/JavaScript
+      <span class="abbr-link" data-abbr="ORM">ORM</span> that maps classes to
+      tables using decorators (`@Entity`, `@Column`). It supports both the Active
+      Record and Data Mapper patterns and many SQL databases, and is the default
+      ORM in the NestJS ecosystem — though its maintenance cadence has been uneven.
+    use_cases:
+      - "NestJS apps, where TypeORM is the conventional data layer."
+      - "Teams who prefer class + decorator entity definitions."
+      - "Projects wanting a choice of Active Record or Data Mapper style."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Decorator-driven entities (`@Entity`, `@Column`, `@ManyToOne`)."
+      - "Both Active Record and Data Mapper patterns supported."
+      - "Migrations, query builder, and broad SQL database support."
+      - "First-class integration with NestJS."
+    pairs_well_with:
+      - { name: "NestJS", slug: "nestjs" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "MikroORM", slug: "" }
+      - { name: "Sequelize", slug: "sequelize" }
+    example:
+      lang: "ts"
+      code: |-
+        @Entity()
+        class User {
+          @PrimaryGeneratedColumn() id: number;
+          @Column() email: string;
+        }
+      explain: >
+        A TypeORM entity — decorators map the class to a table and its
+        properties to columns, with `id` as an auto-generated primary key.
+    gotchas: >
+      Maintenance has been famously stop-start, with long gaps between releases
+      and a backlog of open issues. Decorators require `reflect-metadata` and
+      specific `tsconfig` flags (`experimentalDecorators`,
+      `emitDecoratorMetadata`), and the type safety is weaker than Prisma or
+      Drizzle — many queries fall back to `any`.
+    maintained_by: "TypeORM contributors (OSS)"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "typeorm.io", url: "https://typeorm.io" }
+
+  - name: "Sequelize"
+    slug: "sequelize"
+    tagline: "The long-standing promise-based ORM for SQL databases."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2010
+    description: >
+      One of the oldest Node.js
+      <span class="abbr-link" data-abbr="ORM">ORMs</span> — a promise-based,
+      model-driven library for Postgres, MySQL, MariaDB, SQLite, and SQL Server.
+      Battle-tested and widely deployed, it predates the TypeScript-first wave and
+      its typings, while improved, still feel bolted on rather than native.
+    use_cases:
+      - "Established JavaScript codebases already standardized on Sequelize."
+      - "Apps targeting multiple SQL dialects from one model layer."
+      - "Maintaining legacy Express services with existing models."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Model definitions, associations, validations, and hooks."
+      - "Supports Postgres, MySQL, MariaDB, SQLite, and SQL Server."
+      - "Migrations and seeders via the Sequelize CLI."
+      - "Transactions, eager/lazy loading, and raw query escape hatch."
+    pairs_well_with:
+      - { name: "Express", slug: "express" }
+      - { name: "MySQL", slug: "mysql" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    alternatives:
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "TypeORM", slug: "typeorm" }
+      - { name: "Knex.js", slug: "knex" }
+    example:
+      lang: "js"
+      code: |-
+        const User = sequelize.define('User', {
+          email: { type: DataTypes.STRING, allowNull: false },
+        });
+        await User.findAll({ where: { active: true } });
+      explain: >
+        Define a User model, then query all active users — Sequelize maps the
+        model to a table and builds the SQL for you.
+    gotchas: >
+      TypeScript support is the weak spot — types are community-maintained and
+      verbose, and many setups still type query results loosely. For greenfield
+      TypeScript projects, Prisma or Drizzle give far stronger inference; reach
+      for Sequelize mainly when a codebase already depends on it.
+    maintained_by: "Sequelize contributors (OSS)"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "sequelize.org", url: "https://sequelize.org" }
+
+  - name: "Knex.js"
+    slug: "knex"
+    tagline: "A SQL query builder, not a full ORM — you stay close to SQL."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2013
+    description: >
+      A SQL query builder (not an
+      <span class="abbr-link" data-abbr="ORM">ORM</span>) for Node.js: it builds
+      and runs SQL across Postgres, MySQL, SQLite, and more via a fluent,
+      chainable API, plus connection pooling and migrations. There's no model or
+      identity map — you get composable SQL without raw string concatenation.
+    use_cases:
+      - "Apps that want SQL control without an ORM's abstraction."
+      - "As the query layer underneath higher-level libraries (e.g. Objection.js)."
+      - "Database migrations and seeds in plain Node scripts."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    key_features:
+      - "Fluent, chainable query builder over many SQL dialects."
+      - "Built-in migrations, seeds, and connection pooling."
+      - "Raw SQL escape hatch when the builder isn't enough."
+      - "No model layer — a thin abstraction close to the database."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Express", slug: "express" }
+      - { name: "SQLite", slug: "sqlite" }
+    alternatives:
+      - { name: "Drizzle", slug: "drizzle" }
+      - { name: "Kysely", slug: "" }
+      - { name: "Sequelize", slug: "sequelize" }
+    example:
+      lang: "js"
+      code: |-
+        const users = await knex('users')
+          .where({ active: true })
+          .select('id', 'email');
+      explain: >
+        Build and run a SELECT with a WHERE clause — Knex composes the SQL and
+        returns the rows, staying close to the query you'd write by hand.
+    gotchas: >
+      It's a query builder, so there's no identity map, relations, or lazy
+      loading — you manage those yourself. Result rows are largely untyped
+      (`any`) unless you layer types manually, which is why type-conscious teams
+      increasingly reach for Kysely or Drizzle instead.
+    maintained_by: "Knex.js contributors (OSS)"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "knexjs.org", url: "https://knexjs.org" }
+
+  - name: "Mongoose"
+    slug: "mongoose"
+    tagline: "The de-facto standard ODM for MongoDB and Node.js."
+    layer: [backend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2010
+    description: >
+      The standard Object Document Mapper (ODM) for MongoDB — the document-store
+      analogue of an <span class="abbr-link" data-abbr="ORM">ORM</span>. It adds
+      schemas, validation, middleware, and population (referenced-document joins)
+      on top of MongoDB's otherwise schemaless documents, giving structure to an
+      unstructured store.
+    use_cases:
+      - "Node.js apps using MongoDB that want schema validation and structure."
+      - "Modeling relationships between documents via population."
+      - "MERN/MEAN-stack backends needing middleware hooks on save/update."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "MongoDB", slug: "mongodb" }
+    key_features:
+      - "Schemas with type casting, validation, and defaults."
+      - "Middleware (pre/post hooks) on document lifecycle events."
+      - "Population to resolve references across documents."
+      - "Plugins, virtuals, and a fluent query API."
+    pairs_well_with:
+      - { name: "MongoDB", slug: "mongodb" }
+      - { name: "Express", slug: "express" }
+      - { name: "NestJS", slug: "nestjs" }
+    alternatives:
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "TypeORM", slug: "typeorm" }
+      - { name: "MongoDB driver", slug: "mongodb" }
+    example:
+      lang: "js"
+      code: |-
+        const User = mongoose.model('User', new Schema({
+          email: { type: String, required: true },
+        }));
+        await User.findOne({ email: 'a@b.com' });
+      explain: >
+        Define a schema-backed model and query one document — Mongoose validates
+        and casts data even though MongoDB itself is schemaless.
+    gotchas: >
+      Mongoose adds a schema layer over a schemaless database, which can fight
+      MongoDB's flexible-document strengths and adds overhead on hot paths.
+      TypeScript typing of schemas is improving but historically clunky, and
+      `populate` joins are easy to overuse, hurting performance.
+    maintained_by: "Automattic + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "mongoosejs.com", url: "https://mongoosejs.com/docs" }

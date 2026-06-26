@@ -1,0 +1,479 @@
+batch:
+  id: "languages"
+  order: 1
+  name: "Programming & Markup Languages"
+  short_name: "Languages"
+  description: >
+    The core languages of the web — the markup and styling that browsers
+    render (HTML, CSS), the scripting that drives behaviour everywhere
+    (JavaScript, TypeScript), the server-side workhorses (PHP, Python, Go,
+    Rust), and the portable bytecode target (WebAssembly) that brings native
+    speed to the browser.
+  last_updated: "2026-06-26"
+
+entries:
+  - name: "HTML"
+    slug: "html"
+    tagline: "The markup language every web page is built from."
+    layer: [language, frontend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 1993
+    description: >
+      The HyperText Markup Language defines the structure and semantics of a web
+      page — headings, paragraphs, links, forms, media — as a tree of elements
+      the browser parses into the
+      <span class="abbr-link" data-abbr="DOM">DOM</span>. It's declarative, not
+      a programming language, and the living standard evolves continuously rather
+      than in numbered versions since HTML5.
+    use_cases:
+      - "The structural foundation of every web page and app."
+      - "Semantic, accessible document markup for content and forms."
+      - "Email templates and the output target of every frontend framework."
+    prerequisites: []
+    key_features:
+      - "Semantic elements (`<article>`, `<nav>`, `<main>`) for structure and a11y."
+      - "Native form controls, validation, and input types."
+      - "Built-in media: `<video>`, `<audio>`, `<picture>`, `<canvas>`."
+      - "A living standard — no version churn, broad backward compatibility."
+    pairs_well_with:
+      - { name: "CSS", slug: "css" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "htmx", slug: "htmx" }
+    alternatives:
+      - { name: "Markdown", slug: "" }
+      - { name: "MDX", slug: "" }
+    example:
+      lang: "html"
+      code: |-
+        <article>
+          <h1>Hello</h1>
+          <p>Structure, not style — <a href="/about">learn more</a>.</p>
+        </article>
+      explain: "Semantic markup — an article with a heading, paragraph, and link, parsed into the DOM tree."
+    gotchas: >
+      HTML is forgiving to a fault — browsers silently recover from unclosed or
+      misnested tags, so broken markup often *looks* fine until a screen reader
+      or a CSS selector trips over it. Use semantic elements over a sea of
+      `<div>`s, and validate to catch accessibility regressions early.
+    maintained_by: "WHATWG (living standard)"
+    language: "n/a (markup)"
+    license: "open standard"
+    docs:
+      - { label: "MDN HTML", url: "https://developer.mozilla.org/en-US/docs/Web/HTML" }
+      - { label: "html.spec.whatwg.org", url: "https://html.spec.whatwg.org" }
+
+  - name: "CSS"
+    slug: "css"
+    tagline: "The styling language that paints the web."
+    layer: [language, frontend, styling]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 1996
+    description: >
+      Cascading Style Sheets control the presentation of HTML — layout, colour,
+      typography, animation, and responsiveness. The cascade and specificity
+      rules decide which declarations win, and modern CSS has absorbed features
+      (grid, flexbox, custom properties, container queries, nesting) that once
+      required preprocessors or JavaScript.
+    use_cases:
+      - "All visual styling and layout of web pages and apps."
+      - "Responsive and adaptive design via media and container queries."
+      - "Animations, transitions, and theming with custom properties."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "Flexbox and Grid for two-dimensional layout."
+      - "Custom properties (CSS variables) and `calc()` for dynamic theming."
+      - "Container queries and `:has()` for component-aware styling."
+      - "Native nesting and cascade layers (`@layer`) without a preprocessor."
+    pairs_well_with:
+      - { name: "HTML", slug: "html" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "Sass", slug: "sass" }
+      - { name: "PostCSS", slug: "postcss" }
+    alternatives:
+      - { name: "Sass", slug: "sass" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+    example:
+      lang: "css"
+      code: |-
+        .card {
+          display: grid;
+          gap: 1rem;
+          color: var(--c-text, #111);
+        }
+      explain: "A grid container with a gap and a themeable text colour via a custom property fallback."
+    gotchas: >
+      The *cascade* and specificity are where CSS bites — a stray `!important`
+      or an over-specific selector quietly overrides everything downstream, and
+      debugging means reasoning about source order, specificity, and inheritance
+      all at once. Cascade layers and a consistent methodology tame this.
+    maintained_by: "W3C CSS Working Group"
+    language: "n/a (stylesheet)"
+    license: "open standard"
+    docs:
+      - { label: "MDN CSS", url: "https://developer.mozilla.org/en-US/docs/Web/CSS" }
+      - { label: "web.dev/learn/css", url: "https://web.dev/learn/css/" }
+
+  - name: "JavaScript"
+    slug: "javascript"
+    tagline: "The language of the web — and increasingly, everywhere else."
+    layer: [language, frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 1995
+    description: >
+      The only programming language browsers run natively. A dynamically typed,
+      multi-paradigm language standardized as ECMAScript, with a yearly spec
+      cadence. It runs in the browser, on servers (Node, Deno, Bun), at the edge,
+      and in build tools — and modern code ships as
+      <span class="abbr-link" data-abbr="ESM">ESM</span> modules.
+    use_cases:
+      - "Client-side interactivity and SPA frameworks in the browser."
+      - "Server-side and edge runtimes (Node.js, Deno, Bun, Workers)."
+      - "Build tooling, scripting, and CLIs across the JS ecosystem."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "First-class functions, closures, and async/await for concurrency."
+      - "Prototype-based objects with class syntax sugar."
+      - "ES modules, destructuring, optional chaining, and yearly new syntax."
+      - "Runs unchanged across browsers, servers, and edge runtimes."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "React", slug: "react" }
+      - { name: "Vite", slug: "vite" }
+    alternatives:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "WebAssembly", slug: "webassembly" }
+    example:
+      lang: "js"
+      code: |-
+        const sum = (...nums) => nums.reduce((a, b) => a + b, 0);
+        console.log(sum(1, 2, 3)); // 6
+      explain: "An arrow function with rest parameters that reduces a list of numbers to their sum."
+    gotchas: >
+      The famous foot-guns are real — implicit type coercion (`==` vs `===`),
+      `this` binding that shifts with call site, and floating-point math where
+      `0.1 + 0.2 !== 0.3`. Lean on `===`, arrow functions, and a linter, and
+      reach for <span class="abbr-link" data-abbr="TypeScript">TypeScript</span>
+      once a project grows.
+    maintained_by: "Ecma TC39 (ECMAScript)"
+    language: "n/a (specified language)"
+    license: "open standard"
+    docs:
+      - { label: "MDN JavaScript", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" }
+      - { label: "tc39.es", url: "https://tc39.es" }
+
+  - name: "TypeScript"
+    slug: "typescript"
+    tagline: "JavaScript with a type system bolted on at build time."
+    layer: [language, tooling]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2012
+    description: >
+      A typed superset of JavaScript from Microsoft: every valid JS file is valid
+      TS, but you add static types the compiler checks before
+      <span class="abbr-link" data-abbr="Transpile">transpiling</span> down to
+      plain JavaScript. The types are erased at build time — they exist only to
+      catch bugs and power editor autocomplete, never at runtime.
+    use_cases:
+      - "Any non-trivial JavaScript codebase needing type safety."
+      - "Large team projects where types document contracts and prevent regressions."
+      - "Library authoring where shipping `.d.ts` types is expected."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Static structural typing erased at compile time — zero runtime cost."
+      - "World-class editor autocomplete, refactoring, and inline errors."
+      - "Generics, unions, and type inference for expressive contracts."
+      - "Ships `.d.ts` declaration files for typed library APIs."
+    pairs_well_with:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "tsc", slug: "tsc" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "ESLint", slug: "eslint" }
+    alternatives:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Flow", slug: "" }
+    example:
+      lang: "ts"
+      code: |-
+        function greet(name: string): string {
+          return `Hello, ${name}`;
+        }
+        greet(42); // ✗ compile error: number is not string
+      explain: "A typed function — passing a number where a string is expected fails the compiler before runtime."
+    gotchas: >
+      Types are *erased*, so they don't validate runtime data — JSON from an API
+      can lie about its shape, and `any` or a careless cast silently disables all
+      checking. Validate external input at the boundary (e.g. with a schema
+      library) and keep `strict` mode on.
+    maintained_by: "Microsoft + OSS community"
+    language: "TypeScript"
+    license: "Apache-2.0"
+    docs:
+      - { label: "typescriptlang.org", url: "https://www.typescriptlang.org" }
+      - { label: "TS Handbook", url: "https://www.typescriptlang.org/docs/handbook/intro.html" }
+
+  - name: "PHP"
+    slug: "php"
+    tagline: "The veteran server language that still powers most of the web."
+    layer: [language, backend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 1995
+    description: >
+      A dynamically typed server-side language designed for the web, embedded
+      directly in HTML templates. Long mocked for its early inconsistencies, modern
+      PHP (8.x) is a fast, type-hinted language with a strong framework ecosystem,
+      and it still runs an enormous share of the web — WordPress alone powers a
+      large slice of all sites.
+    use_cases:
+      - "Server-rendered web apps and APIs (Laravel, Symfony)."
+      - "Content management — WordPress, Drupal, and their plugin ecosystems."
+      - "Cheap, ubiquitous shared-hosting deployments."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "Embeddable in HTML with a simple request-per-script model."
+      - "Gradual typing, enums, and JIT compilation in PHP 8."
+      - "Composer package manager and a mature framework ecosystem."
+      - "Runs on virtually every host out of the box."
+    pairs_well_with:
+      - { name: "Laravel", slug: "laravel" }
+      - { name: "MySQL", slug: "mysql" }
+      - { name: "Composer", slug: "composer" }
+      - { name: "htmx", slug: "htmx" }
+    alternatives:
+      - { name: "Python", slug: "python" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Go", slug: "go" }
+    example:
+      lang: "php"
+      code: |-
+        <?php
+        function greet(string $name): string {
+            return "Hello, {$name}";
+        }
+        echo greet('world');
+      explain: "A type-hinted PHP 8 function — embedded in a script and echoed straight to the response."
+    gotchas: >
+      The ecosystem spans decades, so tutorials and Stack Overflow answers mix
+      ancient `mysql_*` calls and global state with modern typed, framework-based
+      code — and they look superficially alike. Target PHP 8.x, use a framework's
+      conventions, and ignore pre-PHP-7 advice.
+    maintained_by: "The PHP Group + OSS community"
+    language: "C"
+    license: "PHP License"
+    docs:
+      - { label: "php.net", url: "https://www.php.net" }
+      - { label: "PHP: The Right Way", url: "https://phptherightway.com" }
+
+  - name: "Python"
+    slug: "python"
+    tagline: "Readable, batteries-included, and everywhere from web to AI."
+    layer: [language, backend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 1991
+    description: >
+      A dynamically typed, readability-first language used far beyond the web — in
+      data science, machine learning, scripting, and automation. On the backend it
+      powers fast async frameworks (FastAPI) and full-featured ones (Django), and
+      optional type hints checked by external tools add safety to large codebases.
+    use_cases:
+      - "Backend web APIs and full-stack apps (Django, FastAPI, Flask)."
+      - "Data science, ML, and AI tooling and pipelines."
+      - "Automation, scripting, and glue code across systems."
+    prerequisites: []
+    key_features:
+      - "Clean, indentation-based syntax with a huge standard library."
+      - "Optional type hints checked by mypy / pyright (erased at runtime)."
+      - "async/await for concurrent I/O in modern frameworks."
+      - "The dominant ecosystem for data, ML, and scientific computing."
+    pairs_well_with:
+      - { name: "Django", slug: "django" }
+      - { name: "FastAPI", slug: "fastapi" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "htmx", slug: "htmx" }
+    alternatives:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Go", slug: "go" }
+      - { name: "PHP", slug: "php" }
+    example:
+      lang: "python"
+      code: |-
+        def greet(name: str) -> str:
+            return f"Hello, {name}"
+
+        print(greet("world"))
+      explain: "A type-hinted function with an f-string — hints document intent but aren't enforced at runtime."
+    gotchas: >
+      Environment management is the classic pain — global installs, virtualenvs,
+      and competing tools (`pip`, `poetry`, `uv`, `conda`) make reproducible
+      setups fiddly. The Global Interpreter Lock also caps CPU-bound threading;
+      reach for multiprocessing or async I/O instead.
+    maintained_by: "Python Software Foundation"
+    language: "C (CPython)"
+    license: "PSF License"
+    docs:
+      - { label: "python.org", url: "https://www.python.org" }
+      - { label: "docs.python.org", url: "https://docs.python.org/3/" }
+
+  - name: "Go"
+    slug: "go"
+    tagline: "Google's simple, fast language for servers and tooling."
+    layer: [language, backend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2009
+    description: >
+      A statically typed, compiled language from Google built for simplicity and
+      concurrency. It compiles
+      <span class="abbr-link" data-abbr="AOT">ahead of time</span> to a single
+      static binary with no runtime to install, has a tiny deliberate feature set,
+      and ships goroutines and channels for lightweight concurrency — making it a
+      favourite for backend services and cloud tooling.
+    use_cases:
+      - "High-throughput backend services and microservices."
+      - "CLI tools and cloud infrastructure (Docker, Kubernetes, Terraform)."
+      - "Network servers where concurrency and a single binary matter."
+    prerequisites: []
+    key_features:
+      - "Compiles to a single dependency-free static binary."
+      - "Goroutines and channels for cheap, built-in concurrency."
+      - "Fast compilation, `gofmt`, and a strong standard library."
+      - "Deliberately minimal — small language, fast to learn."
+    pairs_well_with:
+      - { name: "Docker", slug: "docker" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "htmx", slug: "htmx" }
+    alternatives:
+      - { name: "Rust", slug: "rust" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Python", slug: "python" }
+    example:
+      lang: "go"
+      code: |-
+        func greet(name string) string {
+            return fmt.Sprintf("Hello, %s", name)
+        }
+      explain: "A statically typed function — Go compiles ahead of time to a single native binary with no runtime."
+    gotchas: >
+      Go's minimalism cuts both ways — verbose `if err != nil` error handling
+      everywhere, and (until generics arrived in 1.18) repetitive code for generic
+      containers. The deliberate lack of features that other languages take for
+      granted frustrates some, but it's the point: read-once, obvious code.
+    maintained_by: "Google + OSS community"
+    language: "Go (self-hosted)"
+    license: "BSD-3-Clause"
+    docs:
+      - { label: "go.dev", url: "https://go.dev" }
+      - { label: "A Tour of Go", url: "https://go.dev/tour/" }
+
+  - name: "Rust"
+    slug: "rust"
+    tagline: "Memory safety without a garbage collector."
+    layer: [language, backend]
+    maturity: mainstream
+    learning_curve: steep
+    first_released: 2015
+    description: >
+      A systems language that guarantees memory and thread safety at compile time
+      through its ownership and borrow-checker model — no garbage collector, no
+      runtime overhead. It powers performance-critical backends, the fastest
+      JavaScript build tools, and is a primary source language for
+      <span class="abbr-link" data-abbr="WASM">WebAssembly</span>.
+    use_cases:
+      - "Performance-critical backend services and systems software."
+      - "JS toolchains compiled to native speed (SWC, Turbopack, Biome)."
+      - "WebAssembly modules for CPU-heavy work in the browser."
+    prerequisites: []
+    key_features:
+      - "Compile-time memory safety via ownership and borrowing — no GC."
+      - "Zero-cost abstractions and predictable, native performance."
+      - "Fearless concurrency — data races caught at compile time."
+      - "Cargo: an excellent built-in build tool and package manager."
+    pairs_well_with:
+      - { name: "WebAssembly", slug: "webassembly" }
+      - { name: "SWC", slug: "swc" }
+      - { name: "Turbopack", slug: "turbopack" }
+      - { name: "Deno", slug: "deno" }
+    alternatives:
+      - { name: "Go", slug: "go" }
+      - { name: "C++", slug: "" }
+    example:
+      lang: "rust"
+      code: |-
+        fn greet(name: &str) -> String {
+            format!("Hello, {name}")
+        }
+      explain: "A function borrowing a string slice — the borrow checker proves memory safety at compile time."
+    gotchas: >
+      The borrow checker is a famously steep wall — ownership, lifetimes, and
+      `move` semantics fight you constantly until they click, and compile times
+      are slow. The payoff is that whole classes of bugs (use-after-free, data
+      races) become impossible, but expect a real learning investment.
+    maintained_by: "Rust Foundation + OSS community"
+    language: "Rust (self-hosted)"
+    license: "MIT / Apache-2.0"
+    docs:
+      - { label: "rust-lang.org", url: "https://www.rust-lang.org" }
+      - { label: "The Rust Book", url: "https://doc.rust-lang.org/book/" }
+
+  - name: "WebAssembly"
+    slug: "webassembly"
+    tagline: "Near-native speed in the browser, from any language."
+    layer: [language, frontend]
+    maturity: mainstream
+    learning_curve: steep
+    first_released: 2017
+    description: >
+      A portable binary instruction format —
+      <span class="abbr-link" data-abbr="WASM">WASM</span> — that runs at near-
+      native speed in browsers and standalone runtimes. It's a compile target, not
+      a language you hand-write: code in Rust, C/C++, or Go compiles to a `.wasm`
+      module that JavaScript can call, bringing heavy computation to the web.
+    use_cases:
+      - "CPU-heavy browser work — image/video editing, games, simulations."
+      - "Porting existing C/C++/Rust libraries to run on the web."
+      - "Sandboxed plugin systems and edge compute (via WASI)."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Rust", slug: "rust" }
+    key_features:
+      - "Near-native execution speed in a sandboxed VM."
+      - "Compile target for Rust, C/C++, Go, and more."
+      - "Runs in every modern browser and standalone runtimes."
+      - "WASI extends it to server and edge compute outside the browser."
+    pairs_well_with:
+      - { name: "Rust", slug: "rust" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+    alternatives:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "asm.js", slug: "" }
+    example:
+      lang: "js"
+      code: |-
+        const { instance } = await WebAssembly.instantiateStreaming(
+          fetch("add.wasm")
+        );
+        instance.exports.add(2, 3); // 5
+      explain: "JavaScript streams and instantiates a .wasm module, then calls an exported native function."
+    gotchas: >
+      WASM can't touch the <span class="abbr-link" data-abbr="DOM">DOM</span>
+      directly — every interaction crosses a JS boundary, and marshalling complex
+      data across it can erase the speed win for chatty workloads. It shines on
+      compute-bound tasks, not as a wholesale replacement for JavaScript UI code.
+    maintained_by: "W3C WebAssembly Working Group"
+    language: "n/a (bytecode target)"
+    license: "open standard"
+    docs:
+      - { label: "webassembly.org", url: "https://webassembly.org" }
+      - { label: "MDN WebAssembly", url: "https://developer.mozilla.org/en-US/docs/WebAssembly" }
