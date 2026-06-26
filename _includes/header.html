@@ -12,7 +12,33 @@
     <nav class="nav-desktop" aria-label="Main navigation">
       {% assign main_pages = site.data.pages | where_exp: "p", "p.menu contains 'main'" | sort: "order" %}
       {% for link in main_pages %}
-        {% if link.external %}
+        {% if link.children %}
+        {% assign drawer_id = link.title | slugify %}
+        {% assign parent_active = false %}
+        {% if page.url == link.url %}{% assign parent_active = true %}{% endif %}
+        {% for child in link.children %}{% if page.url == child.url %}{% assign parent_active = true %}{% endif %}{% endfor %}
+        <div class="nav-dropdown">
+          <button type="button" class="nav-dropdown__toggle{% if parent_active %} active{% endif %}"
+                  aria-expanded="false" aria-haspopup="true" aria-controls="nav-drawer-{{ drawer_id }}">
+            {{ link.title }}
+            <svg class="nav-dropdown__chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="nav-dropdown__menu" id="nav-drawer-{{ drawer_id }}" role="menu">
+            {% for child in link.children %}
+              {% if child.external %}
+              <a href="{{ child.url }}" role="menuitem" target="_blank" rel="noopener noreferrer">
+                {{ child.title }}<span class="external-icon" aria-hidden="true">↗</span>
+              </a>
+              {% else %}
+              <a href="{{ child.url | relative_url }}" role="menuitem"
+                 {% if page.url == child.url %}class="active" aria-current="page"{% endif %}>
+                {{ child.title }}
+              </a>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        {% elsif link.external %}
         <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
           {{ link.title }}<span class="external-icon" aria-hidden="true">↗</span>
         </a>
@@ -73,7 +99,33 @@
   <nav class="nav-mobile" id="mobile-nav" aria-label="Mobile navigation">
     {% assign main_pages = site.data.pages | where_exp: "p", "p.menu contains 'main'" | sort: "order" %}
     {% for link in main_pages %}
-      {% if link.external %}
+      {% if link.children %}
+      {% assign drawer_id = link.title | slugify %}
+      {% assign parent_active = false %}
+      {% if page.url == link.url %}{% assign parent_active = true %}{% endif %}
+      {% for child in link.children %}{% if page.url == child.url %}{% assign parent_active = true %}{% endif %}{% endfor %}
+      <div class="nav-mobile__group">
+        <button type="button" class="nav-mobile__toggle{% if parent_active %} active{% endif %}"
+                aria-expanded="false" aria-controls="mobile-drawer-{{ drawer_id }}">
+          {{ link.title }}
+          <svg class="nav-mobile__chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="nav-mobile__submenu" id="mobile-drawer-{{ drawer_id }}">
+          {% for child in link.children %}
+            {% if child.external %}
+            <a href="{{ child.url }}" target="_blank" rel="noopener noreferrer">
+              {{ child.title }}<span class="external-icon" aria-hidden="true">↗</span>
+            </a>
+            {% else %}
+            <a href="{{ child.url | relative_url }}"
+               {% if page.url == child.url %}class="active" aria-current="page"{% endif %}>
+              {{ child.title }}
+            </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% elsif link.external %}
       <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
         {{ link.title }}<span class="external-icon" aria-hidden="true">↗</span>
       </a>

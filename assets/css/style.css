@@ -275,6 +275,100 @@ main#main-content {
   vertical-align: super;
 }
 
+/* ---- Desktop nav dropdown (collapsible drawer) ----
+   A nav entry with children renders as a toggle button + floating panel.
+   The panel opens on hover, keyboard focus-within, or an explicit click
+   (JS flips aria-expanded on the toggle). */
+.nav-dropdown {
+  position: relative;
+  display: inline-flex;
+}
+.nav-dropdown__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--c-text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.nav-dropdown__toggle:hover,
+.nav-dropdown__toggle.active,
+.nav-dropdown:hover .nav-dropdown__toggle,
+.nav-dropdown:focus-within .nav-dropdown__toggle {
+  color: var(--c-text);
+  background: var(--c-accent-bg);
+}
+.nav-dropdown__chevron {
+  transition: transform var(--transition-fast);
+}
+.nav-dropdown:hover .nav-dropdown__chevron,
+.nav-dropdown:focus-within .nav-dropdown__chevron,
+.nav-dropdown__toggle[aria-expanded="true"] .nav-dropdown__chevron {
+  transform: rotate(180deg);
+}
+.nav-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 11rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: var(--space-xs);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 24px var(--c-card-shadow);
+  /* Hidden until opened — opacity/visibility transition, no layout shift. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-0.25rem);
+  transition: opacity var(--transition-fast), transform var(--transition-fast),
+              visibility var(--transition-fast);
+  z-index: 1001;
+}
+/* A small invisible bridge keeps hover alive across the gap to the panel. */
+.nav-dropdown__menu::before {
+  content: "";
+  position: absolute;
+  top: -0.5rem;
+  left: 0;
+  right: 0;
+  height: 0.5rem;
+}
+.nav-dropdown:hover .nav-dropdown__menu,
+.nav-dropdown:focus-within .nav-dropdown__menu,
+.nav-dropdown__toggle[aria-expanded="true"] + .nav-dropdown__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.nav-dropdown__menu a {
+  color: var(--c-text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius-sm);
+  white-space: nowrap;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.nav-dropdown__menu a:hover,
+.nav-dropdown__menu a.active {
+  color: var(--c-text);
+  background: var(--c-accent-bg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-dropdown__chevron,
+  .nav-dropdown__menu { transition: none; }
+}
+
 .nav-actions {
   display: flex;
   align-items: center;
@@ -448,6 +542,58 @@ html[data-header-sticky="off"] .theme-toggle {
 .nav-mobile a.active {
   background: var(--c-accent-bg);
   color: var(--c-accent);
+}
+
+/* ---- Mobile nav collapsible drawer (accordion) ----
+   A nav entry with children renders as a toggle row that expands an indented
+   sub-list. JS flips aria-expanded and the .is-open class on the group. */
+.nav-mobile__group {
+  display: flex;
+  flex-direction: column;
+}
+.nav-mobile__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  color: var(--c-text);
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--border-radius);
+  transition: background var(--transition-fast);
+}
+.nav-mobile__toggle:hover,
+.nav-mobile__toggle.active {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+}
+.nav-mobile__chevron {
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+.nav-mobile__toggle[aria-expanded="true"] .nav-mobile__chevron {
+  transform: rotate(180deg);
+}
+.nav-mobile__submenu {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-left: var(--space-md);
+}
+.nav-mobile__group.is-open .nav-mobile__submenu {
+  display: flex;
+}
+.nav-mobile__submenu a {
+  font-size: 1.05rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-mobile__chevron { transition: none; }
 }
 
 /* ============================================================
