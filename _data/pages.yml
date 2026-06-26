@@ -8,6 +8,12 @@
 # menu: where the link appears — [main], [footer], or [main, footer]
 # order: sort position within each menu (lower = first)
 #
+# children: optional list of sub-links. An entry with children renders as a
+#   collapsible drawer/dropdown in the header (click/hover panel on desktop,
+#   accordion section in the mobile nav) instead of a plain link. Each child
+#   is { title, url } (and may set external: true). The parent's own `url`
+#   stays reachable — surface it as the first child if you want a direct link.
+#
 # Changing the "title" here updates the link text everywhere
 # (header, mobile nav, and footer) — single source of truth.
 # ──────────────────────────────────────────────────────────────
@@ -26,6 +32,11 @@
   url: "/projects/"
   menu: [main]
   order: 3
+  children:
+    - title: "All Projects"
+      url: "/projects/"
+    - title: "Games"
+      url: "/games/"
 
 - title: "Categories"
   url: "/categories/"
