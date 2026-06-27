@@ -1,0 +1,418 @@
+batch:
+  id: "cms-content"
+  order: 19
+  name: "CMS & Content"
+  short_name: "CMS"
+  description: >
+    Where editors create content and developers fetch it. Modern stacks favor
+    <span class="abbr-link" data-abbr="Headless CMS">headless</span> systems that
+    expose content over an <span class="abbr-link" data-abbr="API">API</span> for
+    any frontend, but the traditional monolith (WordPress) still runs much of the
+    web — and authoring formats like MDX
+    blur the line between content and code.
+  last_updated: "2026-06-27"
+
+entries:
+  - name: "Sanity"
+    slug: "sanity"
+    tagline: "A real-time content platform with a code-defined studio."
+    layer: [backend, fullstack]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2018
+    description: >
+      A <span class="abbr-link" data-abbr="Headless CMS">headless CMS</span> built
+      around structured content and a hosted real-time datastore. Its editing
+      studio is an open-source React app you configure in code, and content is
+      queried with GROQ (or <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>),
+      making it a favorite for highly customized editorial workflows.
+    use_cases:
+      - "Custom editorial experiences where the studio is tailored in code."
+      - "Structured content reused across web, mobile, and other channels."
+      - "Real-time collaborative editing with live previews."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "React", slug: "react" }
+    key_features:
+      - "Code-configured, open-source React editing studio."
+      - "GROQ query language plus a GraphQL API."
+      - "Real-time collaboration and document history."
+      - "Generous free tier with hosted content lake and CDN."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Astro", slug: "astro" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "Contentful", slug: "contentful" }
+      - { name: "Strapi", slug: "strapi" }
+      - { name: "Payload", slug: "payload" }
+    example:
+      lang: "groq"
+      code: '*[_type == "post"]{title, slug, publishedAt}'
+      explain: "A GROQ query fetching the title, slug, and date of every post document."
+    gotchas: >
+      GROQ is powerful but a Sanity-specific language you must learn, and the
+      schema lives in code, so non-technical setup is limited. The hosted model
+      is convenient until usage scales past the free tier, where pricing climbs.
+    maintained_by: "Sanity.io"
+    language: "TypeScript"
+    license: "MIT/proprietary"
+    docs:
+      - { label: "sanity.io/docs", url: "https://www.sanity.io/docs" }
+
+  - name: "Contentful"
+    slug: "contentful"
+    tagline: "The enterprise API-first content platform."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2013
+    description: >
+      One of the original <span class="abbr-link" data-abbr="Headless CMS">headless
+      CMS</span> platforms — a fully hosted, API-first service where editors model
+      and author content in a polished web app and developers fetch it over
+      <span class="abbr-link" data-abbr="REST">REST</span> or
+      <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>. It targets large
+      organizations with governance, localization, and multi-team needs.
+    use_cases:
+      - "Enterprise content reused across many sites, apps, and channels."
+      - "Teams wanting a hosted CMS with strong roles, workflows, and localization."
+      - "Replacing a legacy CMS with an API-first content backend."
+    prerequisites:
+      - { name: "API basics", slug: "" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Fully hosted — no infrastructure to run."
+      - "Content modeling UI with REST and GraphQL delivery APIs."
+      - "Localization, roles, and editorial workflows for big teams."
+      - "Global CDN for content delivery."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Gatsby", slug: "gatsby" }
+      - { name: "Astro", slug: "astro" }
+    alternatives:
+      - { name: "Sanity", slug: "sanity" }
+      - { name: "Strapi", slug: "strapi" }
+    example:
+      lang: "bash"
+      code: "curl https://cdn.contentful.com/spaces/SPACE/entries?access_token=TOKEN"
+      explain: "Fetch all entries from a Contentful space over the REST delivery API."
+    gotchas: >
+      It is proprietary and SaaS-only, so you can't self-host, and pricing scales
+      steeply with API calls, records, and seats. The free/community tier caps
+      content types and users, which smaller projects can outgrow quickly.
+    maintained_by: "Contentful"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "contentful.com/developers", url: "https://www.contentful.com/developers/docs/" }
+
+  - name: "Strapi"
+    slug: "strapi"
+    tagline: "The leading open-source, self-hosted headless CMS."
+    layer: [backend, fullstack]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2015
+    description: >
+      A Node.js <span class="abbr-link" data-abbr="Headless CMS">headless CMS</span>
+      you self-host, with an admin panel that builds content types and exposes
+      them as REST and <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>
+      APIs. It is fully customizable through plugins and code, giving teams full
+      ownership of their data without vendor lock-in.
+    use_cases:
+      - "Self-hosted headless CMS where you control data and infrastructure."
+      - "Custom backends extended with plugins and JavaScript code."
+      - "Projects avoiding SaaS vendor lock-in or with data-residency needs."
+    prerequisites:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Admin UI generates content types and auto-builds REST/GraphQL APIs."
+      - "Self-hosted and fully open source — you own the data."
+      - "Plugin system and code-level customization."
+      - "Pluggable database: PostgreSQL, MySQL, SQLite."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Node.js", slug: "node-js" }
+    alternatives:
+      - { name: "Directus", slug: "directus" }
+      - { name: "Payload", slug: "payload" }
+      - { name: "Contentful", slug: "contentful" }
+    example:
+      lang: "bash"
+      code: "npx create-strapi-app@latest my-project"
+      explain: "Scaffold a self-hosted Strapi project with an admin panel and database setup."
+    gotchas: >
+      Self-hosting means you own upgrades, scaling, and security, and major
+      versions (v4 → v5) have been disruptive migrations. Some advanced features
+      and cloud hosting sit behind the paid Enterprise/Cloud tiers.
+    maintained_by: "Strapi"
+    language: "TypeScript"
+    license: "MIT/EE"
+    docs:
+      - { label: "docs.strapi.io", url: "https://docs.strapi.io" }
+
+  - name: "Payload"
+    slug: "payload"
+    tagline: "A code-first, TypeScript-native headless CMS."
+    layer: [backend, fullstack]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2021
+    description: >
+      A code-first <span class="abbr-link" data-abbr="Headless CMS">headless CMS</span>
+      where the entire schema, access control, and admin UI are defined in
+      TypeScript config. Payload 3 runs natively inside a Next.js app, installing
+      into the App Router so the CMS and frontend share one codebase and
+      deployment.
+    use_cases:
+      - "Developer-owned CMS configured entirely in TypeScript."
+      - "Embedding a CMS directly inside a Next.js app (Payload 3)."
+      - "Apps wanting code-level control over access rules and admin UI."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Next.js", slug: "next-js" }
+    key_features:
+      - "Schema, hooks, and access control defined in TypeScript."
+      - "Auto-generated admin UI and REST + GraphQL APIs."
+      - "Payload 3 installs natively into a Next.js App Router project."
+      - "Self-hosted; MongoDB or PostgreSQL via database adapters."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "MongoDB", slug: "mongodb" }
+    alternatives:
+      - { name: "Strapi", slug: "strapi" }
+      - { name: "Directus", slug: "directus" }
+      - { name: "Sanity", slug: "sanity" }
+    example:
+      lang: "bash"
+      code: "npx create-payload-app@latest my-app"
+      explain: "Scaffold a Payload project, optionally embedding it directly into a Next.js app."
+    gotchas: >
+      It is code-first, so non-developers can't model content without an
+      engineer, and the deep Next.js integration ties the CMS lifecycle to your
+      app's. As a younger project, the plugin ecosystem is smaller than Strapi's
+      or WordPress's.
+    maintained_by: "Payload CMS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "payloadcms.com/docs", url: "https://payloadcms.com/docs" }
+
+  - name: "WordPress"
+    slug: "wordpress"
+    tagline: "The CMS that still powers a huge share of the web."
+    layer: [backend, fullstack]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2003
+    description: >
+      The most widely deployed CMS in the world — a PHP application with a vast
+      theme and plugin ecosystem that runs everything from personal blogs to
+      large publishers and shops (via WooCommerce). Its REST API and the headless
+      WPGraphQL plugin also let it serve as a
+      <span class="abbr-link" data-abbr="Headless CMS">headless</span> content
+      backend for a modern JS frontend.
+    use_cases:
+      - "Blogs, marketing sites, and shops editors maintain without developers."
+      - "Projects needing a plugin for nearly any feature out of the box."
+      - "Headless content backend (REST/WPGraphQL) feeding a JS frontend."
+    prerequisites:
+      - { name: "PHP", slug: "php" }
+      - { name: "HTML", slug: "html" }
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Enormous theme and plugin ecosystem for any feature."
+      - "Block-based Gutenberg editor and full-site editing."
+      - "WooCommerce for e-commerce on the same platform."
+      - "REST API and WPGraphQL enable headless use."
+    pairs_well_with:
+      - { name: "PHP", slug: "php" }
+      - { name: "WooCommerce", slug: "" }
+      - { name: "Next.js", slug: "next-js" }
+    alternatives:
+      - { name: "Strapi", slug: "strapi" }
+      - { name: "Contentful", slug: "contentful" }
+      - { name: "Sanity", slug: "sanity" }
+    example:
+      lang: "bash"
+      code: "curl https://example.com/wp-json/wp/v2/posts"
+      explain: "Fetch published posts as JSON from the built-in WordPress REST API for headless use."
+    gotchas: >
+      The plugin ecosystem is both its strength and its weakness — plugins are
+      the leading source of security holes, conflicts, and bloat, and out-of-date
+      sites are a constant attack target. Self-hosted installs need ongoing
+      updates, backups, and hardening.
+    maintained_by: "WordPress Foundation + Automattic"
+    language: "PHP"
+    license: "GPL-2.0"
+    docs:
+      - { label: "developer.wordpress.org", url: "https://developer.wordpress.org" }
+
+  - name: "Directus"
+    slug: "directus"
+    tagline: "An instant API and admin app over any SQL database."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2015
+    description: >
+      A data platform that wraps an existing or new SQL database with a REST and
+      <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>
+      <span class="abbr-link" data-abbr="API">API</span> plus a no-code admin
+      app, without dictating its own schema. It can layer onto a database you
+      already have, making it equally a
+      <span class="abbr-link" data-abbr="Headless CMS">headless CMS</span> and a
+      backend-as-a-service.
+    use_cases:
+      - "Exposing an existing SQL database via an instant API and admin UI."
+      - "Headless CMS that works with your own database schema."
+      - "Internal tools and data dashboards over relational data."
+    prerequisites:
+      - { name: "SQL", slug: "sql" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Wraps any SQL database — doesn't impose its own schema."
+      - "Auto-generated REST and GraphQL APIs."
+      - "No-code admin app for data, roles, and flows."
+      - "Self-hosted or cloud; PostgreSQL, MySQL, SQLite, and more."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Nuxt", slug: "nuxt" }
+      - { name: "Next.js", slug: "next-js" }
+    alternatives:
+      - { name: "Strapi", slug: "strapi" }
+      - { name: "Supabase", slug: "supabase" }
+      - { name: "Payload", slug: "payload" }
+    example:
+      lang: "bash"
+      code: "npx create-directus-project my-project"
+      explain: "Scaffold a Directus instance that mounts an API and admin app over a SQL database."
+    gotchas: >
+      Directus relicensed to the Business Source License (BSL 1.1) — free for
+      smaller companies but a paid commercial license above a revenue threshold,
+      so check terms before relying on it. Because it mirrors your raw database
+      schema, content modeling is less editor-friendly than a purpose-built CMS.
+    maintained_by: "Directus"
+    language: "TypeScript"
+    license: "BSL 1.1"
+    docs:
+      - { label: "directus.io/docs", url: "https://directus.io/docs" }
+
+  - name: "MDX"
+    slug: "mdx"
+    tagline: "Markdown that lets you import and render components."
+    layer: [tooling, frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2018
+    description: >
+      An authoring format that lets you use <span class="abbr-link" data-abbr="JSX">JSX</span>
+      — importing and rendering interactive components — directly inside Markdown
+      content. It compiles each document to a component, making it ideal for
+      documentation, blogs, and design systems where prose and live examples mix.
+    use_cases:
+      - "Docs and blogs that embed interactive demos alongside prose."
+      - "Design-system pages mixing copy with live component examples."
+      - "Content where authors want Markdown but developers want components."
+    prerequisites:
+      - { name: "Markdown", slug: "" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "React", slug: "react" }
+    key_features:
+      - "Import and render JSX components inside Markdown."
+      - "Compiles each document to a component."
+      - "Plugin pipeline via remark/rehype for custom transforms."
+      - "First-class support in Next.js, Astro, Gatsby, and Docusaurus."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Astro", slug: "astro" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "Markdown", slug: "" }
+      - { name: "Markdoc", slug: "" }
+    example:
+      lang: "mdx"
+      code: |-
+        import Chart from './Chart'
+
+        # Sales report
+
+        Here is this quarter's data:
+
+        <Chart data={sales} />
+      explain: >
+        An MDX file mixing a Markdown heading and prose with an imported React
+        component rendered inline.
+    gotchas: >
+      Because MDX executes JSX, content is no longer just data — a malformed or
+      untrusted document can break the build or run code, so it's unsafe for
+      user-submitted content. Editors comfortable with plain Markdown can be
+      tripped up by the component syntax.
+    maintained_by: "MDX team + OSS"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "mdxjs.com", url: "https://mdxjs.com" }
+
+  - name: "Decap CMS"
+    slug: "decap-cms"
+    tagline: "Git-based content editing for static sites (ex-Netlify CMS)."
+    layer: [frontend, tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2016
+    description: >
+      A Git-based <span class="abbr-link" data-abbr="Headless CMS">headless CMS</span>
+      — formerly Netlify CMS — that adds an editing UI on top of files in your
+      repository. Edits commit Markdown and assets straight back to Git, so your
+      content stays version-controlled and your
+      <span class="abbr-link" data-abbr="SSG">static site generator</span> rebuilds
+      from those files with no separate content database.
+    use_cases:
+      - "Adding an editor UI to a Git-backed static site (Jekyll, Hugo, Astro)."
+      - "JAMstack sites that want content version-controlled in the repo."
+      - "Small teams avoiding a separate CMS database or service."
+    prerequisites:
+      - { name: "Git", slug: "" }
+      - { name: "A static site generator", slug: "" }
+      - { name: "YAML", slug: "" }
+    key_features:
+      - "Edits commit Markdown and media back to Git."
+      - "Single-file admin app configured with a YAML schema."
+      - "Editorial workflow backed by branches and pull requests."
+      - "Backend-agnostic: GitHub, GitLab, Gitea, and more."
+    pairs_well_with:
+      - { name: "Jekyll", slug: "jekyll" }
+      - { name: "Hugo", slug: "hugo" }
+      - { name: "Netlify", slug: "netlify" }
+    alternatives:
+      - { name: "Sanity", slug: "sanity" }
+      - { name: "Strapi", slug: "strapi" }
+      - { name: "TinaCMS", slug: "" }
+    example:
+      lang: "yaml"
+      code: |-
+        collections:
+          - name: posts
+            folder: _posts
+            create: true
+            fields:
+              - { label: Title, name: title, widget: string }
+      explain: >
+        A Decap config declaring a posts collection — the admin UI then edits
+        files in _posts and commits them to Git.
+    gotchas: >
+      Content scales with your Git repo, so it suits modest sites, not thousands
+      of entries or many concurrent editors. After the Netlify-to-Decap rename,
+      maintenance slowed and a v3/Decap 4 refresh has been slow, so evaluate its
+      momentum before adopting.
+    maintained_by: "Decap/Netlify + OSS"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "decapcms.org", url: "https://decapcms.org" }

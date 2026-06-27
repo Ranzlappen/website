@@ -1,0 +1,405 @@
+batch:
+  id: "api-realtime"
+  order: 17
+  name: "API, GraphQL & Realtime"
+  short_name: "API & Realtime"
+  description: >
+    The layers that move data between clients and servers — query languages and
+    contracts (GraphQL, OpenAPI), high-performance RPC (gRPC), and realtime
+    transports that push updates instead of polling (WebSockets, Socket.IO).
+    Plus the servers and clients that implement them (Apollo Server, urql).
+    Choose by who consumes the API, how strict the contract must be, and whether
+    you need request/response or a persistent live connection.
+  last_updated: "2026-06-27"
+
+entries:
+  - name: "GraphQL"
+    slug: "graphql"
+    tagline: "A query language and runtime for APIs — ask for exactly what you need."
+    layer: [backend, fullstack]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2015
+    language: "—"
+    license: "MIT (spec)"
+    maintained_by: "GraphQL Foundation"
+    description: >
+      A query language for <span class="abbr-link" data-abbr="API">APIs</span> and
+      a runtime for fulfilling those queries, originally from Meta and now a
+      Linux Foundation project. Clients declare exactly which fields they want
+      against a strongly-typed schema, which eliminates the over- and
+      under-fetching common with <span class="abbr-link" data-abbr="REST">REST</span>
+      and lets many resources be retrieved in a single request.
+    use_cases:
+      - "Frontends that need flexible, precise data shapes per screen."
+      - "Aggregating multiple backends behind one typed graph."
+      - "Mobile apps minimizing round-trips over slow networks."
+    prerequisites:
+      - { name: "HTTP" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Strongly-typed schema as the single source of truth."
+      - "Clients request exactly the fields they need — no over-fetching."
+      - "One endpoint, many resources resolved per query."
+      - "Subscriptions for realtime updates over the same schema."
+    pairs_well_with:
+      - { name: "Apollo Server", slug: "apollo-server" }
+      - { name: "Apollo Client", slug: "apollo-client" }
+      - { name: "urql", slug: "urql" }
+      - { name: "GraphQL Yoga", slug: "graphql-yoga" }
+    alternatives:
+      - { name: "REST" }
+      - { name: "tRPC", slug: "trpc" }
+      - { name: "gRPC", slug: "grpc" }
+    example:
+      lang: "graphql"
+      code: |-
+        query {
+          user(id: "1") { name posts { title } }
+        }
+      explain: >
+        One GraphQL query fetches a user and the titles of their posts together,
+        returning only the named fields.
+    gotchas: >
+      The flexibility shifts complexity to the server — naive resolvers cause N+1
+      database queries (you need DataLoader), and because a client can craft
+      arbitrarily deep or expensive queries you must add depth/complexity limits
+      and careful caching. HTTP caching is harder than with REST's distinct URLs.
+    docs:
+      - { label: "graphql.org/learn", url: "https://graphql.org/learn/" }
+
+  - name: "Apollo Server"
+    slug: "apollo-server"
+    tagline: "A spec-compliant, production-grade GraphQL server for Node."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2016
+    language: "TypeScript"
+    license: "MIT"
+    maintained_by: "Apollo GraphQL"
+    description: >
+      A widely-used, spec-compliant <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>
+      server for Node.js that turns a schema and resolvers into a running
+      <span class="abbr-link" data-abbr="API">API</span>. It integrates with
+      Express, Fastify, and serverless runtimes, ships a built-in query
+      explorer (Apollo Sandbox), and connects to Apollo's broader tooling for
+      federation, metrics, and schema management.
+    use_cases:
+      - "Standing up a GraphQL API from a schema plus resolvers."
+      - "Federated graphs combining multiple subgraph services."
+      - "GraphQL backends wanting metrics and schema registry tooling."
+    prerequisites:
+      - { name: "GraphQL", slug: "graphql" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Schema-and-resolvers server with the Apollo Sandbox explorer."
+      - "Integrations for Express, Fastify, and serverless handlers."
+      - "Apollo Federation for composing subgraphs into one graph."
+      - "Plugins for caching, tracing, and error handling."
+    pairs_well_with:
+      - { name: "GraphQL", slug: "graphql" }
+      - { name: "Apollo Client", slug: "apollo-client" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "GraphQL Yoga", slug: "graphql-yoga" }
+      - { name: "NestJS", slug: "nestjs" }
+      - { name: "tRPC", slug: "trpc" }
+    example:
+      lang: "ts"
+      code: |-
+        const server = new ApolloServer({ typeDefs, resolvers });
+        const { url } = await startStandaloneServer(server);
+      explain: >
+        Apollo Server takes your schema and resolvers and starts a ready-to-query
+        GraphQL endpoint with a built-in explorer.
+    gotchas: >
+      It's the transport and execution layer — schema design, resolver
+      efficiency (DataLoader for N+1), and authorization are still yours. Apollo's
+      managed platform (GraphOS) and federation are powerful but pull you toward a
+      commercial ecosystem; the open-source server alone is enough for most apps.
+    docs:
+      - { label: "apollographql.com/docs/apollo-server", url: "https://www.apollographql.com/docs/apollo-server" }
+
+  - name: "Socket.IO"
+    slug: "socket-io"
+    tagline: "Realtime, bidirectional event-based communication with fallbacks."
+    layer: [backend, frontend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2010
+    language: "JavaScript"
+    license: "MIT"
+    maintained_by: "Socket.IO team + OSS"
+    description: >
+      A realtime library that layers an event-based
+      <span class="abbr-link" data-abbr="API">API</span> on top of
+      <span class="abbr-link" data-abbr="WebSocket">WebSockets</span> with
+      automatic reconnection, fallback to HTTP long-polling, rooms, and
+      broadcasting. It pairs a Node.js server with a browser client speaking the
+      same protocol, making it a fast path to chat, notifications, and live
+      dashboards.
+    use_cases:
+      - "Chat, presence, and live notifications in web apps."
+      - "Collaborative or live-updating dashboards."
+      - "Realtime where you want reconnection and rooms handled for you."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Event-based emit/on API over WebSockets."
+      - "Automatic reconnection and long-polling fallback."
+      - "Rooms and namespaces for targeted broadcasting."
+      - "Matched server (Node) and browser client libraries."
+    pairs_well_with:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Express", slug: "express" }
+      - { name: "Redis", slug: "redis" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "WebSockets", slug: "websockets" }
+      - { name: "ws" }
+      - { name: "Server-Sent Events" }
+    example:
+      lang: "js"
+      code: |-
+        io.on("connection", (socket) => {
+          socket.on("chat", (msg) => io.emit("chat", msg));
+        });
+      explain: >
+        On the server, broadcast every incoming "chat" event back out to all
+        connected clients.
+    gotchas: >
+      It speaks its own protocol, not raw WebSockets — a plain WebSocket client
+      can't talk to a Socket.IO server and vice versa, so both ends must use
+      Socket.IO. Scaling beyond one process needs a sticky-session load balancer
+      and an adapter (e.g. Redis) to fan out events across instances.
+    docs:
+      - { label: "socket.io/docs", url: "https://socket.io/docs/v4/" }
+
+  - name: "gRPC"
+    slug: "grpc"
+    tagline: "High-performance RPC over HTTP/2 with Protocol Buffers."
+    layer: [backend]
+    maturity: industry-standard
+    learning_curve: steep
+    first_released: 2016
+    language: "C/multi"
+    license: "Apache-2.0"
+    maintained_by: "CNCF / Google"
+    description: >
+      A high-performance <span class="abbr-link" data-abbr="RPC">RPC</span>
+      framework from Google (now a CNCF
+      project) that runs over HTTP/2 and serializes messages with
+      <span class="abbr-link" data-abbr="Protobuf">Protocol Buffers</span>. You
+      define services and messages in a `.proto` file and generate typed client
+      and server stubs in many languages, with first-class support for streaming
+      in both directions.
+    use_cases:
+      - "Low-latency, high-throughput service-to-service calls in microservices."
+      - "Polyglot backends sharing one strongly-typed contract."
+      - "Bidirectional streaming RPCs (telemetry, live feeds)."
+    prerequisites:
+      - { name: "Protocol Buffers" }
+      - { name: "HTTP/2" }
+    key_features:
+      - "Contract-first `.proto` schema with generated stubs in many languages."
+      - "Binary Protobuf serialization over HTTP/2 — compact and fast."
+      - "Unary, server-, client-, and bidirectional-streaming RPCs."
+      - "Built-in deadlines, cancellation, and pluggable auth."
+    pairs_well_with:
+      - { name: "Go", slug: "go" }
+      - { name: "Rust", slug: "rust" }
+      - { name: "Docker", slug: "docker" }
+      - { name: "Protocol Buffers" }
+    alternatives:
+      - { name: "REST" }
+      - { name: "GraphQL", slug: "graphql" }
+      - { name: "tRPC", slug: "trpc" }
+    example:
+      lang: "protobuf"
+      code: |-
+        service Greeter {
+          rpc SayHello (HelloRequest) returns (HelloReply);
+        }
+      explain: >
+        A `.proto` service definition — gRPC tooling generates typed client and
+        server code for this RPC in your chosen languages.
+    gotchas: >
+      Browsers can't speak raw gRPC, so web clients need a gRPC-Web proxy
+      (Envoy) or a codegen layer like Connect — it shines for server-to-server,
+      not direct browser calls. The binary Protobuf wire format isn't
+      human-readable, so debugging needs reflection tooling (grpcurl) rather than
+      curl.
+    docs:
+      - { label: "grpc.io/docs", url: "https://grpc.io/docs/" }
+
+  - name: "OpenAPI / Swagger"
+    slug: "openapi-swagger"
+    tagline: "The standard, machine-readable contract for REST APIs."
+    layer: [tooling, backend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2011
+    language: "—"
+    license: "Apache-2.0"
+    maintained_by: "OpenAPI Initiative / SmartBear"
+    description: >
+      A language-agnostic specification (formerly Swagger) for describing
+      <span class="abbr-link" data-abbr="REST">REST</span>
+      <span class="abbr-link" data-abbr="API">APIs</span> in a machine-readable
+      JSON or YAML document. From that single contract a rich tooling ecosystem
+      generates interactive docs (Swagger UI), typed client SDKs, server stubs,
+      and request validators — making the spec the source of truth for the API.
+    use_cases:
+      - "Documenting a REST API with interactive, always-current docs."
+      - "Generating client SDKs and server stubs from one contract."
+      - "Contract-first design and request/response validation in CI."
+    prerequisites:
+      - { name: "REST" }
+      - { name: "HTTP" }
+    key_features:
+      - "JSON/YAML contract describing endpoints, schemas, and auth."
+      - "Swagger UI renders interactive, try-it-out documentation."
+      - "Codegen for typed clients and server stubs in many languages."
+      - "Schema validation and mock servers from the spec."
+    pairs_well_with:
+      - { name: "FastAPI", slug: "fastapi" }
+      - { name: "NestJS", slug: "nestjs" }
+      - { name: "Fastify", slug: "fastify" }
+      - { name: "Spring Boot", slug: "spring-boot" }
+    alternatives:
+      - { name: "GraphQL", slug: "graphql" }
+      - { name: "tRPC", slug: "trpc" }
+      - { name: "AsyncAPI" }
+    example:
+      lang: "yaml"
+      code: |-
+        paths:
+          /users/{id}:
+            get:
+              responses:
+                "200": { description: A user }
+      explain: >
+        An OpenAPI fragment describing a GET endpoint — tooling turns it into
+        docs, a typed client, and a validator.
+    gotchas: >
+      A spec only helps if it stays accurate — a hand-written document drifts from
+      the code, so generate it from the implementation (or generate code from it)
+      and check it in CI. The full spec is large, and codegen output across
+      languages varies in quality and often needs hand-tuning.
+    docs:
+      - { label: "swagger.io/specification", url: "https://swagger.io/specification/" }
+
+  - name: "WebSockets"
+    slug: "websockets"
+    tagline: "The browser standard for full-duplex, persistent connections."
+    layer: [backend, frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2011
+    language: "—"
+    license: "IETF/W3C standard"
+    maintained_by: "IETF / WHATWG"
+    description: >
+      A protocol (RFC 6455) and browser
+      <span class="abbr-link" data-abbr="API">API</span> that upgrades a single
+      HTTP connection into a persistent, full-duplex channel, letting client and
+      server push messages to each other at any time without re-polling. Unlike
+      <span class="abbr-link" data-abbr="SSE">Server-Sent Events</span>, the
+      <span class="abbr-link" data-abbr="WebSocket">WebSocket</span> link is
+      bidirectional, making it the native transport for chat, games, and live
+      data.
+    use_cases:
+      - "Bidirectional realtime: chat, multiplayer games, live trading."
+      - "Pushing server updates to the browser without polling."
+      - "Low-level realtime where you don't want a library's protocol."
+    prerequisites:
+      - { name: "HTTP" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Full-duplex messaging over one persistent connection."
+      - "Native `WebSocket` API in every modern browser."
+      - "Low overhead per message after the HTTP upgrade handshake."
+      - "Carries text or binary frames."
+    pairs_well_with:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Socket.IO", slug: "socket-io" }
+      - { name: "Go", slug: "go" }
+      - { name: "Redis", slug: "redis" }
+    alternatives:
+      - { name: "Socket.IO", slug: "socket-io" }
+      - { name: "Server-Sent Events" }
+      - { name: "WebTransport" }
+    example:
+      lang: "js"
+      code: |-
+        const ws = new WebSocket("wss://example.com/feed");
+        ws.onmessage = (e) => console.log(e.data);
+      explain: >
+        Open a WebSocket and react to each pushed message — the connection stays
+        open for two-way communication.
+    gotchas: >
+      The raw API is bare — no reconnection, heartbeats, rooms, or message
+      acknowledgements, so production use means building (or adopting, e.g.
+      Socket.IO) that plumbing yourself. Persistent connections complicate
+      horizontal scaling and load balancing, and corporate proxies sometimes
+      block the upgrade.
+    docs:
+      - { label: "developer.mozilla.org — WebSockets API", url: "https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API" }
+
+  - name: "urql"
+    slug: "urql"
+    tagline: "A small, highly customizable GraphQL client for the frontend."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2019
+    language: "TypeScript"
+    license: "MIT"
+    maintained_by: "urql team"
+    description: >
+      A lightweight, highly extensible
+      <span class="abbr-link" data-abbr="GraphQL">GraphQL</span> client from The
+      Guild for React, Vue, Svelte, and more. It positions itself as a simpler,
+      smaller alternative to Apollo Client, with caching driven by a composable
+      exchange pipeline — document caching by default and an opt-in normalized
+      cache (Graphcache) when you need it.
+    use_cases:
+      - "Frontends consuming a GraphQL API wanting a small client."
+      - "Apps preferring exchanges/plugins over Apollo's heavier runtime."
+      - "Choosing between document and normalized caching per project."
+    prerequisites:
+      - { name: "GraphQL", slug: "graphql" }
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Small core with a composable 'exchange' pipeline."
+      - "Document caching by default; opt-in normalized cache (Graphcache)."
+      - "Bindings for React, Vue, Svelte, and Preact."
+      - "Subscriptions and SSR support."
+    pairs_well_with:
+      - { name: "GraphQL", slug: "graphql" }
+      - { name: "React", slug: "react" }
+      - { name: "Vue", slug: "vue" }
+      - { name: "GraphQL Yoga", slug: "graphql-yoga" }
+    alternatives:
+      - { name: "Apollo Client", slug: "apollo-client" }
+      - { name: "TanStack Query", slug: "tanstack-query" }
+      - { name: "Relay" }
+    example:
+      lang: "tsx"
+      code: |-
+        const [result] = useQuery({ query: `{ todos { id text } }` });
+      explain: >
+        urql's `useQuery` hook runs a GraphQL query and returns the cached,
+        fetching, and error state for the component.
+    gotchas: >
+      The default document cache is coarse — it can return stale data after
+      mutations until you adopt the normalized Graphcache exchange, which adds the
+      configuration overhead urql tried to avoid. Its smaller ecosystem means
+      fewer third-party integrations and examples than Apollo Client.
+    docs:
+      - { label: "urql.dev", url: "https://urql.dev" }

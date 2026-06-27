@@ -1,7 +1,31 @@
 # Glossary for /references/web-dev-tech-stack/
-# Schema: term, full_form, explanation (folded scalar with optional inline HTML).
-# Cross-reference other terms via <span class="abbr-link" data-abbr="TERM">TERM</span>.
-# Keep alphabetical by term.
+# Schema: term, full_form, explanation (folded scalar with optional inline HTML),
+#         optional aliases (case/plural variants).
+# Cross-reference other terms via <span class="abbr-link" data-abbr="TERM">TERM</span>
+#   — these render as clickable links that open a STACKED modal on top of the
+#   current one, so explanations drill recursively. Only link to terms that
+#   exist below.
+# Keep alphabetical by term (case-insensitive).
+
+- term: "a11y"
+  full_form: "accessibility"
+  aliases: ["accessibility"]
+  explanation: >-
+    A numeronym for <em>accessibility</em> (11 letters between "a" and "y") —
+    building UIs usable by people with disabilities: keyboard navigation, screen-reader
+    semantics (ARIA roles, labels), sufficient colour contrast, and focus management.
+    Headless component libraries exist largely to get a11y right so you don't
+    reimplement it per app.
+
+- term: "ACID"
+  full_form: "Atomicity, Consistency, Isolation, Durability"
+  explanation: >-
+    The four guarantees a transactional database makes: a transaction is all-or-nothing
+    (atomic), never leaves the data in an invalid state (consistent), runs as if alone
+    (isolated), and survives a crash once committed (durable). The hallmark of
+    relational <span class="abbr-link" data-abbr="SQL">SQL</span> databases; many
+    <span class="abbr-link" data-abbr="NoSQL">NoSQL</span> stores relax it for
+    <span class="abbr-link" data-abbr="BASE">BASE</span> instead.
 
 - term: "AOT"
   full_form: "Ahead-of-Time compilation"
@@ -20,7 +44,48 @@
     functions, endpoints, or messages it exposes. On the web this usually means
     an HTTP <span class="abbr-link" data-abbr="REST">REST</span> or
     <span class="abbr-link" data-abbr="GraphQL">GraphQL</span> endpoint your
-    frontend calls to read and write data.
+    frontend calls to read and write data, often documented with
+    <span class="abbr-link" data-abbr="OpenAPI">OpenAPI</span>.
+
+- term: "AST"
+  full_form: "Abstract Syntax Tree"
+  explanation: >-
+    A tree representation of source code's structure that compilers and tooling
+    operate on instead of raw text. Parsers (Babel, SWC, tsc) read code into an
+    AST, <span class="abbr-link" data-abbr="Transpile">transpilers</span> rewrite
+    that tree, and <span class="abbr-link" data-abbr="Linting">linters</span> like
+    ESLint walk it to find problems — then print it back to code.
+
+- term: "Async"
+  full_form: "asynchronous programming"
+  aliases: ["asynchronous", "async/await"]
+  explanation: >-
+    Code that starts a slow operation (a network call, a disk read) and lets the
+    program keep going instead of blocking, handling the result later via a
+    callback, Promise, or <code>async/await</code>. JavaScript is single-threaded,
+    so async is how it stays responsive — see the
+    <span class="abbr-link" data-abbr="Event loop">event loop</span> and
+    <span class="abbr-link" data-abbr="Concurrency">concurrency</span>.
+
+- term: "BaaS"
+  full_form: "Backend as a Service"
+  explanation: >-
+    A hosted backend that hands your frontend ready-made database, auth, storage,
+    and functions through an <span class="abbr-link" data-abbr="API">API</span> /
+    SDK — so you ship without writing or running a server. Firebase, Supabase, and
+    Convex are BaaS. Compare <span class="abbr-link" data-abbr="PaaS">PaaS</span>
+    (you still write the server) and
+    <span class="abbr-link" data-abbr="Serverless">serverless</span> functions.
+
+- term: "BASE"
+  full_form: "Basically Available, Soft state, Eventual consistency"
+  explanation: >-
+    The relaxed counterpart to <span class="abbr-link" data-abbr="ACID">ACID</span>
+    used by many distributed <span class="abbr-link" data-abbr="NoSQL">NoSQL</span>
+    systems: instead of strict consistency, writes propagate across
+    <span class="abbr-link" data-abbr="Replication">replicas</span> over time so
+    reads are <em>eventually</em> consistent. The trade buys availability and
+    horizontal scale at the cost of "read-your-own-write" certainty.
 
 - term: "Bundler"
   full_form: "module bundler"
@@ -29,8 +94,9 @@
     A tool that walks your import graph and stitches many source modules into a
     few optimized files a browser can load efficiently — applying
     <span class="abbr-link" data-abbr="Tree-shaking">tree-shaking</span>,
-    minification, and code-splitting along the way. Vite (Rollup), webpack,
-    esbuild, and Parcel are bundlers.
+    <span class="abbr-link" data-abbr="Minification">minification</span>, and
+    <span class="abbr-link" data-abbr="Code splitting">code-splitting</span> along
+    the way. Vite (Rollup), webpack, esbuild, Rspack, and Parcel are bundlers.
 
 - term: "CDN"
   full_form: "Content Delivery Network"
@@ -38,15 +104,18 @@
     A globally distributed fleet of caching servers that serves your static
     assets (and increasingly compute) from a location physically close to each
     visitor, cutting latency. Hosts like Vercel, Netlify, and Cloudflare put
-    your build on a CDN automatically.
+    your build on a CDN automatically — the foundation of the
+    <span class="abbr-link" data-abbr="JAMstack">JAMstack</span> and
+    <span class="abbr-link" data-abbr="Edge">edge</span> delivery.
 
 - term: "CI/CD"
   full_form: "Continuous Integration / Continuous Delivery (or Deployment)"
   aliases: ["ci", "cd", "ci cd"]
   explanation: >-
     A pipeline that automatically builds, tests, and ships your code on every
-    push. <em>CI</em> runs your test suite and linters to catch breakage early;
-    <em>CD</em> deploys the passing build to staging or production. GitHub
+    push. <em>CI</em> runs your test suite and
+    <span class="abbr-link" data-abbr="Linting">linters</span> to catch breakage
+    early; <em>CD</em> deploys the passing build to staging or production. GitHub
     Actions and GitLab CI are common runners.
 
 - term: "CJS"
@@ -59,23 +128,145 @@
     though the two still have to interoperate, which is a frequent source of
     "cannot use import statement outside a module" friction.
 
+- term: "Closure"
+  full_form: "closure (lexical scope capture)"
+  aliases: ["closures"]
+  explanation: >-
+    A function bundled together with the variables from the scope where it was
+    defined, so it keeps access to them even after that scope has returned. The
+    mechanism behind React hooks and event handlers — and the source of
+    "stale closure" bugs when a callback captures an old value of state.
+
+- term: "Code splitting"
+  full_form: "code splitting"
+  aliases: ["code-splitting", "lazy loading", "lazy-loading"]
+  explanation: >-
+    Breaking a <span class="abbr-link" data-abbr="Bundler">bundle</span> into
+    smaller chunks loaded on demand (per route or component) instead of one giant
+    file up front, so the first paint downloads less JavaScript. Pairs with
+    "lazy loading" of below-the-fold assets to improve
+    <span class="abbr-link" data-abbr="SEO">Core Web Vitals</span>.
+
+- term: "Concurrency"
+  full_form: "concurrency"
+  aliases: ["concurrent"]
+  explanation: >-
+    Juggling multiple tasks that overlap in time — not necessarily running at the
+    same instant (that's parallelism). JavaScript achieves concurrency on one
+    thread via the <span class="abbr-link" data-abbr="Event loop">event loop</span>
+    and <span class="abbr-link" data-abbr="Async">async</span> I/O; runtimes add
+    worker threads for true parallelism.
+
+- term: "Connection pooling"
+  full_form: "database connection pooling"
+  aliases: ["connection pool", "connection pooler"]
+  explanation: >-
+    Reusing a fixed set of open database connections across many requests instead
+    of opening one per request, which a database can't sustain. Essential for
+    <span class="abbr-link" data-abbr="Serverless">serverless</span> /
+    <span class="abbr-link" data-abbr="Edge">edge</span> functions, which can spin
+    up thousands of short-lived instances — hence poolers like PgBouncer and the
+    pooled endpoints offered by Neon and Supabase.
+
+- term: "Container"
+  full_form: "container (OS-level virtualization)"
+  aliases: ["containers", "containerization", "containerized"]
+  explanation: >-
+    A lightweight, isolated package of an app plus its dependencies that runs the
+    same on any machine, sharing the host kernel (unlike a heavier virtual
+    machine). Docker and Podman build and run them;
+    <span class="abbr-link" data-abbr="Orchestration">orchestrators</span> like
+    Kubernetes run them at scale.
+
+- term: "CORS"
+  full_form: "Cross-Origin Resource Sharing"
+  explanation: >-
+    The browser security rule that blocks a page on one origin (domain+port) from
+    reading an <span class="abbr-link" data-abbr="API">API</span> response on
+    another origin unless that API opts in with
+    <code>Access-Control-Allow-Origin</code> headers. The cause of the classic
+    "blocked by CORS policy" console error when a frontend calls a backend on a
+    different domain.
+
+- term: "CRUD"
+  full_form: "Create, Read, Update, Delete"
+  explanation: >-
+    The four basic operations on stored data, and shorthand for the bread-and-butter
+    of most apps. A "CRUD app" maps these onto database rows through an
+    <span class="abbr-link" data-abbr="ORM">ORM</span> and exposes them over a
+    <span class="abbr-link" data-abbr="REST">REST</span> or
+    <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>
+    <span class="abbr-link" data-abbr="API">API</span>.
+
 - term: "CSR"
   full_form: "Client-Side Rendering"
   explanation: >-
     Rendering the page in the browser with JavaScript after an initial near-empty
     HTML shell loads. The default for a plain
     <span class="abbr-link" data-abbr="SPA">SPA</span>. Fast for subsequent
-    navigation, but the first paint and SEO suffer versus
+    navigation, but the first paint and
+    <span class="abbr-link" data-abbr="SEO">SEO</span> suffer versus
     <span class="abbr-link" data-abbr="SSR">SSR</span> /
     <span class="abbr-link" data-abbr="SSG">SSG</span>.
+
+- term: "CSRF"
+  full_form: "Cross-Site Request Forgery"
+  explanation: >-
+    An attack where a malicious site tricks a logged-in user's browser into
+    sending an authenticated request to your app (the cookie rides along
+    automatically). Defended with anti-CSRF tokens and <code>SameSite</code>
+    cookies — a major reason auth libraries prefer cookie sessions handled for
+    you. Distinct from <span class="abbr-link" data-abbr="CORS">CORS</span>, which
+    governs reading responses.
+
+- term: "DNS"
+  full_form: "Domain Name System"
+  explanation: >-
+    The internet's phone book — it resolves a human domain (<code>example.com</code>)
+    to the server IP behind it. Deploying a site means pointing DNS records (A,
+    CNAME) at your host; propagation delay and a missing record are common
+    "why isn't my domain working" culprits. Hosts pair DNS with a
+    <span class="abbr-link" data-abbr="CDN">CDN</span> and
+    <span class="abbr-link" data-abbr="TLS">TLS</span> certificate.
 
 - term: "DOM"
   full_form: "Document Object Model"
   explanation: >-
     The browser's live, in-memory tree of objects representing the HTML on the
-    page. JavaScript reads and mutates the DOM to change what's shown. Frameworks
-    like React keep a <em>virtual</em> DOM and diff it against the real one to
-    minimize expensive updates.
+    page. JavaScript reads and mutates the DOM to change what's shown. React and
+    others keep a <span class="abbr-link" data-abbr="Virtual DOM">virtual DOM</span>
+    and diff it against the real one to minimize expensive updates; see also
+    <span class="abbr-link" data-abbr="Shadow DOM">Shadow DOM</span>.
+
+- term: "DX"
+  full_form: "Developer Experience"
+  explanation: >-
+    How pleasant and productive a tool is to build with — fast feedback (e.g.
+    <span class="abbr-link" data-abbr="HMR">HMR</span>), clear errors, good docs,
+    sensible defaults, and <span class="abbr-link" data-abbr="Type safety">type
+    safety</span>. A major selling point for modern tooling (Vite, Prisma,
+    Astro), the developer-facing sibling of UX.
+
+- term: "E2E"
+  full_form: "End-to-End testing"
+  aliases: ["end-to-end", "e2e testing"]
+  explanation: >-
+    Tests that exercise the whole app the way a real user would — driving a real
+    browser, clicking through real flows against a running server — rather than
+    isolated units. Playwright and Cypress are the leading E2E runners; they catch
+    integration bugs unit tests miss, at the cost of being slower and flakier.
+
+- term: "Edge"
+  full_form: "edge computing / edge runtime"
+  aliases: ["edge runtime", "edge functions", "edge computing"]
+  explanation: >-
+    Running code on <span class="abbr-link" data-abbr="CDN">CDN</span> nodes
+    physically near the user rather than in one central region, cutting latency.
+    Edge runtimes (Cloudflare Workers, Vercel Edge) are a lightweight
+    <span class="abbr-link" data-abbr="Serverless">serverless</span> environment
+    with a constrained, web-standard API — no full Node, and care needed around
+    database <span class="abbr-link" data-abbr="Connection pooling">connection
+    pooling</span>.
 
 - term: "ESM"
   full_form: "ECMAScript Modules"
@@ -87,14 +278,57 @@
     unused code. The modern replacement for
     <span class="abbr-link" data-abbr="CJS">CommonJS</span>.
 
+- term: "Event loop"
+  full_form: "the event loop"
+  aliases: ["event-loop"]
+  explanation: >-
+    The mechanism that lets single-threaded JavaScript handle many things at once:
+    it runs your synchronous code, then repeatedly pulls completed
+    <span class="abbr-link" data-abbr="Async">async</span> callbacks off queues and
+    runs them. Blocking it with heavy synchronous work freezes the whole UI — the
+    reason CPU-bound tasks go to workers or
+    <span class="abbr-link" data-abbr="WASM">WASM</span>.
+
+- term: "Generics"
+  full_form: "generics (parametric types)"
+  aliases: ["generic"]
+  explanation: >-
+    A type-system feature for writing code that works over <em>any</em> type while
+    preserving <span class="abbr-link" data-abbr="Type safety">type safety</span> —
+    e.g. <code>Array&lt;T&gt;</code> or a function typed
+    <code>identity&lt;T&gt;(x: T): T</code>. The backbone of TypeScript libraries
+    that keep your concrete types flowing through instead of falling back to
+    <code>any</code>.
+
 - term: "GraphQL"
   full_form: "Graph Query Language"
   explanation: >-
-    An API query language where the client asks for exactly the fields it needs
-    in a single request, against a typed schema — avoiding the over-/under-fetching
-    of fixed <span class="abbr-link" data-abbr="REST">REST</span> endpoints.
-    Served by Apollo Server, GraphQL Yoga, and others; queried with Apollo Client
-    or urql.
+    An <span class="abbr-link" data-abbr="API">API</span> query language where the
+    client asks for exactly the fields it needs in a single request, against a
+    typed <span class="abbr-link" data-abbr="Schema">schema</span> — avoiding the
+    over-/under-fetching of fixed
+    <span class="abbr-link" data-abbr="REST">REST</span> endpoints. Served by
+    Apollo Server and GraphQL Yoga; queried with Apollo Client or urql.
+
+- term: "gRPC"
+  full_form: "gRPC Remote Procedure Call"
+  explanation: >-
+    A high-performance <span class="abbr-link" data-abbr="RPC">RPC</span> framework
+    that calls remote functions as if local, serializing messages with
+    <span class="abbr-link" data-abbr="Protobuf">Protocol Buffers</span> over
+    HTTP/2. Fast and strongly typed — popular for service-to-service traffic — but
+    needs a proxy (gRPC-Web) to reach browsers, which speak
+    <span class="abbr-link" data-abbr="HTTP">HTTP</span>/JSON more naturally.
+
+- term: "Headless CMS"
+  full_form: "headless Content Management System"
+  aliases: ["headless cms", "headless"]
+  explanation: >-
+    A content system that stores and edits content but exposes it over an
+    <span class="abbr-link" data-abbr="API">API</span> instead of rendering pages
+    itself — leaving the "head" (the frontend) to a framework of your choice.
+    Sanity, Contentful, and Strapi are headless; classic WordPress is the
+    coupled counterexample (though it can run headless too).
 
 - term: "HMR"
   full_form: "Hot Module Replacement"
@@ -102,7 +336,48 @@
   explanation: >-
     A dev-server feature that swaps an edited module into the running app
     <em>without</em> a full page reload, preserving component state. The reason
-    Vite and similar tools feel instant while you code.
+    Vite and similar tools feel instant while you code — a cornerstone of good
+    <span class="abbr-link" data-abbr="DX">DX</span>.
+
+- term: "Hoisting"
+  full_form: "hoisting"
+  explanation: >-
+    JavaScript's behaviour of moving declarations to the top of their scope before
+    execution — <code>function</code> declarations and <code>var</code> become
+    usable "before" their line, while <code>let</code>/<code>const</code> sit in a
+    "temporal dead zone" and throw if touched early. A classic interview gotcha
+    and source of <code>undefined</code> surprises.
+
+- term: "HTTP"
+  full_form: "HyperText Transfer Protocol"
+  aliases: ["https", "http/2", "http/3"]
+  explanation: >-
+    The request/response protocol the web runs on — a client asks
+    (<code>GET /page</code>) and a server answers with a status code and body.
+    <span class="abbr-link" data-abbr="REST">REST</span> APIs are built on its
+    verbs; HTTPS adds <span class="abbr-link" data-abbr="TLS">TLS</span> encryption;
+    HTTP/2 and /3 add multiplexing for speed.
+
+- term: "Hydration"
+  full_form: "hydration"
+  aliases: ["hydrate", "rehydration", "partial hydration"]
+  explanation: >-
+    The step where server-rendered HTML becomes interactive in the browser:
+    the framework re-attaches event listeners and state to the existing markup
+    instead of re-rendering it. The bridge between
+    <span class="abbr-link" data-abbr="SSR">SSR</span> and a live
+    <span class="abbr-link" data-abbr="SPA">SPA</span> — and a perf cost that
+    <span class="abbr-link" data-abbr="Islands">islands</span> and
+    <span class="abbr-link" data-abbr="RSC">RSC</span> try to shrink.
+
+- term: "i18n"
+  full_form: "internationalization"
+  aliases: ["internationalization", "internationalisation", "l10n", "localization"]
+  explanation: >-
+    A numeronym (18 letters) for adapting an app to multiple languages and
+    locales — extracting strings, formatting dates/numbers/currencies, and
+    handling right-to-left text. Localization (l10n) is the per-locale translation
+    work that i18n infrastructure enables.
 
 - term: "IaaS"
   full_form: "Infrastructure as a Service"
@@ -111,7 +386,38 @@
     networking — that you configure yourself (AWS EC2, GCP Compute Engine). More
     control and more work than a
     <span class="abbr-link" data-abbr="PaaS">PaaS</span> like Vercel, which hides
-    the servers entirely.
+    the servers entirely. Often provisioned with
+    <span class="abbr-link" data-abbr="IaC">IaC</span>.
+
+- term: "IaC"
+  full_form: "Infrastructure as Code"
+  explanation: >-
+    Defining servers, networks, and cloud resources in version-controlled config
+    or code instead of clicking through a console — so infrastructure is
+    reviewable, repeatable, and diff-able. Terraform and Pulumi are the leading
+    IaC tools; pairs naturally with
+    <span class="abbr-link" data-abbr="CI/CD">CI/CD</span>.
+
+- term: "Index"
+  full_form: "database index"
+  aliases: ["indexes", "indexing", "indices"]
+  explanation: >-
+    A sorted auxiliary data structure (usually a B-tree) the database keeps so it
+    can find rows by a column's value without scanning the whole table — turning a
+    slow lookup into a fast one. The single biggest query-performance lever; the
+    trade is slower writes and extra storage. Composite indexes power complex
+    <span class="abbr-link" data-abbr="Pagination">paginated</span> queries.
+
+- term: "Islands"
+  full_form: "islands architecture"
+  aliases: ["island", "islands architecture", "island architecture"]
+  explanation: >-
+    A rendering pattern where a mostly-static HTML page ships interactivity only
+    for isolated "islands" of the UI that need it, each
+    <span class="abbr-link" data-abbr="Hydration">hydrated</span> independently —
+    so the browser downloads far less JavaScript. Astro popularized it; a middle
+    ground between a full <span class="abbr-link" data-abbr="SPA">SPA</span> and
+    pure <span class="abbr-link" data-abbr="SSG">SSG</span>.
 
 - term: "ISR"
   full_form: "Incremental Static Regeneration"
@@ -128,7 +434,8 @@
     An architecture that pre-renders markup at build time and serves it from a
     <span class="abbr-link" data-abbr="CDN">CDN</span>, with dynamic bits handled
     by JavaScript calling <span class="abbr-link" data-abbr="API">APIs</span>.
-    No always-on application server. Astro, Gatsby, and Eleventy lean this way.
+    No always-on application server. Astro, Gatsby, Eleventy, and Hugo lean this
+    way.
 
 - term: "JIT"
   full_form: "Just-in-Time compilation"
@@ -138,14 +445,183 @@
     JIT-compiles hot JavaScript to machine code; Tailwind's older JIT engine
     generated CSS classes on demand as it saw them used.
 
+- term: "JSX"
+  full_form: "JavaScript XML"
+  aliases: ["tsx"]
+  explanation: >-
+    The HTML-like syntax embedded in JavaScript that React popularized
+    (<code>&lt;Button onClick={fn}&gt;</code>); a
+    <span class="abbr-link" data-abbr="Transpile">transpiler</span> turns each tag
+    into a function call. TSX is JSX in a TypeScript file. SolidJS and others reuse
+    the syntax with different runtime semantics.
+
+- term: "JWT"
+  full_form: "JSON Web Token"
+  aliases: ["jwts"]
+  explanation: >-
+    A compact, signed token carrying claims (who you are, when it expires) that a
+    server can verify without a database lookup — common for stateless
+    <span class="abbr-link" data-abbr="API">API</span> auth and
+    <span class="abbr-link" data-abbr="OAuth">OAuth</span> /
+    <span class="abbr-link" data-abbr="OIDC">OIDC</span> flows. The gotcha: a JWT
+    can't be revoked before it expires, so keep lifetimes short and pair with
+    refresh tokens.
+
+- term: "Linting"
+  full_form: "linting (static code analysis)"
+  aliases: ["lint", "linter", "linters"]
+  explanation: >-
+    Automated static checks that flag likely bugs, unused code, and style
+    violations <em>before</em> running anything — ESLint and Biome are the
+    JavaScript leaders. Distinct from a formatter (Prettier), which only rewrites
+    whitespace/style. Usually wired into
+    <span class="abbr-link" data-abbr="CI/CD">CI/CD</span> and Git hooks.
+
+- term: "Lockfile"
+  full_form: "dependency lockfile"
+  aliases: ["lock file", "lockfiles"]
+  explanation: >-
+    A generated file (<code>package-lock.json</code>, <code>pnpm-lock.yaml</code>,
+    <code>yarn.lock</code>) that pins the exact resolved version of every direct
+    <em>and</em> transitive dependency, so every install and every machine gets
+    an identical tree. Commit it — it's what makes builds reproducible despite
+    <span class="abbr-link" data-abbr="SemVer">SemVer</span> ranges in
+    <code>package.json</code>.
+
+- term: "Memoization"
+  full_form: "memoization"
+  aliases: ["memoize", "memoized", "memo"]
+  explanation: >-
+    Caching the result of an expensive function so repeat calls with the same
+    inputs return instantly. In React, <code>useMemo</code>/<code>memo</code>
+    skip recomputation and re-renders — powerful but easy to overuse, adding
+    complexity for no measurable gain.
+
+- term: "MFA"
+  full_form: "Multi-Factor Authentication"
+  aliases: ["2fa", "two-factor"]
+  explanation: >-
+    Requiring more than one proof of identity to sign in — something you know
+    (password) plus something you have (an authenticator code, passkey, or
+    hardware key). A core feature of identity providers; layered on top of the
+    primary login, not a replacement for
+    <span class="abbr-link" data-abbr="OAuth">OAuth</span>.
+
+- term: "Middleware"
+  full_form: "middleware"
+  explanation: >-
+    A function that sits in the request/response pipeline and runs <em>between</em>
+    the incoming request and your handler — for auth, logging, CORS, body parsing,
+    or rewrites. Express, Koa, and Hono are built around chains of it; Next.js
+    runs edge middleware before a route resolves.
+
+- term: "Migration"
+  full_form: "database migration"
+  aliases: ["migrations", "schema migration"]
+  explanation: >-
+    A versioned, ordered change to a database
+    <span class="abbr-link" data-abbr="Schema">schema</span> (add a column, create
+    a table) checked into the repo so every environment evolves identically and
+    reversibly. <span class="abbr-link" data-abbr="ORM">ORM</span>s like Prisma and
+    Drizzle generate and apply them; running them safely in production is its own
+    discipline.
+
+- term: "Minification"
+  full_form: "minification"
+  aliases: ["minify", "minified", "minifier"]
+  explanation: >-
+    Stripping everything a browser doesn't need — whitespace, comments, long
+    variable names — from JS/CSS to shrink download size, without changing
+    behaviour. A standard build step bundlers do automatically, alongside
+    <span class="abbr-link" data-abbr="Tree-shaking">tree-shaking</span> and
+    <span class="abbr-link" data-abbr="Code splitting">code splitting</span>.
+
+- term: "Monolith"
+  full_form: "monolithic architecture"
+  aliases: ["monolithic"]
+  explanation: >-
+    An app built and deployed as one single unit — all features in one codebase
+    and process. Simpler to develop and reason about than microservices, and the
+    sensible default for most projects; you split out services only when scale or
+    team boundaries demand it. Distinct from a
+    <span class="abbr-link" data-abbr="Monorepo">monorepo</span> (a repo layout,
+    not a deploy unit).
+
+- term: "Monorepo"
+  full_form: "monorepo (single repository)"
+  aliases: ["mono-repo", "monorepos"]
+  explanation: >-
+    One version-control repository holding multiple packages/apps that are
+    developed and versioned together, sharing tooling and cross-references.
+    Workspaces (pnpm, Yarn) plus a task runner like Turborepo or Nx make it fast.
+    Orthogonal to <span class="abbr-link" data-abbr="Monolith">monolith</span> —
+    a monorepo can hold many independently deployed services.
+
+- term: "NoSQL"
+  full_form: "Not Only SQL"
+  aliases: ["no sql", "nosql database"]
+  explanation: >-
+    A family of non-relational databases — document (MongoDB), key-value (Redis),
+    wide-column (Cassandra), graph — that trade
+    <span class="abbr-link" data-abbr="SQL">SQL</span>'s rigid
+    <span class="abbr-link" data-abbr="Schema">schema</span> and joins for flexible
+    shapes and easy horizontal <span class="abbr-link" data-abbr="Sharding">sharding</span>.
+    Many favour <span class="abbr-link" data-abbr="BASE">BASE</span> over
+    <span class="abbr-link" data-abbr="ACID">ACID</span>.
+
+- term: "OAuth"
+  full_form: "Open Authorization"
+  aliases: ["oauth2", "oauth 2.0"]
+  explanation: >-
+    The standard that lets a user grant one app limited access to their data on
+    another ("Sign in with Google") <em>without</em> sharing a password — the app
+    receives a scoped access token instead. It handles authorization;
+    <span class="abbr-link" data-abbr="OIDC">OIDC</span> layers identity
+    ("who is this user") on top, typically issuing a
+    <span class="abbr-link" data-abbr="JWT">JWT</span>.
+
+- term: "OIDC"
+  full_form: "OpenID Connect"
+  explanation: >-
+    An authentication layer built on top of
+    <span class="abbr-link" data-abbr="OAuth">OAuth 2.0</span> that adds a
+    standardized identity token (an ID token, usually a
+    <span class="abbr-link" data-abbr="JWT">JWT</span>) so an app learns
+    <em>who</em> the user is, not just what it may access. The protocol behind
+    most "social login" and enterprise
+    <span class="abbr-link" data-abbr="SSO">SSO</span>.
+
+- term: "OpenAPI"
+  full_form: "OpenAPI Specification (formerly Swagger)"
+  aliases: ["swagger"]
+  explanation: >-
+    A machine-readable format for describing a
+    <span class="abbr-link" data-abbr="REST">REST</span>
+    <span class="abbr-link" data-abbr="API">API</span> — its endpoints, params,
+    and response shapes — from which you can auto-generate docs, typed clients,
+    mock servers, and validation. Swagger is the toolset and the spec's former
+    name.
+
+- term: "Orchestration"
+  full_form: "container orchestration"
+  aliases: ["orchestrator", "orchestrators", "orchestrate"]
+  explanation: >-
+    Automating the deployment, scaling, networking, and healing of many
+    <span class="abbr-link" data-abbr="Container">containers</span> across a
+    cluster of machines. Kubernetes is the de-facto orchestrator (Helm packages
+    apps for it); managed platforms hide it so you don't run the control plane
+    yourself.
+
 - term: "ORM"
   full_form: "Object-Relational Mapping"
   aliases: ["orms"]
   explanation: >-
     A library that lets you read and write database rows as typed objects/records
-    in your language instead of hand-writing SQL strings. Prisma, Drizzle, and
-    TypeORM are TypeScript ORMs; they trade some raw control for type-safety and
-    productivity.
+    in your language instead of hand-writing
+    <span class="abbr-link" data-abbr="SQL">SQL</span> strings. Prisma, Drizzle,
+    and TypeORM are TypeScript ORMs; they trade some raw control for
+    <span class="abbr-link" data-abbr="Type safety">type safety</span> and
+    productivity, and they generate <span class="abbr-link" data-abbr="Migration">migrations</span>.
 
 - term: "PaaS"
   full_form: "Platform as a Service"
@@ -156,22 +632,114 @@
     (you manage the machines) and <span class="abbr-link" data-abbr="SaaS">SaaS</span>
     (finished software).
 
+- term: "Pagination"
+  full_form: "pagination"
+  aliases: ["paginate", "paginated", "paging"]
+  explanation: >-
+    Returning a large result set in chunks ("pages") instead of all at once.
+    Offset pagination (<code>LIMIT/OFFSET</code>) is simple but slows on deep
+    pages and skips rows under concurrent writes; cursor (keyset) pagination is
+    stable and fast, leaning on an <span class="abbr-link" data-abbr="Index">index</span>.
+
+- term: "Polyfill"
+  full_form: "polyfill"
+  aliases: ["polyfills"]
+  explanation: >-
+    Code that implements a newer browser feature in older browsers that lack it,
+    so your app can use the modern API everywhere. Distinct from a
+    <span class="abbr-link" data-abbr="Transpile">transpiler</span> (which rewrites
+    <em>syntax</em>); a polyfill supplies a missing <em>runtime</em> function.
+
+- term: "Protobuf"
+  full_form: "Protocol Buffers"
+  aliases: ["protocol buffers", "proto"]
+  explanation: >-
+    Google's compact, strongly-typed binary serialization format: you declare
+    message shapes in a <code>.proto</code>
+    <span class="abbr-link" data-abbr="Schema">schema</span> and generate
+    encode/decode code for many languages. Smaller and faster than JSON, it's the
+    wire format for <span class="abbr-link" data-abbr="gRPC">gRPC</span>.
+
+- term: "PWA"
+  full_form: "Progressive Web App"
+  aliases: ["pwas"]
+  explanation: >-
+    A website that, with a manifest and a
+    <span class="abbr-link" data-abbr="Service Worker">service worker</span>, can
+    be installed to the home screen, work offline, and behave like a native app —
+    no app store required. The standards-based alternative to wrapping a web view
+    in <span class="abbr-link" data-abbr="WebView">native shells</span>.
+
+- term: "RBAC"
+  full_form: "Role-Based Access Control"
+  explanation: >-
+    An authorization model where permissions attach to <em>roles</em> (admin,
+    editor, viewer) and users get roles, instead of granting each permission
+    per-user. The common way apps decide what an authenticated user may do — the
+    authorization half, after <span class="abbr-link" data-abbr="OAuth">OAuth</span>
+    /<span class="abbr-link" data-abbr="OIDC">OIDC</span> handle authentication.
+
+- term: "Reactivity"
+  full_form: "reactivity"
+  aliases: ["reactive"]
+  explanation: >-
+    A framework's system for automatically updating the UI when the underlying
+    state changes, so you describe <em>what</em> the UI should be and the
+    framework keeps it in sync. Implementations differ — React re-renders and
+    diffs a <span class="abbr-link" data-abbr="Virtual DOM">virtual DOM</span>;
+    Solid, Svelte, and Vue use fine-grained
+    <span class="abbr-link" data-abbr="Signals">signals</span>.
+
+- term: "Replication"
+  full_form: "database replication"
+  aliases: ["replica", "replicas", "replicated"]
+  explanation: >-
+    Keeping copies of a database on multiple servers — a primary takes writes and
+    streams them to read replicas — for higher availability and read throughput,
+    often placed near users. Introduces replication lag (a replica can be
+    momentarily behind), the consistency trade behind
+    <span class="abbr-link" data-abbr="BASE">BASE</span> systems. Compare
+    <span class="abbr-link" data-abbr="Sharding">sharding</span>.
+
 - term: "REST"
   full_form: "Representational State Transfer"
   aliases: ["restful", "rest api"]
   explanation: >-
-    An API style built on HTTP verbs (GET/POST/PUT/DELETE) and resource URLs,
-    where each endpoint returns a fixed shape of data. Simple and ubiquitous;
-    <span class="abbr-link" data-abbr="GraphQL">GraphQL</span> and RPC are the
-    main alternatives when fixed shapes cause over-fetching.
+    An API style built on <span class="abbr-link" data-abbr="HTTP">HTTP</span>
+    verbs (GET/POST/PUT/DELETE) and resource URLs, where each endpoint returns a
+    fixed shape of data. Simple and ubiquitous;
+    <span class="abbr-link" data-abbr="GraphQL">GraphQL</span> and
+    <span class="abbr-link" data-abbr="RPC">RPC</span> are the main alternatives
+    when fixed shapes cause over-fetching.
+
+- term: "Reverse proxy"
+  full_form: "reverse proxy"
+  aliases: ["reverse-proxy"]
+  explanation: >-
+    A server that sits in front of your app servers and forwards client requests
+    to them, adding <span class="abbr-link" data-abbr="TLS">TLS</span> termination,
+    caching, compression, and load balancing along the way. Nginx and Caddy are
+    the common choices; a managed <span class="abbr-link" data-abbr="PaaS">PaaS</span>
+    runs one for you invisibly.
+
+- term: "RPC"
+  full_form: "Remote Procedure Call"
+  explanation: >-
+    An API style where the client calls a function on the server as if it were
+    local — you think in <em>actions</em> (<code>createUser()</code>) rather than
+    <span class="abbr-link" data-abbr="REST">REST</span> resources. tRPC gives
+    end-to-end <span class="abbr-link" data-abbr="Type safety">type-safe</span> RPC
+    within a TypeScript codebase; <span class="abbr-link" data-abbr="gRPC">gRPC</span>
+    does it across languages.
 
 - term: "RSC"
   full_form: "React Server Components"
   explanation: >-
     React components that run only on the server, render to a special stream, and
     ship <em>zero</em> JavaScript to the browser for themselves — letting you read
-    a database directly in a component while keeping the client bundle small. The
-    backbone of the Next.js App Router.
+    a database directly in a component while keeping the client bundle small,
+    reducing the <span class="abbr-link" data-abbr="Hydration">hydration</span>
+    cost. The backbone of the Next.js App Router.
 
 - term: "SaaS"
   full_form: "Software as a Service"
@@ -181,14 +749,125 @@
     to the <span class="abbr-link" data-abbr="PaaS">PaaS</span> /
     <span class="abbr-link" data-abbr="IaaS">IaaS</span> you build it <em>on</em>.
 
+- term: "Schema"
+  full_form: "schema"
+  aliases: ["schemas"]
+  explanation: >-
+    A formal description of the shape data must take — table columns and types in
+    a database, or the fields and constraints of an object. Drives
+    <span class="abbr-link" data-abbr="Migration">migrations</span> in an
+    <span class="abbr-link" data-abbr="ORM">ORM</span>, the contract in
+    <span class="abbr-link" data-abbr="GraphQL">GraphQL</span>, and runtime
+    validation in libraries like Zod (which also infer
+    <span class="abbr-link" data-abbr="Type safety">types</span> from it).
+
+- term: "SEO"
+  full_form: "Search Engine Optimization"
+  aliases: ["core web vitals"]
+  explanation: >-
+    Making a site rank well in search engines — through crawlable markup, fast
+    loads (Core Web Vitals: LCP, CLS, INP), good metadata, and structured data.
+    A major reason to choose <span class="abbr-link" data-abbr="SSR">SSR</span> or
+    <span class="abbr-link" data-abbr="SSG">SSG</span> over a client-only
+    <span class="abbr-link" data-abbr="SPA">SPA</span>, whose empty initial HTML
+    crawlers handle poorly.
+
+- term: "SemVer"
+  full_form: "Semantic Versioning"
+  aliases: ["semantic versioning", "semver"]
+  explanation: >-
+    The <code>MAJOR.MINOR.PATCH</code> versioning convention: bump PATCH for
+    fixes, MINOR for backward-compatible features, MAJOR for breaking changes.
+    The <code>^</code>/<code>~</code> ranges in <code>package.json</code> rely on
+    it, and a <span class="abbr-link" data-abbr="Lockfile">lockfile</span> pins the
+    exact resolved versions.
+
+- term: "Serverless"
+  full_form: "serverless (functions as a service)"
+  aliases: ["serverless functions", "faas", "lambda"]
+  explanation: >-
+    A model where you deploy individual functions and the platform runs them
+    on demand, scaling to zero when idle and billing per invocation — there are
+    still servers, you just don't manage them. Powers much of
+    <span class="abbr-link" data-abbr="PaaS">PaaS</span> and
+    <span class="abbr-link" data-abbr="Edge">edge</span> hosting. Watch cold
+    starts and database <span class="abbr-link" data-abbr="Connection pooling">connection
+    pooling</span>.
+
+- term: "Service Worker"
+  full_form: "service worker"
+  aliases: ["service workers", "serviceworker"]
+  explanation: >-
+    A script the browser runs in the background, separate from the page, that can
+    intercept network requests and serve cached responses — the engine behind
+    offline support and the installable
+    <span class="abbr-link" data-abbr="PWA">PWA</span>. Powerful but stateful and
+    cache-versioned, so a stale service worker serving old assets is a notorious
+    debugging trap.
+
+- term: "Shadow DOM"
+  full_form: "Shadow DOM"
+  aliases: ["shadow-dom"]
+  explanation: >-
+    A browser feature that gives an element its own encapsulated subtree and
+    scoped styles, sealed off from the rest of the page's
+    <span class="abbr-link" data-abbr="DOM">DOM</span> and CSS. The isolation
+    mechanism behind <span class="abbr-link" data-abbr="Web Components">Web
+    Components</span> — great for portable widgets, occasionally awkward for global
+    theming and forms.
+
+- term: "Sharding"
+  full_form: "sharding (horizontal partitioning)"
+  aliases: ["shard", "shards", "sharded"]
+  explanation: >-
+    Splitting one logical database across many machines by partitioning rows
+    (e.g. by user ID) so each "shard" holds a slice — the way to scale writes and
+    storage past one server's limits. More invasive than read
+    <span class="abbr-link" data-abbr="Replication">replication</span>;
+    distributed SQL stores like CockroachDB shard for you.
+
+- term: "Signals"
+  full_form: "signals (fine-grained reactivity)"
+  aliases: ["signal"]
+  explanation: >-
+    Reactive values that track exactly which parts of the UI read them, so a
+    change updates only those parts — no component-wide re-render or
+    <span class="abbr-link" data-abbr="Virtual DOM">virtual-DOM</span> diff.
+    The core of SolidJS, Svelte 5 runes, Vue, and Angular's modern
+    <span class="abbr-link" data-abbr="Reactivity">reactivity</span>.
+
 - term: "SPA"
   full_form: "Single-Page Application"
   aliases: ["spas"]
   explanation: >-
     A web app that loads one HTML document and then rewrites the page in-place
     with JavaScript as you navigate, instead of fetching a fresh page from the
-    server each time. React, Vue, and Svelte apps are SPAs by default; meta-frameworks
-    add <span class="abbr-link" data-abbr="SSR">SSR</span> on top.
+    server each time (<span class="abbr-link" data-abbr="CSR">CSR</span>). React,
+    Vue, and Svelte apps are SPAs by default; meta-frameworks add
+    <span class="abbr-link" data-abbr="SSR">SSR</span> on top for
+    <span class="abbr-link" data-abbr="SEO">SEO</span> and first paint.
+
+- term: "SQL"
+  full_form: "Structured Query Language"
+  aliases: ["sql"]
+  explanation: >-
+    The declarative language for querying and manipulating relational databases —
+    you state <em>what</em> rows you want (<code>SELECT … WHERE …</code>) and the
+    engine figures out how. The lingua franca of PostgreSQL, MySQL, and SQLite,
+    backed by <span class="abbr-link" data-abbr="ACID">ACID</span> transactions and
+    a fixed <span class="abbr-link" data-abbr="Schema">schema</span>;
+    <span class="abbr-link" data-abbr="NoSQL">NoSQL</span> is the non-relational
+    counterpoint, and an <span class="abbr-link" data-abbr="ORM">ORM</span> writes
+    SQL for you.
+
+- term: "SSE"
+  full_form: "Server-Sent Events"
+  explanation: >-
+    A one-way streaming channel where the server pushes a stream of updates to the
+    browser over a single long-lived <span class="abbr-link" data-abbr="HTTP">HTTP</span>
+    connection (the <code>EventSource</code> API). Simpler than a
+    <span class="abbr-link" data-abbr="WebSocket">WebSocket</span> when you only
+    need server-to-client flow — live notifications, token-by-token AI output.
 
 - term: "SSG"
   full_form: "Static Site Generation"
@@ -197,16 +876,36 @@
     Pre-rendering every page to plain HTML at <em>build</em> time, then serving
     those files from a <span class="abbr-link" data-abbr="CDN">CDN</span>. The
     fastest and cheapest way to serve content that doesn't change per-request.
-    Jekyll, Astro, Hugo, and Next.js (static export) do this.
+    Jekyll, Astro, Hugo, Eleventy, and Next.js (static export) do this;
+    <span class="abbr-link" data-abbr="ISR">ISR</span> refreshes pages without a
+    full rebuild.
+
+- term: "SSO"
+  full_form: "Single Sign-On"
+  explanation: >-
+    Logging in once with one identity provider and gaining access to many apps
+    without re-authenticating to each — the enterprise expectation, built on
+    <span class="abbr-link" data-abbr="OIDC">OIDC</span> or SAML. Providers like
+    WorkOS, Auth0, and Keycloak exist largely to deliver it.
 
 - term: "SSR"
   full_form: "Server-Side Rendering"
   explanation: >-
     Rendering the full HTML for each request <em>on the server</em>, so the
-    browser gets meaningful content on first paint (good for SEO and perceived
-    speed), then "hydrates" it into an interactive
-    <span class="abbr-link" data-abbr="SPA">SPA</span>. Next.js, Nuxt, SvelteKit,
-    and Remix/React Router do this.
+    browser gets meaningful content on first paint (good for
+    <span class="abbr-link" data-abbr="SEO">SEO</span> and perceived speed), then
+    <span class="abbr-link" data-abbr="Hydration">hydrates</span> it into an
+    interactive <span class="abbr-link" data-abbr="SPA">SPA</span>. Next.js, Nuxt,
+    SvelteKit, and React Router do this.
+
+- term: "TLS"
+  full_form: "Transport Layer Security (SSL)"
+  aliases: ["ssl", "https certificate"]
+  explanation: >-
+    The encryption layer that turns <span class="abbr-link" data-abbr="HTTP">HTTP</span>
+    into HTTPS, securing data in transit and authenticating the server via a
+    certificate. "SSL" is the old name still used loosely. Caddy and modern hosts
+    provision and renew certificates (via Let's Encrypt) automatically.
 
 - term: "Transpile"
   full_form: "transpilation (source-to-source compile)"
@@ -214,7 +913,9 @@
   explanation: >-
     Translating source code from one language or syntax level to another at the
     same level of abstraction — TypeScript → JavaScript, or modern JS → older JS
-    for legacy browsers. Babel, SWC, esbuild, and tsc are transpilers.
+    for legacy browsers. Babel, SWC, esbuild, and tsc are transpilers; a
+    <span class="abbr-link" data-abbr="Polyfill">polyfill</span> handles missing
+    runtime APIs the transpiler can't.
 
 - term: "Tree-shaking"
   full_form: "tree-shaking (dead-code elimination)"
@@ -222,7 +923,30 @@
   explanation: >-
     A bundler optimization that drops exports your code never imports, so unused
     library code doesn't ship to the browser. Relies on the static structure of
-    <span class="abbr-link" data-abbr="ESM">ESM</span> imports.
+    <span class="abbr-link" data-abbr="ESM">ESM</span> imports, and pairs with
+    <span class="abbr-link" data-abbr="Minification">minification</span> and
+    <span class="abbr-link" data-abbr="Code splitting">code splitting</span>.
+
+- term: "Type safety"
+  full_form: "type safety"
+  aliases: ["type-safe", "typesafe", "type-safety"]
+  explanation: >-
+    A guarantee — enforced by the compiler — that values are used consistently
+    with their declared types, so a whole class of bugs (calling a method that
+    doesn't exist, passing a string where a number is wanted) is caught before the
+    code runs. TypeScript brings it to JS; tools like Prisma, tRPC, and Zod extend
+    it end-to-end using <span class="abbr-link" data-abbr="Generics">generics</span>.
+
+- term: "Virtual DOM"
+  full_form: "Virtual DOM"
+  aliases: ["vdom", "virtual-dom"]
+  explanation: >-
+    An in-memory representation of the UI that a framework diffs against the
+    previous version to compute the minimal set of real
+    <span class="abbr-link" data-abbr="DOM">DOM</span> updates. React's core
+    strategy; <span class="abbr-link" data-abbr="Signals">signal</span>-based
+    frameworks (Solid, Svelte) skip it entirely for finer
+    <span class="abbr-link" data-abbr="Reactivity">reactivity</span>.
 
 - term: "WASM"
   full_form: "WebAssembly"
@@ -231,4 +955,44 @@
     A fast, low-level binary instruction format that runs in the browser (and on
     servers) at near-native speed. Lets languages like Rust, C++, and Go run on
     the web alongside JavaScript — used for games, codecs, image editing, and
-    compute-heavy tools.
+    compute-heavy tools that would block the
+    <span class="abbr-link" data-abbr="Event loop">event loop</span> in JS.
+
+- term: "Web Components"
+  full_form: "Web Components"
+  aliases: ["web component", "custom elements"]
+  explanation: >-
+    A set of browser standards — custom elements, the
+    <span class="abbr-link" data-abbr="Shadow DOM">Shadow DOM</span>, and HTML
+    templates — for building reusable, framework-agnostic UI elements that work in
+    any page or framework. Lit is the leading library for authoring them.
+
+- term: "Webhook"
+  full_form: "webhook"
+  aliases: ["webhooks", "web hook"]
+  explanation: >-
+    A reverse <span class="abbr-link" data-abbr="API">API</span> call: instead of
+    you polling a service, it POSTs an <span class="abbr-link" data-abbr="HTTP">HTTP</span>
+    request to a URL you register whenever an event happens (a payment succeeds, a
+    push lands). The standard way services like Stripe and GitHub notify your app —
+    verify the signature so the endpoint can't be spoofed.
+
+- term: "WebSocket"
+  full_form: "WebSocket"
+  aliases: ["websockets", "web socket"]
+  explanation: >-
+    A protocol that upgrades an <span class="abbr-link" data-abbr="HTTP">HTTP</span>
+    connection into a persistent, two-way channel so server and client can push
+    messages to each other in real time — chat, multiplayer, live cursors.
+    Socket.IO wraps it with reconnection and fallbacks; when you only need
+    server→client, <span class="abbr-link" data-abbr="SSE">SSE</span> is simpler.
+
+- term: "WebView"
+  full_form: "web view"
+  aliases: ["web view", "webviews"]
+  explanation: >-
+    An embeddable browser engine inside a native app that renders web content,
+    letting a hybrid app (Capacitor, Cordova, or a Tauri window) reuse a web UI on
+    mobile/desktop. The lighter-weight alternative is bundling a full engine
+    (Electron) or rendering truly native widgets (React Native, Flutter); the
+    standards-only route is a <span class="abbr-link" data-abbr="PWA">PWA</span>.

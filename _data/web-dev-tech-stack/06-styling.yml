@@ -9,7 +9,7 @@ batch:
     Emotion), zero-runtime CSS-in-TS (vanilla-extract), locally-scoped CSS
     Modules, and the plugin transformer (PostCSS) that quietly powers half of
     them.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Tailwind CSS"
@@ -418,3 +418,152 @@ entries:
     license: "MIT"
     docs:
       - { label: "vanilla-extract.style", url: "https://vanilla-extract.style" }
+
+  - name: "Less"
+    slug: "less"
+    tagline: "The other classic CSS preprocessor — variables and mixins in JS."
+    layer: [styling]
+    maturity: legacy
+    learning_curve: gentle
+    first_released: 2009
+    description: >
+      A CSS preprocessor in the same family as Sass, adding variables, mixins,
+      nesting, and functions to stylesheets. It once powered Bootstrap 3 and was
+      ubiquitous, but the ecosystem has largely consolidated on Sass and, more
+      recently, on native CSS custom properties and nesting.
+    use_cases:
+      - "Maintaining older codebases (Bootstrap 3, legacy Ant Design themes)."
+      - "Theming via runtime variable overrides in the browser build."
+      - "Teams already invested in `.less` files who don't want to migrate."
+    prerequisites:
+      - { name: "CSS", slug: "css" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Variables, mixins, nesting, and operations over CSS."
+      - "JavaScript implementation that can compile in the browser at runtime."
+      - "Function library plus the ability to call JS for custom logic."
+    pairs_well_with:
+      - { name: "Bootstrap", slug: "bootstrap" }
+      - { name: "webpack", slug: "webpack" }
+    alternatives:
+      - { name: "Sass", slug: "sass" }
+      - { name: "PostCSS", slug: "postcss" }
+      - { name: "CSS", slug: "css" }
+    example:
+      lang: "less"
+      code: |-
+        @brand: #2d6cdf;
+        .btn { color: @brand; &:hover { color: darken(@brand, 10%); } }
+      explain: >
+        A Less variable and a nested hover rule — the compiler resolves the
+        variable and the darken() function into plain CSS.
+    gotchas: >
+      The ecosystem has moved on — most tooling, tutorials, and component
+      libraries now assume Sass or native CSS, so Less is effectively
+      maintenance-mode. Browser-side runtime compilation is convenient but slow
+      and should never ship to production.
+    maintained_by: "Less.js team + OSS"
+    language: "JavaScript"
+    license: "Apache-2.0"
+    docs:
+      - { label: "lesscss.org", url: "https://lesscss.org" }
+
+  - name: "Open Props"
+    slug: "open-props"
+    tagline: "Supercharged CSS variables — design tokens with no build step."
+    layer: [styling]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A library of ready-made CSS custom properties — colors, sizes, fonts,
+      easings, shadows, gradients, and animations — that you consume as plain
+      `var(--…)` tokens. It's just CSS variables, so it works with any framework
+      or none and needs no runtime or build step beyond optionally tree-shaking
+      unused props with PostCSS.
+    use_cases:
+      - "Adding a consistent design-token system to a vanilla-CSS project."
+      - "Prototyping with sensible defaults for spacing, color, and motion."
+      - "Pairing tokens with any framework without committing to a CSS engine."
+    prerequisites:
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Hundreds of design tokens exposed as standard CSS custom properties."
+      - "Framework-agnostic — consumed via plain `var()`, no runtime."
+      - "Optional PostCSS plugin tree-shakes to only the props you use."
+    pairs_well_with:
+      - { name: "PostCSS", slug: "postcss" }
+      - { name: "CSS", slug: "css" }
+    alternatives:
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "Sass", slug: "sass" }
+    example:
+      lang: "css"
+      code: |-
+        @import "open-props/style";
+        .card { padding: var(--size-3); box-shadow: var(--shadow-2); }
+      explain: >
+        Importing Open Props exposes its tokens, then a rule consumes the spacing
+        and shadow variables directly as plain CSS.
+    gotchas: >
+      It's a token set, not a methodology — Open Props gives you values but no
+      utility classes, components, or opinions on how to structure CSS, so you
+      still bring your own architecture. Importing the full set without the
+      tree-shaking PostCSS plugin ships a lot of unused custom properties.
+    maintained_by: "Adam Argyle + OSS"
+    language: "CSS"
+    license: "MIT"
+    docs:
+      - { label: "open-props.style", url: "https://open-props.style" }
+
+  - name: "Panda CSS"
+    slug: "panda-css"
+    tagline: "Zero-runtime CSS-in-JS with type-safe styles and design tokens."
+    layer: [styling, tooling]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2023
+    description: >
+      A build-time styling engine from the Chakra team that gives you the
+      authoring ergonomics of CSS-in-JS — `css()` calls, style props, and
+      recipes — but extracts everything to static CSS at build with zero runtime.
+      It generates fully typed APIs from your design tokens, so styles are
+      autocompleted and type-checked.
+    use_cases:
+      - "React/Solid/Vue apps wanting type-safe styles without runtime cost."
+      - "Design systems built on tokens, recipes, and variants."
+      - "Teams replacing runtime CSS-in-JS (Emotion, styled-components) for speed."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Zero-runtime — styles extracted to static CSS at build time."
+      - "Fully typed `css()`, style props, and `cva`-style recipes from tokens."
+      - "Framework-agnostic with first-class React, Solid, and Vue support."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "vanilla-extract", slug: "vanilla-extract" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "Emotion", slug: "emotion" }
+    example:
+      lang: "ts"
+      code: |-
+        import { css } from "../styled-system/css";
+        const cls = css({ color: "blue.500", padding: "4", _hover: { color: "blue.700" } });
+      explain: >
+        A type-safe `css()` call referencing design tokens — Panda statically
+        extracts it to a CSS class with no runtime work in the browser.
+    gotchas: >
+      The codegen step is load-bearing — Panda generates a `styled-system`
+      directory you import from, so a stale or missing codegen run breaks
+      autocomplete and types. Like other static extractors, truly dynamic
+      runtime values must go through CSS variables rather than computed style
+      objects.
+    maintained_by: "Chakra team"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "panda-css.com", url: "https://panda-css.com" }

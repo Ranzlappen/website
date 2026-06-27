@@ -8,7 +8,7 @@ batch:
     (Kubernetes), pipeline runners (GitHub Actions, GitLab CI, Jenkins),
     infrastructure-as-code (Terraform, Ansible), and the web server (Nginx) that
     fronts it all. This is where a working app becomes a deployed, reproducible system.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Docker"
@@ -471,3 +471,246 @@ entries:
     license: "MIT"
     docs:
       - { label: "jenkins.io/doc", url: "https://www.jenkins.io/doc/" }
+
+  - name: "Podman"
+    slug: "podman"
+    tagline: "Daemonless, rootless drop-in replacement for the Docker CLI."
+    layer: [infrastructure, tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2018
+    description: >
+      A <span class="abbr-link" data-abbr="Container">container</span> engine from
+      Red Hat that runs and builds
+      <span class="abbr-link" data-abbr="Container">OCI</span> containers without a
+      central daemon and, by default, without root. Its CLI is command-compatible
+      with Docker (`alias docker=podman` usually just works), and "pods" group
+      containers the way Kubernetes does.
+    use_cases:
+      - "Rootless, daemonless container workflows on Linux servers and CI."
+      - "Drop-in Docker CLI replacement where a root daemon is a security concern."
+      - "Generating Kubernetes manifests from local pods for a smooth handoff."
+    prerequisites:
+      - { name: "Containers", slug: "" }
+      - { name: "Linux basics", slug: "" }
+    key_features:
+      - "Daemonless architecture — no long-running root service."
+      - "Rootless containers by default for better isolation."
+      - "Docker-compatible CLI and Dockerfile/OCI support."
+      - "Pods and `podman generate kube` for a Kubernetes-aligned model."
+    pairs_well_with:
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "Buildah", slug: "" }
+      - { name: "systemd", slug: "" }
+    alternatives:
+      - { name: "Docker", slug: "docker" }
+    example:
+      lang: "bash"
+      code: "podman run --rm -p 8080:80 nginx"
+      explain: "Runs an Nginx container rootless and daemonless, mapping host port 8080 to the container."
+    gotchas: >
+      Docker Compose support is indirect — you need `podman-compose` or the Podman
+      socket emulation, and some Compose features lag. Networking and volume
+      defaults differ subtly from Docker, so a `docker-compose.yml` may not behave
+      identically without tweaks.
+    maintained_by: "Red Hat + OSS community"
+    language: "Go"
+    license: "Apache-2.0"
+    docs:
+      - { label: "docs.podman.io", url: "https://docs.podman.io" }
+
+  - name: "Helm"
+    slug: "helm"
+    tagline: "The package manager for Kubernetes."
+    layer: [infrastructure, tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      A package manager for Kubernetes that bundles a set of related manifests
+      into a versioned, parameterized "chart" you can install, upgrade, and roll
+      back as a unit. Charts use Go templates so one chart deploys to dev, staging,
+      and prod with different `values.yaml` overrides.
+    use_cases:
+      - "Installing off-the-shelf software (Prometheus, ingress, databases) onto a cluster."
+      - "Packaging your own app's manifests as a reusable, versioned release."
+      - "Templating one manifest set across multiple environments via values files."
+    prerequisites:
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "YAML", slug: "" }
+    key_features:
+      - "Charts — versioned, parameterized bundles of Kubernetes manifests."
+      - "Go-template values for per-environment configuration."
+      - "Atomic install/upgrade/rollback of a whole release."
+      - "Public and private chart repositories (OCI registries supported)."
+    pairs_well_with:
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "Terraform", slug: "terraform" }
+      - { name: "Prometheus", slug: "prometheus" }
+    alternatives:
+      - { name: "Kustomize", slug: "" }
+      - { name: "Pulumi", slug: "pulumi" }
+    example:
+      lang: "bash"
+      code: "helm upgrade --install my-app ./chart -f values.prod.yaml"
+      explain: "Installs or upgrades the my-app release from a local chart using production value overrides."
+    gotchas: >
+      Go templating over YAML is fiddly — whitespace and indentation bugs are
+      common, and the templates obscure the final manifests until you run
+      `helm template`. Debugging a broken release often means rendering the chart
+      locally to see what Kubernetes actually receives.
+    maintained_by: "CNCF"
+    language: "Go"
+    license: "Apache-2.0"
+    docs:
+      - { label: "helm.sh/docs", url: "https://helm.sh/docs/" }
+
+  - name: "CircleCI"
+    slug: "circleci"
+    tagline: "Cloud-native CI/CD with fast, configurable pipelines."
+    layer: [infrastructure, tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2011
+    description: >
+      A managed <span class="abbr-link" data-abbr="CI/CD">CI/CD</span> platform
+      that runs pipelines defined in a `.circleci/config.yml`, with reusable "orbs"
+      packaging common steps and fine-grained control over Docker/VM executors,
+      parallelism, and caching. It predates GitHub Actions and remains popular for
+      its speed and flexible execution environments.
+    use_cases:
+      - "Running test and deploy pipelines for repos on GitHub or Bitbucket."
+      - "Parallelized, matrix builds that need fast feedback at scale."
+      - "Teams wanting reusable orbs instead of hand-rolling every step."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "YAML", slug: "" }
+    key_features:
+      - "Config-as-code pipelines in .circleci/config.yml."
+      - "Orbs — shareable, versioned packages of pipeline config."
+      - "Docker, machine, and macOS executors with test parallelism."
+      - "Dependency and layer caching to speed repeat builds."
+    pairs_well_with:
+      - { name: "GitHub", slug: "github" }
+      - { name: "Docker", slug: "docker" }
+      - { name: "Bitbucket", slug: "bitbucket" }
+    alternatives:
+      - { name: "GitHub Actions", slug: "github-actions" }
+      - { name: "GitLab CI", slug: "gitlab-ci" }
+      - { name: "Jenkins", slug: "jenkins" }
+    example:
+      lang: "yaml"
+      code: |-
+        jobs:
+          test:
+            docker: [{ image: cimg/node:20.11 }]
+            steps: [checkout, { run: npm ci }, { run: npm test }]
+      explain: "A CircleCI job runs the test suite in a Node Docker executor on every push."
+    gotchas: >
+      For repos already on GitHub, GitHub Actions is now the default and CircleCI
+      adds a second vendor to manage. The free tier's monthly credit caps usage,
+      and a 2023 security incident (rotate-all-secrets) made teams wary of storing
+      sensitive credentials in any single CI provider.
+    maintained_by: "CircleCI"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "circleci.com/docs", url: "https://circleci.com/docs/" }
+
+  - name: "Caddy"
+    slug: "caddy"
+    tagline: "The web server with automatic HTTPS out of the box."
+    layer: [infrastructure]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2015
+    description: >
+      A modern <span class="abbr-link" data-abbr="HTTP">HTTP</span> server and
+      <span class="abbr-link" data-abbr="Reverse proxy">reverse proxy</span>
+      written in Go whose headline feature is automatic, zero-config
+      <span class="abbr-link" data-abbr="TLS">TLS</span> — it obtains and renews
+      Let's Encrypt certificates by itself. Its Caddyfile config is far simpler
+      than Nginx's, making it a popular front door for small-to-medium services.
+    use_cases:
+      - "Fronting an app with HTTPS without manually managing certificates."
+      - "Simple reverse proxying and static file serving with minimal config."
+      - "Quick self-hosted deployments where Nginx config feels heavy."
+    prerequisites:
+      - { name: "HTTP basics", slug: "" }
+      - { name: "DNS", slug: "" }
+    key_features:
+      - "Automatic HTTPS via Let's Encrypt — certs issued and renewed for you."
+      - "Concise Caddyfile config (often a few lines)."
+      - "Built-in reverse proxy, static server, and HTTP/2 + HTTP/3."
+      - "Single static Go binary with no dependencies."
+    pairs_well_with:
+      - { name: "Docker", slug: "docker" }
+      - { name: "Node.js", slug: "node-js" }
+    alternatives:
+      - { name: "Nginx", slug: "nginx" }
+      - { name: "Traefik", slug: "" }
+    example:
+      lang: "text"
+      code: |-
+        example.com {
+          reverse_proxy localhost:3000
+        }
+      explain: "A two-line Caddyfile proxies example.com to a local app and provisions HTTPS automatically."
+    gotchas: >
+      Automatic HTTPS needs the domain's DNS pointed at the server and ports 80/443
+      reachable, or the ACME challenge fails — a common first-run surprise behind
+      firewalls. At very high scale or for exotic tuning, Nginx still has more
+      battle-tested knobs and third-party modules.
+    maintained_by: "Stack Holdings + OSS community"
+    language: "Go"
+    license: "Apache-2.0"
+    docs:
+      - { label: "caddyserver.com/docs", url: "https://caddyserver.com/docs/" }
+
+  - name: "Pulumi"
+    slug: "pulumi"
+    tagline: "Infrastructure as code in real programming languages."
+    layer: [infrastructure, tooling]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2018
+    description: >
+      An <span class="abbr-link" data-abbr="IaC">infrastructure-as-code</span> tool
+      that lets you define cloud resources in TypeScript, Python, Go, or C# instead
+      of a domain-specific language. It diffs desired state against real
+      infrastructure and applies changes, with secrets, stacks, and a state backend
+      built in — Terraform's model with general-purpose languages.
+    use_cases:
+      - "Defining cloud infra in a language your team already knows."
+      - "Reusing loops, functions, and packages to DRY up infrastructure code."
+      - "Teams that want IaC unit-testable with normal test frameworks."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Cloud fundamentals", slug: "" }
+    key_features:
+      - "IaC in TypeScript/Python/Go/C# — real loops, functions, and types."
+      - "Plan/preview then apply with state-diffing like Terraform."
+      - "Managed or self-hosted state backend with built-in secret encryption."
+      - "Reuses each cloud's official provider SDKs."
+    pairs_well_with:
+      - { name: "AWS", slug: "aws" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Terraform", slug: "terraform" }
+      - { name: "Ansible", slug: "ansible" }
+    example:
+      lang: "ts"
+      code: |-
+        new aws.s3.Bucket("site", { website: { indexDocument: "index.html" } });
+      explain: "Declaring an S3 bucket in TypeScript — Pulumi creates it on the next `pulumi up`."
+    gotchas: >
+      Real languages cut both ways — you can write genuinely buggy infrastructure
+      (loops, conditionals, side effects) in ways an HCL declaration cannot. The
+      ecosystem and answer-on-Stack-Overflow base is smaller than Terraform's, and
+      the hosted state backend is a paid service unless you self-host.
+    maintained_by: "Pulumi Corp"
+    language: "TypeScript/Go"
+    license: "Apache-2.0"
+    docs:
+      - { label: "pulumi.com/docs", url: "https://www.pulumi.com/docs/" }

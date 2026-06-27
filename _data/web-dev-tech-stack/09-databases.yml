@@ -9,7 +9,7 @@ batch:
     managed/serverless platforms that wrap them with auth, realtime, and
     branching (Firestore, Supabase, PlanetScale, Neon). Watch the licenses here:
     several once-open stores moved to source-available terms.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "PostgreSQL"
@@ -230,7 +230,7 @@ entries:
       for sub-millisecond access, and offers rich types — strings, hashes, lists,
       sets, sorted sets, streams, and pub/sub. After a 2024 move to
       source-available terms, Redis 8 (2025) re-added the
-      <span class="abbr-link" data-abbr="OSI">OSI</span>-approved AGPLv3 as a
+      OSI-approved AGPLv3 as a
       license option.
     use_cases:
       - "Caching layer in front of a slower primary database."
@@ -477,3 +477,345 @@ entries:
     license: "Apache-2.0"
     docs:
       - { label: "neon.com/docs", url: "https://neon.com/docs" }
+
+  - name: "MariaDB"
+    slug: "mariadb"
+    tagline: "The community-driven, drop-in MySQL fork."
+    layer: [database]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2009
+    description: >
+      A relational database forked from MySQL by its original authors after the
+      Oracle acquisition, designed as a (mostly) drop-in replacement. It keeps
+      wire and SQL compatibility with MySQL while adding its own storage engines
+      (Aria, ColumnStore), features, and a community governance model under the
+      MariaDB Foundation.
+    use_cases:
+      - "Drop-in MySQL replacement to stay on a fully open-source license."
+      - "General-purpose relational workloads for web apps and CMSes."
+      - "Analytics via the ColumnStore engine alongside transactional tables."
+    prerequisites:
+      - { name: "SQL", slug: "sql" }
+    key_features:
+      - "High wire/SQL compatibility with MySQL — usually a drop-in swap."
+      - "Pluggable storage engines (InnoDB, Aria, ColumnStore)."
+      - "Community-governed under the MariaDB Foundation, fully GPL."
+    pairs_well_with:
+      - { name: "PHP", slug: "php" }
+      - { name: "WordPress", slug: "wordpress" }
+      - { name: "Sequelize", slug: "sequelize" }
+    alternatives:
+      - { name: "MySQL", slug: "mysql" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    example:
+      lang: "sql"
+      code: "CREATE TABLE users (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255));"
+      explain: >
+        Standard MySQL-compatible DDL — the same statement runs unchanged on
+        MariaDB.
+    gotchas: >
+      "Drop-in" is no longer 100% — MariaDB and MySQL have diverged on JSON
+      handling, replication, and newer SQL features, so migrating a large app
+      needs testing. Pin compatibility to the specific versions you target rather
+      than assuming parity.
+    maintained_by: "MariaDB Foundation"
+    language: "C/C++"
+    license: "GPL-2.0"
+    docs:
+      - { label: "mariadb.org/documentation", url: "https://mariadb.org/documentation/" }
+
+  - name: "CockroachDB"
+    slug: "cockroachdb"
+    tagline: "Distributed SQL — Postgres wire compatibility, horizontal scale."
+    layer: [database]
+    maturity: mainstream
+    learning_curve: steep
+    first_released: 2017
+    description: >
+      A distributed SQL database that speaks the PostgreSQL wire protocol while
+      scaling horizontally and surviving node, zone, and region failures. It
+      gives you serializable transactions and strong consistency across a cluster
+      via the Raft consensus protocol — a relational feel with NoSQL-style
+      resilience and geo-distribution.
+    use_cases:
+      - "Globally distributed apps needing strong consistency across regions."
+      - "Workloads that must survive node/region failures with no data loss."
+      - "Scaling out a relational schema beyond a single primary."
+    prerequisites:
+      - { name: "SQL", slug: "sql" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    key_features:
+      - "Horizontal scale with automatic sharding and rebalancing."
+      - "PostgreSQL wire compatibility — reuse Postgres drivers and tools."
+      - "Serializable transactions and survivability via Raft consensus."
+      - "Geo-partitioning to pin data to regions for latency and compliance."
+    pairs_well_with:
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "Go", slug: "go" }
+    alternatives:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "PlanetScale", slug: "planetscale" }
+      - { name: "Neon", slug: "neon" }
+    example:
+      lang: "sql"
+      code: "ALTER TABLE users CONFIGURE ZONE USING num_replicas = 5;"
+      explain: >
+        A CockroachDB-specific statement raising the replica count for a table's
+        data across the cluster.
+    gotchas: >
+      Distribution has a tax — cross-range transactions and contended hotspots
+      add latency, and SQL features differ subtly from real PostgreSQL, so
+      Postgres compatibility isn't total. The core moved to the BSL
+      source-available license, so check terms before commercial self-hosting.
+    maintained_by: "Cockroach Labs"
+    language: "Go"
+    license: "BSL 1.1"
+    docs:
+      - { label: "cockroachlabs.com/docs", url: "https://www.cockroachlabs.com/docs/" }
+
+  - name: "DynamoDB"
+    slug: "dynamodb"
+    tagline: "AWS's fully managed, serverless key-value & document store."
+    layer: [database, infrastructure]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2012
+    description: >
+      A fully managed, serverless NoSQL database from AWS offering single-digit
+      millisecond latency at any scale with no servers to manage. You provision
+      or auto-scale throughput, and it handles partitioning, replication, and
+      durability — but performance hinges on designing your tables and keys around
+      access patterns up front.
+    use_cases:
+      - "High-scale, low-latency key-value and document workloads on AWS."
+      - "Serverless backends (Lambda) needing a managed, auto-scaling store."
+      - "Event sourcing and session/cart stores with predictable access patterns."
+    prerequisites:
+      - { name: "AWS", slug: "aws" }
+    key_features:
+      - "Fully managed and serverless — no capacity planning for nodes."
+      - "Single-digit-millisecond latency with on-demand or provisioned capacity."
+      - "Global tables for multi-region replication; streams for change capture."
+      - "Strong AWS Lambda and IAM integration."
+    pairs_well_with:
+      - { name: "AWS", slug: "aws" }
+      - { name: "AWS Lambda", slug: "" }
+    alternatives:
+      - { name: "MongoDB", slug: "mongodb" }
+      - { name: "Firestore", slug: "firestore" }
+      - { name: "Redis", slug: "redis" }
+    example:
+      lang: "bash"
+      code: 'aws dynamodb get-item --table-name Users --key ''{"id":{"S":"42"}}'''
+      explain: >
+        Fetching one item by its primary key via the AWS CLI — DynamoDB returns it
+        in milliseconds.
+    gotchas: >
+      You model for access patterns, not entities — get the partition-key and
+      single-table design wrong and queries become impossible or trigger costly
+      full scans, with little room to refactor later. Cross-item transactions and
+      ad-hoc queries are far weaker than in a relational engine.
+    maintained_by: "AWS"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "docs.aws.amazon.com/dynamodb", url: "https://docs.aws.amazon.com/dynamodb/" }
+
+  - name: "Elasticsearch"
+    slug: "elasticsearch"
+    tagline: "Distributed full-text search and analytics engine."
+    layer: [database]
+    maturity: mainstream
+    learning_curve: steep
+    first_released: 2010
+    description: >
+      A distributed search and analytics engine built on Apache Lucene, storing
+      JSON documents and making them searchable in near real time. It powers
+      full-text search, log and metrics analytics, and is the heart of the
+      ELK/Elastic stack alongside Kibana and Logstash/Beats.
+    use_cases:
+      - "Full-text and faceted search over large document sets."
+      - "Centralized log and observability analytics (the ELK stack)."
+      - "Near-real-time aggregations and dashboards over event data."
+    prerequisites:
+      - { name: "JSON", slug: "" }
+    key_features:
+      - "Inverted-index full-text search with relevance scoring (BM25)."
+      - "Distributed sharding and replication for scale and resilience."
+      - "Powerful aggregations for analytics; vector search for semantic queries."
+      - "Kibana, Logstash, and Beats for the broader Elastic stack."
+    pairs_well_with:
+      - { name: "Kibana", slug: "" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    alternatives:
+      - { name: "OpenSearch", slug: "" }
+      - { name: "Algolia", slug: "" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    example:
+      lang: "bash"
+      code: 'curl -XGET "localhost:9200/products/_search?q=name:laptop"'
+      explain: >
+        A simple query-string search hitting the products index and returning
+        relevance-ranked matches.
+    gotchas: >
+      It's a search engine, not a system of record — replication has had
+      consistency caveats, so keep authoritative data elsewhere and treat
+      Elasticsearch as a derived index. Mapping mistakes and unbounded
+      aggregations are also notorious memory hogs, and the SSPL/Elastic license
+      shift spawned the OpenSearch fork.
+    maintained_by: "Elastic"
+    language: "Java"
+    license: "Elastic/SSPL"
+    docs:
+      - { label: "elastic.co/docs", url: "https://www.elastic.co/docs" }
+
+  - name: "ClickHouse"
+    slug: "clickhouse"
+    tagline: "Blazing-fast columnar database for real-time analytics (OLAP)."
+    layer: [database]
+    maturity: rising
+    learning_curve: steep
+    first_released: 2016
+    description: >
+      An open-source columnar database built for online analytical processing,
+      capable of scanning billions of rows per second. Its column-oriented
+      storage, vectorized execution, and aggressive compression make it
+      extraordinarily fast for aggregations over huge datasets — analytics, not
+      transactional, workloads.
+    use_cases:
+      - "Real-time analytics dashboards over billions of events."
+      - "Log, metrics, and observability data warehousing."
+      - "Ad-hoc aggregations where a row store would be too slow."
+    prerequisites:
+      - { name: "SQL", slug: "sql" }
+    key_features:
+      - "Columnar storage with vectorized query execution."
+      - "High compression ratios that shrink storage and speed scans."
+      - "Sub-second aggregations over billions of rows."
+      - "SQL dialect with rich analytical functions and materialized views."
+    pairs_well_with:
+      - { name: "Grafana", slug: "grafana" }
+      - { name: "Kafka", slug: "" }
+    alternatives:
+      - { name: "Elasticsearch", slug: "elasticsearch" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "DuckDB", slug: "" }
+    example:
+      lang: "sql"
+      code: "SELECT country, count() FROM events GROUP BY country ORDER BY 2 DESC;"
+      explain: >
+        A grouped aggregation that ClickHouse runs over a huge events table in a
+        fraction of a second thanks to columnar storage.
+    gotchas: >
+      It's OLAP, not OLTP — single-row updates and deletes are expensive and
+      eventually-applied (mutations), and there are no real foreign keys or
+      multi-row transactions, so it's a poor fit as a primary transactional store.
+      Schema and partitioning choices heavily dictate performance.
+    maintained_by: "ClickHouse Inc."
+    language: "C++"
+    license: "Apache-2.0"
+    docs:
+      - { label: "clickhouse.com/docs", url: "https://clickhouse.com/docs" }
+
+  - name: "Turso"
+    slug: "turso"
+    tagline: "libSQL/SQLite at the edge — a database per tenant, anywhere."
+    layer: [database]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2023
+    description: >
+      An edge-hosted database platform built on libSQL, an open-source fork of
+      SQLite. It replicates lightweight SQLite databases close to users for low
+      read latency and makes spinning up many databases cheap — ideal for
+      multi-tenant apps that want a separate database per customer.
+    use_cases:
+      - "Low-latency reads from edge locations near users."
+      - "Multi-tenant apps with a cheap database-per-tenant model."
+      - "SQLite-friendly apps that need hosted, replicated storage."
+    prerequisites:
+      - { name: "SQL", slug: "sql" }
+      - { name: "SQLite", slug: "sqlite" }
+    key_features:
+      - "Built on libSQL, an open fork of SQLite with extra features."
+      - "Edge replicas (embedded + sync) for fast local reads."
+      - "Cheap to create thousands of per-tenant databases."
+      - "Works with SQLite drivers and ORMs like Drizzle and Prisma."
+    pairs_well_with:
+      - { name: "Drizzle", slug: "drizzle" }
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+      - { name: "Next.js", slug: "next-js" }
+    alternatives:
+      - { name: "SQLite", slug: "sqlite" }
+      - { name: "Neon", slug: "neon" }
+      - { name: "PlanetScale", slug: "planetscale" }
+    example:
+      lang: "bash"
+      code: "turso db create my-app && turso db shell my-app"
+      explain: >
+        Two CLI commands create a hosted libSQL database and open an interactive
+        SQL shell against it.
+    gotchas: >
+      It inherits SQLite's model — a single writer, so write-heavy or high-
+      concurrency-write workloads don't scale the way Postgres does, and embedded
+      replicas are read-only. It's a young platform, so weigh maturity for
+      mission-critical primary storage.
+    maintained_by: "Turso/ChiselStrike"
+    language: "Rust"
+    license: "MIT (libSQL)"
+    docs:
+      - { label: "docs.turso.tech", url: "https://docs.turso.tech" }
+
+  - name: "Convex"
+    slug: "convex"
+    tagline: "Reactive backend-as-a-database with TypeScript functions."
+    layer: [database, backend, fullstack]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2023
+    description: >
+      A reactive backend platform that merges a document database with a
+      serverless function layer, all written in TypeScript. Queries are live by
+      default — the client re-renders automatically when underlying data changes —
+      and transactions, scheduling, file storage, and a typed schema come built
+      in, blurring the line between database and backend.
+    use_cases:
+      - "Realtime apps (collaboration, dashboards, chat) without wiring sockets."
+      - "Fullstack TypeScript apps wanting one typed backend abstraction."
+      - "Replacing a hand-built API + database + websocket layer."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "React", slug: "react" }
+    key_features:
+      - "Live, reactive queries that push updates to clients automatically."
+      - "Backend logic as typed TypeScript query/mutation functions."
+      - "ACID transactions, scheduled functions, and file storage built in."
+      - "End-to-end types from the schema through to the React hooks."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Firebase", slug: "firestore" }
+      - { name: "Supabase", slug: "supabase" }
+    example:
+      lang: "ts"
+      code: |-
+        export const list = query({
+          handler: (ctx) => ctx.db.query("messages").collect(),
+        });
+      explain: >
+        A Convex query function — clients subscribe to it and re-render whenever
+        the messages table changes.
+    gotchas: >
+      The reactive, function-centric model is a different mental model from a
+      plain SQL/REST stack, and you write data access in Convex's API rather than
+      portable SQL — so it's a real platform commitment with vendor lock-in to
+      weigh. Self-hosting exists but the managed service is the primary path.
+    maintained_by: "Convex Inc."
+    language: "Rust/TypeScript"
+    license: "FSL/Apache-2.0"
+    docs:
+      - { label: "docs.convex.dev", url: "https://docs.convex.dev" }

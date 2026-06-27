@@ -9,7 +9,7 @@ batch:
     full Heroku-style PaaS (Render, Railway, Fly.io), the Firebase suite, and
     the IaaS giant AWS. Most pair a global CDN with serverless or container
     compute and deploy straight from a git push.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Vercel"
@@ -488,3 +488,244 @@ entries:
     license: "proprietary"
     docs:
       - { label: "firebase.google.com/docs/hosting", url: "https://firebase.google.com/docs/hosting" }
+
+  - name: "Heroku"
+    slug: "heroku"
+    tagline: "The platform that popularized git-push-to-deploy PaaS."
+    layer: [infrastructure]
+    maturity: legacy
+    learning_curve: gentle
+    first_released: 2007
+    description: >
+      The original developer-friendly
+      <span class="abbr-link" data-abbr="PaaS">PaaS</span> — you `git push` an
+      app and Heroku detects the language via buildpacks, builds a container
+      ("slug"), and runs it on managed "dynos" with add-on databases and queues
+      one click away. It defined the modern deploy workflow but lost ground after
+      Salesforce removed its free tier in 2022.
+    use_cases:
+      - "Quickly hosting a small-to-medium web app or API without managing servers."
+      - "Prototypes and MVPs that need a database and background workers fast."
+      - "Teams that value a simple deploy story over fine-grained infra control."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "A backend framework", slug: "" }
+    key_features:
+      - "Git-push deploys with automatic buildpack detection."
+      - "Dyno-based process model with one-click add-ons (Postgres, Redis)."
+      - "Review apps and pipelines for staging-to-production promotion."
+      - "Heroku Postgres and Redis as managed data add-ons."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Redis", slug: "redis" }
+      - { name: "Ruby on Rails", slug: "ruby-on-rails" }
+    alternatives:
+      - { name: "Render", slug: "render" }
+      - { name: "Railway", slug: "railway" }
+      - { name: "Fly.io", slug: "fly-io" }
+    example:
+      lang: "bash"
+      code: "git push heroku main"
+      explain: "Pushing to the heroku remote triggers a buildpack build and a new release on a dyno."
+    gotchas: >
+      The free tier is gone (since November 2022), and the cheapest paid dynos
+      sleep or cost real money — it is no longer the budget option it once was.
+      Dynos also have an ephemeral filesystem, so anything written to disk
+      vanishes on restart; use add-ons or external storage for persistence.
+    maintained_by: "Salesforce"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "devcenter.heroku.com", url: "https://devcenter.heroku.com" }
+
+  - name: "DigitalOcean"
+    slug: "digitalocean"
+    tagline: "Developer-friendly cloud — simple VMs plus a managed PaaS layer."
+    layer: [infrastructure]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2011
+    description: >
+      A cloud provider that made raw VMs ("Droplets") cheap and approachable, then
+      layered on managed databases, Kubernetes, object storage (Spaces), and an
+      App Platform <span class="abbr-link" data-abbr="PaaS">PaaS</span> for
+      git-push deploys. It sits between bare
+      <span class="abbr-link" data-abbr="IaaS">IaaS</span> and a fully managed
+      platform, with simpler pricing than the hyperscalers.
+    use_cases:
+      - "Spinning up an affordable Linux VM for a side project or small service."
+      - "Managed Postgres, Kubernetes, or object storage without AWS complexity."
+      - "App Platform git-push deploys for teams wanting a middle ground."
+    prerequisites:
+      - { name: "Linux basics", slug: "" }
+      - { name: "Git", slug: "git" }
+    key_features:
+      - "Droplets — predictable flat-rate Linux VMs."
+      - "Managed Postgres/MySQL/Redis, Kubernetes (DOKS), and Spaces storage."
+      - "App Platform PaaS for git-push container/static deploys."
+      - "Flat, transparent pricing and strong tutorial documentation."
+    pairs_well_with:
+      - { name: "Docker", slug: "docker" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    alternatives:
+      - { name: "AWS", slug: "aws" }
+      - { name: "Google Cloud", slug: "gcp" }
+      - { name: "Fly.io", slug: "fly-io" }
+    example:
+      lang: "bash"
+      code: "doctl compute droplet create web --image ubuntu-24-04-x64 --size s-1vcpu-1gb --region nyc1"
+      explain: "The doctl CLI provisions a small Ubuntu Droplet in the New York region."
+    gotchas: >
+      A plain Droplet is an unmanaged Linux box — you own OS updates, firewalls,
+      backups, and security hardening yourself. It is cheaper and simpler than
+      AWS but has far fewer managed services, so complex architectures may outgrow
+      it.
+    maintained_by: "DigitalOcean"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "docs.digitalocean.com", url: "https://docs.digitalocean.com" }
+
+  - name: "Deno Deploy"
+    slug: "deno-deploy"
+    tagline: "Globally distributed edge runtime for Deno apps."
+    layer: [infrastructure]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A <span class="abbr-link" data-abbr="Serverless">serverless</span>
+      <span class="abbr-link" data-abbr="Edge">edge</span> platform from the Deno
+      team that runs JavaScript and TypeScript on V8 isolates in data centres
+      worldwide, with no servers to manage and near-zero cold starts. It deploys
+      straight from a GitHub repo and exposes web-standard APIs plus a built-in KV
+      store.
+    use_cases:
+      - "Low-latency edge APIs and functions served close to every user."
+      - "Deploying Deno or Fresh apps without container or server setup."
+      - "Lightweight backends that lean on web-standard Request/Response APIs."
+    prerequisites:
+      - { name: "Deno", slug: "deno" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "V8-isolate edge execution with fast cold starts."
+      - "Git-integrated deploys straight from GitHub."
+      - "Built-in Deno KV global database."
+      - "Web-standard fetch/Request/Response handler model."
+    pairs_well_with:
+      - { name: "Deno", slug: "deno" }
+      - { name: "Fresh", slug: "" }
+      - { name: "Hono", slug: "hono" }
+    alternatives:
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+      - { name: "Vercel", slug: "vercel" }
+      - { name: "Netlify", slug: "netlify" }
+    example:
+      lang: "ts"
+      code: |-
+        Deno.serve((_req) => new Response("Hello from the edge"));
+      explain: "A Deno.serve handler — deployed, it runs on edge isolates near each visitor."
+    gotchas: >
+      Isolates are not full Node servers — long-running processes, raw TCP, and
+      many native Node modules are unavailable, and CPU time per request is
+      capped. Code written for a traditional Node host often needs reworking to
+      fit the edge model.
+    maintained_by: "Deno Land"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "docs.deno.com/deploy", url: "https://docs.deno.com/deploy/" }
+
+  - name: "Microsoft Azure"
+    slug: "azure"
+    tagline: "Microsoft's enterprise cloud — IaaS, PaaS, and everything between."
+    layer: [infrastructure]
+    maturity: industry-standard
+    learning_curve: steep
+    first_released: 2010
+    description: >
+      Microsoft's hyperscale cloud, offering hundreds of services across compute
+      (VMs, App Service, Functions, AKS), data, AI, and networking. It is the
+      default choice for enterprises invested in the Microsoft stack (Active
+      Directory, .NET, Windows Server), with deep hybrid-cloud and compliance
+      tooling.
+    use_cases:
+      - "Enterprises standardized on Microsoft identity, .NET, and Windows."
+      - "Hybrid-cloud setups bridging on-prem data centres to the cloud."
+      - "Regulated industries needing broad compliance certifications."
+    prerequisites:
+      - { name: "Cloud fundamentals", slug: "" }
+      - { name: "Networking basics", slug: "" }
+    key_features:
+      - "Compute spanning VMs, App Service PaaS, Functions, and AKS (Kubernetes)."
+      - "Deep Entra ID (Active Directory) and .NET integration."
+      - "Managed databases (SQL, Cosmos DB) and a large AI/ML catalogue."
+      - "Strong hybrid-cloud (Azure Arc) and enterprise compliance."
+    pairs_well_with:
+      - { name: "ASP.NET Core", slug: "aspnet-core" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "Terraform", slug: "terraform" }
+    alternatives:
+      - { name: "AWS", slug: "aws" }
+      - { name: "Google Cloud", slug: "gcp" }
+    example:
+      lang: "bash"
+      code: "az webapp up --name my-app --runtime \"NODE:20-lts\""
+      explain: "The Azure CLI provisions and deploys a Node app to App Service in one command."
+    gotchas: >
+      The breadth is overwhelming and the portal/service naming shifts often, so
+      discoverability is poor for newcomers. Cost management is a discipline of
+      its own — idle resources and egress charges add up fast, and the pricing
+      calculator is essential before committing.
+    maintained_by: "Microsoft"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "learn.microsoft.com/azure", url: "https://learn.microsoft.com/azure/" }
+
+  - name: "Google Cloud"
+    slug: "gcp"
+    tagline: "Google's cloud — strong on containers, data, and serverless."
+    layer: [infrastructure]
+    maturity: industry-standard
+    learning_curve: steep
+    first_released: 2011
+    description: >
+      Google Cloud Platform (GCP) is Google's hyperscale cloud, known for
+      Kubernetes (which it created), the serverless Cloud Run container platform,
+      and best-in-class data and analytics tooling (BigQuery). It runs on the same
+      global network that serves Google Search, with strong AI/ML services on top.
+    use_cases:
+      - "Container-first workloads on GKE (Kubernetes) or serverless Cloud Run."
+      - "Large-scale analytics and data warehousing with BigQuery."
+      - "AI/ML pipelines leveraging Vertex AI and TPUs."
+    prerequisites:
+      - { name: "Cloud fundamentals", slug: "" }
+      - { name: "Containers", slug: "" }
+    key_features:
+      - "GKE — the original managed Kubernetes — plus serverless Cloud Run."
+      - "BigQuery for petabyte-scale analytics."
+      - "Global network and per-second billing on many resources."
+      - "Vertex AI and a deep ML/TPU catalogue."
+    pairs_well_with:
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "Docker", slug: "docker" }
+      - { name: "Terraform", slug: "terraform" }
+    alternatives:
+      - { name: "AWS", slug: "aws" }
+      - { name: "Microsoft Azure", slug: "azure" }
+    example:
+      lang: "bash"
+      code: "gcloud run deploy my-svc --source . --region us-central1"
+      explain: "The gcloud CLI builds the current directory into a container and deploys it to serverless Cloud Run."
+    gotchas: >
+      GCP has fewer services than AWS and a smaller third-party ecosystem, and
+      Google's habit of deprecating products worries some teams. IAM and project
+      organization are powerful but confusing early on, and egress/data-transfer
+      costs surprise the unprepared.
+    maintained_by: "Google"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "cloud.google.com/docs", url: "https://cloud.google.com/docs" }

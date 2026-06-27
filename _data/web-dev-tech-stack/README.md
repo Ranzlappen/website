@@ -8,7 +8,7 @@ Source data for the [`/references/web-dev-tech-stack/`](../../pages/references/w
 
 | File | Role |
 |---|---|
-| `01-languages.yml` … `15-package-managers.yml` | One file per **category** of technologies. Each file contributes one tab and a chunk of table rows. |
+| `01-languages.yml` … `21-observability.yml` | One file per **category** of technologies (21 categories, ~230 entries). Each file contributes one tab and a chunk of table rows. Categories 16–21 add Auth & Identity, API/GraphQL/Realtime, Mobile & Desktop, CMS & Content, UI Component Libraries, and Observability & Monitoring. |
 
 Jekyll exposes everything under `site.data["web-dev-tech-stack"].<basename>` (bracketed because the directory name has hyphens). The numeric prefix (`01-`, `02-`, …) only controls **display order**; basenames after sort drive the iteration loop in [`pages/references/web-dev-tech-stack.html`](../../pages/references/web-dev-tech-stack.html).
 
