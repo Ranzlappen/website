@@ -161,6 +161,49 @@ body {
 .tt-btn--ghost {
   background: transparent;
 }
+/* Form controls share the .tt-btn skin but, as flex/grid children, their
+   intrinsic text width (min-width:auto) would stop a row from shrinking and
+   overflow narrow screens. Let them shrink to the available space instead. */
+input.tt-btn,
+select.tt-btn,
+textarea.tt-btn {
+  min-width: 0;
+}
+
+/* ── Layout shell ──────────────────────────────────────────────────────── */
+.tt-main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+}
+.tt-main--wide {
+  max-width: 1100px;
+}
+@media (max-width: 40rem) {
+  /* Reclaim horizontal room where it's scarcest — boards and hands need it. */
+  .tt-main {
+    padding: 1.25rem 0.85rem 3rem;
+  }
+}
+
+/* ── Fanned card hand ──────────────────────────────────────────────────────
+   Cards overlap via negative margins, so a full hand is wider than a phone.
+   The row becomes a horizontal scroller (capped at the container width) while
+   still shrinking to its content — so the parent can center it when it fits.
+   Vertical padding leaves room for the hover/selected lift (translateY), which
+   overflow:hidden would otherwise clip. */
+.tt-hand {
+  display: flex;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 18px 6px 16px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.tt-hand > * {
+  flex: 0 0 auto;
+}
 
 /* ── Surfaces ──────────────────────────────────────────────────────────── */
 .tt-panel {

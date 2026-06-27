@@ -82,7 +82,7 @@ function MatchScreen({ client }: { client: MatchClient }) {
     .filter(Boolean);
 
   const toolbar = (
-    <div style={{ display: 'flex', gap: '0.5rem' }}>
+    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
       <button className="tt-btn" onClick={smartUndo} disabled={!client.canUndo}>
         ↩ Undo
       </button>

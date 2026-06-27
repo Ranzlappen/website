@@ -70,7 +70,7 @@ function CrownRushView({ state, dispatch, viewerId, canAct }: GameViewProps<Crow
         <div style={{ color: 'var(--tt-muted)' }}>
           {game.hasDrawn ? 'Select a card to discard' : 'Draw a card to start your turn'}
         </div>
-        <div style={{ display: 'flex' }}>
+        <div className="tt-hand">
           {myHand.map((c, i) => (
             <div key={c.id} style={{ marginLeft: i ? -22 : 0 }}>
               <PlayingCard

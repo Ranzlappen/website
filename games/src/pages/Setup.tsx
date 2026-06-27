@@ -102,7 +102,7 @@ export default function Setup() {
 
       <div className="tt-panel" style={{ padding: '1rem', display: 'grid', gap: '0.6rem' }}>
         {seats.map((seat, i) => (
-          <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', minWidth: 0 }}>
             <span className="tt-chip" style={{ minWidth: 64, justifyContent: 'center' }}>
               Seat {i + 1}
             </span>
