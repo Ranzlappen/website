@@ -8,7 +8,7 @@ batch:
     Bun), the V8 engine that powers most of them, and the edge platforms
     (Cloudflare Workers and the broader edge-runtime family) that run code on a
     global network of points of presence rather than a single server.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Node.js"
@@ -20,7 +20,7 @@ entries:
     first_released: 2009
     description: >
       The original server-side JavaScript runtime, built on Google's
-      <span class="abbr-link" data-abbr="V8">V8</span> engine with an
+      V8 engine with an
       event-driven, non-blocking I/O model. It anchors the entire JS toolchain —
       almost every build tool, framework, and package runs on it — and its npm
       ecosystem is the largest package registry in existence.
@@ -71,7 +71,7 @@ entries:
     first_released: 2018
     description: >
       A modern JavaScript and TypeScript runtime built in Rust on
-      <span class="abbr-link" data-abbr="V8">V8</span>, created by Node's original
+      V8, created by Node's original
       author to fix its early design regrets. It runs TypeScript with no build
       step, is secure by default (explicit permission flags for file, network, and
       env access), and Deno 2 added strong npm compatibility.
@@ -120,7 +120,7 @@ entries:
     first_released: 2022
     description: >
       A blazing-fast JavaScript runtime written in Zig on Apple's JavaScriptCore
-      engine (not <span class="abbr-link" data-abbr="V8">V8</span>), bundling a
+      engine (not V8), bundling a
       runtime, package manager, bundler, and test runner into one binary. It aims
       for drop-in Node compatibility while being dramatically faster at install
       and startup. Anthropic acquired Bun in December 2025 — it powers Claude Code
@@ -218,7 +218,7 @@ entries:
     first_released: 2017
     description: >
       A serverless platform that runs your code on
-      <span class="abbr-link" data-abbr="V8">V8</span> isolates across
+      V8 isolates across
       Cloudflare's global edge network — close to users, with near-zero cold
       starts. The underlying runtime, `workerd`, is open source, and Workers use
       web-standard APIs plus a storage suite (KV, D1, R2, Durable Objects) rather
@@ -315,3 +315,53 @@ entries:
     docs:
       - { label: "WinterCG", url: "https://wintercg.org" }
       - { label: "Vercel Edge Functions", url: "https://vercel.com/docs/functions/edge-functions" }
+
+  - name: "workerd"
+    slug: "workerd"
+    tagline: "The open-source runtime that powers Cloudflare Workers."
+    layer: [backend, infrastructure]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2022
+    description: >
+      The C++ JavaScript/WebAssembly runtime that Cloudflare extracted and
+      open-sourced from the engine behind Cloudflare Workers. Built on V8, it
+      implements web-standard APIs (Fetch, Streams, WebCrypto) and the
+      <span class="abbr-link" data-abbr="Edge">edge</span>-style request/response
+      model, so you can run and self-host the same Workers code locally that
+      ships to Cloudflare's global network.
+    use_cases:
+      - "Running and debugging Cloudflare Workers locally and in CI."
+      - "Self-hosting serverless functions on your own infrastructure."
+      - "A web-standard runtime target for portable edge code."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+    key_features:
+      - "V8-based with web-standard Fetch/Streams/WebCrypto APIs."
+      - "Same runtime locally as on Cloudflare's edge network."
+      - "Nanoservice architecture wiring Workers together."
+      - "Powers Wrangler's local dev and Miniflare."
+    pairs_well_with:
+      - { name: "Cloudflare Workers", slug: "cloudflare-workers" }
+      - { name: "Cloudflare Pages", slug: "cloudflare-pages" }
+      - { name: "Hono", slug: "hono" }
+    alternatives:
+      - { name: "Deno", slug: "deno" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Bun", slug: "bun" }
+    example:
+      lang: "bash"
+      code: "workerd serve config.capnp"
+      explain: "Run a Worker locally with workerd, pointing at a Cap'n Proto config that declares your services and bindings."
+    gotchas: >
+      It is *not* a general-purpose Node replacement — it deliberately offers the
+      restricted Workers runtime, so Node-only built-ins, native addons, and
+      long-running processes are unavailable, and configuration uses Cap'n Proto
+      (`.capnp`) files rather than a familiar JSON/JS config.
+    maintained_by: "Cloudflare"
+    language: "C++"
+    license: "Apache-2.0"
+    docs:
+      - { label: "github.com/cloudflare/workerd", url: "https://github.com/cloudflare/workerd" }
+      - { label: "Cloudflare Workers docs", url: "https://developers.cloudflare.com/workers/" }

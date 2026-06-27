@@ -9,7 +9,7 @@ batch:
     (TypeORM, Sequelize), a bare query builder (Knex), and the standard MongoDB
     ODM (Mongoose). They trade raw SQL control for type safety, migrations, and
     ergonomics.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Prisma"
@@ -340,3 +340,156 @@ entries:
     license: "MIT"
     docs:
       - { label: "mongoosejs.com", url: "https://mongoosejs.com/docs" }
+
+  - name: "Kysely"
+    slug: "kysely"
+    tagline: "Type-safe SQL query builder — write SQL, get full inference."
+    layer: [tooling, backend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2022
+    description: >
+      A type-safe SQL query builder for TypeScript — not a full ORM. You define
+      your database's types once and Kysely gives you autocompleted, statically
+      checked queries that read almost exactly like SQL, with no hidden runtime
+      magic. It stays close to the database while catching column and join
+      mistakes at compile time.
+    use_cases:
+      - "Type-safe SQL without the abstraction of a full ORM."
+      - "Edge/serverless backends needing a tiny, dependency-light query layer."
+      - "Replacing raw string SQL with checked, autocompleted builders."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "SQL", slug: "sql" }
+    key_features:
+      - "Fully typed queries inferred from a database interface."
+      - "Reads like SQL — selects, joins, CTEs, subqueries — no DSL surprises."
+      - "Lightweight with dialects for Postgres, MySQL, SQLite, and more."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Turso", slug: "turso" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Drizzle", slug: "drizzle" }
+      - { name: "Knex", slug: "knex" }
+      - { name: "Prisma", slug: "prisma" }
+    example:
+      lang: "ts"
+      code: |-
+        const users = await db.selectFrom("user")
+          .select(["id", "name"]).where("active", "=", true).execute();
+      explain: >
+        A fully typed query — column names and the result type are checked against
+        the database interface at compile time.
+    gotchas: >
+      It's a query builder, not an ORM — there's no entity tracking, lazy
+      relations, or built-in migration runner, so you bring your own (the
+      companion `kysely-migrations` or a tool like Atlas). You also hand-write the
+      database types or generate them with `kysely-codegen`, and stale types drift
+      from the real schema.
+    maintained_by: "Sami Koskimäki + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "kysely.dev", url: "https://kysely.dev" }
+
+  - name: "MikroORM"
+    slug: "mikro-orm"
+    tagline: "TypeScript ORM built on the Unit of Work + Data Mapper patterns."
+    layer: [tooling, backend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2018
+    description: >
+      A TypeScript ORM based on the Data Mapper, Unit of Work, and Identity Map
+      patterns — it tracks entity changes in memory and flushes them in a single
+      transaction. It supports Postgres, MySQL, SQLite, and MongoDB with one API,
+      decorator or schema-defined entities, and strong type safety.
+    use_cases:
+      - "Apps wanting Unit-of-Work change tracking and automatic flushing."
+      - "Sharing one ORM API across SQL databases and MongoDB."
+      - "NestJS backends needing a typed, feature-rich data layer."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "SQL", slug: "sql" }
+    key_features:
+      - "Unit of Work + Identity Map — batched, transactional flushes."
+      - "Data Mapper entities via decorators or schema definitions."
+      - "Supports Postgres, MySQL, MariaDB, SQLite, and MongoDB."
+      - "Migrations, seeders, and a query builder built in."
+    pairs_well_with:
+      - { name: "NestJS", slug: "nestjs" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "TypeORM", slug: "typeorm" }
+      - { name: "Drizzle", slug: "drizzle" }
+    example:
+      lang: "ts"
+      code: |-
+        const user = em.create(User, { name: "Ada" });
+        await em.flush();
+      explain: >
+        Creating an entity registers it with the Unit of Work, and flush() writes
+        all pending changes in one transaction.
+    gotchas: >
+      The Unit of Work is powerful but surprising — entities are managed by an
+      Identity Map and only persisted on `flush()`, so forgetting to flush (or
+      forking the EntityManager per request) causes lost or leaked changes.
+      Managed vs detached entity state trips up newcomers.
+    maintained_by: "Martin Adámek + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "mikro-orm.io", url: "https://mikro-orm.io" }
+
+  - name: "SQLAlchemy"
+    slug: "sqlalchemy"
+    tagline: "Python's definitive SQL toolkit and ORM."
+    layer: [tooling, backend]
+    maturity: industry-standard
+    learning_curve: steep
+    first_released: 2006
+    description: >
+      The most established data-access library in Python, offering two layers: a
+      lower-level SQL Expression Language (Core) and a full-featured ORM on top.
+      The 2.0 series unified the API around explicit, typed sessions and queries,
+      and it remains the backbone of most serious Python database work.
+    use_cases:
+      - "Production Python apps needing a mature, flexible ORM."
+      - "Complex queries where you want to drop down to SQL Core."
+      - "FastAPI/Flask backends pairing with Alembic migrations."
+    prerequisites:
+      - { name: "Python", slug: "python" }
+      - { name: "SQL", slug: "sql" }
+    key_features:
+      - "Two layers — SQL Expression Language (Core) plus a full ORM."
+      - "Unit-of-Work session with identity map and change tracking."
+      - "Dialects for Postgres, MySQL, SQLite, and many more."
+      - "Alembic for schema migrations; typed 2.0 query API."
+    pairs_well_with:
+      - { name: "FastAPI", slug: "fastapi" }
+      - { name: "Flask", slug: "flask" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    alternatives:
+      - { name: "Django ORM", slug: "django" }
+      - { name: "Prisma", slug: "prisma" }
+    example:
+      lang: "py"
+      code: |-
+        with Session(engine) as s:
+            user = s.scalars(select(User).where(User.active)).first()
+      explain: >
+        A 2.0-style ORM query — the session executes a typed select() statement
+        and returns the first matching User.
+    gotchas: >
+      The power and two-layer design make for a steep curve, and the 1.x to 2.0
+      transition changed core idioms, so much online material is out of date.
+      Lazy-loaded relationships outside an active session raise
+      `DetachedInstanceError` and cause N+1 query storms if you're not careful.
+    maintained_by: "Mike Bayer + OSS"
+    language: "Python"
+    license: "MIT"
+    docs:
+      - { label: "docs.sqlalchemy.org", url: "https://docs.sqlalchemy.org" }

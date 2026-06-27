@@ -10,7 +10,7 @@ batch:
     and the build orchestrators that make big monorepos fast (Turborepo). They
     all read a manifest, build a lock file, and populate a dependency tree — they
     just differ on speed, disk usage, and how strict that tree is.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "npm"
@@ -22,7 +22,7 @@ entries:
     first_released: 2010
     description: >
       Node.js's built-in package manager and the original gateway to the
-      <span class="abbr-link" data-abbr="JavaScript">JavaScript</span> ecosystem.
+      JavaScript ecosystem.
       It reads `package.json`, resolves a dependency tree into a flat
       `node_modules`, writes a `package-lock.json` for reproducible installs, and
       runs your scripts (`npm run …`). It's the baseline every other JS package
@@ -213,7 +213,7 @@ entries:
     first_released: 2010
     description: >
       The public registry at `registry.npmjs.org` that hosts over three million
-      <span class="abbr-link" data-abbr="JavaScript">JavaScript</span> packages —
+      JavaScript packages —
       the default source that npm, pnpm, Yarn, and Bun all download from. It's a
       hosted service (not open-source software you self-host), exposing a simple
       <span class="abbr-link" data-abbr="HTTP">HTTP</span>
@@ -262,7 +262,7 @@ entries:
     learning_curve: gentle
     first_released: 2012
     description: >
-      The standard dependency manager for <span class="abbr-link" data-abbr="PHP">PHP</span>
+      The standard dependency manager for PHP
       — it reads a `composer.json`, resolves a compatible set of packages from
       the Packagist registry, writes a `composer.lock` for reproducible installs,
       and generates a PSR-4 autoloader so you never write `require` statements by
@@ -347,3 +347,235 @@ entries:
     license: "MIT"
     docs:
       - { label: "turborepo.com", url: "https://turborepo.com" }
+
+  - name: "Nx"
+    slug: "nx"
+    tagline: "A smart, extensible build system for monorepos."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2018
+    description: >
+      A build system and <span class="abbr-link" data-abbr="Monorepo">monorepo</span>
+      toolkit that understands your project graph to run only what changed, cache
+      task results locally and remotely, and parallelize across packages. Plugins
+      and generators scaffold apps and libraries for React, Node, and more, making
+      it more batteries-included than a pure task runner.
+    use_cases:
+      - "Large monorepos needing affected-only builds and tests."
+      - "Teams wanting code generators and enforced module boundaries."
+      - "Sharing computation caches across developers and CI for speed."
+    prerequisites:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Monorepo basics", slug: "" }
+    key_features:
+      - "Project-graph-aware task scheduling and `affected` commands."
+      - "Local and remote computation caching (Nx Cloud)."
+      - "Plugins and generators for common stacks."
+      - "Enforceable module-boundary lint rules."
+    pairs_well_with:
+      - { name: "pnpm", slug: "pnpm" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "Turborepo", slug: "turborepo" }
+      - { name: "Bazel", slug: "" }
+    example:
+      lang: "bash"
+      code: "npx nx affected -t test"
+      explain: "Runs tests only for the projects affected by your current changes, using the project graph."
+    gotchas: >
+      Nx is more opinionated and heavier than Turborepo — plugins, generators, and
+      its workspace conventions are powerful but can feel like a framework you must
+      buy into. The remote-cache (Nx Cloud) is a paid service beyond generous free
+      limits, and migrating an existing repo into Nx's structure takes real effort.
+    maintained_by: "Nrwl/Nx"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "nx.dev", url: "https://nx.dev" }
+
+  - name: "Volta"
+    slug: "volta"
+    tagline: "Pin per-project JS toolchain versions, switch automatically."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2019
+    description: >
+      A Rust-based toolchain manager that pins the exact Node, npm, pnpm, or Yarn
+      version a project needs in its `package.json` and switches to it
+      automatically when you `cd` into the directory. Everyone on the team — and
+      CI — gets the same tool versions with no manual `nvm use`.
+    use_cases:
+      - "Ensuring every developer and CI runs the same Node/package-manager version."
+      - "Switching toolchains automatically per project without nvm commands."
+      - "Avoiding 'works on my machine' bugs caused by version drift."
+    prerequisites:
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Pins Node/npm/pnpm/Yarn versions in package.json (`volta` field)."
+      - "Automatic, near-instant version switching on directory change."
+      - "Fast Rust implementation with shimmed binaries."
+      - "Cross-platform (macOS, Linux, Windows)."
+    pairs_well_with:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "pnpm", slug: "pnpm" }
+    alternatives:
+      - { name: "nvm", slug: "" }
+      - { name: "fnm", slug: "" }
+      - { name: "Corepack", slug: "corepack" }
+    example:
+      lang: "bash"
+      code: "volta pin node@20.11.0"
+      explain: "Records Node 20.11.0 in package.json so anyone in the project auto-uses that version."
+    gotchas: >
+      Volta works via shims on your PATH, which can clash with other version
+      managers (nvm, asdf) if both are installed — pick one. Its package-manager
+      handling also overlaps with Node's built-in Corepack, so teams sometimes end
+      up with two tools doing similar jobs.
+    maintained_by: "Volta team + OSS community"
+    language: "Rust"
+    license: "BSD-2-Clause"
+    docs:
+      - { label: "volta.sh", url: "https://volta.sh" }
+
+  - name: "Corepack"
+    slug: "corepack"
+    tagline: "Node's built-in shim for pnpm and Yarn versions."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A tool that ships with Node.js and acts as a shim for package managers other
+      than npm — it reads the `packageManager` field in `package.json` and
+      transparently runs the exact pinned pnpm or Yarn version, downloading it on
+      first use. It means a repo can guarantee its package-manager version without
+      a separate installer.
+    use_cases:
+      - "Pinning the team's pnpm or Yarn version via packageManager in package.json."
+      - "Guaranteeing CI uses the same package-manager version as developers."
+      - "Avoiding a global pnpm/Yarn install — Node provides the shim."
+    prerequisites:
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Bundled with Node — no separate install."
+      - "Reads the packageManager field to select the exact version."
+      - "Auto-downloads the pinned pnpm/Yarn on first run."
+      - "Keeps package-manager version with the repo, not the machine."
+    pairs_well_with:
+      - { name: "pnpm", slug: "pnpm" }
+      - { name: "Yarn", slug: "yarn" }
+      - { name: "Node.js", slug: "node-js" }
+    alternatives:
+      - { name: "Volta", slug: "volta" }
+    example:
+      lang: "bash"
+      code: "corepack enable && corepack use pnpm@9"
+      explain: "Activates Corepack's shims and pins pnpm 9 in package.json for the project."
+    gotchas: >
+      Corepack is disabled by default and you must run `corepack enable` once per
+      machine, which trips up CI that forgets the step. It also handles only pnpm
+      and Yarn — not Node itself — and its first-run network download can fail in
+      air-gapped or offline environments.
+    maintained_by: "Node.js project"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "nodejs.org/api/corepack", url: "https://nodejs.org/api/corepack.html" }
+
+  - name: "uv"
+    slug: "uv"
+    tagline: "An extremely fast Python package and project manager, in Rust."
+    layer: [tooling]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2024
+    description: >
+      A Rust-based tool from Astral that aims to replace pip, pip-tools, virtualenv,
+      pipx, and parts of Poetry with one fast command. It resolves and installs
+      Python dependencies dramatically faster than pip, manages virtual
+      environments and Python versions, and reads the standard
+      <span class="abbr-link" data-abbr="Lockfile">lockfile</span> via
+      `pyproject.toml`.
+    use_cases:
+      - "Speeding up Python dependency installs in dev and CI."
+      - "Managing a project's venv, Python version, and lockfile in one tool."
+      - "Running CLI tools in isolated environments (the pipx replacement)."
+    prerequisites:
+      - { name: "Python", slug: "python" }
+    key_features:
+      - "10–100× faster resolves/installs than pip, with a global cache."
+      - "Project management via pyproject.toml and a uv.lock lockfile."
+      - "Installs and pins Python interpreter versions itself."
+      - "`uvx`/`uv tool` for isolated CLI tools (pipx-style)."
+    pairs_well_with:
+      - { name: "Python", slug: "python" }
+      - { name: "FastAPI", slug: "fastapi" }
+      - { name: "Ruff", slug: "" }
+    alternatives:
+      - { name: "pip", slug: "pip" }
+      - { name: "Poetry", slug: "" }
+      - { name: "pipx", slug: "" }
+    example:
+      lang: "bash"
+      code: "uv add fastapi && uv run uvicorn main:app"
+      explain: "Adds FastAPI to the project (creating a venv and lockfile) then runs the app inside it."
+    gotchas: >
+      It moves fast and is still maturing — APIs and behaviour can change between
+      releases, and a few corner-case packages or build backends may not resolve
+      identically to pip. Mixing uv-managed venvs with manual `pip install` in the
+      same environment can also cause drift, so commit to one workflow.
+    maintained_by: "Astral"
+    language: "Rust"
+    license: "Apache-2.0/MIT"
+    docs:
+      - { label: "docs.astral.sh/uv", url: "https://docs.astral.sh/uv/" }
+
+  - name: "pip"
+    slug: "pip"
+    tagline: "The standard package installer for Python."
+    layer: [tooling]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2008
+    description: >
+      The default package manager for Python, used to install libraries from the
+      Python Package Index (PyPI). It reads a `requirements.txt` or installs
+      packages directly, and ships with every modern Python install, making it the
+      universal baseline even as faster tools build on top of it.
+    use_cases:
+      - "Installing Python packages from PyPI into a virtual environment."
+      - "Reproducing dependencies from a requirements.txt file."
+      - "Any Python project as the lowest-common-denominator installer."
+    prerequisites:
+      - { name: "Python", slug: "python" }
+    key_features:
+      - "Installs from PyPI, Git, URLs, and local paths."
+      - "requirements.txt for declaring dependency sets."
+      - "Bundled with Python — available everywhere."
+      - "Editable installs (`pip install -e .`) for local development."
+    pairs_well_with:
+      - { name: "Python", slug: "python" }
+      - { name: "venv", slug: "" }
+      - { name: "Django", slug: "django" }
+    alternatives:
+      - { name: "uv", slug: "uv" }
+      - { name: "Poetry", slug: "" }
+      - { name: "Conda", slug: "" }
+    example:
+      lang: "bash"
+      code: "pip install -r requirements.txt"
+      explain: "Installs every package listed in requirements.txt into the active environment."
+    gotchas: >
+      Plain pip has no real lockfile — `requirements.txt` does not by itself pin
+      transitive dependencies unless you generate it carefully (e.g. via
+      pip-tools), so installs aren't fully reproducible. It also installs into
+      whatever environment is active, so forgetting to activate a virtualenv
+      pollutes the system Python.
+    maintained_by: "PyPA"
+    language: "Python"
+    license: "MIT"
+    docs:
+      - { label: "pip.pypa.io", url: "https://pip.pypa.io" }

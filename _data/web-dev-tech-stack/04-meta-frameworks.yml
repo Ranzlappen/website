@@ -9,7 +9,7 @@ batch:
     end. They own rendering strategy (SSR, SSG, ISR, RSC, islands) and the
     build pipeline, so the choice here usually decides how your whole app is
     deployed.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Next.js"
@@ -172,10 +172,10 @@ entries:
     first_released: 2022
     description: >
       Svelte's full-stack framework, built on
-      <span class="abbr-link" data-abbr="Vite">Vite</span>. It adds
+      Vite. It adds
       file-system routing, load functions, form actions, and an adapter system
       that targets Node, serverless, static, or
-      <span class="abbr-link" data-abbr="Edge Runtime">edge</span> hosts —
+      <span class="abbr-link" data-abbr="Edge">edge</span> hosts —
       mixing <span class="abbr-link" data-abbr="SSR">SSR</span>,
       <span class="abbr-link" data-abbr="SSG">SSG</span>, and SPA rendering per
       route.
@@ -372,7 +372,7 @@ entries:
       A full-stack framework built on web fundamentals — `fetch`, `Request` /
       `Response`, forms, and progressive enhancement — with nested routes,
       loaders, and actions. Its framework features merged into
-      <span class="abbr-link" data-abbr="Vite">React Router</span> v7, and the
+      React Router v7, and the
       Remix name is now being reframed as a standalone, model-agnostic
       full-stack framework (the v3 direction).
     use_cases:
@@ -416,3 +416,199 @@ entries:
     license: "MIT"
     docs:
       - { label: "remix.run", url: "https://remix.run" }
+
+  - name: "Eleventy"
+    slug: "eleventy"
+    tagline: "A simpler, zero-config JavaScript static site generator."
+    layer: [fullstack, tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2018
+    description: >
+      A flexible JavaScript <span class="abbr-link" data-abbr="SSG">static site
+      generator</span> (often called 11ty) that takes templates in many languages
+      — Markdown, Nunjucks, Liquid, HTML, JS — and outputs plain HTML with no
+      client-side JavaScript by default. It is prized for shipping zero-JS,
+      fast-loading sites and for being far lighter than React-based generators.
+    use_cases:
+      - "Blogs, docs, and marketing sites that want zero shipped JS."
+      - "Migrating off heavier generators for build speed."
+      - "JAMstack sites with content in Markdown and a CDN host."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Mix many template languages in one project."
+      - "Zero client-side JavaScript by default."
+      - "Data cascade for layering global, directory, and page data."
+      - "Fast incremental builds and a small dependency tree."
+    pairs_well_with:
+      - { name: "Netlify", slug: "netlify" }
+      - { name: "Cloudflare Pages", slug: "cloudflare-pages" }
+      - { name: "Markdown", slug: "" }
+    alternatives:
+      - { name: "Astro", slug: "astro" }
+      - { name: "Hugo", slug: "hugo" }
+      - { name: "Jekyll", slug: "jekyll" }
+    example:
+      lang: "bash"
+      code: "npx @11ty/eleventy --serve"
+      explain: "Build the site from templates and serve it locally with live reload — no config file required to start."
+    gotchas: >
+      The same flexibility that makes 11ty powerful makes it easy to sprawl —
+      it has no built-in component model or asset pipeline, so you wire up CSS/JS
+      bundling yourself, and the many supported template languages mean project
+      conventions vary widely between codebases.
+    maintained_by: "Zach Leatherman + OSS"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "11ty.dev", url: "https://www.11ty.dev" }
+
+  - name: "Hugo"
+    slug: "hugo"
+    tagline: "The world's fastest static site generator, written in Go."
+    layer: [fullstack, tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2013
+    description: >
+      A <span class="abbr-link" data-abbr="SSG">static site generator</span>
+      written in Go that is renowned for building thousands of pages in
+      milliseconds. It uses Go's templating, has a powerful content/taxonomy
+      model, and ships as a single self-contained binary with no Node or runtime
+      dependency.
+    use_cases:
+      - "Large content sites and documentation with thousands of pages."
+      - "Blogs and portfolios where build speed and simplicity matter."
+      - "Teams that prefer a single binary over a Node toolchain."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "Markdown", slug: "" }
+    key_features:
+      - "Extremely fast builds — pages per millisecond."
+      - "Single self-contained binary, no runtime dependencies."
+      - "Rich taxonomies, sections, and content organization."
+      - "Built-in asset pipeline (Hugo Pipes) and image processing."
+    pairs_well_with:
+      - { name: "Netlify", slug: "netlify" }
+      - { name: "GitHub Pages", slug: "github-pages" }
+      - { name: "Cloudflare Pages", slug: "cloudflare-pages" }
+    alternatives:
+      - { name: "Jekyll", slug: "jekyll" }
+      - { name: "Eleventy", slug: "eleventy" }
+      - { name: "Astro", slug: "astro" }
+    example:
+      lang: "bash"
+      code: "hugo new site myblog && hugo server -D"
+      explain: "Create a new Hugo site and run the dev server with drafts enabled — all from one static binary."
+    gotchas: >
+      Go's templating syntax (`{{ }}` with pipelines and contexts) is
+      idiosyncratic and a real learning curve for those used to JSX or Liquid,
+      and Hugo has no JavaScript component model, so dynamic interactivity must
+      be added by hand outside the generator.
+    maintained_by: "Hugo team + OSS"
+    language: "Go"
+    license: "Apache-2.0"
+    docs:
+      - { label: "gohugo.io", url: "https://gohugo.io" }
+
+  - name: "Jekyll"
+    slug: "jekyll"
+    tagline: "Ruby's blog-aware static site generator, native to GitHub Pages."
+    layer: [fullstack, tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2008
+    description: >
+      A Ruby <span class="abbr-link" data-abbr="SSG">static site generator</span>
+      that turns Markdown, Liquid templates, and front-matter into a static site.
+      As the engine baked into GitHub Pages, it is one of the easiest ways to
+      publish a free, version-controlled blog or docs site with zero hosting
+      setup.
+    use_cases:
+      - "Blogs and personal sites hosted free on GitHub Pages."
+      - "Documentation and project sites kept in a Git repo."
+      - "Content-driven sites where Markdown + front-matter is enough."
+    prerequisites:
+      - { name: "Ruby", slug: "ruby" }
+      - { name: "HTML", slug: "html" }
+      - { name: "Markdown", slug: "" }
+    key_features:
+      - "Liquid templating with layouts, includes, and front-matter."
+      - "Blog-aware: posts, categories, tags, and pagination built in."
+      - "Native GitHub Pages integration — push to publish."
+      - "Data files and collections for structured content."
+    pairs_well_with:
+      - { name: "GitHub Pages", slug: "github-pages" }
+      - { name: "Ruby", slug: "ruby" }
+    alternatives:
+      - { name: "Hugo", slug: "hugo" }
+      - { name: "Eleventy", slug: "eleventy" }
+      - { name: "Astro", slug: "astro" }
+    example:
+      lang: "bash"
+      code: "bundle exec jekyll serve"
+      explain: "Build the site and run the local dev server — the same command used during development before pushing to GitHub Pages."
+    gotchas: >
+      Builds are slow on large sites compared with Hugo or Eleventy, and the
+      Ruby/Bundler toolchain plus the specific Liquid dialect GitHub Pages pins
+      can make local setup and plugin support fiddly — GitHub Pages only allows a
+      whitelist of plugins unless you build the site yourself.
+    maintained_by: "Jekyll core team + OSS"
+    language: "Ruby"
+    license: "MIT"
+    docs:
+      - { label: "jekyllrb.com", url: "https://jekyllrb.com" }
+
+  - name: "SolidStart"
+    slug: "solidstart"
+    tagline: "The official full-stack meta-framework for SolidJS."
+    layer: [fullstack, frontend]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2024
+    description: >
+      The official meta-framework for SolidJS, providing file-based routing,
+      server functions, and a choice of rendering modes
+      (<span class="abbr-link" data-abbr="SSR">SSR</span>,
+      <span class="abbr-link" data-abbr="SSG">SSG</span>,
+      <span class="abbr-link" data-abbr="CSR">CSR</span>, streaming). Built on
+      Vite and the Nitro server engine, it deploys to almost any host —
+      serverless, edge, or Node.
+    use_cases:
+      - "Full-stack Solid apps needing SSR plus server functions."
+      - "Performance-sensitive apps wanting fine-grained reactivity end to end."
+      - "Deploying one codebase across Node, serverless, and edge targets."
+    prerequisites:
+      - { name: "SolidJS", slug: "solidjs" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "File-based routing built on the Solid Router."
+      - "Server functions ('use server') with isomorphic data fetching."
+      - "Selectable SSR / SSG / CSR / streaming render modes."
+      - "Vite + Nitro deploys to many hosts and the edge."
+    pairs_well_with:
+      - { name: "SolidJS", slug: "solidjs" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "Vercel", slug: "vercel" }
+    alternatives:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "SvelteKit", slug: "sveltekit" }
+      - { name: "Nuxt", slug: "nuxt" }
+    example:
+      lang: "bash"
+      code: "npm create solid@latest"
+      explain: "Scaffold a new SolidStart project, choosing routing and rendering options from the interactive prompt."
+    gotchas: >
+      It is young — APIs stabilized only recently, the ecosystem of Solid-native
+      libraries is far smaller than React's, and some patterns (server functions,
+      caching) are still settling, so expect more rough edges than mature
+      meta-frameworks like Next.js.
+    maintained_by: "SolidJS team"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "start.solidjs.com", url: "https://start.solidjs.com" }
+      - { label: "docs.solidjs.com/solid-start", url: "https://docs.solidjs.com/solid-start" }

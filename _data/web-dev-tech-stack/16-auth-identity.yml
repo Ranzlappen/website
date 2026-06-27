@@ -1,0 +1,459 @@
+batch:
+  id: "auth-identity"
+  order: 16
+  name: "Auth & Identity"
+  short_name: "Auth"
+  description: >
+    Authentication, authorization, session, and identity solutions for web
+    apps — from open-source libraries you self-host (Auth.js, Lucia, Better
+    Auth, Keycloak) to managed identity platforms that own the hard parts
+    (Clerk, Auth0, Supabase Auth, WorkOS). They handle login flows, OAuth/OIDC,
+    sessions or tokens, MFA, and increasingly enterprise SSO and SCIM
+    provisioning — choose by how much you want to run yourself versus buy.
+  last_updated: "2026-06-27"
+
+entries:
+  - name: "Auth.js (NextAuth.js)"
+    slug: "auth-js"
+    tagline: "Open-source authentication for the JavaScript ecosystem."
+    layer: [fullstack, backend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2020
+    language: "TypeScript"
+    license: "ISC"
+    maintained_by: "Auth.js team + OSS"
+    description: >
+      The most widely used open-source auth library for JavaScript apps,
+      originally NextAuth.js and now framework-agnostic across Next.js,
+      SvelteKit, Express, and more. It bundles dozens of
+      <span class="abbr-link" data-abbr="OAuth">OAuth</span> /
+      <span class="abbr-link" data-abbr="OIDC">OIDC</span> providers, email and
+      credentials flows, and a database-or-<span class="abbr-link" data-abbr="JWT">JWT</span>
+      session strategy you run entirely on your own infrastructure.
+    use_cases:
+      - "Adding social and email login to a Next.js or SvelteKit app."
+      - "Self-hosted auth where you own the user table and sessions."
+      - "Apps needing many OAuth providers without integrating each by hand."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Next.js", slug: "next-js" }
+    key_features:
+      - "Dozens of built-in OAuth/OIDC providers plus email and credentials."
+      - "Database session or stateless JWT session strategies."
+      - "Adapters for Prisma, Drizzle, and most databases."
+      - "Framework adapters: Next.js, SvelteKit, Express, and others."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "SvelteKit", slug: "sveltekit" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    alternatives:
+      - { name: "Clerk", slug: "clerk" }
+      - { name: "Better Auth", slug: "better-auth" }
+      - { name: "Lucia", slug: "lucia" }
+    example:
+      lang: "ts"
+      code: |-
+        import NextAuth from "next-auth";
+        import GitHub from "next-auth/providers/github";
+        export const { handlers, auth } = NextAuth({ providers: [GitHub] });
+      explain: >
+        A complete Auth.js config — registering the GitHub provider wires up the
+        full OAuth sign-in flow with one line.
+    gotchas: >
+      It gives you the auth flow but not a full user-management UI — profile
+      pages, organizations, and an admin console are still yours to build. The
+      credentials (email/password) provider is deliberately bare-bones and the
+      docs steer you toward OAuth, so rolling your own password auth on it takes
+      care.
+    docs:
+      - { label: "authjs.dev", url: "https://authjs.dev" }
+
+  - name: "Clerk"
+    slug: "clerk"
+    tagline: "Drop-in auth and user management with prebuilt React components."
+    layer: [fullstack, frontend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2021
+    language: "—"
+    license: "proprietary"
+    maintained_by: "Clerk Inc."
+    description: >
+      A managed authentication and user-management platform built
+      frontend-first, shipping polished prebuilt React/Next.js components
+      (`<SignIn>`, `<UserButton>`, organization switcher) so you get hosted login,
+      profiles, and <span class="abbr-link" data-abbr="MFA">MFA</span> in minutes.
+      It handles <span class="abbr-link" data-abbr="OAuth">OAuth</span>, sessions,
+      and multi-tenant organizations as a <span class="abbr-link" data-abbr="BaaS">BaaS</span>.
+    use_cases:
+      - "Shipping login and signup UI fast without designing the flows."
+      - "B2B apps needing organizations, roles, and invitations out of the box."
+      - "Next.js/React products wanting hosted user management."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "Next.js", slug: "next-js" }
+    key_features:
+      - "Prebuilt, themeable React components for sign-in, profile, and orgs."
+      - "Multi-tenant organizations with roles and invitations."
+      - "Built-in MFA, passkeys, and social/OAuth providers."
+      - "Hosted user management dashboard and admin APIs."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "React", slug: "react" }
+      - { name: "Convex", slug: "convex" }
+      - { name: "Supabase", slug: "supabase" }
+    alternatives:
+      - { name: "Auth0", slug: "auth0" }
+      - { name: "Auth.js", slug: "auth-js" }
+      - { name: "WorkOS", slug: "workos" }
+    example:
+      lang: "tsx"
+      code: |-
+        import { SignIn } from "@clerk/nextjs";
+        export default function Page() {
+          return <SignIn />;
+        }
+      explain: >
+        Dropping Clerk's `<SignIn>` component renders a fully hosted, themeable
+        sign-in flow with no backend code.
+    gotchas: >
+      It's a proprietary, usage-priced service — you trade ownership of your auth
+      stack and user data for speed, and migrating off it later means
+      re-exporting users and rebuilding flows. Pricing scales with monthly active
+      users, which can surprise you as the app grows.
+    docs:
+      - { label: "clerk.com/docs", url: "https://clerk.com/docs" }
+
+  - name: "Auth0"
+    slug: "auth0"
+    tagline: "The veteran identity-as-a-service platform, now part of Okta."
+    layer: [backend, infrastructure]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2013
+    language: "—"
+    license: "proprietary"
+    maintained_by: "Okta"
+    description: >
+      A long-established identity-as-a-service platform (acquired by Okta) that
+      centralizes authentication and authorization behind hosted
+      <span class="abbr-link" data-abbr="OAuth">OAuth</span> /
+      <span class="abbr-link" data-abbr="OIDC">OIDC</span> endpoints. It supports
+      a Universal Login page, enterprise <span class="abbr-link" data-abbr="SSO">SSO</span>,
+      <span class="abbr-link" data-abbr="MFA">MFA</span>, and customizable Actions
+      that run on the login pipeline.
+    use_cases:
+      - "Enterprise apps needing SSO, SAML, and compliance-grade identity."
+      - "Centralizing auth across many apps behind one identity provider."
+      - "Customer-facing login (CIAM) with social, passwordless, and MFA."
+    prerequisites:
+      - { name: "OAuth / OIDC" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Hosted Universal Login with social, enterprise, and passwordless."
+      - "Enterprise SSO (SAML, OIDC) and MFA built in."
+      - "Actions/Rules to run custom code in the login pipeline."
+      - "SDKs and quickstarts for most languages and frameworks."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Express", slug: "express" }
+    alternatives:
+      - { name: "Clerk", slug: "clerk" }
+      - { name: "Keycloak", slug: "keycloak" }
+      - { name: "WorkOS", slug: "workos" }
+    example:
+      lang: "js"
+      code: |-
+        import { auth } from "express-oauth2-jwt-bearer";
+        app.use(auth({ audience: "my-api", issuerBaseURL: "https://YOUR.auth0.com/" }));
+      explain: >
+        Auth0's Express middleware validates the JWT access token on every
+        request against your tenant's issuer.
+    gotchas: >
+      Pricing climbs steeply past the free tier — monthly-active-user and
+      enterprise-connection costs catch teams off guard at scale. Its breadth
+      (tenants, Actions, Rules, flows) is powerful but the configuration surface
+      is large, and post-Okta the product direction leans enterprise.
+    docs:
+      - { label: "auth0.com/docs", url: "https://auth0.com/docs" }
+
+  - name: "Lucia"
+    slug: "lucia"
+    tagline: "A lightweight, own-your-database auth library for TypeScript."
+    layer: [backend]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2022
+    language: "TypeScript"
+    license: "MIT"
+    maintained_by: "pilcrowonpaper + OSS"
+    description: >
+      A lightweight, framework-agnostic TypeScript auth library that gives you
+      session management over your own database with no hosted service involved.
+      It deliberately stays low-level — you control the user and session tables
+      and write the <span class="abbr-link" data-abbr="OAuth">OAuth</span> and
+      credentials logic — appealing to developers who want full ownership over
+      magic.
+    use_cases:
+      - "Apps wanting session auth fully owned in their own database."
+      - "Learning how sessions, cookies, and OAuth actually work."
+      - "Lightweight TypeScript backends avoiding a hosted auth vendor."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Session-based auth stored in your own database."
+      - "Framework- and runtime-agnostic core."
+      - "Adapters for Prisma, Drizzle, and raw drivers."
+      - "No vendor, no hosted dependency — you own all the data."
+    pairs_well_with:
+      - { name: "SvelteKit", slug: "sveltekit" }
+      - { name: "Drizzle" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Better Auth", slug: "better-auth" }
+      - { name: "Auth.js", slug: "auth-js" }
+      - { name: "Supabase Auth", slug: "supabase-auth" }
+    example:
+      lang: "ts"
+      code: |-
+        const session = await lucia.createSession(userId, {});
+        const cookie = lucia.createSessionCookie(session.id);
+      explain: >
+        Lucia creates a session row for a user and returns a session cookie you
+        set on the response yourself.
+    gotchas: >
+      The Lucia v3 library is being wound down — the maintainer is deprecating it
+      and reframing the project as a *learning resource/guide* for implementing
+      auth yourself rather than a maintained dependency, so new projects should
+      treat it as reference material and consider Better Auth or Auth.js for
+      ongoing support.
+    docs:
+      - { label: "lucia-auth.com", url: "https://lucia-auth.com" }
+
+  - name: "Better Auth"
+    slug: "better-auth"
+    tagline: "The comprehensive, framework-agnostic TypeScript auth framework."
+    layer: [fullstack, backend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2024
+    language: "TypeScript"
+    license: "MIT"
+    maintained_by: "Bereket Engida + OSS"
+    description: >
+      A fast-rising open-source, framework-agnostic authentication and
+      authorization framework for TypeScript that aims to be batteries-included
+      where Lucia was minimal. It ships email/password,
+      <span class="abbr-link" data-abbr="OAuth">OAuth</span>,
+      <span class="abbr-link" data-abbr="MFA">2FA</span>, organizations, and a
+      plugin system, all self-hosted against your own database with strong type
+      inference.
+    use_cases:
+      - "Self-hosted auth with 2FA, orgs, and passkeys without a vendor."
+      - "TypeScript apps wanting a typed, plugin-extensible auth layer."
+      - "Migrating off a winding-down library like Lucia."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Email/password, OAuth, magic links, and passkeys built in."
+      - "2FA, organizations, and multi-session support."
+      - "Plugin architecture for extending core behaviour."
+      - "Database adapters (Prisma, Drizzle, Kysely) with full type inference."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Drizzle" }
+      - { name: "Prisma", slug: "prisma" }
+      - { name: "Kysely", slug: "kysely" }
+    alternatives:
+      - { name: "Auth.js", slug: "auth-js" }
+      - { name: "Lucia", slug: "lucia" }
+      - { name: "Clerk", slug: "clerk" }
+    example:
+      lang: "ts"
+      code: |-
+        import { betterAuth } from "better-auth";
+        export const auth = betterAuth({
+          emailAndPassword: { enabled: true },
+        });
+      explain: >
+        A Better Auth instance — enabling email/password gives you the full
+        register, login, and session flow on your own database.
+    gotchas: >
+      It's young and moving fast — APIs and plugins still evolve between minor
+      releases, so pin versions and read changelogs before upgrading. As a
+      self-hosted library you still own database schema, migrations, and
+      production hardening that a managed service would handle.
+    docs:
+      - { label: "better-auth.com", url: "https://www.better-auth.com" }
+
+  - name: "Keycloak"
+    slug: "keycloak"
+    tagline: "Open-source identity and access management you self-host."
+    layer: [backend, infrastructure]
+    maturity: mainstream
+    learning_curve: steep
+    first_released: 2014
+    language: "Java"
+    license: "Apache-2.0"
+    maintained_by: "Red Hat / CNCF"
+    description: >
+      A mature, open-source identity and access management server (a
+      CNCF project backed by Red
+      Hat) that you self-host as your own identity provider. It speaks
+      <span class="abbr-link" data-abbr="OIDC">OIDC</span>, OAuth 2.0, and SAML,
+      and provides <span class="abbr-link" data-abbr="SSO">SSO</span>, user
+      federation, social login, and fine-grained
+      <span class="abbr-link" data-abbr="RBAC">RBAC</span> out of the box.
+    use_cases:
+      - "Self-hosted SSO across many internal and customer-facing apps."
+      - "On-prem or sovereignty requirements that rule out a SaaS IdP."
+      - "Federating LDAP/Active Directory users into a modern OIDC layer."
+    prerequisites:
+      - { name: "OAuth / OIDC" }
+      - { name: "Docker", slug: "docker" }
+      - { name: "Java" }
+    key_features:
+      - "Standalone OIDC/OAuth 2.0/SAML identity provider."
+      - "Single sign-on, user federation (LDAP/AD), and social login."
+      - "Fine-grained roles, groups, and authorization policies."
+      - "Admin console plus full admin REST API and theming."
+    pairs_well_with:
+      - { name: "Docker", slug: "docker" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Spring Boot", slug: "spring-boot" }
+    alternatives:
+      - { name: "Auth0", slug: "auth0" }
+      - { name: "WorkOS", slug: "workos" }
+      - { name: "Authentik" }
+    example:
+      lang: "bash"
+      code: "docker run -p 8080:8080 -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak start-dev"
+      explain: >
+        Boot a Keycloak identity server in dev mode and open its admin console
+        on localhost:8080.
+    gotchas: >
+      It's a full server to operate, not a library — running it in production
+      means managing the JVM, a database, clustering, upgrades, and realm config,
+      which is real ops overhead. The admin model (realms, clients, scopes,
+      mappers) is deep and the learning curve is steep before the first working
+      login.
+    docs:
+      - { label: "keycloak.org/documentation", url: "https://www.keycloak.org/documentation" }
+
+  - name: "Supabase Auth"
+    slug: "supabase-auth"
+    tagline: "Postgres-native authentication built into the Supabase stack."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2020
+    language: "Go"
+    license: "Apache-2.0"
+    maintained_by: "Supabase"
+    description: >
+      The authentication service inside the Supabase platform (built on the
+      open-source GoTrue server) that issues
+      <span class="abbr-link" data-abbr="JWT">JWTs</span> tied directly to your
+      Postgres database. Because the JWT carries the user identity, it powers
+      Postgres Row-Level Security, so auth and data authorization live in one
+      place — and it supports email,
+      <span class="abbr-link" data-abbr="OAuth">OAuth</span>, and magic links.
+    use_cases:
+      - "Apps already on Supabase wanting auth wired to their database."
+      - "Enforcing per-user data access via Postgres Row-Level Security."
+      - "Quick email/social/magic-link login with a managed backend."
+    prerequisites:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Supabase", slug: "supabase" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "JWT-based auth integrated with Postgres Row-Level Security."
+      - "Email, OAuth providers, magic links, and phone OTP."
+      - "MFA and SSO (SAML) on higher tiers."
+      - "Open-source (GoTrue) and self-hostable alongside Supabase."
+    pairs_well_with:
+      - { name: "Supabase", slug: "supabase" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "React", slug: "react" }
+      - { name: "Next.js", slug: "next-js" }
+    alternatives:
+      - { name: "Firebase", slug: "firestore" }
+      - { name: "Auth.js", slug: "auth-js" }
+      - { name: "Clerk", slug: "clerk" }
+    example:
+      lang: "ts"
+      code: |-
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email, password,
+        });
+      explain: >
+        One client call signs the user in and returns a session JWT that
+        Postgres RLS policies then use to scope every query.
+    gotchas: >
+      It's most powerful when you embrace the Supabase model — its real leverage
+      is the JWT-to-Row-Level-Security link, so using it as a generic standalone
+      auth provider misses the point and adds a Postgres dependency. RLS policies
+      are easy to get subtly wrong, and a too-loose policy silently exposes data.
+    docs:
+      - { label: "supabase.com/docs/guides/auth", url: "https://supabase.com/docs/guides/auth" }
+
+  - name: "WorkOS"
+    slug: "workos"
+    tagline: "Enterprise-readiness APIs — SSO, SCIM, and directory sync."
+    layer: [backend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2020
+    language: "—"
+    license: "proprietary"
+    maintained_by: "WorkOS"
+    description: >
+      A platform of APIs that make an app "enterprise-ready" without building the
+      hard integrations yourself — primarily enterprise
+      <span class="abbr-link" data-abbr="SSO">SSO</span> (SAML/OIDC), SCIM-based
+      directory sync, and audit logs. Its AuthKit layer adds hosted user
+      authentication, so startups can sell to large customers by flipping on the
+      identity features procurement demands.
+    use_cases:
+      - "Adding enterprise SSO (SAML/OIDC) to sell to large customers."
+      - "SCIM directory sync to auto-provision and deprovision users."
+      - "Audit logs and admin portals that enterprise buyers require."
+    prerequisites:
+      - { name: "OAuth / OIDC" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Enterprise SSO across SAML and OIDC identity providers."
+      - "SCIM directory sync for user provisioning/deprovisioning."
+      - "AuthKit hosted authentication for everyday login."
+      - "Audit logs and a self-serve admin portal for IT admins."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "Auth0", slug: "auth0" }
+      - { name: "Clerk", slug: "clerk" }
+      - { name: "Keycloak", slug: "keycloak" }
+    example:
+      lang: "ts"
+      code: |-
+        const url = workos.sso.getAuthorizationUrl({
+          connection: "conn_123", redirectUri, clientId,
+        });
+      explain: >
+        WorkOS builds the SSO authorization URL for an enterprise customer's
+        connection so you redirect the user into their identity provider.
+    gotchas: >
+      It's positioned around enterprise features, so for plain consumer
+      email/social login a general auth library or Clerk is a simpler fit. SSO
+      and SCIM pricing is typically per-connection, and each enterprise customer's
+      identity provider can have its own configuration quirks to support.
+    docs:
+      - { label: "workos.com/docs", url: "https://workos.com/docs" }

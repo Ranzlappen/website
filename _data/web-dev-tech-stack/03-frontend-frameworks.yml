@@ -8,7 +8,7 @@ batch:
     the heavyweight ecosystems (React, Angular) to the compiler-driven
     lightweights (Svelte, Solid) and the HTML-first minimalists (Alpine, htmx).
     Most pair with a meta-framework and a build tool rather than standing alone.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "React"
@@ -205,7 +205,7 @@ entries:
       - "First-class TypeScript and RxJS integration."
     pairs_well_with:
       - { name: "TypeScript", slug: "typescript" }
-      - { name: "RxJS", slug: "rxjs" }
+      - { name: "RxJS" }
     alternatives:
       - { name: "React", slug: "react" }
       - { name: "Vue", slug: "vue" }
@@ -460,3 +460,161 @@ entries:
     license: "BSD-2-Clause"
     docs:
       - { label: "htmx.org", url: "https://htmx.org" }
+
+  - name: "Ember.js"
+    slug: "ember"
+    tagline: "The original convention-over-configuration JS framework."
+    layer: [frontend]
+    maturity: legacy
+    learning_curve: steep
+    first_released: 2011
+    description: >
+      A highly opinionated, batteries-included framework that brought
+      convention-over-configuration to ambitious
+      <span class="abbr-link" data-abbr="SPA">SPAs</span> years before React. It
+      ships a router, data layer (Ember Data), and a powerful CLI, and its modern
+      "Polaris" edition adopts Glimmer components and reactive signals — but its
+      ecosystem and mindshare have faded against React and Vue.
+    use_cases:
+      - "Long-lived, large enterprise apps that value stability and convention."
+      - "Teams wanting an all-in-one framework with a strong upgrade path."
+      - "Maintaining existing Ember codebases."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "HTML", slug: "html" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Batteries-included: router, data layer, CLI, testing."
+      - "Strong conventions and a managed multi-year upgrade path."
+      - "Glimmer components with template-tag (.gjs) authoring."
+      - "Reactive tracked properties / signals in modern Ember."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Vite", slug: "vite" }
+    alternatives:
+      - { name: "Angular", slug: "angular" }
+      - { name: "React", slug: "react" }
+      - { name: "Vue", slug: "vue" }
+    example:
+      lang: "bash"
+      code: "npx ember-cli new my-app"
+      explain: "Scaffold a full Ember app — router, build pipeline, and test harness — from the official CLI."
+    gotchas: >
+      Ember has churned heavily — classic components, Glimmer components,
+      Octane, and now Polaris each shifted idioms, so much of the documentation
+      and add-on ecosystem is stale. Hiring and community momentum lag far behind
+      React and Vue, making it a hard sell for greenfield projects.
+    maintained_by: "Ember core team + OSS"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "emberjs.com", url: "https://emberjs.com" }
+
+  - name: "Stencil"
+    slug: "stencil"
+    tagline: "A compiler that outputs standards-based Web Components."
+    layer: [frontend, tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2017
+    description: >
+      A toolchain from the Ionic team that
+      <span class="abbr-link" data-abbr="Transpile">compiles</span> TypeScript +
+      <span class="abbr-link" data-abbr="JSX">JSX</span> components into tiny,
+      framework-agnostic <span class="abbr-link" data-abbr="DOM">Web
+      Components</span>. The output runs in any framework or none, making Stencil
+      a popular choice for building portable design systems.
+    use_cases:
+      - "Framework-agnostic design systems shared across React, Vue, Angular."
+      - "Reusable UI component libraries distributed as custom elements."
+      - "Micro-frontends that must interoperate across stacks."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "Compiles JSX/TSX to standard custom elements."
+      - "Lazy-loading, prerendering, and SSR-friendly output."
+      - "Auto-generated framework wrappers (React/Angular/Vue)."
+      - "Built-in lazy hydration and small runtime."
+    pairs_well_with:
+      - { name: "Lit", slug: "lit" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Storybook", slug: "storybook" }
+    alternatives:
+      - { name: "Lit", slug: "lit" }
+      - { name: "Svelte", slug: "svelte" }
+    example:
+      lang: "tsx"
+      code: |-
+        @Component({ tag: 'my-badge', shadow: true })
+        export class MyBadge {
+          @Prop() label: string;
+          render() { return <span class="badge">{this.label}</span>; }
+        }
+      explain: >
+        A Stencil component decorated with a tag and a reactive prop — it
+        compiles to a real `<my-badge>` custom element usable anywhere.
+    gotchas: >
+      You inherit Web Component constraints — Shadow DOM style isolation, slot
+      quirks, and form-participation gaps — and the auto-generated framework
+      wrappers can lag behind framework releases. It is purpose-built for
+      component libraries, not for whole applications.
+    maintained_by: "Ionic team"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "stenciljs.com", url: "https://stenciljs.com" }
+
+  - name: "Marko"
+    slug: "marko"
+    tagline: "eBay's HTML-first framework with streaming SSR."
+    layer: [frontend, fullstack]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2014
+    description: >
+      An HTML-first UI framework created at eBay that pioneered streaming
+      <span class="abbr-link" data-abbr="SSR">server rendering</span> and
+      partial hydration. Marko 6 introduced a fine-grained, compiler-driven
+      <span class="abbr-link" data-abbr="Reactivity">reactivity</span> model that
+      ships almost no JavaScript for static parts of a page, making it one of the
+      most performance-focused frameworks available.
+    use_cases:
+      - "High-traffic, SEO- and performance-critical e-commerce sites."
+      - "Content-heavy pages that benefit from streaming SSR."
+      - "Apps that want minimal client-side JavaScript by default."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "HTML-superset syntax with components in .marko files."
+      - "Streaming SSR with automatic, fine-grained partial hydration."
+      - "Compiler ships near-zero JS for static content."
+      - "Resumability rather than full client re-hydration."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "Node.js", slug: "node-js" }
+    alternatives:
+      - { name: "Astro", slug: "astro" }
+      - { name: "Qwik", slug: "qwik" }
+      - { name: "SolidJS", slug: "solidjs" }
+    example:
+      lang: "marko"
+      code: |-
+        <let/count=0 />
+        <button onClick() { count++ }>
+          Count: ${count}
+        </button>
+      explain: >
+        A Marko 6 component — `<let>` declares reactive state and only the count
+        text node updates on click, with minimal JS shipped to the browser.
+    gotchas: >
+      Marko's ecosystem and hiring pool are small relative to its capabilities,
+      and Marko 6 is a substantial rewrite, so older tutorials and tags do not
+      match current syntax. Tooling outside the official Vite/Run setup is
+      limited.
+    maintained_by: "eBay + OSS"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "markojs.com", url: "https://markojs.com" }

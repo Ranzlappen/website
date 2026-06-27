@@ -8,7 +8,7 @@ batch:
     the big hosting platforms built on top (GitHub, GitLab, Bitbucket), the official
     command-line tool for working with them (GitHub CLI), and the distributed VCS
     that Git largely displaced (Mercurial).
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Git"
@@ -310,3 +310,192 @@ entries:
     license: "GPL-2.0"
     docs:
       - { label: "mercurial-scm.org", url: "https://www.mercurial-scm.org/doc/" }
+
+  - name: "Jujutsu"
+    slug: "jujutsu"
+    tagline: "A Git-compatible VCS that rethinks the working copy and history."
+    layer: [tooling]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2023
+    description: >
+      A version-control system (`jj`) that uses Git repositories as a storage
+      backend but replaces Git's model: the working copy is itself a commit,
+      there is no staging area, and conflicts are recorded in commits rather than
+      blocking you. You keep your existing GitHub remotes while getting effortless
+      history rewriting and an automatic operation log for undo.
+    use_cases:
+      - "Power users who frequently rewrite, reorder, and split commits."
+      - "Working against existing Git/GitHub repos with a cleaner mental model."
+      - "Recovering from mistakes via the undo-everything operation log."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+    key_features:
+      - "Working copy is a commit — no separate staging area."
+      - "First-class conflicts that don't halt your workflow."
+      - "Operation log makes virtually every action undoable."
+      - "Git-compatible backend — push/pull to existing Git remotes."
+    pairs_well_with:
+      - { name: "Git", slug: "git" }
+      - { name: "GitHub", slug: "github" }
+    alternatives:
+      - { name: "Git", slug: "git" }
+      - { name: "Mercurial", slug: "mercurial" }
+    example:
+      lang: "bash"
+      code: "jj git clone https://github.com/user/repo && jj describe -m \"my change\""
+      explain: "Clones a Git repo with jj, then sets the description of the current working-copy commit."
+    gotchas: >
+      The mental model is genuinely different — "no staging area" and "the working
+      copy is a commit" confuse people coming straight from Git muscle memory.
+      It is also young and pre-1.0, so commands and behaviour can still shift
+      between releases.
+    maintained_by: "Google + OSS community"
+    language: "Rust"
+    license: "Apache-2.0"
+    docs:
+      - { label: "jj-vcs.github.io/jj", url: "https://jj-vcs.github.io/jj/latest/" }
+
+  - name: "Gitea"
+    slug: "gitea"
+    tagline: "Lightweight, self-hosted Git service — a GitHub you run yourself."
+    layer: [infrastructure, tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      A self-hosted Git platform written in Go that ships as a single binary and
+      provides repositories, pull requests, issues, a built-in
+      <span class="abbr-link" data-abbr="CI/CD">CI/CD</span> runner (Gitea
+      Actions, GitHub-Actions-compatible), and a package registry. It is a
+      lightweight, privacy-friendly alternative to hosting on GitHub or running a
+      heavy GitLab instance.
+    use_cases:
+      - "Self-hosting private repos for full control over code and data."
+      - "Small teams or homelabs wanting GitHub-like features on cheap hardware."
+      - "Air-gapped or compliance-restricted environments that can't use SaaS."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "Linux basics", slug: "" }
+    key_features:
+      - "Single Go binary — trivial to install and update."
+      - "Pull requests, issues, wikis, and a package registry."
+      - "Gitea Actions — GitHub-Actions-compatible built-in CI/CD."
+      - "Low resource footprint compared with GitLab."
+    pairs_well_with:
+      - { name: "Docker", slug: "docker" }
+      - { name: "Git", slug: "git" }
+    alternatives:
+      - { name: "GitHub", slug: "github" }
+      - { name: "GitLab", slug: "gitlab" }
+      - { name: "Bitbucket", slug: "bitbucket" }
+    example:
+      lang: "bash"
+      code: "docker run -p 3000:3000 -v gitea:/data gitea/gitea:latest"
+      explain: "Spins up a self-hosted Gitea server in Docker, exposing the web UI on port 3000."
+    gotchas: >
+      Self-hosting means you own backups, upgrades, uptime, and security patching —
+      there is no managed SLA. The ecosystem of integrations and third-party apps
+      is far smaller than GitHub's, and a 2022 governance dispute spawned the
+      Forgejo fork, so weigh which project you want to follow.
+    maintained_by: "Gitea + OSS community"
+    language: "Go"
+    license: "MIT"
+    docs:
+      - { label: "docs.gitea.com", url: "https://docs.gitea.com" }
+
+  - name: "Husky"
+    slug: "husky"
+    tagline: "Modern, fast Git hooks for JavaScript projects."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2014
+    description: >
+      A tiny tool that makes Git hooks easy to share across a team by storing them
+      in the repo and installing them automatically. It is most often used to run
+      <span class="abbr-link" data-abbr="Linting">linting</span>, formatting, and
+      tests on `pre-commit` or to validate messages on `commit-msg`, so bad code
+      never reaches a commit.
+    use_cases:
+      - "Running lint-staged + Prettier on staged files before each commit."
+      - "Enforcing Conventional Commit messages via a commit-msg hook."
+      - "Blocking pushes when tests or type-checks fail."
+    prerequisites:
+      - { name: "Git", slug: "git" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Shareable hooks committed to the repo, auto-installed via prepare script."
+      - "Works with any hook (pre-commit, commit-msg, pre-push)."
+      - "Pairs with lint-staged to only check changed files."
+      - "Zero-dependency, fast shell hooks in v9+."
+    pairs_well_with:
+      - { name: "lint-staged", slug: "" }
+      - { name: "Prettier", slug: "prettier" }
+      - { name: "ESLint", slug: "eslint" }
+    alternatives:
+      - { name: "Lefthook", slug: "" }
+      - { name: "pre-commit", slug: "" }
+    example:
+      lang: "bash"
+      code: "echo \"npx lint-staged\" > .husky/pre-commit"
+      explain: "Adds a pre-commit hook that runs lint-staged on every commit."
+    gotchas: >
+      Hooks run only on machines where Husky actually installed them, and any
+      contributor can bypass them with `git commit --no-verify` — so they are a
+      convenience, not a security boundary. Real enforcement still belongs in CI.
+      The v9 rewrite also changed the install command and hook format from older
+      tutorials.
+    maintained_by: "typicode + OSS community"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "typicode.github.io/husky", url: "https://typicode.github.io/husky/" }
+
+  - name: "Changesets"
+    slug: "changesets"
+    tagline: "Versioning and changelogs built for monorepos."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2019
+    description: >
+      A tool for managing versions and changelogs, especially in a
+      <span class="abbr-link" data-abbr="Monorepo">monorepo</span> of many
+      packages. Contributors add a small "changeset" markdown file describing the
+      change and its <span class="abbr-link" data-abbr="SemVer">SemVer</span> bump;
+      on release it consumes them to version the right packages, write changelogs,
+      and publish to npm.
+    use_cases:
+      - "Coordinating SemVer bumps across many packages in a monorepo."
+      - "Auto-generating changelogs from per-PR changeset files."
+      - "Automating npm publishes via the Changesets GitHub Action."
+    prerequisites:
+      - { name: "npm registry", slug: "npm-registry" }
+      - { name: "Monorepo basics", slug: "" }
+    key_features:
+      - "Per-change markdown files capturing intent and bump type."
+      - "Resolves inter-package dependency bumps automatically."
+      - "Generates changelogs and a release PR."
+      - "GitHub Action that opens a 'Version Packages' PR and publishes on merge."
+    pairs_well_with:
+      - { name: "pnpm", slug: "pnpm" }
+      - { name: "Turborepo", slug: "turborepo" }
+      - { name: "GitHub Actions", slug: "github-actions" }
+    alternatives:
+      - { name: "semantic-release", slug: "" }
+      - { name: "Lerna", slug: "" }
+    example:
+      lang: "bash"
+      code: "npx changeset"
+      explain: "Prompts for which packages changed and the bump type, writing a changeset file to commit with your PR."
+    gotchas: >
+      It relies on discipline — if contributors forget to add a changeset, a
+      change ships with no version bump or changelog entry (enforce it with a CI
+      check). It is also npm-publish-oriented, so non-JS or non-published packages
+      get less out of it.
+    maintained_by: "Atlassian + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "github.com/changesets/changesets", url: "https://github.com/changesets/changesets" }

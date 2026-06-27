@@ -1,0 +1,362 @@
+batch:
+  id: "observability"
+  order: 21
+  name: "Observability & Monitoring"
+  short_name: "Observability"
+  description: >
+    How you find out what your running software is actually doing. Error
+    tracking (Sentry) captures exceptions with stack traces; metrics + dashboards
+    (Prometheus, Grafana) chart the health of systems over time; full-stack
+    platforms (Datadog) unify metrics, logs, and traces; the
+    OpenTelemetry
+    standard provides a vendor-neutral way to emit all of that telemetry. On the
+    product side, analytics + session replay (PostHog, LogRocket) show how real
+    users move through the front end.
+  last_updated: "2026-06-27"
+
+entries:
+  - name: "Sentry"
+    slug: "sentry"
+    tagline: "Application error and performance monitoring."
+    layer: [tooling, infrastructure]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2012
+    description: >
+      The default tool for catching and triaging application errors: it captures
+      exceptions with full stack traces, breadcrumbs, release context, and the
+      affected users, then groups them so you fix the right bug first. It has
+      expanded into performance monitoring, distributed
+      tracing, and session
+      replay, with SDKs for virtually every language and framework.
+    use_cases:
+      - "Catching and triaging frontend and backend exceptions in production."
+      - "Tracing slow requests and performance regressions across services."
+      - "Tying errors to specific releases and affected users."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Automatic error capture with stack traces and breadcrumbs."
+      - "Smart grouping of duplicate errors into single issues."
+      - "Performance monitoring and distributed tracing."
+      - "SDKs for most languages plus release and source-map support."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "OpenTelemetry", slug: "opentelemetry" }
+    alternatives:
+      - { name: "Datadog", slug: "datadog" }
+      - { name: "LogRocket", slug: "logrocket" }
+      - { name: "Rollbar" }
+    example:
+      lang: "ts"
+      code: |-
+        import * as Sentry from '@sentry/react';
+        Sentry.init({ dsn: process.env.SENTRY_DSN });
+      explain: "Initializing the SDK with your DSN starts auto-capturing errors and performance data."
+    gotchas: >
+      Costs scale with event volume, so a noisy app or a chatty release can burn
+      through your quota fast — sample and filter aggressively. The licence
+      changed from BSD to the source-available FSL/BSL, so the modern server isn't
+      OSI open source; self-hosting is heavy, and most teams use the SaaS.
+    maintained_by: "Sentry"
+    language: "Python/TypeScript"
+    license: "FSL/BSL"
+    docs:
+      - { label: "sentry.io", url: "https://sentry.io" }
+      - { label: "docs.sentry.io", url: "https://docs.sentry.io" }
+
+  - name: "Datadog"
+    slug: "datadog"
+    tagline: "Unified SaaS platform for metrics, logs, traces, and more."
+    layer: [infrastructure]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2010
+    description: >
+      A comprehensive, hosted observability platform that pulls infrastructure
+      metrics, application traces (APM), logs, real-user monitoring, and security
+      signals into one place. Its breadth is the draw — one
+      <span class="abbr-link" data-abbr="SaaS">SaaS</span> covers what would
+      otherwise be several tools — and an agent plus hundreds of integrations make
+      onboarding existing systems straightforward. It's a market leader for
+      enterprise monitoring.
+    use_cases:
+      - "Single-pane monitoring of infrastructure, apps, and logs together."
+      - "APM and distributed tracing across microservices."
+      - "Enterprises wanting a managed platform over self-hosted tooling."
+    prerequisites:
+      - { name: "Observability concepts" }
+    key_features:
+      - "Unified metrics, logs, APM traces, and RUM in one platform."
+      - "Agent plus 800+ integrations for common services."
+      - "Dashboards, monitors, and alerting with anomaly detection."
+      - "Adds security, CI visibility, and synthetic monitoring."
+    pairs_well_with:
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "AWS", slug: "aws" }
+      - { name: "OpenTelemetry", slug: "opentelemetry" }
+    alternatives:
+      - { name: "Grafana", slug: "grafana" }
+      - { name: "New Relic" }
+      - { name: "Sentry", slug: "sentry" }
+    example:
+      lang: "yaml"
+      code: |-
+        # datadog-agent values
+        datadog:
+          apiKey: <your-api-key>
+          logs: { enabled: true }
+      explain: "Configuring the Datadog agent (here via Helm) to ship metrics and logs to the platform."
+    gotchas: >
+      The headline complaint is cost — pricing has many per-host, per-GB, and
+      per-feature dimensions that can produce surprise bills at scale, so watch
+      log and custom-metric volume. It's fully proprietary SaaS, so you're
+      committing to a vendor rather than owning the stack.
+    maintained_by: "Datadog"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "datadoghq.com", url: "https://www.datadoghq.com" }
+
+  - name: "Grafana"
+    slug: "grafana"
+    tagline: "The open dashboarding and visualization layer for observability."
+    layer: [infrastructure, tooling]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2014
+    description: >
+      The de-facto open-source tool for visualizing time-series data and building
+      observability dashboards. It queries many backends — Prometheus, Loki,
+      Tempo, Elasticsearch, SQL databases — and renders graphs, panels, and
+      alerts over them. Grafana Labs has grown it into a full LGTM stack (Loki for
+      logs, Grafana, Tempo for traces, Mimir for metrics).
+    use_cases:
+      - "Dashboards on top of Prometheus and other time-series sources."
+      - "Unified visualization across metrics, logs, and traces."
+      - "Alerting and on-call workflows over operational data."
+    prerequisites:
+      - { name: "Prometheus", slug: "prometheus" }
+    key_features:
+      - "Pluggable data sources — Prometheus, Loki, SQL, and many more."
+      - "Rich, shareable dashboards with templating and variables."
+      - "Built-in alerting engine and notification routing."
+      - "Part of the LGTM stack (Loki, Grafana, Tempo, Mimir)."
+    pairs_well_with:
+      - { name: "Prometheus", slug: "prometheus" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "OpenTelemetry", slug: "opentelemetry" }
+    alternatives:
+      - { name: "Datadog", slug: "datadog" }
+      - { name: "Kibana" }
+    example:
+      lang: "promql"
+      code: 'rate(http_requests_total{status="500"}[5m])'
+      explain: "A PromQL query like this drives a Grafana panel charting the 5xx error rate over time."
+    gotchas: >
+      Grafana visualizes data but does not store it — you still need a backend
+      (Prometheus, Loki, etc.), so it's one piece of the stack, not the whole
+      thing. The core moved to the copyleft AGPL-3.0 licence, and the most
+      advanced features live in the paid Grafana Cloud / Enterprise tiers.
+    maintained_by: "Grafana Labs"
+    language: "Go"
+    license: "AGPL-3.0"
+    docs:
+      - { label: "grafana.com", url: "https://grafana.com" }
+
+  - name: "Prometheus"
+    slug: "prometheus"
+    tagline: "Pull-based metrics collection and time-series database."
+    layer: [infrastructure]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2012
+    description: >
+      The CNCF-graduated standard for metrics: it scrapes numeric time-series
+      from instrumented targets at intervals, stores them in its own
+      time-series database, and exposes the PromQL query language for slicing and
+      alerting. Its pull model and label-based data model fit dynamic, container
+      environments, which is why it's the default metrics layer in Kubernetes.
+    use_cases:
+      - "Collecting service and infrastructure metrics in Kubernetes."
+      - "Alerting on numeric thresholds via Alertmanager."
+      - "Feeding metrics dashboards (typically rendered in Grafana)."
+    prerequisites:
+      - { name: "Observability concepts" }
+    key_features:
+      - "Pull-based scraping of metrics endpoints at intervals."
+      - "Multi-dimensional, label-based data model."
+      - "PromQL query language for aggregation and alerting."
+      - "Alertmanager for routing and deduplicating alerts."
+    pairs_well_with:
+      - { name: "Grafana", slug: "grafana" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "OpenTelemetry", slug: "opentelemetry" }
+    alternatives:
+      - { name: "Datadog", slug: "datadog" }
+      - { name: "VictoriaMetrics" }
+      - { name: "InfluxDB" }
+    example:
+      lang: "yaml"
+      code: |-
+        scrape_configs:
+          - job_name: 'api'
+            static_configs:
+              - targets: ['localhost:9090']
+      explain: "A scrape config tells Prometheus which target endpoint to pull metrics from and how to label it."
+    gotchas: >
+      It's built for metrics, not logs or traces, and a single server's local
+      storage doesn't scale or replicate on its own — long-term, highly-available
+      storage needs Thanos, Mimir, or a hosted backend. The pull model also means
+      short-lived/batch jobs need a Pushgateway to be observed at all.
+    maintained_by: "CNCF"
+    language: "Go"
+    license: "Apache-2.0"
+    docs:
+      - { label: "prometheus.io", url: "https://prometheus.io" }
+
+  - name: "OpenTelemetry"
+    slug: "opentelemetry"
+    tagline: "The vendor-neutral standard for telemetry — traces, metrics, logs."
+    layer: [infrastructure, tooling]
+    maturity: rising
+    learning_curve: steep
+    first_released: 2019
+    description: >
+      A CNCF project defining a single, vendor-neutral standard and set of SDKs
+      for generating telemetry — distributed traces, metrics, and logs — so you
+      instrument your code once and export to any compatible backend (Datadog,
+      Grafana, Honeycomb, …). The OTel Collector receives, processes, and routes
+      that data, decoupling instrumentation from the vendor you happen to use.
+    use_cases:
+      - "Instrumenting apps once and avoiding lock-in to one vendor's SDK."
+      - "Distributed tracing across polyglot microservices."
+      - "Routing telemetry to multiple backends via the Collector."
+    prerequisites:
+      - { name: "Observability concepts" }
+    key_features:
+      - "Unified spec for traces, metrics, and logs."
+      - "SDKs across many languages with a common data model."
+      - "OTel Collector to receive, transform, and export telemetry."
+      - "Backend-agnostic — export to most observability vendors."
+    pairs_well_with:
+      - { name: "Grafana", slug: "grafana" }
+      - { name: "Prometheus", slug: "prometheus" }
+      - { name: "Datadog", slug: "datadog" }
+    alternatives:
+      - { name: "Vendor-specific agents" }
+      - { name: "OpenCensus" }
+    example:
+      lang: "ts"
+      code: |-
+        import { trace } from '@opentelemetry/api';
+        const span = trace.getTracer('app').startSpan('handleRequest');
+      explain: "Starting a span with the OTel API records a unit of work that any compatible backend can ingest."
+    gotchas: >
+      The breadth is also the cost — there's a real learning curve to SDKs,
+      exporters, the Collector, and sampling, and the signals have matured at
+      different rates (tracing and metrics are stable; logs landed later). It's a
+      standard, not a backend: you still need somewhere (Grafana, Datadog) to
+      store and visualize what it emits.
+    maintained_by: "CNCF"
+    language: "multi"
+    license: "Apache-2.0"
+    docs:
+      - { label: "opentelemetry.io", url: "https://opentelemetry.io" }
+
+  - name: "PostHog"
+    slug: "posthog"
+    tagline: "Open-source product analytics + session replay + feature flags."
+    layer: [infrastructure, tooling]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2020
+    description: >
+      An all-in-one product analytics platform: event tracking, funnels, and
+      cohorts, plus session replay, feature flags, A/B experiments, and surveys in
+      one tool. It's open source and self-hostable, with a hosted cloud option,
+      positioning itself as a privacy-friendlier, developer-oriented alternative
+      to stitching together several separate SaaS products.
+    use_cases:
+      - "Product analytics — funnels, retention, and user cohorts."
+      - "Watching session replays to debug real user behaviour."
+      - "Feature flags and A/B experiments alongside the analytics."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Event-based product analytics with funnels and cohorts."
+      - "Built-in session replay tied to analytics events."
+      - "Feature flags, experiments, and surveys in one platform."
+      - "Open source and self-hostable, plus a hosted cloud."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Next.js", slug: "next-js" }
+    alternatives:
+      - { name: "Amplitude" }
+      - { name: "Mixpanel" }
+      - { name: "LogRocket", slug: "logrocket" }
+    example:
+      lang: "ts"
+      code: |-
+        import posthog from 'posthog-js';
+        posthog.init('<token>', { api_host: 'https://app.posthog.com' });
+      explain: "Initializing the JS SDK begins capturing product events and (optionally) session recordings."
+    gotchas: >
+      The breadth means more to configure and govern than a single-purpose tool,
+      and session replay plus high event volume can get expensive on cloud and
+      heavy to self-host. As with any analytics, recording user sessions raises
+      privacy and consent obligations you must handle.
+    maintained_by: "PostHog"
+    language: "Python/TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "posthog.com", url: "https://posthog.com" }
+
+  - name: "LogRocket"
+    slug: "logrocket"
+    tagline: "Frontend session replay with performance and error monitoring."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2016
+    description: >
+      A frontend monitoring tool centered on session replay — it records what
+      users actually did (DOM, network requests, console, Redux/state) so you can
+      watch a pixel-perfect playback of a bug or a confusing flow. It layers
+      performance metrics, error tracking, and analytics on top, aimed squarely at
+      diagnosing client-side issues from the user's perspective.
+    use_cases:
+      - "Replaying a user's session to reproduce a frontend bug."
+      - "Diagnosing UX friction and rage-clicks from real recordings."
+      - "Correlating frontend errors with the exact actions that triggered them."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Pixel-accurate session replay with network and console capture."
+      - "Frontend error tracking tied to the recorded session."
+      - "Performance metrics including Core Web Vitals."
+      - "State/Redux capture for deep frontend debugging."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "Sentry", slug: "sentry" }
+    alternatives:
+      - { name: "PostHog", slug: "posthog" }
+      - { name: "FullStory" }
+      - { name: "Sentry", slug: "sentry" }
+    example:
+      lang: "ts"
+      code: |-
+        import LogRocket from 'logrocket';
+        LogRocket.init('app/id');
+      explain: "Initializing the SDK starts recording user sessions for later playback and debugging."
+    gotchas: >
+      Recording sessions captures potentially sensitive user input, so you must
+      configure input sanitization and meet privacy/consent rules before
+      shipping. It's frontend-focused and proprietary SaaS, and replay storage
+      means pricing scales with session volume.
+    maintained_by: "LogRocket"
+    language: "—"
+    license: "proprietary"
+    docs:
+      - { label: "logrocket.com", url: "https://logrocket.com" }

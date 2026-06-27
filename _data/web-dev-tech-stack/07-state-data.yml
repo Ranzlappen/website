@@ -9,7 +9,7 @@ batch:
     fetching, caching, and revalidation (TanStack Query, SWR), a dedicated
     GraphQL client (Apollo), and state machines for complex flows (XState). Most
     apps end up pairing a small client store with a data-fetching library.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Redux Toolkit"
@@ -428,3 +428,207 @@ entries:
     license: "MIT"
     docs:
       - { label: "stately.ai/docs/xstate", url: "https://stately.ai/docs/xstate" }
+
+  - name: "Pinia"
+    slug: "pinia"
+    tagline: "The official Vue store — intuitive, typed, and devtools-friendly."
+    layer: [frontend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2019
+    description: >
+      The official state-management library for Vue, succeeding Vuex. Stores are
+      defined with a simple function or options object, are fully typed in
+      TypeScript without extra ceremony, and integrate with Vue's reactivity and
+      devtools (including time-travel) out of the box.
+    use_cases:
+      - "Shared global state across components in a Vue or Nuxt app."
+      - "Replacing Vuex in modern Vue 3 projects."
+      - "Typed stores with SSR support under Nuxt."
+    prerequisites:
+      - { name: "Vue", slug: "vue" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Tiny API — define stores with state, getters, and actions."
+      - "Full TypeScript inference with no manual typing boilerplate."
+      - "Vue Devtools integration with time-travel and hot module replacement."
+      - "First-class SSR support in Nuxt."
+    pairs_well_with:
+      - { name: "Vue", slug: "vue" }
+      - { name: "Nuxt", slug: "nuxt" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Redux Toolkit", slug: "redux-toolkit" }
+      - { name: "Zustand", slug: "zustand" }
+    example:
+      lang: "ts"
+      code: |-
+        export const useCounter = defineStore('counter', {
+          state: () => ({ n: 0 }),
+          actions: { inc() { this.n++ } },
+        });
+      explain: >
+        A Pinia store with reactive state and an action — any component calls
+        useCounter() to read `n` reactively and trigger inc().
+    gotchas: >
+      Pinia is Vue-specific — it leans on Vue's reactivity, so it isn't a
+      portable store you can reuse in React or vanilla apps. Destructuring a
+      store breaks reactivity; use `storeToRefs()` to pull out reactive
+      references.
+    maintained_by: "Vue core team"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "pinia.vuejs.org", url: "https://pinia.vuejs.org" }
+
+  - name: "Valtio"
+    slug: "valtio"
+    tagline: "Proxy-based state — mutate a plain object, components react."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      A small proxy-based state library from Poimandres. You create a mutable
+      proxy object and change it imperatively; components read a reactive snapshot
+      with `useSnapshot()` and re-render only when the parts they touched change.
+      It feels like MobX's mutability with a far smaller surface.
+    use_cases:
+      - "Apps that prefer mutable, imperative state updates over reducers."
+      - "Sharing state outside React (the proxy works anywhere)."
+      - "Fine-grained re-renders without manual selectors."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "React", slug: "react" }
+    key_features:
+      - "Mutate a plain proxy object — no actions or reducers required."
+      - "`useSnapshot()` tracks reads for automatic fine-grained re-renders."
+      - "Works outside React; derive, subscribe, and proxy nested state."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Zustand", slug: "zustand" }
+      - { name: "Jotai", slug: "jotai" }
+      - { name: "MobX", slug: "mobx" }
+    example:
+      lang: "ts"
+      code: |-
+        const state = proxy({ n: 0 });
+        function Counter() {
+          const snap = useSnapshot(state);
+          return <button onClick={() => state.n++}>{snap.n}</button>;
+        }
+      explain: >
+        A Valtio proxy mutated directly on click, while the component renders from
+        an immutable snapshot that re-renders only when `n` changes.
+    gotchas: >
+      The mutable-proxy model is convenient but leaky — mutate the proxy to write,
+      but always render from the `useSnapshot()` result, never the proxy itself,
+      or you lose reactivity. Snapshots are frozen, so accidentally mutating one
+      throws in strict mode.
+    maintained_by: "Poimandres"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "valtio.dev", url: "https://valtio.dev" }
+
+  - name: "Zod"
+    slug: "zod"
+    tagline: "TypeScript-first schema validation with static type inference."
+    layer: [tooling, fullstack]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      A schema declaration and validation library where the schema is the single
+      source of truth — you write a Zod schema once and infer the static
+      TypeScript type from it, so runtime validation and compile-time types never
+      drift. It's the de-facto validator for forms, API boundaries, and env
+      parsing across the TS ecosystem.
+    use_cases:
+      - "Validating and parsing untrusted input at API and form boundaries."
+      - "Deriving TypeScript types from a runtime schema (single source of truth)."
+      - "Parsing and validating environment variables at startup."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Infer static TS types directly from a schema with `z.infer`."
+      - "Composable schemas — objects, unions, refinements, transforms."
+      - "Rich, structured error objects suited to form feedback."
+      - "Huge ecosystem integration (tRPC, React Hook Form, OpenAPI tools)."
+    pairs_well_with:
+      - { name: "tRPC", slug: "trpc" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "Valibot", slug: "" }
+      - { name: "Yup", slug: "" }
+    example:
+      lang: "ts"
+      code: |-
+        const User = z.object({ name: z.string(), age: z.number().int() });
+        type User = z.infer<typeof User>;
+        const u = User.parse(input);
+      explain: >
+        One schema validates `input` at runtime and supplies the static `User`
+        type via z.infer, keeping types and validation in sync.
+    gotchas: >
+      Validation runs at runtime, so large schemas on hot paths cost CPU — and
+      `.parse()` throws while `.safeParse()` returns a result, so mixing them up
+      means unhandled exceptions. The v4 rewrite changed several APIs, so older
+      tutorials may not match current syntax.
+    maintained_by: "Colin McDonnell + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "zod.dev", url: "https://zod.dev" }
+
+  - name: "Nano Stores"
+    slug: "nanostores"
+    tagline: "Tiny (<1 KB) framework-agnostic atomic state stores."
+    layer: [frontend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A minimalist state manager (often under 1 KB) built around atoms and
+      computed values, with adapters for React, Vue, Svelte, Solid, and vanilla
+      JS. Its tree-shakable, framework-agnostic design makes it a favorite for
+      sharing state across islands in Astro and other multi-framework setups.
+    use_cases:
+      - "Sharing state between framework islands in Astro."
+      - "Bundle-size-critical apps and embeddable widgets."
+      - "Reusing one store across React, Vue, and Svelte components."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Atoms and computed (derived) stores with a tiny footprint."
+      - "Framework adapters for React, Vue, Svelte, Solid, and vanilla JS."
+      - "Tree-shakable — you ship only the helpers you import."
+    pairs_well_with:
+      - { name: "Astro", slug: "astro" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Jotai", slug: "jotai" }
+      - { name: "Zustand", slug: "zustand" }
+    example:
+      lang: "ts"
+      code: |-
+        export const count = atom(0);
+        count.set(count.get() + 1);
+        // React: const n = useStore(count);
+      explain: >
+        An atom holds a value with get/set, and any framework's `useStore` hook
+        subscribes a component to it.
+    gotchas: >
+      The minimalism is the trade-off — there's no devtools time-travel, no
+      built-in middleware, and patterns for complex nested state are largely
+      DIY. It shines for cross-island and shared state, less so as the single
+      store of a large SPA.
+    maintained_by: "Andrey Sitnik + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "github.com/nanostores/nanostores", url: "https://github.com/nanostores/nanostores" }

@@ -1,0 +1,463 @@
+batch:
+  id: "ui-components"
+  order: 20
+  name: "UI Component Libraries"
+  short_name: "UI Kits"
+  description: >
+    Pre-built UI building blocks, split into two camps. Styled kits (Bootstrap,
+    MUI, Chakra, Ant Design, Mantine) ship opinionated, ready-to-use components
+    with their own look, so you assemble screens fast; headless / unstyled
+    primitives (Radix UI, Headless UI, and the copy-in shadcn/ui that sits on
+    them) give you behaviour and
+    <span class="abbr-link" data-abbr="a11y">accessibility</span> with zero
+    visuals, leaving the styling — usually Tailwind — to you. DaisyUI bridges the
+    two by layering component classes on top of Tailwind.
+  last_updated: "2026-06-27"
+
+entries:
+  - name: "Bootstrap"
+    slug: "bootstrap"
+    tagline: "The original responsive CSS + component framework."
+    layer: [styling, frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2011
+    description: >
+      The framework that popularized the 12-column responsive grid and a full set
+      of ready-styled components — buttons, navbars, modals, cards — driven by
+      utility and component classes. Born at Twitter, it's still everywhere on
+      dashboards, internal tools, and CMS themes. v5 dropped the jQuery
+      dependency and added its own CSS custom properties and utility API.
+    use_cases:
+      - "Standing up a responsive, conventional UI quickly without bespoke CSS."
+      - "Admin dashboards, internal tools, and CMS/server-rendered themes."
+      - "Prototypes and MVPs where a familiar, neutral look is fine."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Responsive 12-column grid and a deep utility-class library."
+      - "Large catalogue of pre-styled components (modals, navbars, cards)."
+      - "v5 is jQuery-free with vanilla-JS plugins and CSS variables."
+      - "Sass source and theming via variable overrides."
+    pairs_well_with:
+      - { name: "Sass", slug: "sass" }
+      - { name: "JavaScript", slug: "javascript" }
+    alternatives:
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "MUI", slug: "mui" }
+      - { name: "DaisyUI", slug: "daisyui" }
+    example:
+      lang: "html"
+      code: '<button class="btn btn-primary">Save</button>'
+      explain: "Two component classes render Bootstrap's fully styled primary button — no custom CSS."
+    gotchas: >
+      The trade-off is sameness — out-of-the-box Bootstrap sites look alike, so
+      meaningful branding means overriding its Sass variables, not just adding
+      classes. It's class-and-markup driven rather than component-based, so it
+      doesn't integrate as naturally with React/Vue as framework-native kits.
+    maintained_by: "Bootstrap team + OSS"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "getbootstrap.com", url: "https://getbootstrap.com" }
+
+  - name: "MUI (Material UI)"
+    slug: "mui"
+    tagline: "Comprehensive React components implementing Material Design."
+    layer: [frontend, styling]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2014
+    description: >
+      The most widely used React component library, implementing Google's
+      Material Design with a deep catalogue — data grids, date pickers, autocomplete,
+      and more. It's styled via a theming system (historically on Emotion) and
+      ships both free and commercial (MUI X) tiers. Comprehensive but opinionated,
+      it brings the Material look unless you invest in re-theming.
+    use_cases:
+      - "React dashboards and admin panels needing rich components fast."
+      - "Teams that want a polished, accessible component set out of the box."
+      - "Apps comfortable adopting (or heavily theming) Material Design."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Large catalogue including advanced MUI X data grid and pickers."
+      - "Theming system with design tokens and dark mode support."
+      - "Accessible components following Material Design guidelines."
+      - "First-class TypeScript types throughout."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Emotion", slug: "emotion" }
+    alternatives:
+      - { name: "Chakra UI", slug: "chakra-ui" }
+      - { name: "Ant Design", slug: "ant-design" }
+      - { name: "shadcn/ui", slug: "shadcn-ui" }
+    example:
+      lang: "tsx"
+      code: |-
+        import Button from '@mui/material/Button';
+        export const Save = () => <Button variant="contained">Save</Button>;
+      explain: "A single import yields a fully styled, themeable Material Design button component."
+    gotchas: >
+      The Material look is strong and re-theming it to not look like Material is
+      real work — budget for it if you want a distinct brand. The runtime
+      CSS-in-JS styling engine adds
+      overhead and complicates React Server Components, and the most powerful
+      MUI X features (grid pro, charts) sit behind a paid licence.
+    maintained_by: "MUI"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "mui.com", url: "https://mui.com" }
+
+  - name: "shadcn/ui"
+    slug: "shadcn-ui"
+    tagline: "Copy-in components on Radix + Tailwind that you own."
+    layer: [frontend, styling]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2023
+    description: >
+      Not an installed dependency but a collection of beautifully styled
+      components you copy into your own codebase via a CLI — built on Radix UI
+      primitives and styled with Tailwind. Because the source lands in your repo,
+      you own and edit it directly, with no version lock-in or black-box package.
+      It exploded in popularity as the default look for modern React/Next.js apps.
+    use_cases:
+      - "React/Next.js apps wanting polished components you fully control."
+      - "Teams that prefer owning component source over a dependency."
+      - "Building a bespoke design system on accessible Radix primitives."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "Radix UI", slug: "radix-ui" }
+    key_features:
+      - "CLI copies component source into your project — you own the code."
+      - "Built on accessible Radix UI primitives, styled with Tailwind."
+      - "No runtime dependency or version lock-in to a UI package."
+      - "Theming via CSS variables and a registry of add-on blocks."
+    pairs_well_with:
+      - { name: "Next.js", slug: "next-js" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "Radix UI", slug: "radix-ui" }
+    alternatives:
+      - { name: "MUI", slug: "mui" }
+      - { name: "Chakra UI", slug: "chakra-ui" }
+      - { name: "Mantine", slug: "mantine" }
+    example:
+      lang: "bash"
+      code: "npx shadcn@latest add button"
+      explain: "The CLI copies the Button component's source straight into your project for you to own and edit."
+    gotchas: >
+      You own the code — which means you also own the maintenance, since there's
+      no `npm update` to pull upstream fixes; updates mean re-running the CLI and
+      reconciling your edits. It assumes a Tailwind + Radix setup, so it isn't a
+      drop-in for projects on other styling stacks.
+    maintained_by: "shadcn + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "ui.shadcn.com", url: "https://ui.shadcn.com" }
+
+  - name: "Radix UI"
+    slug: "radix-ui"
+    tagline: "Headless, accessible React primitives — behaviour, no styles."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2020
+    description: >
+      A set of unstyled, fully accessible React component primitives — dialogs,
+      dropdowns, tooltips, tabs — that handle the hard parts (keyboard
+      navigation, focus management, ARIA, WAI-ARIA patterns) while leaving all
+      visuals to you. It's the behavioural foundation under many design systems,
+      most visibly shadcn/ui. You bring the CSS; Radix brings correct, accessible
+      interaction.
+    use_cases:
+      - "Building a custom-styled design system on a correct accessibility base."
+      - "Replacing fiddly hand-rolled menus, dialogs, and comboboxes."
+      - "Pairing with Tailwind or any styling layer for full visual control."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Unstyled primitives — you supply 100% of the visuals."
+      - "Robust <span class=\"abbr-link\" data-abbr=\"a11y\">accessibility</span>: focus traps, keyboard nav, ARIA."
+      - "Composable parts (Root/Trigger/Content) per component."
+      - "Powers shadcn/ui and many bespoke design systems."
+    pairs_well_with:
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "shadcn/ui", slug: "shadcn-ui" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "Headless UI", slug: "headless-ui" }
+      - { name: "MUI", slug: "mui" }
+      - { name: "Chakra UI", slug: "chakra-ui" }
+    example:
+      lang: "tsx"
+      code: |-
+        import * as Dialog from '@radix-ui/react-dialog';
+        <Dialog.Root><Dialog.Trigger>Open</Dialog.Trigger></Dialog.Root>;
+      explain: "Composable, unstyled dialog parts that handle focus and keyboard behaviour — you add the CSS."
+    gotchas: >
+      It ships zero styles by design, so "nothing looks like anything" until you
+      write CSS — great for control, slower for a quick UI. You assemble
+      multi-part components (Root/Trigger/Content) yourself, which is more
+      verbose than a styled kit's single component import.
+    maintained_by: "WorkOS/Radix"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "radix-ui.com", url: "https://www.radix-ui.com" }
+
+  - name: "Chakra UI"
+    slug: "chakra-ui"
+    tagline: "Simple, accessible, themeable React components with style props."
+    layer: [frontend, styling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2019
+    description: >
+      A React component library built around ergonomics — style props let you
+      style components inline (`<Box p={4} bg="blue.500">`), and everything ships
+      accessible and themeable out of the box. It hits a sweet spot between a
+      full styled kit and a primitive library, with a clean, modern default look
+      and strong dark-mode support.
+    use_cases:
+      - "React apps wanting fast, accessible UI with minimal styling friction."
+      - "Teams who like styling via props instead of separate CSS."
+      - "Products needing solid dark mode and theming with little setup."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Style props for inline, token-aware styling of components."
+      - "Accessible components with built-in dark-mode support."
+      - "Composable primitives plus higher-level components."
+      - "Theme system based on design tokens."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Emotion", slug: "emotion" }
+    alternatives:
+      - { name: "MUI", slug: "mui" }
+      - { name: "Mantine", slug: "mantine" }
+      - { name: "shadcn/ui", slug: "shadcn-ui" }
+    example:
+      lang: "tsx"
+      code: |-
+        import { Button } from '@chakra-ui/react';
+        export const Save = () => <Button colorScheme="blue">Save</Button>;
+      explain: "An accessible, themed button styled with props rather than a separate stylesheet."
+    gotchas: >
+      Style props are convenient but spread styling across your JSX, which can get
+      noisy on complex components. The library's major versions have reworked the
+      styling internals (the team also maintains Panda CSS), so upgrades can
+      involve real migration rather than a simple bump.
+    maintained_by: "Chakra team"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "chakra-ui.com", url: "https://chakra-ui.com" }
+
+  - name: "Headless UI"
+    slug: "headless-ui"
+    tagline: "Unstyled, accessible UI components from the Tailwind team."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      A small set of completely unstyled, fully accessible components — menus,
+      dialogs, listboxes, switches, tabs — built by Tailwind Labs to pair with
+      Tailwind. Like Radix, it gives you the interaction logic and
+      <span class="abbr-link" data-abbr="a11y">accessibility</span> with no
+      visuals, so you style everything with utility classes. It ships for both
+      React and Vue.
+    use_cases:
+      - "Adding accessible menus/dialogs to a Tailwind project."
+      - "Styling interactive components entirely with utility classes."
+      - "React or Vue apps wanting a lightweight headless primitive set."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+    key_features:
+      - "Unstyled components — style with Tailwind utilities."
+      - "Accessible by default: ARIA, focus, and keyboard handling."
+      - "Official React and Vue packages."
+      - "Designed to complement Tailwind CSS."
+    pairs_well_with:
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "React", slug: "react" }
+      - { name: "Vue", slug: "vue" }
+    alternatives:
+      - { name: "Radix UI", slug: "radix-ui" }
+      - { name: "Chakra UI", slug: "chakra-ui" }
+      - { name: "MUI", slug: "mui" }
+    example:
+      lang: "tsx"
+      code: |-
+        import { Switch } from '@headlessui/react';
+        <Switch checked={on} onChange={setOn} className="..." />;
+      explain: "An accessible toggle whose behaviour is handled for you while you supply the Tailwind classes."
+    gotchas: >
+      The component set is intentionally small, so it covers common interactive
+      widgets but not a full design system — you'll reach for Radix or hand-rolled
+      pieces for anything it lacks. As headless components they ship no styles, so
+      expect to write all the visuals yourself.
+    maintained_by: "Tailwind Labs"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "headlessui.com", url: "https://headlessui.com" }
+
+  - name: "Mantine"
+    slug: "mantine"
+    tagline: "Full-featured React components and hooks library."
+    layer: [frontend, styling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A comprehensive React library combining a large styled component set with
+      an extensive collection of hooks (forms, notifications, modals, dates). It's
+      known for excellent documentation, strong TypeScript support, and built-in
+      dark mode. It aims to be a batteries-included alternative to MUI without the
+      heavy Material aesthetic.
+    use_cases:
+      - "React apps wanting a complete component + hooks toolkit out of the box."
+      - "Dashboards and forms needing date pickers, tables, and notifications."
+      - "Teams who value thorough docs and TypeScript-first APIs."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Large styled component set plus 100+ utility hooks."
+      - "Built-in dark mode and a flexible theming system."
+      - "Form, notification, modal, and date packages included."
+      - "Strong TypeScript types and extensive documentation."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Next.js", slug: "next-js" }
+    alternatives:
+      - { name: "MUI", slug: "mui" }
+      - { name: "Chakra UI", slug: "chakra-ui" }
+      - { name: "Ant Design", slug: "ant-design" }
+    example:
+      lang: "tsx"
+      code: |-
+        import { Button } from '@mantine/core';
+        export const Save = () => <Button color="blue">Save</Button>;
+      explain: "A styled, themeable Mantine button — part of a kit that also ships a deep hooks library."
+    gotchas: >
+      Its breadth means a larger API surface to learn, and pulling many `@mantine/*`
+      packages can add weight if you only need a few. Major versions have moved the
+      styling internals (toward CSS modules and away from a runtime CSS-in-JS
+      engine), so upgrades can require migration work.
+    maintained_by: "Mantine + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "mantine.dev", url: "https://mantine.dev" }
+
+  - name: "Ant Design"
+    slug: "ant-design"
+    tagline: "Enterprise-grade React UI for data-dense applications."
+    layer: [frontend, styling]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      A large, polished React component library from Ant Group (Alibaba) aimed at
+      enterprise and data-heavy admin applications. Its catalogue is exceptionally
+      deep — advanced tables, forms, date pickers, transfer lists — with a
+      distinctive, professional design language. It's especially dominant in the
+      Chinese tech ecosystem and for internal business tools.
+    use_cases:
+      - "Enterprise admin panels and data-dense back-office tools."
+      - "Complex forms and tables that need powerful built-in components."
+      - "Teams wanting a complete, professional design language out of the box."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Very deep catalogue including advanced tables and form controls."
+      - "Cohesive enterprise design language with strong defaults."
+      - "Built-in internationalization and theming (design tokens in v5)."
+      - "Mature, battle-tested in large business applications."
+    pairs_well_with:
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "MUI", slug: "mui" }
+      - { name: "Mantine", slug: "mantine" }
+      - { name: "Chakra UI", slug: "chakra-ui" }
+    example:
+      lang: "tsx"
+      code: |-
+        import { Button } from 'antd';
+        export const Save = () => <Button type="primary">Save</Button>;
+      explain: "A primary button from Ant Design's deep enterprise component catalogue."
+    gotchas: >
+      The design language is strongly opinionated and heavily branded, so heavy
+      customization can fight the framework. The bundle is large given the
+      catalogue's depth, and some documentation and community discussion is
+      primarily in Chinese, which can slow non-Chinese-speaking teams.
+    maintained_by: "Ant Group + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "ant.design", url: "https://ant.design" }
+
+  - name: "DaisyUI"
+    slug: "daisyui"
+    tagline: "Tailwind component classes — semantic, themeable, low-markup."
+    layer: [styling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2021
+    description: >
+      A Tailwind CSS plugin that adds semantic component classes (`btn`, `card`,
+      `modal`) on top of Tailwind's utilities, so you write `class="btn
+      btn-primary"` instead of a long utility string. It includes a theming system
+      with many ready-made themes and stays framework-agnostic — it's just CSS, so
+      it works anywhere Tailwind does.
+    use_cases:
+      - "Cutting down verbose Tailwind utility strings with component classes."
+      - "Quickly theming a Tailwind project with prebuilt color themes."
+      - "Framework-agnostic styling — works with any stack using Tailwind."
+    prerequisites:
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "CSS", slug: "css" }
+    key_features:
+      - "Semantic component classes layered over Tailwind utilities."
+      - "Dozens of built-in themes plus a theming system."
+      - "Pure CSS plugin — framework-agnostic, no JS runtime."
+      - "Components stay customizable with ordinary Tailwind utilities."
+    pairs_well_with:
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+      - { name: "Astro", slug: "astro" }
+      - { name: "Svelte", slug: "svelte" }
+    alternatives:
+      - { name: "shadcn/ui", slug: "shadcn-ui" }
+      - { name: "Bootstrap", slug: "bootstrap" }
+      - { name: "Tailwind CSS", slug: "tailwind-css" }
+    example:
+      lang: "html"
+      code: '<button class="btn btn-primary">Save</button>'
+      explain: "DaisyUI's component classes render a styled, themeable button instead of a long Tailwind utility string."
+    gotchas: >
+      It styles markup but provides no JavaScript behaviour, so interactive
+      widgets (dropdowns, modals) still need your own JS or a headless library for
+      <span class="abbr-link" data-abbr="a11y">accessibility</span>. Its semantic
+      classes also reintroduce some of the abstraction Tailwind set out to avoid,
+      which is a philosophical trade-off some teams dislike.
+    maintained_by: "Pouya Saadeghi + OSS"
+    language: "CSS"
+    license: "MIT"
+    docs:
+      - { label: "daisyui.com", url: "https://daisyui.com" }

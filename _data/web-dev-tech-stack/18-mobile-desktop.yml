@@ -1,0 +1,467 @@
+batch:
+  id: "mobile-desktop"
+  order: 18
+  name: "Mobile & Desktop"
+  short_name: "Mobile/Desktop"
+  description: >
+    Cross-platform frameworks for shipping native mobile and desktop apps with
+    web skills. Some render real native widgets (React Native, Flutter), some
+    wrap a web UI in a native shell (Capacitor, Tauri, Electron), and the
+    Progressive Web App approach skips the app store entirely — all let a single
+    codebase reach iOS, Android, Windows, macOS, and Linux.
+  last_updated: "2026-06-27"
+
+entries:
+  - name: "React Native"
+    slug: "react-native"
+    tagline: "Write React, render real native iOS and Android UI."
+    layer: [frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2015
+    description: >
+      A framework from Meta that maps React components to genuine native
+      platform widgets rather than a
+      <span class="abbr-link" data-abbr="WebView">WebView</span>, so apps feel
+      native while sharing one JavaScript codebase across iOS and Android. The
+      New Architecture (Fabric renderer + JSI) replaced the old async bridge with
+      synchronous native calls for smoother performance.
+    use_cases:
+      - "Cross-platform mobile apps that need a genuinely native feel."
+      - "Teams with React skills extending to iOS and Android without learning Swift/Kotlin."
+      - "Apps sharing logic between web and mobile codebases."
+    prerequisites:
+      - { name: "React", slug: "react" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Renders to real native UI components, not a WebView."
+      - "New Architecture (Fabric + JSI + TurboModules) for sync native calls."
+      - "Hot reload and a vast npm-based ecosystem."
+      - "Native modules in Swift/Kotlin for platform APIs."
+    pairs_well_with:
+      - { name: "Expo", slug: "expo" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "React Navigation", slug: "" }
+    alternatives:
+      - { name: "Flutter", slug: "flutter" }
+      - { name: "Ionic", slug: "ionic" }
+      - { name: "NativeScript", slug: "nativescript" }
+    example:
+      lang: "tsx"
+      code: |-
+        function Counter() {
+          const [n, setN] = useState(0);
+          return <Button title={`Count: ${n}`} onPress={() => setN(n + 1)} />;
+        }
+      explain: >
+        A component using the native Button element — onPress increments state and
+        React Native re-renders the real platform button.
+    gotchas: >
+      You still hit the native layer for platform-specific work — build tooling
+      (Xcode, Gradle), permissions, and third-party native modules can break
+      across OS/SDK upgrades. Bare projects are far more maintenance than the
+      managed Expo workflow.
+    maintained_by: "Meta + OSS"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "reactnative.dev", url: "https://reactnative.dev" }
+
+  - name: "Expo"
+    slug: "expo"
+    tagline: "The batteries-included toolchain for React Native."
+    layer: [frontend, tooling]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 2017
+    description: >
+      A framework and platform layered on React Native that removes most of the
+      native-tooling pain — file-based routing (Expo Router), over-the-air
+      updates, prebuilt native modules, and cloud builds (EAS) that compile iOS
+      and Android binaries without a local Xcode/Android Studio setup. It is now
+      the officially recommended way to start a React Native app.
+    use_cases:
+      - "Starting any React Native project without wrangling native build tools."
+      - "Shipping OTA JS updates without an app-store review cycle."
+      - "Building iOS apps from Linux/Windows via EAS cloud builds."
+    prerequisites:
+      - { name: "React Native", slug: "react-native" }
+      - { name: "React", slug: "react" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Expo Router — file-based navigation across native and web."
+      - "EAS cloud build + submit + over-the-air update pipeline."
+      - "Large library of vetted native modules (camera, notifications…)."
+      - "Config plugins and prebuild for custom native code when needed."
+    pairs_well_with:
+      - { name: "React Native", slug: "react-native" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "React Router", slug: "react-router" }
+    alternatives:
+      - { name: "Bare React Native CLI", slug: "react-native" }
+      - { name: "Flutter", slug: "flutter" }
+    example:
+      lang: "bash"
+      code: "npx create-expo-app@latest my-app"
+      explain: "Scaffold a new Expo + React Native app with routing and TypeScript preconfigured."
+    gotchas: >
+      The managed workflow hides the native layer until you need a module Expo
+      doesn't ship — then you reach for config plugins or `prebuild`, which adds
+      complexity back. EAS cloud builds are a paid service beyond a modest free
+      tier.
+    maintained_by: "Expo"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "docs.expo.dev", url: "https://docs.expo.dev" }
+
+  - name: "Flutter"
+    slug: "flutter"
+    tagline: "Google's toolkit that paints its own pixels everywhere."
+    layer: [frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2018
+    description: >
+      A UI toolkit from Google that renders its own widgets onto a canvas (via
+      the Impeller engine) rather than using platform controls, so an app looks
+      and behaves identically across iOS, Android, web, Windows, macOS, and
+      Linux. It uses the Dart language and a reactive, declarative widget tree
+      with stateful hot reload.
+    use_cases:
+      - "Pixel-perfect, brand-consistent UIs across mobile, web, and desktop."
+      - "Animation-heavy or custom-design apps where native widgets constrain you."
+      - "Teams shipping one codebase to six platforms."
+    prerequisites:
+      - { name: "Dart", slug: "dart" }
+    key_features:
+      - "Renders its own widgets via the Impeller engine — consistent UI."
+      - "Sub-second stateful hot reload during development."
+      - "One codebase targets mobile, web, and three desktop OSes."
+      - "Rich built-in Material and Cupertino widget catalogs."
+    pairs_well_with:
+      - { name: "Dart", slug: "dart" }
+      - { name: "Firebase", slug: "firebase-hosting" }
+    alternatives:
+      - { name: "React Native", slug: "react-native" }
+      - { name: "Ionic", slug: "ionic" }
+    example:
+      lang: "dart"
+      code: |-
+        ElevatedButton(
+          onPressed: () => setState(() => n++),
+          child: Text('Count: $n'),
+        )
+      explain: >
+        A Flutter button widget — onPressed calls setState to mutate n, and the
+        framework rebuilds the widget subtree with the new count.
+    gotchas: >
+      You must learn Dart, and because Flutter paints its own widgets the app can
+      feel subtly off from true platform conventions and ships a larger baseline
+      binary. Its web target is heavy and best for app-like UIs, not content
+      pages.
+    maintained_by: "Google"
+    language: "Dart"
+    license: "BSD-3-Clause"
+    docs:
+      - { label: "flutter.dev", url: "https://flutter.dev" }
+
+  - name: "Ionic"
+    slug: "ionic"
+    tagline: "A web-standard UI kit for hybrid mobile apps."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2013
+    description: >
+      A library of mobile-styled UI components (built as
+      <span class="abbr-link" data-abbr="Web Components">Web Components</span>
+      with Stencil) that adapt to iOS and Android design conventions and work
+      with React, Angular, Vue, or plain JavaScript. The web UI runs inside a
+      native shell — historically Cordova, now Capacitor — to reach app stores.
+    use_cases:
+      - "Web teams shipping a mobile app with their existing framework skills."
+      - "Apps that want one codebase for iOS, Android, and the web (PWA)."
+      - "Forms-and-lists business apps where native rendering isn't required."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "CSS", slug: "css" }
+      - { name: "JavaScript", slug: "javascript" }
+    key_features:
+      - "Platform-adaptive UI components as framework-agnostic Web Components."
+      - "Works with React, Angular, Vue, or vanilla JS."
+      - "Pairs with Capacitor for native shell and device APIs."
+      - "Same codebase ships to app stores and as a PWA."
+    pairs_well_with:
+      - { name: "Capacitor", slug: "capacitor" }
+      - { name: "Angular", slug: "angular" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "React Native", slug: "react-native" }
+      - { name: "Flutter", slug: "flutter" }
+    example:
+      lang: "bash"
+      code: "npm install @ionic/react && ionic start myApp tabs"
+      explain: "Install Ionic for React and scaffold a tabbed starter app."
+    gotchas: >
+      Because the UI renders in a <span class="abbr-link" data-abbr="WebView">WebView</span>,
+      animation-heavy or graphics-intensive apps can feel less crisp than truly
+      native ones, and you depend on Capacitor/Cordova plugins for device APIs.
+      Best for content-and-forms apps, not games.
+    maintained_by: "Ionic"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "ionicframework.com", url: "https://ionicframework.com" }
+
+  - name: "Capacitor"
+    slug: "capacitor"
+    tagline: "Wrap any web app in a native iOS/Android shell."
+    layer: [frontend, tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2019
+    description: >
+      A native runtime from the Ionic team that packages any web app into an iOS,
+      Android, or desktop binary and exposes device APIs (camera, geolocation,
+      filesystem) to JavaScript through plugins. It is the modern successor to
+      Cordova, treating the native projects as editable, committable source you
+      own.
+    use_cases:
+      - "Turning an existing web app or SPA into a store-ready native app."
+      - "Adding device APIs (camera, push, filesystem) to a web codebase."
+      - "Framework-agnostic native wrapping (React, Vue, Angular, Svelte…)."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "Wraps any web build into iOS/Android/desktop binaries."
+      - "Plugin API bridging JavaScript to native device features."
+      - "Native projects are real, editable Xcode/Gradle source."
+      - "Framework-agnostic — works with or without Ionic UI."
+    pairs_well_with:
+      - { name: "Ionic", slug: "ionic" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "React", slug: "react" }
+    alternatives:
+      - { name: "React Native", slug: "react-native" }
+      - { name: "Tauri", slug: "tauri" }
+    example:
+      lang: "bash"
+      code: "npm install @capacitor/core && npx cap add ios"
+      explain: "Add Capacitor to a web project and generate a native iOS project that embeds the web build."
+    gotchas: >
+      Your UI still runs in a <span class="abbr-link" data-abbr="WebView">WebView</span>,
+      so performance and platform feel match the browser, not native widgets.
+      Device features beyond the core plugins may need a community plugin or
+      hand-written native code.
+    maintained_by: "Ionic"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "capacitorjs.com", url: "https://capacitorjs.com" }
+
+  - name: "Tauri"
+    slug: "tauri"
+    tagline: "Tiny, secure desktop & mobile apps with a Rust core."
+    layer: [frontend, tooling]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2022
+    description: >
+      A toolkit for building desktop and mobile apps from a web frontend bundled
+      with a Rust backend, using
+      the operating system's own <span class="abbr-link" data-abbr="WebView">WebView</span>
+      instead of shipping Chromium. The result is dramatically smaller and
+      lighter than an Electron app, with a security-first model. Tauri 2 added
+      iOS and Android targets alongside the desktop platforms.
+    use_cases:
+      - "Lightweight desktop apps where Electron's bundle size is unacceptable."
+      - "Apps that want a Rust backend for native performance or system access."
+      - "Cross-platform desktop plus mobile from one web UI (Tauri 2)."
+    prerequisites:
+      - { name: "Rust", slug: "rust" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "Uses the OS WebView — binaries a fraction of Electron's size."
+      - "Rust backend with a typed command bridge to the frontend."
+      - "Granular permission/capability security model."
+      - "Tauri 2 targets desktop and mobile (iOS/Android)."
+    pairs_well_with:
+      - { name: "Rust", slug: "rust" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "Svelte", slug: "svelte" }
+    alternatives:
+      - { name: "Electron", slug: "electron" }
+      - { name: "Capacitor", slug: "capacitor" }
+    example:
+      lang: "bash"
+      code: "npm create tauri-app@latest"
+      explain: "Scaffold a Tauri app, picking a web frontend framework and wiring up the Rust core."
+    gotchas: >
+      Relying on the OS WebView means rendering varies across platforms (WebKit
+      on macOS/iOS vs WebView2 on Windows), so you test on each. Anything beyond
+      simple backend logic means writing Rust,
+      and the plugin ecosystem is younger than Electron's.
+    maintained_by: "Tauri / CrabNebula"
+    language: "Rust"
+    license: "MIT/Apache-2.0"
+    docs:
+      - { label: "tauri.app", url: "https://tauri.app" }
+
+  - name: "Electron"
+    slug: "electron"
+    tagline: "Ship a web app as a cross-platform desktop binary."
+    layer: [frontend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2013
+    description: >
+      A framework that bundles Chromium and Node.js so a web UI runs as a native
+      desktop app on Windows, macOS, and Linux with full filesystem and OS
+      access. It powers VS Code, Slack, Discord, and Figma desktop — proof of its
+      reach despite its memory and bundle-size reputation.
+    use_cases:
+      - "Cross-platform desktop apps built by web teams (editors, chat, tools)."
+      - "Apps needing deep OS integration — menus, tray, native dialogs, files."
+      - "Porting an existing web app to the desktop quickly."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "Bundles Chromium + Node.js for consistent rendering everywhere."
+      - "Full Node.js and OS APIs (filesystem, tray, menus, dialogs)."
+      - "Main/renderer process model with secure IPC and context isolation."
+      - "Mature tooling: Electron Forge, auto-updater, code signing."
+    pairs_well_with:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "React", slug: "react" }
+      - { name: "Vite", slug: "vite" }
+    alternatives:
+      - { name: "Tauri", slug: "tauri" }
+      - { name: "PWA", slug: "pwa" }
+    example:
+      lang: "js"
+      code: |-
+        const { app, BrowserWindow } = require('electron');
+        app.whenReady().then(() => {
+          new BrowserWindow().loadFile('index.html');
+        });
+      explain: >
+        The main process — once Electron is ready it opens a window that loads a
+        local HTML file as the app UI.
+    gotchas: >
+      Every app ships its own Chromium, so binaries are large (100 MB+) and idle
+      memory is high. The main/renderer split and lax IPC are a real security
+      surface — enable context isolation and disable node integration in
+      renderers.
+    maintained_by: "OpenJS Foundation"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "electronjs.org", url: "https://www.electronjs.org" }
+
+  - name: "PWA (Progressive Web App)"
+    slug: "pwa"
+    tagline: "Installable, offline-capable apps — no app store needed."
+    layer: [frontend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2015
+    description: >
+      Not a framework but a set of web-platform capabilities — a
+      <span class="abbr-link" data-abbr="Service Worker">Service Worker</span>
+      for offline caching and background tasks, a web app manifest for
+      installation, and APIs for push and hardware — that let an ordinary website
+      be installed to the home screen and run like a native
+      <span class="abbr-link" data-abbr="PWA">app</span>. One URL, no store
+      review, automatic updates.
+    use_cases:
+      - "Apps you want installable and offline without an app-store presence."
+      - "Reaching users instantly from a link, with no download friction."
+      - "Adding offline caching and push to an existing website."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Service Workers", slug: "" }
+    key_features:
+      - "Service Worker for offline caching and network interception."
+      - "Web app manifest for home-screen install and standalone display."
+      - "Push notifications and background sync (where supported)."
+      - "Single codebase served over HTTPS — instant, store-free updates."
+    pairs_well_with:
+      - { name: "Vite", slug: "vite" }
+      - { name: "Workbox", slug: "" }
+      - { name: "Capacitor", slug: "capacitor" }
+    alternatives:
+      - { name: "React Native", slug: "react-native" }
+      - { name: "Capacitor", slug: "capacitor" }
+    example:
+      lang: "js"
+      code: |-
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/sw.js');
+        }
+      explain: >
+        Registering a Service Worker — once installed it can cache assets and
+        serve the app offline.
+    gotchas: >
+      Capability is uneven across platforms — iOS Safari supports installable
+      PWAs but historically lags on push and background APIs, and some hardware
+      and store-distribution features stay native-only. A buggy Service Worker
+      can also serve stale cached content if versioning is wrong.
+    maintained_by: "W3C / browser vendors"
+    language: "—"
+    license: "web standard"
+    docs:
+      - { label: "web.dev — PWA", url: "https://web.dev/explore/progressive-web-apps" }
+
+  - name: "NativeScript"
+    slug: "nativescript"
+    tagline: "Direct native API access from JavaScript — no WebView."
+    layer: [frontend]
+    maturity: legacy
+    learning_curve: moderate
+    first_released: 2014
+    description: >
+      An open-source framework that runs JavaScript/TypeScript against the real
+      native iOS and Android UI and APIs directly — no
+      <span class="abbr-link" data-abbr="WebView">WebView</span> — with bindings
+      to Angular, Vue, Svelte, or plain JS. It can call any native SDK from JS,
+      but its ecosystem and mindshare have faded behind React Native and Flutter.
+    use_cases:
+      - "Native-rendering apps using Angular or Vue skills."
+      - "Apps needing direct, unwrapped access to platform native APIs from JS."
+      - "Maintaining existing NativeScript codebases."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "TypeScript", slug: "typescript" }
+    key_features:
+      - "Renders real native UI — no WebView, no DOM."
+      - "Direct access to 100% of native platform APIs from JavaScript."
+      - "Integrations for Angular, Vue, Svelte, and plain JS."
+      - "Shared business logic with web codebases."
+    pairs_well_with:
+      - { name: "Angular", slug: "angular" }
+      - { name: "Vue", slug: "vue" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "React Native", slug: "react-native" }
+      - { name: "Flutter", slug: "flutter" }
+      - { name: "Ionic", slug: "ionic" }
+    example:
+      lang: "bash"
+      code: "npm install -g nativescript && ns create myApp"
+      explain: "Install the NativeScript CLI and scaffold a new native app project."
+    gotchas: >
+      Momentum has shifted firmly to React Native and Flutter, so the plugin
+      ecosystem, hiring pool, and community are comparatively thin. Many
+      third-party plugins are stale, which makes greenfield adoption a hard sell.
+    maintained_by: "OpenJS Foundation"
+    language: "TypeScript"
+    license: "Apache-2.0"
+    docs:
+      - { label: "nativescript.org", url: "https://nativescript.org" }

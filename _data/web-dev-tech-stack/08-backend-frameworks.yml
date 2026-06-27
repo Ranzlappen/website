@@ -9,7 +9,7 @@ batch:
     batteries-included giants (Laravel, Django) and the type-safe modern wave
     (NestJS, FastAPI, tRPC). They handle routing, validation, and serialization;
     pick one to match your language and how much structure you want imposed.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Express"
@@ -505,3 +505,313 @@ entries:
     license: "MIT"
     docs:
       - { label: "the-guild.dev/graphql/yoga-server", url: "https://the-guild.dev/graphql/yoga-server" }
+
+  - name: "Ruby on Rails"
+    slug: "ruby-on-rails"
+    tagline: "The original convention-over-configuration fullstack framework."
+    layer: [backend, fullstack]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2004
+    description: >
+      The opinionated, batteries-included Ruby framework that popularized
+      convention over configuration and MVC for the web. It bundles an ORM
+      (Active Record), routing, mailers, jobs, and asset handling, and recent
+      versions lean into Hotwire (Turbo + Stimulus) to ship rich, mostly
+      server-rendered UIs with minimal JavaScript.
+    use_cases:
+      - "Rapidly building CRUD-heavy web apps and MVPs."
+      - "Monolithic SaaS products where developer velocity matters."
+      - "Server-rendered apps with Hotwire instead of a heavy SPA."
+    prerequisites:
+      - { name: "Ruby", slug: "ruby" }
+      - { name: "HTML", slug: "html" }
+      - { name: "SQL", slug: "sql" }
+    key_features:
+      - "Active Record ORM with migrations and associations."
+      - "Convention over configuration — sane defaults, less wiring."
+      - "Hotwire (Turbo + Stimulus) for SPA-like UX, server-rendered."
+      - "Generators, mailers, background jobs, and a mature ecosystem of gems."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Redis", slug: "redis" }
+      - { name: "Hotwire", slug: "" }
+    alternatives:
+      - { name: "Laravel", slug: "laravel" }
+      - { name: "Django", slug: "django" }
+      - { name: "ASP.NET Core", slug: "aspnet-core" }
+    example:
+      lang: "bash"
+      code: "rails generate scaffold Post title:string body:text"
+      explain: >
+        One generator command scaffolds the model, migration, controller, and
+        views for a Post resource end to end.
+    gotchas: >
+      The conventions are productive until you fight them — Active Record makes
+      N+1 queries and runaway callbacks easy, and the heavy reliance on magic and
+      metaprogramming can make large apps hard to reason about. Boot time and
+      memory use are also high relative to leaner stacks.
+    maintained_by: "Rails core team + OSS"
+    language: "Ruby"
+    license: "MIT"
+    docs:
+      - { label: "rubyonrails.org", url: "https://rubyonrails.org" }
+
+  - name: "Flask"
+    slug: "flask"
+    tagline: "Python's minimal, unopinionated micro-framework."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2010
+    description: >
+      A lightweight Python micro-framework that gives you routing, request
+      handling, and templating (Jinja2) and stays out of your way for everything
+      else. You add an ORM, validation, and auth as extensions, making it ideal
+      for small services where you want to choose your own components.
+    use_cases:
+      - "Small to medium web apps and internal tools."
+      - "Lightweight REST APIs and microservices."
+      - "Prototypes where you want minimal structure imposed."
+    prerequisites:
+      - { name: "Python", slug: "python" }
+      - { name: "HTML", slug: "html" }
+    key_features:
+      - "Minimal core — routing plus Jinja2 templating, little else."
+      - "Extension ecosystem (SQLAlchemy, Migrate, Login) for the rest."
+      - "Werkzeug WSGI foundation with a simple, readable API."
+    pairs_well_with:
+      - { name: "SQLAlchemy", slug: "sqlalchemy" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "htmx", slug: "htmx" }
+    alternatives:
+      - { name: "FastAPI", slug: "fastapi" }
+      - { name: "Django", slug: "django" }
+      - { name: "Express", slug: "express" }
+    example:
+      lang: "py"
+      code: |-
+        from flask import Flask
+        app = Flask(__name__)
+        @app.route("/")
+        def home(): return "Hello"
+      explain: >
+        A minimal Flask app — the route decorator maps a URL to a view function
+        that returns the response.
+    gotchas: >
+      Flask is synchronous and WSGI-based, so high-concurrency async workloads
+      fit FastAPI better. Being unopinionated means every project wires up the
+      ORM, validation, and structure differently, which can hurt consistency
+      across teams.
+    maintained_by: "Pallets + OSS"
+    language: "Python"
+    license: "BSD-3-Clause"
+    docs:
+      - { label: "flask.palletsprojects.com", url: "https://flask.palletsprojects.com" }
+
+  - name: "Spring Boot"
+    slug: "spring-boot"
+    tagline: "Convention-driven Spring for production-ready Java services."
+    layer: [backend]
+    maturity: industry-standard
+    learning_curve: steep
+    first_released: 2014
+    description: >
+      The opinionated layer over the Spring framework that makes Java backends
+      production-ready with minimal configuration — auto-configuration, embedded
+      servers, and starter dependencies replace mountains of XML. It's the
+      default for enterprise JVM services, with deep support for data access,
+      security, messaging, and observability.
+    use_cases:
+      - "Large enterprise REST and microservice backends on the JVM."
+      - "Systems needing robust transactions, security, and messaging."
+      - "Teams standardized on Java/Kotlin with strong tooling needs."
+    prerequisites:
+      - { name: "Java", slug: "" }
+      - { name: "SQL", slug: "sql" }
+    key_features:
+      - "Auto-configuration and starter dependencies — little boilerplate."
+      - "Embedded Tomcat/Netty so apps run as a self-contained jar."
+      - "Spring Data, Security, and Actuator for data, auth, and metrics."
+      - "GraalVM native-image support for fast startup and low memory."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Kubernetes", slug: "kubernetes" }
+      - { name: "Kafka", slug: "" }
+    alternatives:
+      - { name: "ASP.NET Core", slug: "aspnet-core" }
+      - { name: "NestJS", slug: "nestjs" }
+      - { name: "Quarkus", slug: "" }
+    example:
+      lang: "java"
+      code: |-
+        @RestController
+        class HelloController {
+          @GetMapping("/") String home() { return "Hello"; }
+        }
+      explain: >
+        A REST controller — the @GetMapping annotation binds the method to a URL
+        and Spring serializes the return value as the response.
+    gotchas: >
+      Power comes with weight — the dependency-injection container, annotation
+      magic, and layered abstractions are a lot to learn, and the framework's
+      depth means subtle auto-configuration surprises. Startup time and memory
+      are heavy unless you adopt GraalVM native images.
+    maintained_by: "VMware/Broadcom + OSS"
+    language: "Java"
+    license: "Apache-2.0"
+    docs:
+      - { label: "spring.io/projects/spring-boot", url: "https://spring.io/projects/spring-boot" }
+
+  - name: "ASP.NET Core"
+    slug: "aspnet-core"
+    tagline: "Microsoft's fast, cross-platform fullstack web framework."
+    layer: [backend, fullstack]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2016
+    description: >
+      A high-performance, cross-platform framework for building APIs and web apps
+      on .NET, running on Linux, macOS, and Windows. It spans minimal APIs, MVC,
+      Razor Pages, and the Blazor component model (including server and
+      WebAssembly), backed by strong tooling and consistently top-tier benchmarks.
+    use_cases:
+      - "High-throughput REST and gRPC APIs on .NET."
+      - "Enterprise web apps with MVC or Razor Pages."
+      - "Interactive UIs in C# via Blazor instead of JavaScript."
+    prerequisites:
+      - { name: "C#", slug: "csharp" }
+      - { name: "SQL", slug: "sql" }
+    key_features:
+      - "Minimal APIs and MVC on one cross-platform runtime."
+      - "Blazor for C# component UIs (server + WebAssembly)."
+      - "Built-in DI, configuration, logging, and middleware pipeline."
+      - "Top-tier performance with Kestrel and AOT compilation."
+    pairs_well_with:
+      - { name: "Entity Framework Core", slug: "" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "Azure", slug: "azure" }
+    alternatives:
+      - { name: "Spring Boot", slug: "spring-boot" }
+      - { name: "NestJS", slug: "nestjs" }
+      - { name: "Express", slug: "express" }
+    example:
+      lang: "csharp"
+      code: |-
+        var app = WebApplication.Create(args);
+        app.MapGet("/", () => "Hello");
+        app.Run();
+      explain: >
+        A minimal-API app — MapGet binds a route to a lambda and Run() starts the
+        Kestrel server.
+    gotchas: >
+      The framework spans several UI models — minimal APIs, MVC, Razor Pages,
+      Blazor Server, Blazor WASM — and picking the wrong one for your use case is
+      a costly detour. Blazor WebAssembly in particular ships a sizable .NET
+      runtime, so first-load size needs attention.
+    maintained_by: "Microsoft + .NET Foundation"
+    language: "C#"
+    license: "MIT"
+    docs:
+      - { label: "learn.microsoft.com/aspnet/core", url: "https://learn.microsoft.com/aspnet/core" }
+
+  - name: "Koa"
+    slug: "koa"
+    tagline: "Express's successor — tiny, middleware-first, async/await native."
+    layer: [backend]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2013
+    description: >
+      A minimal Node web framework from the Express creators, built around
+      async/await and a clean middleware-cascade model. Its core ships almost
+      nothing — no router or body parser — so you compose exactly the middleware
+      you need, with a `ctx` object wrapping request and response.
+    use_cases:
+      - "Lightweight APIs where you want full control over middleware."
+      - "Modern async/await codebases avoiding Express callback patterns."
+      - "A minimal base to compose your own framework on top of."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Async/await-native middleware with an elegant downstream/upstream cascade."
+      - "Tiny core — bring your own router, body parser, and helpers."
+      - "Single `ctx` object encapsulating request and response."
+    pairs_well_with:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Express", slug: "express" }
+      - { name: "Fastify", slug: "fastify" }
+      - { name: "Hono", slug: "hono" }
+    example:
+      lang: "js"
+      code: |-
+        const app = new Koa();
+        app.use(async (ctx) => { ctx.body = "Hello"; });
+        app.listen(3000);
+      explain: >
+        A Koa app with one async middleware that sets the response body on the
+        shared ctx object.
+    gotchas: >
+      The minimal core is a double-edged sword — you assemble routing, body
+      parsing, and validation from separate packages, and the ecosystem is far
+      smaller than Express's. Momentum has also slowed as Fastify and Hono draw
+      attention.
+    maintained_by: "Koa team (Express creators)"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "koajs.com", url: "https://koajs.com" }
+
+  - name: "Elysia"
+    slug: "elysia"
+    tagline: "Bun-first, end-to-end type-safe framework with blazing throughput."
+    layer: [backend]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2022
+    description: >
+      A TypeScript web framework built for Bun that pairs extreme performance
+      with end-to-end type safety. Its schema-driven design validates and types
+      requests automatically, and the Eden client gives the frontend fully typed
+      calls to the backend — a tRPC-like experience over plain HTTP.
+    use_cases:
+      - "High-throughput APIs running on the Bun runtime."
+      - "End-to-end typed fullstack apps via the Eden client."
+      - "Greenfield TypeScript services wanting modern ergonomics."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Bun", slug: "bun" }
+    key_features:
+      - "Schema-first validation that also infers request/response types."
+      - "Eden client for end-to-end type-safe API calls."
+      - "Very high throughput on Bun; plugin system for auth, CORS, swagger."
+    pairs_well_with:
+      - { name: "Bun", slug: "bun" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Drizzle", slug: "drizzle" }
+    alternatives:
+      - { name: "Hono", slug: "hono" }
+      - { name: "Fastify", slug: "fastify" }
+      - { name: "tRPC", slug: "trpc" }
+    example:
+      lang: "ts"
+      code: |-
+        new Elysia()
+          .get("/", () => "Hello")
+          .listen(3000);
+      explain: >
+        An Elysia app with one route — the fluent builder registers the handler
+        and starts the Bun server on port 3000.
+    gotchas: >
+      Elysia is Bun-first — running it on Node loses some performance and
+      features, so it ties you to that runtime. It's young and fast-moving, so
+      APIs still shift between versions and the plugin ecosystem is smaller than
+      Express's or Fastify's.
+    maintained_by: "SaltyAom + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "elysiajs.com", url: "https://elysiajs.com" }

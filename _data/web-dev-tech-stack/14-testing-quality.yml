@@ -10,7 +10,7 @@ batch:
     bikeshedding before review (ESLint, Prettier, the TypeScript type-checker).
     Storybook rounds it out by isolating components for visual and interaction
     testing.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Vitest"
@@ -112,7 +112,7 @@ entries:
       spot — Jest historically assumed
       <span class="abbr-link" data-abbr="CJS">CJS</span> and needs Babel or
       experimental flags to run native modules, and its global
-      <span class="abbr-link" data-abbr="JSDOM">JSDOM</span> environment is
+      JSDOM environment is
       slower to spin up than Vite-based runners. Many new Vite projects pick
       Vitest instead.
     maintained_by: "OpenJS Foundation (originally Meta)"
@@ -267,7 +267,7 @@ entries:
       explain: "Render a component, click its button by accessible role, and assert on the visible text."
     gotchas: >
       It's a query layer, not a test runner — you still need Vitest or Jest plus
-      <span class="abbr-link" data-abbr="JSDOM">JSDOM</span> underneath. The
+      JSDOM underneath. The
       philosophy bites if you reach for `container.querySelector` or test
       internal state; the library deliberately makes implementation-detail
       testing awkward.
@@ -467,3 +467,292 @@ entries:
     license: "MIT"
     docs:
       - { label: "storybook.js.org", url: "https://storybook.js.org" }
+
+  - name: "Mocha"
+    slug: "mocha"
+    tagline: "The flexible, BYO-assertions test framework that defined an era."
+    layer: [tooling]
+    maturity: legacy
+    learning_curve: gentle
+    first_released: 2011
+    description: >
+      A long-standing JavaScript test framework that provides the `describe`/`it`
+      structure, async support, and reporters, but deliberately leaves assertions
+      and mocking to you (commonly Chai and Sinon). Its flexibility made it the
+      default for years, though newer all-in-one runners have largely displaced it
+      for new projects.
+    use_cases:
+      - "Maintaining legacy Node test suites built on Mocha + Chai."
+      - "Projects that want to pick their own assertion and mock libraries."
+      - "Backend Node testing where a bundled UI runner isn't needed."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "describe/it structure with rich async and hook support."
+      - "Pluggable assertions (Chai) and mocking (Sinon)."
+      - "Many built-in and third-party reporters."
+      - "Runs in Node and the browser."
+    pairs_well_with:
+      - { name: "Chai", slug: "" }
+      - { name: "Sinon", slug: "" }
+      - { name: "Node.js", slug: "node-js" }
+    alternatives:
+      - { name: "Vitest", slug: "vitest" }
+      - { name: "Jest", slug: "jest" }
+    example:
+      lang: "js"
+      code: |-
+        describe('math', () => {
+          it('adds', () => { expect(1 + 1).to.equal(2); });
+        });
+      explain: "A Mocha test using a Chai assertion to check that addition works."
+    gotchas: >
+      Batteries are not included — you must wire up assertions, mocking, and
+      coverage yourself, which is more setup than Jest or Vitest. For new
+      projects an all-in-one runner is usually the simpler choice; Mocha mainly
+      lives on in existing codebases.
+    maintained_by: "OpenJS Foundation"
+    language: "JavaScript"
+    license: "MIT"
+    docs:
+      - { label: "mochajs.org", url: "https://mochajs.org" }
+
+  - name: "Puppeteer"
+    slug: "puppeteer"
+    tagline: "Headless Chrome automation via the DevTools Protocol."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2017
+    description: >
+      A Node library from the Chrome team for driving headless (or headful) Chrome
+      and Firefox through the DevTools Protocol. It is the go-to for browser
+      automation tasks — generating PDFs, screenshots, scraping, and crawling —
+      and underpins many higher-level testing tools.
+    use_cases:
+      - "Generating PDFs or screenshots of rendered web pages."
+      - "Scraping and crawling JavaScript-heavy sites that need a real browser."
+      - "Automating browser interactions and basic end-to-end checks."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Programmatic control of Chrome via the DevTools Protocol."
+      - "Page screenshots and PDF generation."
+      - "Network interception and request mocking."
+      - "Downloads a known-good Chrome build automatically."
+    pairs_well_with:
+      - { name: "Node.js", slug: "node-js" }
+      - { name: "Jest", slug: "jest" }
+    alternatives:
+      - { name: "Playwright", slug: "playwright" }
+      - { name: "Cypress", slug: "cypress" }
+    example:
+      lang: "js"
+      code: |-
+        const page = await browser.newPage();
+        await page.goto('https://example.com');
+        await page.screenshot({ path: 'shot.png' });
+      explain: "Opens a page in headless Chrome and saves a screenshot of it to disk."
+    gotchas: >
+      It is Chrome-first — cross-browser testing is far weaker than Playwright,
+      which the same team now positions for end-to-end work. For full E2E suites
+      Playwright is usually the better pick; reach for Puppeteer when you
+      specifically need Chrome automation or PDF/screenshot generation.
+    maintained_by: "Google Chrome team"
+    language: "JavaScript"
+    license: "Apache-2.0"
+    docs:
+      - { label: "pptr.dev", url: "https://pptr.dev" }
+
+  - name: "k6"
+    slug: "k6"
+    tagline: "Developer-centric load and performance testing in JavaScript."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2017
+    description: >
+      A load-testing tool from Grafana that lets you script performance and
+      stress tests in JavaScript while the engine runs in Go for high
+      concurrency. You define virtual users and stages, set pass/fail thresholds,
+      and run it locally or in CI to catch regressions before they hit
+      production.
+    use_cases:
+      - "Load- and stress-testing APIs and websites before launch."
+      - "Adding performance thresholds (p95 latency, error rate) as CI gates."
+      - "Soak and spike tests to find capacity limits."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "HTTP basics", slug: "" }
+    key_features:
+      - "Tests scripted in JavaScript, executed by a fast Go engine."
+      - "Virtual users and staged ramp-up/ramp-down profiles."
+      - "Thresholds turn a load test into a pass/fail CI gate."
+      - "Outputs to Grafana, Prometheus, and other backends."
+    pairs_well_with:
+      - { name: "Grafana", slug: "grafana" }
+      - { name: "Prometheus", slug: "prometheus" }
+      - { name: "GitHub Actions", slug: "github-actions" }
+    alternatives:
+      - { name: "JMeter", slug: "" }
+      - { name: "Gatling", slug: "" }
+    example:
+      lang: "js"
+      code: |-
+        import http from 'k6/http';
+        export const options = { vus: 50, duration: '30s' };
+        export default () => { http.get('https://test.k6.io'); };
+      explain: "Runs 50 virtual users hitting the URL for 30 seconds to measure how it holds up under load."
+    gotchas: >
+      The k6 script runtime is not Node — it is a custom JavaScript VM, so npm
+      packages and Node APIs are not available (you bundle compatible code or use
+      its modules). It also measures the protocol layer, not a real browser, so
+      it does not capture client-side rendering cost without the separate browser
+      module.
+    maintained_by: "Grafana Labs"
+    language: "Go"
+    license: "AGPL-3.0"
+    docs:
+      - { label: "grafana.com/docs/k6", url: "https://grafana.com/docs/k6/latest/" }
+
+  - name: "Biome"
+    slug: "biome"
+    tagline: "One fast Rust toolchain for linting and formatting."
+    layer: [tooling]
+    maturity: rising
+    learning_curve: gentle
+    first_released: 2023
+    description: >
+      A single, Rust-based toolchain (the successor to Rome) that lints and
+      formats JavaScript, TypeScript, JSX, JSON, and CSS at high speed. It aims to
+      replace the ESLint + Prettier pair with one tool, one config, and near-zero
+      setup — a Prettier-compatible formatter plus a growing lint rule set.
+    use_cases:
+      - "Replacing the ESLint + Prettier combo with one fast tool."
+      - "Speeding up lint/format on large codebases and in CI."
+      - "New projects wanting near-zero-config linting and formatting."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Linter and formatter in one Rust binary — very fast."
+      - "Prettier-compatible formatting output."
+      - "Single biome.json config, sensible defaults."
+      - "Editor integrations and a `biome ci` mode."
+    pairs_well_with:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Vite", slug: "vite" }
+    alternatives:
+      - { name: "ESLint", slug: "eslint" }
+      - { name: "Prettier", slug: "prettier" }
+    example:
+      lang: "bash"
+      code: "npx @biomejs/biome check --write ."
+      explain: "Lints and formats the whole project in one pass, applying safe fixes."
+    gotchas: >
+      Its lint rule coverage and plugin ecosystem are still narrower than
+      ESLint's — projects that depend on niche ESLint plugins (framework-specific
+      rules, custom rules) may not be able to fully switch yet. It also does not
+      type-check; you still run `tsc` for that.
+    maintained_by: "Biome team + OSS community"
+    language: "Rust"
+    license: "MIT"
+    docs:
+      - { label: "biomejs.dev", url: "https://biomejs.dev" }
+
+  - name: "MSW"
+    slug: "msw"
+    tagline: "Mock Service Worker — API mocking at the network layer."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      Mock Service Worker intercepts outgoing requests at the network level — via
+      a <span class="abbr-link" data-abbr="Serverless">Service Worker</span> in
+      the browser and request interception in Node — so your app code makes real
+      `fetch` calls but gets mocked responses. The same handlers serve tests,
+      Storybook, and local development without touching your application code.
+    use_cases:
+      - "Mocking APIs in component and integration tests without stubbing fetch."
+      - "Developing the frontend before the backend exists."
+      - "Driving Storybook stories with realistic mocked responses."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "Testing Library", slug: "testing-library" }
+    key_features:
+      - "Network-level interception — app code stays unmodified."
+      - "Shared request handlers across tests, Storybook, and dev."
+      - "Works in the browser (Service Worker) and in Node."
+      - "REST and GraphQL request matching."
+    pairs_well_with:
+      - { name: "Vitest", slug: "vitest" }
+      - { name: "Testing Library", slug: "testing-library" }
+      - { name: "Storybook", slug: "storybook" }
+    alternatives:
+      - { name: "nock", slug: "" }
+      - { name: "Mirage JS", slug: "" }
+    example:
+      lang: "ts"
+      code: |-
+        http.get('/api/user', () => HttpResponse.json({ name: 'Ada' }))
+      explain: "A request handler that returns mock JSON whenever the app fetches /api/user."
+    gotchas: >
+      The browser worker needs its generated `mockServiceWorker.js` served from
+      the public root, and an out-of-date worker file after upgrades causes silent
+      failures. The v2 API was a breaking rewrite (`http`/`HttpResponse` replaced
+      `rest`/`res(ctx…)`), so older tutorials won't match.
+    maintained_by: "Artem Zakharchenko + OSS community"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "mswjs.io/docs", url: "https://mswjs.io/docs/" }
+
+  - name: "Lighthouse"
+    slug: "lighthouse"
+    tagline: "Automated audits for performance, accessibility, and SEO."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2016
+    description: >
+      An open-source auditing tool from the Chrome team that loads a page and
+      scores it on performance, accessibility, best practices, and
+      <span class="abbr-link" data-abbr="SSG">SEO</span>, with concrete fixes for
+      each finding. It runs in Chrome DevTools, as a CLI, and as Lighthouse CI to
+      gate <span class="abbr-link" data-abbr="CI/CD">CI/CD</span> on Core Web
+      Vitals.
+    use_cases:
+      - "Auditing a page's performance, a11y, and SEO with actionable advice."
+      - "Tracking Core Web Vitals over time as a CI gate (Lighthouse CI)."
+      - "Catching accessibility and best-practice regressions before release."
+    prerequisites:
+      - { name: "HTML", slug: "html" }
+      - { name: "Web performance basics", slug: "" }
+    key_features:
+      - "Scored audits for performance, a11y, best practices, and SEO."
+      - "Lab-based Core Web Vitals metrics (LCP, CLS, TBT)."
+      - "Runs in DevTools, as a CLI, and as Lighthouse CI."
+      - "Specific, prioritized remediation suggestions."
+    pairs_well_with:
+      - { name: "GitHub Actions", slug: "github-actions" }
+      - { name: "Playwright", slug: "playwright" }
+    alternatives:
+      - { name: "WebPageTest", slug: "" }
+      - { name: "PageSpeed Insights", slug: "" }
+    example:
+      lang: "bash"
+      code: "npx lighthouse https://example.com --output html --output-path report.html"
+      explain: "Audits the URL and writes a full performance/a11y/SEO report to an HTML file."
+    gotchas: >
+      Scores are <em>lab</em> measurements from one synthetic run — they vary with
+      network, CPU throttling, and machine, and a single number is not the same as
+      real-user (field) data. Treat it as directional guidance and median multiple
+      runs rather than chasing a perfect 100.
+    maintained_by: "Google Chrome team"
+    language: "JavaScript"
+    license: "Apache-2.0"
+    docs:
+      - { label: "developer.chrome.com/docs/lighthouse", url: "https://developer.chrome.com/docs/lighthouse/overview" }

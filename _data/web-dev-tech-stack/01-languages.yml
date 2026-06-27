@@ -9,7 +9,7 @@ batch:
     (JavaScript, TypeScript), the server-side workhorses (PHP, Python, Go,
     Rust), and the portable bytecode target (WebAssembly) that brings native
     speed to the browser.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "HTML"
@@ -158,7 +158,7 @@ entries:
       The famous foot-guns are real — implicit type coercion (`==` vs `===`),
       `this` binding that shifts with call site, and floating-point math where
       `0.1 + 0.2 !== 0.3`. Lean on `===`, arrow functions, and a linter, and
-      reach for <span class="abbr-link" data-abbr="TypeScript">TypeScript</span>
+      reach for TypeScript
       once a project grows.
     maintained_by: "Ecma TC39 (ECMAScript)"
     language: "n/a (specified language)"
@@ -477,3 +477,206 @@ entries:
     docs:
       - { label: "webassembly.org", url: "https://webassembly.org" }
       - { label: "MDN WebAssembly", url: "https://developer.mozilla.org/en-US/docs/WebAssembly" }
+
+  - name: "Ruby"
+    slug: "ruby"
+    tagline: "An elegant, developer-happiness-first scripting language."
+    layer: [language, backend]
+    maturity: industry-standard
+    learning_curve: gentle
+    first_released: 1995
+    description: >
+      A dynamic, object-oriented scripting language designed by Yukihiro
+      "Matz" Matsumoto to optimize for programmer happiness and readable,
+      expressive code. Everything is an object, blocks and metaprogramming make
+      it endlessly malleable, and on the web it powers Ruby on Rails — the
+      framework that popularized convention-over-configuration.
+    use_cases:
+      - "Web backends and full-stack apps via Ruby on Rails."
+      - "Build tooling and static sites (Jekyll, Bundler, Fastlane)."
+      - "Scripts, automation, and command-line tools."
+    prerequisites: []
+    key_features:
+      - "Pure object model — even integers and nil are objects."
+      - "Blocks, procs, and lambdas for concise iteration."
+      - "Metaprogramming (define_method, method_missing) for DSLs."
+      - "Huge gem ecosystem managed by Bundler."
+    pairs_well_with:
+      - { name: "Ruby on Rails", slug: "ruby-on-rails" }
+      - { name: "Jekyll", slug: "jekyll" }
+      - { name: "PostgreSQL", slug: "postgresql" }
+    alternatives:
+      - { name: "Python", slug: "python" }
+      - { name: "PHP", slug: "php" }
+      - { name: "JavaScript", slug: "javascript" }
+    example:
+      lang: "ruby"
+      code: |-
+        [1, 2, 3].map { |n| n * 2 }.select(&:even?)
+      explain: >
+        A chained block expression — double each number, then keep the even
+        results, reading almost like the sentence it describes.
+    gotchas: >
+      Ruby's expressiveness comes at a raw-speed cost — it is slower than
+      compiled languages, and heavy metaprogramming or monkey-patching can make
+      large codebases hard to reason about and debug. The YJIT compiler narrows
+      the performance gap but does not close it.
+    maintained_by: "Ruby core team / Matz"
+    language: "Ruby"
+    license: "Ruby/BSD-2-Clause"
+    docs:
+      - { label: "ruby-lang.org", url: "https://www.ruby-lang.org" }
+
+  - name: "SQL"
+    slug: "sql"
+    tagline: "The declarative language for relational data."
+    layer: [language, database]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 1974
+    description: >
+      Structured Query Language is the standard, declarative language for
+      defining and querying relational data — you describe *what* result you
+      want and the database's query planner figures out *how* to get it. Nearly
+      every relational database (PostgreSQL, MySQL, SQLite, SQL Server) speaks a
+      dialect of it, making it one of the most durable skills in software.
+    use_cases:
+      - "Querying and joining data across relational tables."
+      - "Defining schemas, constraints, indexes, and migrations."
+      - "Aggregation, reporting, and analytics over large datasets."
+    prerequisites: []
+    key_features:
+      - "Declarative SELECT/JOIN/WHERE/GROUP BY query model."
+      - "ACID transactions and referential integrity constraints."
+      - "Window functions and CTEs for advanced analytics."
+      - "Portable core standard across many database engines."
+    pairs_well_with:
+      - { name: "PostgreSQL", slug: "postgresql" }
+      - { name: "MySQL", slug: "mysql" }
+      - { name: "SQLite", slug: "sqlite" }
+      - { name: "Prisma", slug: "prisma" }
+    alternatives:
+      - { name: "MongoDB", slug: "mongodb" }
+      - { name: "GraphQL", slug: "graphql" }
+    example:
+      lang: "sql"
+      code: |-
+        SELECT name, COUNT(*) AS orders
+        FROM customers JOIN orders USING (customer_id)
+        GROUP BY name ORDER BY orders DESC;
+      explain: >
+        Join customers to their orders, count per customer, and rank by who
+        ordered most — describing the result, not the loop.
+    gotchas: >
+      "SQL" is a standard with many dialects — `LIMIT` vs `TOP`, JSON functions,
+      upserts, and date handling all differ between PostgreSQL, MySQL, and SQL
+      Server, so queries rarely port unchanged. The infamous N+1 query pattern
+      from <span class="abbr-link" data-abbr="ORM">ORM</span>s also quietly
+      destroys performance.
+    maintained_by: "ISO/IEC (standard); RDBMS vendors"
+    language: "—"
+    license: "ISO standard"
+    docs:
+      - { label: "PostgreSQL SQL docs", url: "https://www.postgresql.org/docs/current/sql.html" }
+      - { label: "MDN SQL guide", url: "https://developer.mozilla.org/en-US/docs/Glossary/SQL" }
+
+  - name: "C#"
+    slug: "csharp"
+    tagline: "Microsoft's versatile, statically typed multi-paradigm language."
+    layer: [language, backend]
+    maturity: industry-standard
+    learning_curve: moderate
+    first_released: 2000
+    description: >
+      A statically typed, object-oriented language from Microsoft that runs on
+      the cross-platform, open-source .NET runtime. Modern C# blends OOP with
+      functional features (pattern matching, records, LINQ) and powers web
+      backends via ASP.NET Core, desktop and mobile apps, games (Unity), and
+      cloud services.
+    use_cases:
+      - "Web APIs and full-stack apps with ASP.NET Core and Blazor."
+      - "Cross-platform game development with Unity."
+      - "Enterprise, desktop, and cloud (Azure) services."
+    prerequisites: []
+    key_features:
+      - "Strong static typing with rich generics and nullable refs."
+      - "LINQ for declarative, composable data queries."
+      - "async/await — the pattern much of the industry copied."
+      - "Records, pattern matching, and source generators."
+    pairs_well_with:
+      - { name: "ASP.NET Core", slug: "aspnet-core" }
+      - { name: "Azure", slug: "azure" }
+      - { name: "TypeScript", slug: "typescript" }
+    alternatives:
+      - { name: "Java", slug: "" }
+      - { name: "Go", slug: "go" }
+      - { name: "TypeScript", slug: "typescript" }
+    example:
+      lang: "csharp"
+      code: |-
+        var evens = numbers.Where(n => n % 2 == 0).Select(n => n * n);
+      explain: >
+        A LINQ chain that keeps even numbers then squares them, evaluated lazily
+        like a query against the collection.
+    gotchas: >
+      The .NET ecosystem has a churn of overlapping UI stacks (WinForms, WPF,
+      MAUI, Blazor) and the legacy ".NET Framework" vs modern cross-platform
+      ".NET" split still confuses newcomers — always target current .NET, not
+      the Windows-only Framework, for new work.
+    maintained_by: "Microsoft + .NET Foundation"
+    language: "C#"
+    license: "MIT (Roslyn/.NET)"
+    docs:
+      - { label: "learn.microsoft.com/dotnet/csharp", url: "https://learn.microsoft.com/en-us/dotnet/csharp/" }
+
+  - name: "Dart"
+    slug: "dart"
+    tagline: "The client-optimized language behind Flutter."
+    layer: [language, frontend]
+    maturity: mainstream
+    learning_curve: moderate
+    first_released: 2011
+    description: >
+      A statically typed, object-oriented language from Google designed for
+      building fast apps on any platform. It is best known as the language of
+      Flutter — Dart's ahead-of-time compilation produces native binaries for
+      mobile and desktop, while its
+      <span class="abbr-link" data-abbr="JIT">JIT</span> mode powers Flutter's
+      stateful hot reload during development.
+    use_cases:
+      - "Cross-platform mobile and desktop apps with Flutter."
+      - "Web frontends compiled to JavaScript or WebAssembly."
+      - "Command-line tools and backend services."
+    prerequisites: []
+    key_features:
+      - "Dual JIT (dev) and AOT (release) compilation."
+      - "Sound null safety baked into the type system."
+      - "Isolates for concurrency without shared-memory races."
+      - "Compiles to native, JavaScript, and WebAssembly."
+    pairs_well_with:
+      - { name: "Flutter", slug: "flutter" }
+      - { name: "Firebase Hosting", slug: "firebase-hosting" }
+    alternatives:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Kotlin", slug: "" }
+      - { name: "Swift", slug: "" }
+    example:
+      lang: "dart"
+      code: |-
+        void main() {
+          final doubled = [1, 2, 3].map((n) => n * 2).toList();
+          print(doubled); // [2, 4, 6]
+        }
+      explain: >
+        A typed main entry point mapping over a list — Dart infers types while
+        staying soundly null-safe.
+    gotchas: >
+      Dart's gravity is almost entirely Flutter — outside that ecosystem its
+      library and hiring pool are thin, so adopting it for non-Flutter work
+      means a smaller community than mainstream alternatives. Web output also
+      ships a larger runtime than hand-written JavaScript.
+    maintained_by: "Google"
+    language: "Dart"
+    license: "BSD-3-Clause"
+    docs:
+      - { label: "dart.dev", url: "https://dart.dev" }

@@ -9,7 +9,7 @@ batch:
     shift from JavaScript-based tooling (webpack, Babel) to Rust- and Go-based
     speed (Vite, esbuild, SWC, Rolldown), with Vite as the de-facto default for
     new projects.
-  last_updated: "2026-06-26"
+  last_updated: "2026-06-27"
 
 entries:
   - name: "Vite"
@@ -455,3 +455,99 @@ entries:
     license: "MIT"
     docs:
       - { label: "rolldown.rs", url: "https://rolldown.rs" }
+
+  - name: "Rspack"
+    slug: "rspack"
+    tagline: "A Rust-based, webpack-compatible bundler."
+    layer: [tooling]
+    maturity: rising
+    learning_curve: moderate
+    first_released: 2023
+    description: >
+      A high-performance <span class="abbr-link" data-abbr="Bundler">bundler</span>
+      written in Rust by ByteDance that is deliberately API- and
+      config-compatible with webpack. It aims to be a near drop-in replacement —
+      keep most of your `webpack.config.js` and loaders/plugins, but get builds
+      that are often five to ten times faster.
+    use_cases:
+      - "Speeding up large existing webpack projects with minimal config changes."
+      - "Monorepos where webpack build times have become a bottleneck."
+      - "Apps relying on the webpack loader/plugin ecosystem but wanting Rust speed."
+    prerequisites:
+      - { name: "JavaScript", slug: "javascript" }
+      - { name: "webpack", slug: "webpack" }
+    key_features:
+      - "Webpack-compatible config, loaders, and plugin API."
+      - "Rust-powered parallel builds — much faster than webpack."
+      - "Built-in SWC transforms and Lightning CSS."
+      - "Powers the Rsbuild and Rsdoctor higher-level toolchain."
+    pairs_well_with:
+      - { name: "SWC", slug: "swc" }
+      - { name: "React", slug: "react" }
+      - { name: "Turborepo", slug: "turborepo" }
+    alternatives:
+      - { name: "webpack", slug: "webpack" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "Turbopack", slug: "turbopack" }
+    example:
+      lang: "bash"
+      code: "npm install --save-dev @rspack/cli @rspack/core"
+      explain: "Install Rspack; point it at a webpack-style config and most loaders and plugins work unchanged."
+    gotchas: >
+      "Webpack-compatible" is high but not total — plugins that reach into
+      webpack internals or rely on undocumented hooks may not work, so verify
+      your critical loaders and plugins before migrating a production build.
+    maintained_by: "ByteDance + OSS"
+    language: "Rust"
+    license: "MIT"
+    docs:
+      - { label: "rspack.dev", url: "https://rspack.dev" }
+
+  - name: "tsup"
+    slug: "tsup"
+    tagline: "Zero-config TypeScript library bundling, powered by esbuild."
+    layer: [tooling]
+    maturity: mainstream
+    learning_curve: gentle
+    first_released: 2020
+    description: >
+      A zero-config <span class="abbr-link" data-abbr="Bundler">bundler</span>
+      built on esbuild and designed specifically for shipping TypeScript
+      libraries. Point it at an entry file and it emits both
+      <span class="abbr-link" data-abbr="ESM">ESM</span> and
+      <span class="abbr-link" data-abbr="CJS">CJS</span> output plus `.d.ts`
+      type declarations, handling the dual-package boilerplate for you.
+    use_cases:
+      - "Publishing npm packages with both ESM and CJS builds."
+      - "Generating bundled .d.ts type declarations for a library."
+      - "Small TS tools and CLIs that want fast, config-free builds."
+    prerequisites:
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "Node.js", slug: "node-js" }
+    key_features:
+      - "Dual ESM + CJS output from a single command."
+      - "Bundled .d.ts type declaration generation."
+      - "esbuild-powered — extremely fast builds."
+      - "Code splitting, tree-shaking, and watch mode."
+    pairs_well_with:
+      - { name: "esbuild", slug: "esbuild" }
+      - { name: "TypeScript", slug: "typescript" }
+      - { name: "pnpm", slug: "pnpm" }
+    alternatives:
+      - { name: "Rollup", slug: "rollup" }
+      - { name: "Vite", slug: "vite" }
+      - { name: "esbuild", slug: "esbuild" }
+    example:
+      lang: "bash"
+      code: "tsup src/index.ts --format esm,cjs --dts"
+      explain: "Bundle a library to both module formats and emit type declarations in one zero-config command."
+    gotchas: >
+      Because it leans on esbuild, its `.d.ts` generation uses a separate
+      pass that can struggle with very complex type setups or some
+      `tsconfig` options, and esbuild does no type-checking — run `tsc --noEmit`
+      separately in CI to actually catch type errors.
+    maintained_by: "egoist + OSS"
+    language: "TypeScript"
+    license: "MIT"
+    docs:
+      - { label: "tsup.egoist.dev", url: "https://tsup.egoist.dev" }
