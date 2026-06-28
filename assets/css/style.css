@@ -2340,40 +2340,35 @@ html[data-header-sticky="off"] .theme-toggle {
 }
 .footer-links a:hover { color: var(--c-accent); }
 
-/* References footer section — its own labelled block of on-site reference pages */
+/* References footer row — favicons of on-site reference pages, mirrors .footer-projects;
+   sits on its own line directly above the projects favicon strip. */
 .footer-references {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--space-xs);
-}
-.footer-references__heading {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--c-text-faint);
-}
-.footer-references__heading a {
-  color: inherit;
-  transition: color var(--transition-fast);
-}
-.footer-references__heading a:hover { color: var(--c-accent); }
-.footer-references__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  gap: var(--space-md);
-  flex-wrap: wrap;
+  gap: var(--space-sm);
   justify-content: center;
+  flex-wrap: wrap;
 }
-.footer-references__list a {
-  font-size: 0.825rem;
-  color: var(--c-text-muted);
+.footer-references a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--border-radius-sm);
+  opacity: 0.75;
+  transition: opacity var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
 }
-.footer-references__list a:hover { color: var(--c-accent); }
+.footer-references a:hover {
+  opacity: 1;
+  background: var(--c-accent-bg);
+  transform: translateY(-1px);
+}
+.footer-references img {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+}
 
 .footer-social {
   display: flex;
