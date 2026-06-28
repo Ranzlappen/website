@@ -17,18 +17,19 @@ DATE: 2026-04-02
       {% endfor %}
     </nav>
 
-    <!-- References (on-site reference pages; auto-listed, see pages/references/) -->
+    <!-- References — favicon row of on-site reference pages; sits directly above the projects strip -->
     {% assign ref_pages = site.html_pages | where_exp: "p", "p.url contains '/references/'" | sort: "title" %}
     {% if ref_pages.size > 0 %}
     <nav class="footer-references" aria-label="Reference pages">
-      <h2 class="footer-references__heading"><a href="{{ '/references/' | relative_url }}">References</a></h2>
-      <ul class="footer-references__list">
-        {% for rp in ref_pages %}
-          {% unless rp.url == '/references/' %}
-          <li><a href="{{ rp.url | relative_url }}">{{ rp.title | remove: ' Reference' }}</a></li>
-          {% endunless %}
-        {% endfor %}
-      </ul>
+      {% for rp in ref_pages %}
+        {% unless rp.url == '/references/' %}
+        {% assign ref_slug = rp.url | split: '/references/' | last | remove: '/' %}
+        {% assign ref_name = rp.title | remove: ' Reference' %}
+        <a href="{{ rp.url | relative_url }}" aria-label="{{ ref_name }}" title="{{ ref_name }}">
+          <img src="{{ '/assets/images/favicons/' | append: ref_slug | append: '.png' | relative_url }}" alt="" width="24" height="24" loading="lazy">
+        </a>
+        {% endunless %}
+      {% endfor %}
     </nav>
     {% endif %}
 
