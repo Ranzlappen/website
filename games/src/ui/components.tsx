@@ -61,15 +61,7 @@ export function PageShell({ children, wide }: { children: ReactNode; wide?: bool
   return (
     <div className="tt-app">
       <Header />
-      <main
-        style={{
-          maxWidth: wide ? 1100 : 820,
-          margin: '0 auto',
-          padding: '1.5rem 1.25rem 4rem',
-        }}
-      >
-        {children}
-      </main>
+      <main className={`tt-main${wide ? ' tt-main--wide' : ''}`}>{children}</main>
     </div>
   );
 }

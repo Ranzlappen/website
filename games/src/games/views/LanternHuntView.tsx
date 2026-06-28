@@ -41,7 +41,7 @@ function LanternHuntView({ state, dispatch, viewerId, canAct }: GameViewProps<La
           gridTemplateColumns: `repeat(${width}, 1fr)`,
           gap: 6,
           padding: '1rem',
-          width: 'min(92vw, 460px)',
+          width: 'min(100%, 460px)',
           aspectRatio: '1 / 1',
         }}
         role="grid"
