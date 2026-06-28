@@ -2340,6 +2340,41 @@ html[data-header-sticky="off"] .theme-toggle {
 }
 .footer-links a:hover { color: var(--c-accent); }
 
+/* References footer section — its own labelled block of on-site reference pages */
+.footer-references {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+.footer-references__heading {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+.footer-references__heading a {
+  color: inherit;
+  transition: color var(--transition-fast);
+}
+.footer-references__heading a:hover { color: var(--c-accent); }
+.footer-references__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.footer-references__list a {
+  font-size: 0.825rem;
+  color: var(--c-text-muted);
+}
+.footer-references__list a:hover { color: var(--c-accent); }
+
 .footer-social {
   display: flex;
   gap: var(--space-sm);
