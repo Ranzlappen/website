@@ -27,15 +27,3 @@
 - name: "tools"
   url: "https://tools.ranzlappen.com/"
   favicon: /assets/images/favicons/tools.png?v=3
-
-- name: "EM Spectrum Reference"
-  url: /references/spectrum/
-  favicon: /assets/images/favicons/spectrum.png?v=3
-
-- name: "Electronics Fundamentals"
-  url: /references/electronics-fundamentals/
-  favicon: /assets/images/favicons/electronics-fundamentals.png?v=3
-
-- name: "CLI Command Cheat Sheet"
-  url: /references/cmd-cheat-sheet/
-  favicon: /assets/images/favicons/cmd-cheat-sheet.png?v=3
