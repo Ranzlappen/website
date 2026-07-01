@@ -20,7 +20,7 @@
     "firebase-admin": "^13.9.0",
     "firebase-functions": "^6.6.0",
     "gray-matter": "^4.0.3",
-    "js-yaml": "^4.2.0"
+    "js-yaml": "^5.2.0"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
