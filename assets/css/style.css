@@ -121,7 +121,7 @@ DATE: 2026-04-03
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-offset) + 1rem);
+  scroll-padding-top: calc(var(--header-offset) + var(--space-sm));
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
 }
@@ -1450,7 +1450,7 @@ html[data-header-sticky="off"] .theme-toggle {
   margin-bottom: var(--space-md);
   padding-top: var(--space-md);
   border-top: 1px solid var(--c-border);
-  scroll-margin-top: calc(var(--header-offset) + var(--tts-bar-offset) + 1rem);
+  scroll-margin-top: calc(var(--header-offset) + var(--tts-bar-offset) + var(--space-sm));
 }
 
 .post-body h3 {
@@ -3452,6 +3452,15 @@ html[data-header-sticky="off"] .theme-toggle {
   top: calc(var(--header-offset) + var(--tts-bar-offset));
   z-index: 50;
   background: transparent;
+  /* Symmetric vertical padding so the title sits vertically centered in the
+     pinned band (base .post-body h2 has top padding only → top-heavy; .page-body
+     h2 has none). Kept on this shared rule (not .is-stuck) so the box height is
+     identical stuck vs unstuck — a height change here would reflow the sentinels
+     below and flicker the banner between adjacent h2s (see main.js). margin-bottom
+     compensates the added padding-bottom so the below-heading flow gap stays ~1rem. */
+  padding-top: var(--space-sm);
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-sm);
   /* Full-bleed: margins pull the box out to the viewport edges (works
      whether the parent fills the viewport or is centered within
      content-width); padding pushes the text content back to the body's
