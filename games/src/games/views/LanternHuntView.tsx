@@ -1,6 +1,5 @@
 /** Lantern Hunt table view: grid board, pawns, lanterns, dice, legal moves. */
-import { Board } from '../../engine';
-import { Die, Pawn, Token, SEAT_COLORS } from '../../ui/assets';
+import { Die, GridBoard, Pawn, Token, SEAT_COLORS } from '../../ui/assets';
 import { PlayerBadge } from '../../ui/components';
 import { useRollFlash } from '../../ui/hooks';
 import { legalTargets, type LanternState } from '../lantern-hunt';
@@ -10,7 +9,6 @@ import type { GameViewProps } from './types';
 function LanternHuntView({ state, dispatch, viewerId, canAct }: GameViewProps<LanternState>) {
   const game = state.game;
   const rolling = useRollFlash(game.die);
-  const { width, height } = game.grid;
   const current = state.turn.current;
   const targets = new Set(canAct ? legalTargets(game, current) : []);
   const pawnAt = new Map<string, number>(); // cell -> seat
@@ -34,53 +32,27 @@ function LanternHuntView({ state, dispatch, viewerId, canAct }: GameViewProps<La
         ))}
       </div>
 
-      <div
-        className="tt-felt"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${width}, 1fr)`,
-          gap: 6,
-          padding: '1rem',
-          width: 'min(100%, 460px)',
-          aspectRatio: '1 / 1',
-        }}
-        role="grid"
-        aria-label="Lantern Hunt board"
-      >
-        {Array.from({ length: width * height }, (_, i) => {
-          const x = i % width;
-          const y = Math.floor(i / width);
-          const id = Board.cellId({ x, y });
-          const wall = Board.isWall(game.grid, { x, y });
-          const legal = targets.has(id);
+      <GridBoard
+        grid={game.grid}
+        ariaLabel="Lantern Hunt board"
+        legalCells={targets}
+        onCellActivate={move}
+        renderCell={(id) => {
           const seat = pawnAt.get(id);
-          const hasLantern = game.lanterns.includes(id);
           return (
-            <div
-              key={id}
-              role="gridcell"
-              aria-label={`Cell ${x},${y}${wall ? ' wall' : ''}${legal ? ' reachable' : ''}`}
-              className={`tt-cell ${wall ? 'tt-cell--wall' : ''} ${legal ? 'tt-cell--legal' : ''}`}
-              style={{ position: 'relative' }}
-              onClick={legal ? () => move(id) : undefined}
-              onKeyDown={(e) => {
-                if (legal && (e.key === 'Enter' || e.key === ' ')) {
-                  e.preventDefault();
-                  move(id);
-                }
-              }}
-              tabIndex={legal ? 0 : undefined}
-            >
-              {hasLantern && <Token glyph="🏮" color={SEAT_COLORS[1]} size={22} />}
+            <>
+              {game.lanterns.includes(id) && (
+                <Token glyph="🏮" color={SEAT_COLORS[1]} size={22} />
+              )}
               {seat !== undefined && (
                 <span style={{ position: 'absolute', bottom: 0 }}>
                   <Pawn seat={seat} size={26} />
                 </span>
               )}
-            </div>
+            </>
           );
-        })}
-      </div>
+        }}
+      />
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         {game.die !== null ? (
