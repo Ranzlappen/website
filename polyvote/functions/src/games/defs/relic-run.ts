@@ -6,45 +6,36 @@
  * an optional action card: Leap (jump ahead), Ward (a free relic), or Steal
  * (take a relic from the leader). First to four relics wins.
  *
- * Demonstrates: a looping track, dice, a hidden hand of action cards, public
- * relic tokens, a two-phase turn (roll → action), private/shared state, and a
- * win condition — i.e. cards + board + tokens working together.
+ * Written on the declarative ruleset layer, and demonstrates the data-driven
+ * card pattern: the deck is a composition spec (`deckFromSpec`), each card
+ * kind maps to a small effect function in {@link CARD_EFFECTS}, and the hidden
+ * hands/deck live in zones so redaction is automatic. Adding a new action card
+ * is one spec line + one effect entry.
  */
 import {
+  Cards,
   Dice,
   Rules,
+  Zones,
+  defineGame,
   registerGame,
-  type GameAction,
-  type GameDefinition,
-  type MatchState,
   type PlayerId,
-  type RandomSource,
+  type ReducerContext,
 } from '../engine';
 
 export type CellKind = 'relic' | 'card' | 'empty';
 export type CardKind = 'leap' | 'ward' | 'steal';
-
-export interface ActionCard {
-  id: string;
-  kind: CardKind;
-}
 
 export interface RelicState {
   /** Type of each cell on the loop track. */
   track: CellKind[];
   positions: Record<PlayerId, number>;
   relics: Record<PlayerId, number>;
-  hands: Record<PlayerId, ActionCard[]>;
-  deck: ActionCard[];
-  discard: ActionCard[];
+  /** Action-card zones: hidden `deck`, public `discard`, per-player hands. */
+  zones: Zones.ZoneMap;
   /** Most recent die roll (for display). */
   die: number | null;
 }
-
-type RollAction = GameAction<'ROLL'>;
-type PlayAction = GameAction<'PLAY', { cardId: string }>;
-type PassAction = GameAction<'PASS'>;
-export type RelicAction = RollAction | PlayAction | PassAction;
 
 const TRACK: CellKind[] = [
   'relic', 'card', 'empty', 'card',
@@ -52,6 +43,13 @@ const TRACK: CellKind[] = [
   'empty', 'card', 'empty', 'relic',
 ];
 const TARGET_RELICS = 4;
+
+/** Deck composition — tweak counts or add kinds here. */
+const DECK_SPEC: Cards.DeckSpecEntry[] = [
+  { kind: 'leap', count: 5 },
+  { kind: 'steal', count: 4 },
+  { kind: 'ward', count: 3 },
+];
 
 export const CARD_LABEL: Record<CardKind, string> = {
   leap: 'Leap',
@@ -64,33 +62,14 @@ export const CARD_TEXT: Record<CardKind, string> = {
   steal: 'Take one relic from the current leader.',
 };
 
-function buildDeck(random: RandomSource): ActionCard[] {
-  const spec: [CardKind, number][] = [
-    ['leap', 5],
-    ['steal', 4],
-    ['ward', 3],
-  ];
-  const cards: ActionCard[] = [];
-  let n = 0;
-  for (const [kind, count] of spec) {
-    for (let i = 0; i < count; i++) cards.push({ id: `${kind}-${n++}`, kind });
-  }
-  return random.shuffle(cards);
+/** Zone id of a player's action-card hand. */
+export function handZone(playerId: PlayerId): string {
+  return Zones.zoneId('hand', playerId);
 }
 
-function drawActionCard(
-  deck: ActionCard[],
-  discard: ActionCard[],
-  random: RandomSource,
-): { card: ActionCard | null; deck: ActionCard[]; discard: ActionCard[] } {
-  let d = deck;
-  let disc = discard;
-  if (d.length === 0) {
-    if (disc.length === 0) return { card: null, deck: d, discard: disc };
-    d = random.shuffle(disc);
-    disc = [];
-  }
-  return { card: d[d.length - 1], deck: d.slice(0, -1), discard: disc };
+/** A player's current action cards. */
+export function handOf(game: RelicState, playerId: PlayerId): Cards.Card[] {
+  return Zones.cardsIn(game.zones, handZone(playerId));
 }
 
 /** Resolve landing on a cell: bank a relic, draw a card, or nothing. */
@@ -98,21 +77,19 @@ function resolveLanding(
   game: RelicState,
   me: PlayerId,
   index: number,
-  random: RandomSource,
+  ctx: ReducerContext,
 ): RelicState {
   const kind = game.track[index];
   if (kind === 'relic') {
     return { ...game, relics: { ...game.relics, [me]: game.relics[me] + 1 } };
   }
   if (kind === 'card') {
-    const { card, deck, discard } = drawActionCard(game.deck, game.discard, random);
-    if (!card) return game;
-    return {
-      ...game,
-      deck,
-      discard,
-      hands: { ...game.hands, [me]: [...game.hands[me], card] },
-    };
+    const zones = Zones.draw(game.zones, 'deck', handZone(me), 1, {
+      faceUp: true,
+      reshuffleFrom: 'discard',
+      random: ctx.random,
+    });
+    return { ...game, zones };
   }
   return game;
 }
@@ -130,7 +107,38 @@ function leader(relics: Record<PlayerId, number>, exclude: PlayerId): PlayerId |
   return bestN > 0 ? best : null;
 }
 
-export const relicRun: GameDefinition<RelicState, RelicAction> = {
+/**
+ * Effect registry: what each card kind does when played. New rulesets extend
+ * this table (and {@link DECK_SPEC}) without touching the move machinery.
+ */
+const CARD_EFFECTS: Record<
+  CardKind,
+  (game: RelicState, me: PlayerId, ctx: ReducerContext) => RelicState
+> = {
+  ward: (game, me) => ({
+    ...game,
+    relics: { ...game.relics, [me]: game.relics[me] + 1 },
+  }),
+  steal: (game, me) => {
+    const target = leader(game.relics, me);
+    if (!target) return game;
+    return {
+      ...game,
+      relics: {
+        ...game.relics,
+        [target]: game.relics[target] - 1,
+        [me]: game.relics[me] + 1,
+      },
+    };
+  },
+  leap: (game, me, ctx) => {
+    const dest = (game.positions[me] + 2) % game.track.length;
+    const moved = { ...game, positions: { ...game.positions, [me]: dest } };
+    return resolveLanding(moved, me, dest, ctx);
+  },
+};
+
+export const relicRun = defineGame<RelicState>({
   id: 'relic-run',
   name: 'Relic Run',
   description:
@@ -146,88 +154,61 @@ export const relicRun: GameDefinition<RelicState, RelicAction> = {
   setup(ctx) {
     const positions: Record<PlayerId, number> = {};
     const relics: Record<PlayerId, number> = {};
-    const hands: Record<PlayerId, ActionCard[]> = {};
     for (const p of ctx.players) {
       positions[p.id] = 0;
       relics[p.id] = 0;
-      hands[p.id] = [];
     }
-    return {
-      track: TRACK,
-      positions,
-      relics,
-      hands,
-      deck: buildDeck(ctx.random),
-      discard: [],
-      die: null,
-    };
+    const zones = Zones.makeZones(
+      Zones.makeZone('deck', 'hidden', ctx.random.shuffle(Cards.deckFromSpec(DECK_SPEC))),
+      Zones.makeZone('discard', 'public'),
+      ...ctx.players.map((p) => Zones.makeZone(handZone(p.id), 'owner', [], p.id)),
+    );
+    return { track: TRACK, positions, relics, zones, die: null };
   },
 
-  validate(game, action, ctx) {
-    const base = Rules.requireCurrentPlayer(ctx);
-    if (base !== true) return base;
+  moves: {
+    ROLL: {
+      phase: 'roll',
+      apply(game, _payload, ctx) {
+        const me = ctx.actor;
+        const die = Dice.d6(ctx.random);
+        const dest = (game.positions[me] + die) % game.track.length;
+        const moved = { ...game, positions: { ...game.positions, [me]: dest }, die };
+        return resolveLanding(moved, me, dest, ctx);
+      },
+      nextPhase: 'action',
+      describe: (_payload, name) => `${name} rolled and moved.`,
+    },
 
-    if (action.type === 'ROLL') return Rules.requirePhase(ctx, 'roll');
-    if (action.type === 'PASS') return Rules.requirePhase(ctx, 'action');
-    if (action.type === 'PLAY') {
-      const phase = Rules.requirePhase(ctx, 'action');
-      if (phase !== true) return phase;
-      return Rules.check(
-        game.hands[ctx.actor].some((c) => c.id === action.payload?.cardId),
-        'That card is not in your hand.',
-      );
-    }
-    return 'Unknown action.';
-  },
+    PLAY: {
+      phase: 'action',
+      validate: (game, payload: { cardId: string }, ctx) =>
+        Rules.check(
+          handOf(game, ctx.actor).some((c) => c.id === payload?.cardId),
+          'That card is not in your hand.',
+        ),
+      apply(game, payload: { cardId: string }, ctx) {
+        const me = ctx.actor;
+        const card = handOf(game, me).find((c) => c.id === payload.cardId)!;
+        const zones = Zones.moveCard(game.zones, handZone(me), 'discard', card.id, {
+          faceUp: true,
+        });
+        return CARD_EFFECTS[card.kind as CardKind]({ ...game, zones }, me, ctx);
+      },
+      enumerate: (game, ctx) =>
+        handOf(game, ctx.actor).map((c) => ({ cardId: c.id })),
+      nextPhase: 'roll',
+      endsTurn: true,
+      describe: (_payload, name) => `${name} played an action card.`,
+    },
 
-  reducer(game, action, ctx) {
-    const me = ctx.actor;
-    const track = game.track;
-
-    if (action.type === 'ROLL') {
-      const die = Dice.d6(ctx.random);
-      const dest = (game.positions[me] + die) % track.length;
-      let next: RelicState = { ...game, positions: { ...game.positions, [me]: dest }, die };
-      next = resolveLanding(next, me, dest, ctx.random);
-      ctx.events.setPhase('action');
-      return next;
-    }
-
-    if (action.type === 'PASS') {
-      ctx.events.setPhase('roll');
-      ctx.events.endTurn();
-      return game;
-    }
-
-    // PLAY
-    const cardId = action.payload!.cardId;
-    const card = game.hands[me].find((c) => c.id === cardId)!;
-    const hands = { ...game.hands, [me]: game.hands[me].filter((c) => c.id !== cardId) };
-    let next: RelicState = { ...game, hands, discard: [...game.discard, card] };
-
-    if (card.kind === 'ward') {
-      next = { ...next, relics: { ...next.relics, [me]: next.relics[me] + 1 } };
-    } else if (card.kind === 'steal') {
-      const target = leader(next.relics, me);
-      if (target) {
-        next = {
-          ...next,
-          relics: {
-            ...next.relics,
-            [target]: next.relics[target] - 1,
-            [me]: next.relics[me] + 1,
-          },
-        };
-      }
-    } else if (card.kind === 'leap') {
-      const dest = (next.positions[me] + 2) % track.length;
-      next = { ...next, positions: { ...next.positions, [me]: dest } };
-      next = resolveLanding(next, me, dest, ctx.random);
-    }
-
-    ctx.events.setPhase('roll');
-    ctx.events.endTurn();
-    return next;
+    PASS: {
+      phase: 'action',
+      apply: (game) => game,
+      nextPhase: 'roll',
+      endsTurn: true,
+      describe: (_payload, name) => `${name} ended their turn.`,
+    },
   },
 
   endIf(game) {
@@ -244,18 +225,9 @@ export const relicRun: GameDefinition<RelicState, RelicAction> = {
     return null;
   },
 
-  enumerate(game, ctx) {
-    if (ctx.turn.phase === 'roll') return [{ type: 'ROLL' }];
-    const out: RelicAction[] = [{ type: 'PASS' }];
-    for (const c of game.hands[ctx.actor]) {
-      out.push({ type: 'PLAY', payload: { cardId: c.id } });
-    }
-    return out;
-  },
-
   ai(game, ctx) {
     if (ctx.turn.phase === 'roll') return { type: 'ROLL' };
-    const hand = game.hands[ctx.actor];
+    const hand = handOf(game, ctx.actor);
     const ward = hand.find((c) => c.kind === 'ward');
     if (ward) return { type: 'PLAY', payload: { cardId: ward.id } };
     const steal = hand.find((c) => c.kind === 'steal');
@@ -265,26 +237,7 @@ export const relicRun: GameDefinition<RelicState, RelicAction> = {
     if (leap) return { type: 'PLAY', payload: { cardId: leap.id } };
     return { type: 'PASS' };
   },
-
-  redact(game, viewerId) {
-    // Hide opponents' action-card hands and the draw deck's order; keep counts.
-    const hide = (cards: ActionCard[], tag: string): ActionCard[] =>
-      cards.map((_, i) => ({ id: `hidden-${tag}-${i}`, kind: 'leap' }));
-    const hands: Record<PlayerId, ActionCard[]> = {};
-    for (const [id, hand] of Object.entries(game.hands)) {
-      hands[id] = id === viewerId ? hand : hide(hand, id);
-    }
-    return { ...game, hands, deck: hide(game.deck, 'deck') };
-  },
-
-  describeAction(action, state: MatchState<RelicState>) {
-    const name =
-      state.players.find((p) => p.id === action.playerId)?.name ?? 'Someone';
-    if (action.type === 'ROLL') return `${name} rolled and moved.`;
-    if (action.type === 'PASS') return `${name} ended their turn.`;
-    if (action.type === 'PLAY') return `${name} played an action card.`;
-    return '';
-  },
-};
+  // Hidden information (hands + deck order) lives in zones → auto-redaction.
+});
 
 registerGame(relicRun);

@@ -9,8 +9,10 @@ export * from './types';
 export * from './rng';
 export * from './match';
 export * from './registry';
+export * from './flow';
 
 export * as Cards from './cards';
 export * as Board from './board';
 export * as Dice from './dice';
 export * as Rules from './rules';
+export * as Zones from './zones';
