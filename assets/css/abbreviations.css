@@ -56,14 +56,17 @@
 }
 
 /* When open, pin the summary just below the site header so users can collapse
-   without scrolling back to the top. */
+   without scrolling back to the top. Keys off --header-offset (not the raw
+   --header-height) so it tracks the header pin/unpin toggle like the
+   reference-table controls do. */
 .abbr-section[open] > .abbr-section__summary {
   position: sticky;
-  top: var(--header-height, 3.75rem);
+  top: var(--header-offset, var(--header-height, 3.75rem));
   z-index: 9;
   background: var(--c-surface);
   border-bottom: 1px solid var(--c-border);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
 
@@ -124,7 +127,7 @@
 .abbr-grid > li { margin: 0; }
 .abbr-grid .abbr-card { width: 100%; }
 
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .abbr-section__summary { padding: var(--space-sm) var(--space-md); }
   .abbr-section__body { padding: var(--space-sm) var(--space-md) var(--space-md); }
   .abbr-grid { grid-template-columns: 1fr; }
@@ -209,6 +212,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 }
 .abbr-modal__panel {
@@ -364,7 +368,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .abbr-interp-table { font-size: 0.8rem; }
   .abbr-interp-table th,
   .abbr-interp-table td { padding: 0.4rem 0.55rem; }
@@ -400,7 +404,7 @@
   outline-offset: 2px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .abbr-modal { padding: 0.5rem; }
   .abbr-modal__panel {
     padding: 0.9rem;
