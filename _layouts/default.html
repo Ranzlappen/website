@@ -33,10 +33,10 @@ DATE: 2026-04-02
   {% include footer.html %}
 
   <!-- Cookie Consent Manager (must load before other scripts) -->
-  <script src="{{ '/assets/js/cookie-consent.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/cookie-consent.js' | relative_url }}" defer></script>
 
   <!-- Core JS -->
-  <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/main.js' | relative_url }}" defer></script>
 
   {% if page.layout == 'post' %}
   <!-- Firebase config for voting -->
@@ -50,14 +50,14 @@ DATE: 2026-04-02
     };
   </script>
   <!-- Voting sidebar (Firebase — gated by consent in voting-sidebar.js) -->
-  <script src="{{ '/assets/js/voting-sidebar.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/voting-sidebar.js' | relative_url }}" defer></script>
   <!-- Read Aloud (Web Speech API — local, no consent needed) -->
-  <script src="{{ '/assets/js/read-aloud.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/read-aloud.js' | relative_url }}" defer></script>
   {% endif %}
 
   <!-- Image Carousel (local, no consent needed) -->
   {% if page.layout == 'post' %}
-  <script src="{{ '/assets/js/carousel.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/carousel.js' | relative_url }}" defer></script>
   {% endif %}
 
   <!-- Chart.js (CDN — consent-gated) + declarative initializer -->
@@ -89,6 +89,6 @@ DATE: 2026-04-02
   {% endif %}
 
   <!-- Search (lunr.js — consent-gated inside search.js) -->
-  <script src="{{ '/assets/js/search.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/search.js' | relative_url }}" defer></script>
 </body>
 </html>

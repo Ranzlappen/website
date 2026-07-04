@@ -18,9 +18,11 @@ DATE: 2026-04-03
   --c-surface-alt: #1b2924;
   --c-border:      #253830;
   --c-border-light:#1e2f28;
+  /* muted/faint are real content colors (search counts, placeholders, card
+     meta) — both tuned to pass WCAG AA 4.5:1 against every surface tier. */
   --c-text:        #dce8e2;
-  --c-text-muted:  #7e948a;
-  --c-text-faint:  #556b62;
+  --c-text-muted:  #8ca298;
+  --c-text-faint:  #7a9287;
   --c-accent:      #4ade80;
   --c-accent-dim:  #22c55e;
   --c-accent-bg:   rgba(74, 222, 128, 0.08);
@@ -97,8 +99,8 @@ DATE: 2026-04-03
   --c-border:      #d0ddd6;
   --c-border-light:#dde8e2;
   --c-text:        #1a2a22;
-  --c-text-muted:  #5a7068;
-  --c-text-faint:  #8a9e95;
+  --c-text-muted:  #4f655c;
+  --c-text-faint:  #5d736a;
   --c-accent:      #16a34a;
   --c-accent-dim:  #15803d;
   --c-accent-bg:   rgba(22, 163, 74, 0.06);
