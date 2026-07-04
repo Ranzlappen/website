@@ -128,7 +128,7 @@
 .spectrum-legend__swatch--restricted { --swatch-bg: #ef4444; }
 
 /* ---- Small screens: column-snap mobile layout ---- */
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   /* The wrapper opts in to mobile column snapping via `has-snap-cols` (shared)
      — here we add spectrum-specific scroll-padding so swipes land cleanly
      past the sticky frequency column. */

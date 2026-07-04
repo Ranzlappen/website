@@ -228,7 +228,8 @@
   gap: var(--space-md);
 }
 .electronics-formula-card {
-  /* Inherits from .electronics-card; this class adds formula-specific layout. */
+  /* Standalone card (deliberately mirrors the .electronics-card look —
+     markup uses only this class). */
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--border-radius);
@@ -743,6 +744,7 @@
         right: var(--space-md);
         width: 12rem;
         max-height: calc(100vh - var(--header-height, 3.75rem) - 2 * var(--space-md));
+        max-height: calc(100dvh - var(--header-height, 3.75rem) - 2 * var(--space-md));
         overflow-y: auto;
         padding: var(--space-sm) var(--space-md);
         background: var(--c-surface);

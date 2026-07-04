@@ -79,6 +79,7 @@
     rgba(var(--c-bg-rgb), 0.97) 70%,
     rgba(var(--c-bg-rgb), 0) 100%);
   padding: var(--space-sm) 0 var(--space-md);
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
 .reference-tabs {
@@ -525,7 +526,7 @@
    tablets. Let the strip wrap and give the search its own full-width line
    below the tabs. (Does NOT reset the sticky table wrapper — that is handled
    by the pointer-coarse rule below so the footer stays reachable.) */
-@media (min-width: 641px) and (max-width: 1024px) {
+@media (min-width: 40.0625rem) and (max-width: 64rem) {
   .reference-controls { flex-wrap: wrap; }
   .reference-tabs { flex: 1 1 100%; order: 1; }
   .reference-search {
@@ -537,7 +538,7 @@
 }
 
 /* Small screens — generic responsive stack + opt-in mobile snap behaviour. */
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .reference-container { padding: 0 var(--space-md); }
   .reference-controls {
     flex-direction: column;
