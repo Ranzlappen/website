@@ -7,7 +7,7 @@ category: "Media"
 tags: [dsa, trusted-flaggers, eu-power, ngo-funding, censorship, free-speech, legislative-process]
 image: /assets/images/dsa-trusted-flaggers/dsa-trusted-flaggers-hero.svg
 backdrop: /assets/images/dsa-trusted-flaggers/dsa-trusted-flaggers-hero.svg
-status: placeholder
+status: published
 comments: true
 ---
 
