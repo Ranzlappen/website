@@ -5,8 +5,8 @@ keywords: ["Digital Services Act", "DSA Trusted Flaggers", "EU regulatory power"
 date: 2026-07-06
 category: "Media"
 tags: [dsa, trusted-flaggers, eu-power, ngo-funding, censorship, free-speech, legislative-process]
-image: /assets/images/dsa-trusted-flaggers/dsa-trusted-flaggers-hero.svg
-backdrop: /assets/images/dsa-trusted-flaggers/dsa-trusted-flaggers-hero.svg
+image: /assets/images/dsa-trusted-flaggers/dsa-trusted-flaggers-hero.webp
+backdrop: /assets/images/dsa-trusted-flaggers/dsa-trusted-flaggers-hero.webp
 status: published
 comments: true
 ---
