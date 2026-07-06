@@ -2,10 +2,10 @@
    Shared reference-table scaffolding
    Used by /references/spectrum/, /references/cmd-cheat-sheet/,
    /references/web-dev-tech-stack/, and any future big-table reference page.
-   Provides the sticky controls strip, a horizontal-only scroll wrapper in
-   normal page flow (single page scrollbar), the JS-built pinned clone header
-   (`.reference-thead-pin`), the sticky first column (via `.is-sticky-col`
-   hook), generic legend, badge base, and the `.cell-collapse` family.
+   Provides the (non-sticky) controls strip, a bounded sticky scroll-box
+   wrapper that pins the native-sticky thead below the header while wide tables
+   scroll inside it, the sticky first column (via `.is-sticky-col` hook),
+   generic legend, badge base, and the `.cell-collapse` family.
 
    Per-page CSS files layer on top of this with column widths, palette
    modifiers, and scoping under `.reference-page--<name>`.
@@ -238,9 +238,31 @@
   font-size: 0.95rem;
 }
 
-/* ---- Table ---- */
+/* ---- Table ----
+   The reference tables have a hard `min-width` far wider than any viewport
+   (2100–2400px), so they MUST scroll horizontally. For the `thead` to stay
+   pinned while rows scroll — using only native `position: sticky`, no JS —
+   the wrapper is a BOUNDED two-axis scroll box that itself sticks below the
+   site header:
+     • `overflow: auto` makes it the scroll container (both axes), so the
+       `thead th { top: 0 }` and `.is-sticky-col { left: 0 }` sticky cells pin
+       against THIS box.
+     • `position: sticky; top: --header-offset` pins the whole box just under
+       the (non-sticky) controls once they scroll away, flush below the site
+       header. `--header-offset` collapses to 0 when the header is unpinned, so
+       the box re-anchors to the very top then.
+     • `max-height` caps the box below the viewport so the page keeps a real
+       scroll region beneath it (legend/footer reachable) and the pinned box
+       never overhangs them.
+   This is the only pure-CSS way to get a sticky header on a horizontally
+   scrolling wide table; the trade-off is an inner scroll region for the table
+   card (the earlier JS clone-header approach was removed by request). */
 .reference-table-wrapper {
-  overflow: visible;
+  position: sticky;
+  top: var(--header-offset, var(--header-height, 3.75rem));
+  max-height: calc(100vh - var(--header-offset, var(--header-height, 3.75rem)) - 2rem);
+  max-height: calc(100dvh - var(--header-offset, var(--header-height, 3.75rem)) - 2rem);
+  overflow: auto;
   border: 1px solid var(--c-border);
   border-radius: var(--border-radius);
   background: var(--c-surface);
@@ -260,8 +282,10 @@
 }
 
 .reference-table thead th {
+  /* Sticks to the top of the wrapper's scrollport (top: 0), which the wrapper
+     itself parks at --header-offset via its own `position: sticky`. */
   position: sticky;
-  top: var(--header-offset, var(--header-height, 3.75rem));
+  top: 0;
   z-index: 2;
   background: var(--c-surface-alt);
   color: var(--c-text);
@@ -536,16 +560,9 @@
   .reference-osfilter { justify-content: space-between; }
   .reference-osfilter select { flex: 1 1 auto; }
 
-  /* Keep the bounded sticky scroll box on phones too (sticky thead inside,
-     sticky command column), so the header stays pinned while scrolling rows —
-     same behaviour as desktop. The `max-height` is capped well below the
-     viewport so there's always page area beneath the box: scrolling past the
-     table reaches the footer, and because the box is a solid-background,
-     bounded element with the footer in normal flow below it, the footer can't
-     bleed into the table. */
-  .reference-table-wrapper {
-    overflow-y: auto;
-  }
+  /* The bounded sticky scroll box (position: sticky + max-height + overflow:
+     auto) is inherited from the base rule, so the thead + command column stay
+     pinned on phones exactly as on desktop — no per-breakpoint override needed. */
   .reference-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
   .reference-table tbody td { padding: 0.65rem 0.6rem; overflow-wrap: anywhere; }
 
@@ -578,6 +595,8 @@
 @media print {
   .reference-controls { position: static; }
   .reference-table-wrapper {
+    position: static;
+    max-height: none;
     overflow: visible;
     border: 0;
     box-shadow: none;
