@@ -73,8 +73,7 @@
   gap: var(--space-md);
   align-items: center;
   margin-bottom: var(--space-md);
-  position: sticky;
-  top: var(--header-offset, var(--header-height, 3.75rem));
+  position: relative;
   z-index: 10;
   background: linear-gradient(to bottom,
     rgba(var(--c-bg-rgb), 0.97) 0%,
@@ -240,23 +239,8 @@
 }
 
 /* ---- Table ---- */
-/* The wrapper is a HORIZONTAL-ONLY scroll box in normal page flow: the page
-   keeps its single natural vertical scrollbar (no inner vertical scroll, no
-   scroll trap, no bounded max-height box). `overflow-y: hidden` is explicit
-   because `overflow-x: auto` forces the other axis to compute to auto/hidden
-   anyway (never visible) — hidden is the deterministic choice.
-
-   That same CSS fact means a real `thead` inside this wrapper can never pin
-   against the viewport (its sticky containing block is the wrapper, which
-   doesn't scroll vertically). The pinned header the reader sees mid-table is
-   the JS-built `.reference-thead-pin` clone (reference-table.js): a 0-height
-   sticky rail inserted just before the wrapper, holding an overflow-hidden
-   viewport whose scrollLeft is synced to the wrapper's. The clone is
-   aria-hidden; the real thead stays the semantic/focus target. Without JS the
-   table is simply a horizontal scroll box that scrolls with the page. */
 .reference-table-wrapper {
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: visible;
   border: 1px solid var(--c-border);
   border-radius: var(--border-radius);
   background: var(--c-surface);
@@ -276,6 +260,9 @@
 }
 
 .reference-table thead th {
+  position: sticky;
+  top: var(--header-offset, var(--header-height, 3.75rem));
+  z-index: 2;
   background: var(--c-surface-alt);
   color: var(--c-text);
   text-align: left;
@@ -358,41 +345,6 @@
 .reference-table thead th.is-sticky-col {
   z-index: 3;
   background: var(--c-surface-alt);
-}
-
-/* ---- Pinned clone header (built by reference-table.js) ----
-   A 0-height sticky rail just before the wrapper. Its viewport is an
-   overflow-hidden box the width of the wrapper whose scrollLeft is synced to
-   the wrapper's horizontal scroll — a real scrollport, so the cloned corner
-   `th.is-sticky-col` keeps left-pinning via the shared rule above with no
-   extra code. z-index 9 sits under the controls strip (10) and over the
-   table's own sticky cells (≤3). Hidden until the IntersectionObserver marks
-   it active (real thead above the pin line AND wrapper still on screen, so
-   the clone never floats over the legend/footer). */
-.reference-thead-pin {
-  position: sticky;
-  top: calc(var(--header-offset, var(--header-height, 3.75rem)) + var(--reference-controls-h, 3.25rem));
-  height: 0;
-  z-index: 9;
-  visibility: hidden;
-}
-.reference-thead-pin.is-active {
-  visibility: visible;
-}
-.reference-thead-pin__viewport {
-  overflow: hidden;
-  scroll-behavior: auto; /* never smooth-animate the programmatic scrollLeft sync */
-  border: 1px solid var(--c-border); /* matches the wrapper's border so clone columns align pixel-exact */
-  border-top: 0;
-  background: var(--c-surface-alt);
-  box-shadow: 0 6px 12px var(--c-card-shadow);
-}
-.reference-thead-pin .reference-table {
-  table-layout: fixed; /* honor the JS-synced per-column widths */
-  margin: 0;
-}
-.reference-thead-pin .reference-table thead th {
-  box-sizing: border-box; /* JS copies offsetWidth (incl. padding/border) */
 }
 
 /* ---- Monospace cell helper ---- */
@@ -584,21 +536,30 @@
   .reference-osfilter { justify-content: space-between; }
   .reference-osfilter select { flex: 1 1 auto; }
 
+  /* Keep the bounded sticky scroll box on phones too (sticky thead inside,
+     sticky command column), so the header stays pinned while scrolling rows —
+     same behaviour as desktop. The `max-height` is capped well below the
+     viewport so there's always page area beneath the box: scrolling past the
+     table reaches the footer, and because the box is a solid-background,
+     bounded element with the footer in normal flow below it, the footer can't
+     bleed into the table. */
+  .reference-table-wrapper {
+    overflow-y: auto;
+  }
   .reference-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
   .reference-table tbody td { padding: 0.65rem 0.6rem; overflow-wrap: anywhere; }
 
   /* Opt-in mobile snap: pages add `.has-snap-cols` on the wrapper to get
      column-by-column scroll snapping on top of the wrapper's existing
-     horizontal overflow. Useful for very wide tables. `proximity` (not
-     `mandatory`) so a swipe can rest anywhere — mandatory + the overlaying
-     sticky first column made cell far-edges unreachable and trapped flicks. */
+     horizontal overflow. Useful for very wide tables. */
   .reference-table-wrapper.has-snap-cols {
     overflow-x: auto;
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
   }
   .reference-table-wrapper.has-snap-cols .reference-table thead th:not(.is-sticky-col),
   .reference-table-wrapper.has-snap-cols .reference-table tbody td:not(.is-sticky-col) {
     scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
   .reference-table td.is-sticky-col,
   .reference-table th.is-sticky-col {
@@ -616,7 +577,6 @@
    across pages instead of clipping to one screenful. */
 @media print {
   .reference-controls { position: static; }
-  .reference-thead-pin { display: none; }
   .reference-table-wrapper {
     overflow: visible;
     border: 0;
