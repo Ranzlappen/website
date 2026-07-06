@@ -1,0 +1,311 @@
+---
+layout: default
+title: Hire Me
+subtitle: Freelance project request
+description: Configure a freelance software project — pick your tech stack, features, timeline and AI involvement, name your price, and submit a request. Transparent about AI-assisted development and about when requests are declined.
+permalink: /freelance/
+---
+
+{%- comment -%}
+=================================================================================
+Freelance Project Request tool
+---------------------------------------------------------------------------------
+Data source: _data/freelance.yml — every chip, radio card and select option is
+rendered from that file, so extending the picker is a data-only change.
+
+Styles live in /assets/css/freelance.css (scoped under .freelance-page, both
+themes via the global CSS variables) and behaviour in /assets/js/freelance.js
+(live summary, "no preference" stack toggle, validation, submission).
+
+Submission reuses the contact form's pipeline: hCaptcha behind the functional
+cookie-consent gate, then POST to site.contact_form.endpoint when configured,
+else a pre-filled GitHub Issue URL (label: freelance-request).
+=================================================================================
+{%- endcomment -%}
+{%- assign fl = site.data.freelance -%}
+
+<link rel="stylesheet" href="{{ '/assets/css/freelance.css' | relative_url }}">
+
+<header class="page-header">
+  <h1>Freelance Project Request</h1>
+  <p>Configure your project, name your price, send it over — every request gets a personal reply.</p>
+</header>
+
+<div class="page-body freelance-page page-body--no-sticky">
+
+  <!-- ── AI transparency ─────────────────────────────────────── -->
+  <section class="fl-intro" aria-labelledby="fl-intro-title">
+    <h2 id="fl-intro-title">Built with AI — openly</h2>
+    <p>
+      I build software with state-of-the-art AI tooling in the loop, and I'd rather
+      say so up front than pretend otherwise. Used well, it's a superpower for you
+      as a client — and you stay in control of how much of it touches your project.
+    </p>
+    <div class="fl-cards">
+      {%- for pro in fl.ai_pros %}
+      <div class="fl-card">
+        <span class="fl-card__icon" aria-hidden="true">
+          {%- case pro.icon -%}
+          {%- when "bolt" -%}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+          {%- when "coins" -%}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18M7 6h1v4"/><path d="M16.71 13.88l.7.71-2.82 2.82"/></svg>
+          {%- when "shield" -%}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+          {%- else -%}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          {%- endcase -%}
+        </span>
+        <h3>{{ pro.title }}</h3>
+        <p>{{ pro.text }}</p>
+      </div>
+      {%- endfor %}
+    </div>
+  </section>
+
+  <!-- ── Honesty / decline transparency ──────────────────────── -->
+  <aside class="fl-honesty" aria-labelledby="fl-honesty-title">
+    <h2 id="fl-honesty-title">Fair warning, honestly given</h2>
+    <p>
+      Every request gets a reply — but not every request gets a yes. Reasons a
+      project may be declined include, but aren't limited to:
+    </p>
+    <ul>
+      {%- for reason in fl.decline_reasons %}
+      <li>{{ reason }}</li>
+      {%- endfor %}
+    </ul>
+    <p class="fl-honesty__closer">
+      If it's a no, you'll hear it quickly and with the reason — no ghosting.
+      Submitting a request costs nothing and commits you to nothing.
+    </p>
+  </aside>
+
+  <!-- ── How it works ────────────────────────────────────────── -->
+  <section class="fl-how" aria-labelledby="fl-how-title">
+    <h2 id="fl-how-title">How it works</h2>
+    <ol class="fl-steps">
+      {%- for step in fl.steps %}
+      <li class="fl-step">
+        <span class="fl-step__num" aria-hidden="true">{{ forloop.index }}</span>
+        <div>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.text }}</p>
+        </div>
+      </li>
+      {%- endfor %}
+    </ol>
+  </section>
+
+  <!-- ── The configurator ────────────────────────────────────── -->
+  <div class="fl-layout">
+    <form
+      class="fl-form"
+      id="fl-form"
+      novalidate
+      data-endpoint="{{ site.contact_form.endpoint }}"
+      data-repo="{{ site.repository }}"
+    >
+      <!-- 1 · Project type -->
+      <fieldset class="fl-section" id="fl-section-type">
+        <legend><span class="fl-section__num">1</span> Project type <span class="fl-req" aria-hidden="true">required</span></legend>
+        <p class="fl-section__hint">What are we building? Pick the closest match.</p>
+        <div class="fl-chips" role="radiogroup" aria-label="Project type">
+          {%- for type in fl.project_types %}
+          <label class="fl-chip">
+            <input type="radio" name="fl-type" value="{{ type | escape }}">
+            <span>{{ type }}</span>
+          </label>
+          {%- endfor %}
+        </div>
+      </fieldset>
+
+      <!-- 2 · Tech stack -->
+      <fieldset class="fl-section" id="fl-section-stack">
+        <legend><span class="fl-section__num">2</span> Tech stack <span class="fl-count" id="fl-stack-count" hidden></span></legend>
+        <p class="fl-section__hint">
+          Pick anything you already know you want — or let me propose the best fit.
+        </p>
+        <label class="fl-chip fl-chip--nopref">
+          <input type="checkbox" id="fl-stack-nopref" name="fl-stack-nopref">
+          <span>No preference — recommend a stack for me</span>
+        </label>
+        <div id="fl-stack-groups">
+          {%- for group in fl.stack %}
+          <div class="fl-stack-group">
+            <h3>{{ group.group }}</h3>
+            <div class="fl-chips">
+              {%- for option in group.options %}
+              <label class="fl-chip">
+                <input type="checkbox" name="fl-stack" value="{{ option | escape }}" data-group="{{ group.group | escape }}">
+                <span>{{ option }}</span>
+              </label>
+              {%- endfor %}
+            </div>
+          </div>
+          {%- endfor %}
+        </div>
+      </fieldset>
+
+      <!-- 3 · Features & requirements -->
+      <fieldset class="fl-section" id="fl-section-features">
+        <legend><span class="fl-section__num">3</span> Features &amp; requirements <span class="fl-count" id="fl-features-count" hidden></span></legend>
+        <p class="fl-section__hint">Everything the project should include. Unsure? Skip it — we'll refine together.</p>
+        <div class="fl-chips">
+          {%- for feature in fl.features %}
+          <label class="fl-chip">
+            <input type="checkbox" name="fl-feature" value="{{ feature | escape }}">
+            <span>{{ feature }}</span>
+          </label>
+          {%- endfor %}
+        </div>
+      </fieldset>
+
+      <!-- 4 · AI collaboration -->
+      <fieldset class="fl-section" id="fl-section-ai">
+        <legend><span class="fl-section__num">4</span> AI collaboration</legend>
+        <p class="fl-section__hint">
+          Your call. Whatever you pick, you'll get an honest account of where AI was used.
+        </p>
+        <div class="fl-ai-options" role="radiogroup" aria-label="AI collaboration mode">
+          {%- for mode in fl.ai_modes %}
+          <label class="fl-ai-option">
+            <input type="radio" name="fl-ai" value="{{ mode.label | escape }}" {% if forloop.first %}checked{% endif %}>
+            <span class="fl-ai-option__body">
+              <span class="fl-ai-option__head">
+                {{ mode.label }}
+                {%- if mode.badge %} <span class="fl-badge">{{ mode.badge }}</span>{% endif %}
+              </span>
+              <span class="fl-ai-option__desc">{{ mode.description }}</span>
+            </span>
+          </label>
+          {%- endfor %}
+        </div>
+      </fieldset>
+
+      <!-- 5 · Timeline & budget -->
+      <fieldset class="fl-section" id="fl-section-budget">
+        <legend><span class="fl-section__num">5</span> Timeline &amp; your offer</legend>
+        <p class="fl-section__hint">
+          Name a price you're comfortable with. An honest number beats a guessing game —
+          and "open to your proposal" is a perfectly good answer.
+        </p>
+        <div class="fl-grid-2">
+          <div class="form-group">
+            <label for="fl-timeline">Timeline</label>
+            <select id="fl-timeline" name="fl-timeline">
+              {%- for timeline in fl.timelines %}
+              <option value="{{ timeline | escape }}">{{ timeline }}</option>
+              {%- endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="fl-budget-type">Pricing model</label>
+            <select id="fl-budget-type" name="fl-budget-type">
+              {%- for type in fl.budget_types %}
+              <option value="{{ type | escape }}">{{ type }}</option>
+              {%- endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="fl-offer" id="fl-offer-row">
+          <div class="form-group fl-offer__amount">
+            <label for="fl-budget-amount">Your offer <small>(optional)</small></label>
+            <input type="number" id="fl-budget-amount" name="fl-budget-amount" min="0" step="50" inputmode="numeric" placeholder="e.g. 2500">
+          </div>
+          <div class="form-group fl-offer__currency">
+            <label for="fl-budget-currency">Currency</label>
+            <select id="fl-budget-currency" name="fl-budget-currency">
+              {%- for currency in fl.currencies %}
+              <option value="{{ currency }}">{{ currency }}</option>
+              {%- endfor %}
+            </select>
+          </div>
+        </div>
+        <label class="fl-chip fl-chip--inline">
+          <input type="checkbox" id="fl-budget-flexible" name="fl-budget-flexible" checked>
+          <span>My offer is negotiable</span>
+        </label>
+      </fieldset>
+
+      <!-- 6 · About you & the project -->
+      <fieldset class="fl-section" id="fl-section-contact">
+        <legend><span class="fl-section__num">6</span> About you &amp; the project <span class="fl-req" aria-hidden="true">required</span></legend>
+        <div class="fl-grid-2">
+          <div class="form-group">
+            <label for="fl-name">Name</label>
+            <input type="text" id="fl-name" name="fl-name" required autocomplete="name" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label for="fl-email">Email</label>
+            <input type="email" id="fl-email" name="fl-email" required autocomplete="email" placeholder="you@example.com">
+          </div>
+        </div>
+        <div class="fl-grid-2">
+          <div class="form-group">
+            <label for="fl-company">Company <small>(optional)</small></label>
+            <input type="text" id="fl-company" name="fl-company" autocomplete="organization" placeholder="Company or team">
+          </div>
+          <div class="form-group">
+            <label for="fl-title">Project title <small>(optional)</small></label>
+            <input type="text" id="fl-title" name="fl-title" placeholder="A short working name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="fl-links">Relevant links <small>(optional)</small></label>
+          <input type="text" id="fl-links" name="fl-links" placeholder="Existing site, repo, design file, competitor…">
+        </div>
+        <div class="form-group">
+          <label for="fl-description">Project description</label>
+          <textarea id="fl-description" name="fl-description" required
+            placeholder="What should it do? Who is it for? What does success look like? The more context, the better the reply."></textarea>
+          <p class="fl-charcount" id="fl-charcount" aria-live="polite"></p>
+        </div>
+      </fieldset>
+
+      <!-- hCaptcha (consent-gated, same pipeline as the contact form) -->
+      <div class="form-group">
+        <div class="h-captcha" data-sitekey="{{ site.hcaptcha.site_key }}" data-theme="dark"></div>
+        <script type="text/plain" data-consent-category="functional" src="https://js.hcaptcha.com/1/api.js" async defer></script>
+        <div class="cc-notice" id="hcaptcha-consent-notice">
+          <p>Spam protection (hCaptcha) requires functional cookies.</p>
+          <button class="cc-notice__btn" type="button" onclick="CookieConsent.show()">Cookie Settings</button>
+        </div>
+      </div>
+
+      <p class="fl-smallprint">
+        Submitting is a request, not a contract — nothing is billed until scope and
+        price are agreed in writing. Requests are handled per the
+        <a href="{{ '/privacy/' | relative_url }}">privacy policy</a>.
+      </p>
+
+      <button type="button" class="form-submit" id="fl-submit">
+        Send Project Request
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+      </button>
+
+      <div class="form-status" id="fl-status" role="status"></div>
+    </form>
+
+    <!-- Live request summary -->
+    <aside class="fl-summary" aria-labelledby="fl-summary-title">
+      <h2 id="fl-summary-title">Your request so far</h2>
+      <dl id="fl-summary-list">
+        <div class="fl-summary__row"><dt>Project type</dt><dd id="fl-sum-type" data-empty="—">—</dd></div>
+        <div class="fl-summary__row"><dt>Tech stack</dt><dd id="fl-sum-stack" data-empty="—">—</dd></div>
+        <div class="fl-summary__row"><dt>Features</dt><dd id="fl-sum-features" data-empty="—">—</dd></div>
+        <div class="fl-summary__row"><dt>AI collaboration</dt><dd id="fl-sum-ai">—</dd></div>
+        <div class="fl-summary__row"><dt>Timeline</dt><dd id="fl-sum-timeline">—</dd></div>
+        <div class="fl-summary__row"><dt>Offer</dt><dd id="fl-sum-offer">Open to proposal</dd></div>
+      </dl>
+      <p class="fl-summary__note">
+        This summary is exactly what gets submitted — plus your description and
+        contact details.
+      </p>
+    </aside>
+  </div>
+</div>
+
+<script src="{{ '/assets/js/freelance.js' | relative_url }}" defer></script>
