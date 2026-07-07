@@ -15,12 +15,11 @@ core never imports React or a backend.
 │   ├─ LocalSyncAdapter (tabs)   │   (localStorage)               │
 │   └─ FirebaseSyncAdapter (RTDB)│                                │
 ├───────────────────────────────┴───────────────────────────────┤
-│  games/         declarative GameSpec per game (defineGame →    │  game defs
-│                 GameDefinition, registry)                      │
+│  games/         GameDefinition + reducer per game (registry)   │  game defs
 ├─────────────────────────────────────────────────────────────┤
 │  engine/        types · rng · match (applyAction) · client ·  │  ENGINE CORE
-│                 serialize · registry · flow (defineGame) ·     │  (pure TS, no
-│                 cards · zones · board · dice · rules           │   React/Firebase)
+│                 serialize · registry · cards · board · dice ·  │  (pure TS, no
+│                 rules                                          │   React/Firebase)
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -57,7 +56,4 @@ end a turn, change phase or end the game it calls `ctx.events.endTurn()` /
 `setPhase()` / `endGame()`. The engine collects those requests and applies them
 to the **engine-managed** `TurnState`/`status` *after* the reducer returns. This
 keeps generic flow logic out of every game and game-specific logic out of the
-engine. The declarative layer (`engine/flow.ts`) builds on the same channel —
-`defineGame` compiles per-move `nextPhase`/`endsTurn` declarations into those
-event calls, so hand-written and declarative games are indistinguishable to the
-rest of the system. See [Engine Concepts](./engine-concepts.md).
+engine. See [Engine Concepts](./engine-concepts.md).

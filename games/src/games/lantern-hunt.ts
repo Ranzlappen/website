@@ -6,17 +6,19 @@
  * lantern token you land on. First to collect three lanterns wins; if the board
  * empties first, the highest score takes it.
  *
- * Written on the declarative ruleset layer: two move declarations (ROLL, MOVE)
- * plus an `endIf`, with legal-move highlighting driven by the same `enumerate`
- * the bots use.
+ * Demonstrates: a grid board, walls, pawns, dice, BFS legal-move highlighting,
+ * tokens, blocking by other pieces, scoring, and a win condition.
  */
 import {
   Board,
   Dice,
   Rules,
-  defineGame,
   registerGame,
+  type GameAction,
+  type GameDefinition,
+  type MatchState,
   type PlayerId,
+  type ReducerContext,
 } from '../engine';
 
 export interface LanternState {
@@ -29,6 +31,10 @@ export interface LanternState {
   /** The rolled die awaiting a move, or null when a roll is required. */
   die: number | null;
 }
+
+type RollAction = GameAction<'ROLL'>;
+type MoveAction = GameAction<'MOVE', { cell: string }>;
+export type LanternAction = RollAction | MoveAction;
 
 const SIZE = 7;
 const TARGET_LANTERNS = 3;
@@ -50,7 +56,7 @@ export function legalTargets(
   return Board.reachable(game.grid, from, game.die, { blocked }).map(Board.cellId);
 }
 
-export const lanternHunt = defineGame<LanternState>({
+export const lanternHunt: GameDefinition<LanternState, LanternAction> = {
   id: 'lantern-hunt',
   name: 'Lantern Hunt',
   description:
@@ -86,71 +92,69 @@ export const lanternHunt = defineGame<LanternState>({
     return { grid, positions, lanterns, scores, die: null };
   },
 
-  moves: {
-    ROLL: {
-      validate: (game) =>
-        Rules.check(game.die === null, 'You have already rolled — now move.'),
-      apply: (game, _payload, ctx) => ({ ...game, die: Dice.d6(ctx.random) }),
-      describe: (_payload, name) => `${name} rolled the die.`,
-    },
+  validate(game, action, ctx) {
+    const base = Rules.requireCurrentPlayer(ctx);
+    if (base !== true) return base;
 
-    MOVE: {
-      validate(game, payload: { cell: string }, ctx) {
-        if (game.die === null) return 'Roll the die before moving.';
-        const targets = legalTargets(game, ctx.actor);
-        const cell = payload?.cell;
-        if (cell === game.positions[ctx.actor]) {
-          // Staying put is only allowed when there is nowhere to go.
-          return Rules.check(targets.length === 0, 'You must move when you can.');
-        }
-        return Rules.check(
-          !!cell && targets.includes(cell),
-          'That cell is out of reach.',
-        );
-      },
-      apply(game, payload: { cell: string }, ctx) {
-        const me = ctx.actor;
-        const cell = payload.cell;
-        const positions = { ...game.positions, [me]: cell };
-        let lanterns = game.lanterns;
-        const scores = { ...game.scores };
-        if (game.lanterns.includes(cell)) {
-          lanterns = game.lanterns.filter((l) => l !== cell);
-          scores[me] = (scores[me] ?? 0) + 1;
-        }
-        return { ...game, positions, lanterns, scores, die: null };
-      },
-      enumerate(game, ctx) {
-        const targets = legalTargets(game, ctx.actor);
-        if (game.die !== null && targets.length === 0)
-          return [{ cell: game.positions[ctx.actor] }]; // forced pass
-        return targets.map((cell) => ({ cell }));
-      },
-      endsTurn: true,
-      describe: (_payload, name) => `${name} moved their pawn.`,
-    },
+    if (action.type === 'ROLL') {
+      return Rules.check(game.die === null, 'You have already rolled — now move.');
+    }
+    if (action.type === 'MOVE') {
+      if (game.die === null) return 'Roll the die before moving.';
+      const targets = legalTargets(game, ctx.actor);
+      const cell = action.payload?.cell;
+      if (cell === game.positions[ctx.actor]) {
+        // Staying put is only allowed when there is nowhere to go.
+        return Rules.check(targets.length === 0, 'You must move when you can.');
+      }
+      return Rules.check(
+        !!cell && targets.includes(cell),
+        'That cell is out of reach.',
+      );
+    }
+    return 'Unknown action.';
   },
 
-  endIf(game, ctx) {
-    for (const p of ctx.players) {
-      if ((game.scores[p.id] ?? 0) >= TARGET_LANTERNS) {
-        return {
-          status: 'win',
-          winners: [p.id],
-          reason: `Collected ${TARGET_LANTERNS} lanterns!`,
-          scores: game.scores,
-        };
-      }
+  reducer(game, action, ctx) {
+    const me = ctx.actor;
+
+    if (action.type === 'ROLL') {
+      return { ...game, die: Dice.d6(ctx.random) };
     }
-    if (game.lanterns.length === 0) {
-      const entries = Object.entries(game.scores);
-      const top = Math.max(...entries.map(([, s]) => s));
-      const winners = entries.filter(([, s]) => s === top).map(([id]) => id);
-      return winners.length === 1
-        ? { status: 'win', winners, reason: 'Most lanterns collected.', scores: game.scores }
-        : { status: 'draw', reason: 'Tied on lanterns.', scores: game.scores };
+
+    // MOVE
+    const cell = action.payload!.cell;
+    const positions = { ...game.positions, [me]: cell };
+    let lanterns = game.lanterns;
+    const scores = { ...game.scores };
+    if (game.lanterns.includes(cell)) {
+      lanterns = game.lanterns.filter((l) => l !== cell);
+      scores[me] = (scores[me] ?? 0) + 1;
     }
-    return null;
+
+    const next: LanternState = { ...game, positions, lanterns, scores, die: null };
+
+    if (scores[me] >= TARGET_LANTERNS) {
+      ctx.events.endGame({
+        status: 'win',
+        winners: [me],
+        reason: `Collected ${TARGET_LANTERNS} lanterns!`,
+        scores,
+      });
+    } else if (lanterns.length === 0) {
+      finishOnEmptyBoard(next, ctx);
+    } else {
+      ctx.events.endTurn();
+    }
+    return next;
+  },
+
+  enumerate(game, ctx) {
+    if (game.die === null) return [{ type: 'ROLL' }];
+    const targets = legalTargets(game, ctx.actor);
+    if (targets.length === 0)
+      return [{ type: 'MOVE', payload: { cell: game.positions[ctx.actor] } }];
+    return targets.map((cell) => ({ type: 'MOVE' as const, payload: { cell } }));
   },
 
   ai(game, ctx) {
@@ -167,7 +171,26 @@ export const lanternHunt = defineGame<LanternState>({
       .sort((a, b) => a.d - b.d)[0];
     return { type: 'MOVE', payload: { cell: best.t } };
   },
-});
+
+  describeAction(action, state: MatchState<LanternState>) {
+    const name =
+      state.players.find((p) => p.id === action.playerId)?.name ?? 'Someone';
+    if (action.type === 'ROLL') return `${name} rolled the die.`;
+    if (action.type === 'MOVE') return `${name} moved their pawn.`;
+    return '';
+  },
+};
+
+function finishOnEmptyBoard(game: LanternState, ctx: ReducerContext) {
+  const entries = Object.entries(game.scores);
+  const top = Math.max(...entries.map(([, s]) => s));
+  const winners = entries.filter(([, s]) => s === top).map(([id]) => id);
+  ctx.events.endGame(
+    winners.length === 1
+      ? { status: 'win', winners, reason: 'Most lanterns collected.', scores: game.scores }
+      : { status: 'draw', reason: 'Tied on lanterns.', scores: game.scores },
+  );
+}
 
 function nearest(cells: string[], from: Board.Coord): Board.Coord {
   let best = from;

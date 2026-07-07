@@ -4,10 +4,9 @@ import {
   pickBotAction,
   redactFor,
   Rules,
-  Zones,
   type GameDefinition,
 } from '../engine';
-import { crownRush, handOf, type CrownState } from '../games/crown-rush';
+import { crownRush, type CrownState } from '../games/crown-rush';
 
 // A game whose `ai` deliberately returns an illegal move, to prove the
 // fallback to a legal action.
@@ -53,17 +52,16 @@ describe('redactFor', () => {
     const m = createMatch(crownRush, { seed: 's', players });
     const view = redactFor(crownRush, m, 'p0');
     const g = view.game as CrownState;
-    const full = m.game as CrownState;
 
     // Your own hand is intact.
-    expect(handOf(g, 'p0')).toEqual(handOf(full, 'p0'));
+    expect(g.hands.p0).toEqual((m.game as CrownState).hands.p0);
     // Opponent's hand is anonymized + face-down, same count.
-    expect(handOf(g, 'p1')).toHaveLength(3);
-    expect(handOf(g, 'p1').every((c) => c.faceUp === false && c.rank === undefined)).toBe(true);
+    expect(g.hands.p1).toHaveLength(3);
+    expect(g.hands.p1.every((c) => c.faceUp === false && c.rank === undefined)).toBe(true);
     // The stock is hidden too.
-    expect(Zones.cardsIn(g.zones, 'stock').every((c) => c.rank === undefined)).toBe(true);
+    expect(g.draw.every((c) => c.rank === undefined)).toBe(true);
     // The public discard is unchanged.
-    expect(Zones.cardsIn(g.zones, 'discard')).toEqual(Zones.cardsIn(full.zones, 'discard'));
+    expect(g.discard).toEqual((m.game as CrownState).discard);
   });
 
   it('is a no-op for a game without a redact hook', () => {

@@ -6,60 +6,56 @@
  * keeping your hand at three. Collect three cards of the same rank — a
  * "Crown" — and you win.
  *
- * Written on the declarative ruleset layer: zones give it draw/discard/hand
- * management, auto-reshuffle and network redaction for free; `defineGame`
- * turns the two move declarations below into a full GameDefinition.
+ * Demonstrates: draw pile, discard pile, hidden hands, public top-of-discard,
+ * card selection, a two-step turn (draw → discard), reshuffling, a simple bot,
+ * and a win condition.
  */
 import {
   Cards,
   Rules,
-  Zones,
-  defineGame,
   registerGame,
+  type GameAction,
+  type GameDefinition,
+  type MatchState,
   type PlayerId,
   type ReducerContext,
 } from '../engine';
 
 export interface CrownState {
-  zones: Zones.ZoneMap;
+  draw: Cards.Card[];
+  discard: Cards.Card[];
+  hands: Record<PlayerId, Cards.Card[]>;
   /** Whether the current player has already drawn this turn. */
   hasDrawn: boolean;
 }
 
-export type DrawFrom = 'stock' | 'discard';
+type DrawAction = GameAction<'DRAW', { from: 'stock' | 'discard' }>;
+type DiscardAction = GameAction<'DISCARD', { cardId: string }>;
+export type CrownAction = DrawAction | DiscardAction;
 
 const HAND_SIZE = 3;
 
-/** Zone id of a player's hand. */
-export function handZone(playerId: PlayerId): string {
-  return Zones.zoneId('hand', playerId);
-}
-
-/** A player's current hand. */
-export function handOf(game: CrownState, playerId: PlayerId): Cards.Card[] {
-  return Zones.cardsIn(game.zones, handZone(playerId));
-}
-
 function handIsCrown(hand: Cards.Card[]): boolean {
-  return hand.length === HAND_SIZE && hand.every((c) => c.rank === hand[0].rank);
+  return (
+    hand.length === HAND_SIZE &&
+    hand.every((c) => c.rank === hand[0].rank)
+  );
 }
 
-function drawApply(game: CrownState, from: DrawFrom, ctx: ReducerContext): CrownState {
-  const me = handZone(ctx.actor);
-  const zones =
-    from === 'discard'
-      ? Zones.moveCard(game.zones, 'discard', me, Zones.topCard(game.zones, 'discard')!.id)
-      : Zones.draw(game.zones, 'stock', me, 1, {
-          faceUp: true,
-          // An empty stock recycles the discard, keeping its top card in play.
-          reshuffleFrom: 'discard',
-          keepTop: true,
-          random: ctx.random,
-        });
-  return { ...game, zones, hasDrawn: true };
+/** Reshuffle the discard (keeping its top card) back into an empty stock. */
+function refillStock(
+  state: CrownState,
+  ctx: ReducerContext,
+): Pick<CrownState, 'draw' | 'discard'> {
+  if (state.draw.length > 0 || state.discard.length <= 1) {
+    return { draw: state.draw, discard: state.discard };
+  }
+  const top = Cards.topOf(state.discard)!;
+  const recycle = state.discard.slice(0, -1).map((c) => ({ ...c, faceUp: false }));
+  return { draw: ctx.random.shuffle(recycle), discard: [top] };
 }
 
-export const crownRush = defineGame<CrownState>({
+export const crownRush: GameDefinition<CrownState, CrownAction> = {
   id: 'crown-rush',
   name: 'Crown Rush',
   description:
@@ -73,86 +69,121 @@ export const crownRush = defineGame<CrownState>({
 
   setup(ctx) {
     const playerIds = ctx.players.map((p) => p.id);
-    const deck = ctx.random.shuffle(Cards.standard52());
+    const deck = Cards.shuffle(Cards.standard52(), ctx.random);
     const { hands, rest } = Cards.deal(deck, playerIds, HAND_SIZE);
-    const { drawn, rest: stock } = Cards.drawN(rest, 1);
-    const zones = Zones.makeZones(
-      Zones.makeZone('stock', 'hidden', stock),
-      Zones.makeZone('discard', 'public', drawn.map((c) => ({ ...c, faceUp: true }))),
-      ...playerIds.map((id) =>
-        Zones.makeZone(handZone(id), 'owner', hands[id].map((c) => ({ ...c, faceUp: true })), id),
-      ),
+    for (const id of playerIds) {
+      hands[id] = hands[id].map((c) => ({ ...c, faceUp: true, owner: id }));
+    }
+    const { drawn, rest: draw } = Cards.drawN(rest, 1);
+    const discard = drawn.map((c) => ({ ...c, faceUp: true }));
+    return { draw, discard, hands, hasDrawn: false };
+  },
+
+  validate(game, action, ctx) {
+    const base = Rules.all(
+      Rules.requireCurrentPlayer(ctx),
+      Rules.requirePhase(ctx, 'play'),
     );
-    return { zones, hasDrawn: false };
+    if (base !== true) return base;
+
+    if (action.type === 'DRAW') {
+      if (game.hasDrawn) return 'You have already drawn this turn — now discard.';
+      if (action.payload?.from === 'discard' && game.discard.length === 0)
+        return 'The discard pile is empty.';
+      if (
+        action.payload?.from === 'stock' &&
+        game.draw.length === 0 &&
+        game.discard.length <= 1
+      )
+        return 'There are no cards left to draw.';
+      return true;
+    }
+    if (action.type === 'DISCARD') {
+      if (!game.hasDrawn) return 'Draw a card before discarding.';
+      const hand = game.hands[ctx.actor] ?? [];
+      return Rules.check(
+        hand.some((c) => c.id === action.payload?.cardId),
+        'That card is not in your hand.',
+      );
+    }
+    return 'Unknown action.';
   },
 
-  moves: {
-    DRAW: {
-      validate(game, payload: { from: DrawFrom }) {
-        if (game.hasDrawn) return 'You have already drawn this turn — now discard.';
-        if (payload?.from === 'discard') {
-          return Rules.check(
-            Zones.countIn(game.zones, 'discard') > 0,
-            'The discard pile is empty.',
-          );
-        }
-        return Rules.check(
-          Zones.countIn(game.zones, 'stock') > 0 ||
-            Zones.countIn(game.zones, 'discard') > 1,
-          'There are no cards left to draw.',
-        );
-      },
-      apply: (game, payload: { from: DrawFrom }, ctx) => drawApply(game, payload.from, ctx),
-      enumerate: () => [{ from: 'stock' as DrawFrom }, { from: 'discard' as DrawFrom }],
-      describe: (payload: { from: DrawFrom }, name) =>
-        `${name} drew from the ${payload.from}.`,
-    },
+  reducer(game, action, ctx) {
+    const me = ctx.actor;
 
-    DISCARD: {
-      validate(game, payload: { cardId: string }, ctx) {
-        if (!game.hasDrawn) return 'Draw a card before discarding.';
-        return Rules.check(
-          handOf(game, ctx.actor).some((c) => c.id === payload?.cardId),
-          'That card is not in your hand.',
-        );
-      },
-      apply(game, payload: { cardId: string }, ctx) {
-        const zones = Zones.moveCard(game.zones, handZone(ctx.actor), 'discard', payload.cardId, {
-          faceUp: true,
-        });
-        return { ...game, zones };
-      },
-      enumerate: (game, ctx) =>
-        handOf(game, ctx.actor).map((c) => ({ cardId: c.id })),
-      endsTurn: true,
-      describe: (_payload, name) => `${name} discarded a card.`,
-    },
-  },
-
-  // Per-turn flags reset in one place instead of at the end of every move.
-  onTurnBegin: (game) => ({ ...game, hasDrawn: false }),
-
-  endIf(game, ctx) {
-    for (const p of ctx.players) {
-      const hand = handOf(game, p.id);
-      if (handIsCrown(hand)) {
+    if (action.type === 'DRAW') {
+      const from = action.payload!.from;
+      if (from === 'discard') {
+        const { card, rest } = Cards.removeCard(game.discard, Cards.topOf(game.discard)!.id);
         return {
-          status: 'win',
-          winners: [p.id],
-          reason: `Collected three ${hand[0].rank}s — a Crown!`,
+          ...game,
+          discard: rest,
+          hands: { ...game.hands, [me]: [...game.hands[me], { ...card!, owner: me }] },
+          hasDrawn: true,
         };
       }
+      // from stock — refill if needed first.
+      const refilled = refillStock(game, ctx);
+      const { drawn, rest } = Cards.drawN(refilled.draw, 1);
+      const card = { ...drawn[0], faceUp: true, owner: me };
+      return {
+        ...game,
+        draw: rest,
+        discard: refilled.discard,
+        hands: { ...game.hands, [me]: [...game.hands[me], card] },
+        hasDrawn: true,
+      };
     }
-    return null;
+
+    // DISCARD
+    const { card, rest } = Cards.removeCard(game.hands[me], action.payload!.cardId);
+    const next: CrownState = {
+      ...game,
+      hands: { ...game.hands, [me]: rest },
+      discard: Cards.addCard(game.discard, { ...card!, faceUp: true, owner: null }),
+      hasDrawn: false,
+    };
+
+    if (handIsCrown(next.hands[me])) {
+      ctx.events.endGame({
+        status: 'win',
+        winners: [me],
+        reason: `Collected three ${next.hands[me][0].rank}s — a Crown!`,
+      });
+    } else {
+      ctx.events.endTurn();
+    }
+    return next;
+  },
+
+  enumerate(game, ctx) {
+    const me = ctx.actor;
+    if (!game.hasDrawn) {
+      const out: CrownAction[] = [];
+      if (game.draw.length > 0 || game.discard.length > 1)
+        out.push({ type: 'DRAW', payload: { from: 'stock' } });
+      if (game.discard.length > 0)
+        out.push({ type: 'DRAW', payload: { from: 'discard' } });
+      return out;
+    }
+    return game.hands[me].map((c) => ({
+      type: 'DISCARD' as const,
+      payload: { cardId: c.id },
+    }));
   },
 
   ai(game, ctx) {
-    const hand = handOf(game, ctx.actor);
+    const me = ctx.actor;
+    const hand = game.hands[me];
     if (!game.hasDrawn) {
       // Take the discard if it matches a rank we already hold.
-      const top = Zones.topCard(game.zones, 'discard');
+      const top = Cards.topOf(game.discard);
       const matches = top && hand.some((c) => c.rank === top.rank);
-      return { type: 'DRAW', payload: { from: matches ? 'discard' : 'stock' } };
+      return {
+        type: 'DRAW',
+        payload: { from: matches ? 'discard' : 'stock' },
+      };
     }
     // Discard the card whose rank is least represented in hand.
     const counts = new Map<string, number>();
@@ -162,8 +193,27 @@ export const crownRush = defineGame<CrownState>({
     )[0];
     return { type: 'DISCARD', payload: { cardId: worst.id } };
   },
-  // No `redact` needed: all hidden information lives in zones, so per-viewer
-  // redaction is derived automatically from the zone visibilities.
-});
+
+  redact(game, viewerId) {
+    // Hide opponents' hand contents and the face-down stock order; keep counts.
+    const hide = (cards: Cards.Card[], tag: string): Cards.Card[] =>
+      cards.map((_, i) => ({ id: `hidden-${tag}-${i}`, faceUp: false }));
+    const hands: Record<PlayerId, Cards.Card[]> = {};
+    for (const [id, hand] of Object.entries(game.hands)) {
+      hands[id] = id === viewerId ? hand : hide(hand, id);
+    }
+    return { ...game, hands, draw: hide(game.draw, 'stock') };
+  },
+
+  describeAction(action, state: MatchState<CrownState>) {
+    const name = (id?: PlayerId) =>
+      state.players.find((p) => p.id === id)?.name ?? 'Someone';
+    if (action.type === 'DRAW')
+      return `${name(action.playerId)} drew from the ${(action as DrawAction).payload?.from}.`;
+    if (action.type === 'DISCARD')
+      return `${name(action.playerId)} discarded a card.`;
+    return '';
+  },
+};
 
 registerGame(crownRush);

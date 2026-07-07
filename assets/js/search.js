@@ -147,15 +147,11 @@
         total++;
         var item = document.createElement('a');
         item.className = 'search-result-item';
-        // Only link root-relative or http(s) URLs — search-external.json is
-        // crawler output, so never let e.g. a javascript: URL become an href.
-        if (/^(https?:\/\/|\/(?!\/))/i.test(doc.url || '')) {
-          item.href = doc.url;
-          // External (absolute) results open in a new tab.
-          if (/^https?:\/\//i.test(doc.url)) {
-            item.target = '_blank';
-            item.rel = 'noopener';
-          }
+        item.href = doc.url;
+        // External (absolute) results open in a new tab.
+        if (/^https?:\/\//i.test(doc.url)) {
+          item.target = '_blank';
+          item.rel = 'noopener';
         }
 
         var title = document.createElement('h4');

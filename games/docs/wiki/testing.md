@@ -1,6 +1,6 @@
 # Testing Guide
 
-Tests run on **Vitest** (jsdom environment). 100 tests live in
+Tests run on **Vitest** (jsdom environment). 64 tests live in
 `src/__tests__/`.
 
 ```bash
@@ -17,15 +17,12 @@ npm run test:watch # watch mode
 | `match.test.ts` | `createMatch`, turn progression, illegal/out-of-turn rejection, terminal state, `legalActions`/`botAction`. |
 | `cards.test.ts` | Deck integrity, deterministic shuffle, dealing, immutable zone ops. |
 | `board.test.ts` | Neighbours, BFS reachability (incl. dynamic blockers), distances, track wrap/clamp. |
-| `zones.test.ts` | Zone construction, immutable move/draw ops, auto-reshuffle, visibility-driven redaction. |
-| `flow.test.ts` | `defineGame` compiler: actor/phase gates, declared `nextPhase`/`endsTurn`, `onTurnBegin` upkeep, synthesized enumerate/describe, automatic zone redaction. |
 | `serialize.test.ts` | Round-trip, corrupt/missing/newer-schema rejection. |
 | `client.test.ts` | Dispatch + notify, undo/redo, stale-snapshot guard in `replaceState`. |
 | `crown-rush.test.ts` | Deal counts, draw→discard flow, win on three of a kind, illegal sequences. |
 | `lantern-hunt.test.ts` | Roll→move, reachable rejection, third-lantern win. |
 | `relic-run.test.ts` | Phase gating, pass/turn flow, Ward card → fourth relic win. |
 | `engine-helpers.test.ts` | `pickBotAction` falls back when `ai` is illegal; `redactFor` hides opponents' hands/stock. |
-| `simulation.test.ts` | Full bot-vs-bot playthroughs of every demo game: termination, legality of every bot move, seed-identical final states. |
 | `net.test.ts` | LocalSyncAdapter: create/join, ready + presence-by-id, shared vs per-viewer state, stale-version rejection, action relay + ack, room teardown. |
 | `storage.test.ts` | save/load/list/delete and the `MAX_SAVES` prune. |
 | `app.test.tsx` | Gallery lists all games; setup screen renders; every game view mounts without crashing. |

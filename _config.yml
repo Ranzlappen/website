@@ -45,6 +45,8 @@ kramdown:
   syntax_highlighter: rouge
 
 permalink: /blog/:year/:month/:day/:title/
+paginate: 9
+paginate_path: "/blog/page:num/"
 
 # Collections & Defaults
 defaults:
@@ -86,6 +88,7 @@ exclude:
 # Plugins (GitHub Pages compatible)
 plugins:
   - jekyll-seo-tag
+  - jekyll-paginate
 
 # ============================================================
 # Feature Configuration

@@ -161,6 +161,7 @@
   margin: 0 0 var(--space-sm);
   align-items: center;
 }
+.cmd-widget__grid-corner { /* empty corner */ }
 .cmd-widget__grid-col {
   text-align: center;
   font-family: var(--f-mono);
@@ -181,11 +182,6 @@
   border: 1px solid var(--c-border-light);
   border-radius: var(--border-radius-sm, 4px);
   cursor: pointer;
-}
-/* Cell highlight is a :has() enhancement — engines without it still show the
-   native checkmark, tinted via accent-color below. */
-.cmd-widget__cell input[type="checkbox"] {
-  accent-color: var(--c-accent);
 }
 .cmd-widget__cell:has(input:checked) {
   background: var(--c-accent-bg);
@@ -345,7 +341,7 @@
 }
 
 /* Mobile: row labels stack on top of inputs. */
-@media (max-width: 40rem) {
+@media (max-width: 640px) {
   /* Tighter widget shell padding — saves ~16px of horizontal space per side. */
   .cmd-widget {
     padding: var(--space-sm) var(--space-md);

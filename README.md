@@ -230,7 +230,7 @@ You can control the visibility of any post by adding a `status` field to its fro
 | Value | Behavior |
 |-------|----------|
 | `published` | **(Default)** Normal article — visible everywhere. You never need to add this explicitly. |
-| `placeholder` | **Visible in on-site listings** (homepage, blog, categories, tags) with a status badge, but — like drafts — excluded from search, the RSS feed, and the sitemap, and served with a `noindex` meta tag (it is self-declared test content, so crawlers are kept away). Still shows a banner on the article page: *"This article is a draft and may be incomplete or subject to change."* |
+| `placeholder` | **Visible in all listings** (homepage, blog, categories, tags, search, feeds, sitemap) with a status badge. Still shows a banner on the article page: *"This article is a draft and may be incomplete or subject to change."* Use this for articles that are in progress but should already appear on the site. |
 | `draft` | Hidden from all listings, feeds, search, and sitemap. Still accessible via direct URL. Shows a banner: *"This article is a draft and may be incomplete or subject to change."* |
 | `unpublished` | Same hiding behavior as `draft`. Shows a banner: *"This article is unpublished."* |
 
@@ -263,9 +263,9 @@ When a post's status is `draft` or `unpublished`, it is excluded from:
 - The sitemap (`/sitemap.xml`)
 - Previous/next navigation links on other posts
 
-The post itself **remains fully accessible** if someone visits its URL directly — they'll just see a small disclaimer banner at the top of the article. Any post whose status is not `published` also ships a `<meta name="robots" content="noindex,nofollow">` tag so search engines that discover the URL don't index it.
+The post itself **remains fully accessible** if someone visits its URL directly — they'll just see a small disclaimer banner at the top of the article.
 
-**Note:** `placeholder` articles are hidden only from crawlers and machine outputs (search index, feed, sitemap, robots meta). They still appear in all on-site listings with a yellow "Placeholder" badge, making them useful for reserving spots on the site while the content is still being written.
+**Note:** `placeholder` articles are **not** hidden. They appear in all listings with a yellow "Placeholder" badge, making them useful for reserving spots on the site while the content is still being written.
 
 </details>
 
@@ -1182,6 +1182,7 @@ This site is a hybrid: a Jekyll static blog plus two embedded React single-page 
 |---|---|---|---|---|
 | **Jekyll 4.3** | Static Site | Site generator — Liquid templates, Markdown content, auto-built pages | `jekyll ~> 4.3` (Ruby gem) | Native GitHub Pages support, zero-JS content delivery, low maintenance |
 | **jekyll-seo-tag** | Static Site | Injects `<meta>` and Open Graph tags into every page | Ruby gem | SEO and social-media link previews out of the box |
+| **jekyll-paginate** | Static Site | Splits the blog listing into multiple pages | Ruby gem | Keeps page loads fast as the post count grows |
 | **Custom feed + sitemap** | Static Site | `feed.xml` and `sitemap.xml` are custom Liquid templates, not plugins — they filter posts by the `status` frontmatter so drafts/unpublished posts never leak | None | `jekyll-feed`/`jekyll-sitemap` can't filter by frontmatter; custom templates can |
 | **Custom CSS** | Static Site | Dark-first theme using CSS custom properties | None (vanilla CSS) | Full control, no build step, tiny footprint |
 | **Vanilla JS modules** | Static Site | Dark mode, search, carousel, voting sidebar, read-aloud, charts | Chart.js (CDN) | No bundler needed; each feature is one self-contained file |

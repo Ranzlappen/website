@@ -1,11 +1,9 @@
 /* ============================================================================
    Shared reference-table scaffolding
-   Used by /references/spectrum/, /references/cmd-cheat-sheet/,
-   /references/web-dev-tech-stack/, and any future big-table reference page.
-   Provides the (non-sticky) controls strip, a bounded sticky scroll-box
-   wrapper that pins the native-sticky thead below the header while wide tables
-   scroll inside it, the sticky first column (via `.is-sticky-col` hook),
-   generic legend, badge base, and the `.cell-collapse` family.
+   Used by /references/spectrum/, /references/cmd-cheat-sheet/, and any future
+   big-table reference page. Provides the sticky controls strip, scrollable
+   wrapper with sticky thead + sticky first column (via `.is-sticky-col`
+   hook), generic legend, badge base, and the `.cell-collapse` family.
 
    Per-page CSS files layer on top of this with column widths, palette
    modifiers, and scoping under `.reference-page--<name>`.
@@ -73,14 +71,14 @@
   gap: var(--space-md);
   align-items: center;
   margin-bottom: var(--space-md);
-  position: relative;
+  position: sticky;
+  top: var(--header-offset, var(--header-height, 3.75rem));
   z-index: 10;
   background: linear-gradient(to bottom,
     rgba(var(--c-bg-rgb), 0.97) 0%,
     rgba(var(--c-bg-rgb), 0.97) 70%,
     rgba(var(--c-bg-rgb), 0) 100%);
   padding: var(--space-sm) 0 var(--space-md);
-  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
 .reference-tabs {
@@ -238,30 +236,27 @@
   font-size: 0.95rem;
 }
 
-/* ---- Table ----
-   The reference tables have a hard `min-width` far wider than any viewport
-   (2100–2400px), so they MUST scroll horizontally. For the `thead` to stay
-   pinned while rows scroll — using only native `position: sticky`, no JS —
-   the wrapper is a BOUNDED two-axis scroll box that itself sticks below the
-   site header:
-     • `overflow: auto` makes it the scroll container (both axes), so the
-       `thead th { top: 0 }` and `.is-sticky-col { left: 0 }` sticky cells pin
-       against THIS box.
-     • `position: sticky; top: --header-offset` pins the whole box just under
-       the (non-sticky) controls once they scroll away, flush below the site
-       header. `--header-offset` collapses to 0 when the header is unpinned, so
-       the box re-anchors to the very top then.
-     • `max-height` caps the box below the viewport so the page keeps a real
-       scroll region beneath it (legend/footer reachable) and the pinned box
-       never overhangs them.
-   This is the only pure-CSS way to get a sticky header on a horizontally
-   scrolling wide table; the trade-off is an inner scroll region for the table
-   card (the earlier JS clone-header approach was removed by request). */
+/* ---- Table ---- */
+/* The wrapper is the scroll container for both axes (`overflow: auto` plus
+   a `max-height` cap), AND is itself `position: sticky` so it pins to the
+   page viewport below the header + controls bar. The thead inside is
+   `position: sticky; top: 0` relative to the wrapper, so once the wrapper
+   pins, the thead visually pins to the viewport just below the pills.
+
+   A bounded scroll box is what makes the sticky thead + sticky first column +
+   horizontal scroll all coexist (a pure page-flow table can't scroll wide
+   content horizontally without breaking the viewport-pinned header). The
+   offsets key off --header-offset, so unpinning the header (which sets
+   --header-offset: 0) reclaims that height: the box pins to the top and grows
+   taller. They ALSO key off --reference-controls-h — the real measured height of
+   the (z-10) controls strip, published by reference-table.js — so the box pins
+   exactly below the controls instead of a hardcoded gap. Without this the
+   multi-row mobile controls stack overflows the gap and covers the sticky thead.
+   The 3.25rem/5.25rem are no-JS fallbacks only. */
 .reference-table-wrapper {
   position: sticky;
-  top: var(--header-offset, var(--header-height, 3.75rem));
-  max-height: calc(100vh - var(--header-offset, var(--header-height, 3.75rem)) - 2rem);
-  max-height: calc(100dvh - var(--header-offset, var(--header-height, 3.75rem)) - 2rem);
+  top: calc(var(--header-offset, var(--header-height, 3.75rem)) + var(--reference-controls-h, 3.25rem));
+  max-height: calc(100vh - var(--header-offset, var(--header-height, 3.75rem)) - var(--reference-controls-h, 3.25rem) - 1rem);
   overflow: auto;
   border: 1px solid var(--c-border);
   border-radius: var(--border-radius);
@@ -282,8 +277,6 @@
 }
 
 .reference-table thead th {
-  /* Sticks to the top of the wrapper's scrollport (top: 0), which the wrapper
-     itself parks at --header-offset via its own `position: sticky`. */
   position: sticky;
   top: 0;
   z-index: 2;
@@ -323,9 +316,6 @@
   font-size: 0.95rem;
   border-radius: var(--border-radius-sm);
   transition: color var(--transition-fast);
-  /* Real touch target, not just the ~15px glyph */
-  min-width: 1.75rem;
-  min-height: 1.75rem;
 }
 .ref-sort::after { content: "\2195"; }            /* ↕ neutral */
 .ref-sort:hover { color: var(--c-text); }
@@ -535,7 +525,7 @@
    tablets. Let the strip wrap and give the search its own full-width line
    below the tabs. (Does NOT reset the sticky table wrapper — that is handled
    by the pointer-coarse rule below so the footer stays reachable.) */
-@media (min-width: 40.0625rem) and (max-width: 64rem) {
+@media (min-width: 641px) and (max-width: 1024px) {
   .reference-controls { flex-wrap: wrap; }
   .reference-tabs { flex: 1 1 100%; order: 1; }
   .reference-search {
@@ -547,7 +537,7 @@
 }
 
 /* Small screens — generic responsive stack + opt-in mobile snap behaviour. */
-@media (max-width: 40rem) {
+@media (max-width: 640px) {
   .reference-container { padding: 0 var(--space-md); }
   .reference-controls {
     flex-direction: column;
@@ -560,9 +550,17 @@
   .reference-osfilter { justify-content: space-between; }
   .reference-osfilter select { flex: 1 1 auto; }
 
-  /* The bounded sticky scroll box (position: sticky + max-height + overflow:
-     auto) is inherited from the base rule, so the thead + command column stay
-     pinned on phones exactly as on desktop — no per-breakpoint override needed. */
+  /* Keep the bounded sticky scroll box on phones too (sticky thead inside,
+     sticky command column), so the header stays pinned while scrolling rows —
+     same behaviour as desktop. The `max-height` is capped well below the
+     viewport so there's always page area beneath the box: scrolling past the
+     table reaches the footer, and because the box is a solid-background,
+     bounded element with the footer in normal flow below it, the footer can't
+     bleed into the table. */
+  .reference-table-wrapper {
+    top: calc(var(--header-offset, var(--header-height, 3.75rem)) + var(--reference-controls-h, 5.25rem));
+    max-height: calc(100vh - var(--header-offset, var(--header-height, 3.75rem)) - var(--reference-controls-h, 5.25rem) - 3.75rem);
+  }
   .reference-table thead th { padding: 0.95rem 0.6rem 0.7rem; }
   .reference-table tbody td { padding: 0.65rem 0.6rem; overflow-wrap: anywhere; }
 
@@ -588,22 +586,4 @@
 @media (prefers-reduced-motion: reduce) {
   .reference-tab,
   .reference-search { transition: none; }
-}
-
-/* Print — flatten all the scroll/sticky chrome so the full table flows
-   across pages instead of clipping to one screenful. */
-@media print {
-  .reference-controls { position: static; }
-  .reference-table-wrapper {
-    position: static;
-    max-height: none;
-    overflow: visible;
-    border: 0;
-    box-shadow: none;
-  }
-  .reference-table td.is-sticky-col,
-  .reference-table th.is-sticky-col {
-    position: static;
-    box-shadow: none;
-  }
 }

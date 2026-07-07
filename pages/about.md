@@ -2,7 +2,6 @@
 layout: page
 title: About
 subtitle: The person behind the posts
-description: Who's behind RanzLappen — a personal blog driven by curiosity, covering tech, projects, and whatever else catches my attention.
 permalink: /about/
 ---
 

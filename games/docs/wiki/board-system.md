@@ -57,15 +57,8 @@ Board.advanceOnTrack(track, index, steps); // loops or clamps the index
 
 Tokens are game-state — usually a `Record<cellId, ...>` or arrays of cell ids
 (Lantern Hunt stores lanterns as `string[]` of cell ids and pawns as
-`Record<PlayerId, cellId>`). The renderer (`Pawn`, `Token` in `ui/assets/`)
+`Record<PlayerId, cellId>`). The renderer (`Pawn`, `Token` in `ui/assets.tsx`)
 draws them; the engine never assumes a specific token shape.
-
-## Rendering boards
-
-Views don't hand-roll grid markup: `<GridBoard grid legalCells onCellActivate
-renderCell />` renders the cells with wall styling, legal-move highlighting and
-click/keyboard activation built in, and `<LoopTrack count renderCell />` does
-the same for race tracks. See [Assets & Themes](./assets-and-themes.md).
 
 See **Lantern Hunt** (`src/games/lantern-hunt.ts`) for grid + dice + tokens +
 legal-move highlighting + scoring, and **Relic Run** for a looping track.

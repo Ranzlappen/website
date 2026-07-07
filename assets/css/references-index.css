@@ -107,7 +107,6 @@
   /* clamp blurb to 3 lines so card heights stay roughly aligned */
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -134,7 +133,7 @@
 }
 
 /* Small screens — collapse to single column, hide cta arrow (whole card clickable). */
-@media (max-width: 40rem) {
+@media (max-width: 640px) {
   .references-card__link {
     grid-template-columns: auto 1fr;
     grid-template-areas:

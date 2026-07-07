@@ -3,12 +3,8 @@
 ## Asset library
 
 All artwork is **original, procedurally-drawn SVG/CSS** — nothing copyrighted,
-nothing hot-linked. Assets live in the `src/ui/assets/` package (`cards.tsx`,
-`dice.tsx`, `tokens.tsx`, `board.tsx`; import from `ui/assets`, never the
-individual modules) and recolour with the active theme via CSS custom
-properties.
-
-Art primitives:
+nothing hot-linked. Assets live in `src/ui/assets.tsx` and recolour with the
+active theme via CSS custom properties.
 
 | Component | What it draws |
 |---|---|
@@ -18,18 +14,6 @@ Art primitives:
 | `<Die value size? rolling? />` | A six-sided die face with proper pip layouts. |
 | `<Pawn seat size? />` | A board pawn coloured by seat (`SEAT_COLORS`). |
 | `<Token glyph color? size? />` | A round chip/relic/lantern token. |
-
-Table primitives — the layout pieces game views compose instead of hand-rolling
-markup:
-
-| Component | What it renders |
-|---|---|
-| `<CardFan cards width? overlap? forceBack? selectedId? onCardClick? />` | An overlapping row of cards (your hand, an opponent's backs). |
-| `<Pile cards label onClick? showCount? forceBack? />` | A stock/discard pile: top card (or empty slot) + labelled count chip. |
-| `<TileCard title text? glyph? onClick? disabled? />` | A custom (non-standard) card: action cards, events, upgrades. |
-| `<DiceTray values size? rolling? />` | A row of dice with a summed accessible label. |
-| `<GridBoard grid legalCells? onCellActivate? renderCell ariaLabel />` | A square grid with walls, legal-move highlighting and click/keyboard wiring; you supply per-cell content. |
-| `<LoopTrack count renderCell ariaLabel cellSize? />` | A wrapping race-track strip of cells. |
 
 Card geometry is driven by the `--w` custom property on `.tt-card`, so a single
 `width` prop scales the whole card (corners, glyphs, radius) proportionally.
@@ -70,7 +54,6 @@ everywhere instantly.
 
 ### Adding an asset
 
-Add a component to the fitting module in `src/ui/assets/` (or a new module
-re-exported from `src/ui/assets/index.ts`) that draws SVG/CSS using `--tt-*`
+Add a component to `src/ui/assets.tsx` that draws SVG/CSS using `--tt-*`
 variables (and `SEAT_COLORS` for per-player colour). Keep it presentational and
 prop-driven so any game can reuse it.

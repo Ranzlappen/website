@@ -359,34 +359,10 @@
   document.addEventListener('click', activateFromEvent);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { closeTopModal(); return; }
-    if (e.key === 'Tab') { trapTabInTopModal(e); return; }
     if (e.key !== 'Enter' && e.key !== ' ') return;
     if (!e.target.closest(ACTIVATE_SELECTOR)) return;
     activateFromEvent(e);
   });
-
-  // Keep Tab inside the topmost modal while one is open (aria-modal dialogs
-  // must not let keyboard focus wander into the page behind them).
-  function trapTabInTopModal(e) {
-    if (modalStack.length === 0) return;
-    var top = modalStack[modalStack.length - 1].modal;
-    var focusable = top.querySelectorAll(
-      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    var arr = Array.prototype.filter.call(focusable, function (el) {
-      return el.offsetParent !== null;
-    });
-    if (!arr.length) return;
-    var first = arr[0];
-    var last = arr[arr.length - 1];
-    if (e.shiftKey && (document.activeElement === first || !top.contains(document.activeElement))) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && (document.activeElement === last || !top.contains(document.activeElement))) {
-      e.preventDefault();
-      first.focus();
-    }
-  }
 
   // Public API for pages that need to drive the modal/decoration directly
   // (e.g. cmd-cheat-sheet.js wires worked-example clicks to openInline).

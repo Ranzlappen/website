@@ -8,13 +8,7 @@
  */
 import type { MatchState } from './types';
 
-/**
- * Bump when saved game-state shapes change incompatibly (schema 2: the demo
- * games moved their card piles into the zone system). Older saves are rejected
- * on load rather than crashing views built for the new shapes.
- */
-export const SAVE_SCHEMA_VERSION = 2;
-export const MIN_SAVE_SCHEMA_VERSION = 2;
+export const SAVE_SCHEMA_VERSION = 1;
 
 export interface SavedMatch<G = unknown> {
   schema: number;
@@ -55,11 +49,6 @@ export function deserializeMatch<G>(json: string): SavedMatch<G> {
   if (save.schema > SAVE_SCHEMA_VERSION) {
     throw new Error(
       `Save was written by a newer version (schema ${save.schema}).`,
-    );
-  }
-  if (save.schema < MIN_SAVE_SCHEMA_VERSION) {
-    throw new Error(
-      `Save uses an incompatible older format (schema ${save.schema}).`,
     );
   }
   return save;

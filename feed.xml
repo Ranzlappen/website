@@ -1,8 +1,7 @@
 ---
 layout: null
 # [Status field update] Custom Atom feed replacing jekyll-feed plugin.
-# Only includes posts where status == "published" (placeholder posts are
-# self-declared test content — kept out of the feed).
+# Only includes posts where status == "published" or "placeholder".
 ---
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
@@ -24,7 +23,7 @@ layout: null
     {% if site.author.uri %}<uri>{{ site.author.uri | xml_escape }}</uri>{% endif %}
   </author>
   {% endif %}
-  {% for post in site.posts %}{% if post.status == "published" %}
+  {% for post in site.posts %}{% if post.status == "published" or post.status == "placeholder" %}
   <entry>
     <title type="html">{{ post.title | xml_escape }}</title>
     <link href="{{ post.url | absolute_url }}" rel="alternate" type="text/html" title="{{ post.title | xml_escape }}"/>
