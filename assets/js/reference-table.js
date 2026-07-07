@@ -24,23 +24,6 @@
    button cycling ascending → descending → original order. A cell's sort key is
    its `data-sort` attribute when present, else its text; numeric when both
    compared values parse as numbers. Only one column sorts at a time.
-
-   Pinned clone header: the wrapper is a horizontal-only scroll box in page
-   flow, so the real thead cannot viewport-pin (see reference-table.css).
-   buildTheadPin() clones the thead into a 0-height sticky rail
-   (`.reference-thead-pin`, aria-hidden) inserted just before the wrapper:
-   - horizontal sync: the clone viewport is overflow:hidden and its scrollLeft
-     is set from the wrapper's scroll (a real scrollport, so the cloned corner
-     `.is-sticky-col` keeps left-pinning via the shared CSS rule);
-   - width sync: per-column offsetWidths are copied to the clone (ResizeObserver
-     on table+wrapper, plus an explicit resync after filtering — hiding rows
-     redistributes column widths without resizing the table's own box);
-   - visibility: an IntersectionObserver with the pin offset as rootMargin
-     shows the clone only while the real thead is above the pin line AND the
-     wrapper is still on screen; rebuilt on `headersticky:change` and when the
-     controls strip resizes (the pin line moved);
-   - sorting: clicks on cloned sort buttons delegate to the real ones, and the
-     real sort handler mirrors th classes/aria-sort back onto the clone.
    ============================================================================ */
 (function () {
   function initReferenceTable(opts) {
@@ -79,27 +62,14 @@
 
     var activeBatch = allValue;
     var totalRows = rows.length;
-    var pinCtl = null; // pinned clone header controller (buildTheadPin)
-
-    // Row text is static after load — cache the lowercased haystack instead
-    // of recomputing textContent.toLowerCase() per row per keystroke.
-    var rowText = null;
-    function ensureRowText() {
-      if (rowText) return;
-      rowText = new Array(rows.length);
-      for (var i = 0; i < rows.length; i++) {
-        rowText[i] = rows[i].textContent.toLowerCase();
-      }
-    }
 
     function applyFilters() {
       var q = ((search && search.value) || '').trim().toLowerCase();
-      if (q) ensureRowText();
       var visible = 0;
       for (var i = 0; i < rows.length; i++) {
         var row = rows[i];
         var inBatch = activeBatch === allValue || row.dataset[datasetKey] === activeBatch;
-        var matches = !q || rowText[i].indexOf(q) !== -1;
+        var matches = !q || row.textContent.toLowerCase().indexOf(q) !== -1;
         var inOs = true;
         if (activeOs) {
           var osVal = row.getAttribute(osAttr) || '';
@@ -115,9 +85,6 @@
           : totalRows + ' ' + rowsLabel;
       }
       if (empty) empty.hidden = visible !== 0;
-      // Hiding rows redistributes column widths without changing the table's
-      // own box — a table ResizeObserver alone would miss it.
-      if (pinCtl) pinCtl.scheduleWidthSync();
     }
 
     function setActiveBatch(id) {
@@ -205,18 +172,11 @@
           }
           applySort();
           applyFilters();
-          if (pinCtl) pinCtl.syncHead();
         });
       });
     }
 
-    var searchTimer;
-    if (search) {
-      search.addEventListener('input', function () {
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(applyFilters, 120);
-      });
-    }
+    if (search) search.addEventListener('input', applyFilters);
     for (var j = 0; j < tabs.length; j++) {
       (function (t) {
         t.addEventListener('click', function () { setActiveBatch(t.dataset[datasetKey]); });
@@ -230,11 +190,11 @@
     }
     if (o.sortable) initSorting();
 
-    // Publish the controls strip's real height as --reference-controls-h so
-    // the pinned clone header (reference-table.css) pins exactly below it.
-    // The strip wraps to a taller multi-row stack on mobile (and grows with
-    // font scaling / long tab labels / the row-count text), so a hardcoded gap
-    // would let the z-10 controls cover the pinned header. Mirrors main.js's
+    // Publish the controls strip's real height as --reference-controls-h so the
+    // sticky table wrapper (reference-table.css) can pin exactly below it. The
+    // strip wraps to a taller multi-row stack on mobile (and grows with font
+    // scaling / long tab labels / the row-count text), so a hardcoded gap would
+    // let the z-10 controls cover the sticky thead. Mirrors main.js's
     // JS-sets-a-CSS-var pattern for --header-offset.
     var controls = (table.closest('.reference-container') || document)
       .querySelector('.reference-controls');
@@ -244,9 +204,6 @@
       document.documentElement.style.setProperty(
         '--reference-controls-h', (controls.offsetHeight + mb) + 'px'
       );
-      // The pin line just moved — the clone's IO rootMargin is baked in at
-      // creation, so rebuild it.
-      if (pinCtl) pinCtl.rebuildObservers();
     }
     syncControlsHeight();
     if (controls && 'ResizeObserver' in window) {
@@ -257,155 +214,6 @@
       clearTimeout(rcResizeTimer);
       rcResizeTimer = setTimeout(syncControlsHeight, 100);
     }, { passive: true });
-
-    // ---- Pinned clone header ----
-    // Built AFTER initSorting so the clone carries the injected .ref-th-inner
-    // / .ref-sort markup. Returns null when the page/browser can't support it
-    // (fallback: a plain horizontal scroll box that scrolls with the page).
-    function buildTheadPin() {
-      var wrapper = table.closest('.reference-table-wrapper');
-      if (!wrapper || !table.tHead || !table.tHead.rows.length) return null;
-      if (!('IntersectionObserver' in window) || !('ResizeObserver' in window)) return null;
-
-      var pinRoot = document.createElement('div');
-      pinRoot.className = 'reference-thead-pin';
-      pinRoot.setAttribute('aria-hidden', 'true');
-
-      var viewport = document.createElement('div');
-      viewport.className = 'reference-thead-pin__viewport';
-
-      var cloneTable = document.createElement('table');
-      cloneTable.className = table.className || 'reference-table';
-      var cloneHead = table.tHead.cloneNode(true);
-      // The clone is purely visual: strip ids, keep buttons out of tab order.
-      Array.prototype.forEach.call(cloneHead.querySelectorAll('[id]'), function (el) {
-        el.removeAttribute('id');
-      });
-      Array.prototype.forEach.call(cloneHead.querySelectorAll('button, a, [tabindex]'), function (el) {
-        el.setAttribute('tabindex', '-1');
-      });
-      cloneTable.appendChild(cloneHead);
-      viewport.appendChild(cloneTable);
-      pinRoot.appendChild(viewport);
-      // Insert directly before the wrapper (inside .reference-container, so
-      // per-page `.reference-page--<slug>` CSS also applies to the clone).
-      wrapper.parentNode.insertBefore(pinRoot, wrapper);
-
-      var realThs = table.tHead.rows[0].cells;
-      function cloneThs() { return cloneHead.rows[0].cells; }
-
-      // Sort clicks on the clone drive the matching real header button.
-      cloneHead.addEventListener('click', function (e) {
-        var th = e.target.closest('th');
-        if (!th) return;
-        var real = realThs[th.cellIndex];
-        var btn = real && real.querySelector('.ref-sort');
-        if (btn) btn.click();
-      });
-
-      // Mirror sort state (classes + aria-sort) from the real ths.
-      function syncHead() {
-        var cths = cloneThs();
-        for (var i = 0; i < realThs.length && i < cths.length; i++) {
-          cths[i].className = realThs[i].className;
-          var s = realThs[i].getAttribute('aria-sort');
-          if (s) cths[i].setAttribute('aria-sort', s);
-          else cths[i].removeAttribute('aria-sort');
-        }
-      }
-
-      // Copy real column widths onto the clone (offsetWidth includes padding
-      // and border; the clone ths are border-box + table-layout fixed, so the
-      // columns land pixel-exact). Batched: reads first, then writes.
-      var widthRaf = null;
-      function syncWidths() {
-        var cths = cloneThs();
-        var widths = [];
-        for (var i = 0; i < realThs.length; i++) widths.push(realThs[i].offsetWidth);
-        var tableW = table.offsetWidth;
-        var wrapperW = wrapper.offsetWidth;
-        for (var j = 0; j < cths.length && j < widths.length; j++) {
-          cths[j].style.width = widths[j] + 'px';
-        }
-        cloneTable.style.width = tableW + 'px';
-        cloneTable.style.minWidth = '0'; // per-page min-width rules must not inflate the clone
-        viewport.style.width = wrapperW + 'px';
-        syncScroll();
-      }
-      function scheduleWidthSync() {
-        if (widthRaf) return;
-        widthRaf = requestAnimationFrame(function () {
-          widthRaf = null;
-          syncWidths();
-        });
-      }
-
-      function syncScroll() {
-        viewport.scrollLeft = wrapper.scrollLeft;
-      }
-      wrapper.addEventListener('scroll', syncScroll, { passive: true });
-
-      new ResizeObserver(scheduleWidthSync).observe(table);
-      new ResizeObserver(scheduleWidthSync).observe(wrapper);
-
-      // Show the clone only while the real thead has scrolled above the pin
-      // line AND the wrapper is still on screen (otherwise the 0-height sticky
-      // rail would let the clone overhang the legend/footer).
-      var io = null;
-      var theadPassed = false;
-      var wrapperVisible = true;
-      function pinOffsetPx() {
-        var cs = getComputedStyle(document.documentElement);
-        var off = (cs.getPropertyValue('--header-offset') || '').trim();
-        var offPx = 0;
-        if (off.slice(-3) === 'rem') {
-          offPx = (parseFloat(off) || 0) * (parseFloat(cs.fontSize) || 16);
-        } else {
-          offPx = parseFloat(off) || 0;
-        }
-        var ctrl = parseFloat(cs.getPropertyValue('--reference-controls-h')) || 52;
-        return Math.round(offPx + ctrl);
-      }
-      function update() {
-        pinRoot.classList.toggle('is-active', theadPassed && wrapperVisible);
-      }
-      function rebuildObservers() {
-        if (io) io.disconnect();
-        // The root's top edge is pulled down to the pin line and its bottom
-        // edge extended far past the document, so "intersecting" means "any
-        // part still below the pin line". That makes the boolean state itself
-        // encode above/below — an instant jump (anchor link, fast flick,
-        // scroll restoration) that skips the viewport band still flips the
-        // state and fires the callback. (A plain negative-top margin misses
-        // those jumps: below-viewport and above-pin-line are both
-        // "not intersecting", so no state change ever fires.)
-        io = new IntersectionObserver(function (entries) {
-          for (var i = 0; i < entries.length; i++) {
-            var e = entries[i];
-            if (e.target === table.tHead) {
-              theadPassed = !e.isIntersecting; // fully above the pin line
-            } else if (e.target === wrapper) {
-              wrapperVisible = e.isIntersecting; // still extends below it
-            }
-          }
-          update();
-        }, { rootMargin: '-' + pinOffsetPx() + 'px 0px 100000px 0px' });
-        io.observe(table.tHead);
-        io.observe(wrapper);
-      }
-      rebuildObservers();
-      // The pin line moves when the header is pinned/unpinned.
-      document.documentElement.addEventListener('headersticky:change', rebuildObservers);
-
-      syncHead();
-      syncWidths();
-      return {
-        syncHead: syncHead,
-        scheduleWidthSync: scheduleWidthSync,
-        rebuildObservers: rebuildObservers
-      };
-    }
-    pinCtl = buildTheadPin();
 
     applyFilters();
   }
