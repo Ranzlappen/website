@@ -25,10 +25,22 @@
    its `data-sort` attribute when present, else its text; numeric when both
    compared values parse as numbers. Only one column sorts at a time.
 
-   Sticky header: handled entirely in CSS, no JS. The wrapper is a bounded
-   two-axis scroll box that itself sticks below the site header, and the thead
-   pins to `top: 0` of that box (see the "Table" block in reference-table.css).
-   This file only wires up the interactive behaviour (tabs/search/sort/filter).
+   Pinned clone header: the wrapper is a horizontal-only scroll box in page
+   flow, so the real thead cannot viewport-pin (see reference-table.css).
+   buildTheadPin() clones the thead into a 0-height sticky rail
+   (`.reference-thead-pin`, aria-hidden) inserted just before the wrapper:
+   - horizontal sync: the clone viewport is overflow:hidden and its scrollLeft
+     is set from the wrapper's scroll (a real scrollport, so the cloned corner
+     `.is-sticky-col` keeps left-pinning via the shared CSS rule);
+   - width sync: per-column offsetWidths are copied to the clone (ResizeObserver
+     on table+wrapper, plus an explicit resync after filtering — hiding rows
+     redistributes column widths without resizing the table's own box);
+   - visibility: an IntersectionObserver with the pin offset as rootMargin
+     shows the clone only while the real thead is above the pin line AND the
+     wrapper is still on screen; rebuilt on `headersticky:change` and when the
+     controls strip resizes (the pin line moved);
+   - sorting: clicks on cloned sort buttons delegate to the real ones, and the
+     real sort handler mirrors th classes/aria-sort back onto the clone.
    ============================================================================ */
 (function () {
   function initReferenceTable(opts) {
@@ -212,6 +224,31 @@
       });
     }
     if (o.sortable) initSorting();
+
+    // Publish the controls strip's real height as --reference-controls-h so
+    // the pinned clone header (reference-table.css) pins exactly below it.
+    // The strip wraps to a taller multi-row stack on mobile (and grows with
+    // font scaling / long tab labels / the row-count text), so a hardcoded gap
+    // would let the z-10 controls cover the pinned header. Mirrors main.js's
+    // JS-sets-a-CSS-var pattern for --header-offset.
+    var controls = (table.closest('.reference-container') || document)
+      .querySelector('.reference-controls');
+    function syncControlsHeight() {
+      if (!controls) return;
+      var mb = parseFloat(getComputedStyle(controls).marginBottom) || 0;
+      document.documentElement.style.setProperty(
+        '--reference-controls-h', (controls.offsetHeight + mb) + 'px'
+      );
+    }
+    syncControlsHeight();
+    if (controls && 'ResizeObserver' in window) {
+      new ResizeObserver(syncControlsHeight).observe(controls);
+    }
+    var rcResizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(rcResizeTimer);
+      rcResizeTimer = setTimeout(syncControlsHeight, 100);
+    }, { passive: true });
 
     applyFilters();
   }

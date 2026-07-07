@@ -1,8 +1,8 @@
 /* ============================================================================
    Spectrum Reference — page-specific overrides
    Layers on top of /assets/css/reference-table.css, which provides the shared
-   (non-sticky) controls strip, the bounded sticky scroll-box wrapper (native
-   sticky thead + horizontal scroll), the sticky first column (via
+   sticky controls strip, the horizontal-only scroll wrapper + JS pinned clone
+   header (`.reference-thead-pin`), the sticky first column (via
    `.is-sticky-col`), generic legend swatch base, `.reference-badge` base, and
    the `.cell-collapse` family.
 
