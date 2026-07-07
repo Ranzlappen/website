@@ -76,9 +76,7 @@
     body.appendChild(captures);
 
     function escapeHtml(s) {
-      // Also escapes quotes so the helper stays safe if ever reused in an
-      // attribute context (matches main.js's copy of the same helper).
-      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     function render() {

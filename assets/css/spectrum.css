@@ -1,10 +1,9 @@
 /* ============================================================================
    Spectrum Reference — page-specific overrides
    Layers on top of /assets/css/reference-table.css, which provides the shared
-   sticky controls strip, the horizontal-only scroll wrapper + JS pinned clone
-   header (`.reference-thead-pin`), the sticky first column (via
-   `.is-sticky-col`), generic legend swatch base, `.reference-badge` base, and
-   the `.cell-collapse` family.
+   sticky controls strip, scrollable wrapper with sticky thead + sticky first
+   column (via `.is-sticky-col`), generic legend swatch base, `.reference-badge`
+   base, and the `.cell-collapse` family.
 
    Everything here is unique to the electromagnetic spectrum page: the legal
    disclaimer, the 16-column min-width table, per-column widths, the
@@ -129,7 +128,7 @@
 .spectrum-legend__swatch--restricted { --swatch-bg: #ef4444; }
 
 /* ---- Small screens: column-snap mobile layout ---- */
-@media (max-width: 40rem) {
+@media (max-width: 640px) {
   /* The wrapper opts in to mobile column snapping via `has-snap-cols` (shared)
      — here we add spectrum-specific scroll-padding so swipes land cleanly
      past the sticky frequency column. */

@@ -160,13 +160,12 @@
       }
     });
 
-    // Keyboard: Escape dismisses for this page view WITHOUT persisting a
-    // choice (a durable 365-day "reject" should only come from an explicit
-    // button press) — the banner simply re-appears on the next page load.
-    // Tab is trapped inside the banner.
+    // Keyboard: Escape rejects, Tab trapped
     banner.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
+        saveConsent(false);
         closeBanner();
+        applyConsent();
         return;
       }
       if (e.key === 'Tab') {

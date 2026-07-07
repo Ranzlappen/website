@@ -8,7 +8,7 @@ layout: null
 ---
 {% assign first = true %}
 [
-  {% for post in site.posts %}{% if post.status == "published" %}{% unless first %},{% endunless %}{% assign first = false %}
+  {% for post in site.posts %}{% if post.status == "published" or post.status == "placeholder" %}{% unless first %},{% endunless %}{% assign first = false %}
   {
     "title": {{ post.title | jsonify }},
     "url": "{{ post.url | relative_url }}",

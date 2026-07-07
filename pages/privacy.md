@@ -2,7 +2,6 @@
 layout: page
 title: Privacy Policy
 subtitle: How your data is handled
-description: How RanzLappen handles your data — a privacy-first site with no analytics, GDPR-compliant cookie consent, and minimal third-party services.
 permalink: /privacy/
 ---
 
@@ -14,7 +13,7 @@ permalink: /privacy/
 The controller within the meaning of the General Data Protection Regulation (GDPR) is me as a private individual:
 
 **RanzLappen**  
-Contact: Via the [Contact page]({{ '/contact/' | relative_url }}) or by opening a GitHub issue in the repository.
+Contact: Via the [Contact page](https://ranzlappen.com/contact) or by opening a GitHub issue in the repository.
 
 ## Scope
 This privacy policy applies to the website https://ranzlappen.com/ (including all subpages and the PolyVote feature). The site is purely private and non-commercial.

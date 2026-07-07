@@ -5,32 +5,12 @@
    worker deliberately ignores those paths and never caches them. */
 "use strict";
 
-const CACHE_VERSION = "ranzlappen-v8";
+const CACHE_VERSION = "ranzlappen-v7";
 const PRECACHE = CACHE_VERSION + "-precache";
 const RUNTIME = CACHE_VERSION + "-runtime";
 
 // Sub-app prefixes this worker must not touch.
 const EXCLUDE = ["/polyvote/", "/blog-admin/", "/inventory/"];
-
-// Cap the runtime cache so a long-lived install can't grow without bound.
-const RUNTIME_MAX_ENTRIES = 60;
-
-// Store a response in RUNTIME, then evict oldest entries past the cap
-// (Cache API keys are returned in insertion order).
-function putWithTrim(req, res) {
-  return caches.open(RUNTIME).then((cache) =>
-    cache.put(req, res).then(() =>
-      cache.keys().then((keys) => {
-        if (keys.length <= RUNTIME_MAX_ENTRIES) return undefined;
-        return Promise.all(
-          keys
-            .slice(0, keys.length - RUNTIME_MAX_ENTRIES)
-            .map((k) => cache.delete(k))
-        );
-      })
-    )
-  );
-}
 
 // Minimal app shell so the blog opens offline. Individual posts/pages are
 // captured by the runtime cache on first visit.
@@ -101,11 +81,8 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          // Never cache error pages — a cached 404/500 would later be served
-          // instead of the offline fallback.
-          if (res && res.ok) {
-            putWithTrim(req, res.clone());
-          }
+          const copy = res.clone();
+          caches.open(RUNTIME).then((c) => c.put(req, copy));
           return res;
         })
         .catch(() =>
@@ -121,7 +98,8 @@ self.addEventListener("fetch", (event) => {
       if (hit) return hit;
       return fetch(req).then((res) => {
         if (res && res.status === 200 && res.type === "basic") {
-          putWithTrim(req, res.clone());
+          const copy = res.clone();
+          caches.open(RUNTIME).then((c) => c.put(req, copy));
         }
         return res;
       });

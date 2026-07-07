@@ -1,16 +1,13 @@
 ---
 layout: null
 # [Status field update] Custom sitemap replacing jekyll-sitemap plugin.
-# Only includes posts where status == "published" (draft/unpublished/
-# placeholder posts are noindexed test content — see _includes/head.html).
-# Pages with a file extension in their URL (404.html, search.json,
-# sitemap.xml, llms.txt, …) are utility output, not content — skipped.
+# Only includes posts where status == "published".
 ---
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
         xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  {% for page in site.pages %}{% if page.url and page.sitemap != false %}{% unless page.url contains "." %}
+  {% for page in site.pages %}{% if page.url and page.url != "/feed.xml" and page.url != "/robots.txt" and page.sitemap != false %}
   <url>
     <loc>{{ page.url | absolute_url | xml_escape }}</loc>
     {% if page.date %}<lastmod>{{ page.date | date_to_xmlschema }}</lastmod>{% endif %}
@@ -21,8 +18,8 @@ layout: null
     {% else %}<changefreq>yearly</changefreq><priority>0.3</priority>
     {% endif %}
   </url>
-  {% endunless %}{% endif %}{% endfor %}
-  {% for post in site.posts %}{% if post.status == "published" %}
+  {% endif %}{% endfor %}
+  {% for post in site.posts %}{% if post.status == "published" or post.status == "placeholder" %}
   <url>
     <loc>{{ post.url | absolute_url | xml_escape }}</loc>
     <lastmod>{{ post.date | date_to_xmlschema }}</lastmod>

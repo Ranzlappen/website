@@ -281,7 +281,7 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────── */
-@media (max-width: 40rem) {
+@media (max-width: 640px) {
   .cc-banner__inner {
     padding: var(--space-md, 1rem);
   }

@@ -268,7 +268,7 @@
 }
 
 /* ---- Mobile: column-snap layout (mirrors the cmd cheat sheet) ---- */
-@media (max-width: 40rem) {
+@media (max-width: 640px) {
   .reference-page--webdev .reference-table-wrapper.has-snap-cols {
     scroll-padding-left: 9rem;       /* matches col-name width below */
   }
