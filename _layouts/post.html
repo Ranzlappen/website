@@ -155,11 +155,7 @@ layout: default
   </div>
 
   <!-- Post Body -->
-  <!-- NOTE: itemprop="articleBody" is load-bearing — the sticky-h2 CSS + JS
-       (style.css / main.js) scope to `.post-body[itemprop="articleBody"] h2`
-       to target ONLY the article content (not the tags/nav/related .post-body
-       wrappers below). Do not remove it or in-post h2 headings stop sticking. -->
-  <div class="post-body" itemprop="articleBody">
+  <div class="post-body">
     {{ content }}
   </div>
 
