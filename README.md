@@ -230,7 +230,7 @@ You can control the visibility of any post by adding a `status` field to its fro
 | Value | Behavior |
 |-------|----------|
 | `published` | **(Default)** Normal article — visible everywhere. You never need to add this explicitly. |
-| `placeholder` | **Visible in all listings** (homepage, blog, categories, tags, search, feeds, sitemap) with a status badge. Still shows a banner on the article page: *"This article is a draft and may be incomplete or subject to change."* Use this for articles that are in progress but should already appear on the site. |
+| `placeholder` | **Visible in on-site listings** (homepage, blog, categories, tags) with a status badge, but — like drafts — excluded from search, the RSS feed, and the sitemap, and served with a `noindex` meta tag (it is self-declared test content, so crawlers are kept away). Still shows a banner on the article page: *"This article is a draft and may be incomplete or subject to change."* |
 | `draft` | Hidden from all listings, feeds, search, and sitemap. Still accessible via direct URL. Shows a banner: *"This article is a draft and may be incomplete or subject to change."* |
 | `unpublished` | Same hiding behavior as `draft`. Shows a banner: *"This article is unpublished."* |
 
@@ -263,9 +263,9 @@ When a post's status is `draft` or `unpublished`, it is excluded from:
 - The sitemap (`/sitemap.xml`)
 - Previous/next navigation links on other posts
 
-The post itself **remains fully accessible** if someone visits its URL directly — they'll just see a small disclaimer banner at the top of the article.
+The post itself **remains fully accessible** if someone visits its URL directly — they'll just see a small disclaimer banner at the top of the article. Any post whose status is not `published` also ships a `<meta name="robots" content="noindex,nofollow">` tag so search engines that discover the URL don't index it.
 
-**Note:** `placeholder` articles are **not** hidden. They appear in all listings with a yellow "Placeholder" badge, making them useful for reserving spots on the site while the content is still being written.
+**Note:** `placeholder` articles are hidden only from crawlers and machine outputs (search index, feed, sitemap, robots meta). They still appear in all on-site listings with a yellow "Placeholder" badge, making them useful for reserving spots on the site while the content is still being written.
 
 </details>
 
