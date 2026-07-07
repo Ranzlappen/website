@@ -92,7 +92,7 @@
     }
 
     // Backstop: never let the overlay outlive MAX_MS even if a gate never fires.
-    setTimeout(function () { pageLoaded = true; animDone = true; maybeDismiss(); }, MAX_MS);
+    setTimeout(function () { pageLoaded = true; animReady = true; maybeDismiss(); }, MAX_MS);
 
     maybeDismiss();
   })();
