@@ -250,6 +250,14 @@ export function applyAction<G>(
   if (requests.endTurn) {
     const next = requests.endTurn.next ?? nextPlayer(turn.order, turn.current);
     turn = { ...turn, current: next, turnNumber: turn.turnNumber + 1 };
+    // Start-of-turn upkeep for the incoming player (unless the game ended).
+    if (def.onTurnBegin && !requests.endGame) {
+      nextGame = def.onTurnBegin(nextGame, {
+        ...ctx,
+        actor: next,
+        turn,
+      });
+    }
   }
 
   let result: GameResult | null = state.result;

@@ -22,13 +22,60 @@ DATE: 2026-04-02
       header.classList.add('site-header--transparent');
     }
   }
-  // If no hero on this page, immediately go solid
-  if (!heroEl) {
-    header.classList.remove('site-header--transparent');
-    header.classList.add('site-header--solid');
-  } else {
-    window.addEventListener('scroll', updateHeader, { passive: true });
-    updateHeader();
+  if (header) {
+    // If no hero on this page, immediately go solid
+    if (!heroEl) {
+      header.classList.remove('site-header--transparent');
+      header.classList.add('site-header--solid');
+    } else {
+      window.addEventListener('scroll', updateHeader, { passive: true });
+      updateHeader();
+    }
+  }
+
+  // -------------------------------------------------------
+  // Shared scroll lock (ref-counted)
+  // -------------------------------------------------------
+  // Mobile menu, search overlay, and the storage viewer can be open at the
+  // same time; a plain `body.style.overflow = ''` from whichever closes first
+  // would unlock the page behind the one still open.
+  var scrollLocks = 0;
+  function lockScroll() {
+    scrollLocks++;
+    document.body.style.overflow = 'hidden';
+  }
+  function unlockScroll() {
+    scrollLocks = Math.max(0, scrollLocks - 1);
+    if (scrollLocks === 0) document.body.style.overflow = '';
+  }
+
+  // -------------------------------------------------------
+  // Focus trap for modal overlays (Tab stays inside)
+  // -------------------------------------------------------
+  var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), ' +
+    'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  function createFocusTrap(container) {
+    function onKeydown(e) {
+      if (e.key !== 'Tab') return;
+      var list = Array.prototype.filter.call(
+        container.querySelectorAll(FOCUSABLE),
+        function (el) { return el.offsetParent !== null; }
+      );
+      if (!list.length) return;
+      var first = list[0];
+      var last = list[list.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !container.contains(document.activeElement))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !container.contains(document.activeElement))) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+    return {
+      activate: function () { document.addEventListener('keydown', onKeydown, true); },
+      deactivate: function () { document.removeEventListener('keydown', onKeydown, true); }
+    };
   }
 
   // -------------------------------------------------------
@@ -42,15 +89,15 @@ DATE: 2026-04-02
       var expanded = menuToggle.getAttribute('aria-expanded') === 'true';
       menuToggle.setAttribute('aria-expanded', String(!expanded));
       mobileNav.classList.toggle('is-open');
-      document.body.style.overflow = expanded ? '' : 'hidden';
+      if (expanded) unlockScroll(); else lockScroll();
     });
 
     // Close on link click
     mobileNav.querySelectorAll('a').forEach(function (link) {
       link.addEventListener('click', function () {
+        if (mobileNav.classList.contains('is-open')) unlockScroll();
         menuToggle.setAttribute('aria-expanded', 'false');
         mobileNav.classList.remove('is-open');
-        document.body.style.overflow = '';
       });
     });
 
@@ -282,6 +329,13 @@ DATE: 2026-04-02
           if (d < minDist) { minDist = d; focusIdx = i; }
         }
 
+        // Read tuning from CSS vars once per frame, not per card
+        var fadeMin    = cssNum('--carousel-fade-min', 0.35);
+        var scaleMin   = cssNum('--carousel-scale-min', 0.94);
+        var tiltUp     = cssNum('--carousel-tilt-up', 4);
+        var tiltDown   = cssNum('--carousel-tilt-down', 3);
+        var focusRange = cssNum('--carousel-focus-range', 0.55);
+
         for (var i = 0; i < n; i++) {
           var card = cards[i];
           var rect = rects[i];
@@ -295,13 +349,6 @@ DATE: 2026-04-02
             card.classList.remove('is-focused');
             continue;
           }
-
-          // Read tuning from CSS vars (cached per computed style)
-          var fadeMin    = cssNum('--carousel-fade-min', 0.35);
-          var scaleMin   = cssNum('--carousel-scale-min', 0.94);
-          var tiltUp     = cssNum('--carousel-tilt-up', 4);
-          var tiltDown   = cssNum('--carousel-tilt-down', 3);
-          var focusRange = cssNum('--carousel-focus-range', 0.55);
 
           // Smooth interpolation: 0 at center → 1 at edges
           var t = clamp(absDist / focusRange, 0, 1);
@@ -355,10 +402,16 @@ DATE: 2026-04-02
   // -------------------------------------------------------
   var progressBar = document.getElementById('reading-progress');
   if (progressBar) {
+    // Coalesce bursty scroll events into one layout read + write per frame.
+    var progressRaf = null;
     window.addEventListener('scroll', function () {
-      var docH = document.documentElement.scrollHeight - window.innerHeight;
-      var pct = docH > 0 ? (window.scrollY / docH) * 100 : 0;
-      progressBar.style.width = Math.min(pct, 100) + '%';
+      if (progressRaf) return;
+      progressRaf = requestAnimationFrame(function () {
+        progressRaf = null;
+        var docH = document.documentElement.scrollHeight - window.innerHeight;
+        var pct = docH > 0 ? (window.scrollY / docH) * 100 : 0;
+        progressBar.style.width = Math.min(pct, 100) + '%';
+      });
     }, { passive: true });
   }
 
@@ -369,20 +422,26 @@ DATE: 2026-04-02
   var searchOverlay = document.getElementById('search-overlay');
   var searchInput = document.getElementById('search-input');
 
+  var searchTrap = searchOverlay ? createFocusTrap(searchOverlay) : null;
+
   function openSearch() {
-    if (!searchOverlay) return;
+    if (!searchOverlay || searchOverlay.classList.contains('is-open')) return;
     searchOverlay.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
+    if (searchTrap) searchTrap.activate();
     setTimeout(function () { searchInput && searchInput.focus(); }, 100);
   }
 
   function closeSearch() {
-    if (!searchOverlay) return;
+    if (!searchOverlay || !searchOverlay.classList.contains('is-open')) return;
     searchOverlay.classList.remove('is-open');
-    document.body.style.overflow = '';
+    unlockScroll();
+    if (searchTrap) searchTrap.deactivate();
     if (searchInput) searchInput.value = '';
     var results = document.getElementById('search-results');
     if (results) results.innerHTML = '';
+    // Hand focus back to the control that opened the modal.
+    if (searchToggle) searchToggle.focus();
   }
 
   if (searchToggle) {
@@ -853,18 +912,23 @@ DATE: 2026-04-02
 
   // -- Modal Open / Close --
 
+  var cookieTrap = cookieOverlay ? createFocusTrap(cookieOverlay) : null;
+
   function openCookieModal() {
-    if (!cookieOverlay) return;
+    if (!cookieOverlay || cookieOverlay.classList.contains('is-open')) return;
     buildModalContent();
     cookieOverlay.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
+    if (cookieTrap) cookieTrap.activate();
     setTimeout(function () { cookieClose && cookieClose.focus(); }, 100);
   }
 
   function closeCookieModal() {
-    if (!cookieOverlay) return;
+    if (!cookieOverlay || !cookieOverlay.classList.contains('is-open')) return;
     cookieOverlay.classList.remove('is-open');
-    document.body.style.overflow = '';
+    unlockScroll();
+    if (cookieTrap) cookieTrap.deactivate();
+    if (cookieToggle) cookieToggle.focus();
   }
 
   if (cookieToggle) {
@@ -889,8 +953,9 @@ DATE: 2026-04-02
   // Status Banner (dismiss + sessionStorage)
   // -------------------------------------------------------
   var statusBanner = document.getElementById('status-banner');
-  if (statusBanner) {
-    statusBanner.querySelector('.status-banner__close').addEventListener('click', function () {
+  var statusBannerClose = statusBanner && statusBanner.querySelector('.status-banner__close');
+  if (statusBannerClose) {
+    statusBannerClose.addEventListener('click', function () {
       statusBanner.classList.add('is-hidden');
       setTimeout(function () { statusBanner.remove(); }, 300);
     });

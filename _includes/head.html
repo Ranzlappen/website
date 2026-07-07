@@ -32,10 +32,12 @@
 <!-- RSS (Atom feed) -->
 <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
 
-<!-- Preconnect to third-party origins -->
+<!-- Preconnect to third-party origins (Firebase only loads on post pages) -->
+{% if page.layout == 'post' %}
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
 <link rel="dns-prefetch" href="https://giscus.app">
+{% endif %}
 
 <!-- Base URL for JS -->
 <meta name="baseurl" content="{{ site.baseurl }}">
@@ -84,3 +86,9 @@
 </script>
 
 {% seo %}
+
+<!-- Non-published posts are still built at their real URLs (only listings
+     filter on status) — keep crawlers away from drafts and test content. -->
+{% if page.status == 'draft' or page.status == 'unpublished' or page.status == 'placeholder' %}
+<meta name="robots" content="noindex,nofollow">
+{% endif %}

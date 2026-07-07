@@ -260,7 +260,7 @@
 }
 
 /* ---- Mobile: column-snap layout (mirrors the spectrum page) ---- */
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   /* Scroll-padding so swipes land cleanly past the sticky command column. */
   .reference-page--cmd .reference-table-wrapper.has-snap-cols {
     scroll-padding-left: 7rem;       /* matches col-name width below */

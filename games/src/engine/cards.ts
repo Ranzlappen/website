@@ -63,6 +63,8 @@ export interface Card {
   id: string;
   suit?: Suit;
   rank?: Rank;
+  /** Template tag for custom (non-standard) cards — see {@link deckFromSpec}. */
+  kind?: string;
   /** Sort/compare value; defaults to `rankValue` for standard cards. */
   value?: number;
   /** Whether the face is visible. Engine never reveals on its own. */
@@ -70,6 +72,32 @@ export interface Card {
   /** Optional owner (e.g. for cards committed to a player). */
   owner?: PlayerId | null;
   [extra: string]: unknown;
+}
+
+/**
+ * One line of a custom deck's composition: `count` copies of a card template.
+ * Extra fields in `data` are copied onto every instance.
+ */
+export interface DeckSpecEntry {
+  kind: string;
+  count: number;
+  data?: Record<string, unknown>;
+}
+
+/**
+ * Build a custom deck from a declarative composition — the data-driven way to
+ * express "5 Leap, 4 Steal, 3 Ward". Ids are stable (`kind-N`), face-down by
+ * default. Shuffle separately so composition stays deterministic and testable.
+ */
+export function deckFromSpec(spec: readonly DeckSpecEntry[]): Card[] {
+  const deck: Card[] = [];
+  let n = 0;
+  for (const { kind, count, data } of spec) {
+    for (let i = 0; i < count; i++) {
+      deck.push({ ...data, id: `${kind}-${n++}`, kind, faceUp: false });
+    }
+  }
+  return deck;
 }
 
 /** Build a standard 52-card deck (face-down, ace high). */

@@ -2,6 +2,7 @@
 layout: page
 title: Disclaimer
 subtitle: The fine print
+description: Disclaimer for RanzLappen — the terms under which this site's content, external links, and references are provided.
 permalink: /disclaimer/
 ---
 

@@ -143,6 +143,15 @@ export interface GameDefinition<
   /** Optional bot policy for solo play (returns an action or null to pass). */
   ai?(game: G, ctx: ReducerContext): A | null;
 
+  /**
+   * Optional upkeep run by the engine whenever the active player changes
+   * (after the turn advances, before the end-of-game check). `ctx.actor` is
+   * the player whose turn is beginning. Use it for start-of-turn effects —
+   * resetting per-turn flags, drawing a card, ticking timers — so that logic
+   * lives in one place instead of at the end of every turn-ending move.
+   */
+  onTurnBegin?(game: G, ctx: ReducerContext): G;
+
   /** Optional human-readable description of an action for the event log. */
   describeAction?(action: A, state: MatchState<G>): string;
 

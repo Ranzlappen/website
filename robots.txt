@@ -4,5 +4,6 @@ layout: null
 User-agent: *
 Allow: /
 Disallow: /inventory/
+Disallow: /blog-admin/
 
 Sitemap: {{ site.url }}{{ site.baseurl }}/sitemap.xml

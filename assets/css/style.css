@@ -18,9 +18,11 @@ DATE: 2026-04-03
   --c-surface-alt: #1b2924;
   --c-border:      #253830;
   --c-border-light:#1e2f28;
+  /* muted/faint are real content colors (search counts, placeholders, card
+     meta) — both tuned to pass WCAG AA 4.5:1 against every surface tier. */
   --c-text:        #dce8e2;
-  --c-text-muted:  #7e948a;
-  --c-text-faint:  #556b62;
+  --c-text-muted:  #8ca298;
+  --c-text-faint:  #7a9287;
   --c-accent:      #4ade80;
   --c-accent-dim:  #22c55e;
   --c-accent-bg:   rgba(74, 222, 128, 0.08);
@@ -97,8 +99,8 @@ DATE: 2026-04-03
   --c-border:      #d0ddd6;
   --c-border-light:#dde8e2;
   --c-text:        #1a2a22;
-  --c-text-muted:  #5a7068;
-  --c-text-faint:  #8a9e95;
+  --c-text-muted:  #4f655c;
+  --c-text-faint:  #5d736a;
   --c-accent:      #16a34a;
   --c-accent-dim:  #15803d;
   --c-accent-bg:   rgba(22, 163, 74, 0.06);
@@ -1249,7 +1251,7 @@ html[data-header-sticky="off"] .theme-toggle {
   font-size: 0.95rem;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .carousel-scene {
     gap: var(--carousel-gap, 2rem);
   }
@@ -1841,7 +1843,7 @@ html[data-header-sticky="off"] .theme-toggle {
   background: var(--c-accent-dim);
   transform: translateX(2px);
 }
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .polyvote-cta {
     flex-direction: column;
     text-align: center;
@@ -1860,6 +1862,7 @@ html[data-header-sticky="off"] .theme-toggle {
   right: 0.5rem;
   width: var(--sidebar-width);
   max-height: calc(100vh - var(--header-height) - 2rem);
+  max-height: calc(100dvh - var(--header-height) - 2rem);
   /* Sits above the full-bleed sticky h2 banner (z-index: 50) so the section
      vote cards aren't covered when an h2 pins past them (matches the mobile
      voting bar's z-index: 60). The h2's text content is inset to the content
@@ -2011,7 +2014,7 @@ html[data-header-sticky="off"] .theme-toggle {
   min-width: 0;
   max-width: 100%;
 }
-.comment-context-select select:focus {
+.comment-context-select select:focus-visible {
   outline: 2px solid var(--c-accent);
   outline-offset: 1px;
 }
@@ -2933,7 +2936,7 @@ html[data-header-sticky="off"] .theme-toggle {
   max-width: 8rem;
   cursor: pointer;
 }
-.read-aloud__voice:focus {
+.read-aloud__voice:focus-visible {
   outline: 2px solid var(--c-accent);
   outline-offset: 1px;
 }
@@ -3319,7 +3322,7 @@ html[data-header-sticky="off"] .theme-toggle {
 }
 
 
-@media (max-width: 600px) {
+@media (max-width: 40rem) {
   .chart-container {
     padding: clamp(8px, 2vw, 16px);
     margin: var(--space-lg) auto;
