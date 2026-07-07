@@ -1182,7 +1182,6 @@ This site is a hybrid: a Jekyll static blog plus two embedded React single-page 
 |---|---|---|---|---|
 | **Jekyll 4.3** | Static Site | Site generator — Liquid templates, Markdown content, auto-built pages | `jekyll ~> 4.3` (Ruby gem) | Native GitHub Pages support, zero-JS content delivery, low maintenance |
 | **jekyll-seo-tag** | Static Site | Injects `<meta>` and Open Graph tags into every page | Ruby gem | SEO and social-media link previews out of the box |
-| **jekyll-paginate** | Static Site | Splits the blog listing into multiple pages | Ruby gem | Keeps page loads fast as the post count grows |
 | **Custom feed + sitemap** | Static Site | `feed.xml` and `sitemap.xml` are custom Liquid templates, not plugins — they filter posts by the `status` frontmatter so drafts/unpublished posts never leak | None | `jekyll-feed`/`jekyll-sitemap` can't filter by frontmatter; custom templates can |
 | **Custom CSS** | Static Site | Dark-first theme using CSS custom properties | None (vanilla CSS) | Full control, no build step, tiny footprint |
 | **Vanilla JS modules** | Static Site | Dark mode, search, carousel, voting sidebar, read-aloud, charts | Chart.js (CDN) | No bundler needed; each feature is one self-contained file |
