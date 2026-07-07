@@ -48,27 +48,22 @@
   menu: [main]
   order: 5
 
-- title: "Hire Me"
-  url: "/freelance/"
-  menu: [main, footer]
-  order: 6
-
 - title: "About"
   url: "/about/"
   menu: [main, footer]
-  order: 7
+  order: 6
 
 - title: "Contact"
   url: "/contact/"
   menu: [main, footer]
-  order: 8
+  order: 7
 
 - title: "Disclaimer"
   url: "/disclaimer/"
   menu: [footer]
-  order: 9
+  order: 8
 
 - title: "Privacy Policy"
   url: "/privacy/"
   menu: [footer]
-  order: 10
+  order: 9
