@@ -56,51 +56,6 @@ A reducer drives **flow** through `ctx.events`:
 Alternatively a game can implement `endIf(game, ctx)` returning a `GameResult`
 to finish — run automatically after every action.
 
-When a turn ends, the optional `onTurnBegin(game, ctx)` hook runs for the
-incoming player (`ctx.actor` is the new current player) — the one place for
-start-of-turn upkeep such as resetting per-turn flags or drawing a card.
-
-## Declarative rulesets (`defineGame`)
-
-Hand-writing `validate`/`reducer` switches is the low-level path. The
-recommended way to author a game is the declarative layer in `engine/flow.ts`:
-describe the rules as a map of **moves** and let the compiler synthesize the
-GameDefinition.
-
-```ts
-const game = defineGame<MyState>({
-  id: 'my-game', name: 'My Game', /* …meta… */
-  startingPhase: 'roll',
-  setup(ctx) { /* build initial state */ },
-  moves: {
-    ROLL: {
-      phase: 'roll',                       // phase gate
-      apply: (g, _p, ctx) => ({ ...g, die: Dice.d6(ctx.random) }),
-      nextPhase: 'action',                 // declared flow transition
-    },
-    PLAY: {
-      phase: 'action',
-      validate: (g, p: { cardId: string }, ctx) => /* true | reason */,
-      apply:    (g, p: { cardId: string }, ctx) => /* next state */,
-      enumerate: (g, ctx) => /* candidate payloads */,
-      endsTurn: true,                      // static or computed per move
-      describe: (p, name) => `${name} played a card.`,
-    },
-  },
-  onTurnBegin: (g) => ({ ...g, perTurnFlag: false }),
-  endIf: (g, ctx) => /* GameResult | null */,
-});
-```
-
-For each action the compiled definition checks the actor (current player unless
-the move sets `anyPlayer`), the phase gate, then the move's own `validate`;
-`enumerate` is synthesized from every phase-legal move's candidates filtered
-through validation, so hints and bots can never disagree with the rules; and
-when the game state carries a `zones` property, per-viewer `redact` is derived
-automatically from the zone visibilities (see [Card System](./card-system.md)).
-Games whose rules don't fit the spec can still hand-write a `GameDefinition` —
-the compiler's output is exactly that shape.
-
 ## Determinism
 
 All randomness comes from `ctx.random` (a `RandomSource`) whose state lives in
@@ -120,7 +75,7 @@ validate(game, action, ctx) {
   return Rules.all(
     Rules.requireCurrentPlayer(ctx),
     Rules.requirePhase(ctx, 'play'),
-    Rules.check(canDoIt(game, action), 'You cannot do that yet.'),
+    Rules.require(canDoIt(game, action), 'You cannot do that yet.'),
   );
 }
 ```

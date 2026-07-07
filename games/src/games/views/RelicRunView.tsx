@@ -1,14 +1,8 @@
 /** Relic Run table view: loop track, pawns, dice, relic tokens, action cards. */
-import { Die, LoopTrack, Pawn, TileCard, SEAT_COLORS } from '../../ui/assets';
+import { Die, Pawn, Token, SEAT_COLORS } from '../../ui/assets';
 import { PlayerBadge } from '../../ui/components';
 import { useRollFlash } from '../../ui/hooks';
-import {
-  CARD_LABEL,
-  CARD_TEXT,
-  handOf,
-  type CardKind,
-  type RelicState,
-} from '../relic-run';
+import { CARD_LABEL, CARD_TEXT, type RelicState } from '../relic-run';
 import { registerView } from './registry';
 import type { GameViewProps } from './types';
 
@@ -18,7 +12,7 @@ function RelicRunView({ state, dispatch, viewerId, canAct }: GameViewProps<Relic
   const game = state.game;
   const rolling = useRollFlash(game.die);
   const phase = state.turn.phase;
-  const myHand = handOf(game, viewerId);
+  const myHand = game.hands[viewerId] ?? [];
   const pawnsAt = (index: number) =>
     state.players.filter((p) => game.positions[p.id] === index);
 
@@ -36,23 +30,37 @@ function RelicRunView({ state, dispatch, viewerId, canAct }: GameViewProps<Relic
         ))}
       </div>
 
-      <LoopTrack
-        count={game.track.length}
-        ariaLabel="Relic Run track"
-        cellAriaLabel={(i) => `Cell ${i + 1}: ${game.track[i]}`}
-        renderCell={(i) => (
-          <>
+      {/* Loop track */}
+      <div
+        className="tt-felt"
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+          padding: '1rem',
+          justifyContent: 'center',
+          maxWidth: 560,
+        }}
+        aria-label="Relic Run track"
+      >
+        {game.track.map((kind, i) => (
+          <div
+            key={i}
+            className="tt-cell"
+            style={{ width: 58, height: 58, position: 'relative', flexDirection: 'column' }}
+            aria-label={`Cell ${i + 1}: ${kind}`}
+          >
             <span aria-hidden style={{ fontSize: '1.1rem', opacity: 0.8 }}>
-              {CELL_ICON[game.track[i]]}
+              {CELL_ICON[kind]}
             </span>
             <div style={{ position: 'absolute', bottom: -2, display: 'flex' }}>
               {pawnsAt(i).map((p) => (
                 <Pawn key={p.id} seat={p.seat} size={20} />
               ))}
             </div>
-          </>
-        )}
-      />
+          </div>
+        ))}
+      </div>
 
       {/* Dice / actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -80,15 +88,27 @@ function RelicRunView({ state, dispatch, viewerId, canAct }: GameViewProps<Relic
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {myHand.map((c) => (
-            <TileCard
+            <button
               key={c.id}
-              title={CARD_LABEL[c.kind as CardKind]}
-              text={CARD_TEXT[c.kind as CardKind]}
-              glyph="✦"
-              glyphColor={SEAT_COLORS[2]}
+              className="tt-panel"
               disabled={!(canAct && phase === 'action')}
               onClick={() => dispatch({ type: 'PLAY', payload: { cardId: c.id } })}
-            />
+              style={{
+                width: 130,
+                padding: '0.6rem',
+                textAlign: 'left',
+                cursor: canAct && phase === 'action' ? 'pointer' : 'default',
+                opacity: canAct && phase === 'action' ? 1 : 0.6,
+              }}
+            >
+              <Token glyph="✦" color={SEAT_COLORS[2]} size={20} />
+              <strong style={{ display: 'block', marginTop: '0.3rem' }}>
+                {CARD_LABEL[c.kind]}
+              </strong>
+              <span style={{ fontSize: '0.78rem', color: 'var(--tt-muted)' }}>
+                {CARD_TEXT[c.kind]}
+              </span>
+            </button>
           ))}
         </div>
       </div>

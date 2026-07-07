@@ -1,7 +1,7 @@
 # API Reference
 
 Import everything from the engine barrel: `import { … } from '../engine'`.
-Subsystems are namespaced: `Cards`, `Board`, `Dice`, `Rules`, `Zones`.
+Subsystems are namespaced: `Cards`, `Board`, `Dice`, `Rules`.
 
 ## Match lifecycle
 
@@ -21,37 +21,7 @@ legalActions<G>(def, state): GameAction[]          // via def.enumerate
 redactFor<G>(def, state, viewerId): MatchState<G>  // per-viewer hidden-info redaction (via def.redact)
 ```
 
-## defineGame (declarative rulesets)
-
-```ts
-defineGame<G>(spec: GameSpec<G>): GameDefinition<G>
-
-interface GameSpec<G> {
-  id; name; description; category; minPlayers; maxPlayers;
-  tags?; accent?; emoji?; startingPhase?;
-  setup(ctx: SetupContext): G;
-  moves: Record<string, MoveDef<G>>;       // the ruleset
-  endIf?(game, ctx): GameResult | null | undefined;
-  ai?(game, ctx): GameAction | null;       // omit → first legal action
-  onTurnBegin?(game, ctx): G;              // start-of-turn upkeep
-  redact?(game, viewerId): G;              // omit → automatic zone redaction
-}
-
-interface MoveDef<G, P = unknown> {
-  phase?: string | string[];               // phase gate (omit = any)
-  anyPlayer?: boolean;                     // default: current player only
-  validate?(game, payload: P, ctx): true | string;
-  apply(game, payload: P, ctx): G;
-  enumerate?(game, ctx): P[];              // candidates, re-validated
-  nextPhase?: string | ((game, payload, ctx) => string);
-  endsTurn?: boolean | ((game, payload, ctx) => boolean);
-  describe?(payload: P, playerName: string): string;
-}
-```
-
 ## GameDefinition
-
-The compiled shape (hand-write it only when the spec can't express the rules):
 
 ```ts
 interface GameDefinition<G, A extends GameAction = GameAction> {
@@ -65,9 +35,7 @@ interface GameDefinition<G, A extends GameAction = GameAction> {
   enumerate?(game, ctx): A[];
   endIf?(game, ctx): GameResult | null | undefined;
   ai?(game, ctx): A | null;
-  onTurnBegin?(game, ctx): G;              // runs when the active player changes
   describeAction?(action, state): string;
-  redact?(game, viewerId): G;
 }
 ```
 
@@ -103,10 +71,8 @@ new MatchClient(def, initialState)
 
 ```ts
 serializeMatch(state): string
-deserializeMatch<G>(json): { schema, savedAt, state }
-// throws on corrupt input, newer schema, or older-than-MIN schema
+deserializeMatch<G>(json): { schema, savedAt, state }   // throws on corrupt/newer
 SAVE_SCHEMA_VERSION: number
-MIN_SAVE_SCHEMA_VERSION: number
 ```
 
 ## Registry
@@ -117,25 +83,10 @@ registerGame(def) · getGame(id) · listGames() · hasGame(id)
 
 ## Cards (`Cards.*`)
 
-`standard52()` · `deckFromSpec([{ kind, count, data? }])` · `shuffle(deck, rng)` ·
-`deal(deck, ids, perPlayer)` · `drawN(pile, n)` · `removeCard(zone, id)` ·
-`addCard(zone, card, faceUp?)` · `topOf(pile)` · `flip(card, faceUp)` ·
-`publicView(card)` · `rankValue(rank, aceHigh?)` · `SUITS` · `RANKS` · `SUIT_COLOR`
-
-## Zones (`Zones.*`)
-
-```ts
-makeZone(id, 'public' | 'owner' | 'hidden', cards?, owner?)
-makeZones(...zones): ZoneMap                 // throws on duplicate ids
-zoneId(prefix, playerId)                     // 'hand:p0' convention
-getZone · cardsIn · countIn · topCard · findCard
-setCards · addCards(zones, id, cards, { faceUp? })
-moveCard(zones, from, to, cardId, { faceUp? })   // throws if absent
-moveTop(zones, from, to, n?, { faceUp? })
-draw(zones, from, to, n?, { faceUp?, reshuffleFrom?, keepTop?, random? })
-shuffleZone(zones, id, rng)
-redactZones(zones, viewerId): ZoneMap        // per-viewer view by policy
-```
+`standard52()` · `shuffle(deck, rng)` · `deal(deck, ids, perPlayer)` ·
+`drawN(pile, n)` · `removeCard(zone, id)` · `addCard(zone, card, faceUp?)` ·
+`topOf(pile)` · `flip(card, faceUp)` · `publicView(card)` · `rankValue(rank, aceHigh?)`
+· `SUITS` · `RANKS` · `SUIT_COLOR`
 
 ## Board (`Board.*`)
 
@@ -151,7 +102,7 @@ redactZones(zones, viewerId): ZoneMap        // per-viewer view by policy
 ## Rules (`Rules.*`)
 
 `all(...verdicts)` · `requireCurrentPlayer(ctx)` · `requirePhase(ctx, phase)` ·
-`check(cond, reason)` — each returns `true | string`.
+`require(cond, reason)` — each returns `true | string`.
 
 ## Network (`src/net`)
 

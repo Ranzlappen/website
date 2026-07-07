@@ -1,22 +1,21 @@
 /** Crown Rush table view: stock + discard piles, your hidden hand, opponents. */
 import { useState } from 'react';
-import { Zones } from '../../engine';
-import { CardFan, Pile } from '../../ui/assets';
+import { Cards } from '../../engine';
+import { PlayingCard } from '../../ui/assets';
 import { PlayerBadge } from '../../ui/components';
-import { handOf, handZone, type CrownState, type DrawFrom } from '../crown-rush';
+import type { CrownState } from '../crown-rush';
 import { registerView } from './registry';
 import type { GameViewProps } from './types';
 
 function CrownRushView({ state, dispatch, viewerId, canAct }: GameViewProps<CrownState>) {
   const game = state.game;
   const [selected, setSelected] = useState<string | null>(null);
-  const myHand = handOf(game, viewerId);
-  const stock = Zones.cardsIn(game.zones, 'stock');
-  const discard = Zones.cardsIn(game.zones, 'discard');
+  const myHand = game.hands[viewerId] ?? [];
+  const discardTop = Cards.topOf(game.discard);
   const opponents = state.players.filter((p) => p.id !== viewerId);
 
-  const draw = (from: DrawFrom) => dispatch({ type: 'DRAW', payload: { from } });
-  const discardCard = (cardId: string) => {
+  const draw = (from: 'stock' | 'discard') => dispatch({ type: 'DRAW', payload: { from } });
+  const discard = (cardId: string) => {
     dispatch({ type: 'DISCARD', payload: { cardId } });
     setSelected(null);
   };
@@ -28,12 +27,13 @@ function CrownRushView({ state, dispatch, viewerId, canAct }: GameViewProps<Crow
         {opponents.map((p) => (
           <div key={p.id} style={{ display: 'grid', gap: '0.4rem', justifyItems: 'center' }}>
             <PlayerBadge player={p} active={state.turn.current === p.id} />
-            <CardFan
-              cards={Zones.cardsIn(game.zones, handZone(p.id))}
-              width={52}
-              overlap={34}
-              forceBack
-            />
+            <div style={{ display: 'flex' }}>
+              {(game.hands[p.id] ?? []).map((c, i) => (
+                <div key={c.id} style={{ marginLeft: i ? -34 : 0 }}>
+                  <PlayingCard card={c} width={52} forceBack />
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>
@@ -43,20 +43,26 @@ function CrownRushView({ state, dispatch, viewerId, canAct }: GameViewProps<Crow
         className="tt-felt"
         style={{ display: 'flex', gap: '2.5rem', justifyContent: 'center', padding: '1.5rem' }}
       >
-        <Pile
-          cards={stock}
-          label="Stock"
-          forceBack
-          onClick={canAct && !game.hasDrawn ? () => draw('stock') : undefined}
-          ariaLabel="Draw from stock"
-        />
-        <Pile
-          cards={discard}
-          label="Discard"
-          showCount={false}
-          onClick={canAct && !game.hasDrawn && discard.length > 0 ? () => draw('discard') : undefined}
-          ariaLabel="Draw from discard"
-        />
+        <div style={{ textAlign: 'center', display: 'grid', gap: '0.5rem', justifyItems: 'center' }}>
+          <PlayingCard
+            card={{ id: 'stock', faceUp: false }}
+            onClick={canAct && !game.hasDrawn ? () => draw('stock') : undefined}
+            ariaLabel="Draw from stock"
+          />
+          <span className="tt-chip">Stock · {game.draw.length}</span>
+        </div>
+        <div style={{ textAlign: 'center', display: 'grid', gap: '0.5rem', justifyItems: 'center' }}>
+          {discardTop ? (
+            <PlayingCard
+              card={discardTop}
+              onClick={canAct && !game.hasDrawn ? () => draw('discard') : undefined}
+              ariaLabel="Draw from discard"
+            />
+          ) : (
+            <div className="tt-card" style={{ opacity: 0.3 }} aria-label="Empty discard" />
+          )}
+          <span className="tt-chip">Discard</span>
+        </div>
       </div>
 
       {/* Your hand */}
@@ -64,17 +70,23 @@ function CrownRushView({ state, dispatch, viewerId, canAct }: GameViewProps<Crow
         <div style={{ color: 'var(--tt-muted)' }}>
           {game.hasDrawn ? 'Select a card to discard' : 'Draw a card to start your turn'}
         </div>
-        <CardFan
-          cards={myHand}
-          selectedId={selected}
-          onCardClick={
-            canAct && game.hasDrawn
-              ? (c) => (selected === c.id ? discardCard(c.id) : setSelected(c.id))
-              : undefined
-          }
-        />
+        <div className="tt-hand">
+          {myHand.map((c, i) => (
+            <div key={c.id} style={{ marginLeft: i ? -22 : 0 }}>
+              <PlayingCard
+                card={c}
+                selected={selected === c.id}
+                onClick={
+                  canAct && game.hasDrawn
+                    ? () => (selected === c.id ? discard(c.id) : setSelected(c.id))
+                    : undefined
+                }
+              />
+            </div>
+          ))}
+        </div>
         {canAct && game.hasDrawn && selected && (
-          <button className="tt-btn tt-btn--primary" onClick={() => discardCard(selected)}>
+          <button className="tt-btn tt-btn--primary" onClick={() => discard(selected)}>
             Discard selected
           </button>
         )}

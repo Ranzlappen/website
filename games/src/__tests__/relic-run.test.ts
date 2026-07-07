@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { applyAction, createMatch, Zones, type MatchState } from '../engine';
-import { handZone, relicRun, type RelicState } from '../games/relic-run';
+import { applyAction, createMatch, type MatchState } from '../engine';
+import { relicRun, type RelicState } from '../games/relic-run';
 
 const players = [
   { id: 'p0', name: 'Ann' },
@@ -43,9 +43,7 @@ describe('Relic Run', () => {
       game: {
         ...base.game,
         relics: { p0: 3, p1: 0 },
-        zones: Zones.setCards(base.game.zones, handZone('p0'), [
-          { id: 'w1', kind: 'ward', faceUp: true },
-        ]),
+        hands: { ...base.game.hands, p0: [{ id: 'w1', kind: 'ward' }] },
       },
     };
     const r = applyAction(relicRun, crafted, { type: 'PLAY', payload: { cardId: 'w1' } });

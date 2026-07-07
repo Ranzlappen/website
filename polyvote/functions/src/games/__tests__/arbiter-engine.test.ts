@@ -10,8 +10,7 @@ import {
 import "../defs/crown-rush";
 import "../defs/lantern-hunt";
 import "../defs/relic-run";
-import { handOf, type CrownState } from "../defs/crown-rush";
-import { Zones } from "../engine";
+import type { CrownState } from "../defs/crown-rush";
 
 const players = [
   { id: "p0", name: "Ann" },
@@ -48,10 +47,7 @@ describe("server engine copy", () => {
     const def = getGame("crown-rush")!;
     const m: MatchState<CrownState> = createMatch(def, { seed: "s", players });
     const view = redactFor(def, m, "p0") as MatchState<CrownState>;
-    expect(handOf(view.game, "p0")).toEqual(handOf(m.game, "p0"));
-    expect(handOf(view.game, "p1").every((c) => c.rank === undefined)).toBe(true);
-    expect(
-      Zones.cardsIn(view.game.zones, "stock").every((c) => c.rank === undefined),
-    ).toBe(true);
+    expect(view.game.hands.p0).toEqual(m.game.hands.p0);
+    expect(view.game.hands.p1.every((c) => c.rank === undefined)).toBe(true);
   });
 });
