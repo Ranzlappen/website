@@ -59,7 +59,7 @@ DATE: 2026-04-03
   --header-height: 3.75rem;
   /* Vertical space the fixed header reserves below the viewport top. Collapses
      to 0 when the header is unpinned (data-header-sticky="off") so sticky page
-     chrome (e.g. the reference-table controls) re-anchors to the very top. */
+     chrome (e.g. the reference-table wrapper) re-anchors to the very top. */
   --header-offset: var(--header-height);
   /* Height the read-aloud sticky toolbar occupies below the header while
      reading; 0 when hidden. Published in px by read-aloud.js so sticky h2's
