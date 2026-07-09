@@ -286,6 +286,21 @@
 }
 .cmd-widget__regex-caps-list dd { margin: 0; color: var(--c-text); }
 
+/* ---- cron field breakdown ---- */
+.cmd-widget__cron-fields {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.2rem 0.7rem;
+  margin: 0 0 var(--space-sm);
+  font-size: 0.82rem;
+}
+.cmd-widget__cron-fields dt {
+  font-family: var(--f-mono);
+  color: var(--c-accent);
+  font-weight: 600;
+}
+.cmd-widget__cron-fields dd { margin: 0; color: var(--c-text); }
+
 /* ---- Composed-output block ---- */
 .cmd-widget__output { margin-top: var(--space-md); }
 .cmd-widget__output-header {

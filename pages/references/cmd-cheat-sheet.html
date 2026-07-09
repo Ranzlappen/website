@@ -120,7 +120,7 @@ The abbreviations / glossary system is shared site-wide:
     <section class="cmd-tools" aria-labelledby="cmd-tools-heading">
       <h2 id="cmd-tools-heading" class="cmd-tools__heading">Interactive Tools</h2>
       <p class="cmd-tools__intro">
-        Compose tricky invocations interactively. All four widgets run
+        Compose tricky invocations interactively. All five widgets run
         locally in your browser — nothing leaves the page. Copy the
         composed command from the output block once you're happy.
       </p>
@@ -136,6 +136,9 @@ The abbreviations / glossary system is shared site-wide:
         </section>
         <section class="cmd-widget" id="widget-curl" data-cmd-widget="curl" aria-labelledby="widget-curl-heading">
           <noscript>curl composer requires JavaScript.</noscript>
+        </section>
+        <section class="cmd-widget" id="widget-cron" data-cmd-widget="cron" aria-labelledby="widget-cron-heading">
+          <noscript>cronjob time calculator requires JavaScript.</noscript>
         </section>
       </div>
     </section>
@@ -403,5 +406,6 @@ The abbreviations / glossary system is shared site-wide:
 <script src="{{ '/assets/js/cmd-widget-find.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/cmd-widget-regex.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/cmd-widget-curl.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/cmd-widget-cron.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/cmd-widget-bundle.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/resize-handle.js' | relative_url }}" defer></script>
