@@ -18,7 +18,7 @@
     "chart.js": "^4.4.7",
     "date-fns": "^4.4.0",
     "firebase": "^12.17.1",
-    "framer-motion": "^12.43.0",
+    "framer-motion": "^13.0.0",
     "lucide-react": "^1.30.0",
     "react": "^19.2.8",
     "react-chartjs-2": "^5.2.0",
