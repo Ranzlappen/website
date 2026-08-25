@@ -2517,6 +2517,56 @@ html[data-header-sticky="off"] .theme-toggle {
   padding: var(--space-lg);
 }
 
+/* Refresh App Code action */
+.cookie-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--c-border);
+}
+.cookie-refresh-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background: var(--c-accent-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--border-radius);
+  color: var(--c-text);
+  font-family: var(--f-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: var(--space-xs) var(--space-md);
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+}
+.cookie-refresh-btn:hover,
+.cookie-refresh-btn:focus-visible {
+  color: var(--c-accent);
+  border-color: var(--c-accent);
+}
+.cookie-refresh-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.cookie-refresh-feedback {
+  font-size: 0.8rem;
+  color: var(--c-accent);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+.cookie-refresh-feedback.is-visible { opacity: 1; }
+.cookie-refresh-feedback.is-error { color: var(--c-danger, #e05252); }
+.cookie-refresh-note {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--c-text-faint);
+}
+
 /* Cookie Card */
 .cookie-card {
   background: var(--c-bg-alt);
