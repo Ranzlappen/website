@@ -949,6 +949,65 @@ DATE: 2026-04-02
     }
   });
 
+  // -- Refresh App Code --
+  // Unregisters the service worker and purges Cache Storage so the next load
+  // pulls fresh HTML / CSS / JS from the network. localStorage / sessionStorage
+  // (theme, consent, widget state, …) are left untouched.
+  var cookieRefresh = document.getElementById('cookie-refresh');
+  var cookieRefreshFeedback = document.getElementById('cookie-refresh-feedback');
+
+  function setRefreshFeedback(msg, isError) {
+    if (!cookieRefreshFeedback) return;
+    cookieRefreshFeedback.textContent = msg;
+    cookieRefreshFeedback.classList.toggle('is-error', !!isError);
+    cookieRefreshFeedback.classList.add('is-visible');
+  }
+
+  function refreshAppCode() {
+    var confirmed = window.confirm(
+      'Reload the site with fresh code?\n\n' +
+      'Cached HTML / CSS / JS and the offline service worker are cleared. ' +
+      'Your settings and stored data are kept.'
+    );
+    if (!confirmed) return;
+
+    if (cookieRefresh) {
+      cookieRefresh.disabled = true;
+      cookieRefresh.textContent = 'Clearing…';
+    }
+
+    var jobs = [];
+    if ('serviceWorker' in navigator) {
+      jobs.push(
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          return Promise.all(regs.map(function (r) { return r.unregister(); }));
+        })
+      );
+    }
+    if ('caches' in window) {
+      jobs.push(
+        caches.keys().then(function (keys) {
+          return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+        })
+      );
+    }
+
+    Promise.all(jobs).then(function () {
+      setRefreshFeedback('Reloading…', false);
+      setTimeout(function () { location.reload(); }, 200);
+    })['catch'](function (err) {
+      if (cookieRefresh) {
+        cookieRefresh.disabled = false;
+        cookieRefresh.textContent = '🔄 Refresh App Code';
+      }
+      setRefreshFeedback('Failed: ' + (err && err.message ? err.message : String(err)), true);
+    });
+  }
+
+  if (cookieRefresh) {
+    cookieRefresh.addEventListener('click', refreshAppCode);
+  }
+
   // -------------------------------------------------------
   // Status Banner (dismiss + sessionStorage)
   // -------------------------------------------------------
