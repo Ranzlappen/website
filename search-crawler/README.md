@@ -23,7 +23,7 @@ third-party loads when a visitor searches.
 
 | group | source |
 |---|---|
-| `apps` | `*.ranzlappen.com` subdomains (ticked, tools, twitch-mood-radar) |
+| `apps` | `*.ranzlappen.com` subdomains (ticked, tools, twitch-mood-radar, old) |
 | `gh-pages` | `ranzlappen.github.io/*`, `*.ranzlappen.github.io` |
 | `repos` | `github.com/Ranzlappen/*` public repos (+ README, topics) |
 | `gists` | `gist.github.com/Ranzlappen/*` |
@@ -111,7 +111,8 @@ there too.
   A plain server-side fetch retrieves the static HTML shell, so indexing is
   shallow (title/meta + skeleton text), not the JS-rendered content. A
   future upgrade could add Playwright/Puppeteer headless rendering for full
-  SPA text.
+  SPA text. (`old.ranzlappen.com` is not affected — it is server-rendered
+  static HTML, so its pages index in full.)
 - **Snapshot, not live.** Results reflect the last crawl only; refresh is
   manual (run the workflow).
 - **Unreachable seeds** (e.g. a 404 `ranzlappen.github.io` root) are skipped
