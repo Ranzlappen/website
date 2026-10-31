@@ -4,8 +4,8 @@
  * Two tiers per event:
  *   - `wvwEvents/{id}` (server-only canonical, projected into the public
  *     `wvwPublic/events_{region}` index): guild tag/name, team, time, type,
- *     languages. Never the map, the voice link or who the commander is.
- *   - `wvwEventDetails/{id}` (server-only): map, goals, expected size, voice,
+ *     map, languages. Never the voice link or who the commander is.
+ *   - `wvwEventDetails/{id}` (server-only): goals, expected size, voice,
  *     builds, notes — served by `getEventDetails` ONLY to verified members of
  *     the same team (plus the commander and mods).
  *
@@ -13,9 +13,10 @@
  * invite codes. Raids posted by the guild's leader (`guild_leader`) carry the
  * ✓ official badge; everyone else's show without it.
  *
- * The private tier is also projected per team into `wvwTeamIndex/{teamId}`
- * (readable only by verified members of that team) so the calendar can show
- * and filter by map third — see indexes.ts.
+ * The private tier (and every `audience: "team"` raid) is also projected per
+ * team into `wvwTeamIndex/{teamId}` (readable only by verified members of
+ * that team) — see indexes.ts. Raids seeded by the CSV import (import.ts) may
+ * be edited by any verified member of their guild, who then adopts them.
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { COL, db } from './config';
@@ -45,7 +46,6 @@ import { asInt, audit, callableOpts, cleanList, cleanText, cleanUrl, effectiveRo
 export interface DetailsDoc {
   eventId: string;
   commanderUid: string;
-  map: EventInput['map'];
   goals: string;
   expectedSize: number | null;
   voice: EventInput['voice'];
@@ -57,7 +57,9 @@ const DAY_MS = 86_400_000;
 
 export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
   const d = (raw ?? {}) as Record<string, unknown>;
-  if (typeof d.guildId !== 'string') throw new HttpsError('invalid-argument', 'Pick a guild.');
+  // null / "" = independent raid (no guild attached).
+  const guildId = d.guildId == null || d.guildId === '' ? null : d.guildId;
+  if (guildId !== null && typeof guildId !== 'string') throw new HttpsError('invalid-argument', 'Pick a guild (or none).');
   const title = cleanText(d.title, LIMITS.titleMax, 'Title', true);
   if (!isOneOf(EVENT_TYPES, d.type)) throw new HttpsError('invalid-argument', 'Pick a raid type.');
   if (!isOneOf(OPENNESS, d.openness)) throw new HttpsError('invalid-argument', 'Pick who can join.');
@@ -94,7 +96,7 @@ export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
   }
 
   return {
-    guildId: d.guildId,
+    guildId,
     title,
     type: d.type,
     audience,
@@ -111,8 +113,8 @@ export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
 }
 
 /** ✓ official = posted by the guild's in-game leader (GW2 API `guild_leader`). */
-export function isOfficial(member: Pick<MemberDoc, 'guilds'>, guildId: string): boolean {
-  return member.guilds.some((g) => g.id === guildId && g.leader);
+export function isOfficial(member: Pick<MemberDoc, 'guilds'>, guildId: string | null): boolean {
+  return !!guildId && member.guilds.some((g) => g.id === guildId && g.leader);
 }
 
 function assertCanPostFor(member: MemberDoc, guildId: string) {
@@ -126,8 +128,10 @@ async function guildSuspended(guildId: string): Promise<boolean> {
 }
 
 export async function createEventCore(member: MemberDoc, input: EventInput): Promise<PublicEvent> {
-  assertCanPostFor(member, input.guildId);
-  if (await guildSuspended(input.guildId)) throw new HttpsError('permission-denied', 'This guild is suspended.');
+  if (input.guildId) {
+    assertCanPostFor(member, input.guildId);
+    if (await guildSuspended(input.guildId)) throw new HttpsError('permission-denied', 'This guild is suspended.');
+  }
   const active = await db()
     .collection(COL.events)
     .where('commanderUid', '==', member.uid)
@@ -136,19 +140,20 @@ export async function createEventCore(member: MemberDoc, input: EventInput): Pro
   if (active.docs.filter((d) => d.get('status') !== 'cancelled').length >= LIMITS.activeEventsPerCommander) {
     throw new HttpsError('resource-exhausted', `You already have ${LIMITS.activeEventsPerCommander} active raids.`);
   }
-  const guild = member.guilds.find((g) => g.id === input.guildId)!;
+  const guild = input.guildId ? member.guilds.find((g) => g.id === input.guildId)! : null;
   const ref = db().collection(COL.events).doc();
   const now = Date.now();
   const e: EventDoc = {
     id: ref.id,
     guildId: input.guildId,
-    guildTag: guild.tag,
-    guildName: guild.name,
+    guildTag: guild?.tag ?? '',
+    guildName: guild?.name ?? '',
     official: isOfficial(member, input.guildId),
     region: member.region ?? regionOfTeam(member.teamId!)!,
     teamId: member.teamId!,
     title: input.title,
     type: input.type,
+    map: input.map,
     audience: input.audience,
     openness: input.openness,
     languages: input.languages,
@@ -164,7 +169,6 @@ export async function createEventCore(member: MemberDoc, input: EventInput): Pro
   const details: DetailsDoc = {
     eventId: ref.id,
     commanderUid: member.uid,
-    map: input.map,
     goals: input.goals,
     expectedSize: input.expectedSize,
     voice: input.voice,
@@ -179,6 +183,11 @@ export async function createEventCore(member: MemberDoc, input: EventInput): Pro
   return toPublicEvent(e);
 }
 
+/** A seeded (imported) raid can be taken over by any verified member of its guild. */
+function canAdopt(member: MemberDoc, e: Pick<EventDoc, 'seeded' | 'guildId'>): boolean {
+  return e.seeded === true && !!e.guildId && member.verified && !member.stale && member.guilds.some((g) => g.id === e.guildId);
+}
+
 async function loadOwned(member: MemberDoc, eventId: string): Promise<{ e: EventDoc; details: DetailsDoc }> {
   if (typeof eventId !== 'string' || !eventId) throw new HttpsError('invalid-argument', 'Missing event.');
   const [es, ds] = await Promise.all([
@@ -188,19 +197,20 @@ async function loadOwned(member: MemberDoc, eventId: string): Promise<{ e: Event
   if (!es.exists) throw new HttpsError('not-found', 'Raid not found.');
   const e = es.data() as EventDoc;
   const isMod = effectiveRole(member) !== 'user';
-  if (e.commanderUid !== member.uid && !isMod) throw new HttpsError('permission-denied', 'Not your raid.');
+  if (e.commanderUid !== member.uid && !isMod && !canAdopt(member, e)) throw new HttpsError('permission-denied', 'Not your raid.');
   return { e, details: (ds.data() ?? { eventId, commanderUid: e.commanderUid }) as DetailsDoc };
 }
 
 export async function updateEventCore(member: MemberDoc, eventId: string, input: EventInput): Promise<PublicEvent> {
   const { e, details } = await loadOwned(member, eventId);
   if (e.archived) throw new HttpsError('failed-precondition', 'This raid has ended.');
-  if (input.guildId !== e.guildId) throw new HttpsError('invalid-argument', 'The guild of a raid cannot change.');
+  if ((input.guildId ?? null) !== (e.guildId ?? null)) throw new HttpsError('invalid-argument', 'The guild of a raid cannot change.');
   const now = Date.now();
   const next: EventDoc = {
     ...e,
     title: input.title,
     type: input.type,
+    map: input.map,
     audience: input.audience,
     openness: input.openness,
     languages: input.languages,
@@ -208,9 +218,22 @@ export async function updateEventCore(member: MemberDoc, eventId: string, input:
     status: e.status === 'cancelled' ? 'scheduled' : e.status,
     updatedAt: now,
   };
+  const adopt = canAdopt(member, e) && e.commanderUid !== member.uid && member.teamId != null;
+  if (adopt) {
+    // The guild member who edits a seeded raid becomes its commander.
+    Object.assign(next, {
+      commanderUid: member.uid,
+      seeded: false,
+      importKey: null,
+      official: isOfficial(member, e.guildId),
+      teamId: member.teamId!,
+      region: regionOfTeam(member.teamId!)!,
+      status: e.status === 'suspended' ? 'scheduled' : next.status,
+    });
+  }
   const nextDetails: DetailsDoc = {
     ...details,
-    map: input.map,
+    ...(adopt ? { commanderUid: member.uid } : {}),
     goals: input.goals,
     expectedSize: input.expectedSize,
     voice: input.voice,
@@ -222,6 +245,7 @@ export async function updateEventCore(member: MemberDoc, eventId: string, input:
   batch.set(db().collection(COL.eventDetails).doc(e.id), nextDetails);
   await batch.commit();
   await rebuildEventIndex(next.region);
+  if (next.region !== e.region) await rebuildEventIndex(e.region);
   return toPublicEvent(next);
 }
 
@@ -269,7 +293,9 @@ export async function retargetCommanderEvents(uid: string): Promise<void> {
   for (const d of events.docs) {
     const e = d.data() as EventDoc;
     regions.add(e.region);
-    const stillMember = ok && m!.guilds.some((g) => g.id === e.guildId);
+    // Independent raids only need a verified commander; guild raids also the membership.
+    const stillMember = ok && (!e.guildId || m!.guilds.some((g) => g.id === e.guildId));
+
     const patch: Partial<EventDoc> = { updatedAt: now };
     if (stillMember) {
       patch.teamId = m!.teamId!;
@@ -322,12 +348,11 @@ export async function detailsFor(member: MemberDoc, eventIds: string[]): Promise
     if (!es.exists || !ds.exists) continue;
     const e = es.data() as EventDoc;
     const d = ds.data() as DetailsDoc;
-    const mine = e.commanderUid === member.uid;
+    const mine = e.commanderUid === member.uid || canAdopt(member, e);
     const sameTeam = member.verified && !member.stale && member.teamId === e.teamId;
     if (!mine && !sameTeam && !isMod) continue;
     out.push({
       eventId: id,
-      map: d.map,
       goals: d.goals,
       expectedSize: d.expectedSize,
       voice: d.voice,

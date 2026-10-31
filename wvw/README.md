@@ -18,7 +18,7 @@ polyvote/firestore.rules     `wvw*` rules (public index docs, own member doc, ow
 | Phase | What | Where |
 |---|---|---|
 | **0 — public data** | Matchups, relink/lockout/reset countdowns, guild directory filled from public objective claims, weekly activity per guild, per-map K/D samples. Works with zero sign-ups. | `poller.ts` (5 min), `maintenance.ts` (10 min), `indexes.ts` |
-| **1 — verified calendar** | Sign-in **with a GW2 API key** (= verification), raids for any guild you're in (✓ official when the guild leader posts), one-off/weekly with DST-safe time zones, **map-third picker** + Jumper, reset-aligned **Day / Week / Link / Month** calendar, two visibility tiers, reports + moderation, iCal feeds. | `members.ts`, `guilds.ts`, `events.ts`, `reports.ts`, `ical.ts`, `admin.ts` |
+| **1 — verified calendar** | Sign-in **with a GW2 API key** (= verification), raids for any guild you're in (✓ official when the guild leader posts), one-off/weekly with DST-safe time zones, **map picker** (4 maps + Jumper), the **matchup map** view + reset-aligned **Day / Week / Link / Month** views, two visibility tiers, reports + moderation, iCal feeds (with optional reminders), independent raids (no guild), moderation tools (raids, members & bans), admin **CSV raid import**, UI in English, German, French, Spanish and Italian. | `members.ts`, `guilds.ts`, `events.ts`, `reports.ts`, `ical.ts`, `admin.ts`, `adminTools.ts`, `import.ts` |
 | **2 — Discord** | **Deferred.** The first implementation (HTTP interactions bot, `/raid` commands, hub provisioning, role sync, voice headcounts) lives in git history (commit `3e01f9e`) and can be restored when wanted; `MemberDoc.discordId` is reserved for account linking. | — |
 | **3 — metrics** | Runs (go live → check-ins → end), squad size from dps.report logs › check-ins › reported, team K/D on the map during the window, objectives claimed, guild 30-day stats, attendee-only multi-axis ratings (≥5 raters, each rater counts once). | `runs.ts`, `metrics.ts` |
 
@@ -30,24 +30,34 @@ key made for another tool can't be replayed) with the `account`, `guilds` and `w
 Firebase custom token for **`wvw-gw2-<GW2 account id>`** — the GW2 account *is* the identity (no duplicates, no transfers).
 
 **Who can post**: any verified member of a guild (per the GW2 API) can post raids for it — no invite codes, no commander-tag requirement.
+Any verified member can also post an **independent raid** (no guild attached, `guildId: null`): it is never ✓ official, shows as
+"[—] Independent raid" (still no account name), has no guild page/feed and doesn't count towards guild stats. New raids default to
+**one-off**; "Weekly" pre-selects the date's weekday.
 Raids posted by the guild's in-game leader carry **✓ official**; everyone else's show without the badge. The leader can also edit the
 guild's public profile.
 
-**Who can see a raid** (chosen per raid): **Everyone** — listed publicly (guild, team, time, type; map third / voice / goals stay
-team-only), or **Only my team** — the whole raid is hidden from other teams: it never enters the public index or the iCal feeds, only
-`wvwTeamIndex/{teamId}`, and its runs stay out of the public live list.
+**Who can see a raid** (chosen per raid): **Everyone** — listed publicly (guild, team, time, type, **map**; voice / goals / notes stay
+team-only), or **Only my team** — the whole raid is hidden from other teams: it never enters the public index, the matchup map of other
+teams or the iCal feeds, only `wvwTeamIndex/{teamId}`, and its runs stay out of the public live list.
 
 **Admin access key**: typing `WVW_SECRETS.adminKey` into the sign-in field (instead of an API key) opens an admin session (uid
 `wvw-admin`, no GW2 account) that sees every team's raids incl. team-only ones and their private details, plus the moderation tools.
 The key lives only in the secret, never in the repo; wrong attempts are rate-limited (10 per hour site-wide, `adminLogin.ts`). Pick a
 long random value — a short or common one is guessable.
 
-## Maps: thirds + Jumper
+## Maps, thirds + the matchup map
 
-Every raid has a location: one **third of one map** (`ebg:red`, `blue:green`, … — 12 options) or **`jumper`** (cross-map play). Each map is
-split into three regions, one per team colour, by nearest team spawn (a 3-site Voronoi of the spawn `label_coord`s from
-`/v2/wvw/objectives`). The picker (`components/MapPicker.tsx`) is a dropdown of the current matchup's maps — each option shows its own map,
-borderlands labelled with the team whose home they are — and the chosen map is shown large with its three clickable thirds.
+Every raid has a **map**: `ebg`, `red` / `blue` / `green` (the borderlands, by home colour — Red = Desert, Blue/Green = Alpine) or
+**`jumper`** (cross-map play). The picker (`components/MapPicker.tsx`) is a dropdown of those five, each option showing its own map,
+borderlands labelled with the team whose home they are this week. Raid leaders do **not** pick a third.
+
+**Thirds are a display device.** Each map is split into three regions, one per team colour, by nearest team spawn (a 3-site Voronoi of the
+spawn `label_coord`s from `/v2/wvw/objectives`). On the **matchup map** — the calendar's default view (`components/MatchupMap.tsx`, pure
+placement logic in `lib/placement.ts`) — every raid of the matchup's three teams sits in the third of the colour of the team that
+**organises** it: a red-team raid on EBG shows in EBG's red third, a green-team raid on the Red Borderlands in that map's green third.
+Jumper raids go to a three-column Jumper section. Window: *Now + 3h* / *Today* / *Until reset* (always clipped to the current matchup,
+since colours change at reset); any matchup of the region can be picked. Visibility is the calendar's: all public raids, plus your own
+team's team-only raids (admin: all).
 
 Map images are **curated** from `tiles.guildwars2.com` and committed (the browser never contacts ArenaNet):
 
@@ -60,23 +70,23 @@ uses 7 for tile math.
 
 ## Calendar views
 
-All views read the same public event index; times render in the viewer's chosen time zone.
+All views read the same public event index (+ the viewer's own team index); times render in the viewer's chosen time zone.
 
+- **Map** (default) — the matchup map, see above.
 - **Week** — one matchup week from weekly reset to weekly reset (EU Fri 18:00 UTC, NA Sat 02:00 UTC — fixed in UTC). Columns are local
   calendar days, so the reset day appears twice: the week opens "from reset" and closes "until reset".
 - **Day** — one local day; on reset day it **splits** into *before reset (old matchup)* / *after reset (new matchup)*.
 - **Link** — every reset week from the start of the current link (last observed relink, `wvwPublic/relink`) to the next relink.
 - **Month** — the reset weeks that start in the month.
-- **Filter by map** — the MapPicker in filter mode (all / whole map / third / jumper). It applies to the viewer's **own team's** raids only,
-  using `wvwTeamIndex/{teamId}` — other teams' locations stay private.
+- **Filter by map** — the MapPicker in filter mode (all maps / one map / Jumper), for every visible raid (the map is public).
 
 Pure date math lives in `src/lib/calendar.ts` (tested in `src/__tests__/calendar.test.ts`).
 
 ## Privacy & visibility model
 
 - **No account names in public.** Public surfaces identify raids by guild tag/name only. GW2 account names live on the member's own doc
-  (owner-read) and server-only docs; admins see moderators' names in the admin view.
-- **Tiers are enforced by which docs exist**: the browser reads `wvwPublic/*` index docs (no map/voice/goals), `wvwGuildDir/*`, `wvwRuns/*`
+  (owner-read) and server-only docs; only admins see account names, in Moderation → Members / Raids.
+- **Tiers are enforced by which docs exist**: the browser reads `wvwPublic/*` index docs (no voice/goals/notes), `wvwGuildDir/*`, `wvwRuns/*`
   (no identities, no map), its own `wvwMembers/{uid}` and **its own team's** `wvwTeamIndex/{teamId}` (rules: verified, active, non-stale
   member of that team — or the admin session, which may read every team's index). Everything else is server-only.
 - **API keys**: encrypted at rest, used only to re-check the team after relinks; "Forget my key" / "Delete my data" on the Account page.
@@ -88,10 +98,87 @@ Pure date math lives in `src/lib/calendar.ts` (tested in `src/__tests__/calendar
 
 ## Relinks
 
-The maintenance job notices `/v2/wvw/timers/teamAssignment` advancing, waits 30 min, then re-verifies every member of that region with their
-stored key (40 per run): new team → raids retargeted. Members whose key is gone become `stale` (raids "on hold") until they sign in again.
-It also publishes `wvwPublic/relink` (last observed relink + next) for the Link view. Team names aren't in the API — they're in
-`shared/teams.ts` (Elite Insights shard list) and overridable at runtime in Moderation → Settings.
+The maintenance job (every 10 min) notices `/v2/wvw/timers/teamAssignment` advancing, waits 30 min for the API to settle, then re-verifies
+every member of that region with their stored key — 120 per run, 4 in parallel, so ~700 members/hour — and keeps sweeping for 3 days:
+new team → `wvwMembers.teamId` changes, which moves everything team-based (team-index access, "my team" filters, posting, check-ins) and
+**retargets their raids** to the new team (`retargetCommanderEvents`). Members whose key is gone become `stale` (raids "on hold") until
+they sign in again. **"Re-check my team now"** on the Account page (`wvw-refreshMe`) does the same for one member instantly. Raids seeded by
+the CSV import have no member to re-check — they follow their guild's team in the public guild→team map instead
+(`retargetSeededEvents`, `/v2/wvw/guilds/{region}`). Roles (`user`/`mod`/`admin`) don't depend on the team, so they're unchanged; Discord
+role sync is deferred with the rest of the Discord integration. It also publishes `wvwPublic/relink` (last observed relink + next) for the
+Link view. Team names aren't in the API — they're in `shared/teams.ts` (Elite Insights shard list) and overridable at runtime in
+Moderation → Settings.
+
+## Calendar feeds (Subscribe)
+
+**Subscribe** opens a dialog with one-click links for Google Calendar, Apple/Outlook (`webcal:`) and Outlook.com plus the raw URL of the
+`wvw-ical` feed (per region / team / type, or per guild). It is a calendar subscription, not a push notification: the visitor's calendar
+app shows the raids and does the reminding; the website sends nothing. `&alarm=N` (picked in the dialog) embeds a reminder N minutes before
+— Apple Calendar / Thunderbird / Outlook desktop honour it; Google ignores feed reminders (set "Event notifications" on the subscribed
+calendar instead) and refreshes subscriptions only every few hours. The feed holds public raids only (guild, time, map, type).
+
+## Seeding raids (CSV import)
+
+Moderation → **Import raids** (admin) fills the calendar from schedules guilds already publish — community commander spreadsheets, guild
+Discord / forum / Reddit posts, a sheet you keep yourself. Pipeline: keep a Google Sheet with the columns below → *File → Download → CSV*
+(or just copy the cells; tab/semicolon-separated works) → paste → **Preview** (server resolves each guild, its team and validates every
+row) → **Import**. Re-importing the same sheet **updates** the raids it created (matched by guild + title + days + time) instead of
+duplicating, so the sheet can stay the source of truth. Template: the *Template* button, or `IMPORT_TEMPLATE` in `shared/csv.ts`.
+
+| Column | Meaning |
+|---|---|
+| `guild` | exact guild name (case-sensitive, as in-game) or guild GUID — required |
+| `title` | default: the type's label |
+| `type` | `zerg` `guild` `havoc` `roaming` `ppt` `defense` `training` `gvg` (default `zerg`) |
+| `map` | `ebg` `red` `blue` `green` `jumper` (aliases: `desert`, `eb`, …) |
+| `days` | weekly: `mon,wed` / `Mo,Mi` — empty for a one-off |
+| `date` | one-off date, or first date of a weekly series (`YYYY-MM-DD` or `DD.MM.YYYY`) |
+| `time` | `HH:MM` (also `8:30 pm`) in `timezone` — required |
+| `timezone` | IANA zone (default `UTC`) · `duration` minutes or `2h`/`1h30` (default 120) |
+| `languages` | `en,de,…` · `audience` `everyone`/`team` · `openness` `open`/`guild`/`invite` |
+| `team` | optional team id; otherwise the guild's own in-game WvW team (`/v2/wvw/guilds/{region}`) |
+
+Imported raids are marked **"listed by moderators"** (never ✓ official), are owned by the admin session, follow their guild's team after
+relinks, and **any verified member of the guild can edit one — they then become its commander**. Phase-0 data (matchups, guild directory,
+activity) needs no seeding at all.
+
+## Languages
+
+The UI is **English, German, French, Spanish and Italian** (language picker in the header, also on the Account page; default from the
+browser, saved in `localStorage` `wvw.lang`). Tiny dependency-free layer in `src/i18n/`:
+
+- The English text is the key: `t('Raid calendar')`; constants that are translated later are marked with `msg('…')`.
+  Dictionaries: `de.ts`, `fr.ts`, `es.ts`, `it.ts` (key → translation); `{name}` placeholders are interpolated; a missing key falls
+  back to English.
+- Long prose (About, Privacy) is translated paragraph by paragraph with a tiny inline markup — `**bold**`, `` `code` ``,
+  `[label](/route)` — rendered by `lib/rich.tsx` (no `dangerouslySetInnerHTML`).
+- Dates, numbers and relative times ("in 3h", "il y a 12min") follow the language (`lib/format.ts` → `setFormatLocale`, `Intl`).
+- `npm test` (`src/__tests__/i18n.test.ts`) fails when any string passed to `t()`/`msg()` lacks a translation in **any** dictionary,
+  when a translation drops a `{placeholder}` or link target, or when a dictionary has stale keys. `node scripts/i18n-keys.mjs` lists all
+  keys. Server error messages stay English.
+- **Add a language**: copy `fr.ts` to `<code>.ts`, translate the values, register it in `translate.ts` (`DICTS`) and `lang.ts`
+  (`UI_LANGS`). Team colours (`red`/`blue`/`green`) are only used inside sentences after a noun — translate them as the matching adjective.
+
+## Moderation & admin tools
+
+**Moderation** (mods and admins; account names only ever appear here, for admins):
+
+| Tab | Who | What |
+|---|---|---|
+| Reports | mods | dismiss, hide raid, suspend raid lead, suspend guild page, revert |
+| Raids | mods: hide / unhide / cancel · admins: + **delete** (single or bulk) and see the poster's account | every active raid incl. hidden, team-only, imported and independent ones, with search + filters |
+| Members | admins | find by GW2 account name, newest / banned / moderators, **ban / unban**, make / remove moderator |
+| Import raids | admins | CSV seed pipeline (above) |
+| Settings | admins | site URL, community Discord link, banner, team-name overrides |
+
+Guild pages additionally show an admin **Suspend / Restore guild page** button (hides all the guild's raids).
+
+**Bans (blacklist)** live in server-only `wvwBans`, keyed by GW2 account id (`id:<id>`, survives name changes and "Delete my data") and
+by lower-cased account name (`name:<name>`, so an account that never signed in can be banned up front). `wvw-signIn` refuses both. A ban
+also suspends the member (every callable refuses), revokes their Firebase sessions, deletes the stored API key and hides their raids
+(restored on unban) or deletes them. Admins (`WVW_SECRETS.adminAccounts`) and your own account can't be banned. Callables:
+`modListEvents`, `modSetEventHidden`, `adminDeleteEvents`, `adminSetGuildSuspended`, `adminListMembers`, `adminBanMember`,
+`adminUnbanMember` (`adminTools.ts`).
 
 ## One-time setup (admin) — all in the browser, no command line
 
@@ -130,14 +217,35 @@ npm run build        # WVW_BASE=/ npm run build → for a future custom-domain r
 
 Server code: `cd polyvote/functions && npm test` (unit tests in `src/wvw/__tests__/`).
 
-**Shared files**: `wvw/src/shared/{teams,constants,time,types}.ts` ⇄ `polyvote/functions/src/wvw/shared/*` must stay identical apart from
+**Shared files**: `wvw/src/shared/{teams,constants,time,types,csv}.ts` ⇄ `polyvote/functions/src/wvw/shared/*` must stay identical apart from
 the "MIRRORED FILE" header line — `npm test` fails otherwise. Edit one, copy to the other.
 
 **Adding an option** (event type, language, playstyle, report reason): add it to `shared/constants.ts` in both copies — server validation
 and every UI picker follow.
 
-## Custom domain later
+## Custom domain
 
-The build is base-agnostic (`WVW_BASE`, router basename from `import.meta.env.BASE_URL`). GitHub Pages serves one custom domain per
-repository, so a separate domain means a second Pages site (e.g. a tiny repo whose workflow builds `wvw/` with `WVW_BASE=/`) — then update
-`public/manifest.webmanifest` and Settings → Site URL.
+The build is base-agnostic (`WVW_BASE`, router basename from `import.meta.env.BASE_URL`, relative manifest URLs). GitHub Pages serves
+**one custom domain per repository** and this repo's is `ranzlappen.com`, so the hub's own domain is a **second, tiny repo** that only
+holds a workflow — the template is [`deploy/standalone-pages.yml`](./deploy/standalone-pages.yml). No secrets, no copy of the code: it checks
+out this (public) repo, builds `wvw/` for whatever path Pages serves that repo at (`actions/configure-pages` → `base_path`: `/<repo>/`
+without a custom domain, `/` with one), copies `index.html` → `404.html` (SPA deep links) and deploys to that repo's Pages.
+
+1. GitHub → **New repository** (e.g. `wvw`, public) → add the template under `.github/workflows/` (any file name).
+2. That repo → **Settings → Pages** → Source **GitHub Actions**. Without this the run fails at *configure-pages* ("Get Pages site failed").
+3. **Actions → Deploy WvW Hub → Run workflow** (it also runs on every push to that repo and nightly, picking up changes merged here) →
+   the hub is live at `https://<user>.github.io/<repo>/` (e.g. `ranzlappen.github.io/wvw/`). A 404 there means the workflow hasn't
+   run successfully yet.
+4. Optional own domain: Settings → Pages → **Custom domain** `wvw.example.com` → Save, then **Run workflow** once more (the base path
+   switches to `/`); tick **Enforce HTTPS** once the certificate is issued. Verifying the domain under your GitHub account → Settings →
+   Pages is recommended.
+5. **DNS** at your registrar — use **one** of the two, never both:
+   - a **subdomain** (`wvw.example.com`, recommended): a single `CNAME wvw → ranzlappen.github.io`;
+   - the **bare domain** (`example.com` itself): the four `A` records `185.199.108.153`, `185.199.109.153`, `185.199.110.153`,
+     `185.199.111.153` (+ optional `AAAA` `2606:50c0:8000::153` … `2606:50c0:8003::153`). A CNAME isn't allowed on a bare domain.
+6. In the hub: **Moderation → Settings → Site URL** = the new address (links inside iCal feeds).
+7. If the Firebase browser API key is restricted to HTTP referrers (Google Cloud console → APIs & Services → Credentials), add the new
+   domain. Sign-in uses custom tokens, so no Firebase Auth "authorized domain" is needed.
+
+`ranzlappen.com/wvw/` keeps working in parallel on the same backend; keep it or replace `wvw/` in this repo's site with a redirect page.
+

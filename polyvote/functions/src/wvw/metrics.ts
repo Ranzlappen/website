@@ -125,14 +125,19 @@ export async function computeRunMetrics(run: PublicRun, priv: RunPrivate): Promi
     }
   }
 
-  const claimsSnap = await db()
-    .collection(COL.claimLog)
-    .where('guildId', '==', run.guildId)
-    .where('claimedAt', '>=', run.startedAt)
-    .where('claimedAt', '<=', end)
-    .count()
-    .get();
-  const claims = claimsSnap.data().count;
+  // Objective claims are per guild — independent raids have none to count.
+  const claims = run.guildId
+    ? (
+        await db()
+          .collection(COL.claimLog)
+          .where('guildId', '==', run.guildId)
+          .where('claimedAt', '>=', run.startedAt)
+          .where('claimedAt', '<=', end)
+          .count()
+          .get()
+      ).data().count
+    : 0;
+
 
   const voice = priv.voice?.samples
     ? { peak: priv.voice.peak, avg: Math.round((priv.voice.sum / priv.voice.samples) * 10) / 10, samples: priv.voice.samples }

@@ -26,6 +26,7 @@ on:
       - 'wvw/README.md'
       - 'wvw/.gitignore'
       - 'wvw/scripts/build-maps.py'
+      - 'wvw/deploy/**'
       # Firebase resources (deployed by firebase-deploy.yml, not bundled into the site)
       - 'polyvote/.firebaserc'
       - 'polyvote/firebase.json'

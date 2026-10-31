@@ -19,9 +19,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="WvW Hub" />
     <script>
-      // SPA deep-link recovery: 404.html on GitHub Pages stashes the path so a
-      // refresh on /wvw/events/... (or the Discord OAuth redirect to
-      // /wvw/auth/discord?code=...) lands back on the right route.
+      // SPA deep-link recovery: the site's root 404.html on GitHub Pages
+      // stashes the path so a refresh on /wvw/events/... lands back on the
+      // right route. (A standalone custom-domain build ships index.html as its
+      // own 404.html instead — see deploy/standalone-pages.yml.)
       (function () {
         var redirect = sessionStorage.getItem('spa-redirect');
         if (redirect) {
