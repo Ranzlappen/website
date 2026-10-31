@@ -7,7 +7,7 @@ import { useDocumentTitle, useGuild, useGuildRuns, useNow, useVisibleEvents } fr
 import { relative } from '../lib/format';
 import { call, errorMessage } from '../firebase';
 import { SubscribeDialog } from '../components/SubscribeDialog';
-import { isVerified, useStore } from '../store';
+import { isAdmin, isVerified, useStore } from '../store';
 import { useT } from '../i18n';
 import { COMMON_TIMEZONES, LANGUAGES, LIMITS, PLAYSTYLES, RATING_AXES, labelOf, type Language, type Playstyle } from '../shared/constants';
 import { isoWeekKey } from '../shared/time';
@@ -98,6 +98,33 @@ function LeaderTools({ guildId, profile }: { guildId: string; profile: GuildProf
         </button>
       </div>
       <p className="faint text-xs">{t('Every member of the guild can post raids for it; raids you post as leader show ✓ official.')}</p>
+    </div>
+  );
+}
+
+/** Admin: suspend / restore the guild page (hides all of the guild's raids). */
+function GuildAdmin({ guildId, suspended }: { guildId: string; suspended: boolean }) {
+  const t = useT();
+  const toast = useStore((s) => s.toast);
+  const [busy, setBusy] = useState(false);
+  const toggle = async () => {
+    if (!suspended && !confirm(t('Suspend this guild page? All its raids are hidden until it is restored.'))) return;
+    setBusy(true);
+    try {
+      await call('adminSetGuildSuspended', { guildId, suspended: !suspended });
+      toast(t(suspended ? 'Guild page restored.' : 'Guild page suspended.'), 'ok');
+    } catch (e) {
+      toast(errorMessage(e), 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="card card-pad">
+      <h2 className="mb-2 font-bold">🛡️ {t('Admin')}</h2>
+      <button className={`btn btn-sm ${suspended ? '' : 'btn-danger'}`} onClick={toggle} disabled={busy}>
+        {t(suspended ? 'Restore guild page' : 'Suspend guild page')}
+      </button>
     </div>
   );
 }
@@ -217,6 +244,7 @@ export default function GuildDetail() {
             </div>
           )}
           {isLeader && <LeaderTools guildId={g.id} profile={g.profile ?? null} />}
+          {isAdmin(member) && <GuildAdmin guildId={g.id} suspended={!!g.suspended} />}
           {!isLeader && myGuild && <p className="faint text-xs">{t('You’re a member — you can post raids for this guild.')}</p>}
 
         </div>

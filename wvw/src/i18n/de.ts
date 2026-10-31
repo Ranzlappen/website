@@ -250,8 +250,6 @@ export const de: Record<string, string> = {
   'Edit raid': 'Raid bearbeiten',
   'Sign in with your GW2 API key to post raids.': 'Melde dich mit deinem GW2-API-Schlüssel an, um Raids einzutragen.',
   'Sign in →': 'Anmelden →',
-  'Join a guild in-game, then re-check your account — raids are always posted for a guild.':
-    'Tritt im Spiel einer Gilde bei und prüfe dann dein Konto neu — Raids werden immer für eine Gilde eingetragen.',
   'Raid updated.': 'Raid aktualisiert.',
   'Raid posted to the calendar!': 'Raid im Kalender eingetragen!',
   'Public: guild, team, time, map, type and languages. Team-only: voice, goals, size, builds and notes.':
@@ -555,12 +553,9 @@ export const de: Record<string, string> = {
 
   // ── Moderation + import ────────────────────────────────────────────────
   'Moderators only.': 'Nur für Moderatoren.',
-  'Reports, raid import, settings and moderators.': 'Meldungen, Raid-Import, Einstellungen und Moderatoren.',
-  'You’re a moderator — import and settings are admin-only.': 'Du bist Moderator — Import und Einstellungen sind nur für Admins.',
   Reports: 'Meldungen',
   'Import raids': 'Raids importieren',
   Settings: 'Einstellungen',
-  Mods: 'Mods',
   'Seed the calendar from schedules guilds already publish (commander sheets, guild Discord / forum / Reddit posts). Imported raids show as “listed by moderators” — never ✓ official — follow their guild’s WvW team after relinks, and any verified member of the guild can edit one to take it over.':
     'Fülle den Kalender mit Plänen, die Gilden schon veröffentlichen (Kommandeur-Tabellen, Gilden-Discord / Forum / Reddit). Importierte Raids erscheinen als „von Moderatoren eingetragen“ — nie ✓ offiziell —, folgen nach Relinks dem WvW-Team ihrer Gilde, und jedes verifizierte Gildenmitglied kann einen bearbeiten und übernehmen.',
   'Paste CSV': 'CSV einfügen',
@@ -589,4 +584,156 @@ export const de: Record<string, string> = {
   'Not found': 'Nicht gefunden',
   'This page fell off the cliffs of Stonemist.': 'Diese Seite ist von den Klippen von Steinnebel gestürzt.',
   'Back home': 'Zur Startseite',
+  // ── Relative times (lib/format.ts) ─────────────────────────────────────
+  now: 'jetzt',
+  'in {d}': 'in {d}',
+  '{d} ago': 'vor {d}',
+
+  // ── Independent raids ──────────────────────────────────────────────────
+  'Independent raid (no guild)': 'Unabhängiger Raid (ohne Gilde)',
+  independent: 'unabhängig',
+  'No guild (independent raid)': 'Keine Gilde (unabhängiger Raid)',
+  'Shown as an independent raid, without a guild tag. Your account name is never shown.':
+    'Erscheint als unabhängiger Raid ohne Gildenkürzel. Dein Accountname wird nie angezeigt.',
+
+  // ── Moderation: reports, settings ──────────────────────────────────────
+  'Reports, raids, members & bans, raid import and settings.': 'Meldungen, Raids, Mitglieder & Sperren, Raid-Import und Einstellungen.',
+  'You’re a moderator — you can handle reports and hide raids; members, bans, deleting, import and settings are admin-only.':
+    'Du bist Moderator — du kannst Meldungen bearbeiten und Raids ausblenden; Mitglieder, Sperren, Löschen, Import und Einstellungen sind nur für Admins.',
+  Members: 'Mitglieder',
+  'Done.': 'Erledigt.',
+  'Open reports': 'Offen',
+  Resolved: 'Erledigt',
+  Dismissed: 'Verworfen',
+  'Nothing here 🎉': 'Hier ist nichts 🎉',
+  'Resolution: {text}': 'Ergebnis: {text}',
+  'Note (optional)': 'Notiz (optional)',
+  Dismiss: 'Verwerfen',
+  'Hide raid': 'Raid ausblenden',
+  'Suspend raid lead': 'Raidleiter sperren',
+  'Suspend guild page': 'Gildenseite sperren',
+  'Revert & reopen': 'Rückgängig & wieder öffnen',
+  'Moderators never see who posted a raid: actions resolve the owner server-side and are reversible.':
+    'Moderatoren sehen nie, wer einen Raid eingetragen hat: Aktionen ermitteln den Besitzer auf dem Server und sind umkehrbar.',
+  'Settings saved.': 'Einstellungen gespeichert.',
+  'Site URL (for iCal links)': 'Website-URL (für iCal-Links)',
+  'Community Discord invite (optional public link)': 'Community-Discord-Einladung (optionaler öffentlicher Link)',
+  'Site-wide announcement banner': 'Ankündigungsbanner für die ganze Seite',
+  'Team name overrides': 'Teamnamen überschreiben',
+  'Leave empty to use the built-in name. Use this if ArenaNet renames a team.':
+    'Leer lassen, um den eingebauten Namen zu verwenden. Nutze das, wenn ArenaNet ein Team umbenennt.',
+  'Save settings': 'Einstellungen speichern',
+
+  // ── Moderation: raids ──────────────────────────────────────────────────
+  All: 'Alle',
+  'Title, guild, team or account…': 'Titel, Gilde, Team oder Account…',
+  Show: 'Anzeigen',
+  'All raids': 'Alle Raids',
+  Hidden: 'Ausgeblendet',
+  'Imported (seeded)': 'Importiert',
+  'Independent (no guild)': 'Unabhängig (ohne Gilde)',
+  'Team-only': 'Nur Team',
+  Refresh: 'Aktualisieren',
+  '{n} selected': '{n} ausgewählt',
+  'Delete selected': 'Auswahl löschen',
+  'Clear selection': 'Auswahl aufheben',
+  'No raids match': 'Keine passenden Raids',
+  'Select all': 'Alle auswählen',
+  Select: 'Auswählen',
+  'Posted by': 'Eingetragen von',
+  Actions: 'Aktionen',
+  hidden: 'ausgeblendet',
+  import: 'Import',
+  'Reason for hiding (shown to moderators only):': 'Grund fürs Ausblenden (nur für Moderatoren sichtbar):',
+  'Raid hidden.': 'Raid ausgeblendet.',
+  'Raid visible again.': 'Raid wieder sichtbar.',
+  'Permanently delete {n} raid(s)? This cannot be undone.': '{n} Raid(s) endgültig löschen? Das kann nicht rückgängig gemacht werden.',
+  'Deleted.': 'Gelöscht.',
+  Unhide: 'Einblenden',
+  Hide: 'Ausblenden',
+  Delete: 'Löschen',
+  'Hide removes a raid from every public surface and can be undone; Cancel marks it cancelled (the poster can re-activate it by editing); Delete removes it permanently.':
+    'Ausblenden entfernt einen Raid von allen öffentlichen Seiten und lässt sich rückgängig machen; Absagen markiert ihn als abgesagt (der Ersteller kann ihn durch Bearbeiten reaktivieren); Löschen entfernt ihn endgültig.',
+
+  // ── Moderation: members & bans ─────────────────────────────────────────
+  Newest: 'Neueste',
+  'Banned / suspended': 'Gesperrt',
+  Moderators: 'Moderatoren',
+  'Find by GW2 account name (starts with, case-sensitive)': 'Nach GW2-Accountname suchen (Anfang, Groß-/Kleinschreibung beachten)',
+  'No members found': 'Keine Mitglieder gefunden',
+  'joined {when}': 'beigetreten {when}',
+  banned: 'gesperrt',
+  'needs re-verify': 'muss neu verifizieren',
+  Unban: 'Entsperren',
+  'Unbanned.': 'Entsperrt.',
+  Ban: 'Sperren',
+  'Banned.': 'Gesperrt.',
+  'Make moderator': 'Zum Moderator machen',
+  'Remove moderator': 'Moderator entfernen',
+  'Updated.': 'Aktualisiert.',
+  'never signed in': 'nie angemeldet',
+  'Ban an account that hasn’t signed in yet': 'Einen Account sperren, der sich noch nie angemeldet hat',
+  'Admins come from WVW_SECRETS.adminAccounts. Moderators can hide raids and handle reports; banning, deleting and settings are admin-only.':
+    'Admins kommen aus WVW_SECRETS.adminAccounts. Moderatoren können Raids ausblenden und Meldungen bearbeiten; Sperren, Löschen und Einstellungen sind nur für Admins.',
+  'Ban {name}': '{name} sperren',
+  'The account can no longer sign in (blocked by GW2 account id and name), is signed out, and its stored API key is deleted. Account names are never shown publicly.':
+    'Der Account kann sich nicht mehr anmelden (gesperrt über GW2-Account-ID und -Name), wird abgemeldet, und sein gespeicherter API-Schlüssel wird gelöscht. Accountnamen werden nie öffentlich angezeigt.',
+  'Reason (moderators only)': 'Grund (nur für Moderatoren)',
+  'Their raids': 'Ihre Raids',
+  'Hide (restored on unban)': 'Ausblenden (beim Entsperren wiederhergestellt)',
+  'Delete permanently': 'Endgültig löschen',
+  Admin: 'Admin',
+  'Suspend this guild page? All its raids are hidden until it is restored.': 'Diese Gildenseite sperren? Alle ihre Raids bleiben ausgeblendet, bis sie wiederhergestellt wird.',
+  'Guild page restored.': 'Gildenseite wiederhergestellt.',
+  'Guild page suspended.': 'Gildenseite gesperrt.',
+  'Restore guild page': 'Gildenseite wiederherstellen',
+
+  // ── About / Privacy prose (markup: **bold**, `code`, [link](/path)) ────
+  'For everyone': 'Für alle',
+  'The [calendar](/calendar) opens on the **matchup map**: all four maps plus a Jumper section, with every raid of the three teams placed in the third of the team that organises it (a red-team raid on EBG sits in EBG’s red third). Day, Week, Link and Month views list the same raids week by week from reset, in your own time zone.':
+    'Der [Kalender](/calendar) startet mit der **Matchup-Karte**: alle vier Karten plus ein Jumper-Bereich, jeder Raid der drei Teams im Drittel des Teams, das ihn organisiert (ein Raid des roten Teams auf den Ewigen Schlachtfeldern steht im roten Drittel). Die Ansichten Tag, Woche, Link und Monat zeigen dieselben Raids Woche für Woche ab Reset, in deiner Zeitzone.',
+  '**Subscribe** adds a live feed for a region, team or guild to Google / Apple / Outlook Calendar — your calendar app then reminds you. The website itself sends no notifications.':
+    '**Abonnieren** fügt einen Live-Feed für Region, Team oder Gilde zu Google / Apple / Outlook Kalender hinzu — die Erinnerung kommt dann von deiner Kalender-App. Die Website selbst verschickt keine Benachrichtigungen.',
+  '[Matchups](/matchups), relink and reset countdowns and the [guild directory](/guilds) come straight from the official GW2 API — no sign-up needed. Guild activity is measured from public objective claims.':
+    '[Matchups](/matchups), Relink- und Reset-Countdowns und das [Gildenverzeichnis](/guilds) kommen direkt aus der offiziellen GW2-API — ohne Anmeldung. Gildenaktivität wird aus öffentlichen Zielobjekt-Beanspruchungen gemessen.',
+  'Sign in by pasting a GW2 API key named `WvW Hub` (account, guilds and wvw permissions). The name proves the key was made for us — keys made for other tools aren’t accepted.':
+    'Du meldest dich mit einem GW2-API-Schlüssel namens `WvW Hub` an (Berechtigungen account, guilds und wvw). Der Name beweist, dass der Schlüssel für uns erstellt wurde — Schlüssel anderer Tools werden nicht akzeptiert.',
+  'We read your guilds, whether you lead a guild, whether you own a commander tag, and your current WvW team. After every relink everyone is re-checked automatically and raids move to their commander’s new team; “Re-check my team now” on the Account page does it instantly.':
+    'Wir lesen deine Gilden, ob du eine Gilde leitest, ob du ein Kommandeur-Abzeichen besitzt, und dein aktuelles WvW-Team. Nach jedem Relink werden alle automatisch neu geprüft und Raids wandern ins neue Team ihres Kommandeurs; „Mein Team jetzt neu prüfen“ auf der Konto-Seite macht das sofort.',
+  '**Account names are never shown publicly.** Raids are identified only by guild tag — or shown as independent raids.':
+    '**Accountnamen werden nie öffentlich angezeigt.** Raids erkennt man nur am Gildenkürzel — oder sie erscheinen als unabhängige Raids.',
+  'Posting raids': 'Raids eintragen',
+  'Any verified member of a guild can post raids for it — the GW2 API confirms the membership. Raids posted by the guild’s in-game leader carry the “✓ official” badge. You can also post an **independent raid** without a guild.':
+    'Jedes verifizierte Mitglied einer Gilde kann Raids für sie eintragen — die GW2-API bestätigt die Mitgliedschaft. Raids des Gildenleiters tragen das Abzeichen „✓ offiziell“. Du kannst auch einen **unabhängigen Raid** ohne Gilde eintragen.',
+  'Pick the map (EBG or a borderland) or “Jumper” for cross-map play. Where it shows on the matchup map follows from your team’s colour.':
+    'Wähle die Karte (Ewige Schlachtfelder oder ein Grenzland) oder „Jumper“ für kartenübergreifendes Spiel. Wo der Raid auf der Matchup-Karte erscheint, ergibt sich aus der Farbe deines Teams.',
+  'Choose who sees it: **Everyone** (time, map and guild are public; voice, goals and notes stay with your team) or **Only my team** (the raid is hidden from the other teams entirely).':
+    'Wähle, wer ihn sieht: **Alle** (Zeit, Karte und Gilde sind öffentlich; Voice, Ziele und Notizen bleiben im Team) oder **Nur mein Team** (der Raid ist für die anderen Teams komplett unsichtbar).',
+  'Stats & ratings': 'Statistiken & Bewertungen',
+  'Each run records duration, check-ins and arcdps logs uploaded to dps.report — we keep counts only, never player names.':
+    'Jeder Lauf speichert Dauer, Check-ins und auf dps.report hochgeladene arcdps-Logs — wir behalten nur Zahlen, nie Spielernamen.',
+  'Only players who checked in to a run can rate it, for {hours} hours, on four aspects. No free-text reviews. Guild averages appear only after {raters} different raters, and each person counts once.':
+    'Nur wer bei einem Lauf eingecheckt hat, kann ihn {hours} Stunden lang in vier Kategorien bewerten. Keine Freitexte. Gildendurchschnitte erscheinen erst ab {raters} verschiedenen Bewertenden, und jede Person zählt einmal.',
+  Support: 'Unterstützen',
+  'WvW Hub is a non-commercial passion project. If it helps your community, you can [buy me a coffee on Ko-fi]({kofi}).':
+    'WvW Hub ist ein nicht-kommerzielles Herzensprojekt. Wenn es deiner Community hilft, kannst du mir [auf Ko-fi einen Kaffee spendieren]({kofi}).',
+  'Come and say hi in the [community Discord]({discord}).': 'Sag Hallo im [Community-Discord]({discord}).',
+  'Without an account': 'Ohne Konto',
+  'Browsing is anonymous. Pages load data from our own Firebase backend (Google Cloud); your browser never contacts the GW2 API directly. We use no analytics or ad trackers. Your chosen display time zone and language are kept in your browser’s local storage.':
+    'Das Stöbern ist anonym. Die Seiten laden Daten aus unserem eigenen Firebase-Backend (Google Cloud); dein Browser kontaktiert die GW2-API nie direkt. Wir verwenden keine Analyse- oder Werbe-Tracker. Deine gewählte Zeitzone und Sprache werden im lokalen Speicher deines Browsers abgelegt.',
+  'With an account': 'Mit Konto',
+  '**Guild Wars 2:** account id and name, guild memberships, guild-leader status, commander-tag ownership and current WvW team — read via the API key you sign in with. The account name is visible only to you (and to admins for moderation).':
+    '**Guild Wars 2:** Account-ID und -Name, Gildenmitgliedschaften, Gildenleiter-Status, Kommandeur-Abzeichen und aktuelles WvW-Team — gelesen über den API-Schlüssel, mit dem du dich anmeldest. Der Accountname ist nur für dich sichtbar (und für Admins zur Moderation).',
+  '**API key:** stored encrypted (AES-256-GCM) and used only to re-check your team after relinks. Delete it any time on your Account page.':
+    '**API-Schlüssel:** verschlüsselt gespeichert (AES-256-GCM) und nur genutzt, um dein Team nach Relinks neu zu prüfen. Du kannst ihn jederzeit auf deiner Konto-Seite löschen.',
+  '**Activity:** raids you post, runs you check in to, and your ratings (stored without being shown individually; only guild averages are published).':
+    '**Aktivität:** Raids, die du einträgst, Läufe, bei denen du eincheckst, und deine Bewertungen (nicht einzeln angezeigt; nur Gildendurchschnitte werden veröffentlicht).',
+  '**Reports** you file are visible to moderators without your identity. If an account is banned for breaking the rules, its GW2 account id and name are kept on a block list.':
+    '**Meldungen**, die du einreichst, sehen Moderatoren ohne deine Identität. Wird ein Account wegen Regelverstößen gesperrt, bleiben seine GW2-Account-ID und sein Name auf einer Sperrliste.',
+  Deletion: 'Löschung',
+  '“Delete my data” on the Account page removes your account, API key, check-ins and ratings and cancels your raids. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.':
+    '„Meine Daten löschen“ auf der Konto-Seite entfernt dein Konto, deinen API-Schlüssel, Check-ins und Bewertungen und sagt deine Raids ab. Aggregierte Gildenstatistiken bleiben bestehen. Die Historie der Zielobjekt-Beanspruchungen ist öffentliche Spieldaten und wird nach 120 Tagen gelöscht.',
+  Legal: 'Rechtliches',
+  'Operator, contact and legal notice: [ranzlappen.com]({legal}). Under the GDPR you can request access, correction or deletion at any time.':
+    'Betreiber, Kontakt und Impressum: [ranzlappen.com]({legal}). Nach der DSGVO kannst du jederzeit Auskunft, Berichtigung oder Löschung verlangen.',
 };

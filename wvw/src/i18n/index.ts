@@ -19,6 +19,9 @@ export { UI_LANGS, type Lang } from './lang';
 export { translate, type Vars } from './translate';
 export type TFn = (key: string, vars?: Vars) => string;
 
+/** Marks a string constant as a translation key (identity) so scripts/i18n-keys.mjs finds it; translate it later with t(). */
+export const msg = (key: string): string => key;
+
 export function useT(): TFn {
   const lang = useStore((s) => s.lang);
   return useCallback((key: string, vars?: Vars) => translate(lang, key, vars), [lang]);

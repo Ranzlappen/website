@@ -414,6 +414,7 @@ export async function retargetSeededEvents(): Promise<number> {
   let moved = 0;
   for (const d of snap.docs) {
     const e = d.data() as EventDoc;
+    if (!e.guildId) continue;
     const t = teamMap[e.guildId] ?? teamMap[e.guildId.toLowerCase()];
     if (!t || t === e.teamId) continue;
     const region = regionOfTeam(t) as Region;

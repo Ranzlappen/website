@@ -30,9 +30,14 @@ function todayIn(tz: string): string {
   return `${p.y}-${String(p.m).padStart(2, '0')}-${String(p.d).padStart(2, '0')}`;
 }
 
-function blank(tz: string, guildId: string): EventInput {
+/** Weekday (0 = Sunday) of a "YYYY-MM-DD" date. */
+function weekdayOfDate(date: string): number {
+  const p = parseDate(date);
+  return p ? weekdayOfDays(civilToDays(p.y, p.m, p.d)) : 1;
+}
+
+function blank(tz: string, guildId: string | null): EventInput {
   const date = todayIn(tz);
-  const p = parseDate(date)!;
   return {
     guildId,
     title: '',
@@ -40,7 +45,8 @@ function blank(tz: string, guildId: string): EventInput {
     audience: 'everyone',
     openness: 'open',
     languages: ['en'],
-    schedule: { tz, date, time: '20:00', durationMin: 120, repeat: 'weekly', days: [weekdayOfDays(civilToDays(p.y, p.m, p.d))], until: null },
+    // One-off by default; "Weekly" pre-selects the date's weekday.
+    schedule: { tz, date, time: '20:00', durationMin: 120, repeat: 'none' },
     map: 'ebg',
     goals: '',
     expectedSize: null,
@@ -81,7 +87,7 @@ export default function EventEditor() {
     if (!member || form) return;
     const tz = member.prefs?.timezone || displayTz;
     if (!editing) {
-      setForm(blank(tz, member.guilds[0]?.id ?? ''));
+      setForm(blank(tz, member.guilds[0]?.id ?? null));
       return;
     }
     if (!existing) return;
@@ -89,7 +95,7 @@ export default function EventEditor() {
       .then(({ details }) => {
         const d = details[0];
         setForm({
-          guildId: existing.guildId,
+          guildId: existing.guildId ?? null,
           title: existing.title,
           type: existing.type,
           audience: existing.audience ?? 'everyone',
@@ -119,7 +125,6 @@ export default function EventEditor() {
       </Notice>
     );
   }
-  if (!member!.guilds.length) return <Notice tone="warn">{t('Join a guild in-game, then re-check your account — raids are always posted for a guild.')}</Notice>;
   if (!form) return <Skeleton h={400} />;
 
   const set = <K extends keyof EventInput>(k: K, v: EventInput[K]) => setForm({ ...form, [k]: v });
@@ -167,7 +172,8 @@ export default function EventEditor() {
         <div className="grid gap-4 sm:grid-cols-2">
           <label>
             <span className="label">{t('Guild')}</span>
-            <select className="select" value={form.guildId} onChange={(e) => set('guildId', e.target.value)} disabled={editing}>
+            <select className="select" value={form.guildId ?? ''} onChange={(e) => set('guildId', e.target.value || null)} disabled={editing}>
+              <option value="">— {t('No guild (independent raid)')} —</option>
               {member!.guilds.map((g) => (
                 <option key={g.id} value={g.id}>
                   [{g.tag}] {g.name} {g.leader ? '👑' : ''}
@@ -175,9 +181,11 @@ export default function EventEditor() {
               ))}
             </select>
             <span className="faint mt-1 block text-xs">
-              {guild?.leader
-                ? t('You lead this guild — the raid shows as ✓ official.')
-                : t('Any guild member can post; only the guild leader’s raids carry the ✓ official badge.')}
+              {!form.guildId
+                ? t('Shown as an independent raid, without a guild tag. Your account name is never shown.')
+                : guild?.leader
+                  ? t('You lead this guild — the raid shows as ✓ official.')
+                  : t('Any guild member can post; only the guild leader’s raids carry the ✓ official badge.')}
             </span>
           </label>
           <label>
@@ -224,11 +232,18 @@ export default function EventEditor() {
         <h2 className="font-bold">{t('When')}</h2>
         <Segmented
           options={[
-            { id: 'weekly', label: t('Weekly') },
             { id: 'none', label: t('One-off') },
+            { id: 'weekly', label: t('Weekly') },
           ]}
           value={form.schedule.repeat}
-          onChange={(r) => setSched({ repeat: r, days: r === 'weekly' ? form.schedule.days ?? [] : undefined, until: r === 'weekly' ? form.schedule.until ?? null : undefined })}
+          onChange={(r) =>
+            setSched({
+              repeat: r,
+              days: r === 'weekly' ? (form.schedule.days?.length ? form.schedule.days : [weekdayOfDate(form.schedule.date)]) : undefined,
+              until: r === 'weekly' ? form.schedule.until ?? null : undefined,
+            })
+          }
+
         />
         <div className="grid gap-4 sm:grid-cols-4">
           <label className="sm:col-span-1">

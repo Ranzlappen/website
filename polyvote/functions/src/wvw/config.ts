@@ -86,6 +86,7 @@ export const COL = {
   matchDays: 'wvwMatchDays', // server-only: per-map kill/death samples
   state: 'wvwState', // server-only: poller/maintenance cursors
   audit: 'wvwAudit', // server-only: moderation + transfer log
+  bans: 'wvwBans', // server-only: banned GW2 accounts (by account id and by name)
 } as const;
 
 export const db = () => getFirestore();

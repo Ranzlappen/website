@@ -182,7 +182,7 @@ export async function rebuildGuildIndex(
   ]);
   const upcoming = new Map<string, number>();
   for (const e of ((evIdx.data()?.events ?? []) as PublicEvent[])) {
-    if (e.status === 'scheduled') upcoming.set(e.guildId, (upcoming.get(e.guildId) ?? 0) + 1);
+    if (e.status === 'scheduled' && e.guildId) upcoming.set(e.guildId, (upcoming.get(e.guildId) ?? 0) + 1);
   }
 
   const rows: GuildIndexRow[] = [];

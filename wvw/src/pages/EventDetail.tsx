@@ -25,14 +25,14 @@ function downloadIcs(e: PublicEvent, start: number, end: number) {
     `DTSTAMP:${d(Date.now())}`,
     `DTSTART:${d(start)}`,
     `DTEND:${d(end)}`,
-    `SUMMARY:[${e.guildTag}] ${e.title.replace(/[,;]/g, ' ')}`,
+    `SUMMARY:${e.guildTag ? `[${e.guildTag}] ` : ''}${e.title.replace(/[,;]/g, ' ')}`,
     `URL:${window.location.href}`,
     'END:VEVENT',
     'END:VCALENDAR',
   ].join('\r\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([text], { type: 'text/calendar' }));
-  a.download = `${e.guildTag}-${e.id}.ics`;
+  a.download = `${e.guildTag || 'raid'}-${e.id}.ics`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
@@ -56,7 +56,7 @@ export default function EventDetail() {
     () => [...(eu.data?.events ?? []), ...(na.data?.events ?? []), ...(teamIdx?.events ?? [])].find((x) => x.id === id) ?? null,
     [eu.data, na.data, teamIdx, id],
   );
-  useDocumentTitle(e ? `[${e.guildTag}] ${e.title}` : t('Raid'));
+  useDocumentTitle(e ? `${e.guildTag ? `[${e.guildTag}] ` : ''}${e.title}` : t('Raid'));
   // The organising team's colour in its current matchup → the third it shows in on the matchup map.
   const match = e ? matches?.matches.find((m) => COLORS.some((c) => m.sides[c].teamId === e.teamId)) : undefined;
   const color = e && match ? COLORS.find((c) => match.sides[c].teamId === e.teamId) ?? null : null;
@@ -121,15 +121,17 @@ export default function EventDetail() {
           title={e.title}
           sub={
             <span className="flex flex-wrap items-center gap-2">
-              <GuildTag tag={e.guildTag} id={e.guildId} /> {e.guildName}
+              <GuildTag tag={e.guildTag} id={e.guildId} /> {e.guildId ? e.guildName : t('Independent raid (no guild)')}
               {e.official ? (
                 <span className="chip chip-gold">✓ {t('official guild raid')}</span>
               ) : e.seeded ? (
                 <span className="chip" title={t('Listed by the hub moderators from the guild’s public schedule. Any member of the guild can edit it and take it over.')}>
                   📋 {t('listed by moderators')}
                 </span>
-              ) : (
+              ) : e.guildId ? (
                 <span className="chip">{t('member raid')}</span>
+              ) : (
+                <span className="chip">🏳️ {t('independent')}</span>
               )}
               {e.audience === 'team' && <span className="chip chip-blue">🔒 {t('team only')}</span>}
               {e.liveRunId && <LiveBadge />}
@@ -197,11 +199,15 @@ export default function EventDetail() {
             ))}
             {!occ.length && <li className="faint py-2 text-sm">{t('No upcoming dates.')}</li>}
           </ul>
-          <button className="btn btn-sm mt-3" onClick={() => setSubscribe(true)}>
-            📆 {t('Subscribe to all [{tag}] raids', { tag: e.guildTag })}
-          </button>
-          <p className="faint mt-1 text-xs">{t('Adds every public raid of this guild to your own calendar app, which then reminds you.')}</p>
-          <SubscribeDialog open={subscribe} onClose={() => setSubscribe(false)} params={{ guild: e.guildId }} scope={`[${e.guildTag}]`} />
+          {e.guildId && (
+            <>
+              <button className="btn btn-sm mt-3" onClick={() => setSubscribe(true)}>
+                📆 {t('Subscribe to all [{tag}] raids', { tag: e.guildTag })}
+              </button>
+              <p className="faint mt-1 text-xs">{t('Adds every public raid of this guild to your own calendar app, which then reminds you.')}</p>
+              <SubscribeDialog open={subscribe} onClose={() => setSubscribe(false)} params={{ guild: e.guildId }} scope={`[${e.guildTag}]`} />
+            </>
+          )}
         </div>
       </div>
 

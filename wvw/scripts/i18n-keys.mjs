@@ -1,4 +1,4 @@
-// Lists every UI string passed to t()/tn() in src/ (string literals only, incl.
+// Lists every UI string passed to t() / msg() in src/ (string literals only, incl.
 // both branches of a ternary) — the i18n test checks each has a German entry.
 // Usage: node scripts/i18n-keys.mjs [--missing]
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -18,10 +18,10 @@ function walk(dir) {
 /** String literals inside the first argument of every `t(` call. */
 export function extractKeys(src) {
   const keys = new Set();
-  const re = /(?<![\w.$])t\(/g;
+  const re = /(?<![\w.$])(?:t|msg)\(/g;
   let m;
   while ((m = re.exec(src))) {
-    let i = m.index + 2;
+    let i = m.index + m[0].length;
     let depth = 0;
     let str = null;
     let buf = '';

@@ -21,6 +21,15 @@ export { report, modListReports, modResolveReport } from './reports';
 export { ical } from './ical';
 export { adminGetSettings, adminUpdateSettings, adminSetRole, adminListMods } from './admin';
 export { adminImportEvents } from './import';
+export {
+  modListEvents,
+  modSetEventHidden,
+  adminDeleteEvents,
+  adminSetGuildSuspended,
+  adminListMembers,
+  adminBanMember,
+  adminUnbanMember,
+} from './adminTools';
 
 // Phase 3 — runs, metrics, ratings
 export { startRun, endRun, addRunLogs, checkIn, rateRun, myRunState } from './runs';

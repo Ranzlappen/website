@@ -185,7 +185,7 @@ export default function Home() {
                 .map((r) => (
                   <Link key={r.id} to={`/runs/${r.id}`} className="card flex items-center justify-between gap-2 px-4 py-2.5 text-sm hover:border-[var(--border-strong)]">
                     <span>
-                      <GuildTag tag={r.guildTag} /> {r.guildName}
+                      <GuildTag tag={r.guildTag} /> {r.guildId ? r.guildName : t('Independent raid (no guild)')}
                     </span>
                     <span className="faint">
                       {r.metrics?.durationMin ?? '?'} min{r.metrics?.peak ? ` · ${r.metrics.peak} 👥` : ''}

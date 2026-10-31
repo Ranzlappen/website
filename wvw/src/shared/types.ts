@@ -142,7 +142,8 @@ export interface GuildIndexRow {
 
 export interface PublicEvent {
   id: string;
-  guildId: string;
+  /** null = independent raid (no guild attached); guildTag/guildName are then "". */
+  guildId: string | null;
   guildTag: string;
   guildName: string;
   /** Posted by the guild's leader (✓ official); any other guild member's raid shows without the badge. */
@@ -203,7 +204,8 @@ export interface RunMetrics {
 export interface PublicRun {
   id: string;
   eventId: string | null;
-  guildId: string;
+  /** null = independent raid. */
+  guildId: string | null;
   guildTag: string;
   guildName: string;
   region: Region;
@@ -265,7 +267,8 @@ export interface MemberDoc {
 // ── Callable payloads ─────────────────────────────────────────────────────
 
 export interface EventInput {
-  guildId: string;
+  /** null = independent raid (no guild): never ✓ official, shown without a guild tag. */
+  guildId: string | null;
   title: string;
   type: EventType;
   audience: Audience;
@@ -326,6 +329,34 @@ export interface ImportRowResult {
   /** Human summary of the schedule ("Weekly on Fri · 20:30 (Europe/Berlin)"). */
   when: string;
   audience: Audience | null;
+}
+
+// ── Admin views (admin/mod callables only — never public) ─────────────────
+
+/** A raid as the Moderation → Raids tab sees it (incl. hidden ones). */
+export interface AdminEventRow extends PublicEvent {
+  visibility: 'public' | 'hidden';
+  hiddenReason: string | null;
+  /** Poster's GW2 account name — admins only (null for mods and for seeded raids). */
+  commander: string | null;
+}
+
+/** A member as the Moderation → Members tab sees it (admins only). */
+export interface AdminMemberRow {
+  uid: string;
+  accountName: string | null;
+  role: MemberRole;
+  status: 'active' | 'suspended';
+  banned: boolean;
+  banReason: string | null;
+  verified: boolean;
+  stale: boolean;
+  region: Region | null;
+  teamId: number | null;
+  commander: boolean;
+  guilds: string[];
+  createdAt: number;
+  verifiedAt: number | null;
 }
 
 /** wvwPublic/relink — when the current link started (observed) and ends. */

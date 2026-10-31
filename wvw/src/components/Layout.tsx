@@ -4,35 +4,35 @@ import { KOFI_URL, LEGAL_URL, MAIN_SITE } from '../config';
 import { usePublicConfig } from '../lib/hooks';
 import { isMod, isVerified, useStore } from '../store';
 import { team } from '../lib/format';
-import { UI_LANGS, useT } from '../i18n';
+import { UI_LANGS, msg, useT, type Lang } from '../i18n';
 
 const NAV = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/calendar', label: 'Calendar' },
-  { to: '/matchups', label: 'Matchups' },
-  { to: '/guilds', label: 'Guilds' },
+  { to: '/', label: msg('Home'), end: true },
+  { to: '/calendar', label: msg('Calendar') },
+  { to: '/matchups', label: msg('Matchups') },
+  { to: '/guilds', label: msg('Guilds') },
 ];
 
-/** EN | DE switch in the header (persisted; also on the Account page). */
+/** Language picker in the header (persisted; also on the Account page). */
 function LangSwitch() {
   const lang = useStore((s) => s.lang);
   const setLang = useStore((s) => s.setLang);
   return (
-    <div className="inline-flex rounded-lg border border-[var(--border)] p-0.5 text-[0.7rem] font-bold" role="group" aria-label="Language / Sprache">
-      {UI_LANGS.map((l) => (
-        <button
-          key={l.id}
-          type="button"
-          lang={l.id}
-          title={l.label}
-          aria-pressed={lang === l.id}
-          onClick={() => setLang(l.id)}
-          className={`rounded-md px-1.5 py-0.5 ${lang === l.id ? 'bg-[var(--surface-2)] text-white' : 'muted hover:text-white'}`}
-        >
-          {l.short}
-        </button>
-      ))}
-    </div>
+    <label className="relative inline-flex items-center" title="Language / Sprache / Langue / Idioma / Lingua">
+      <span className="sr-only">Language</span>
+      <select
+        className="cursor-pointer appearance-none rounded-lg border border-[var(--border)] bg-[var(--bg-2)] py-1 pl-2 pr-5 text-xs font-bold text-[var(--ink)] hover:border-[var(--border-strong)]"
+        value={lang}
+        onChange={(e) => setLang(e.target.value as Lang)}
+      >
+        {UI_LANGS.map((l) => (
+          <option key={l.id} value={l.id} lang={l.id} title={l.label}>
+            {l.short}
+          </option>
+        ))}
+      </select>
+      <span className="pointer-events-none absolute right-1.5 text-[0.6rem] text-[var(--muted)]">▾</span>
+    </label>
   );
 }
 
@@ -68,8 +68,8 @@ export function Layout() {
   const config = usePublicConfig().data;
   const nav = [
     ...NAV,
-    ...(isVerified(member) ? [{ to: '/my-raids', label: 'My raids' }] : []),
-    ...(isMod(member) ? [{ to: '/mod', label: 'Moderation' }] : []),
+    ...(isVerified(member) ? [{ to: '/my-raids', label: msg('My raids') }] : []),
+    ...(isMod(member) ? [{ to: '/mod', label: msg('Moderation') }] : []),
   ].map((n) => ({ ...n, label: t(n.label) }));
 
   return (
@@ -79,7 +79,7 @@ export function Layout() {
       </a>
       <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[rgba(12,16,22,0.85)] backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
-          <Link to="/" className="flex items-center gap-2 font-extrabold tracking-tight" onClick={() => setOpen(false)}>
+          <Link to="/" className="flex shrink-0 items-center gap-2 whitespace-nowrap font-extrabold tracking-tight" onClick={() => setOpen(false)}>
             <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-8 w-8" />
             <span>
               WvW <span className="text-[var(--gold)]">Hub</span>

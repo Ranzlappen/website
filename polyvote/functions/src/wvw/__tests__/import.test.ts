@@ -4,6 +4,7 @@ vi.mock('firebase-admin/firestore', () => ({ getFirestore: () => ({}), FieldValu
 
 import { csvToObjects, detectDelimiter, IMPORT_TEMPLATE, parseCsv } from '../shared/csv';
 import { importKey, normaliseDate, normaliseDuration, normaliseTime, parseImportRow } from '../import';
+import { banIdKey, banNameKey } from '../adminTools';
 
 const NOW = Date.parse('2026-10-31T12:00:00Z');
 
@@ -86,5 +87,12 @@ describe('import row parsing', () => {
     expect(importKey('G', a)).toBe(importKey('G', b));
     expect(importKey('G', a)).not.toBe(importKey('G', c));
     expect(importKey('G', a)).not.toBe(importKey('H', a));
+  });
+});
+
+describe('ban keys', () => {
+  it('key bans by stable GW2 account id and by case-insensitive name', () => {
+    expect(banIdKey('wvw-gw2-ABCD-1234')).toBe('id:ABCD-1234');
+    expect(banNameKey('  Some.Player.1234 ')).toBe('name:some.player.1234');
   });
 });

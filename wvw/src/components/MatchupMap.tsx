@@ -37,7 +37,7 @@ function Pin({ p, tz, now, wide }: { p: Placed; tz: string; now: number; wide?: 
     >
       {p.live && <span className="live-dot !h-1.5 !w-1.5" />}
       <span className="tabular-nums">{p.live ? t('LIVE') : `${sameDay ? '' : `${fmtWeekday(p.start, tz)} `}${fmtTime(p.start, tz)}`}</span>
-      <span className="font-mono">[{p.e.guildTag}]</span>
+      <span className="font-mono">[{p.e.guildTag || '—'}]</span>
       {wide && <span className="truncate font-normal">{p.e.title}</span>}
       {p.e.official && <span title={t('Posted by the guild leader')}>✓</span>}
       {p.e.audience === 'team' && <span title={t('Team-only raid — hidden from other teams')}>🔒</span>}

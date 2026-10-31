@@ -71,8 +71,11 @@ export function Section({ title, right, children }: { title: string; right?: Rea
   );
 }
 
-export function GuildTag({ tag, id }: { tag: string; id?: string }) {
-  const inner = <span className="tag">[{tag || '?'}]</span>;
+/** "[TAG]" (links to the guild page when `id` is given); "[—]" for an independent raid (no guild). */
+export function GuildTag({ tag, id }: { tag: string; id?: string | null }) {
+  const t = useT();
+  const inner = tag ? <span className="tag">[{tag}]</span> : <span className="tag" title={t('Independent raid (no guild)')}>[—]</span>;
+
   return id ? (
     <Link to={`/guilds/${id}`} className="hover:underline">
       {inner}

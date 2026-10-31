@@ -1,6 +1,8 @@
 /** Display helpers. All times render in the viewer's chosen time zone. */
 import { teamName } from '../shared/teams';
 import { localParts } from '../shared/time';
+import { translate } from '../i18n/translate';
+import { isLang, type Lang } from '../i18n/lang';
 
 export function browserTimeZone(): string {
   try {
@@ -16,7 +18,9 @@ export function browserTimeZone(): string {
  * else the bare language ("de"), so dates read naturally in the chosen language.
  */
 let LOCALE: string | undefined;
+let LANG: Lang = 'en';
 export function setFormatLocale(lang: string): void {
+  LANG = isLang(lang) ? lang : 'en';
   let tag: string = lang;
   try {
     tag = (navigator.languages ?? [navigator.language]).find((l) => l?.toLowerCase().startsWith(lang)) ?? lang;
@@ -64,26 +68,37 @@ export function fmtCivil(y: number, m: number, d: number, opts: Intl.DateTimeFor
   return fmt('UTC', opts).format(Date.UTC(y, m - 1, d));
 }
 
-/** "in 3h 12m", "12m ago", "now" (German: "in 3 Std. 12 Min.", "vor 12 Min.", "jetzt"). */
-export function relative(ms: number, now = Date.now()): string {
-  const de = LOCALE?.startsWith('de');
-  const diff = ms - now;
-  const abs = Math.abs(diff);
-  if (abs < 60_000) return de ? 'jetzt' : 'now';
-  const m = Math.round(abs / 60_000);
+const units = new Map<string, Intl.NumberFormat>();
+/** "3h" / "3 Std." / "12min" — narrow unit in the UI locale. */
+function unit(u: 'day' | 'hour' | 'minute', n: number): string {
+  const key = `${LOCALE ?? 'en'}|${u}`;
+  let f = units.get(key);
+  if (!f) {
+    f = new Intl.NumberFormat(LOCALE ?? 'en', { style: 'unit', unit: u, unitDisplay: 'narrow' });
+    units.set(key, f);
+  }
+  return f.format(n);
+}
+
+/** Compact span like "2d 3h" / "1h 30m" / "12m" in the UI locale. */
+function span(absMs: number): string {
+  const m = Math.round(absMs / 60_000);
   const d = Math.floor(m / 1440);
   const h = Math.floor((m % 1440) / 60);
   const mm = m % 60;
-  const parts = de
-    ? d ? `${d} T. ${h} Std.` : h ? `${h} Std. ${mm} Min.` : `${mm} Min.`
-    : d ? `${d}d ${h}h` : h ? `${h}h ${mm}m` : `${mm}m`;
-  if (de) return diff > 0 ? `in ${parts}` : `vor ${parts}`;
-  return diff > 0 ? `in ${parts}` : `${parts} ago`;
+  return d ? `${unit('day', d)} ${unit('hour', h)}` : h ? `${unit('hour', h)} ${unit('minute', mm)}` : unit('minute', mm);
 }
 
-/** Duration only ("3h 12m" / "3 Std. 12 Min.") — e.g. "live since …". */
+/** "in 3h 12m", "12m ago", "now" — in the UI language (keys in the i18n dictionaries). */
+export function relative(ms: number, now = Date.now()): string {
+  const diff = ms - now;
+  if (Math.abs(diff) < 60_000) return translate(LANG, 'now');
+  return translate(LANG, diff > 0 ? 'in {d}' : '{d} ago', { d: span(Math.abs(diff)) });
+}
+
+/** Duration only ("3h 12m") — e.g. "live for …". */
 export function duration(ms: number): string {
-  return relative(Date.now() + Math.abs(ms)).replace(/^in /, '');
+  return span(Math.abs(ms));
 }
 
 export function countdownParts(ms: number, now = Date.now()) {

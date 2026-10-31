@@ -27,7 +27,7 @@ import { EVENT_TYPES, LANGUAGES, labelOf, type EventType, type Language, type Ma
 import { daysToCivil, occurrencesBetween } from '../shared/time';
 import { COLORS, type PublicEvent } from '../shared/types';
 import type { Region } from '../shared/teams';
-import { useT, type TFn } from '../i18n';
+import { msg, useT, type TFn } from '../i18n';
 
 type View = 'map' | 'day' | 'week' | 'link' | 'month';
 type MapWindow = 'now' | 'today' | 'matchup';
@@ -39,11 +39,11 @@ interface Slot {
 }
 
 const VIEWS: { id: View; label: string }[] = [
-  { id: 'map', label: 'Map' },
-  { id: 'day', label: 'Day' },
-  { id: 'week', label: 'Week' },
-  { id: 'link', label: 'Link' },
-  { id: 'month', label: 'Month' },
+  { id: 'map', label: msg('Map') },
+  { id: 'day', label: msg('Day') },
+  { id: 'week', label: msg('Week') },
+  { id: 'link', label: msg('Link') },
+  { id: 'month', label: msg('Month') },
 ];
 
 const NOW_WINDOW_MS = 3 * 3600_000;

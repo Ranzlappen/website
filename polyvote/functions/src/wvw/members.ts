@@ -22,6 +22,7 @@ import { isValidTimeZone } from './shared/time';
 import type { MemberDoc, MemberGuild } from './shared/types';
 import { audit, callableOpts, effectiveRole, requireMember, requireWvwUid, uidForAccount } from './util';
 import { retargetCommanderEvents } from './events';
+import { isBanned } from './adminTools';
 import { adminSignIn, looksLikeAdminAttempt } from './adminLogin';
 import { markDirty } from './state';
 
@@ -182,6 +183,7 @@ export const signIn = onCall(callableOpts, async (request) => {
     throw new HttpsError('unavailable', 'Could not read your account from the GW2 API — try again shortly.');
   }
   const uid = uidForAccount(r.acct.id);
+  if (await isBanned(uid, r.acct.name ?? null)) throw new HttpsError('permission-denied', 'This GW2 account is banned from the WvW Hub.');
   const existing = (await db().collection(COL.members).doc(uid).get()).data() as MemberDoc | undefined;
   if (existing?.status === 'suspended') throw new HttpsError('permission-denied', 'This WvW Hub account is suspended.');
   const m = await applyVerification(uid, r, seal(key, requireSecret('keyEncryptionKey')));

@@ -266,6 +266,12 @@ describe('event validation', () => {
     expect(r.schedule.until).toBeNull();
   });
 
+  it('allows independent raids (no guild)', () => {
+    expect(validateEventInput({ ...base, guildId: null }, now).guildId).toBeNull();
+    expect(validateEventInput({ ...base, guildId: '' }, now).guildId).toBeNull();
+    expect(() => validateEventInput({ ...base, guildId: 42 }, now)).toThrow(/guild/);
+  });
+
   it('rejects bad input', () => {
     expect(() => validateEventInput({ ...base, type: 'nope' }, now)).toThrow(/raid type/);
     expect(() => validateEventInput({ ...base, languages: [] }, now)).toThrow(/language/);
@@ -295,6 +301,7 @@ describe('sign-in + posting rules', () => {
     expect(isOfficial(member, G1)).toBe(true);
     expect(isOfficial(member, G2)).toBe(false);
     expect(isOfficial(member, 'other')).toBe(false);
+    expect(isOfficial(member, null)).toBe(false);
   });
 
   it('recognises the admin access key without leaking timing', () => {

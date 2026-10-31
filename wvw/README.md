@@ -18,7 +18,7 @@ polyvote/firestore.rules     `wvw*` rules (public index docs, own member doc, ow
 | Phase | What | Where |
 |---|---|---|
 | **0 — public data** | Matchups, relink/lockout/reset countdowns, guild directory filled from public objective claims, weekly activity per guild, per-map K/D samples. Works with zero sign-ups. | `poller.ts` (5 min), `maintenance.ts` (10 min), `indexes.ts` |
-| **1 — verified calendar** | Sign-in **with a GW2 API key** (= verification), raids for any guild you're in (✓ official when the guild leader posts), one-off/weekly with DST-safe time zones, **map picker** (4 maps + Jumper), the **matchup map** view + reset-aligned **Day / Week / Link / Month** views, two visibility tiers, reports + moderation, iCal feeds (with optional reminders), admin **CSV raid import**, English + German UI. | `members.ts`, `guilds.ts`, `events.ts`, `reports.ts`, `ical.ts`, `admin.ts`, `import.ts` |
+| **1 — verified calendar** | Sign-in **with a GW2 API key** (= verification), raids for any guild you're in (✓ official when the guild leader posts), one-off/weekly with DST-safe time zones, **map picker** (4 maps + Jumper), the **matchup map** view + reset-aligned **Day / Week / Link / Month** views, two visibility tiers, reports + moderation, iCal feeds (with optional reminders), independent raids (no guild), moderation tools (raids, members & bans), admin **CSV raid import**, UI in English, German, French, Spanish and Italian. | `members.ts`, `guilds.ts`, `events.ts`, `reports.ts`, `ical.ts`, `admin.ts`, `adminTools.ts`, `import.ts` |
 | **2 — Discord** | **Deferred.** The first implementation (HTTP interactions bot, `/raid` commands, hub provisioning, role sync, voice headcounts) lives in git history (commit `3e01f9e`) and can be restored when wanted; `MemberDoc.discordId` is reserved for account linking. | — |
 | **3 — metrics** | Runs (go live → check-ins → end), squad size from dps.report logs › check-ins › reported, team K/D on the map during the window, objectives claimed, guild 30-day stats, attendee-only multi-axis ratings (≥5 raters, each rater counts once). | `runs.ts`, `metrics.ts` |
 
@@ -30,6 +30,9 @@ key made for another tool can't be replayed) with the `account`, `guilds` and `w
 Firebase custom token for **`wvw-gw2-<GW2 account id>`** — the GW2 account *is* the identity (no duplicates, no transfers).
 
 **Who can post**: any verified member of a guild (per the GW2 API) can post raids for it — no invite codes, no commander-tag requirement.
+Any verified member can also post an **independent raid** (no guild attached, `guildId: null`): it is never ✓ official, shows as
+"[—] Independent raid" (still no account name), has no guild page/feed and doesn't count towards guild stats. New raids default to
+**one-off**; "Weekly" pre-selects the date's weekday.
 Raids posted by the guild's in-game leader carry **✓ official**; everyone else's show without the badge. The leader can also edit the
 guild's public profile.
 
@@ -82,7 +85,7 @@ Pure date math lives in `src/lib/calendar.ts` (tested in `src/__tests__/calendar
 ## Privacy & visibility model
 
 - **No account names in public.** Public surfaces identify raids by guild tag/name only. GW2 account names live on the member's own doc
-  (owner-read) and server-only docs; admins see moderators' names in the admin view.
+  (owner-read) and server-only docs; only admins see account names, in Moderation → Members / Raids.
 - **Tiers are enforced by which docs exist**: the browser reads `wvwPublic/*` index docs (no voice/goals/notes), `wvwGuildDir/*`, `wvwRuns/*`
   (no identities, no map), its own `wvwMembers/{uid}` and **its own team's** `wvwTeamIndex/{teamId}` (rules: verified, active, non-stale
   member of that team — or the admin session, which may read every team's index). Everything else is server-only.
@@ -141,12 +144,41 @@ activity) needs no seeding at all.
 
 ## Languages
 
-The UI is English + German (header switch **EN | DE**, also on the Account page; default from the browser, saved in `localStorage`
-`wvw.lang`). Tiny dependency-free layer in `src/i18n/`: the English text is the key (`t('Raid calendar')`), German lives in
-`src/i18n/de.ts`, `{name}` placeholders are interpolated, missing keys fall back to English. Dates/numbers follow the language
-(`lib/format.ts` → `setFormatLocale`). `npm test` fails when a string passed to `t()` has no German entry or a placeholder is dropped
-(`src/__tests__/i18n.test.ts`, keys listed by `node scripts/i18n-keys.mjs`). Server error messages are English. To add a language: a
-dictionary file next to `de.ts` + an entry in `src/i18n/lang.ts`.
+The UI is **English, German, French, Spanish and Italian** (language picker in the header, also on the Account page; default from the
+browser, saved in `localStorage` `wvw.lang`). Tiny dependency-free layer in `src/i18n/`:
+
+- The English text is the key: `t('Raid calendar')`; constants that are translated later are marked with `msg('…')`.
+  Dictionaries: `de.ts`, `fr.ts`, `es.ts`, `it.ts` (key → translation); `{name}` placeholders are interpolated; a missing key falls
+  back to English.
+- Long prose (About, Privacy) is translated paragraph by paragraph with a tiny inline markup — `**bold**`, `` `code` ``,
+  `[label](/route)` — rendered by `lib/rich.tsx` (no `dangerouslySetInnerHTML`).
+- Dates, numbers and relative times ("in 3h", "il y a 12min") follow the language (`lib/format.ts` → `setFormatLocale`, `Intl`).
+- `npm test` (`src/__tests__/i18n.test.ts`) fails when any string passed to `t()`/`msg()` lacks a translation in **any** dictionary,
+  when a translation drops a `{placeholder}` or link target, or when a dictionary has stale keys. `node scripts/i18n-keys.mjs` lists all
+  keys. Server error messages stay English.
+- **Add a language**: copy `fr.ts` to `<code>.ts`, translate the values, register it in `translate.ts` (`DICTS`) and `lang.ts`
+  (`UI_LANGS`). Team colours (`red`/`blue`/`green`) are only used inside sentences after a noun — translate them as the matching adjective.
+
+## Moderation & admin tools
+
+**Moderation** (mods and admins; account names only ever appear here, for admins):
+
+| Tab | Who | What |
+|---|---|---|
+| Reports | mods | dismiss, hide raid, suspend raid lead, suspend guild page, revert |
+| Raids | mods: hide / unhide / cancel · admins: + **delete** (single or bulk) and see the poster's account | every active raid incl. hidden, team-only, imported and independent ones, with search + filters |
+| Members | admins | find by GW2 account name, newest / banned / moderators, **ban / unban**, make / remove moderator |
+| Import raids | admins | CSV seed pipeline (above) |
+| Settings | admins | site URL, community Discord link, banner, team-name overrides |
+
+Guild pages additionally show an admin **Suspend / Restore guild page** button (hides all the guild's raids).
+
+**Bans (blacklist)** live in server-only `wvwBans`, keyed by GW2 account id (`id:<id>`, survives name changes and "Delete my data") and
+by lower-cased account name (`name:<name>`, so an account that never signed in can be banned up front). `wvw-signIn` refuses both. A ban
+also suspends the member (every callable refuses), revokes their Firebase sessions, deletes the stored API key and hides their raids
+(restored on unban) or deletes them. Admins (`WVW_SECRETS.adminAccounts`) and your own account can't be banned. Callables:
+`modListEvents`, `modSetEventHidden`, `adminDeleteEvents`, `adminSetGuildSuspended`, `adminListMembers`, `adminBanMember`,
+`adminUnbanMember` (`adminTools.ts`).
 
 ## One-time setup (admin) — all in the browser, no command line
 
@@ -196,16 +228,23 @@ and every UI picker follow.
 The build is base-agnostic (`WVW_BASE`, router basename from `import.meta.env.BASE_URL`, relative manifest URLs). GitHub Pages serves
 **one custom domain per repository** and this repo's is `ranzlappen.com`, so the hub's own domain is a **second, tiny repo** that only
 holds a workflow — the template is [`deploy/standalone-pages.yml`](./deploy/standalone-pages.yml). No secrets, no copy of the code: it checks
-out this (public) repo, builds `wvw/` with `WVW_BASE=/`, copies `index.html` → `404.html` (SPA deep links) and deploys to that repo's Pages.
+out this (public) repo, builds `wvw/` for whatever path Pages serves that repo at (`actions/configure-pages` → `base_path`: `/<repo>/`
+without a custom domain, `/` with one), copies `index.html` → `404.html` (SPA deep links) and deploys to that repo's Pages.
 
-1. GitHub → **New repository** (e.g. `wvw-hub`, public) → add the template as `.github/workflows/deploy.yml`.
-2. That repo → **Settings → Pages** → Source **GitHub Actions** → **Custom domain** `wvw.example.com` → Save (tick **Enforce HTTPS** once
-   the certificate is issued). Optional but recommended: verify the domain under your GitHub account → Settings → Pages.
-3. **DNS** at your registrar — subdomain: `CNAME wvw → ranzlappen.github.io`. Apex domain: `A` records `185.199.108.153`,
-   `185.199.109.153`, `185.199.110.153`, `185.199.111.153` (+ `AAAA` `2606:50c0:8000::153` … `2606:50c0:8003::153`).
-4. **Actions → Deploy WvW Hub → Run workflow** (it also rebuilds nightly to pick up changes merged here).
-5. In the hub: **Moderation → Settings → Site URL** = `https://wvw.example.com/` (links inside iCal feeds).
-6. If the Firebase browser API key is restricted to HTTP referrers (Google Cloud console → APIs & Services → Credentials), add the new
+1. GitHub → **New repository** (e.g. `wvw`, public) → add the template under `.github/workflows/` (any file name).
+2. That repo → **Settings → Pages** → Source **GitHub Actions**. Without this the run fails at *configure-pages* ("Get Pages site failed").
+3. **Actions → Deploy WvW Hub → Run workflow** (it also runs on every push to that repo and nightly, picking up changes merged here) →
+   the hub is live at `https://<user>.github.io/<repo>/` (e.g. `ranzlappen.github.io/wvw/`). A 404 there means the workflow hasn't
+   run successfully yet.
+4. Optional own domain: Settings → Pages → **Custom domain** `wvw.example.com` → Save, then **Run workflow** once more (the base path
+   switches to `/`); tick **Enforce HTTPS** once the certificate is issued. Verifying the domain under your GitHub account → Settings →
+   Pages is recommended.
+5. **DNS** at your registrar — use **one** of the two, never both:
+   - a **subdomain** (`wvw.example.com`, recommended): a single `CNAME wvw → ranzlappen.github.io`;
+   - the **bare domain** (`example.com` itself): the four `A` records `185.199.108.153`, `185.199.109.153`, `185.199.110.153`,
+     `185.199.111.153` (+ optional `AAAA` `2606:50c0:8000::153` … `2606:50c0:8003::153`). A CNAME isn't allowed on a bare domain.
+6. In the hub: **Moderation → Settings → Site URL** = the new address (links inside iCal feeds).
+7. If the Firebase browser API key is restricted to HTTP referrers (Google Cloud console → APIs & Services → Credentials), add the new
    domain. Sign-in uses custom tokens, so no Firebase Auth "authorized domain" is needed.
 
 `ranzlappen.com/wvw/` keeps working in parallel on the same backend; keep it or replace `wvw/` in this repo's site with a redirect page.

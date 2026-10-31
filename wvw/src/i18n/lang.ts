@@ -2,6 +2,9 @@
 export const UI_LANGS = [
   { id: 'en', label: 'English', short: 'EN' },
   { id: 'de', label: 'Deutsch', short: 'DE' },
+  { id: 'fr', label: 'Français', short: 'FR' },
+  { id: 'es', label: 'Español', short: 'ES' },
+  { id: 'it', label: 'Italiano', short: 'IT' },
 ] as const;
 export type Lang = (typeof UI_LANGS)[number]['id'];
 

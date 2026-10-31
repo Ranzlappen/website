@@ -28,8 +28,10 @@ export function EventCard({ e, start, end, compact = false }: { e: PublicEvent; 
           <span className="chip chip-gold">✓ {t('official')}</span>
         ) : e.seeded ? (
           <span className="chip">📋 {t('listed by moderators')}</span>
-        ) : (
+        ) : e.guildId ? (
           <span className="chip">{t('member raid')}</span>
+        ) : (
+          <span className="chip">🏳️ {t('independent')}</span>
         )}
         {e.audience === 'team' && (
           <span className="chip chip-blue" title={t('Only visible to verified members of this team')}>
@@ -73,7 +75,7 @@ export function RunCard({ r }: { r: PublicRun }) {
       <div className="flex flex-wrap items-center gap-2">
         {live ? <LiveBadge /> : <span className="chip">{t('ended')}</span>}
         <GuildTag tag={r.guildTag} />
-        <span className="font-semibold">{r.guildName}</span>
+        <span className="font-semibold">{r.guildId ? r.guildName : t('Independent raid (no guild)')}</span>
         <span className="chip">{t(labelOf(EVENT_TYPES, r.type))}</span>
       </div>
       <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm">

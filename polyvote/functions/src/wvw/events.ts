@@ -57,7 +57,9 @@ const DAY_MS = 86_400_000;
 
 export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
   const d = (raw ?? {}) as Record<string, unknown>;
-  if (typeof d.guildId !== 'string') throw new HttpsError('invalid-argument', 'Pick a guild.');
+  // null / "" = independent raid (no guild attached).
+  const guildId = d.guildId == null || d.guildId === '' ? null : d.guildId;
+  if (guildId !== null && typeof guildId !== 'string') throw new HttpsError('invalid-argument', 'Pick a guild (or none).');
   const title = cleanText(d.title, LIMITS.titleMax, 'Title', true);
   if (!isOneOf(EVENT_TYPES, d.type)) throw new HttpsError('invalid-argument', 'Pick a raid type.');
   if (!isOneOf(OPENNESS, d.openness)) throw new HttpsError('invalid-argument', 'Pick who can join.');
@@ -94,7 +96,7 @@ export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
   }
 
   return {
-    guildId: d.guildId,
+    guildId,
     title,
     type: d.type,
     audience,
@@ -111,8 +113,8 @@ export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
 }
 
 /** ✓ official = posted by the guild's in-game leader (GW2 API `guild_leader`). */
-export function isOfficial(member: Pick<MemberDoc, 'guilds'>, guildId: string): boolean {
-  return member.guilds.some((g) => g.id === guildId && g.leader);
+export function isOfficial(member: Pick<MemberDoc, 'guilds'>, guildId: string | null): boolean {
+  return !!guildId && member.guilds.some((g) => g.id === guildId && g.leader);
 }
 
 function assertCanPostFor(member: MemberDoc, guildId: string) {
@@ -126,8 +128,10 @@ async function guildSuspended(guildId: string): Promise<boolean> {
 }
 
 export async function createEventCore(member: MemberDoc, input: EventInput): Promise<PublicEvent> {
-  assertCanPostFor(member, input.guildId);
-  if (await guildSuspended(input.guildId)) throw new HttpsError('permission-denied', 'This guild is suspended.');
+  if (input.guildId) {
+    assertCanPostFor(member, input.guildId);
+    if (await guildSuspended(input.guildId)) throw new HttpsError('permission-denied', 'This guild is suspended.');
+  }
   const active = await db()
     .collection(COL.events)
     .where('commanderUid', '==', member.uid)
@@ -136,14 +140,14 @@ export async function createEventCore(member: MemberDoc, input: EventInput): Pro
   if (active.docs.filter((d) => d.get('status') !== 'cancelled').length >= LIMITS.activeEventsPerCommander) {
     throw new HttpsError('resource-exhausted', `You already have ${LIMITS.activeEventsPerCommander} active raids.`);
   }
-  const guild = member.guilds.find((g) => g.id === input.guildId)!;
+  const guild = input.guildId ? member.guilds.find((g) => g.id === input.guildId)! : null;
   const ref = db().collection(COL.events).doc();
   const now = Date.now();
   const e: EventDoc = {
     id: ref.id,
     guildId: input.guildId,
-    guildTag: guild.tag,
-    guildName: guild.name,
+    guildTag: guild?.tag ?? '',
+    guildName: guild?.name ?? '',
     official: isOfficial(member, input.guildId),
     region: member.region ?? regionOfTeam(member.teamId!)!,
     teamId: member.teamId!,
@@ -181,7 +185,7 @@ export async function createEventCore(member: MemberDoc, input: EventInput): Pro
 
 /** A seeded (imported) raid can be taken over by any verified member of its guild. */
 function canAdopt(member: MemberDoc, e: Pick<EventDoc, 'seeded' | 'guildId'>): boolean {
-  return e.seeded === true && member.verified && !member.stale && member.guilds.some((g) => g.id === e.guildId);
+  return e.seeded === true && !!e.guildId && member.verified && !member.stale && member.guilds.some((g) => g.id === e.guildId);
 }
 
 async function loadOwned(member: MemberDoc, eventId: string): Promise<{ e: EventDoc; details: DetailsDoc }> {
@@ -200,7 +204,7 @@ async function loadOwned(member: MemberDoc, eventId: string): Promise<{ e: Event
 export async function updateEventCore(member: MemberDoc, eventId: string, input: EventInput): Promise<PublicEvent> {
   const { e, details } = await loadOwned(member, eventId);
   if (e.archived) throw new HttpsError('failed-precondition', 'This raid has ended.');
-  if (input.guildId !== e.guildId) throw new HttpsError('invalid-argument', 'The guild of a raid cannot change.');
+  if ((input.guildId ?? null) !== (e.guildId ?? null)) throw new HttpsError('invalid-argument', 'The guild of a raid cannot change.');
   const now = Date.now();
   const next: EventDoc = {
     ...e,
@@ -289,7 +293,9 @@ export async function retargetCommanderEvents(uid: string): Promise<void> {
   for (const d of events.docs) {
     const e = d.data() as EventDoc;
     regions.add(e.region);
-    const stillMember = ok && m!.guilds.some((g) => g.id === e.guildId);
+    // Independent raids only need a verified commander; guild raids also the membership.
+    const stillMember = ok && (!e.guildId || m!.guilds.some((g) => g.id === e.guildId));
+
     const patch: Partial<EventDoc> = { updatedAt: now };
     if (stillMember) {
       patch.teamId = m!.teamId!;

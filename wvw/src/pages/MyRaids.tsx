@@ -34,7 +34,7 @@ export default function MyRaids() {
     );
 
   const myGuildIds = new Set(member!.guilds.map((g) => g.id));
-  const myLive = (live.data?.runs ?? []).filter((r) => myGuildIds.has(r.guildId) && r.teamId === member!.teamId);
+  const myLive = (live.data?.runs ?? []).filter((r) => !!r.guildId && myGuildIds.has(r.guildId) && r.teamId === member!.teamId);
 
   return (
     <div>

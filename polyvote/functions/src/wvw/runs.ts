@@ -49,7 +49,7 @@ export interface StartRunInput {
 export async function startRunCore(member: MemberDoc, input: StartRunInput): Promise<PublicRun> {
   if (await myLiveRun(member.uid)) throw new HttpsError('failed-precondition', 'You already have a live run — end it first.');
 
-  let guildId: string;
+  let guildId: string | null;
   let type: EventType;
   let map: MapId = isOneOf(MAPS, input.map) ? input.map : 'jumper';
   let event: EventDoc | null = null;
@@ -62,19 +62,19 @@ export async function startRunCore(member: MemberDoc, input: StartRunInput): Pro
     if (event.status !== 'scheduled' || event.visibility !== 'public') {
       throw new HttpsError('failed-precondition', 'This raid is not active.');
     }
-    guildId = event.guildId;
+    guildId = event.guildId ?? null;
     type = event.type;
     if (!isOneOf(MAPS, input.map) && event.map) map = event.map;
   } else {
-    if (typeof input.guildId !== 'string' || !member.guilds.some((g) => g.id === input.guildId)) {
-      throw new HttpsError('invalid-argument', 'Pick one of your guilds.');
+    if (input.guildId != null && (typeof input.guildId !== 'string' || !member.guilds.some((g) => g.id === input.guildId))) {
+      throw new HttpsError('invalid-argument', 'Pick one of your guilds (or none).');
     }
     if (!isOneOf(EVENT_TYPES, input.type)) throw new HttpsError('invalid-argument', 'Pick a raid type.');
-    guildId = input.guildId;
+    guildId = input.guildId ?? null;
     type = input.type;
   }
-  const guild = member.guilds.find((g) => g.id === guildId);
-  if (!guild) throw new HttpsError('permission-denied', 'You are not in that guild anymore — re-verify.');
+  const guild = guildId ? member.guilds.find((g) => g.id === guildId) : null;
+  if (guildId && !guild) throw new HttpsError('permission-denied', 'You are not in that guild anymore — re-verify.');
 
   const ref = db().collection(COL.runs).doc();
   const now = Date.now();
@@ -82,8 +82,8 @@ export async function startRunCore(member: MemberDoc, input: StartRunInput): Pro
     id: ref.id,
     eventId: event?.id ?? null,
     guildId,
-    guildTag: guild.tag,
-    guildName: guild.name,
+    guildTag: guild?.tag ?? '',
+    guildName: guild?.name ?? '',
     region: member.region ?? regionOfTeam(member.teamId!)!,
     teamId: member.teamId!,
     matchId: await currentMatchId(member.teamId!),
@@ -150,7 +150,7 @@ export async function finalizeRun(runId: string, opts: { force?: boolean } = {})
     }
   }
   await rebuildLiveIndex();
-  await aggregateGuildStats(run.guildId).catch((e) => logger.warn('guild stats', { e: String(e) }));
+  if (run.guildId) await aggregateGuildStats(run.guildId).catch((e) => logger.warn('guild stats', { e: String(e) }));
   if (opts.force) logger.info('wvw run auto-ended', { runId });
   return ended;
 }
@@ -189,7 +189,7 @@ export async function addLogsCore(member: MemberDoc, runId: string, links: strin
   if (run.status === 'live') return run;
   const metrics = await computeRunMetrics(run, { ...priv, logs });
   await db().collection(COL.runs).doc(runId).set({ metrics }, { merge: true });
-  await aggregateGuildStats(run.guildId).catch(() => {});
+  if (run.guildId) await aggregateGuildStats(run.guildId).catch(() => {});
   return { ...run, metrics };
 }
 
@@ -235,7 +235,8 @@ export async function rateRunCore(member: MemberDoc, runId: string, raw: unknown
     .collection(COL.ratings)
     .doc(`${runId}_${member.uid}`)
     .set({ runId, guildId: run.guildId, uid: member.uid, scores, createdAt: Date.now() });
-  await aggregateGuildStats(run.guildId);
+  if (run.guildId) await aggregateGuildStats(run.guildId);
+
 }
 
 // ── Callables ────────────────────────────────────────────────────────────

@@ -52,7 +52,7 @@ export default function RunDetail() {
   const [logs, setLogs] = useState('');
   const [busy, setBusy] = useState(false);
   const now = useNow(30_000);
-  useDocumentTitle(r ? `[${r.guildTag}] ${t('run')}` : t('Run'));
+  useDocumentTitle(r ? `${r.guildTag ? `[${r.guildTag}] ` : ''}${t('run')}` : t('Run'));
 
   const refresh = useCallback(() => {
     if (!uid || !id) return;
@@ -90,7 +90,7 @@ export default function RunDetail() {
     <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
       <div>
         <PageHeader
-          title={`${r.guildName}`}
+          title={r.guildId ? r.guildName : t('Independent raid (no guild)')}
           sub={
             <span className="flex flex-wrap items-center gap-2">
               {live ? <LiveBadge /> : <span className="chip">{t('ended')}</span>}

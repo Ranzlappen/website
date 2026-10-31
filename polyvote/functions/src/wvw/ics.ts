@@ -67,8 +67,9 @@ export function buildIcs(
     if (e.status !== 'scheduled') continue;
     for (const o of occurrencesBetween(e.schedule, now - 6 * 3600_000, until, 60)) {
       const url = `${base}events/${e.id}`;
+      const label = e.guildTag ? `[${e.guildTag}] ${e.title}` : e.title;
       const desc = [
-        `${e.guildName}${e.official ? ' (official guild raid)' : ''}`,
+        e.guildId ? `${e.guildName}${e.official ? ' (official guild raid)' : ''}` : 'Independent raid (no guild)',
         `Team: ${teamName(e.teamId, opts.teamNames)} (${e.region.toUpperCase()})`,
         `Type: ${labelOf(EVENT_TYPES, e.type)} · ${labelOf(OPENNESS, e.openness)}`,
         `Map: ${labelOf(MAPS, e.map ?? 'jumper')}`,
@@ -81,7 +82,7 @@ export function buildIcs(
         `DTSTAMP:${icsDate(e.updatedAt || now)}`,
         `DTSTART:${icsDate(o.start)}`,
         `DTEND:${icsDate(o.end)}`,
-        `SUMMARY:${icsEscape(`[${e.guildTag}] ${e.title}`)}`,
+        `SUMMARY:${icsEscape(label)}`,
         `DESCRIPTION:${icsEscape(desc)}`,
         `LOCATION:${icsEscape(`GW2 WvW — ${labelOf(MAPS, e.map ?? 'jumper')} · ${teamName(e.teamId, opts.teamNames)}`)}`,
         `URL:${url}`,
@@ -90,7 +91,7 @@ export function buildIcs(
         lines.push(
           'BEGIN:VALARM',
           'ACTION:DISPLAY',
-          `DESCRIPTION:${icsEscape(`[${e.guildTag}] ${e.title}`)}`,
+          `DESCRIPTION:${icsEscape(label)}`,
           `TRIGGER:-PT${opts.alarmMin}M`,
           'END:VALARM',
         );
