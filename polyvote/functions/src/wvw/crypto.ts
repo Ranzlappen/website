@@ -9,6 +9,7 @@
 import {
   createCipheriv,
   createDecipheriv,
+  createHash,
   createHmac,
   createPublicKey,
   randomBytes,
@@ -23,10 +24,19 @@ export interface Sealed {
   data: string;
 }
 
-function keyFrom(b64: string): Buffer {
-  const key = Buffer.from(b64, 'base64');
-  if (key.length !== 32) throw new Error('keyEncryptionKey must be 32 bytes (base64).');
-  return key;
+/**
+ * `keyEncryptionKey` may be a base64 32-byte key OR any passphrase of at least
+ * 16 characters (hashed to 32 bytes with SHA-256) — so admins can set it in the
+ * Secret Manager web console without generating a key on the command line.
+ */
+export function keyFrom(secret: string): Buffer {
+  const s = (secret ?? '').trim();
+  if (/^[A-Za-z0-9+/]{43}=$/.test(s)) {
+    const key = Buffer.from(s, 'base64');
+    if (key.length === 32) return key;
+  }
+  if (s.length < 16) throw new Error('keyEncryptionKey must be a base64 32-byte key or a passphrase of at least 16 characters.');
+  return createHash('sha256').update(s, 'utf8').digest();
 }
 
 export function seal(plaintext: string, keyB64: string): Sealed {

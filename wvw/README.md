@@ -93,20 +93,27 @@ stored key (40 per run): new team → raids retargeted. Members whose key is gon
 It also publishes `wvwPublic/relink` (last observed relink + next) for the Link view. Team names aren't in the API — they're in
 `shared/teams.ts` (Elite Insights shard list) and overridable at runtime in Moderation → Settings.
 
-## One-time setup (admin)
+## One-time setup (admin) — all in the browser, no command line
 
-1. **Secret** — the deploy fails until it exists (CLAUDE.md "Required secrets"). From `polyvote/`:
-   ```bash
-   firebase functions:secrets:set WVW_SECRETS
-   ```
+Everything happens in the **Google Cloud console** (same Google account + project as Firebase; the Firebase console has no secrets page).
+No GitHub secret is needed — and nothing secret goes into the (public) repo.
+
+1. **Create the secret** — the Firebase deploy fails until it exists (CLAUDE.md "Required secrets").
+   [Secret Manager](https://console.cloud.google.com/security/secret-manager?project=proven-concept-436717-q3) → **+ Create secret** →
+   name `WVW_SECRETS`, secret value:
    ```json
-   { "keyEncryptionKey": "<openssl rand -base64 32>", "adminAccounts": ["YourName.1234"], "adminKey": "<long random value>" }
+   {"keyEncryptionKey":"<any long random text, ≥ 16 characters>","adminAccounts":["YourName.1234"],"adminKey":"<long random value>"}
    ```
-   `{}` is enough to unblock deploys; sign-in needs `keyEncryptionKey`; `adminKey` is optional (admin access key sign-in). Don't change the key later without re-verifying everyone (stored
-   keys become unreadable → members go `stale` and simply sign in again).
-2. **Custom tokens** — give the Functions runtime service account (`420991269376-compute@developer.gserviceaccount.com`) the **Service
-   Account Token Creator** role on itself and enable the *IAM Service Account Credentials API*, otherwise sign-in fails after the key check.
-3. Deploy: merging to `main` runs `firebase-deploy.yml` (rules, indexes, `functions:wvw`) and the Pages build.
+   → **Create secret**. Then on the secret's **Permissions** tab → **Grant access** → principal
+   `420991269376-compute@developer.gserviceaccount.com`, role **Secret Manager Secret Accessor**.
+   (`{}` is enough to unblock deploys; sign-in needs `keyEncryptionKey`; `adminKey` is optional. Don't change `keyEncryptionKey` later —
+   stored keys become unreadable and members simply have to sign in again. To change other fields: open the secret → **+ New version**,
+   then redeploy.) CLI alternative: `firebase functions:secrets:set WVW_SECRETS` from `polyvote/` (needs Node + `npm i -g firebase-tools`).
+2. **Allow sign-in tokens** — [Service accounts](https://console.cloud.google.com/iam-admin/serviceaccounts?project=proven-concept-436717-q3)
+   → **Default compute service account** → **Permissions** → **Grant access** → principal: that same email, role **Service Account Token
+   Creator**. Then enable the [IAM Service Account Credentials API](https://console.cloud.google.com/apis/library/iamcredentials.googleapis.com?project=proven-concept-436717-q3).
+3. **Deploy** — merge to `main`: `firebase-deploy.yml` deploys rules, indexes and `functions:wvw`; the Pages build ships the site. (Or
+   GitHub → Actions → *Deploy Firebase* → **Re-run all jobs** after a failed run.)
 
 The first `wvw-poll` run fills matchups and the guild directory within 5 minutes — nothing else needed for Phase 0.
 

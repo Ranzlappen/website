@@ -20,7 +20,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 export const WVW_SECRETS = defineSecret('WVW_SECRETS');
 
 export interface WvwSecrets {
-  /** base64 32-byte key used to AES-256-GCM-encrypt stored GW2 API keys. */
+  /** Encrypts stored GW2 API keys (AES-256-GCM): a base64 32-byte key or any passphrase ≥ 16 characters. */
   keyEncryptionKey?: string;
   /** GW2 account names (e.g. "Name.1234") that are WvW Hub admins; admins can add mods. */
   adminAccounts?: string[];

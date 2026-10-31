@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateKeyPairSync, randomBytes, sign } from 'node:crypto';
-import { hmacHex, randomCode, safeEqualHex, seal, unseal, verifyDiscordSignature } from '../crypto';
+import { hmacHex, keyFrom, randomCode, safeEqualHex, seal, unseal, verifyDiscordSignature } from '../crypto';
 import { isTeamId, regionOfMatch, regionOfTeam, teamFromAllWorlds, teamName } from '../shared/teams';
 import { isGuildId, looksLikeApiKey } from '../gw2';
 
@@ -18,7 +18,15 @@ describe('seal/unseal', () => {
     const s = seal('x', key);
     expect(() => unseal({ ...s, data: Buffer.from('y').toString('base64') }, key)).toThrow();
     expect(() => unseal(s, randomBytes(32).toString('base64'))).toThrow();
-    expect(() => seal('x', randomBytes(16).toString('base64'))).toThrow(/32 bytes/);
+    expect(() => seal('x', 'short')).toThrow(/16 characters/);
+  });
+
+  it('also accepts a long passphrase as the key', () => {
+    const phrase = 'correct horse battery staple wvw';
+    expect(unseal(seal('api-key', phrase), phrase)).toBe('api-key');
+    expect(() => unseal(seal('api-key', phrase), `${phrase}!`)).toThrow();
+    expect(keyFrom(key)).toHaveLength(32);
+    expect(keyFrom(phrase)).toHaveLength(32);
   });
 });
 
