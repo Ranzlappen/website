@@ -1,0 +1,76 @@
+# WvW Hub on its own (custom) domain — workflow TEMPLATE.
+#
+# GitHub Pages serves ONE custom domain per repository, and this repository's
+# Pages site is already ranzlappen.com. So the hub gets a second, tiny repo
+# (e.g. Ranzlappen/wvw-hub) whose only content is this file at
+# `.github/workflows/deploy.yml`. It checks out the PUBLIC website repo, builds
+# `wvw/` for a domain root (WVW_BASE=/) and publishes it to that repo's Pages.
+# Nothing here is secret; the build needs no tokens.
+#
+# One-time setup — see wvw/README.md → "Custom domain":
+#   1. New repo → add this file as .github/workflows/deploy.yml
+#   2. Settings → Pages → Source: "GitHub Actions"; Custom domain: wvw.example.com
+#      (+ Enforce HTTPS once the certificate is issued)
+#   3. DNS: CNAME  wvw → <user>.github.io   (apex domain: A/AAAA records, README)
+#   4. Hub Moderation → Settings → Site URL = https://wvw.example.com/
+#
+# Builds on demand (Actions → Run workflow) and nightly, so pushes to the
+# website repo's main reach the custom domain within a day — or click Run.
+# ranzlappen.com/wvw/ keeps working in parallel (same Firebase backend).
+name: Deploy WvW Hub (custom domain)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 3 * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the hub source (public website repo)
+        uses: actions/checkout@v7
+        with:
+          repository: Ranzlappen/website
+          ref: main
+          sparse-checkout: wvw
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: wvw/package-lock.json
+
+      - name: Build for the domain root
+        working-directory: wvw
+        env:
+          WVW_BASE: /
+        run: |
+          npm ci
+          npm run build
+          # SPA deep links: Pages serves 404.html for unknown paths → the app boots and routes.
+          cp dist/index.html dist/404.html
+
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: wvw/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

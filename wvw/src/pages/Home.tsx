@@ -9,8 +9,10 @@ import { isVerified, useStore } from '../store';
 import { occurrencesBetween } from '../shared/time';
 import { COLORS, type PublicEvent } from '../shared/types';
 import type { Region } from '../shared/teams';
+import { useT } from '../i18n';
 
 export default function Home() {
+  const t = useT();
   useDocumentTitle('');
   const member = useStore((s) => s.member);
   const uid = useStore((s) => s.uid);
@@ -43,28 +45,29 @@ export default function Home() {
           <div>
             <p className="chip chip-gold mb-3">Guild Wars 2 · World vs. World</p>
             <h1 className="text-3xl font-black tracking-tight sm:text-5xl">
-              Who’s <span className="text-[var(--gold)]">tagging</span> tonight?
+              {t('Who’s tagging tonight?')
+                .split(/(tagging|taggt)/)
+                .map((part, i) => (i === 1 ? <span key={i} className="text-[var(--gold)]">{part}</span> : part))}
             </h1>
             <p className="muted mt-3 max-w-xl text-base sm:text-lg">
-              Every planned WvW raid on every team — posted by API-verified players, shown in your time zone, week by week
-              from Friday reset.
+              {t('Every planned WvW raid on every team — posted by API-verified players, shown in your time zone, on the matchup map or week by week from Friday reset.')}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               <Link to="/calendar" className="btn btn-gold">
-                📅 Open the calendar
+                📅 {t('Open the calendar')}
               </Link>
               {!uid || !verified ? (
                 <Link to="/account" className="btn">
-                  🔑 Sign in with your GW2 API key
+                  🔑 {t('Sign in with your GW2 API key')}
                 </Link>
               ) : (
                 <Link to="/events/new" className="btn">
-                  🛡️ Post a raid
+                  🛡️ {t('Post a raid')}
                 </Link>
               )}
               {config?.hubInviteUrl && (
                 <a href={config.hubInviteUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
-                  Community Discord →
+                  {t('Community Discord')} →
                 </a>
               )}
             </div>
@@ -75,8 +78,8 @@ export default function Home() {
               <Skeleton h={120} />
             ) : (
               <>
-                <Countdown to={matches.data?.timers.teamAssignment[region]} label={`Next relink (${region.toUpperCase()})`} />
-                <Countdown to={resetAt} label="Weekly reset" />
+                <Countdown to={matches.data?.timers.teamAssignment[region]} label={t('Next relink ({region})', { region: region.toUpperCase() })} />
+                <Countdown to={resetAt} label={t('Weekly reset')} />
               </>
             )}
           </div>
@@ -88,23 +91,30 @@ export default function Home() {
         {verified && member!.region === region && (
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={myTeam} onChange={(e) => setMyTeam(e.target.checked)} />
-            Only my team (<TeamChip teamId={member!.teamId} />)
+            {t('Only my team')} (<TeamChip teamId={member!.teamId} />)
           </label>
         )}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
         <div>
-          <Section title="🟢 Live now">
+          <Section title={`🟢 ${t('Live now')}`}>
             {live.loading ? (
               <Skeleton h={70} />
             ) : liveRuns.length ? (
               <div className="grid gap-3">{liveRuns.map((r) => <RunCard key={r.id} r={r} />)}</div>
             ) : (
-              <Empty title="Nobody is live right now">Raid leads go live with the button on their raid page.</Empty>
+              <Empty title={t('Nobody is live right now')}>{t('Raid leads go live with the button on their raid page.')}</Empty>
             )}
           </Section>
-          <Section title="Coming up (next 36h)" right={<Link to="/calendar" className="text-sm text-[var(--gold)]">Full calendar →</Link>}>
+          <Section
+            title={t('Coming up (next 36h)')}
+            right={
+              <Link to="/calendar" className="text-sm text-[var(--gold)]">
+                {t('Full calendar →')}
+              </Link>
+            }
+          >
             {events.loading ? (
               <div className="grid gap-3">
                 <Skeleton h={80} />
@@ -117,29 +127,44 @@ export default function Home() {
                 ))}
               </div>
             ) : (
-              <Empty title="No raids scheduled yet">
-                Be the first: any verified guild member can <Link to="/events/new" className="text-[var(--gold)] underline">post a raid</Link>.
+              <Empty title={t('No raids scheduled yet')}>
+                {t('Be the first: any verified guild member can post a raid.')}{' '}
+                <Link to="/events/new" className="text-[var(--gold)] underline">
+                  {t('Post a raid')} →
+                </Link>
               </Empty>
             )}
           </Section>
         </div>
 
         <div>
-          <Section title="Matchups" right={<Link to="/matchups" className="text-sm text-[var(--gold)]">Details →</Link>}>
+          <Section
+            title={t('Matchups')}
+            right={
+              <Link to="/matchups" className="text-sm text-[var(--gold)]">
+                {t('Details →')}
+              </Link>
+            }
+          >
             {matches.loading ? (
               <Skeleton h={220} />
             ) : (
               <div className="grid gap-3">
                 {regionMatches.map((m) => (
                   <div key={m.id} className="card card-pad">
-                    <div className="faint mb-2 text-xs font-semibold">Tier {m.id.split('-')[1]}</div>
+                    <div className="faint mb-2 flex items-center justify-between text-xs font-semibold">
+                      <span>{t('Tier {n}', { n: m.id.split('-')[1] })}</span>
+                      <Link to="/calendar?view=map" className="text-[var(--gold)] hover:underline">
+                        🗺️ {t('Map')}
+                      </Link>
+                    </div>
                     {[...COLORS]
                       .sort((a, b) => m.sides[b].victoryPoints - m.sides[a].victoryPoints)
                       .map((c) => (
                         <div key={c} className="flex items-center justify-between gap-2 py-0.5 text-sm">
                           <span className={`side-${c} font-semibold`}>
                             ● <TeamName id={m.sides[c].teamId} />
-                            {m.sides[c].teamId === member?.teamId && <span className="chip chip-gold ml-1.5">you</span>}
+                            {m.sides[c].teamId === member?.teamId && <span className="chip chip-gold ml-1.5">{t('you')}</span>}
                           </span>
                           <span className="tabular-nums">
                             <span className="font-bold">{m.sides[c].victoryPoints}</span>
@@ -152,7 +177,7 @@ export default function Home() {
               </div>
             )}
           </Section>
-          <Section title="Recently finished">
+          <Section title={t('Recently finished')}>
             <div className="grid gap-2">
               {(live.data?.recent ?? [])
                 .filter((r) => r.region === region)
@@ -167,7 +192,8 @@ export default function Home() {
                     </span>
                   </Link>
                 ))}
-              {!(live.data?.recent ?? []).some((r) => r.region === region) && <p className="faint text-sm">No finished raids in the last 24h.</p>}
+              {!(live.data?.recent ?? []).some((r) => r.region === region) && <p className="faint text-sm">{t('No finished raids in the last 24h.')}</p>}
+
             </div>
           </Section>
         </div>

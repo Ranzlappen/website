@@ -7,8 +7,10 @@ import { isAdmin, isMod, useStore } from '../store';
 import { REPORT_REASONS, labelOf } from '../shared/constants';
 import { TEAM_NAMES } from '../shared/teams';
 import type { ReportRow } from '../shared/types';
+import { ImportRaids } from '../components/ImportRaids';
+import { useT } from '../i18n';
 
-type Tab = 'reports' | 'settings' | 'mods';
+type Tab = 'reports' | 'import' | 'settings' | 'mods';
 type Row = ReportRow & { applied: string | null };
 
 function Reports() {
@@ -229,23 +231,25 @@ function Mods() {
 }
 
 export default function Moderation() {
-  useDocumentTitle('Moderation');
+  const t = useT();
+  useDocumentTitle(t('Moderation'));
   const member = useStore((s) => s.member);
   const [tab, setTab] = useState<Tab>('reports');
-  if (!isMod(member)) return <ErrorBox>Moderators only.</ErrorBox>;
+  if (!isMod(member)) return <ErrorBox>{t('Moderators only.')}</ErrorBox>;
   const admin = isAdmin(member);
   return (
     <div>
-      <PageHeader title="Moderation" sub="Reports, settings and moderators." />
-      {!admin && <Notice>You’re a moderator — settings are admin-only.</Notice>}
+      <PageHeader title={t('Moderation')} sub={t('Reports, raid import, settings and moderators.')} />
+      {!admin && <Notice>{t('You’re a moderator — import and settings are admin-only.')}</Notice>}
       <div className="my-4">
         <Segmented
           options={[
-            { id: 'reports', label: 'Reports' },
+            { id: 'reports', label: t('Reports') },
             ...(admin
               ? ([
-                  { id: 'settings', label: 'Settings' },
-                  { id: 'mods', label: 'Mods' },
+                  { id: 'import', label: t('Import raids') },
+                  { id: 'settings', label: t('Settings') },
+                  { id: 'mods', label: t('Mods') },
                 ] as const)
               : []),
           ]}
@@ -254,7 +258,9 @@ export default function Moderation() {
         />
       </div>
       {tab === 'reports' && <Reports />}
+      {tab === 'import' && admin && <ImportRaids />}
       {tab === 'settings' && admin && <Settings />}
+
       {tab === 'mods' && admin && <Mods />}
     </div>
   );

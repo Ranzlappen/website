@@ -4,12 +4,14 @@ import { countdownParts, team } from '../lib/format';
 import { useNow, useTeamNames } from '../lib/hooks';
 import type { Color } from '../shared/types';
 import type { Region } from '../shared/teams';
+import { useT } from '../i18n';
 
-export function Spinner({ label = 'Loading…' }: { label?: string }) {
+export function Spinner({ label }: { label?: string }) {
+  const t = useT();
   return (
     <div className="flex items-center gap-2 muted text-sm" role="status">
       <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[var(--gold)] border-t-transparent" />
-      {label}
+      {label ?? t('Loading…')}
     </div>
   );
 }
@@ -105,6 +107,7 @@ export function LiveBadge() {
 }
 
 export function Countdown({ to, label }: { to: string | number | null | undefined; label: string }) {
+  const t = useT();
   const now = useNow(1000);
   if (!to) return null;
   const ms = typeof to === 'number' ? to : Date.parse(to);
@@ -120,10 +123,10 @@ export function Countdown({ to, label }: { to: string | number | null | undefine
     <div>
       <div className="label">{label}</div>
       <div className="flex gap-1.5">
-        {cell(c.d, 'days')}
-        {cell(c.h, 'hrs')}
-        {cell(c.m, 'min')}
-        {cell(c.s, 'sec')}
+        {cell(c.d, t('days'))}
+        {cell(c.h, t('hrs'))}
+        {cell(c.m, t('min'))}
+        {cell(c.s, t('sec'))}
       </div>
     </div>
   );
@@ -140,6 +143,7 @@ export function Modal({
   title: string;
   children: ReactNode;
 }) {
+  const t = useT();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;
@@ -156,7 +160,8 @@ export function Modal({
     >
       <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-3">
         <h3 className="font-bold">{title}</h3>
-        <button className="btn btn-ghost btn-sm" onClick={onClose} aria-label="Close">
+        <button className="btn btn-ghost btn-sm" onClick={onClose} aria-label={t('Close')}>
+
           ✕
         </button>
       </div>

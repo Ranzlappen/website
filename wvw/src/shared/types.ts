@@ -151,6 +151,8 @@ export interface PublicEvent {
   teamId: number;
   title: string;
   type: EventType;
+  /** Map (or `jumper`) — public, so every team sees where raids are on the matchup map. */
+  map: MapId;
   /** `team` raids never appear in public indexes — only in wvwTeamIndex/{teamId}. */
   audience: Audience;
   openness: Openness;
@@ -158,6 +160,8 @@ export interface PublicEvent {
   schedule: Schedule;
   status: 'scheduled' | 'cancelled' | 'suspended';
   liveRunId: string | null;
+  /** Listed by a moderator from a public schedule (CSV import), not posted by a verified member. */
+  seeded?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -171,7 +175,6 @@ export interface PublicEventIndex {
 /** Private tier — returned only to verified members of the same team. */
 export interface EventDetails {
   eventId: string;
-  map: MapId;
   goals: string;
   expectedSize: number | null;
   voice: { kind: VoiceKind; url: string } | null;
@@ -306,6 +309,23 @@ export interface TeamIndex {
   /** Team-only raids (audience "team") — absent from the public index. */
   events: PublicEvent[];
   details: Record<string, Omit<EventDetails, 'eventId' | 'canEdit'>>;
+}
+
+/** One CSV row of the admin raid import (`adminImportEvents`), as previewed / applied. */
+export interface ImportRowResult {
+  /** 1-based line in the CSV (header = line 1). */
+  line: number;
+  status: 'create' | 'update' | 'error';
+  error: string | null;
+  guildTag: string | null;
+  guildName: string | null;
+  teamId: number | null;
+  title: string;
+  type: EventType | null;
+  map: MapId | null;
+  /** Human summary of the schedule ("Weekly on Fri · 20:30 (Europe/Berlin)"). */
+  when: string;
+  audience: Audience | null;
 }
 
 /** wvwPublic/relink — when the current link started (observed) and ends. */

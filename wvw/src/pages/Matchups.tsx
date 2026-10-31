@@ -5,6 +5,7 @@ import { compact, kd, relative } from '../lib/format';
 import { COLORS, type Color, type MatchSummary } from '../shared/types';
 import type { Region } from '../shared/teams';
 import { useStore } from '../store';
+import { useT } from '../i18n';
 
 const MAP_LABEL: Record<string, string> = {
   Center: 'Eternal Battlegrounds',
@@ -25,26 +26,33 @@ function Bar({ match, field }: { match: MatchSummary; field: 'victoryPoints' | '
 }
 
 function MatchCard({ m, guildCounts, myTeam }: { m: MatchSummary; guildCounts: Record<string, number>; myTeam: number | null }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const order = [...COLORS].sort((a, b) => m.sides[b].victoryPoints - m.sides[a].victoryPoints);
   return (
     <div className="card card-pad">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-bold">Tier {m.id.split('-')[1]}</h2>
-        <span className="faint text-xs">ends {relative(Date.parse(m.end))}</span>
+        <h2 className="font-bold">{t('Tier {n}', { n: m.id.split('-')[1] })}</h2>
+        <span className="faint text-xs">{t('ends {when}', { when: relative(Date.parse(m.end)) })}</span>
       </div>
       <Bar match={m} field="victoryPoints" />
       <div className="mt-3 overflow-x-auto">
         <table className="table">
           <thead>
             <tr>
-              <th>Team</th>
+              <th>{t('Team')}</th>
               <th className="text-right">VP</th>
-              <th className="text-right">Score</th>
+              <th className="text-right">{t('Score')}</th>
               <th className="text-right">K/D</th>
-              <th className="text-right" title="Camps / towers / keeps / castle owned">Owned</th>
-              <th className="text-right" title="Distinct guilds holding a claim right now">Claims</th>
-              <th className="text-right" title="Guilds that selected this team's WvW guild">Guilds</th>
+              <th className="text-right" title={t('Camps / towers / keeps / castle owned')}>
+                {t('Owned')}
+              </th>
+              <th className="text-right" title={t('Distinct guilds holding a claim right now')}>
+                {t('Claims')}
+              </th>
+              <th className="text-right" title={t('Guilds that selected this team as their WvW team')}>
+                {t('Guilds')}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -54,7 +62,7 @@ function MatchCard({ m, guildCounts, myTeam }: { m: MatchSummary; guildCounts: R
                 <tr key={c}>
                   <td className={`side-${c} font-semibold`}>
                     ● <TeamName id={s.teamId} />
-                    {s.teamId === myTeam && <span className="chip chip-gold ml-1.5">you</span>}
+                    {s.teamId === myTeam && <span className="chip chip-gold ml-1.5">{t('you')}</span>}
                   </td>
                   <td className="text-right font-bold tabular-nums">{s.victoryPoints}</td>
                   <td className="text-right tabular-nums">{compact(s.score)}</td>
@@ -71,13 +79,13 @@ function MatchCard({ m, guildCounts, myTeam }: { m: MatchSummary; guildCounts: R
         </table>
       </div>
       <button className="btn btn-ghost btn-sm mt-2" onClick={() => setOpen(!open)} aria-expanded={open}>
-        {open ? '▾' : '▸'} Per map
+        {open ? '▾' : '▸'} {t('Per map')}
       </button>
       {open && (
         <div className="mt-2 grid gap-3 sm:grid-cols-2">
           {m.maps.map((map) => (
             <div key={map.type} className="rounded-xl bg-[var(--bg-2)] p-3">
-              <div className="mb-1.5 text-sm font-semibold">{MAP_LABEL[map.type] ?? map.type}</div>
+              <div className="mb-1.5 text-sm font-semibold">{t(MAP_LABEL[map.type] ?? map.type)}</div>
               {COLORS.map((c) => (
                 <div key={c} className="flex justify-between text-xs">
                   <span className={`side-${c}`}>
@@ -97,7 +105,8 @@ function MatchCard({ m, guildCounts, myTeam }: { m: MatchSummary; guildCounts: R
 }
 
 export default function Matchups() {
-  useDocumentTitle('Matchups');
+  const t = useT();
+  useDocumentTitle(t('Matchups'));
   const member = useStore((s) => s.member);
   const [region, setRegion] = useState<Region>(member?.region ?? 'eu');
   const { data, loading, error } = useMatches();
@@ -105,20 +114,21 @@ export default function Matchups() {
   return (
     <div>
       <PageHeader
-        title="Matchups"
-        sub={data ? `Live from the GW2 API · updated ${relative(data.updatedAt)}` : 'Live from the GW2 API'}
+        title={t('Matchups')}
+        sub={data ? `${t('Live from the GW2 API')} · ${t('updated {when}', { when: relative(data.updatedAt) })}` : t('Live from the GW2 API')}
         actions={<Segmented options={[{ id: 'eu', label: 'EU' }, { id: 'na', label: 'NA' }]} value={region} onChange={setRegion} />}
       />
-      {error && <ErrorBox>Could not load matchups: {error}</ErrorBox>}
+      {error && <ErrorBox>{t('Could not load matchups: {error}', { error })}</ErrorBox>}
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <div className="card card-pad">
-          <Countdown to={data?.timers.teamAssignment[region]} label="Next relink (team assignment)" />
+          <Countdown to={data?.timers.teamAssignment[region]} label={t('Next relink (team assignment)')} />
         </div>
         <div className="card card-pad">
-          <Countdown to={data?.timers.lockout[region]} label="WvW guild selection lockout" />
+          <Countdown to={data?.timers.lockout[region]} label={t('WvW guild selection lockout')} />
         </div>
         <div className="card card-pad">
-          <Countdown to={list[0]?.end} label="Weekly reset" />
+          <Countdown to={list[0]?.end} label={t('Weekly reset')} />
+
         </div>
       </div>
       {loading ? (

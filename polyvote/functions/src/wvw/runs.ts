@@ -16,7 +16,6 @@ import { regionOfTeam } from './shared/teams';
 import { audit, callableOpts, requireMember, requireVerified } from './util';
 import { rebuildEventIndex, rebuildLiveIndex, type EventDoc } from './indexes';
 import { aggregateGuildStats, computeRunMetrics, fetchLog, type LogSummary, type RunPrivate } from './metrics';
-import type { DetailsDoc } from './events';
 
 const MAX_RUN_MS = 12 * 3600_000;
 
@@ -63,10 +62,9 @@ export async function startRunCore(member: MemberDoc, input: StartRunInput): Pro
     if (event.status !== 'scheduled' || event.visibility !== 'public') {
       throw new HttpsError('failed-precondition', 'This raid is not active.');
     }
-    const d = (await db().collection(COL.eventDetails).doc(event.id).get()).data() as DetailsDoc | undefined;
     guildId = event.guildId;
     type = event.type;
-    if (!isOneOf(MAPS, input.map) && d?.map) map = d.map;
+    if (!isOneOf(MAPS, input.map) && event.map) map = event.map;
   } else {
     if (typeof input.guildId !== 'string' || !member.guilds.some((g) => g.id === input.guildId)) {
       throw new HttpsError('invalid-argument', 'Pick one of your guilds.');

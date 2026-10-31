@@ -14,12 +14,13 @@ export { poll } from './poller';
 export { maintain } from './maintenance';
 
 // Phase 1 — sign-in/verification (GW2 API key), guilds, events, reports, calendar feeds
-export { signIn, verifyApiKey, updatePrefs, forgetApiKey, deleteMyData } from './members';
+export { signIn, verifyApiKey, refreshMe, updatePrefs, forgetApiKey, deleteMyData } from './members';
 export { updateGuildProfile } from './guilds';
 export { createEvent, updateEvent, cancelEvent, getEventDetails, listMyEvents } from './events';
 export { report, modListReports, modResolveReport } from './reports';
 export { ical } from './ical';
 export { adminGetSettings, adminUpdateSettings, adminSetRole, adminListMods } from './admin';
+export { adminImportEvents } from './import';
 
 // Phase 3 — runs, metrics, ratings
 export { startRun, endRun, addRunLogs, checkIn, rateRun, myRunState } from './runs';

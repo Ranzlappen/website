@@ -3,15 +3,16 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ErrorBox, GuildTag, LiveBadge, Notice, PageHeader, Skeleton, TeamChip } from '../components/ui';
 import { ReportButton } from '../components/ReportDialog';
 import { TzPicker } from '../components/TzPicker';
-import { useDocumentTitle, useEventIndex, useMySides, useMyTeamIndex, useNow, useTeamNames } from '../lib/hooks';
+import { useDocumentTitle, useEventIndex, useMatches, useMyTeamIndex, useNow, useTeamNames } from '../lib/hooks';
 import { fmtRange, relative } from '../lib/format';
 import { call, errorMessage } from '../firebase';
-import { icalUrl } from '../config';
 import { isVerified, useStore } from '../store';
 import { EVENT_TYPES, LANGUAGES, OPENNESS, VOICE_KINDS, labelOf } from '../shared/constants';
-import { MapThumb, zoneLabel } from '../components/MapPicker';
+import { MapThumb, mapLabel } from '../components/MapPicker';
+import { SubscribeDialog } from '../components/SubscribeDialog';
 import { describeSchedule, occurrencesBetween } from '../shared/time';
-import type { EventDetails, PublicEvent, PublicRun } from '../shared/types';
+import { COLORS, type EventDetails, type PublicEvent, type PublicRun } from '../shared/types';
+import { useT } from '../i18n';
 
 function downloadIcs(e: PublicEvent, start: number, end: number) {
   const d = (ms: number) => new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
@@ -37,6 +38,7 @@ function downloadIcs(e: PublicEvent, start: number, end: number) {
 }
 
 export default function EventDetail() {
+  const t = useT();
   const { id } = useParams();
   const navigate = useNavigate();
   const eu = useEventIndex('eu');
@@ -46,14 +48,19 @@ export default function EventDetail() {
   const [details, setDetails] = useState<EventDetails | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
   const now = useNow(60_000);
-  const { sides } = useMySides();
   const names = useTeamNames();
+  const matches = useMatches().data;
+  const [subscribe, setSubscribe] = useState(false);
 
   const e = useMemo(
     () => [...(eu.data?.events ?? []), ...(na.data?.events ?? []), ...(teamIdx?.events ?? [])].find((x) => x.id === id) ?? null,
     [eu.data, na.data, teamIdx, id],
   );
-  useDocumentTitle(e ? `[${e.guildTag}] ${e.title}` : 'Raid');
+  useDocumentTitle(e ? `[${e.guildTag}] ${e.title}` : t('Raid'));
+  // The organising team's colour in its current matchup → the third it shows in on the matchup map.
+  const match = e ? matches?.matches.find((m) => COLORS.some((c) => m.sides[c].teamId === e.teamId)) : undefined;
+  const color = e && match ? COLORS.find((c) => match.sides[c].teamId === e.teamId) ?? null : null;
+  const sides = match ? { red: match.sides.red.teamId, blue: match.sides.blue.teamId, green: match.sides.green.teamId } : undefined;
 
   useEffect(() => {
     if (!uid || !id) return;
@@ -70,7 +77,10 @@ export default function EventDetail() {
   if (!e) {
     return (
       <ErrorBox>
-        This raid doesn’t exist anymore, or it’s a team-only raid of another team. <Link to="/calendar" className="underline">Back to the calendar</Link>
+        {t('This raid doesn’t exist anymore, or it’s a team-only raid of another team.')}{' '}
+        <Link to="/calendar" className="underline">
+          {t('Back to the calendar')}
+        </Link>
       </ErrorBox>
     );
   }
@@ -82,7 +92,7 @@ export default function EventDetail() {
     setBusy(true);
     try {
       const r = await call<{ run: PublicRun }>('startRun', { eventId: e.id });
-      toast('You are live! Players on your team can now check in.', 'ok');
+      toast(t('You are live! Players on your team can now check in.'), 'ok');
       navigate(`/runs/${r.run.id}`);
     } catch (err) {
       toast(errorMessage(err), 'error');
@@ -92,11 +102,11 @@ export default function EventDetail() {
   };
 
   const cancel = async () => {
-    if (!confirm('Cancel this raid?')) return;
+    if (!confirm(t('Cancel this raid?'))) return;
     setBusy(true);
     try {
       await call('cancelEvent', { eventId: e.id });
-      toast('Raid cancelled.', 'ok');
+      toast(t('Raid cancelled.'), 'ok');
     } catch (err) {
       toast(errorMessage(err), 'error');
     } finally {
@@ -112,33 +122,65 @@ export default function EventDetail() {
           sub={
             <span className="flex flex-wrap items-center gap-2">
               <GuildTag tag={e.guildTag} id={e.guildId} /> {e.guildName}
-              {e.official ? <span className="chip chip-gold">✓ official guild raid</span> : <span className="chip">member raid</span>}
+              {e.official ? (
+                <span className="chip chip-gold">✓ {t('official guild raid')}</span>
+              ) : e.seeded ? (
+                <span className="chip" title={t('Listed by the hub moderators from the guild’s public schedule. Any member of the guild can edit it and take it over.')}>
+                  📋 {t('listed by moderators')}
+                </span>
+              ) : (
+                <span className="chip">{t('member raid')}</span>
+              )}
+              {e.audience === 'team' && <span className="chip chip-blue">🔒 {t('team only')}</span>}
               {e.liveRunId && <LiveBadge />}
-              {e.status !== 'scheduled' && <span className="chip chip-red">{e.status}</span>}
+              {e.status !== 'scheduled' && <span className="chip chip-red">{t(e.status === 'suspended' ? 'on hold' : e.status)}</span>}
             </span>
           }
         />
 
         {e.liveRunId && (
           <Notice tone="gold">
-            🟢 This raid is live right now — <Link to={`/runs/${e.liveRunId}`} className="font-semibold underline">open the run to check in</Link>.
+            🟢 {t('This raid is live right now —')}{' '}
+            <Link to={`/runs/${e.liveRunId}`} className="font-semibold underline">
+              {t('open the run to check in')}
+            </Link>
+            .
           </Notice>
         )}
 
         <div className="card card-pad mt-4">
           <div className="flex flex-wrap gap-1.5">
             <TeamChip teamId={e.teamId} region={e.region} />
-            <span className="chip">{labelOf(EVENT_TYPES, e.type)}</span>
-            <span className="chip">{labelOf(OPENNESS, e.openness)}</span>
+            <span className="chip">{t(labelOf(EVENT_TYPES, e.type))}</span>
+            <span className="chip">{t(labelOf(OPENNESS, e.openness))}</span>
             {e.languages.map((l) => (
               <span key={l} className="chip">
                 {labelOf(LANGUAGES, l)}
               </span>
             ))}
           </div>
-          <p className="muted mt-3 text-sm">{describeSchedule(e.schedule)} · {e.schedule.durationMin} min</p>
+          <p className="muted mt-3 text-sm">
+            {describeSchedule(e.schedule)} · {e.schedule.durationMin} min
+          </p>
+          <div className="mt-4 flex flex-wrap items-start gap-4">
+            <MapThumb map={e.map} third={e.map === 'jumper' ? null : color} size={150} />
+            <div className="min-w-0 flex-1 text-sm">
+              <div className="label">{t('Where')}</div>
+              <div className="font-semibold">{mapLabel(e.map, t, sides, names)}</div>
+              <p className="faint mt-1 text-xs">
+                {color
+                  ? e.map === 'jumper'
+                    ? t('Shows in the Jumper section of the matchup map, in the {color} column.', { color: t(color) })
+                    : t('Shows in the {color} third on the matchup map — the side of the organising team this week.', { color: t(color) })
+                  : t('Not in a current matchup.')}
+              </p>
+              <Link to="/calendar?view=map" className="mt-2 inline-block text-xs text-[var(--gold)] underline">
+                {t('Open the matchup map →')}
+              </Link>
+            </div>
+          </div>
           <div className="mt-4 flex items-center justify-between gap-2">
-            <h2 className="font-bold">Next dates</h2>
+            <h2 className="font-bold">{t('Next dates')}</h2>
             <TzPicker compact />
           </div>
           <ul className="mt-2 divide-y divide-[var(--border)]">
@@ -147,28 +189,30 @@ export default function EventDetail() {
                 <span className="font-semibold">{fmtRange(o.start, o.end, tz)}</span>
                 <span className="flex items-center gap-2">
                   <span className="faint">{relative(o.start)}</span>
-                  <button className="btn btn-ghost btn-sm" onClick={() => downloadIcs(e, o.start, o.end)} title="Add this date to your calendar">
+                  <button className="btn btn-ghost btn-sm" onClick={() => downloadIcs(e, o.start, o.end)} title={t('Add this date to your calendar')}>
                     + .ics
                   </button>
                 </span>
               </li>
             ))}
-            {!occ.length && <li className="faint py-2 text-sm">No upcoming dates.</li>}
+            {!occ.length && <li className="faint py-2 text-sm">{t('No upcoming dates.')}</li>}
           </ul>
-          <a className="btn btn-sm mt-3" href={icalUrl({ guild: e.guildId }).replace(/^https:/, 'webcal:')}>
-            📆 Subscribe to all [{e.guildTag}] raids
-          </a>
+          <button className="btn btn-sm mt-3" onClick={() => setSubscribe(true)}>
+            📆 {t('Subscribe to all [{tag}] raids', { tag: e.guildTag })}
+          </button>
+          <p className="faint mt-1 text-xs">{t('Adds every public raid of this guild to your own calendar app, which then reminds you.')}</p>
+          <SubscribeDialog open={subscribe} onClose={() => setSubscribe(false)} params={{ guild: e.guildId }} scope={`[${e.guildTag}]`} />
         </div>
       </div>
 
       <aside className="flex flex-col gap-4">
         <div className="card card-pad">
-          <h2 className="mb-2 font-bold">🔒 Team-only details</h2>
+          <h2 className="mb-2 font-bold">🔒 {t('Team-only details')}</h2>
           {!uid ? (
             <>
-              <p className="muted text-sm">Map third, voice channel, goals and expected squad size are shown only to verified members of this raid’s team.</p>
+              <p className="muted text-sm">{t('Voice channel, goals, expected squad size and notes are shown only to verified members of this raid’s team.')}</p>
               <Link to="/account" className="btn btn-gold btn-sm mt-3">
-                Sign in with your GW2 API key
+                {t('Sign in with your GW2 API key')}
               </Link>
             </>
           ) : details === undefined ? (
@@ -176,32 +220,28 @@ export default function EventDetail() {
           ) : details === null ? (
             <p className="muted text-sm">
               {isVerified(member) ? (
-                <>You’re verified on another team — these details stay with the raid’s own team.</>
+                <>{t('You’re verified on another team — these details stay with the raid’s own team.')}</>
               ) : (
                 <>
-                  <Link to="/account" className="text-[var(--gold)] underline">Verify your GW2 account</Link> to see details for raids on your team.
+                  <Link to="/account" className="text-[var(--gold)] underline">
+                    {t('Verify your GW2 account')}
+                  </Link>
+                  {t(' to see details for raids on your team.')}
                 </>
               )}
             </p>
           ) : (
             <dl className="grid gap-2 text-sm">
               <div>
-                <dt className="label">Where</dt>
-                <dd>
-                  <span className="mb-1.5 block">{zoneLabel(details.map, sides, names)}</span>
-                  <MapThumb zone={details.map} size={180} />
-                </dd>
-              </div>
-              <div>
-                <dt className="label">Expected squad</dt>
+                <dt className="label">{t('Expected squad')}</dt>
                 <dd>{details.expectedSize ?? '—'}</dd>
               </div>
               <div>
-                <dt className="label">Voice</dt>
+                <dt className="label">{t('Voice')}</dt>
                 <dd>
                   {details.voice ? (
                     <a href={details.voice.url} target="_blank" rel="noopener noreferrer" className="break-all text-[var(--gold)] underline">
-                      {labelOf(VOICE_KINDS, details.voice.kind)} — join
+                      {t(labelOf(VOICE_KINDS, details.voice.kind))} — {t('join')}
                     </a>
                   ) : (
                     '—'
@@ -210,13 +250,13 @@ export default function EventDetail() {
               </div>
               {details.goals && (
                 <div>
-                  <dt className="label">Goals</dt>
+                  <dt className="label">{t('Goals')}</dt>
                   <dd className="whitespace-pre-wrap">{details.goals}</dd>
                 </div>
               )}
               {details.buildsUrl && (
                 <div>
-                  <dt className="label">Builds / comp</dt>
+                  <dt className="label">{t('Builds / comp')}</dt>
                   <dd>
                     <a href={details.buildsUrl} target="_blank" rel="noopener noreferrer" className="break-all text-[var(--gold)] underline">
                       {details.buildsUrl}
@@ -226,30 +266,32 @@ export default function EventDetail() {
               )}
               {details.notes && (
                 <div>
-                  <dt className="label">Notes</dt>
+                  <dt className="label">{t('Notes')}</dt>
                   <dd className="whitespace-pre-wrap">{details.notes}</dd>
                 </div>
               )}
-              <p className="faint text-xs">Please don’t share these outside the team.</p>
+              <p className="faint text-xs">{t('Please don’t share these outside the team.')}</p>
             </dl>
           )}
         </div>
 
         {canEdit && (
           <div className="card card-pad">
-            <h2 className="mb-3 font-bold">Commander tools</h2>
+            <h2 className="mb-3 font-bold">{t('Commander tools')}</h2>
+            {e.seeded && <p className="muted mb-3 text-xs">{t('This raid was listed by the moderators. Editing it makes you its commander.')}</p>}
             <div className="flex flex-wrap gap-2">
               {e.status === 'scheduled' && !e.liveRunId && (
                 <button className="btn btn-gold" onClick={goLive} disabled={busy}>
-                  🟢 Go live
+                  🟢 {t('Go live')}
                 </button>
               )}
               <Link to={`/events/${e.id}/edit`} className="btn">
-                ✏️ Edit
+                ✏️ {t('Edit')}
               </Link>
               {e.status === 'scheduled' && (
                 <button className="btn btn-danger" onClick={cancel} disabled={busy}>
-                  Cancel raid
+                  {t('Cancel raid')}
+
                 </button>
               )}
             </div>

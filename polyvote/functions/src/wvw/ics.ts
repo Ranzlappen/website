@@ -4,9 +4,14 @@
  * Occurrences are expanded server-side into individual UTC VEVENTs (next
  * 8 weeks) instead of RRULE + TZID: no VTIMEZONE blocks to maintain, and
  * Google / Apple / Outlook all render them identically. Public tier only —
- * never the map or voice link.
+ * the map is public, the voice link / goals / notes never appear.
+ *
+ * `alarmMin` adds a VALARM (reminder N minutes before). Apple Calendar and
+ * Thunderbird honour it for subscriptions (unless the user strips alerts);
+ * Google Calendar ignores feed alarms — there the user sets a default
+ * notification on the subscribed calendar instead.
  */
-import { EVENT_TYPES, OPENNESS, labelOf } from './shared/constants';
+import { EVENT_TYPES, MAPS, OPENNESS, labelOf } from './shared/constants';
 import { teamName } from './shared/teams';
 import { occurrencesBetween } from './shared/time';
 import type { PublicEvent } from './shared/types';
@@ -43,7 +48,7 @@ export function icsDate(ms: number): string {
 
 export function buildIcs(
   events: PublicEvent[],
-  opts: { name: string; siteUrl: string; now?: number; weeks?: number; teamNames?: Record<string, string> },
+  opts: { name: string; siteUrl: string; now?: number; weeks?: number; teamNames?: Record<string, string>; alarmMin?: number | null },
 ): string {
   const now = opts.now ?? Date.now();
   const until = now + (opts.weeks ?? 8) * 7 * 86_400_000;
@@ -66,8 +71,9 @@ export function buildIcs(
         `${e.guildName}${e.official ? ' (official guild raid)' : ''}`,
         `Team: ${teamName(e.teamId, opts.teamNames)} (${e.region.toUpperCase()})`,
         `Type: ${labelOf(EVENT_TYPES, e.type)} · ${labelOf(OPENNESS, e.openness)}`,
+        `Map: ${labelOf(MAPS, e.map ?? 'jumper')}`,
         `Languages: ${e.languages.join(', ')}`,
-        `Map, voice and goals for verified team members: ${url}`,
+        `Voice and goals for verified team members: ${url}`,
       ].join('\n');
       lines.push(
         'BEGIN:VEVENT',
@@ -77,10 +83,19 @@ export function buildIcs(
         `DTEND:${icsDate(o.end)}`,
         `SUMMARY:${icsEscape(`[${e.guildTag}] ${e.title}`)}`,
         `DESCRIPTION:${icsEscape(desc)}`,
-        `LOCATION:${icsEscape(`GW2 WvW — ${teamName(e.teamId, opts.teamNames)}`)}`,
+        `LOCATION:${icsEscape(`GW2 WvW — ${labelOf(MAPS, e.map ?? 'jumper')} · ${teamName(e.teamId, opts.teamNames)}`)}`,
         `URL:${url}`,
-        'END:VEVENT',
       );
+      if (opts.alarmMin) {
+        lines.push(
+          'BEGIN:VALARM',
+          'ACTION:DISPLAY',
+          `DESCRIPTION:${icsEscape(`[${e.guildTag}] ${e.title}`)}`,
+          `TRIGGER:-PT${opts.alarmMin}M`,
+          'END:VALARM',
+        );
+      }
+      lines.push('END:VEVENT');
     }
   }
   lines.push('END:VCALENDAR');
