@@ -8,16 +8,13 @@
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { COL, db } from './config';
-import { LIMITS, REPORT_REASONS, isOneOf, labelOf } from './shared/constants';
-import type { MemberDoc, ReportInput, ReportRow } from './shared/types';
-import { audit, callableOpts, cleanText, discordIdFromUid, rateLimit, requireRole, requireVerified } from './util';
+import { LIMITS, REPORT_REASONS, isOneOf } from './shared/constants';
+import type { ReportInput, ReportRow } from './shared/types';
+import { audit, callableOpts, cleanText, rateLimit, requireRole, requireVerified } from './util';
 import { hideEvent, retargetCommanderEvents, unhideEvent } from './events';
 import type { EventDoc } from './indexes';
 import { rebuildAllEventIndexes } from './indexes';
 import { markDirty } from './state';
-import { postNotice } from './discord/announce';
-import { COLORS } from './discord/api';
-import { syncMemberRoles } from './discord/roles';
 
 type Action = 'dismiss' | 'hideEvent' | 'suspendCommander' | 'suspendGuild' | 'revert';
 
@@ -80,12 +77,6 @@ export const report = onCall(callableOpts, async (request) => {
     applied: null,
   };
   await ref.set(doc);
-  await postNotice('reports', {
-    title: `🚩 New report — ${labelOf(REPORT_REASONS, doc.reason)}`,
-    description: `${doc.targetType}: ${doc.targetLabel}\n${details ? `> ${details.slice(0, 300)}` : ''}`,
-    color: COLORS.red,
-    footer: { text: `Report ${doc.id} · review it on the WvW Hub → Moderation` },
-  }).catch(() => {});
   return { id: ref.id };
 });
 
@@ -118,11 +109,7 @@ export const modListReports = onCall(callableOpts, async (request) => {
 });
 
 async function setMemberStatus(uid: string, status: 'active' | 'suspended') {
-  const ref = db().collection(COL.members).doc(uid);
-  await ref.set({ status }, { merge: true });
-  const m = (await ref.get()).data() as MemberDoc | undefined;
-  const discordId = discordIdFromUid(uid);
-  if (discordId) await syncMemberRoles(discordId, m ?? null).catch(() => {});
+  await db().collection(COL.members).doc(uid).set({ status }, { merge: true });
   await retargetCommanderEvents(uid);
 }
 

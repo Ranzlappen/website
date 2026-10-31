@@ -8,11 +8,12 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "test": "vitest run && node --test voice-worker/state.test.mjs && node scripts/check-mirror.mjs",
+    "test": "vitest run && node scripts/check-mirror.mjs",
     "test:watch": "vitest",
     "preview": "vite preview",
     "format": "prettier --write src/",
-    "check:mirror": "node scripts/check-mirror.mjs"
+    "check:mirror": "node scripts/check-mirror.mjs",
+    "build:maps": "python3 -I scripts/build-maps.py"
   },
   "dependencies": {
     "firebase": "^13.1.0",

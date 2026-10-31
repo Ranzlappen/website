@@ -108,7 +108,7 @@ export interface GuildDirDoc {
   tag: string;
   region: Region | null;
   teamId: number | null;
-  /** A verified guild leader claimed the guild page. */
+  /** The guild's leader signed in and verified (GW2 API `guild_leader`). */
   claimed: boolean;
   suspended: boolean;
   profile: GuildProfile | null;
@@ -144,7 +144,7 @@ export interface PublicEvent {
   guildId: string;
   guildTag: string;
   guildName: string;
-  /** Posted by a commander the guild leader appointed (vs. a guild member). */
+  /** Posted by the guild's leader (✓ official); any other guild member's raid shows without the badge. */
   official: boolean;
   region: Region;
   teamId: number;
@@ -209,7 +209,7 @@ export interface PublicRun {
   endedAt: number | null;
   /** Verified attendees who checked in (live counter). */
   checkins: number;
-  /** Latest headcount in the run's hub voice channel (voice worker), if linked. */
+  /** Voice-channel headcount — reserved for the deferred Discord integration (always null for now). */
   voiceNow: number | null;
   metrics: RunMetrics | null;
 }
@@ -228,15 +228,15 @@ export interface MemberGuild {
   id: string;
   tag: string;
   name: string;
+  /** GW2 API `guild_leader` — the member leads this guild in-game. */
   leader: boolean;
-  /** Leader-appointed commander for this guild. */
-  appointed: boolean;
 }
 
 export interface MemberDoc {
+  /** "wvw-gw2-<GW2 account id>" — signing in IS verifying (API key). */
   uid: string;
-  discordId: string;
-  discordName: string;
+  /** Reserved for the deferred Discord integration (account linking). */
+  discordId: string | null;
   role: MemberRole;
   status: 'active' | 'suspended';
   verified: boolean;
@@ -249,8 +249,7 @@ export interface MemberDoc {
   guilds: MemberGuild[];
   /** The member must re-verify (relink happened and no stored key worked). */
   stale: boolean;
-  challenge: string;
-  prefs: { timezone: string | null; hubAutoJoin: boolean };
+  prefs: { timezone: string | null };
   verifiedAt: number | null;
   createdAt: number;
 }
@@ -291,8 +290,21 @@ export interface ReportRow {
   resolution: string | null;
 }
 
-export interface CommanderRow {
-  uid: string;
-  accountName: string;
-  addedAt: number;
+/**
+ * wvwTeamIndex/{teamId} — the private tier of every raid on one team, readable
+ * only by verified members of that team (Firestore rules). Lets the calendar
+ * show + filter by map third without one callable per event.
+ */
+export interface TeamIndex {
+  updatedAt: number;
+  details: Record<string, Omit<EventDetails, 'eventId' | 'canEdit'>>;
+}
+
+/** wvwPublic/relink — when the current link started (observed) and ends. */
+export interface PublicRelink {
+  updatedAt: number;
+  /** Epoch ms of the last observed relink per region (null until one was observed). */
+  last: Record<Region, number | null>;
+  /** Next team assignment per region (ISO, from /v2/wvw/timers/teamAssignment). */
+  next: Record<Region, string | null>;
 }

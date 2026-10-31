@@ -10,7 +10,7 @@
  */
 import { FieldValue } from 'firebase-admin/firestore';
 import { COL, db } from './config';
-import type { GuildDirDoc, GuildIndexRow, PublicEvent, PublicRun } from './shared/types';
+import type { GuildDirDoc, GuildIndexRow, PublicEvent, PublicRun, TeamIndex } from './shared/types';
 import type { Region } from './shared/teams';
 import { isScheduleFinished, isoWeekKey, nextOccurrence } from './shared/time';
 
@@ -74,7 +74,42 @@ export async function rebuildEventIndex(region: Region): Promise<PublicEvent[]> 
     batch.update(db().collection(COL.events).doc(id), { archived: true, updatedAt: now });
   }
   await batch.commit();
+  await rebuildTeamIndexes(region, events, now);
   return events;
+}
+
+/**
+ * wvwTeamIndex/{teamId}: the private tier (map third, goals, voice, size …) of
+ * every listed raid on that team. Firestore rules let only verified, non-stale
+ * members of that team read it — the calendar's map filter uses it.
+ */
+async function rebuildTeamIndexes(region: Region, events: PublicEvent[], now: number): Promise<void> {
+  const refs = events.map((e) => db().collection(COL.eventDetails).doc(e.id));
+  const detailSnaps = refs.length ? await db().getAll(...refs) : [];
+  const byTeam = new Map<number, TeamIndex['details']>();
+  events.forEach((e, i) => {
+    const d = detailSnaps[i]?.data();
+    if (!d) return;
+    const bucket = byTeam.get(e.teamId) ?? {};
+    bucket[e.id] = {
+      map: d.map,
+      goals: d.goals ?? '',
+      expectedSize: d.expectedSize ?? null,
+      voice: d.voice ?? null,
+      buildsUrl: d.buildsUrl ?? null,
+      notes: d.notes ?? '',
+    };
+    byTeam.set(e.teamId, bucket);
+  });
+  const existing = await db().collection(COL.teamIndex).where('region', '==', region).get();
+  const batch = db().batch();
+  for (const doc of existing.docs) {
+    if (!byTeam.has(Number(doc.id))) batch.set(doc.ref, { region, updatedAt: now, details: {} });
+  }
+  for (const [teamId, details] of byTeam) {
+    batch.set(db().collection(COL.teamIndex).doc(String(teamId)), { region, updatedAt: now, details });
+  }
+  await batch.commit();
 }
 
 export async function rebuildAllEventIndexes(): Promise<void> {

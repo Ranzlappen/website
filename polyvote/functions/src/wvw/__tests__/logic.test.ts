@@ -13,13 +13,12 @@ import {
 } from '../matchData';
 import { buildIcs, foldLine, icsEscape } from '../ics';
 import { aggregateRatings, parseEiJson, pickPeak, summarizeLogs } from '../metrics';
-import { flattenOptions, parseDays, parseLanguages, parseLogLinks } from '../discord/commands';
 import { advanceRelink } from '../maintenance';
 import { heldChanges } from '../poller';
-import { validateEventInput } from '../events';
-import { desiredRoles } from '../discord/roles';
-import { DEFAULT_SETTINGS } from '../config';
-import type { MemberDoc, PublicEvent } from '../shared/types';
+import { isOfficial, validateEventInput } from '../events';
+import { keyNameOk } from '../members';
+import { MAPS, isOneOf } from '../shared/constants';
+import type { PublicEvent } from '../shared/types';
 
 const G1 = '48D16D19-D4C3-408E-AF62-53A58F83FE1F';
 const G2 = '9811A077-D73E-4B97-B1B3-F6944ED87E46';
@@ -199,26 +198,6 @@ describe('metrics', () => {
   });
 });
 
-describe('discord command parsing', () => {
-  it('flattens subcommand options and focus', () => {
-    const r = flattenOptions([
-      { type: 1, name: 'schedule', options: [{ type: 3, name: 'guild', value: 'x', focused: true }, { type: 4, name: 'duration', value: 90 }] },
-    ]);
-    expect(r).toEqual({ sub: 'schedule', opts: { guild: 'x', duration: 90 }, focused: 'guild' });
-  });
-
-  it('parses days, languages and log links', () => {
-    expect(parseDays('Mon, wed fri')).toEqual([1, 3, 5]);
-    expect(parseDays('mo,di,so')).toEqual([0, 1, 2]);
-    expect(parseLanguages(undefined)).toEqual(['en']);
-    expect(parseLanguages('EN, de,de')).toEqual(['en', 'de']);
-    expect(parseLogLinks('see https://dps.report/abc-123 and https://b.dps.report/XyZ_9 and https://evil.com/x')).toEqual([
-      'https://dps.report/abc-123',
-      'https://b.dps.report/XyZ_9',
-    ]);
-  });
-});
-
 describe('held-objective diffing', () => {
   it('only writes guilds whose held count changed', () => {
     const held = new Map([
@@ -257,7 +236,7 @@ describe('event validation', () => {
     openness: 'open',
     languages: ['en', 'xx'],
     schedule: { tz: 'Europe/Berlin', date: '2026-11-02', time: '20:00', durationMin: 120, repeat: 'weekly', days: [3, 1] },
-    map: 'ebg',
+    map: 'ebg:red',
     goals: '',
     expectedSize: 30,
     voice: { kind: 'discord', url: 'https://discord.com/channels/1/2' },
@@ -289,33 +268,28 @@ describe('event validation', () => {
   });
 });
 
-describe('role sync plan', () => {
-  const settings = {
-    ...DEFAULT_SETTINGS,
-    discord: {
-      ...DEFAULT_SETTINGS.discord,
-      roles: { verified: 'v', commander: 'c', guildLeader: 'gl', eu: 'eu', na: 'na', teams: { '12008': 't8', '12001': 't1' } },
-    },
-  };
-  const member = {
-    status: 'active',
-    verified: true,
-    stale: false,
-    commander: true,
-    region: 'eu',
-    teamId: 12008,
-    guilds: [{ id: G1, tag: 'AoD', name: 'x', leader: false, appointed: true }],
-  } as unknown as MemberDoc;
-
-  it('wants exactly the matching roles', () => {
-    const { want, managed } = desiredRoles(member, settings);
-    expect([...want].sort()).toEqual(['c', 'eu', 't8', 'v']);
-    expect(managed.has('t1')).toBe(true);
+describe('sign-in + posting rules', () => {
+  it('accepts only keys named for the WvW Hub', () => {
+    expect(keyNameOk('WvW Hub')).toBe(true);
+    expect(keyNameOk('my wvw-hub key')).toBe(true);
+    expect(keyNameOk('WVWHUB')).toBe(true);
+    expect(keyNameOk('GW2Efficiency')).toBe(false);
+    expect(keyNameOk(undefined)).toBe(false);
   });
 
-  it('wants nothing for stale, suspended or deleted members', () => {
-    expect(desiredRoles({ ...member, stale: true }, settings).want.size).toBe(0);
-    expect(desiredRoles({ ...member, status: 'suspended' }, settings).want.size).toBe(0);
-    expect(desiredRoles(null, settings).want.size).toBe(0);
+  it('marks only the guild leader’s raids as official', () => {
+    const member = { guilds: [{ id: G1, tag: 'AoD', name: 'x', leader: true }, { id: G2, tag: 'B', name: 'y', leader: false }] };
+    expect(isOfficial(member, G1)).toBe(true);
+    expect(isOfficial(member, G2)).toBe(false);
+    expect(isOfficial(member, 'other')).toBe(false);
+  });
+
+  it('knows every map third plus the jumper', () => {
+    expect(MAPS).toHaveLength(13);
+    expect(isOneOf(MAPS, 'ebg:red')).toBe(true);
+    expect(isOneOf(MAPS, 'green:blue')).toBe(true);
+    expect(isOneOf(MAPS, 'jumper')).toBe(true);
+    expect(isOneOf(MAPS, 'any')).toBe(false);
+    expect(MAPS.find((m) => m.id === 'blue:red')?.apiType).toBe('BlueHome');
   });
 });

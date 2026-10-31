@@ -25,7 +25,7 @@ on:
       - 'games/docs/**'
       - 'wvw/README.md'
       - 'wvw/.gitignore'
-      - 'wvw/voice-worker/**'
+      - 'wvw/scripts/build-maps.py'
       # Firebase resources (deployed by firebase-deploy.yml, not bundled into the site)
       - 'polyvote/.firebaserc'
       - 'polyvote/firebase.json'

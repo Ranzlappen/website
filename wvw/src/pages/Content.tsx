@@ -16,7 +16,7 @@ export function Rules() {
   useDocumentTitle('Community rules');
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="Community rules" sub="The same rules apply on this website and in the WvW Hub Discord server." />
+      <PageHeader title="Community rules" sub="Rules for everyone posting or rating raids on the WvW Hub." />
       <ol className="card card-pad grid gap-4">
         {COMMUNITY_RULES.map((r, i) => (
           <li key={i} className="leading-relaxed text-[#cbd5e1]">
@@ -45,19 +45,20 @@ export function About() {
       </ul>
       <h2>Verification</h2>
       <ul>
-        <li>Sign in with Discord, then paste a GW2 API key whose <em>name</em> contains your personal code. That proves the key was made for us and can’t be replayed from elsewhere.</li>
-        <li>We read your guilds, whether you lead a guild, whether you own a commander tag, and your current WvW team. After every relink your team is re-checked automatically and your Discord roles follow.</li>
+        <li>Sign in by pasting a GW2 API key named <code>WvW Hub</code> (account, guilds and wvw permissions). The name proves the key was made for us — keys made for other tools aren’t accepted.</li>
+        <li>We read your guilds, whether you lead a guild, whether you own a commander tag, and your current WvW team. After every relink your team is re-checked automatically.</li>
         <li><strong>Account names are never shown publicly.</strong> Raids are identified only by guild tag.</li>
       </ul>
-      <h2>Commanders & guild leaders</h2>
+      <h2>Posting raids</h2>
       <ul>
-        <li>Anyone verified with a commander tag can post raids for a guild they’re in (“member raid”). Guild leaders claim their guild page and hand out commander invite codes — raids from appointed commanders are marked “✓ official”.</li>
-        <li>Raids can be posted on the website or with <code>/raid schedule</code> in Discord; both are announced in the hub. Go live with <code>/raid live</code>, end with <code>/raid end</code>.</li>
-        <li>The map, voice link, goals and expected squad size are only shown to verified members of the raid’s own team — WvW is a competitive mode, so plans don’t leak to the enemy.</li>
+        <li>Any verified member of a guild can post raids for it — the GW2 API confirms the membership. Raids posted by the guild’s in-game leader carry the “✓ official” badge.</li>
+        <li>Pick where you’ll lead on a map of the current matchup: each map is split into thirds, one per team colour, plus “Jumper” for cross-map play.</li>
+        <li>The map third, voice link, goals and expected squad size are only shown to verified members of the raid’s own team — WvW is a competitive mode, so plans don’t leak to the enemy.</li>
+        <li>The calendar runs week by week from Friday reset; switch between Day, Week, Link (until the next relink) and Month.</li>
       </ul>
       <h2>Stats & ratings</h2>
       <ul>
-        <li>Each run records duration, check-ins, (optionally) hub voice headcounts and arcdps logs uploaded to dps.report — we keep counts only, never player names.</li>
+        <li>Each run records duration, check-ins and arcdps logs uploaded to dps.report — we keep counts only, never player names.</li>
         <li>Only players who checked in to a run can rate it, for {LIMITS.ratingWindowHours} hours, on four aspects. No free-text reviews. Guild averages appear only after {LIMITS.minRatingsToShow} different raters, and each person counts once.</li>
       </ul>
       <h2>Support</h2>
@@ -65,7 +66,7 @@ export function About() {
         WvW Hub is a non-commercial passion project. If it helps your community, you can <a href={KOFI_URL}>buy me a coffee on Ko-fi</a>
         {config?.hubInviteUrl && (
           <>
-            {' '}or <a href={config.hubInviteUrl}>join the Discord hub</a>
+            {' '}or <a href={config.hubInviteUrl}>join the community Discord</a>
           </>
         )}
         .
@@ -83,14 +84,13 @@ export function Privacy() {
       <p>Browsing is anonymous. Pages load data from our own Firebase backend (Google Cloud); your browser never contacts the GW2 API directly. We use no analytics or ad trackers. Your chosen display time zone is kept in your browser’s local storage.</p>
       <h2>With an account</h2>
       <ul>
-        <li><strong>Discord:</strong> your Discord user id and display name (to sign you in and assign hub roles). We don’t keep Discord access tokens.</li>
-        <li><strong>Guild Wars 2:</strong> account id and name, guild memberships, guild-leader status, commander-tag ownership and current WvW team — read via the API key you provide. The account name is visible only to you (and, if you’re an appointed commander, to your guild leader).</li>
+        <li><strong>Guild Wars 2:</strong> account id and name, guild memberships, guild-leader status, commander-tag ownership and current WvW team — read via the API key you sign in with. The account name is visible only to you (and to admins when promoting moderators).</li>
         <li><strong>API key:</strong> stored encrypted (AES-256-GCM) and used only to re-check your team after relinks. Delete it any time on your Account page.</li>
         <li><strong>Activity:</strong> raids you post, runs you check in to, and your ratings (stored without being shown individually; only guild averages are published).</li>
         <li><strong>Reports</strong> you file are visible to moderators without your identity.</li>
       </ul>
       <h2>Deletion</h2>
-      <p>“Delete my data” on the Account page removes your account, API key, check-ins, ratings and commander appointments, cancels your raids and removes your hub roles. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.</p>
+      <p>“Delete my data” on the Account page removes your account, API key, check-ins and ratings and cancels your raids. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.</p>
       <h2>Legal</h2>
       <p>
         Operator, contact and legal notice: <a href={LEGAL_URL}>ranzlappen.com</a>. Under the GDPR you can request access, correction or deletion at any time.

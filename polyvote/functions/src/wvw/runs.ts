@@ -1,8 +1,8 @@
 /**
  * Phase 3 — runs (a raid actually happening), check-ins and ratings.
  *
- * A commander "goes live" (website button or `/raid live`), verified players
- * on the same team check in (website or the Check-in button on the hub post),
+ * A raid lead "goes live" from the website, verified players on the same team
+ * check in,
  * the commander ends the run (optionally with dps.report links) and metrics
  * are computed. Only checked-in attendees can rate, for 72h, on four axes —
  * no free text, so ratings can't become a harassment channel.
@@ -16,16 +16,9 @@ import { regionOfTeam } from './shared/teams';
 import { audit, callableOpts, requireMember, requireVerified } from './util';
 import { rebuildEventIndex, rebuildLiveIndex, type EventDoc } from './indexes';
 import { aggregateGuildStats, computeRunMetrics, fetchLog, type LogSummary, type RunPrivate } from './metrics';
-import { announceRun } from './discord/announce';
 import type { DetailsDoc } from './events';
 
 const MAX_RUN_MS = 12 * 3600_000;
-
-export function voiceChannelFromUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  const m = /discord(?:app)?\.com\/channels\/\d+\/(\d+)/.exec(url);
-  return m ? m[1] : null;
-}
 
 async function currentMatchId(teamId: number): Promise<string | null> {
   const pub = (await db().collection(COL.public).doc('matches').get()).data() as PublicMatches | undefined;
@@ -47,33 +40,19 @@ async function myLiveRun(uid: string): Promise<{ run: PublicRun; priv: RunPrivat
   return { run, priv: snap.docs[0].data() as RunPrivate };
 }
 
-async function syncRunPost(run: PublicRun, priv: RunPrivate): Promise<void> {
-  try {
-    const msg = await announceRun(run, priv.discord ?? null, run.status === 'ended' ? priv.map : null);
-    if (msg && msg.messageId !== priv.discord?.messageId) {
-      await db().collection(COL.runPrivate).doc(run.id).set({ discord: msg }, { merge: true });
-    }
-  } catch (e) {
-    logger.warn('wvw run announce failed', { runId: run.id, error: String(e) });
-  }
-}
-
 export interface StartRunInput {
   eventId?: string | null;
   guildId?: string | null;
   type?: string | null;
   map?: string | null;
-  voiceUrl?: string | null;
 }
 
 export async function startRunCore(member: MemberDoc, input: StartRunInput): Promise<PublicRun> {
-  if (!member.commander) throw new HttpsError('permission-denied', 'Only commanders can start a run.');
   if (await myLiveRun(member.uid)) throw new HttpsError('failed-precondition', 'You already have a live run — end it first.');
 
   let guildId: string;
   let type: EventType;
-  let map: MapId = isOneOf(MAPS, input.map) ? input.map : 'any';
-  let voiceChannelId = voiceChannelFromUrl(input.voiceUrl);
+  let map: MapId = isOneOf(MAPS, input.map) ? input.map : 'jumper';
   let event: EventDoc | null = null;
 
   if (input.eventId) {
@@ -88,7 +67,6 @@ export async function startRunCore(member: MemberDoc, input: StartRunInput): Pro
     guildId = event.guildId;
     type = event.type;
     if (!isOneOf(MAPS, input.map) && d?.map) map = d.map;
-    voiceChannelId = voiceChannelId ?? voiceChannelFromUrl(d?.voice?.url);
   } else {
     if (typeof input.guildId !== 'string' || !member.guilds.some((g) => g.id === input.guildId)) {
       throw new HttpsError('invalid-argument', 'Pick one of your guilds.');
@@ -122,12 +100,11 @@ export async function startRunCore(member: MemberDoc, input: StartRunInput): Pro
   const priv: RunPrivate = {
     commanderUid: member.uid,
     map,
-    voiceChannelId,
+    voiceChannelId: null,
     status: 'live',
     reportedPeak: null,
     logs: [],
     voice: null,
-    discord: null,
   };
   const batch = db().batch();
   batch.set(ref, run);
@@ -135,7 +112,6 @@ export async function startRunCore(member: MemberDoc, input: StartRunInput): Pro
   if (event) batch.update(db().collection(COL.events).doc(event.id), { liveRunId: ref.id, updatedAt: now });
   await batch.commit();
   await Promise.all([rebuildLiveIndex(), event ? rebuildEventIndex(event.region) : Promise.resolve([])]);
-  await syncRunPost(run, priv);
   return run;
 }
 
@@ -175,7 +151,6 @@ export async function finalizeRun(runId: string, opts: { force?: boolean } = {})
     }
   }
   await rebuildLiveIndex();
-  await syncRunPost(ended, { ...priv, status: 'ended' });
   await aggregateGuildStats(run.guildId).catch((e) => logger.warn('guild stats', { e: String(e) }));
   if (opts.force) logger.info('wvw run auto-ended', { runId });
   return ended;

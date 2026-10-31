@@ -4,11 +4,11 @@
  *  - Relink detection: `/v2/wvw/timers/teamAssignment` (cached in
  *    wvwPublic/matches) moves forward once a relink happened. 30 minutes
  *    after it, members of that region are re-verified with their stored key
- *    in batches → new team, events retargeted, Discord team roles swapped.
+ *    in batches → new team, events retargeted.
  *  - Weekly refresh of every verification (guild changes, commander tag).
  *  - Debounced guild-directory rebuild + guild stats for dirty guilds.
- *  - Event index rebuild (archives finished schedules) + refresh of the
- *    "Next:" time on weekly Discord announcements.
+ *  - Event index rebuild (archives finished schedules) + publishes the relink
+ *    history (`wvwPublic/relink`) the calendar's Link view uses.
  *  - Auto-end runs that were left live for > 12h.
  *  - Daily purge of old claim logs / samples / jobs.
  */
@@ -16,15 +16,12 @@ import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { logger } from 'firebase-functions/v2';
 import { COL, WVW_SECRETS, db } from './config';
 import { reverifyStored } from './members';
-import { rebuildAllEventIndexes, rebuildGuildIndex, type EventDoc } from './indexes';
+import { rebuildAllEventIndexes, rebuildGuildIndex } from './indexes';
 import { takeDirty } from './state';
 import { aggregateGuildStats } from './metrics';
 import { finalizeRun } from './runs';
-import { nextOccurrence } from './shared/time';
-import type { PublicMatches } from './shared/types';
+import type { PublicMatches, PublicRelink } from './shared/types';
 import type { Region } from './shared/teams';
-import { announceEvent } from './discord/announce';
-import type { DetailsDoc } from './events';
 
 const SETTLE_MS = 30 * 60_000;
 const REVERIFY_BATCH = 40;
@@ -85,32 +82,6 @@ async function refreshStale(now: number): Promise<number> {
     .get();
   for (const d of snap.docs) await reverifyStored(d.id).catch(() => {});
   return snap.size;
-}
-
-async function refreshWeeklyAnnouncements(now: number): Promise<number> {
-  const snap = await db()
-    .collection(COL.events)
-    .where('archived', '==', false)
-    .where('status', '==', 'scheduled')
-    .get();
-  let n = 0;
-  for (const d of snap.docs) {
-    if (n >= 20) break;
-    const e = d.data() as EventDoc;
-    if (e.schedule.repeat !== 'weekly' || e.visibility !== 'public') continue;
-    const next = nextOccurrence(e.schedule, now)?.start ?? null;
-    const detRef = db().collection(COL.eventDetails).doc(e.id);
-    const det = (await detRef.get()).data() as (DetailsDoc & { announcedNext?: number | null }) | undefined;
-    if (!det?.discord || det.announcedNext === next) continue;
-    try {
-      const msg = await announceEvent(e, det.discord);
-      await detRef.set({ announcedNext: next, ...(msg ? { discord: msg } : {}) }, { merge: true });
-      n++;
-    } catch (err) {
-      logger.warn('wvw announcement refresh', { eventId: e.id, error: String(err) });
-    }
-  }
-  return n;
 }
 
 async function endStaleRuns(now: number): Promise<number> {
@@ -178,12 +149,16 @@ export async function maintainOnce(): Promise<Record<string, number | string>> {
     await rebuildAllEventIndexes();
     state.eventIndexAt = now;
   }
-  out.announcements = await refreshWeeklyAnnouncements(now);
+  const relink: PublicRelink = {
+    updatedAt: now,
+    last: { na: state.last.na ?? null, eu: state.last.eu ?? null },
+    next: { na: pub?.timers.teamAssignment.na ?? null, eu: pub?.timers.teamAssignment.eu ?? null },
+  };
+  await db().collection(COL.public).doc('relink').set(relink);
   out.autoEnded = await endStaleRuns(now);
 
   if (now - state.purgeAt > 86_400_000) {
     out.purgedClaims = await deleteOlderThan(COL.claimLog, 'claimedAt', now - 120 * 86_400_000);
-    out.purgedJobs = await deleteOlderThan('wvwDiscordJobs', 'at', now - 86_400_000);
     out.purgedAudit = await deleteOlderThan(COL.audit, 'at', now - 365 * 86_400_000);
     const days = await db().collection(COL.matchDays).where('day', '<', utcKey(now - 60 * 86_400_000)).limit(400).get();
     const b = db().batch();

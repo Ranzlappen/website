@@ -1,13 +1,8 @@
-/**
- * Client configuration. Everything here is public (no secrets).
- *
- * DISCORD_CLIENT_ID: the OAuth2 client id of the WvW Hub Discord application
- * (Discord Developer Portal → OAuth2). Until it's set, "Sign in with Discord"
- * shows a setup notice instead of redirecting. See wvw/README.md → Setup.
- */
+/** Client configuration. Everything here is public (no secrets). */
 export const APP_NAME = 'WvW Hub';
 
-export const DISCORD_CLIENT_ID = '';
+/** API keys must be named so they contain this (server checks via /v2/tokeninfo). */
+export const KEY_NAME = 'WvW Hub';
 
 /** Vite base ("/wvw/" today; "/" once it moves to its own domain). */
 export const BASE = import.meta.env.BASE_URL;

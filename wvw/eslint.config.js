@@ -20,7 +20,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.mjs', 'voice-worker/**/*.mjs'],
+    files: ['scripts/**/*.mjs'],
     languageOptions: { globals: { ...globals.node } },
   },
   {

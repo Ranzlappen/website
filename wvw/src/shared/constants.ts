@@ -6,14 +6,37 @@
  * is a two-file change (this file + its mirror) and nothing else.
  */
 
-/** WvW maps a squad can be scheduled on. `any` = "wherever we're needed". */
-export const MAPS = [
+/** The four WvW maps. `apiType` is the map `type` in /v2/wvw/matches. */
+export const WVW_MAPS = [
   { id: 'ebg', label: 'Eternal Battlegrounds', short: 'EBG', apiType: 'Center' },
   { id: 'red', label: 'Red Borderlands', short: 'Red BL', apiType: 'RedHome' },
   { id: 'blue', label: 'Blue Borderlands', short: 'Blue BL', apiType: 'BlueHome' },
   { id: 'green', label: 'Green Borderlands', short: 'Green BL', apiType: 'GreenHome' },
-  { id: 'any', label: 'Any / roaming between maps', short: 'Any', apiType: null },
 ] as const;
+export type WvwMapId = (typeof WVW_MAPS)[number]['id'];
+
+/** Every map is split into thirds — one per team colour (nearest team spawn). */
+export const THIRDS = ['red', 'blue', 'green'] as const;
+export type Third = (typeof THIRDS)[number];
+
+/**
+ * Where a raid takes place: one third of one map ("ebg:red" = the red third
+ * of Eternal Battlegrounds) or `jumper` (cross-map play, hopping between maps).
+ * The visual picker lives in wvw/src/components/MapPicker.tsx.
+ */
+export const MAPS = [
+  ...WVW_MAPS.flatMap((m) =>
+    THIRDS.map((t) => ({
+      id: `${m.id}:${t}` as `${WvwMapId}:${Third}`,
+      label: `${m.short} · ${t} third`,
+      short: `${m.short} ${t[0].toUpperCase()}`,
+      apiType: m.apiType as string | null,
+      map: m.id as WvwMapId | null,
+      third: t as Third | null,
+    })),
+  ),
+  { id: 'jumper' as const, label: 'Jumper — cross-map play', short: 'Jumper', apiType: null, map: null, third: null },
+];
 export type MapId = (typeof MAPS)[number]['id'];
 
 export const EVENT_TYPES = [
@@ -142,10 +165,10 @@ export const COMMUNITY_RULES: string[] = [
   '**3. Follow ArenaNet’s rules.** No cheats, exploits, botting, account sharing/selling, or third-party tools ArenaNet prohibits. arcdps-style tools within ArenaNet’s policy are fine.',
   '**4. No call-out or drama threads.** Problems with a guild or commander go to the report button on the WvW Hub or to a moderator — not into public channels.',
   '**5. No doxxing, no account names.** Don’t post other people’s account names, real names, IPs or private info. The Hub only ever shows guild tags — keep it that way.',
-  '**6. Never post API keys.** Not yours, not anyone’s. Verification happens on the website only. Posted keys are blocked automatically.',
-  '**7. No spam or advertising.** Guild recruitment goes in #guild-recruitment (one post per guild). No unrelated links, selling, or RMT.',
+  '**6. Never post API keys.** Not yours, not anyone’s — a key is a login. Paste it only into the WvW Hub sign-in form.',
+  '**7. No spam or advertising.** Recruit through your guild page, not raid posts. No unrelated links, selling, or RMT.',
   '**8. Honest raid posts.** Only schedule raids you actually intend to lead, for a guild you actually lead for. Fake or impersonating posts get the guild page suspended.',
-  '**9. Keep it English in shared channels** unless a channel says otherwise; region and guild spaces can use their own language.',
+  '**9. Tag your raid’s language honestly** so players know what to expect on comms.',
   '**10. Moderators have the final word.** Disagree? DM a moderator calmly. Ban evasion = permanent ban.',
 ];
 

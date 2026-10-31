@@ -249,7 +249,7 @@ jobs:
         working-directory: wvw
         run: npm run lint
 
-      # Vitest + voice-worker node:test + shared-file mirror check vs polyvote/functions
+      # Vitest + shared-file mirror check vs polyvote/functions
       - name: Test
         working-directory: wvw
         run: npm test

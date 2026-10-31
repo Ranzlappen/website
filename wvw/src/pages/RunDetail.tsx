@@ -6,7 +6,8 @@ import { useDocumentTitle, useNow, useRun } from '../lib/hooks';
 import { fmtRange, relative } from '../lib/format';
 import { call, errorMessage } from '../firebase';
 import { isVerified, useStore } from '../store';
-import { EVENT_TYPES, LIMITS, MAPS, RATING_AXES, labelOf, type RatingAxis } from '../shared/constants';
+import { EVENT_TYPES, LIMITS, RATING_AXES, labelOf, type RatingAxis } from '../shared/constants';
+import { zoneLabel } from '../components/MapPicker';
 
 interface RunState {
   isCommander: boolean;
@@ -105,12 +106,12 @@ export default function RunDetail() {
         />
         <p className="muted mb-4 text-sm">
           {live ? `Started ${relative(r.startedAt)}` : fmtRange(r.startedAt, r.endedAt ?? r.startedAt, tz)}
-          {st?.isCommander && st.map && ` · map: ${labelOf(MAPS, st.map)}`}
+          {st?.isCommander && st.map && ` · ${zoneLabel(st.map)}`}
         </p>
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <Stat label="Checked in" value={r.checkins} />
-          <Stat label="In voice" value={live ? (r.voiceNow ?? '—') : (m?.voice?.peak ?? '—')} hint={live ? 'right now' : 'peak'} />
+          <Stat label="Claims" value={live ? '—' : (m?.claims ?? 0)} hint="objectives by the guild" />
           <Stat label="Duration" value={live ? relative(r.startedAt).replace(' ago', '') : `${m?.durationMin ?? '?'} min`} />
           <Stat label="Squad" value={m?.peak ?? '—'} hint={m?.peakSource ? `from ${m.peakSource}` : undefined} />
         </div>
@@ -121,7 +122,6 @@ export default function RunDetail() {
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               <Stat label="Team K/D on map" value={m.team?.kdr ?? '—'} hint={m.team ? `${m.team.kills} K / ${m.team.deaths} D (whole team)` : 'no samples'} />
               <Stat label="Objectives claimed" value={m.claims} hint="by this guild" />
-              <Stat label="Voice avg" value={m.voice?.avg ?? '—'} />
               {m.logs && (
                 <>
                   <Stat label="Logs" value={m.logs.count} hint={`${m.logs.durationMin} min of fights`} />

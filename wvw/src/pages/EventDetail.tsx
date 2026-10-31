@@ -3,15 +3,15 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ErrorBox, GuildTag, LiveBadge, Notice, PageHeader, Skeleton, TeamChip } from '../components/ui';
 import { ReportButton } from '../components/ReportDialog';
 import { TzPicker } from '../components/TzPicker';
-import { useDocumentTitle, useEventIndex, useNow } from '../lib/hooks';
+import { useDocumentTitle, useEventIndex, useMySides, useNow, useTeamNames } from '../lib/hooks';
 import { fmtRange, relative } from '../lib/format';
 import { call, errorMessage } from '../firebase';
 import { icalUrl } from '../config';
 import { isVerified, useStore } from '../store';
-import { EVENT_TYPES, LANGUAGES, MAPS, OPENNESS, VOICE_KINDS, labelOf } from '../shared/constants';
+import { EVENT_TYPES, LANGUAGES, OPENNESS, VOICE_KINDS, labelOf } from '../shared/constants';
+import { MapThumb, zoneLabel } from '../components/MapPicker';
 import { describeSchedule, occurrencesBetween } from '../shared/time';
 import type { EventDetails, PublicEvent, PublicRun } from '../shared/types';
-import { discordConfigured, startDiscordLogin } from '../lib/discordAuth';
 
 function downloadIcs(e: PublicEvent, start: number, end: number) {
   const d = (ms: number) => new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
@@ -45,6 +45,8 @@ export default function EventDetail() {
   const [details, setDetails] = useState<EventDetails | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
   const now = useNow(60_000);
+  const { sides } = useMySides();
+  const names = useTeamNames();
 
   const e = useMemo(
     () => [...(eu.data?.events ?? []), ...(na.data?.events ?? [])].find((x) => x.id === id) ?? null,
@@ -89,7 +91,7 @@ export default function EventDetail() {
   };
 
   const cancel = async () => {
-    if (!confirm('Cancel this raid? The Discord announcement is updated too.')) return;
+    if (!confirm('Cancel this raid?')) return;
     setBusy(true);
     try {
       await call('cancelEvent', { eventId: e.id });
@@ -163,10 +165,10 @@ export default function EventDetail() {
           <h2 className="mb-2 font-bold">🔒 Team-only details</h2>
           {!uid ? (
             <>
-              <p className="muted text-sm">Map, voice channel, goals and expected squad size are shown only to verified members of this raid’s team.</p>
-              <button className="btn btn-discord btn-sm mt-3" disabled={!discordConfigured()} onClick={() => startDiscordLogin()}>
-                Sign in with Discord
-              </button>
+              <p className="muted text-sm">Map third, voice channel, goals and expected squad size are shown only to verified members of this raid’s team.</p>
+              <Link to="/account" className="btn btn-gold btn-sm mt-3">
+                Sign in with your GW2 API key
+              </Link>
             </>
           ) : details === undefined ? (
             <Skeleton h={90} />
@@ -183,8 +185,11 @@ export default function EventDetail() {
           ) : (
             <dl className="grid gap-2 text-sm">
               <div>
-                <dt className="label">Map</dt>
-                <dd>{labelOf(MAPS, details.map)}</dd>
+                <dt className="label">Where</dt>
+                <dd>
+                  <span className="mb-1.5 block">{zoneLabel(details.map, sides, names)}</span>
+                  <MapThumb zone={details.map} size={180} />
+                </dd>
               </div>
               <div>
                 <dt className="label">Expected squad</dt>
@@ -200,7 +205,6 @@ export default function EventDetail() {
                   ) : (
                     '—'
                   )}
-                  {details.voice?.url.includes('discord.gg/') && <div className="faint text-xs">Personal single-use invite (1 h).</div>}
                 </dd>
               </div>
               {details.goals && (

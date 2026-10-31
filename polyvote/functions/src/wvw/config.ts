@@ -2,14 +2,14 @@
  * WvW Hub server configuration.
  *
  * Secrets: ONE Firebase Functions secret, `WVW_SECRETS`, holding a JSON object
- * (see wvw/README.md "Setup"). One secret instead of six keeps setup to a
- * single `firebase functions:secrets:set WVW_SECRETS` — and, importantly, the
+ * (see wvw/README.md "Setup"). One secret keeps setup to a single
+ * `firebase functions:secrets:set WVW_SECRETS` — and, importantly, the
  * firebase CLI validates every `defineSecret` up front on ANY functions deploy
  * (see CLAUDE.md "Required secrets"), so it MUST exist (a `{}` placeholder is
  * enough) before this code reaches `main`. Missing fields disable the feature
  * that needs them with a clear error instead of crashing the deploy.
  *
- * Runtime settings (Discord channel/role ids, team-name overrides …) live in
+ * Runtime settings (team-name overrides, hub invite link, banner) live in
  * Firestore `wvwConfig/settings`, edited from the site's Moderation → Settings
  * page, so they change without a deploy.
  */
@@ -20,20 +20,12 @@ import { getFirestore } from 'firebase-admin/firestore';
 export const WVW_SECRETS = defineSecret('WVW_SECRETS');
 
 export interface WvwSecrets {
-  discordApplicationId?: string;
-  discordClientId?: string;
-  discordClientSecret?: string;
-  discordBotToken?: string;
-  /** Hex Ed25519 public key from the Discord developer portal. */
-  discordPublicKey?: string;
   /** base64 32-byte key used to AES-256-GCM-encrypt stored GW2 API keys. */
   keyEncryptionKey?: string;
-  /** Shared HMAC secret between the voice gateway worker and wvw-voiceSamples. */
-  voiceWorkerSecret?: string;
-  /** Discord user ids that are WvW Hub admins (bootstrap; admins can add mods). */
-  adminDiscordIds?: string[];
-  /** Exact OAuth redirect URIs the Discord login may use. */
-  allowedRedirectUris?: string[];
+  /** GW2 account names (e.g. "Name.1234") that are WvW Hub admins; admins can add mods. */
+  adminAccounts?: string[];
+  // Reserved for the deferred Discord integration (bot, hub server, OAuth):
+  // discordApplicationId, discordClientId, discordClientSecret, discordBotToken, discordPublicKey.
 }
 
 let cached: { raw: string; parsed: WvwSecrets } | null = null;
@@ -74,12 +66,11 @@ export const COL = {
   config: 'wvwConfig', // server-only settings
   guildDir: 'wvwGuildDir', // public-read guild pages
   guildPrivate: 'wvwGuildPrivate', // server-only: leader, commanders
-  invites: 'wvwInvites', // server-only: commander invite codes
   members: 'wvwMembers', // owner-read only
-  accounts: 'wvwAccounts', // server-only: gw2 account id -> uid (uniqueness)
   keys: 'wvwKeys', // server-only: encrypted API keys
   events: 'wvwEvents', // server-only canonical public-tier event
   eventDetails: 'wvwEventDetails', // server-only private tier
+  teamIndex: 'wvwTeamIndex', // per-team private tier index (verified same-team read)
   runs: 'wvwRuns', // public-read run docs (no identities, no map)
   runPrivate: 'wvwRunPrivate', // server-only: commander, map, voice, check-ins
   ratings: 'wvwRatings', // server-only
@@ -94,45 +85,16 @@ export const db = () => getFirestore();
 
 // ── Runtime settings (wvwConfig/settings) ────────────────────────────────
 
-export interface DiscordSettings {
-  guildId: string | null;
-  autoJoin: boolean;
-  channels: Partial<
-    Record<
-      | 'welcome'
-      | 'rules'
-      | 'announcements'
-      | 'raidsEu'
-      | 'raidsNa'
-      | 'liveEu'
-      | 'liveNa'
-      | 'modLog'
-      | 'reports',
-      string
-    >
-  >;
-  roles: {
-    verified?: string;
-    commander?: string;
-    guildLeader?: string;
-    eu?: string;
-    na?: string;
-    mod?: string;
-    teams?: Record<string, string>;
-  };
-}
-
 export interface Settings {
-  discord: DiscordSettings;
   teamNames: Record<string, string>;
+  /** Optional public link to a community Discord (plain link, no bot yet). */
   hubInviteUrl: string | null;
   announcement: string | null;
-  /** Public site origin + base, used in Discord links + iCal ("https://ranzlappen.com/wvw/"). */
+  /** Public site origin + base, used in iCal links ("https://ranzlappen.com/wvw/"). */
   siteUrl: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  discord: { guildId: null, autoJoin: false, channels: {}, roles: {} },
   teamNames: {},
   hubInviteUrl: null,
   announcement: null,
@@ -147,14 +109,10 @@ export async function getSettings(fresh = false): Promise<Settings> {
   const data = (snap.data() ?? {}) as Partial<Settings>;
   const value: Settings = {
     ...DEFAULT_SETTINGS,
-    ...data,
-    discord: {
-      ...DEFAULT_SETTINGS.discord,
-      ...(data.discord ?? {}),
-      channels: { ...(data.discord?.channels ?? {}) },
-      roles: { ...(data.discord?.roles ?? {}) },
-    },
     teamNames: { ...(data.teamNames ?? {}) },
+    hubInviteUrl: data.hubInviteUrl ?? null,
+    announcement: data.announcement ?? null,
+    siteUrl: data.siteUrl ?? DEFAULT_SETTINGS.siteUrl,
   };
   settingsCache = { at: Date.now(), value };
   return value;

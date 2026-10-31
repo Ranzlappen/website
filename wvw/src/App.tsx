@@ -14,7 +14,6 @@ const EventDetail = lazy(() => import('./pages/EventDetail'));
 const EventEditor = lazy(() => import('./pages/EventEditor'));
 const RunDetail = lazy(() => import('./pages/RunDetail'));
 const Account = lazy(() => import('./pages/Account'));
-const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const MyRaids = lazy(() => import('./pages/MyRaids'));
 const Moderation = lazy(() => import('./pages/Moderation'));
 
@@ -33,7 +32,6 @@ export default function App() {
           <Route path="events/:id/edit" element={<EventEditor />} />
           <Route path="runs/:id" element={<RunDetail />} />
           <Route path="account" element={<Account />} />
-          <Route path="auth/discord" element={<AuthCallback />} />
           <Route path="my-raids" element={<MyRaids />} />
           <Route path="mod" element={<Moderation />} />
           <Route path="about" element={<About />} />

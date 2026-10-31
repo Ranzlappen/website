@@ -5,33 +5,21 @@
  * and a new WvW function never needs a workflow edit. Callable names on the
  * client are therefore "wvw-<name>" and HTTP endpoints live at
  * https://us-central1-<project>.cloudfunctions.net/wvw-<name>.
- * Architecture + setup: wvw/README.md.
+ * Architecture + setup: wvw/README.md. The Discord integration (bot, hub
+ * server, role sync, voice headcounts) is deferred — see the README.
  */
 
 // Phase 0 — public data
 export { poll } from './poller';
 export { maintain } from './maintenance';
 
-// Phase 1 — identity, verification, guilds, events, reports, calendar feeds
-export { discordLogin } from './auth';
-export { verifyApiKey, rotateChallenge, updatePrefs, forgetApiKey, deleteMyData } from './members';
-export {
-  claimGuild,
-  updateGuildProfile,
-  createCommanderInvite,
-  redeemCommanderInvite,
-  listGuildCommanders,
-  removeGuildCommander,
-} from './guilds';
+// Phase 1 — sign-in/verification (GW2 API key), guilds, events, reports, calendar feeds
+export { signIn, verifyApiKey, updatePrefs, forgetApiKey, deleteMyData } from './members';
+export { updateGuildProfile } from './guilds';
 export { createEvent, updateEvent, cancelEvent, getEventDetails, listMyEvents } from './events';
 export { report, modListReports, modResolveReport } from './reports';
 export { ical } from './ical';
 export { adminGetSettings, adminUpdateSettings, adminSetRole, adminListMods } from './admin';
 
-// Phase 2 — Discord bot + hub server
-export { discordInteractions, discordJobs } from './discord/interactions';
-export { adminProvisionDiscord, adminRegisterCommands, adminDiscordInfo } from './discord/provision';
-
-// Phase 3 — runs, metrics, ratings, voice headcounts
+// Phase 3 — runs, metrics, ratings
 export { startRun, endRun, addRunLogs, checkIn, rateRun, myRunState } from './runs';
-export { voiceSamples } from './voice';

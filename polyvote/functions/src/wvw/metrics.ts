@@ -3,7 +3,7 @@
  *
  * Sources, in order of trust for squad size:
  *   1. arcdps logs uploaded to dps.report (Elite Insights JSON) — exact squad
- *   2. hub voice-channel headcount (voice worker samples, counts only)
+ *   2. voice-channel headcount (reserved for the deferred Discord integration)
  *   3. verified check-ins
  *   4. the commander's reported peak
  * Team K/D comes from our own 5-minute per-map samples (team-level, so it's
@@ -102,7 +102,6 @@ export interface RunPrivate {
   reportedPeak: number | null;
   logs: LogSummary[];
   voice: { samples: number; sum: number; peak: number } | null;
-  discord?: { channelId: string; messageId: string } | null;
 }
 
 export async function computeRunMetrics(run: PublicRun, priv: RunPrivate): Promise<RunMetrics> {

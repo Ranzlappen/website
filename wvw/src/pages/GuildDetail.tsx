@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ChipToggle, Empty, ErrorBox, Notice, PageHeader, Section, Skeleton, Stat, TeamChip } from '../components/ui';
+import { useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { ChipToggle, Empty, ErrorBox, PageHeader, Section, Skeleton, Stat, TeamChip } from '../components/ui';
 import { EventCard, RunCard } from '../components/EventCard';
 import { ReportButton } from '../components/ReportDialog';
 import { useDocumentTitle, useEventIndex, useGuild, useGuildRuns, useNow } from '../lib/hooks';
@@ -10,7 +10,7 @@ import { icalUrl } from '../config';
 import { isVerified, useStore } from '../store';
 import { COMMON_TIMEZONES, LANGUAGES, LIMITS, PLAYSTYLES, RATING_AXES, labelOf, type Language, type Playstyle } from '../shared/constants';
 import { isoWeekKey } from '../shared/time';
-import type { CommanderRow, GuildProfile } from '../shared/types';
+import type { GuildProfile } from '../shared/types';
 
 function ActivityBars({ activity }: { activity: Record<string, { claims: number }> }) {
   const now = useNow(3600_000);
@@ -37,17 +37,6 @@ function LeaderTools({ guildId, profile }: { guildId: string; profile: GuildProf
     profile ?? { description: '', languages: ['en'], playstyles: [], timezone: null, recruiting: false, discordInvite: null, website: null },
   );
   const [busy, setBusy] = useState(false);
-  const [code, setCode] = useState<string | null>(null);
-  const [commanders, setCommanders] = useState<CommanderRow[] | null>(null);
-
-  const load = () =>
-    call<{ commanders: CommanderRow[] }>('listGuildCommanders', { guildId })
-      .then((r) => setCommanders(r.commanders))
-      .catch(() => setCommanders([]));
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [guildId]);
 
   const save = async () => {
     setBusy(true);
@@ -63,7 +52,7 @@ function LeaderTools({ guildId, profile }: { guildId: string; profile: GuildProf
 
   return (
     <div className="card card-pad grid gap-4">
-      <h2 className="font-bold">👑 Leader tools</h2>
+      <h2 className="font-bold">👑 Guild page (you lead this guild)</h2>
       <label>
         <span className="label">About the guild</span>
         <textarea className="textarea" maxLength={LIMITS.descriptionMax} value={p.description} onChange={(e) => setP({ ...p, description: e.target.value })} />
@@ -105,59 +94,7 @@ function LeaderTools({ guildId, profile }: { guildId: string; profile: GuildProf
           Save guild page
         </button>
       </div>
-
-      <hr className="border-[var(--border)]" />
-      <div>
-        <h3 className="font-semibold">Commanders</h3>
-        <p className="muted mt-1 text-sm">
-          Appointed commanders post <span className="chip chip-gold">✓ official</span> raids. Create a code and share it in guild chat — any guild
-          member with a commander tag can redeem it on their Account page (valid 7 days, 10 uses).
-        </p>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button
-            className="btn btn-sm"
-            onClick={async () => {
-              try {
-                const r = await call<{ code: string }>('createCommanderInvite', { guildId });
-                setCode(r.code);
-              } catch (e) {
-                toast(errorMessage(e), 'error');
-              }
-            }}
-          >
-            New invite code
-          </button>
-          {code && <code className="rounded-lg bg-[var(--bg-2)] px-3 py-1.5 font-mono text-lg tracking-widest text-[var(--gold)]">{code}</code>}
-        </div>
-        <ul className="mt-3 divide-y divide-[var(--border)] text-sm">
-          {commanders === null ? (
-            <li className="py-2">
-              <Skeleton h={20} />
-            </li>
-          ) : commanders.length === 0 ? (
-            <li className="faint py-2">No appointed commanders yet.</li>
-          ) : (
-            commanders.map((c) => (
-              <li key={c.uid} className="flex items-center justify-between py-2">
-                <span>
-                  {c.accountName} <span className="faint text-xs">· since {new Date(c.addedAt).toLocaleDateString()}</span>
-                </span>
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={async () => {
-                    if (!confirm(`Remove ${c.accountName} as commander?`)) return;
-                    await call('removeGuildCommander', { guildId, uid: c.uid }).catch((e) => toast(errorMessage(e), 'error'));
-                    load();
-                  }}
-                >
-                  Remove
-                </button>
-              </li>
-            ))
-          )}
-        </ul>
-        <p className="faint mt-2 text-xs">Account names are shown only to you, the leader — never publicly.</p>
-      </div>
+      <p className="faint text-xs">Every member of the guild can post raids for it; raids you post as leader show ✓ official.</p>
     </div>
   );
 }
@@ -166,11 +103,9 @@ export default function GuildDetail() {
   const { id } = useParams();
   const { data: g, loading, error } = useGuild(id);
   const member = useStore((s) => s.member);
-  const toast = useStore((s) => s.toast);
   const runs = useGuildRuns(id);
   const region = g?.region ?? 'eu';
   const events = useEventIndex(region);
-  const [claiming, setClaiming] = useState(false);
   const now = useNow(3600_000);
   useDocumentTitle(g ? `[${g.tag}] ${g.name}` : 'Guild');
 
@@ -181,18 +116,6 @@ export default function GuildDetail() {
   if (loading) return <Skeleton h={400} />;
   if (error) return <ErrorBox>{error}</ErrorBox>;
   if (!g || !g.name) return <Empty title="Guild not found">It appears here once it claims an objective or a member verifies.</Empty>;
-
-  const claim = async () => {
-    setClaiming(true);
-    try {
-      await call('claimGuild', { guildId: g.id });
-      toast('Guild claimed — you can now edit its page and appoint commanders.', 'ok');
-    } catch (e) {
-      toast(errorMessage(e), 'error');
-    } finally {
-      setClaiming(false);
-    }
-  };
 
   const st = g.stats;
   const weeks4 = Array.from({ length: 4 }, (_, i) => isoWeekKey(now - i * 7 * 86_400_000));
@@ -205,7 +128,7 @@ export default function GuildDetail() {
         sub={
           <span className="flex flex-wrap items-center gap-2">
             <TeamChip teamId={g.teamId} region={g.region} />
-            {g.claimed ? <span className="chip chip-gold">✓ verified guild page</span> : <span className="chip">unclaimed</span>}
+            {g.claimed ? <span className="chip chip-gold">✓ leader verified</span> : <span className="chip">leader not signed in</span>}
             {g.profile?.recruiting && <span className="chip chip-green">recruiting</span>}
             {g.suspended && <span className="chip chip-red">suspended</span>}
             {g.lastSeenAt && <span className="faint text-xs">last claim {relative(g.lastSeenAt)}</span>}
@@ -221,11 +144,6 @@ export default function GuildDetail() {
         }
       />
 
-      {isLeader && !g.claimed && (
-        <Notice tone="gold">
-          You lead this guild in-game. <button className="font-semibold underline" onClick={claim} disabled={claiming}>Claim the guild page</button> to edit it and appoint commanders.
-        </Notice>
-      )}
 
       <div className="mt-4 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
         <div>
@@ -292,12 +210,8 @@ export default function GuildDetail() {
               )}
             </div>
           )}
-          {isLeader && g.claimed && <LeaderTools guildId={g.id} profile={g.profile ?? null} />}
-          {!isLeader && myGuild && (
-            <p className="faint text-xs">
-              You’re a member. {myGuild.appointed ? 'You are an appointed commander ⭐.' : <>Got a commander code from your leader? Redeem it on your <Link to="/account" className="underline">Account</Link> page.</>}
-            </p>
-          )}
+          {isLeader && <LeaderTools guildId={g.id} profile={g.profile ?? null} />}
+          {!isLeader && myGuild && <p className="faint text-xs">You’re a member — you can post raids for this guild.</p>}
         </div>
       </div>
     </div>

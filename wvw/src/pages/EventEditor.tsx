@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChipToggle, ErrorBox, Notice, PageHeader, Segmented, Skeleton } from '../components/ui';
-import { useDocumentTitle, useEventIndex, useNow } from '../lib/hooks';
+import { useDocumentTitle, useEventIndex, useMySides, useNow, useTeamNames } from '../lib/hooks';
+import { MapPicker, zoneLabel } from '../components/MapPicker';
 import { fmtRange } from '../lib/format';
 import { call, errorMessage } from '../firebase';
 import { isVerified, useStore } from '../store';
@@ -10,7 +11,6 @@ import {
   EVENT_TYPES,
   LANGUAGES,
   LIMITS,
-  MAPS,
   OPENNESS,
   VOICE_KINDS,
   type EventType,
@@ -37,7 +37,7 @@ function blank(tz: string, guildId: string): EventInput {
     openness: 'open',
     languages: ['en'],
     schedule: { tz, date, time: '20:00', durationMin: 120, repeat: 'weekly', days: [weekdayOfDays(civilToDays(p.y, p.m, p.d))], until: null },
-    map: 'any',
+    map: 'ebg:red',
     goals: '',
     expectedSize: null,
     voice: null,
@@ -60,6 +60,8 @@ export default function EventEditor() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const now = useNow(60_000);
+  const { sides, myColor } = useMySides();
+  const names = useTeamNames();
 
   const existing: PublicEvent | null = useMemo(
     () => (id ? [...(eu.data?.events ?? []), ...(na.data?.events ?? [])].find((e) => e.id === id) ?? null : null),
@@ -84,7 +86,7 @@ export default function EventEditor() {
           openness: existing.openness,
           languages: existing.languages,
           schedule: existing.schedule,
-          map: d?.map ?? 'any',
+          map: d?.map ?? 'ebg:red',
           goals: d?.goals ?? '',
           expectedSize: d?.expectedSize ?? null,
           voice: d?.voice ?? null,
@@ -103,12 +105,9 @@ export default function EventEditor() {
   if (!isVerified(member)) {
     return (
       <Notice tone="warn">
-        Only verified commanders can post raids. <Link to="/account" className="underline">Verify your GW2 account →</Link>
+        Sign in with your GW2 API key to post raids. <Link to="/account" className="underline">Sign in →</Link>
       </Notice>
     );
-  }
-  if (!member!.commander) {
-    return <Notice tone="warn">Your GW2 account doesn’t own a commander tag, so you can’t post raids (yet).</Notice>;
   }
   if (!member!.guilds.length) return <Notice tone="warn">Join a guild in-game, then re-verify — raids are always posted for a guild.</Notice>;
   if (!form) return <Skeleton h={400} />;
@@ -131,7 +130,7 @@ export default function EventEditor() {
         navigate(`/events/${id}`);
       } else {
         const r = await call<{ event: PublicEvent }>('createEvent', payload);
-        toast('Raid posted and announced in the Discord hub!', 'ok');
+        toast('Raid posted to the calendar!', 'ok');
         navigate(`/events/${r.event.id}`);
       }
     } catch (e) {
@@ -161,14 +160,14 @@ export default function EventEditor() {
             <select className="select" value={form.guildId} onChange={(e) => set('guildId', e.target.value)} disabled={editing}>
               {member!.guilds.map((g) => (
                 <option key={g.id} value={g.id}>
-                  [{g.tag}] {g.name} {g.leader ? '👑' : g.appointed ? '⭐' : ''}
+                  [{g.tag}] {g.name} {g.leader ? '👑' : ''}
                 </option>
               ))}
             </select>
             <span className="faint mt-1 block text-xs">
-              {guild?.appointed || guild?.leader
-                ? 'Shows as an ✓ official guild raid.'
-                : 'Shows as a member raid — ask your guild leader for a commander invite code to make it official.'}
+              {guild?.leader
+                ? 'You lead this guild — the raid shows as ✓ official.'
+                : 'Any guild member can post; only the guild leader’s raids carry the ✓ official badge.'}
             </span>
           </label>
           <label>
@@ -277,17 +276,14 @@ export default function EventEditor() {
 
       <div className="card card-pad mb-4 grid gap-4">
         <h2 className="font-bold">🔒 Team-only details</h2>
+        <div>
+          <span className="label">Where — pick a map third, or Jumper for cross-map play</span>
+          <MapPicker value={form.map} onChange={(v) => v && set('map', v as MapId)} sides={sides} myColor={myColor} />
+          <p className="muted mt-1 text-center text-sm">
+            Selected: <b className="text-white">{zoneLabel(form.map, sides, names)}</b>
+          </p>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <label>
-            <span className="label">Map</span>
-            <select className="select" value={form.map} onChange={(e) => set('map', e.target.value as MapId)}>
-              {MAPS.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-          </label>
           <label>
             <span className="label">Expected squad size</span>
             <input
@@ -317,10 +313,6 @@ export default function EventEditor() {
               onChange={(e) => setVoiceUrl(e.target.value)}
               placeholder={voiceKind === 'discord' ? 'https://discord.com/channels/… or discord.gg/…' : 'ts3server://… / https://…'}
             />
-            <span className="faint mt-1 block text-xs">
-              Tip: link a hub voice channel (right-click → Copy Link) — every viewer then gets a personal single-use invite, and the
-              raid gets real voice headcounts.
-            </span>
           </label>
         </div>
         <label>

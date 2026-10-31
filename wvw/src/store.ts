@@ -76,7 +76,7 @@ let memberUnsub: Unsubscribe | null = null;
 onAuthStateChanged(auth, (user) => {
   memberUnsub?.();
   memberUnsub = null;
-  if (!user || !user.uid.startsWith('wvw-discord-')) {
+  if (!user || !user.uid.startsWith('wvw-')) {
     useStore.setState({ uid: null, authReady: true, member: null, memberReady: true });
     return;
   }

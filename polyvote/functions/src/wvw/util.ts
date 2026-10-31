@@ -11,8 +11,13 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { COL, WVW_SECRETS, db, secrets } from './config';
 import type { MemberDoc, MemberRole } from './shared/types';
 
-/** Every WvW Hub uid is minted by wvw-discordLogin with this prefix. */
-export const UID_PREFIX = 'wvw-discord-';
+/**
+ * Every WvW Hub uid is minted by `wvw-signIn` as "wvw-gw2-<GW2 account id>":
+ * the GW2 account is the identity (signing in with an API key IS verifying).
+ * `auth/onCreate.ts` skips the "wvw-" prefix so these users never land in
+ * PolyVote's `users` collection.
+ */
+export const UID_PREFIX = 'wvw-gw2-';
 
 export const callableOpts: CallableOptions = {
   secrets: [WVW_SECRETS],
@@ -20,18 +25,14 @@ export const callableOpts: CallableOptions = {
   memory: '256MiB',
 };
 
-export function uidForDiscord(discordId: string): string {
-  return UID_PREFIX + discordId;
-}
-
-export function discordIdFromUid(uid: string): string | null {
-  return uid.startsWith(UID_PREFIX) ? uid.slice(UID_PREFIX.length) : null;
+export function uidForAccount(accountId: string): string {
+  return UID_PREFIX + accountId;
 }
 
 export function requireWvwUid(request: CallableRequest): string {
   const uid = request.auth?.uid;
   if (!uid || !uid.startsWith(UID_PREFIX)) {
-    throw new HttpsError('unauthenticated', 'Sign in with Discord first.');
+    throw new HttpsError('unauthenticated', 'Sign in with your GW2 API key first.');
   }
   return uid;
 }
@@ -41,8 +42,9 @@ export async function getMember(uid: string): Promise<MemberDoc | null> {
   return snap.exists ? (snap.data() as MemberDoc) : null;
 }
 
-export function effectiveRole(m: Pick<MemberDoc, 'discordId' | 'role'>): MemberRole {
-  if ((secrets().adminDiscordIds ?? []).includes(m.discordId)) return 'admin';
+export function effectiveRole(m: Pick<MemberDoc, 'accountName' | 'role'>): MemberRole {
+  const admins = (secrets().adminAccounts ?? []).map((a) => a.toLowerCase());
+  if (m.accountName && admins.includes(m.accountName.toLowerCase())) return 'admin';
   return m.role ?? 'user';
 }
 

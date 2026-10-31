@@ -30,7 +30,7 @@ export default function MyRaids() {
     <div>
       <PageHeader
         title="My raids"
-        sub="Raids you post appear on the calendar and in the hub’s raid channel. Go live from a raid page or with /raid live in Discord."
+        sub="Raids you post appear on the calendar for everyone; map third, voice and goals only for your team. Go live from a raid page."
         actions={
           <Link to="/events/new" className="btn btn-gold">
             + Post a raid

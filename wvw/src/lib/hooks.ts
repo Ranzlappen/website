@@ -2,14 +2,19 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { collection, doc, limit, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import { firestore } from '../firebase';
 import type {
+  Color,
   GuildDirDoc,
   GuildIndexRow,
   PublicConfig,
   PublicEventIndex,
   PublicLive,
   PublicMatches,
+  PublicRelink,
   PublicRun,
+  TeamIndex,
 } from '../shared/types';
+import { COLORS } from '../shared/types';
+import { isVerified, useStore } from '../store';
 import type { Region } from '../shared/teams';
 
 interface Entry<T> {
@@ -98,8 +103,29 @@ export const useEventIndex = (region: Region) => useDocLive<PublicEventIndex>(`w
 export const useGuildIndex = (region: Region) =>
   useDocLive<{ updatedAt: number; guilds: GuildIndexRow[] }>(`wvwPublic/guildIndex_${region}`);
 export const usePublicConfig = () => useDocLive<PublicConfig>('wvwPublic/config');
+export const useRelink = () => useDocLive<PublicRelink>('wvwPublic/relink');
 export const useGuild = (id: string | undefined) => useDocLive<GuildDirDoc>(id ? `wvwGuildDir/${id}` : null);
 export const useRun = (id: string | undefined) => useDocLive<PublicRun>(id ? `wvwRuns/${id}` : null);
+
+/**
+ * The private tier of the viewer's own team (map third, goals, voice …).
+ * Firestore rules only allow verified members of that team — others get null.
+ */
+export function useMyTeamIndex(): TeamIndex | null {
+  const member = useStore((s) => s.member);
+  const teamId = isVerified(member) ? member!.teamId : null;
+  return useDocLive<TeamIndex>(teamId ? `wvwTeamIndex/${teamId}` : null).data;
+}
+
+/** Team id per colour in the viewer's current matchup + the viewer's own colour. */
+export function useMySides(): { sides: Partial<Record<Color, number | null>> | undefined; myColor: Color | null } {
+  const member = useStore((s) => s.member);
+  const { data } = useMatches();
+  const match = member?.teamId ? data?.matches.find((m) => COLORS.some((c) => m.sides[c].teamId === member.teamId)) : undefined;
+  if (!match) return { sides: undefined, myColor: null };
+  const sides = { red: match.sides.red.teamId, blue: match.sides.blue.teamId, green: match.sides.green.teamId };
+  return { sides, myColor: COLORS.find((c) => sides[c] === member!.teamId) ?? null };
+}
 
 /** Team-name overrides from wvwPublic/config. */
 export function useTeamNames(): Record<string, string> {

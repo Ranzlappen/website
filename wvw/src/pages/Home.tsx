@@ -9,8 +9,6 @@ import { isVerified, useStore } from '../store';
 import { occurrencesBetween } from '../shared/time';
 import { COLORS, type PublicEvent } from '../shared/types';
 import type { Region } from '../shared/teams';
-import { discordConfigured, startDiscordLogin } from '../lib/discordAuth';
-import { BASE } from '../config';
 
 export default function Home() {
   useDocumentTitle('');
@@ -48,29 +46,25 @@ export default function Home() {
               Who’s <span className="text-[var(--gold)]">tagging</span> tonight?
             </h1>
             <p className="muted mt-3 max-w-xl text-base sm:text-lg">
-              Every scheduled WvW raid on every team — posted by API-verified commanders, shown in your time zone, synced
-              with Discord.
+              Every planned WvW raid on every team — posted by API-verified players, shown in your time zone, week by week
+              from Friday reset.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               <Link to="/calendar" className="btn btn-gold">
                 📅 Open the calendar
               </Link>
-              {!uid ? (
-                <button className="btn btn-discord" disabled={!discordConfigured()} onClick={() => startDiscordLogin(`${BASE}account`)}>
-                  Sign in with Discord
-                </button>
-              ) : !verified ? (
+              {!uid || !verified ? (
                 <Link to="/account" className="btn">
-                  ✅ Verify your account
+                  🔑 Sign in with your GW2 API key
                 </Link>
-              ) : member?.commander ? (
+              ) : (
                 <Link to="/events/new" className="btn">
                   🛡️ Post a raid
                 </Link>
-              ) : null}
+              )}
               {config?.hubInviteUrl && (
                 <a href={config.hubInviteUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
-                  Join the Discord hub →
+                  Community Discord →
                 </a>
               )}
             </div>
@@ -107,7 +101,7 @@ export default function Home() {
             ) : liveRuns.length ? (
               <div className="grid gap-3">{liveRuns.map((r) => <RunCard key={r.id} r={r} />)}</div>
             ) : (
-              <Empty title="Nobody is live right now">Commanders go live with the button on their raid or <code>/raid live</code> in Discord.</Empty>
+              <Empty title="Nobody is live right now">Raid leads go live with the button on their raid page.</Empty>
             )}
           </Section>
           <Section title="Coming up (next 36h)" right={<Link to="/calendar" className="text-sm text-[var(--gold)]">Full calendar →</Link>}>
@@ -124,7 +118,7 @@ export default function Home() {
               </div>
             ) : (
               <Empty title="No raids scheduled yet">
-                Be the first: verified commanders can <Link to="/events/new" className="text-[var(--gold)] underline">post a raid</Link>.
+                Be the first: any verified guild member can <Link to="/events/new" className="text-[var(--gold)] underline">post a raid</Link>.
               </Empty>
             )}
           </Section>

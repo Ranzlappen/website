@@ -4,7 +4,6 @@ import { KOFI_URL, LEGAL_URL, MAIN_SITE } from '../config';
 import { usePublicConfig } from '../lib/hooks';
 import { isMod, isVerified, useStore } from '../store';
 import { team } from '../lib/format';
-import { discordConfigured, startDiscordLogin } from '../lib/discordAuth';
 
 const NAV = [
   { to: '/', label: 'Home', end: true },
@@ -19,16 +18,16 @@ function AccountButton() {
   if (!authReady) return <span className="skeleton inline-block h-8 w-24" />;
   if (!uid) {
     return (
-      <button className="btn btn-discord btn-sm" onClick={() => discordConfigured() && startDiscordLogin()} disabled={!discordConfigured()} title={discordConfigured() ? undefined : 'Discord login is not configured yet'}>
-        Sign in with Discord
-      </button>
+      <Link to="/account" className="btn btn-gold btn-sm">
+        Sign in
+      </Link>
     );
   }
   const verified = isVerified(member);
   return (
     <Link to="/account" className="btn btn-sm">
       <span className={`h-2 w-2 rounded-full ${verified ? 'bg-green-400' : member?.stale ? 'bg-orange-400' : 'bg-slate-500'}`} />
-      <span className="max-w-[9rem] truncate">{verified ? team(member!.teamId, config?.teamNames) : member?.discordName ?? 'Account'}</span>
+      <span className="max-w-[9rem] truncate">{verified ? team(member!.teamId, config?.teamNames) : 'Account'}</span>
     </Link>
   );
 }
@@ -41,7 +40,7 @@ export function Layout() {
   const config = usePublicConfig().data;
   const nav = [
     ...NAV,
-    ...(member?.commander && isVerified(member) ? [{ to: '/my-raids', label: 'My raids' }] : []),
+    ...(isVerified(member) ? [{ to: '/my-raids', label: 'My raids' }] : []),
     ...(isMod(member) ? [{ to: '/mod', label: 'Moderation' }] : []),
   ];
 
@@ -117,7 +116,7 @@ export function Layout() {
             <Link to="/privacy" className="muted hover:text-white">Privacy</Link>
             {config?.hubInviteUrl && (
               <a href={config.hubInviteUrl} className="muted hover:text-white" target="_blank" rel="noopener noreferrer">
-                Join the Discord hub
+                Community Discord
               </a>
             )}
           </div>

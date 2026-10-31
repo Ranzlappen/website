@@ -9,13 +9,16 @@
  *     builds, notes — served by `getEventDetails` ONLY to verified members of
  *     the same team (plus the commander and mods).
  *
- * `createEventCore` / `updateEventCore` / `cancelEventCore` are shared by the
- * website callables and the Discord `/raid` commands, so both entry points
- * enforce identical rules and both announce to the hub.
+ * Who may post: ANY verified member of the guild (GW2 API guild list) — no
+ * invite codes. Raids posted by the guild's leader (`guild_leader`) carry the
+ * ✓ official badge; everyone else's show without it.
+ *
+ * The private tier is also projected per team into `wvwTeamIndex/{teamId}`
+ * (readable only by verified members of that team) so the calendar can show
+ * and filter by map third — see indexes.ts.
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import { logger } from 'firebase-functions/v2';
-import { COL, db, getSettings } from './config';
+import { COL, db } from './config';
 import {
   EVENT_TYPES,
   LANGUAGES,
@@ -37,8 +40,6 @@ import {
 import type { EventDetails, EventInput, MemberDoc, PublicEvent } from './shared/types';
 import { rebuildEventIndex, toPublicEvent, type EventDoc } from './indexes';
 import { asInt, audit, callableOpts, cleanList, cleanText, cleanUrl, effectiveRole, requireMember, requireVerified } from './util';
-import { announceEvent, removeAnnouncement } from './discord/announce';
-import { bot, botConfigured } from './discord/api';
 
 export interface DetailsDoc {
   eventId: string;
@@ -49,7 +50,6 @@ export interface DetailsDoc {
   voice: EventInput['voice'];
   buildsUrl: string | null;
   notes: string;
-  discord?: { channelId: string; messageId: string } | null;
 }
 
 const DAY_MS = 86_400_000;
@@ -106,33 +106,19 @@ export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
   };
 }
 
-async function isOfficial(guildId: string, uid: string): Promise<boolean> {
-  const p = (await db().collection(COL.guildPrivate).doc(guildId).get()).data() ?? {};
-  return p.leaderUid === uid || !!p.commanders?.[uid];
+/** ✓ official = posted by the guild's in-game leader (GW2 API `guild_leader`). */
+export function isOfficial(member: Pick<MemberDoc, 'guilds'>, guildId: string): boolean {
+  return member.guilds.some((g) => g.id === guildId && g.leader);
 }
 
 function assertCanPostFor(member: MemberDoc, guildId: string) {
-  if (!member.commander) {
-    throw new HttpsError('permission-denied', 'Only accounts with a commander tag can post raids.');
-  }
   if (!member.guilds.some((g) => g.id === guildId)) {
-    throw new HttpsError('permission-denied', 'You can only post raids for a guild you are in.');
+    throw new HttpsError('permission-denied', 'You can only post raids for a guild you are in (re-verify if you just joined).');
   }
 }
 
 async function guildSuspended(guildId: string): Promise<boolean> {
   return (await db().collection(COL.guildDir).doc(guildId).get()).get('suspended') === true;
-}
-
-async function syncAnnouncement(e: EventDoc, details: DetailsDoc): Promise<void> {
-  try {
-    const msg = await announceEvent(e, details.discord ?? null);
-    if (msg && (msg.messageId !== details.discord?.messageId || msg.channelId !== details.discord?.channelId)) {
-      await db().collection(COL.eventDetails).doc(e.id).set({ discord: msg }, { merge: true });
-    }
-  } catch (err) {
-    logger.warn('wvw announce failed', { eventId: e.id, error: String(err) });
-  }
 }
 
 export async function createEventCore(member: MemberDoc, input: EventInput): Promise<PublicEvent> {
@@ -154,7 +140,7 @@ export async function createEventCore(member: MemberDoc, input: EventInput): Pro
     guildId: input.guildId,
     guildTag: guild.tag,
     guildName: guild.name,
-    official: await isOfficial(input.guildId, member.uid),
+    official: isOfficial(member, input.guildId),
     region: member.region ?? regionOfTeam(member.teamId!)!,
     teamId: member.teamId!,
     title: input.title,
@@ -179,14 +165,12 @@ export async function createEventCore(member: MemberDoc, input: EventInput): Pro
     voice: input.voice,
     buildsUrl: input.buildsUrl,
     notes: input.notes,
-    discord: null,
   };
   const batch = db().batch();
   batch.set(ref, e);
   batch.set(db().collection(COL.eventDetails).doc(ref.id), details);
   await batch.commit();
   await rebuildEventIndex(e.region);
-  await syncAnnouncement(e, details);
   return toPublicEvent(e);
 }
 
@@ -232,16 +216,14 @@ export async function updateEventCore(member: MemberDoc, eventId: string, input:
   batch.set(db().collection(COL.eventDetails).doc(e.id), nextDetails);
   await batch.commit();
   await rebuildEventIndex(next.region);
-  await syncAnnouncement(next, nextDetails);
   return toPublicEvent(next);
 }
 
 export async function cancelEventCore(member: MemberDoc, eventId: string): Promise<void> {
-  const { e, details } = await loadOwned(member, eventId);
+  const { e } = await loadOwned(member, eventId);
   const next: EventDoc = { ...e, status: 'cancelled', updatedAt: Date.now() };
   await db().collection(COL.events).doc(e.id).set(next);
   await rebuildEventIndex(e.region);
-  await syncAnnouncement(next, details);
 }
 
 /** Hide an event (moderation) — removes it from every public surface. */
@@ -252,8 +234,6 @@ export async function hideEvent(eventId: string, reason: string): Promise<void> 
   const e = snap.data() as EventDoc;
   await ref.set({ visibility: 'hidden', hiddenReason: reason, updatedAt: Date.now() }, { merge: true });
   await rebuildEventIndex(e.region);
-  const d = (await db().collection(COL.eventDetails).doc(eventId).get()).data() as DetailsDoc | undefined;
-  if (d?.discord) await removeAnnouncement(d.discord).catch(() => {});
 }
 
 export async function unhideEvent(eventId: string): Promise<void> {
@@ -276,7 +256,7 @@ export async function retargetCommanderEvents(uid: string): Promise<void> {
   ]);
   if (events.empty) return;
   const m = mSnap.data() as MemberDoc | undefined;
-  const ok = !!m && m.verified && !m.stale && m.status === 'active' && m.teamId != null && m.commander;
+  const ok = !!m && m.verified && !m.stale && m.status === 'active' && m.teamId != null;
   const regions = new Set<string>();
   const batch = db().batch();
   const now = Date.now();
@@ -290,8 +270,7 @@ export async function retargetCommanderEvents(uid: string): Promise<void> {
       patch.region = regionOfTeam(m!.teamId!)!;
       regions.add(patch.region);
       if (e.status === 'suspended') patch.status = 'scheduled';
-      const appointed = m!.guilds.find((g) => g.id === e.guildId)?.appointed ?? false;
-      patch.official = appointed;
+      patch.official = isOfficial(m!, e.guildId);
     } else if (e.status === 'scheduled') {
       patch.status = 'suspended';
     }
@@ -325,28 +304,6 @@ export const cancelEvent = onCall(callableOpts, async (request) => {
   return { ok: true };
 });
 
-/**
- * Turn a Discord channel link in the hub into a single-use, 1-hour invite so
- * a scraped link is worthless. Other links are returned unchanged.
- */
-async function personalVoiceLink(voice: DetailsDoc['voice']): Promise<DetailsDoc['voice']> {
-  if (!voice || voice.kind !== 'discord' || !botConfigured()) return voice;
-  const m = /discord(?:app)?\.com\/channels\/(\d+)\/(\d+)/.exec(voice.url);
-  if (!m) return voice;
-  const s = await getSettings();
-  if (m[1] !== s.discord.guildId) return voice;
-  try {
-    const inv = await bot<{ code: string }>('POST', `/channels/${m[2]}/invites`, {
-      max_age: 3600,
-      max_uses: 1,
-      unique: true,
-    });
-    return { kind: 'discord', url: `https://discord.gg/${inv.code}` };
-  } catch {
-    return voice;
-  }
-}
-
 export async function detailsFor(member: MemberDoc, eventIds: string[]): Promise<EventDetails[]> {
   const isMod = effectiveRole(member) !== 'user';
   const out: EventDetails[] = [];
@@ -367,7 +324,7 @@ export async function detailsFor(member: MemberDoc, eventIds: string[]): Promise
       map: d.map,
       goals: d.goals,
       expectedSize: d.expectedSize,
-      voice: mine ? d.voice : await personalVoiceLink(d.voice),
+      voice: d.voice,
       buildsUrl: d.buildsUrl,
       notes: d.notes,
       canEdit: mine || isMod,
