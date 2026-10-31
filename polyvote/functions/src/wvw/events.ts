@@ -20,6 +20,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { COL, db } from './config';
 import {
+  AUDIENCES,
   EVENT_TYPES,
   LANGUAGES,
   LIMITS,
@@ -60,6 +61,8 @@ export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
   const title = cleanText(d.title, LIMITS.titleMax, 'Title', true);
   if (!isOneOf(EVENT_TYPES, d.type)) throw new HttpsError('invalid-argument', 'Pick a raid type.');
   if (!isOneOf(OPENNESS, d.openness)) throw new HttpsError('invalid-argument', 'Pick who can join.');
+  const audience = d.audience == null ? 'everyone' : d.audience;
+  if (!isOneOf(AUDIENCES, audience)) throw new HttpsError('invalid-argument', 'Pick who can see the raid.');
   const languages = cleanList<Language>(d.languages, LANGUAGES, 'languages', 4);
   if (!languages.length) throw new HttpsError('invalid-argument', 'Pick at least one language.');
   if (!isOneOf(MAPS, d.map)) throw new HttpsError('invalid-argument', 'Pick a map.');
@@ -94,6 +97,7 @@ export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
     guildId: d.guildId,
     title,
     type: d.type,
+    audience,
     openness: d.openness,
     languages,
     schedule,
@@ -145,6 +149,7 @@ export async function createEventCore(member: MemberDoc, input: EventInput): Pro
     teamId: member.teamId!,
     title: input.title,
     type: input.type,
+    audience: input.audience,
     openness: input.openness,
     languages: input.languages,
     schedule: input.schedule,
@@ -196,6 +201,7 @@ export async function updateEventCore(member: MemberDoc, eventId: string, input:
     ...e,
     title: input.title,
     type: input.type,
+    audience: input.audience,
     openness: input.openness,
     languages: input.languages,
     schedule: input.schedule,

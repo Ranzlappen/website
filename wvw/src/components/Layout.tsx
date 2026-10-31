@@ -27,7 +27,9 @@ function AccountButton() {
   return (
     <Link to="/account" className="btn btn-sm">
       <span className={`h-2 w-2 rounded-full ${verified ? 'bg-green-400' : member?.stale ? 'bg-orange-400' : 'bg-slate-500'}`} />
-      <span className="max-w-[9rem] truncate">{verified ? team(member!.teamId, config?.teamNames) : 'Account'}</span>
+      <span className="max-w-[9rem] truncate">
+        {uid === 'wvw-admin' ? '🛡️ Admin' : verified ? team(member!.teamId, config?.teamNames) : 'Account'}
+      </span>
     </Link>
   );
 }

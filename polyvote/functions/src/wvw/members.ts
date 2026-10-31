@@ -22,6 +22,7 @@ import { isValidTimeZone } from './shared/time';
 import type { MemberDoc, MemberGuild } from './shared/types';
 import { audit, callableOpts, effectiveRole, requireMember, requireWvwUid, uidForAccount } from './util';
 import { retargetCommanderEvents } from './events';
+import { adminSignIn, looksLikeAdminAttempt } from './adminLogin';
 import { markDirty } from './state';
 
 const REQUIRED_PERMISSIONS = ['account', 'guilds'];
@@ -161,6 +162,10 @@ async function applyVerification(uid: string, r: Resolved, sealedKey: Sealed | n
  */
 export const signIn = onCall(callableOpts, async (request) => {
   const key = String((request.data as { apiKey?: unknown })?.apiKey ?? '').trim();
+  // Admin access key (WVW_SECRETS.adminKey) instead of a GW2 API key?
+  if (looksLikeAdminAttempt(key) && !looksLikeApiKey(key)) {
+    return { token: await getAuth().createCustomToken(await adminSignIn(key)) };
+  }
   await checkKey(key);
   let r: Resolved;
   try {

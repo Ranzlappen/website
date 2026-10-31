@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { collection, doc, limit, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import { firestore } from '../firebase';
 import type {
@@ -6,6 +6,7 @@ import type {
   GuildDirDoc,
   GuildIndexRow,
   PublicConfig,
+  PublicEvent,
   PublicEventIndex,
   PublicLive,
   PublicMatches,
@@ -14,7 +15,7 @@ import type {
   TeamIndex,
 } from '../shared/types';
 import { COLORS } from '../shared/types';
-import { isVerified, useStore } from '../store';
+import { isAdmin, isVerified, useStore } from '../store';
 import type { Region } from '../shared/teams';
 
 interface Entry<T> {
@@ -111,10 +112,75 @@ export const useRun = (id: string | undefined) => useDocLive<PublicRun>(id ? `wv
  * The private tier of the viewer's own team (map third, goals, voice …).
  * Firestore rules only allow verified members of that team — others get null.
  */
+const multiSnaps = new Map<string, unknown[]>();
+
+/** Live data of several docs at once (shared listeners, stable array identity). */
+export function useDocsLive<T>(paths: string[]): (T | null)[] {
+  const key = paths.join('|');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const list = useMemo(() => paths, [key]);
+  const sub = useCallback(
+    (cb: () => void) => {
+      const unsubs = list.map((p) => subscribe<T>(p, cb));
+      return () => unsubs.forEach((u) => u());
+    },
+    [list],
+  );
+  const snap = useCallback(() => {
+    const datas = list.map((p) => entryFor<T>(p).data);
+    const prev = multiSnaps.get(key) as (T | null)[] | undefined;
+    if (prev && prev.length === datas.length && prev.every((d, i) => d === datas[i])) return prev;
+    multiSnaps.set(key, datas);
+    return datas;
+  }, [list, key]);
+  return useSyncExternalStore(sub, snap);
+}
+
+/**
+ * The private tier the viewer may see, merged into one TeamIndex:
+ * a verified member → their own team; the admin session → every team in the
+ * current matchups (Firestore rules enforce the same). Includes team-only
+ * raids (`events`) and the map third / voice / goals of every raid (`details`).
+ */
 export function useMyTeamIndex(): TeamIndex | null {
   const member = useStore((s) => s.member);
-  const teamId = isVerified(member) ? member!.teamId : null;
-  return useDocLive<TeamIndex>(teamId ? `wvwTeamIndex/${teamId}` : null).data;
+  const { data } = useMatches();
+  const admin = isAdmin(member);
+  const teamIds = useMemo(() => {
+    if (admin) {
+      const ids = new Set<number>();
+      for (const m of data?.matches ?? []) for (const c of COLORS) if (m.sides[c].teamId) ids.add(m.sides[c].teamId!);
+      return [...ids].sort();
+    }
+    return isVerified(member) && member!.teamId ? [member!.teamId] : [];
+  }, [admin, data, member]);
+  const docs = useDocsLive<TeamIndex>(teamIds.map((t) => `wvwTeamIndex/${t}`));
+  return useMemo(() => {
+    const present = docs.filter((d): d is TeamIndex => !!d);
+    if (!teamIds.length) return null;
+    return {
+      updatedAt: Math.max(0, ...present.map((d) => d.updatedAt ?? 0)),
+      events: present.flatMap((d) => d.events ?? []),
+      details: Object.assign({}, ...present.map((d) => d.details ?? {})),
+    };
+  }, [docs, teamIds]);
+}
+
+/** Public raids of a region + the team-only raids the viewer may see. */
+export function useVisibleEvents(region: Region): { events: PublicEvent[]; loading: boolean; error: string | null } {
+  const pub = useEventIndex(region);
+  const team = useMyTeamIndex();
+  const events = useMemo(() => {
+    const seen = new Set<string>();
+    const out: PublicEvent[] = [];
+    for (const e of [...(pub.data?.events ?? []), ...(team?.events ?? []).filter((x) => x.region === region)]) {
+      if (seen.has(e.id)) continue;
+      seen.add(e.id);
+      out.push(e);
+    }
+    return out;
+  }, [pub.data, team, region]);
+  return { events, loading: pub.loading, error: pub.error };
 }
 
 /** Team id per colour in the viewer's current matchup + the viewer's own colour. */

@@ -51,6 +51,17 @@ export const EVENT_TYPES = [
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number]['id'];
 
+/**
+ * Who can SEE a raid. `everyone`: listed publicly (guild, team, time, type) —
+ * map third, voice and goals still stay team-only. `team`: the whole raid is
+ * visible only to verified members of the poster's team.
+ */
+export const AUDIENCES = [
+  { id: 'everyone', label: 'Everyone', hint: 'Listed publicly — map third, voice & goals stay team-only' },
+  { id: 'team', label: 'Only my team', hint: 'Hidden from other teams entirely' },
+] as const;
+export type Audience = (typeof AUDIENCES)[number]['id'];
+
 /** Who can join: open tag (pugs welcome), guild-only, or invite/application. */
 export const OPENNESS = [
   { id: 'open', label: 'Open tag — everyone welcome' },

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ErrorBox, GuildTag, LiveBadge, Notice, PageHeader, Skeleton, TeamChip } from '../components/ui';
 import { ReportButton } from '../components/ReportDialog';
 import { TzPicker } from '../components/TzPicker';
-import { useDocumentTitle, useEventIndex, useMySides, useNow, useTeamNames } from '../lib/hooks';
+import { useDocumentTitle, useEventIndex, useMySides, useMyTeamIndex, useNow, useTeamNames } from '../lib/hooks';
 import { fmtRange, relative } from '../lib/format';
 import { call, errorMessage } from '../firebase';
 import { icalUrl } from '../config';
@@ -41,6 +41,7 @@ export default function EventDetail() {
   const navigate = useNavigate();
   const eu = useEventIndex('eu');
   const na = useEventIndex('na');
+  const teamIdx = useMyTeamIndex();
   const { uid, member, displayTz: tz, toast } = useStore();
   const [details, setDetails] = useState<EventDetails | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
@@ -49,8 +50,8 @@ export default function EventDetail() {
   const names = useTeamNames();
 
   const e = useMemo(
-    () => [...(eu.data?.events ?? []), ...(na.data?.events ?? [])].find((x) => x.id === id) ?? null,
-    [eu.data, na.data, id],
+    () => [...(eu.data?.events ?? []), ...(na.data?.events ?? []), ...(teamIdx?.events ?? [])].find((x) => x.id === id) ?? null,
+    [eu.data, na.data, teamIdx, id],
   );
   useDocumentTitle(e ? `[${e.guildTag}] ${e.title}` : 'Raid');
 
@@ -69,7 +70,7 @@ export default function EventDetail() {
   if (!e) {
     return (
       <ErrorBox>
-        This raid doesn’t exist anymore (it may have ended or been removed). <Link to="/calendar" className="underline">Back to the calendar</Link>
+        This raid doesn’t exist anymore, or it’s a team-only raid of another team. <Link to="/calendar" className="underline">Back to the calendar</Link>
       </ErrorBox>
     );
   }

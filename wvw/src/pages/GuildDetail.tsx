@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ChipToggle, Empty, ErrorBox, PageHeader, Section, Skeleton, Stat, TeamChip } from '../components/ui';
 import { EventCard, RunCard } from '../components/EventCard';
 import { ReportButton } from '../components/ReportDialog';
-import { useDocumentTitle, useEventIndex, useGuild, useGuildRuns, useNow } from '../lib/hooks';
+import { useDocumentTitle, useGuild, useGuildRuns, useNow, useVisibleEvents } from '../lib/hooks';
 import { relative } from '../lib/format';
 import { call, errorMessage } from '../firebase';
 import { icalUrl } from '../config';
@@ -105,11 +105,11 @@ export default function GuildDetail() {
   const member = useStore((s) => s.member);
   const runs = useGuildRuns(id);
   const region = g?.region ?? 'eu';
-  const events = useEventIndex(region);
+  const events = useVisibleEvents(region);
   const now = useNow(3600_000);
   useDocumentTitle(g ? `[${g.tag}] ${g.name}` : 'Guild');
 
-  const upcoming = useMemo(() => (events.data?.events ?? []).filter((e) => e.guildId === id && e.status === 'scheduled'), [events.data, id]);
+  const upcoming = useMemo(() => events.events.filter((e) => e.guildId === id && e.status === 'scheduled'), [events.events, id]);
   const myGuild = member?.guilds.find((x) => x.id === id);
   const isLeader = !!myGuild?.leader && isVerified(member);
 

@@ -24,6 +24,13 @@ export interface WvwSecrets {
   keyEncryptionKey?: string;
   /** GW2 account names (e.g. "Name.1234") that are WvW Hub admins; admins can add mods. */
   adminAccounts?: string[];
+  /**
+   * Admin access key: typed into the sign-in field instead of a GW2 API key,
+   * it opens an admin session (uid "wvw-admin") that sees every team's raids
+   * and the moderation tools. Lives ONLY here — never in the repo. Use a long
+   * random value; failed attempts are rate-limited (adminLogin.ts).
+   */
+  adminKey?: string;
   // Reserved for the deferred Discord integration (bot, hub server, OAuth):
   // discordApplicationId, discordClientId, discordClientSecret, discordBotToken, discordPublicKey.
 }

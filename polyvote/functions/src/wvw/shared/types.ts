@@ -10,6 +10,7 @@
  */
 import type { Region } from './teams';
 import type {
+  Audience,
   EventType,
   Language,
   MapId,
@@ -150,6 +151,8 @@ export interface PublicEvent {
   teamId: number;
   title: string;
   type: EventType;
+  /** `team` raids never appear in public indexes — only in wvwTeamIndex/{teamId}. */
+  audience: Audience;
   openness: Openness;
   languages: Language[];
   schedule: Schedule;
@@ -204,6 +207,8 @@ export interface PublicRun {
   teamId: number;
   matchId: string | null;
   type: EventType;
+  /** Runs of team-only raids stay out of the public live list. */
+  audience?: Audience;
   status: 'live' | 'ended';
   startedAt: number;
   endedAt: number | null;
@@ -260,6 +265,7 @@ export interface EventInput {
   guildId: string;
   title: string;
   type: EventType;
+  audience: Audience;
   openness: Openness;
   languages: Language[];
   schedule: Schedule;
@@ -297,6 +303,8 @@ export interface ReportRow {
  */
 export interface TeamIndex {
   updatedAt: number;
+  /** Team-only raids (audience "team") — absent from the public index. */
+  events: PublicEvent[];
   details: Record<string, Omit<EventDetails, 'eventId' | 'canEdit'>>;
 }
 

@@ -186,15 +186,18 @@ service cloud.firestore {
       allow read: if isSignedIn() && request.auth.uid == uid;
       allow write: if false;
     }
-    // Private tier per team (map third, goals, voice …): verified, active,
-    // non-stale members of THAT team only. Written by functions (indexes.ts).
+    // Private tier per team (team-only raids + map third, goals, voice …):
+    // verified, active, non-stale members of THAT team — or a WvW admin (the
+    // admin-access-key session sees every team). Written by functions only.
     match /wvwTeamIndex/{teamId} {
+      function wvwMe() {
+        return get(/databases/$(database)/documents/wvwMembers/$(request.auth.uid)).data;
+      }
       allow read: if isSignedIn()
         && exists(/databases/$(database)/documents/wvwMembers/$(request.auth.uid))
-        && get(/databases/$(database)/documents/wvwMembers/$(request.auth.uid)).data.verified == true
-        && get(/databases/$(database)/documents/wvwMembers/$(request.auth.uid)).data.stale == false
-        && get(/databases/$(database)/documents/wvwMembers/$(request.auth.uid)).data.status == 'active'
-        && string(get(/databases/$(database)/documents/wvwMembers/$(request.auth.uid)).data.teamId) == teamId;
+        && wvwMe().status == 'active'
+        && (wvwMe().role == 'admin'
+          || (wvwMe().verified == true && wvwMe().stale == false && string(wvwMe().teamId) == teamId));
       allow write: if false;
     }
   }

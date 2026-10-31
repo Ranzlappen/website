@@ -90,6 +90,7 @@ export async function startRunCore(member: MemberDoc, input: StartRunInput): Pro
     teamId: member.teamId!,
     matchId: await currentMatchId(member.teamId!),
     type,
+    audience: event?.audience ?? 'everyone',
     status: 'live',
     startedAt: now,
     endedAt: null,
