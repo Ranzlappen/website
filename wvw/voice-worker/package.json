@@ -1,0 +1,12 @@
+{
+  "name": "wvw-hub-voice-worker",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Optional always-on Discord gateway worker that posts voice-channel headcounts to wvw-voiceSamples.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node index.mjs",
+    "test": "node --test"
+  }
+}

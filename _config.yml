@@ -81,6 +81,7 @@ exclude:
   - blog-admin
   - inventory-manager
   - games
+  - wvw
   - search-crawler
 
 # Plugins (GitHub Pages compatible)

@@ -6,6 +6,10 @@ import { getFirestore } from "firebase-admin/firestore";
  * Creates a corresponding UserProfile document in the `users` collection.
  */
 export const onUserCreate = functions.auth.user().onCreate(async (user) => {
+  // WvW Hub users (Discord login → custom token, see src/wvw/auth.ts) live in
+  // `wvwMembers`, not in PolyVote's `users` collection / stats.
+  if (user.uid.startsWith("wvw-discord-")) return;
+
   const db = getFirestore();
 
   const profile = {

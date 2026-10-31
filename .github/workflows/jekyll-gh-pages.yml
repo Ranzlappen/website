@@ -1,4 +1,5 @@
-# Build Jekyll blog, PolyVote, and Blog Admin, then deploy to GitHub Pages.
+# Build Jekyll blog + the SPAs (PolyVote, Blog Admin, Inventory, Tabletop, WvW Hub),
+# then deploy to GitHub Pages.
 # Lint/test validation is handled by ci.yml on PRs; this workflow only
 # produces and deploys the site artifact.
 name: Build and Deploy to GitHub Pages
@@ -22,6 +23,9 @@ on:
       - 'games/README.md'
       - 'games/.gitignore'
       - 'games/docs/**'
+      - 'wvw/README.md'
+      - 'wvw/.gitignore'
+      - 'wvw/voice-worker/**'
       # Firebase resources (deployed by firebase-deploy.yml, not bundled into the site)
       - 'polyvote/.firebaserc'
       - 'polyvote/firebase.json'
@@ -75,6 +79,7 @@ jobs:
             blog-admin/package-lock.json
             inventory-manager/package-lock.json
             games/package-lock.json
+            wvw/package-lock.json
 
       - name: PolyVote – Install dependencies
         working-directory: polyvote
@@ -108,6 +113,14 @@ jobs:
         working-directory: games
         run: npm run build
 
+      - name: WvW Hub – Install dependencies
+        working-directory: wvw
+        run: npm ci
+
+      - name: WvW Hub – Build
+        working-directory: wvw
+        run: npm run build
+
       - name: Copy PolyVote into _site
         run: |
           sudo chown -R $(whoami) _site
@@ -121,6 +134,9 @@ jobs:
 
       - name: Copy Games into _site
         run: cp -r games/dist _site/games
+
+      - name: Copy WvW Hub into _site
+        run: cp -r wvw/dist _site/wvw
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5

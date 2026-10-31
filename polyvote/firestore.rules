@@ -162,5 +162,28 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow create, update, delete: if false;
     }
+
+    // ── WvW Hub (wvw/ SPA) ──
+    // Visibility tiers are enforced by *which docs exist*: the browser only
+    // reads precomputed public index docs (no account names, no maps, no
+    // voice links), a member's own doc, and public run/guild pages. Events'
+    // private tier, keys, reports, ratings, claim logs etc. are server-only
+    // (no rule = denied). All writes go through the `wvw-*` Cloud Functions.
+    match /wvwPublic/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /wvwGuildDir/{guildId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /wvwRuns/{runId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /wvwMembers/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
   }
 }

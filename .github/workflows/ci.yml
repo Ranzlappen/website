@@ -23,6 +23,7 @@ jobs:
       blog-admin: ${{ steps.filter.outputs.blog-admin }}
       inventory-manager: ${{ steps.filter.outputs.inventory-manager }}
       games: ${{ steps.filter.outputs.games }}
+      wvw: ${{ steps.filter.outputs.wvw }}
       search-crawler: ${{ steps.filter.outputs.search-crawler }}
     steps:
       - name: Checkout
@@ -64,6 +65,13 @@ jobs:
               - '!games/.gitignore'
               - '!games/README.md'
               - '!games/docs/**'
+              - '.github/workflows/ci.yml'
+            wvw:
+              - 'wvw/**'
+              - '!wvw/.gitignore'
+              - '!wvw/README.md'
+              # Mirrored shared files are checked from the wvw job too.
+              - 'polyvote/functions/src/wvw/shared/**'
               - '.github/workflows/ci.yml'
             search-crawler:
               - 'search-crawler/**'
@@ -218,6 +226,38 @@ jobs:
         working-directory: games
         run: npm run build
 
+  wvw:
+    needs: changes
+    if: needs.changes.outputs.wvw == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: wvw/package-lock.json
+
+      - name: Install dependencies
+        working-directory: wvw
+        run: npm ci
+
+      - name: Lint
+        working-directory: wvw
+        run: npm run lint
+
+      # Vitest + voice-worker node:test + shared-file mirror check vs polyvote/functions
+      - name: Test
+        working-directory: wvw
+        run: npm test
+
+      - name: Build
+        working-directory: wvw
+        run: npm run build
+
   search-crawler:
     needs: changes
     if: needs.changes.outputs.search-crawler == 'true'
@@ -240,7 +280,7 @@ jobs:
   # as a pass so PRs that don't touch a given app aren't blocked. Mark
   # this job (`ci-required`) as the required status check on `main`.
   ci-required:
-    needs: [changes, polyvote, functions, blog-admin, inventory-manager, games, search-crawler]
+    needs: [changes, polyvote, functions, blog-admin, inventory-manager, games, wvw, search-crawler]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -250,7 +290,7 @@ jobs:
             echo "changes job did not succeed: ${{ needs.changes.result }}"
             exit 1
           fi
-          for r in "${{ needs.polyvote.result }}" "${{ needs.functions.result }}" "${{ needs.blog-admin.result }}" "${{ needs.inventory-manager.result }}" "${{ needs.games.result }}" "${{ needs.search-crawler.result }}"; do
+          for r in "${{ needs.polyvote.result }}" "${{ needs.functions.result }}" "${{ needs.blog-admin.result }}" "${{ needs.inventory-manager.result }}" "${{ needs.games.result }}" "${{ needs.wvw.result }}" "${{ needs.search-crawler.result }}"; do
             case "$r" in
               success|skipped) ;;
               *) echo "App job did not succeed: $r"; exit 1 ;;

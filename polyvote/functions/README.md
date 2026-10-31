@@ -5,6 +5,9 @@ Firebase Cloud Functions backing three things:
 1. **PolyVote voting & moderation** — `castVote`, topic request triggers, admin CRUD for topics/users/reports/requests, analytics.
 2. **Blog Admin publishing** — `blogSaveDraft`, `blogListDrafts`, `blogGetDraft`, `blogDeleteDraft`, `blogPublishToGitHub`, `blogUploadImage`, `blogListExistingPosts`, `blogFetchExistingPost`.
 3. **Jekyll blog voting sidebar** — `castBlogVote` (writes counters to Realtime Database).
+4. **WvW Hub** — every function under [`src/wvw/`](./src/wvw), exported as one group (`wvw-*`, deploy target `functions:wvw`). Needs the `WVW_SECRETS` secret to exist. See [`../../wvw/README.md`](../../wvw/README.md).
+
+(Inventory Manager and the Tabletop arbiter also live here — see `CLAUDE.md`.)
 
 Full export list: [`src/index.ts`](./src/index.ts).
 
@@ -107,6 +110,7 @@ polyvote/functions/
     ├── admin/              # topics, users, moderation, requests, analytics, publicStats
     ├── blog/               # drafts, publish, images, github, castBlogVote
     ├── user/               # per-user utilities
+    ├── wvw/                # WvW Hub (grouped `wvw-*`): poller, maintenance, auth, members, guilds, events, runs, metrics, discord/
     └── utils/              # shared helpers
 ```
 
@@ -117,4 +121,5 @@ polyvote/functions/
 - **Architecture source of truth:** [`../../CLAUDE.md`](../../CLAUDE.md)
 - **PolyVote client:** [`../README.md`](../README.md)
 - **Blog Admin client:** [`../../blog-admin/README.md`](../../blog-admin/README.md)
+- **WvW Hub client + setup:** [`../../wvw/README.md`](../../wvw/README.md)
 - **Deploy workflow:** [`../../.github/workflows/firebase-deploy.yml`](../../.github/workflows/firebase-deploy.yml)

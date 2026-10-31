@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b2433"/>
+      <stop offset="1" stop-color="#0c1016"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#g)"/>
+  <!-- three-way split shield: red / blue / green teams -->
+  <path d="M32 8 L52 15 V31 C52 44 43 52 32 56 C21 52 12 44 12 31 V15 Z" fill="#0c1016" stroke="#e0b341" stroke-width="2.5"/>
+  <path d="M32 11 L32 32 L14.5 22 V16.5 Z" fill="#d9534f"/>
+  <path d="M32 11 L49.5 16.5 V22 L32 32 Z" fill="#4a90d9"/>
+  <path d="M14.5 22 L32 32 L49.5 22 V31 C49.5 42.5 41.5 49.5 32 53 C22.5 49.5 14.5 42.5 14.5 31 Z" fill="#4fbf6a"/>
+  <!-- commander tag -->
+  <path d="M32 24 L38 31 L32 38 L26 31 Z" fill="#e0b341" stroke="#0c1016" stroke-width="1.5"/>
+</svg>

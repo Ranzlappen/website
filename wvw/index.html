@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>WvW Hub — Guild Wars 2 WvW raid calendar</title>
+    <meta
+      name="description"
+      content="Who's tagging tonight? The cross-guild Guild Wars 2 World vs. World raid calendar: verified commanders, every team, your time zone. Plus matchups, a guild directory and raid stats."
+    />
+    <meta property="og:title" content="WvW Hub — GW2 WvW raid calendar" />
+    <meta property="og:description" content="Every scheduled WvW raid on every team, verified via the GW2 API." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+    <meta name="theme-color" content="#0c1016" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="WvW Hub" />
+    <script>
+      // SPA deep-link recovery: 404.html on GitHub Pages stashes the path so a
+      // refresh on /wvw/events/... (or the Discord OAuth redirect to
+      // /wvw/auth/discord?code=...) lands back on the right route.
+      (function () {
+        var redirect = sessionStorage.getItem('spa-redirect');
+        if (redirect) {
+          sessionStorage.removeItem('spa-redirect');
+          history.replaceState(null, '', redirect);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
