@@ -33,6 +33,15 @@ Firebase custom token for **`wvw-gw2-<GW2 account id>`** — the GW2 account *is
 Raids posted by the guild's in-game leader carry **✓ official**; everyone else's show without the badge. The leader can also edit the
 guild's public profile.
 
+**Who can see a raid** (chosen per raid): **Everyone** — listed publicly (guild, team, time, type; map third / voice / goals stay
+team-only), or **Only my team** — the whole raid is hidden from other teams: it never enters the public index or the iCal feeds, only
+`wvwTeamIndex/{teamId}`, and its runs stay out of the public live list.
+
+**Admin access key**: typing `WVW_SECRETS.adminKey` into the sign-in field (instead of an API key) opens an admin session (uid
+`wvw-admin`, no GW2 account) that sees every team's raids incl. team-only ones and their private details, plus the moderation tools.
+The key lives only in the secret, never in the repo; wrong attempts are rate-limited (10 per hour site-wide, `adminLogin.ts`). Pick a
+long random value — a short or common one is guessable.
+
 ## Maps: thirds + Jumper
 
 Every raid has a location: one **third of one map** (`ebg:red`, `blue:green`, … — 12 options) or **`jumper`** (cross-map play). Each map is
@@ -69,7 +78,7 @@ Pure date math lives in `src/lib/calendar.ts` (tested in `src/__tests__/calendar
   (owner-read) and server-only docs; admins see moderators' names in the admin view.
 - **Tiers are enforced by which docs exist**: the browser reads `wvwPublic/*` index docs (no map/voice/goals), `wvwGuildDir/*`, `wvwRuns/*`
   (no identities, no map), its own `wvwMembers/{uid}` and **its own team's** `wvwTeamIndex/{teamId}` (rules: verified, active, non-stale
-  member of that team). Everything else is server-only.
+  member of that team — or the admin session, which may read every team's index). Everything else is server-only.
 - **API keys**: encrypted at rest, used only to re-check the team after relinks; "Forget my key" / "Delete my data" on the Account page.
 - **Ratings**: only checked-in, same-team attendees, 72 h window, four axes, no free text, per-rater averaging.
 - **Roles are NOT Firebase custom claims** (the shared `setUserRole` replaces the whole claims object, and WvW mods must never get blog
@@ -84,20 +93,27 @@ stored key (40 per run): new team → raids retargeted. Members whose key is gon
 It also publishes `wvwPublic/relink` (last observed relink + next) for the Link view. Team names aren't in the API — they're in
 `shared/teams.ts` (Elite Insights shard list) and overridable at runtime in Moderation → Settings.
 
-## One-time setup (admin)
+## One-time setup (admin) — all in the browser, no command line
 
-1. **Secret** — the deploy fails until it exists (CLAUDE.md "Required secrets"). From `polyvote/`:
-   ```bash
-   firebase functions:secrets:set WVW_SECRETS
-   ```
+Everything happens in the **Google Cloud console** (same Google account + project as Firebase; the Firebase console has no secrets page).
+No GitHub secret is needed — and nothing secret goes into the (public) repo.
+
+1. **Create the secret** — the Firebase deploy fails until it exists (CLAUDE.md "Required secrets").
+   [Secret Manager](https://console.cloud.google.com/security/secret-manager?project=proven-concept-436717-q3) → **+ Create secret** →
+   name `WVW_SECRETS`, secret value:
    ```json
-   { "keyEncryptionKey": "<openssl rand -base64 32>", "adminAccounts": ["YourName.1234"] }
+   {"keyEncryptionKey":"<any long random text, ≥ 16 characters>","adminAccounts":["YourName.1234"],"adminKey":"<long random value>"}
    ```
-   `{}` is enough to unblock deploys; sign-in needs `keyEncryptionKey`. Don't change the key later without re-verifying everyone (stored
-   keys become unreadable → members go `stale` and simply sign in again).
-2. **Custom tokens** — give the Functions runtime service account (`420991269376-compute@developer.gserviceaccount.com`) the **Service
-   Account Token Creator** role on itself and enable the *IAM Service Account Credentials API*, otherwise sign-in fails after the key check.
-3. Deploy: merging to `main` runs `firebase-deploy.yml` (rules, indexes, `functions:wvw`) and the Pages build.
+   → **Create secret**. Then on the secret's **Permissions** tab → **Grant access** → principal
+   `420991269376-compute@developer.gserviceaccount.com`, role **Secret Manager Secret Accessor**.
+   (`{}` is enough to unblock deploys; sign-in needs `keyEncryptionKey`; `adminKey` is optional. Don't change `keyEncryptionKey` later —
+   stored keys become unreadable and members simply have to sign in again. To change other fields: open the secret → **+ New version**,
+   then redeploy.) CLI alternative: `firebase functions:secrets:set WVW_SECRETS` from `polyvote/` (needs Node + `npm i -g firebase-tools`).
+2. **Allow sign-in tokens** — [Service accounts](https://console.cloud.google.com/iam-admin/serviceaccounts?project=proven-concept-436717-q3)
+   → **Default compute service account** → **Permissions** → **Grant access** → principal: that same email, role **Service Account Token
+   Creator**. Then enable the [IAM Service Account Credentials API](https://console.cloud.google.com/apis/library/iamcredentials.googleapis.com?project=proven-concept-436717-q3).
+3. **Deploy** — merge to `main`: `firebase-deploy.yml` deploys rules, indexes and `functions:wvw`; the Pages build ships the site. (Or
+   GitHub → Actions → *Deploy Firebase* → **Re-run all jobs** after a failed run.)
 
 The first `wvw-poll` run fills matchups and the guild directory within 5 minutes — nothing else needed for Phase 0.
 

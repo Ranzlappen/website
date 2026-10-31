@@ -17,6 +17,7 @@ import { advanceRelink } from '../maintenance';
 import { heldChanges } from '../poller';
 import { isOfficial, validateEventInput } from '../events';
 import { keyNameOk } from '../members';
+import { ADMIN_MAX_FAILS, adminKeyMatches, looksLikeAdminAttempt } from '../adminLogin';
 import { MAPS, isOneOf } from '../shared/constants';
 import type { PublicEvent } from '../shared/types';
 
@@ -122,6 +123,7 @@ const ev = (o: Partial<PublicEvent> = {}): PublicEvent => ({
   teamId: 12008,
   title: 'Monday, zerg; night',
   type: 'zerg',
+  audience: 'everyone',
   openness: 'open',
   languages: ['en', 'de'],
   schedule: { tz: 'Europe/Berlin', date: '2026-11-02', time: '20:00', durationMin: 120, repeat: 'weekly', days: [1], until: null },
@@ -245,6 +247,12 @@ describe('event validation', () => {
   };
   const now = Date.parse('2026-10-31T12:00:00Z');
 
+  it('defaults the audience to everyone and validates it', () => {
+    expect(validateEventInput(base, now).audience).toBe('everyone');
+    expect(validateEventInput({ ...base, audience: 'team' }, now).audience).toBe('team');
+    expect(() => validateEventInput({ ...base, audience: 'enemies' }, now)).toThrow(/see the raid/);
+  });
+
   it('normalises valid input', () => {
     const r = validateEventInput(base, now);
     expect(r.title).toBe('Monday zerg');
@@ -282,6 +290,17 @@ describe('sign-in + posting rules', () => {
     expect(isOfficial(member, G1)).toBe(true);
     expect(isOfficial(member, G2)).toBe(false);
     expect(isOfficial(member, 'other')).toBe(false);
+  });
+
+  it('recognises the admin access key without leaking timing', () => {
+    expect(adminKeyMatches('123456789', '123456789')).toBe(true);
+    expect(adminKeyMatches('123456788', '123456789')).toBe(false);
+    expect(adminKeyMatches('anything', undefined)).toBe(false);
+    expect(adminKeyMatches('', '')).toBe(false);
+    expect(looksLikeAdminAttempt('123456789')).toBe(true);
+    expect(looksLikeAdminAttempt(`${'A'.repeat(8)}-${'B'.repeat(4)}-${'C'.repeat(4)}-${'D'.repeat(4)}-${'E'.repeat(20)}-${'F'.repeat(4)}-${'0'.repeat(4)}-${'1'.repeat(4)}-${'2'.repeat(12)}`)).toBe(false);
+    expect(looksLikeAdminAttempt('aaa.bbb.ccc')).toBe(false); // subtoken (JWT)
+    expect(ADMIN_MAX_FAILS).toBeGreaterThan(0);
   });
 
   it('knows every map third plus the jumper', () => {

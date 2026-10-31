@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Countdown, Empty, GuildTag, Section, Segmented, Skeleton, TeamChip, TeamName } from '../components/ui';
 import { EventCard, RunCard } from '../components/EventCard';
 import { TzPicker } from '../components/TzPicker';
-import { useDocumentTitle, useEventIndex, useLive, useMatches, useNow, usePublicConfig } from '../lib/hooks';
+import { useDocumentTitle, useLive, useMatches, useNow, usePublicConfig, useVisibleEvents } from '../lib/hooks';
 import { kd } from '../lib/format';
 import { isVerified, useStore } from '../store';
 import { occurrencesBetween } from '../shared/time';
@@ -19,17 +19,17 @@ export default function Home() {
   const now = useNow(60_000);
   const matches = useMatches();
   const live = useLive();
-  const events = useEventIndex(region);
+  const events = useVisibleEvents(region);
   const config = usePublicConfig().data;
   const verified = isVerified(member);
   const teamFilter = verified && myTeam && member!.region === region ? member!.teamId : null;
 
   const upcoming = useMemo(() => {
     const out: { e: PublicEvent; start: number; end: number }[] = [];
-    const list = (events.data?.events ?? []).filter((e) => e.status === 'scheduled' && (!teamFilter || e.teamId === teamFilter));
+    const list = events.events.filter((e) => e.status === 'scheduled' && (!teamFilter || e.teamId === teamFilter));
     for (const e of list) for (const o of occurrencesBetween(e.schedule, now, now + 36 * 3600_000, 3)) out.push({ e, ...o });
     return out.sort((a, b) => a.start - b.start).slice(0, 12);
-  }, [events.data, teamFilter, now]);
+  }, [events.events, teamFilter, now]);
 
   const liveRuns = (live.data?.runs ?? []).filter((r) => r.region === region && (!teamFilter || r.teamId === teamFilter));
   const regionMatches = (matches.data?.matches ?? []).filter((m) => m.region === region);

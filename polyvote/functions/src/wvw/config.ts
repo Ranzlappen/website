@@ -20,10 +20,17 @@ import { getFirestore } from 'firebase-admin/firestore';
 export const WVW_SECRETS = defineSecret('WVW_SECRETS');
 
 export interface WvwSecrets {
-  /** base64 32-byte key used to AES-256-GCM-encrypt stored GW2 API keys. */
+  /** Encrypts stored GW2 API keys (AES-256-GCM): a base64 32-byte key or any passphrase ≥ 16 characters. */
   keyEncryptionKey?: string;
   /** GW2 account names (e.g. "Name.1234") that are WvW Hub admins; admins can add mods. */
   adminAccounts?: string[];
+  /**
+   * Admin access key: typed into the sign-in field instead of a GW2 API key,
+   * it opens an admin session (uid "wvw-admin") that sees every team's raids
+   * and the moderation tools. Lives ONLY here — never in the repo. Use a long
+   * random value; failed attempts are rate-limited (adminLogin.ts).
+   */
+  adminKey?: string;
   // Reserved for the deferred Discord integration (bot, hub server, OAuth):
   // discordApplicationId, discordClientId, discordClientSecret, discordBotToken, discordPublicKey.
 }

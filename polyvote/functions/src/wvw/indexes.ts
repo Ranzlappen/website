@@ -31,6 +31,7 @@ export const PUBLIC_EVENT_FIELDS: (keyof PublicEvent)[] = [
   'teamId',
   'title',
   'type',
+  'audience',
   'openness',
   'languages',
   'schedule',
@@ -43,6 +44,7 @@ export const PUBLIC_EVENT_FIELDS: (keyof PublicEvent)[] = [
 export function toPublicEvent(e: EventDoc): PublicEvent {
   const out = {} as Record<string, unknown>;
   for (const k of PUBLIC_EVENT_FIELDS) out[k] = e[k] ?? null;
+  out.audience = e.audience ?? 'everyone';
   return out as unknown as PublicEvent;
 }
 
@@ -68,14 +70,16 @@ export async function rebuildEventIndex(region: Region): Promise<PublicEvent[]> 
     (a, b) =>
       (nextOccurrence(a.schedule, now)?.start ?? Infinity) - (nextOccurrence(b.schedule, now)?.start ?? Infinity),
   );
+  // Team-only raids never enter the public index (they live in wvwTeamIndex).
+  const publicEvents = events.filter((e) => e.audience !== 'team');
   const batch = db().batch();
-  batch.set(db().collection(COL.public).doc(`events_${region}`), { updatedAt: now, events });
+  batch.set(db().collection(COL.public).doc(`events_${region}`), { updatedAt: now, events: publicEvents });
   for (const id of toArchive.slice(0, 400)) {
     batch.update(db().collection(COL.events).doc(id), { archived: true, updatedAt: now });
   }
   await batch.commit();
   await rebuildTeamIndexes(region, events, now);
-  return events;
+  return publicEvents;
 }
 
 /**
@@ -86,12 +90,14 @@ export async function rebuildEventIndex(region: Region): Promise<PublicEvent[]> 
 async function rebuildTeamIndexes(region: Region, events: PublicEvent[], now: number): Promise<void> {
   const refs = events.map((e) => db().collection(COL.eventDetails).doc(e.id));
   const detailSnaps = refs.length ? await db().getAll(...refs) : [];
-  const byTeam = new Map<number, TeamIndex['details']>();
+  const byTeam = new Map<number, Omit<TeamIndex, 'updatedAt'>>();
   events.forEach((e, i) => {
+    const t = byTeam.get(e.teamId) ?? { events: [], details: {} };
+    byTeam.set(e.teamId, t);
+    if (e.audience === 'team') t.events.push(e);
     const d = detailSnaps[i]?.data();
     if (!d) return;
-    const bucket = byTeam.get(e.teamId) ?? {};
-    bucket[e.id] = {
+    t.details[e.id] = {
       map: d.map,
       goals: d.goals ?? '',
       expectedSize: d.expectedSize ?? null,
@@ -99,15 +105,14 @@ async function rebuildTeamIndexes(region: Region, events: PublicEvent[], now: nu
       buildsUrl: d.buildsUrl ?? null,
       notes: d.notes ?? '',
     };
-    byTeam.set(e.teamId, bucket);
   });
   const existing = await db().collection(COL.teamIndex).where('region', '==', region).get();
   const batch = db().batch();
   for (const doc of existing.docs) {
-    if (!byTeam.has(Number(doc.id))) batch.set(doc.ref, { region, updatedAt: now, details: {} });
+    if (!byTeam.has(Number(doc.id))) batch.set(doc.ref, { region, updatedAt: now, events: [], details: {} });
   }
-  for (const [teamId, details] of byTeam) {
-    batch.set(db().collection(COL.teamIndex).doc(String(teamId)), { region, updatedAt: now, details });
+  for (const [teamId, t] of byTeam) {
+    batch.set(db().collection(COL.teamIndex).doc(String(teamId)), { region, updatedAt: now, ...t });
   }
   await batch.commit();
 }
@@ -118,6 +123,7 @@ export async function rebuildAllEventIndexes(): Promise<void> {
 
 export async function rebuildLiveIndex(): Promise<void> {
   const now = Date.now();
+  // Runs of team-only raids stay out of the public live list.
   const [live, recent] = await Promise.all([
     db().collection(COL.runs).where('status', '==', 'live').get(),
     db()
@@ -133,8 +139,11 @@ export async function rebuildLiveIndex(): Promise<void> {
     .doc('live')
     .set({
       updatedAt: now,
-      runs: live.docs.map((d) => d.data() as PublicRun).sort((a, b) => b.startedAt - a.startedAt),
-      recent: recent.docs.map((d) => d.data() as PublicRun),
+      runs: live.docs
+        .map((d) => d.data() as PublicRun)
+        .filter((r) => r.audience !== 'team')
+        .sort((a, b) => b.startedAt - a.startedAt),
+      recent: recent.docs.map((d) => d.data() as PublicRun).filter((r) => r.audience !== 'team'),
     });
 }
 

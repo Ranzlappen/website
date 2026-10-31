@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChipToggle, ErrorBox, Notice, PageHeader, Segmented, Skeleton } from '../components/ui';
-import { useDocumentTitle, useEventIndex, useMySides, useNow, useTeamNames } from '../lib/hooks';
+import { useDocumentTitle, useEventIndex, useMySides, useMyTeamIndex, useNow, useTeamNames } from '../lib/hooks';
 import { MapPicker, zoneLabel } from '../components/MapPicker';
 import { fmtRange } from '../lib/format';
 import { call, errorMessage } from '../firebase';
 import { isVerified, useStore } from '../store';
 import {
+  AUDIENCES,
   COMMON_TIMEZONES,
   EVENT_TYPES,
   LANGUAGES,
   LIMITS,
   OPENNESS,
   VOICE_KINDS,
+  type Audience,
   type EventType,
   type Language,
   type MapId,
@@ -34,6 +36,7 @@ function blank(tz: string, guildId: string): EventInput {
     guildId,
     title: '',
     type: 'zerg',
+    audience: 'everyone',
     openness: 'open',
     languages: ['en'],
     schedule: { tz, date, time: '20:00', durationMin: 120, repeat: 'weekly', days: [weekdayOfDays(civilToDays(p.y, p.m, p.d))], until: null },
@@ -63,9 +66,13 @@ export default function EventEditor() {
   const { sides, myColor } = useMySides();
   const names = useTeamNames();
 
+  const teamIdx = useMyTeamIndex();
   const existing: PublicEvent | null = useMemo(
-    () => (id ? [...(eu.data?.events ?? []), ...(na.data?.events ?? [])].find((e) => e.id === id) ?? null : null),
-    [eu.data, na.data, id],
+    () =>
+      id
+        ? [...(eu.data?.events ?? []), ...(na.data?.events ?? []), ...(teamIdx?.events ?? [])].find((e) => e.id === id) ?? null
+        : null,
+    [eu.data, na.data, teamIdx, id],
   );
 
   useEffect(() => {
@@ -83,6 +90,7 @@ export default function EventEditor() {
           guildId: existing.guildId,
           title: existing.title,
           type: existing.type,
+          audience: existing.audience ?? 'everyone',
           openness: existing.openness,
           languages: existing.languages,
           schedule: existing.schedule,
@@ -194,6 +202,15 @@ export default function EventEditor() {
               ))}
             </select>
           </label>
+        </div>
+        <div>
+          <span className="label">Who can see this raid</span>
+          <Segmented
+            options={AUDIENCES.map((a) => ({ id: a.id, label: a.id === 'team' ? '🔒 Only my team' : '🌍 Everyone' }))}
+            value={form.audience}
+            onChange={(v) => set('audience', v as Audience)}
+          />
+          <span className="faint mt-1 block text-xs">{AUDIENCES.find((a) => a.id === form.audience)?.hint}</span>
         </div>
         <div>
           <span className="label">Languages (max 4)</span>

@@ -35,12 +35,29 @@ export async function call<Res = unknown, Req = unknown>(name: string, data?: Re
   return res.data;
 }
 
+const NOT_DEPLOYED = 'The WvW Hub server isn’t reachable — it may not be deployed yet (see wvw/README.md → Setup). Please try again later.';
+
+/**
+ * Human-readable callable errors. A callable that doesn't exist (backend not
+ * deployed) or can't be reached surfaces as code "functions/internal" with the
+ * bare message "internal" — show a setup hint instead of "internal [0]".
+ */
 export function errorMessage(e: unknown): string {
   if (e && typeof e === 'object' && 'message' in e) {
     const msg = String((e as { message: string }).message);
-    // Firebase prefixes some codes ("internal", "unavailable") — keep it human.
-    if (msg === 'internal') return 'Something went wrong on our side — please try again.';
+    const code = String((e as { code?: string }).code ?? '');
+    if (msg === 'internal' || /^internal\b/.test(msg)) return NOT_DEPLOYED;
+    if (code === 'functions/unavailable' && /unavailable/i.test(msg)) return NOT_DEPLOYED;
+    if (code === 'functions/not-found' && msg === 'not-found') return NOT_DEPLOYED;
     return msg.replace(/^Firebase: /, '');
   }
   return 'Something went wrong.';
+}
+
+/** Firestore read errors on public docs → readable text. */
+export function friendlyLoadError(error: string): string {
+  if (/permission|insufficient/i.test(error)) {
+    return 'Raids can’t be loaded yet — the WvW Hub database rules aren’t deployed (see wvw/README.md → Setup).';
+  }
+  return `Could not load raids: ${error}`;
 }

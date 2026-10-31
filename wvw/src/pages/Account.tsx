@@ -5,6 +5,8 @@ import { ErrorBox, Notice, PageHeader, Skeleton, TeamChip } from '../components/
 import { useDocumentTitle } from '../lib/hooks';
 import { auth, call, errorMessage } from '../firebase';
 import { API_KEY_URL, KEY_NAME } from '../config';
+
+const ADMIN_UID = 'wvw-admin';
 import { isVerified, useStore } from '../store';
 import { COMMON_TIMEZONES } from '../shared/constants';
 import { browserTimeZone } from '../lib/format';
@@ -52,7 +54,7 @@ function KeyInput({ busy, label, onSubmit }: { busy: boolean; label: string; onS
         spellCheck={false}
         aria-label="GW2 API key"
       />
-      <button className="btn btn-gold" disabled={busy || key.trim().length < 20}>
+      <button className="btn btn-gold" disabled={busy || key.trim().length < 6}>
         {busy ? 'Checking…' : label}
       </button>
     </form>
@@ -116,6 +118,36 @@ export default function Account() {
 
   if (!member) return <ErrorBox>Your account record is missing — sign out and in again.</ErrorBox>;
   const verified = isVerified(member);
+
+  if (uid === ADMIN_UID) {
+    return (
+      <div className="mx-auto grid max-w-3xl gap-5">
+        <PageHeader
+          title="Admin session"
+          sub="Signed in with the admin access key."
+          actions={
+            <button className="btn btn-sm" onClick={() => signOut()}>
+              Sign out
+            </button>
+          }
+        />
+        <div className="card card-pad grid gap-3 text-sm">
+          <p>
+            You can see <b>every team’s raids</b> — including team-only raids and their map third, voice and goals — and use the{' '}
+            <Link to="/mod" className="text-[var(--gold)] underline">Moderation</Link> tools (reports, settings, moderators).
+          </p>
+          <p className="muted">
+            This session has no GW2 account, so it can’t post raids. To post, sign out and sign in with your own API key — put your account
+            name in <code>WVW_SECRETS.adminAccounts</code> to keep admin rights there too.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/calendar" className="btn btn-gold btn-sm">Open the calendar</Link>
+            <Link to="/mod" className="btn btn-sm">Moderation</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto grid max-w-4xl gap-5">

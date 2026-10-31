@@ -22,6 +22,7 @@ export function EventCard({ e, start, end, compact = false }: { e: PublicEvent; 
         <span className={`font-semibold ${cancelled ? 'line-through' : ''}`}>{e.title}</span>
         {e.liveRunId && <LiveBadge />}
         {e.official ? <span className="chip chip-gold">✓ official</span> : <span className="chip">member raid</span>}
+        {e.audience === 'team' && <span className="chip chip-blue" title="Only visible to verified members of this team">🔒 team only</span>}
         {e.status === 'cancelled' && <span className="chip chip-red">cancelled</span>}
         {e.status === 'suspended' && <span className="chip">on hold</span>}
       </div>

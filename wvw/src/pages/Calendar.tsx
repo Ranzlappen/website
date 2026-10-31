@@ -3,7 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Empty, ErrorBox, GuildTag, PageHeader, Segmented, Skeleton } from '../components/ui';
 import { TzPicker } from '../components/TzPicker';
 import { MapPicker, zoneLabel, zoneMatches, zoneParts } from '../components/MapPicker';
-import { useDocumentTitle, useEventIndex, useMatches, useMyTeamIndex, useMySides, useNow, useRelink, useTeamNames } from '../lib/hooks';
+import { useDocumentTitle, useMatches, useMyTeamIndex, useMySides, useNow, useRelink, useTeamNames, useVisibleEvents } from '../lib/hooks';
+import { friendlyLoadError } from '../firebase';
 import { fmtDateTime, fmtTime, team } from '../lib/format';
 import {
   WEEK_MS,
@@ -60,6 +61,7 @@ function SlotChip({ s, tz, showTeam, compact }: { s: Slot; tz: string; showTeam:
         {s.e.liveRunId && <span className="live-dot" />}
         {fmtTime(s.start, tz)} <GuildTag tag={s.e.guildTag} />
         {s.e.official && <span className="text-[var(--gold)]" title="Posted by the guild leader">✓</span>}
+        {s.e.audience === 'team' && <span title="Team-only raid — hidden from other teams">🔒</span>}
       </div>
       {!compact && <div className="truncate">{s.e.title}</div>}
       <div className="faint truncate">
@@ -159,7 +161,7 @@ export default function Calendar() {
   const [weekOffset, setWeekOffset] = useState(0);
   const [monthOffset, setMonthOffset] = useState(0);
 
-  const { data, loading, error } = useEventIndex(region);
+  const { events: visibleEvents, loading, error } = useVisibleEvents(region);
   const matches = useMatches();
   const relink = useRelink().data;
   const teamIndex: TeamIndex | null = useMyTeamIndex();
@@ -200,7 +202,7 @@ export default function Calendar() {
 
   const slots = useMemo(() => {
     const out: Slot[] = [];
-    for (const e of data?.events ?? []) {
+    for (const e of visibleEvents) {
       if (e.status === 'suspended') continue;
       if (teamId && e.teamId !== teamId) continue;
       if (type !== 'all' && e.type !== type) continue;
@@ -210,7 +212,7 @@ export default function Calendar() {
       for (const o of occurrencesBetween(e.schedule, range.start, range.end, 120)) out.push({ e, ...o, zone });
     }
     return out.sort((a, b) => a.start - b.start);
-  }, [data, teamId, type, lang, mapFilter, teamIndex, range.start, range.end]);
+  }, [visibleEvents, teamId, type, lang, mapFilter, teamIndex, range.start, range.end]);
 
   const feed = icalUrl({ region, team: teamId, type: type === 'all' ? null : type });
   const showTeam = !teamId;
@@ -362,7 +364,7 @@ export default function Calendar() {
         </div>
       </div>
 
-      {error && <ErrorBox>Could not load raids: {error}</ErrorBox>}
+      {error && <ErrorBox>{friendlyLoadError(error)}</ErrorBox>}
       {loading ? (
         <Skeleton h={320} />
       ) : view === 'day' ? (

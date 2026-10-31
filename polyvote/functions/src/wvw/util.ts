@@ -25,13 +25,20 @@ export const callableOpts: CallableOptions = {
   memory: '256MiB',
 };
 
+/** The admin-access-key session (no GW2 account behind it). */
+export const ADMIN_UID = 'wvw-admin';
+
 export function uidForAccount(accountId: string): string {
   return UID_PREFIX + accountId;
 }
 
+export function isWvwUid(uid: string | undefined): uid is string {
+  return !!uid && (uid.startsWith(UID_PREFIX) || uid === ADMIN_UID);
+}
+
 export function requireWvwUid(request: CallableRequest): string {
   const uid = request.auth?.uid;
-  if (!uid || !uid.startsWith(UID_PREFIX)) {
+  if (!isWvwUid(uid)) {
     throw new HttpsError('unauthenticated', 'Sign in with your GW2 API key first.');
   }
   return uid;
@@ -42,7 +49,8 @@ export async function getMember(uid: string): Promise<MemberDoc | null> {
   return snap.exists ? (snap.data() as MemberDoc) : null;
 }
 
-export function effectiveRole(m: Pick<MemberDoc, 'accountName' | 'role'>): MemberRole {
+export function effectiveRole(m: Pick<MemberDoc, 'accountName' | 'role'> & { uid?: string }): MemberRole {
+  if (m.uid === ADMIN_UID) return 'admin';
   const admins = (secrets().adminAccounts ?? []).map((a) => a.toLowerCase());
   if (m.accountName && admins.includes(m.accountName.toLowerCase())) return 'admin';
   return m.role ?? 'user';
