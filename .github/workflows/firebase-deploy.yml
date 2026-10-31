@@ -83,4 +83,6 @@ jobs:
           TARGETS="$TARGETS,functions:inventoryFindByEan,functions:inventorySearchItems"
           TARGETS="$TARGETS,functions:inventoryListDeleted,functions:inventoryRestoreItem,functions:inventoryRestoreFolder,functions:inventoryPurgeDeleted"
           TARGETS="$TARGETS,functions:gamesCreateMatch,functions:gamesSubmitAction"
+          # WvW Hub: one grouped target (all `wvw-*` functions). Needs the WVW_SECRETS secret to exist.
+          TARGETS="$TARGETS,functions:wvw"
           firebase deploy --only "$TARGETS" --non-interactive --force

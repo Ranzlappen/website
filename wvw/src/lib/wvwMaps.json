@@ -1,0 +1,951 @@
+{
+ "attribution": "Map tiles \u00a9 ArenaNet (tiles.guildwars2.com)",
+ "generated": "2026-10-30",
+ "maps": {
+  "ebg": {
+   "mapId": 38,
+   "name": "Eternal Battlegrounds",
+   "image": "maps/ebg.webp",
+   "width": 960,
+   "height": 960,
+   "thirds": {
+    "red": {
+     "polygon": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ],
+      [
+       1.0,
+       0.3584
+      ],
+      [
+       0.507,
+       0.6226
+      ],
+      [
+       0.0,
+       0.3387
+      ]
+     ],
+     "centroid": [
+      0.5014,
+      0.2639
+     ],
+     "spawn": [
+      0.5117,
+      0.14
+     ]
+    },
+    "blue": {
+     "polygon": [
+      [
+       1.0,
+       0.3584
+      ],
+      [
+       1.0,
+       1.0
+      ],
+      [
+       0.5037,
+       1.0
+      ],
+      [
+       0.507,
+       0.6226
+      ]
+     ],
+     "centroid": [
+      0.7527,
+      0.7452
+     ],
+     "spawn": [
+      0.9115,
+      0.8859
+     ]
+    },
+    "green": {
+     "polygon": [
+      [
+       0.5037,
+       1.0
+      ],
+      [
+       0.0,
+       1.0
+      ],
+      [
+       0.0,
+       0.3387
+      ],
+      [
+       0.507,
+       0.6226
+      ]
+     ],
+     "centroid": [
+      0.2527,
+      0.7403
+     ],
+     "spawn": [
+      0.098,
+      0.8788
+     ]
+    }
+   },
+   "objectives": [
+    {
+     "id": "38-1",
+     "name": "Overlook",
+     "type": "Keep",
+     "pos": [
+      0.5878,
+      0.2792
+     ]
+    },
+    {
+     "id": "38-10",
+     "name": "Rogue's Quarry",
+     "type": "Camp",
+     "pos": [
+      0.1995,
+      0.529
+     ]
+    },
+    {
+     "id": "38-11",
+     "name": "Aldon's Ledge",
+     "type": "Tower",
+     "pos": [
+      0.1484,
+      0.6493
+     ]
+    },
+    {
+     "id": "38-12",
+     "name": "Wildcreek Run",
+     "type": "Tower",
+     "pos": [
+      0.3087,
+      0.5946
+     ]
+    },
+    {
+     "id": "38-13",
+     "name": "Jerrifer's Slough",
+     "type": "Tower",
+     "pos": [
+      0.276,
+      0.8491
+     ]
+    },
+    {
+     "id": "38-14",
+     "name": "Klovan Gully",
+     "type": "Tower",
+     "pos": [
+      0.3951,
+      0.7434
+     ]
+    },
+    {
+     "id": "38-15",
+     "name": "Langor Gulch",
+     "type": "Tower",
+     "pos": [
+      0.8121,
+      0.8765
+     ]
+    },
+    {
+     "id": "38-16",
+     "name": "Quentin Lake",
+     "type": "Tower",
+     "pos": [
+      0.6159,
+      0.7898
+     ]
+    },
+    {
+     "id": "38-17",
+     "name": "Mendon's Gap",
+     "type": "Tower",
+     "pos": [
+      0.4227,
+      0.2332
+     ]
+    },
+    {
+     "id": "38-18",
+     "name": "Anzalias Pass",
+     "type": "Tower",
+     "pos": [
+      0.4007,
+      0.4181
+     ]
+    },
+    {
+     "id": "38-19",
+     "name": "Ogrewatch Cut",
+     "type": "Tower",
+     "pos": [
+      0.6534,
+      0.409
+     ]
+    },
+    {
+     "id": "38-2",
+     "name": "Valley",
+     "type": "Keep",
+     "pos": [
+      0.8263,
+      0.7561
+     ]
+    },
+    {
+     "id": "38-20",
+     "name": "Veloka Slope",
+     "type": "Tower",
+     "pos": [
+      0.6941,
+      0.2247
+     ]
+    },
+    {
+     "id": "38-21",
+     "name": "Durios Gulch",
+     "type": "Tower",
+     "pos": [
+      0.7156,
+      0.5631
+     ]
+    },
+    {
+     "id": "38-22",
+     "name": "Bravost Escarpment",
+     "type": "Tower",
+     "pos": [
+      0.9142,
+      0.6496
+     ]
+    },
+    {
+     "id": "38-3",
+     "name": "Lowlands",
+     "type": "Keep",
+     "pos": [
+      0.2104,
+      0.7591
+     ]
+    },
+    {
+     "id": "38-4",
+     "name": "Golanta Clearing",
+     "type": "Camp",
+     "pos": [
+      0.4051,
+      0.8591
+     ]
+    },
+    {
+     "id": "38-5",
+     "name": "Pangloss Rise",
+     "type": "Camp",
+     "pos": [
+      0.7558,
+      0.3056
+     ]
+    },
+    {
+     "id": "38-6",
+     "name": "Speldan Clearcut",
+     "type": "Camp",
+     "pos": [
+      0.2875,
+      0.2434
+     ]
+    },
+    {
+     "id": "38-7",
+     "name": "Danelon Passage",
+     "type": "Camp",
+     "pos": [
+      0.6771,
+      0.8979
+     ]
+    },
+    {
+     "id": "38-8",
+     "name": "Umberglade Woods",
+     "type": "Camp",
+     "pos": [
+      0.8488,
+      0.5361
+     ]
+    },
+    {
+     "id": "38-9",
+     "name": "Stonemist Castle",
+     "type": "Castle",
+     "pos": [
+      0.5366,
+      0.5802
+     ]
+    }
+   ]
+  },
+  "red": {
+   "mapId": 1099,
+   "name": "Desert Borderlands",
+   "image": "maps/red.webp",
+   "width": 960,
+   "height": 960,
+   "thirds": {
+    "blue": {
+     "polygon": [
+      [
+       1.0,
+       0.3607
+      ],
+      [
+       1.0,
+       1.0
+      ],
+      [
+       0.524,
+       1.0
+      ],
+      [
+       0.5251,
+       0.5771
+      ]
+     ],
+     "centroid": [
+      0.7623,
+      0.7345
+     ],
+     "spawn": [
+      0.9097,
+      0.9157
+     ]
+    },
+    "green": {
+     "polygon": [
+      [
+       0.5251,
+       0.5771
+      ],
+      [
+       0.524,
+       1.0
+      ],
+      [
+       0.0,
+       1.0
+      ],
+      [
+       0.0,
+       0.3402
+      ]
+     ],
+     "centroid": [
+      0.2623,
+      0.7293
+     ],
+     "spawn": [
+      0.1388,
+      0.9137
+     ]
+    },
+    "red": {
+     "polygon": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ],
+      [
+       1.0,
+       0.3607
+      ],
+      [
+       0.5251,
+       0.5771
+      ],
+      [
+       0.0,
+       0.3402
+      ]
+     ],
+     "centroid": [
+      0.505,
+      0.2556
+     ],
+     "spawn": [
+      0.5219,
+      0.0648
+     ]
+    }
+   },
+   "objectives": [
+    {
+     "id": "1099-100",
+     "name": "Bauer Farmstead",
+     "type": "Camp",
+     "pos": [
+      0.8715,
+      0.758
+     ]
+    },
+    {
+     "id": "1099-101",
+     "name": "McLain's Encampment",
+     "type": "Camp",
+     "pos": [
+      0.1205,
+      0.7676
+     ]
+    },
+    {
+     "id": "1099-102",
+     "name": "O'del Academy",
+     "type": "Tower",
+     "pos": [
+      0.2011,
+      0.1789
+     ]
+    },
+    {
+     "id": "1099-104",
+     "name": "Eternal Necropolis",
+     "type": "Tower",
+     "pos": [
+      0.822,
+      0.2267
+     ]
+    },
+    {
+     "id": "1099-105",
+     "name": "Crankshaft Depot",
+     "type": "Tower",
+     "pos": [
+      0.665,
+      0.8441
+     ]
+    },
+    {
+     "id": "1099-106",
+     "name": "Blistering Undercroft",
+     "type": "Keep",
+     "pos": [
+      0.037,
+      0.5456
+     ]
+    },
+    {
+     "id": "1099-109",
+     "name": "Roy's Refuge",
+     "type": "Camp",
+     "pos": [
+      0.9386,
+      0.3451
+     ]
+    },
+    {
+     "id": "1099-110",
+     "name": "Parched Outpost",
+     "type": "Tower",
+     "pos": [
+      0.3353,
+      0.7726
+     ]
+    },
+    {
+     "id": "1099-113",
+     "name": "Stoic Rampart",
+     "type": "Keep",
+     "pos": [
+      0.5087,
+      0.3784
+     ]
+    },
+    {
+     "id": "1099-114",
+     "name": "Osprey's Palace",
+     "type": "Keep",
+     "pos": [
+      0.973,
+      0.5691
+     ]
+    },
+    {
+     "id": "1099-115",
+     "name": "Boettiger's Hideaway",
+     "type": "Camp",
+     "pos": [
+      0.0313,
+      0.3418
+     ]
+    },
+    {
+     "id": "1099-116",
+     "name": "Dustwhisper Well",
+     "type": "Camp",
+     "pos": [
+      0.5016,
+      0.9428
+     ]
+    },
+    {
+     "id": "1099-99",
+     "name": "Hamm's Lab",
+     "type": "Camp",
+     "pos": [
+      0.498,
+      0.174
+     ]
+    }
+   ]
+  },
+  "blue": {
+   "mapId": 96,
+   "name": "Alpine Borderlands",
+   "image": "maps/blue.webp",
+   "width": 686,
+   "height": 960,
+   "thirds": {
+    "green": {
+     "polygon": [
+      [
+       1.0,
+       0.4761
+      ],
+      [
+       1.0,
+       1.0
+      ],
+      [
+       0.5094,
+       1.0
+      ],
+      [
+       0.5157,
+       0.5827
+      ]
+     ],
+     "centroid": [
+      0.7563,
+      0.7647
+     ],
+     "spawn": [
+      0.7938,
+      0.8828
+     ]
+    },
+    "blue": {
+     "polygon": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ],
+      [
+       1.0,
+       0.4761
+      ],
+      [
+       0.5157,
+       0.5827
+      ],
+      [
+       0.0,
+       0.47
+      ]
+     ],
+     "centroid": [
+      0.5031,
+      0.3058
+     ],
+     "spawn": [
+      0.5092,
+      0.2228
+     ]
+    },
+    "red": {
+     "polygon": [
+      [
+       0.5157,
+       0.5827
+      ],
+      [
+       0.5094,
+       1.0
+      ],
+      [
+       0.0,
+       1.0
+      ],
+      [
+       0.0,
+       0.47
+      ]
+     ],
+     "centroid": [
+      0.2563,
+      0.7632
+     ],
+     "spawn": [
+      0.2285,
+      0.8784
+     ]
+    }
+   },
+   "objectives": [
+    {
+     "id": "96-32",
+     "name": "Askalion Hills",
+     "type": "Keep",
+     "pos": [
+      0.9587,
+      0.5588
+     ]
+    },
+    {
+     "id": "96-33",
+     "name": "Ascension Bay",
+     "type": "Keep",
+     "pos": [
+      0.0926,
+      0.58
+     ]
+    },
+    {
+     "id": "96-34",
+     "name": "Champion's Demesne",
+     "type": "Camp",
+     "pos": [
+      0.502,
+      0.8804
+     ]
+    },
+    {
+     "id": "96-35",
+     "name": "Redbriar",
+     "type": "Tower",
+     "pos": [
+      0.348,
+      0.6867
+     ]
+    },
+    {
+     "id": "96-36",
+     "name": "Greenlake",
+     "type": "Tower",
+     "pos": [
+      0.6965,
+      0.7064
+     ]
+    },
+    {
+     "id": "96-37",
+     "name": "Garrison",
+     "type": "Keep",
+     "pos": [
+      0.4916,
+      0.4333
+     ]
+    },
+    {
+     "id": "96-38",
+     "name": "Woodhaven",
+     "type": "Tower",
+     "pos": [
+      0.2527,
+      0.3349
+     ]
+    },
+    {
+     "id": "96-39",
+     "name": "The Spiritholme",
+     "type": "Camp",
+     "pos": [
+      0.5019,
+      0.0978
+     ]
+    },
+    {
+     "id": "96-40",
+     "name": "Dawn's Eyrie",
+     "type": "Tower",
+     "pos": [
+      0.7365,
+      0.3215
+     ]
+    },
+    {
+     "id": "96-50",
+     "name": "Greenwater Lowlands",
+     "type": "Camp",
+     "pos": [
+      0.8663,
+      0.7324
+     ]
+    },
+    {
+     "id": "96-51",
+     "name": "Stargrove",
+     "type": "Camp",
+     "pos": [
+      0.8701,
+      0.36
+     ]
+    },
+    {
+     "id": "96-52",
+     "name": "Godslore",
+     "type": "Camp",
+     "pos": [
+      0.1617,
+      0.3677
+     ]
+    },
+    {
+     "id": "96-53",
+     "name": "Redvale Refuge",
+     "type": "Camp",
+     "pos": [
+      0.1814,
+      0.7196
+     ]
+    }
+   ]
+  },
+  "green": {
+   "mapId": 95,
+   "name": "Alpine Borderlands",
+   "image": "maps/green.webp",
+   "width": 686,
+   "height": 960,
+   "thirds": {
+    "red": {
+     "polygon": [
+      [
+       1.0,
+       0.4761
+      ],
+      [
+       1.0,
+       1.0
+      ],
+      [
+       0.5094,
+       1.0
+      ],
+      [
+       0.5157,
+       0.5827
+      ]
+     ],
+     "centroid": [
+      0.7563,
+      0.7647
+     ],
+     "spawn": [
+      0.7938,
+      0.8828
+     ]
+    },
+    "green": {
+     "polygon": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       1.0,
+       0.0
+      ],
+      [
+       1.0,
+       0.4761
+      ],
+      [
+       0.5157,
+       0.5827
+      ],
+      [
+       0.0,
+       0.47
+      ]
+     ],
+     "centroid": [
+      0.5031,
+      0.3058
+     ],
+     "spawn": [
+      0.5092,
+      0.2228
+     ]
+    },
+    "blue": {
+     "polygon": [
+      [
+       0.5157,
+       0.5827
+      ],
+      [
+       0.5094,
+       1.0
+      ],
+      [
+       0.0,
+       1.0
+      ],
+      [
+       0.0,
+       0.47
+      ]
+     ],
+     "centroid": [
+      0.2563,
+      0.7632
+     ],
+     "spawn": [
+      0.2285,
+      0.8784
+     ]
+    }
+   },
+   "objectives": [
+    {
+     "id": "95-32",
+     "name": "Shadaran Hills",
+     "type": "Keep",
+     "pos": [
+      0.9587,
+      0.5588
+     ]
+    },
+    {
+     "id": "95-33",
+     "name": "Dreadfall Bay",
+     "type": "Keep",
+     "pos": [
+      0.0926,
+      0.58
+     ]
+    },
+    {
+     "id": "95-34",
+     "name": "Hero's Lodge",
+     "type": "Camp",
+     "pos": [
+      0.5021,
+      0.8804
+     ]
+    },
+    {
+     "id": "95-35",
+     "name": "Bluebriar",
+     "type": "Tower",
+     "pos": [
+      0.348,
+      0.6867
+     ]
+    },
+    {
+     "id": "95-36",
+     "name": "Redlake",
+     "type": "Tower",
+     "pos": [
+      0.6965,
+      0.7064
+     ]
+    },
+    {
+     "id": "95-37",
+     "name": "Garrison",
+     "type": "Keep",
+     "pos": [
+      0.4916,
+      0.4333
+     ]
+    },
+    {
+     "id": "95-38",
+     "name": "Sunnyhill",
+     "type": "Tower",
+     "pos": [
+      0.2526,
+      0.3349
+     ]
+    },
+    {
+     "id": "95-39",
+     "name": "The Titanpaw",
+     "type": "Camp",
+     "pos": [
+      0.5019,
+      0.0978
+     ]
+    },
+    {
+     "id": "95-40",
+     "name": "Cragtop",
+     "type": "Tower",
+     "pos": [
+      0.7365,
+      0.3215
+     ]
+    },
+    {
+     "id": "95-50",
+     "name": "Redwater Lowlands",
+     "type": "Camp",
+     "pos": [
+      0.8663,
+      0.7324
+     ]
+    },
+    {
+     "id": "95-51",
+     "name": "Foghaven",
+     "type": "Camp",
+     "pos": [
+      0.8701,
+      0.36
+     ]
+    },
+    {
+     "id": "95-52",
+     "name": "Faithleap",
+     "type": "Camp",
+     "pos": [
+      0.1617,
+      0.3677
+     ]
+    },
+    {
+     "id": "95-53",
+     "name": "Bluevale Refuge",
+     "type": "Camp",
+     "pos": [
+      0.1814,
+      0.7196
+     ]
+    }
+   ]
+  }
+ }
+}

@@ -150,3 +150,6 @@ export {
 
 // Tabletop: server-authoritative online game arbiter (validates + applies moves)
 export { gamesCreateMatch, gamesSubmitAction } from "./games/arbiter";
+
+// WvW Hub (wvw/ SPA) — grouped as `wvw-*` functions; deploy with `functions:wvw`
+export * as wvw from "./wvw";

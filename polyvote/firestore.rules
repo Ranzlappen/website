@@ -162,5 +162,40 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow create, update, delete: if false;
     }
+
+    // ── WvW Hub (wvw/ SPA) ──
+    // Visibility tiers are enforced by *which docs exist*: the browser only
+    // reads precomputed public index docs (no account names, no maps, no
+    // voice links), a member's own doc, its own team's private index, and
+    // public run/guild pages. Events'
+    // private tier, keys, reports, ratings, claim logs etc. are server-only
+    // (no rule = denied). All writes go through the `wvw-*` Cloud Functions.
+    match /wvwPublic/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /wvwGuildDir/{guildId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /wvwRuns/{runId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /wvwMembers/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+    // Private tier per team (map third, goals, voice …): verified, active,
+    // non-stale members of THAT team only. Written by functions (indexes.ts).
+    match /wvwTeamIndex/{teamId} {
+      allow read: if isSignedIn()
+        && exists(/databases/$(database)/documents/wvwMembers/$(request.auth.uid))
+        && get(/databases/$(database)/documents/wvwMembers/$(request.auth.uid)).data.verified == true
+        && get(/databases/$(database)/documents/wvwMembers/$(request.auth.uid)).data.stale == false
+        && get(/databases/$(database)/documents/wvwMembers/$(request.auth.uid)).data.status == 'active'
+        && string(get(/databases/$(database)/documents/wvwMembers/$(request.auth.uid)).data.teamId) == teamId;
+      allow write: if false;
+    }
   }
 }

@@ -1,6 +1,6 @@
-# ranzlappen.com — Blog + PolyVote + Blog Admin + Inventory Manager + Tabletop
+# ranzlappen.com — Blog + PolyVote + Blog Admin + Inventory Manager + Tabletop + WvW Hub
 
-A hybrid static site: a dark-themed Jekyll blog, the PolyVote community voting SPA, a Blog Admin publishing dashboard, a private Inventory Manager, and Tabletop — a reusable browser game engine for card and board games. The blog itself needs **no coding** — everything routine can be done from GitHub's website (works on your phone). The React apps need a dev setup.
+A hybrid static site: a dark-themed Jekyll blog, the PolyVote community voting SPA, a Blog Admin publishing dashboard, a private Inventory Manager, Tabletop — a reusable browser game engine for card and board games, and WvW Hub — a cross-guild Guild Wars 2 WvW raid calendar. The blog itself needs **no coding** — everything routine can be done from GitHub's website (works on your phone). The React apps need a dev setup.
 
 > **New here?** If you just want to run or write posts, jump to [Get Your Blog Online](#get-your-blog-online). If you're a developer working on PolyVote, Blog Admin, Inventory Manager, or Tabletop, start with [Developer Setup](#developer-setup).
 
@@ -8,7 +8,7 @@ A hybrid static site: a dark-themed Jekyll blog, the PolyVote community voting S
 
 ## Developer Setup
 
-The repo contains **five independent modules** plus a nested Cloud Functions module. Each has its own package manifest, lint/test/build/deploy path, and its own README. **Do not cross-import source between modules** — duplicate intentionally if sharing is required (see [`CLAUDE.md`](./CLAUDE.md)).
+The repo contains **six independent modules** plus a nested Cloud Functions module. Each has its own package manifest, lint/test/build/deploy path, and its own README. **Do not cross-import source between modules** — duplicate intentionally if sharing is required (see [`CLAUDE.md`](./CLAUDE.md)).
 
 | Module | Path | Role | Local dev | Docs |
 |---|---|---|---|---|
@@ -17,6 +17,7 @@ The repo contains **five independent modules** plus a nested Cloud Functions mod
 | Blog Admin | [`blog-admin/`](./blog-admin) | React 19 publishing dashboard (served at `/blog-admin/`) | `cd blog-admin && npm run dev` | [`blog-admin/README.md`](./blog-admin/README.md) |
 | Inventory Manager | [`inventory-manager/`](./inventory-manager) | React 19 admin-only inventory tool with eBay CSV export (served at `/inventory/`, hidden from crawlers) | `cd inventory-manager && npm run dev` | [`inventory-manager/README.md`](./inventory-manager/README.md) |
 | Tabletop | [`games/`](./games) | React 19 reusable card/board game engine + 3 demo games (served at `/games/`) | `cd games && npm run dev` | [`games/README.md`](./games/README.md) · [handbook](./games/docs/wiki/README.md) |
+| WvW Hub | [`wvw/`](./wvw) | React 19 GW2 WvW raid calendar + guild directory (served at `/wvw/`) | `cd wvw && npm run dev` | [`wvw/README.md`](./wvw/README.md) |
 | Cloud Functions | [`polyvote/functions/`](./polyvote/functions) | Firebase callables/triggers (server-side writes) | `cd polyvote/functions && npm run serve` | [`polyvote/functions/README.md`](./polyvote/functions/README.md) |
 
 ### Prerequisites
@@ -36,11 +37,11 @@ The GitHub Actions workflows live in [`.github/workflows/`](./.github/workflows)
 | Workflow | Trigger | What it does |
 |---|---|---|
 | [`ci.yml`](./.github/workflows/ci.yml) | PR → `main` | Per-app lint/test/build, only for changed apps |
-| [`jekyll-gh-pages.yml`](./.github/workflows/jekyll-gh-pages.yml) | Push → `main` | Builds Jekyll + PolyVote + Blog Admin + Inventory Manager + Tabletop/games, deploys to GitHub Pages |
-| [`firebase-deploy.yml`](./.github/workflows/firebase-deploy.yml) | Push → `main` touching Firebase paths | Deploys Firestore rules, RTDB rules, Storage rules, `castBlogVote`, all Blog Admin callables, and all Inventory Manager callables |
+| [`jekyll-gh-pages.yml`](./.github/workflows/jekyll-gh-pages.yml) | Push → `main` | Builds Jekyll + PolyVote + Blog Admin + Inventory Manager + Tabletop/games + WvW Hub, deploys to GitHub Pages |
+| [`firebase-deploy.yml`](./.github/workflows/firebase-deploy.yml) | Push → `main` touching Firebase paths | Deploys Firestore rules, RTDB rules, Storage rules, `castBlogVote`, all Blog Admin callables, all Inventory Manager callables, the Tabletop arbiter and the grouped `wvw-*` WvW Hub functions |
 | [`search-crawl.yml`](./.github/workflows/search-crawl.yml) | Manual (`workflow_dispatch`) | Re-crawls external content (subdomains, GitHub Pages, repos, gists) via the `search-crawler` module and opens a PR with the refreshed `search-external.json` (merge it to redeploy) |
 
-Required secret for Firebase deploys: `FIREBASE_SERVICE_ACCOUNT`.
+Required secret for Firebase deploys: `FIREBASE_SERVICE_ACCOUNT`. Firebase Functions secrets `GOOGLE_DRIVE_API_KEY` and `WVW_SECRETS` must exist in the project (placeholder values are enough) or every functions deploy aborts — see `CLAUDE.md`.
 
 ---
 
