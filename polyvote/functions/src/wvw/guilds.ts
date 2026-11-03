@@ -5,12 +5,13 @@
  * (`/v2/account` → `guild_leader`). Any verified member of a guild can post
  * raids for it; raids by the guild's leader carry the ✓ official badge. The
  * leader can edit the guild's public profile (description, playstyles,
- * languages, recruiting, links).
+ * languages, recruiting, links). Recruiting requires a contact GW2 account
+ * name — the one account name the leader deliberately makes public.
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { COL, db } from './config';
 import { isGuildId } from './gw2';
-import { LANGUAGES, LIMITS, PLAYSTYLES, type Language, type Playstyle } from './shared/constants';
+import { ACCOUNT_NAME_RE, LANGUAGES, LIMITS, PLAYSTYLES, type Language, type Playstyle } from './shared/constants';
 import { isValidTimeZone } from './shared/time';
 import type { GuildProfile } from './shared/types';
 import { audit, callableOpts, cleanList, cleanText, cleanUrl, requireVerified } from './util';
@@ -26,12 +27,19 @@ export const updateGuildProfile = onCall(callableOpts, async (request) => {
   }
   const p = d.profile ?? {};
   if (p.timezone != null && !isValidTimeZone(p.timezone)) throw new HttpsError('invalid-argument', 'Unknown time zone.');
+  const recruiting = p.recruiting === true;
+  const recruitContact = recruiting ? cleanText(p.recruitContact, 45, 'Recruitment contact') : '';
+  if (recruiting && !ACCOUNT_NAME_RE.test(recruitContact)) {
+    throw new HttpsError('invalid-argument', 'While recruiting, add a contact GW2 account name like Name.1234 so applicants know whom to whisper.');
+  }
   const profile: GuildProfile = {
     description: cleanText(p.description, LIMITS.descriptionMax, 'Description'),
     languages: cleanList<Language>(p.languages, LANGUAGES, 'languages', 6),
     playstyles: cleanList<Playstyle>(p.playstyles, PLAYSTYLES, 'playstyles', 8),
     timezone: (p.timezone as string | null) ?? null,
-    recruiting: p.recruiting === true,
+    recruiting,
+    recruitContact: recruiting ? recruitContact : null,
+
     discordInvite: cleanUrl(p.discordInvite, 'Discord invite', /(^|\.)discord(app)?\.(gg|com)$/),
     website: cleanUrl(p.website, 'Website'),
   };

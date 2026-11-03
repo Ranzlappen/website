@@ -9,7 +9,7 @@ import { call, errorMessage } from '../firebase';
 import { SubscribeDialog } from '../components/SubscribeDialog';
 import { isAdmin, isVerified, useStore } from '../store';
 import { useT } from '../i18n';
-import { COMMON_TIMEZONES, LANGUAGES, LIMITS, PLAYSTYLES, RATING_AXES, labelOf, type Language, type Playstyle } from '../shared/constants';
+import { ACCOUNT_NAME_RE, COMMON_TIMEZONES, LANGUAGES, LIMITS, PLAYSTYLES, RATING_AXES, labelOf, type Language, type Playstyle } from '../shared/constants';
 import { isoWeekKey } from '../shared/time';
 import type { GuildProfile } from '../shared/types';
 
@@ -37,7 +37,9 @@ function LeaderTools({ guildId, profile }: { guildId: string; profile: GuildProf
   const t = useT();
   const toast = useStore((s) => s.toast);
   const [p, setP] = useState<GuildProfile>(
-    profile ?? { description: '', languages: ['en'], playstyles: [], timezone: null, recruiting: false, discordInvite: null, website: null },
+    profile
+      ? { ...profile, recruitContact: profile.recruitContact ?? null }
+      : { description: '', languages: ['en'], playstyles: [], timezone: null, recruiting: false, recruitContact: null, discordInvite: null, website: null },
   );
   const [busy, setBusy] = useState(false);
 
@@ -80,9 +82,25 @@ function LeaderTools({ guildId, profile }: { guildId: string; profile: GuildProf
             ))}
           </select>
         </label>
-        <label className="flex items-end gap-2 text-sm">
-          <input type="checkbox" checked={p.recruiting} onChange={(e) => setP({ ...p, recruiting: e.target.checked })} /> {t('We’re recruiting')}
-        </label>
+        <div className="grid gap-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={p.recruiting} onChange={(e) => setP({ ...p, recruiting: e.target.checked })} /> {t('We’re recruiting')}
+          </label>
+          {p.recruiting && (
+            <label>
+              <span className="label">{t('Recruitment contact (GW2 account name)')}</span>
+              <input
+                className={`input font-mono ${p.recruitContact && !ACCOUNT_NAME_RE.test(p.recruitContact) ? 'border-red-400' : ''}`}
+                value={p.recruitContact ?? ''}
+                onChange={(e) => setP({ ...p, recruitContact: e.target.value || null })}
+                placeholder="Name.1234"
+                maxLength={45}
+                required
+              />
+              <span className="faint mt-1 block text-xs">{t('Required while recruiting. Shown publicly on the guild page so players know whom to whisper in-game.')}</span>
+            </label>
+          )}
+        </div>
         <label>
           <span className="label">{t('Public Discord invite')}</span>
           <input className="input" value={p.discordInvite ?? ''} onChange={(e) => setP({ ...p, discordInvite: e.target.value || null })} placeholder="https://discord.gg/…" />
@@ -93,7 +111,7 @@ function LeaderTools({ guildId, profile }: { guildId: string; profile: GuildProf
         </label>
       </div>
       <div className="flex justify-end">
-        <button className="btn btn-gold" onClick={save} disabled={busy}>
+        <button className="btn btn-gold" onClick={save} disabled={busy || (p.recruiting && !ACCOUNT_NAME_RE.test(p.recruitContact ?? ''))}>
           {t('Save guild page')}
         </button>
       </div>
@@ -135,6 +153,7 @@ export default function GuildDetail() {
   const [subscribe, setSubscribe] = useState(false);
   const { data: g, loading, error } = useGuild(id);
   const member = useStore((s) => s.member);
+  const toast = useStore((s) => s.toast);
   const runs = useGuildRuns(id);
   const region = g?.region ?? 'eu';
   const events = useVisibleEvents(region);
@@ -193,6 +212,22 @@ export default function GuildDetail() {
           </Section>
         </div>
         <div className="flex flex-col gap-4">
+          {g.profile?.recruiting && g.profile.recruitContact && (
+            <div className="card card-pad border-green-500/40 bg-green-500/5">
+              <h2 className="mb-1 font-bold">🟢 {t('Recruiting')}</h2>
+              <p className="muted text-sm">{t('Interested? Whisper the recruitment contact in-game:')}</p>
+              <div className="mt-2 flex items-center gap-2">
+                <code className="rounded bg-[var(--bg-2)] px-2 py-1 font-mono text-sm">{g.profile.recruitContact}</code>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => navigator.clipboard?.writeText(g.profile!.recruitContact!).then(() => toast(t('Copied.'), 'ok'))}
+                >
+                  {t('copy')}
+                </button>
+              </div>
+            </div>
+          )}
           <div className="card card-pad">
             <h2 className="mb-3 font-bold">{t('Activity')}</h2>
             <ActivityBars activity={g.activity ?? {}} />

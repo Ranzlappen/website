@@ -6,7 +6,7 @@ import { MapPicker, mapLabel } from '../components/MapPicker';
 import { useT } from '../i18n';
 import { fmtRange } from '../lib/format';
 import { call, errorMessage } from '../firebase';
-import { isVerified, useStore } from '../store';
+import { isMod, isVerified, useStore } from '../store';
 import {
   AUDIENCES,
   COMMON_TIMEZONES,
@@ -23,7 +23,7 @@ import {
   type VoiceKind,
 } from '../shared/constants';
 import { WEEKDAY_SHORT, civilToDays, localParts, occurrencesBetween, parseDate, validateSchedule, weekdayOfDays, type Schedule } from '../shared/time';
-import type { EventDetails, EventInput, PublicEvent } from '../shared/types';
+import type { AdminEventRow, EventDetails, EventInput, PublicEvent } from '../shared/types';
 
 function todayIn(tz: string): string {
   const p = localParts(Date.now(), tz);
@@ -75,13 +75,25 @@ export default function EventEditor() {
   const names = useTeamNames();
 
   const teamIdx = useMyTeamIndex();
-  const existing: PublicEvent | null = useMemo(
+  const mod = isMod(member);
+  // Past or hidden raids are in no index — moderators load them directly.
+  const [modLoaded, setModLoaded] = useState<{ event: AdminEventRow; details: EventDetails } | null>(null);
+  const indexed: PublicEvent | null = useMemo(
     () =>
       id
         ? [...(eu.data?.events ?? []), ...(na.data?.events ?? []), ...(teamIdx?.events ?? [])].find((e) => e.id === id) ?? null
         : null,
     [eu.data, na.data, teamIdx, id],
   );
+  const existing: PublicEvent | null = indexed ?? modLoaded?.event ?? null;
+  const indexesLoaded = !eu.loading && !na.loading;
+
+  useEffect(() => {
+    if (!id || !mod || indexed || modLoaded || !indexesLoaded) return;
+    call<{ event: AdminEventRow; details: EventDetails }>('modGetEvent', { eventId: id })
+      .then(setModLoaded)
+      .catch((e) => setError(errorMessage(e)));
+  }, [id, mod, indexed, modLoaded, indexesLoaded]);
 
   useEffect(() => {
     if (!member || form) return;
@@ -91,7 +103,10 @@ export default function EventEditor() {
       return;
     }
     if (!existing) return;
-    call<{ details: EventDetails[] }>('getEventDetails', { eventIds: [existing.id] })
+    const detailsP = modLoaded
+      ? Promise.resolve({ details: [modLoaded.details] })
+      : call<{ details: EventDetails[] }>('getEventDetails', { eventIds: [existing.id] });
+    detailsP
       .then(({ details }) => {
         const d = details[0];
         setForm({
@@ -115,10 +130,11 @@ export default function EventEditor() {
         }
       })
       .catch((e) => setError(errorMessage(e)));
-  }, [member, existing, editing, form, displayTz]);
+  }, [member, existing, editing, form, displayTz, modLoaded]);
 
   if (!memberReady) return <Skeleton h={400} />;
-  if (!isVerified(member)) {
+  // Moderators (incl. the admin session, which has no team) may edit any raid, also past ones.
+  if (!isVerified(member) && !(editing && mod)) {
     return (
       <Notice tone="warn">
         {t('Sign in with your GW2 API key to post raids.')} <Link to="/account" className="underline">{t('Sign in →')}</Link>
@@ -161,6 +177,12 @@ export default function EventEditor() {
         title={t(editing ? 'Edit raid' : 'Post a raid')}
         sub={t('Public: guild, team, time, map, type and languages. Team-only: voice, goals, size, builds and notes.')}
       />
+      {modLoaded?.event.archived && (
+        <div className="mb-4">
+          <Notice tone="gold">{t('This raid is in the past. As a moderator you can still correct it — the date may stay in the past.')}</Notice>
+        </div>
+      )}
+
       {error && (
         <div className="mb-4">
           <ErrorBox>{error}</ErrorBox>
@@ -179,6 +201,12 @@ export default function EventEditor() {
                   [{g.tag}] {g.name} {g.leader ? '👑' : ''}
                 </option>
               ))}
+              {existing?.guildId && !member!.guilds.some((g) => g.id === existing.guildId) && (
+                <option value={existing.guildId}>
+                  [{existing.guildTag}] {existing.guildName}
+                </option>
+              )}
+
             </select>
             <span className="faint mt-1 block text-xs">
               {!form.guildId

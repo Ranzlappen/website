@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
-import { KOFI_URL, LEGAL_URL, MAIN_SITE } from '../config';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+
+import { KOFI_URL } from '../config';
 import { usePublicConfig } from '../lib/hooks';
-import { isMod, isVerified, useStore } from '../store';
+import { isAdmin, isMod, isVerified, useStore } from '../store';
+
 import { team } from '../lib/format';
 import { UI_LANGS, msg, useT, type Lang } from '../i18n';
 
@@ -33,6 +35,21 @@ function LangSwitch() {
       </select>
       <span className="pointer-events-none absolute right-1.5 text-[0.6rem] text-[var(--muted)]">▾</span>
     </label>
+  );
+}
+
+/** Always-visible call to action for members who can post (header, every page). */
+function PostRaidButton() {
+  const t = useT();
+  const member = useStore((s) => s.member);
+  const { pathname } = useLocation();
+  if (!isVerified(member) || pathname.startsWith('/events/new')) return null;
+  return (
+    <Link to="/events/new" className="btn btn-gold btn-sm" title={t('Post a raid')}>
+      <span aria-hidden>＋</span>
+      <span className="hidden sm:inline">{t('Post a raid')}</span>
+      <span className="sm:hidden">{t('Raid')}</span>
+    </Link>
   );
 }
 
@@ -69,6 +86,7 @@ export function Layout() {
   const nav = [
     ...NAV,
     ...(isVerified(member) ? [{ to: '/my-raids', label: msg('My raids') }] : []),
+    ...(isVerified(member) || isAdmin(member) ? [{ to: '/feedback', label: msg('Feedback') }] : []),
     ...(isMod(member) ? [{ to: '/mod', label: msg('Moderation') }] : []),
   ].map((n) => ({ ...n, label: t(n.label) }));
 
@@ -100,6 +118,7 @@ export function Layout() {
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-2">
+            <PostRaidButton />
             <LangSwitch />
             <AccountButton />
             <button className="btn btn-ghost btn-sm md:hidden" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={t('Menu')}>
@@ -157,13 +176,20 @@ export function Layout() {
           </div>
           <div className="faint text-xs leading-relaxed">
             {t('Fan project, not affiliated with or endorsed by ArenaNet or NCSOFT. Guild Wars 2 and all related marks are trademarks of NCSOFT Corporation. Data from the official GW2 API.')}
-            <div className="mt-2">
-              <a href={MAIN_SITE} className="hover:text-white">ranzlappen.com</a> ·{' '}
-              <a href={LEGAL_URL} className="hover:text-white">
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+              <Link to="/legal" className="hover:text-white">
                 {t('Legal notice')}
-              </a>
-
+              </Link>
+              <Link to="/privacy" className="hover:text-white">
+                {t('Privacy')}
+              </Link>
+              {(isVerified(member) || isAdmin(member)) && (
+                <Link to="/feedback" className="hover:text-white">
+                  {t('Feedback')}
+                </Link>
+              )}
             </div>
+
           </div>
         </div>
       </footer>

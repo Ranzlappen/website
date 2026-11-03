@@ -16,6 +16,8 @@ const RunDetail = lazy(() => import('./pages/RunDetail'));
 const Account = lazy(() => import('./pages/Account'));
 const MyRaids = lazy(() => import('./pages/MyRaids'));
 const Moderation = lazy(() => import('./pages/Moderation'));
+const Feedback = lazy(() => import('./pages/Feedback'));
+const Legal = lazy(() => import('./pages/Legal'));
 
 export default function App() {
   return (
@@ -34,6 +36,9 @@ export default function App() {
           <Route path="account" element={<Account />} />
           <Route path="my-raids" element={<MyRaids />} />
           <Route path="mod" element={<Moderation />} />
+          <Route path="feedback" element={<Feedback />} />
+          <Route path="legal" element={<Legal />} />
+
           <Route path="about" element={<About />} />
           <Route path="rules" element={<Rules />} />
           <Route path="privacy" element={<Privacy />} />

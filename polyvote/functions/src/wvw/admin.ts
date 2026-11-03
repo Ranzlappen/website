@@ -8,16 +8,36 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { COL, db, getSettings, invalidateSettings, type Settings } from './config';
 import { TEAM_NAMES } from './shared/teams';
-import type { PublicConfig } from './shared/types';
+import type { LegalNotice, PublicConfig } from './shared/types';
+import { ACCOUNT_NAME_RE as ACCOUNT_NAME } from './shared/constants';
 import { audit, callableOpts, cleanText, cleanUrl, requireRole } from './util';
 
-const ACCOUNT_NAME = /^[^.\s][^\n]{1,40}\.\d{4}$/;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Validate the legal-notice form; all-empty clears it. */
+export function cleanLegal(raw: unknown): LegalNotice | null {
+  if (raw == null) return null;
+  const d = raw as Record<string, unknown>;
+  const name = cleanText(d.name, 120, 'Name');
+  const address = cleanText(d.address, 400, 'Address');
+  const email = cleanText(d.email, 200, 'Email');
+  const phone = cleanText(d.phone, 60, 'Phone') || null;
+  const responsible = cleanText(d.responsible, 300, 'Responsible for content') || null;
+  const extra = cleanText(d.extra, 1000, 'Additional information') || null;
+  if (!name && !address && !email && !phone && !responsible && !extra) return null;
+  if (!name || !address || !email) {
+    throw new HttpsError('invalid-argument', 'The legal notice needs at least a name, a postal address and an email address.');
+  }
+  if (!EMAIL.test(email)) throw new HttpsError('invalid-argument', 'That email address doesn’t look right.');
+  return { name, address, email, phone, responsible, extra };
+}
 
 export async function publishPublicConfig(s: Settings): Promise<void> {
   const pub: PublicConfig = {
     teamNames: s.teamNames,
     hubInviteUrl: s.hubInviteUrl,
     announcement: s.announcement,
+    legal: s.legal,
     updatedAt: Date.now(),
   };
   await db().collection(COL.public).doc('config').set(pub);
@@ -39,6 +59,8 @@ export const adminUpdateSettings = onCall(callableOpts, async (request) => {
   }
   if (d.hubInviteUrl !== undefined) next.hubInviteUrl = cleanUrl(d.hubInviteUrl, 'Discord invite', /(^|\.)discord(app)?\.(gg|com)$/);
   if (d.announcement !== undefined) next.announcement = cleanText(d.announcement, 300, 'Announcement') || null;
+  if (d.legal !== undefined) next.legal = cleanLegal(d.legal);
+
   if (d.teamNames !== undefined) {
     const names: Record<string, string> = {};
     for (const [k, v] of Object.entries(d.teamNames ?? {})) {

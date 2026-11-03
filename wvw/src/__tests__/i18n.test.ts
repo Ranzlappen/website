@@ -5,6 +5,8 @@ import {
   AUDIENCES,
   COMMUNITY_RULES,
   EVENT_TYPES,
+  FEEDBACK_KINDS,
+  FEEDBACK_STATUSES,
   MAPS,
   OPENNESS,
   PLAYSTYLES,
@@ -16,7 +18,9 @@ import { WEEKDAY_SHORT } from '../shared/time';
 
 /** Keys reaching t() through variables (option lists, nav/view labels, colours, statuses). */
 const DYNAMIC = [
-  ...[EVENT_TYPES, OPENNESS, PLAYSTYLES, VOICE_KINDS, RATING_AXES, REPORT_REASONS].flatMap((l) => l.map((o) => o.label as string)),
+  ...[EVENT_TYPES, OPENNESS, PLAYSTYLES, VOICE_KINDS, RATING_AXES, REPORT_REASONS, FEEDBACK_KINDS, FEEDBACK_STATUSES].flatMap((l) =>
+    l.map((o) => o.label as string),
+  ),
   ...AUDIENCES.flatMap((a) => [a.label, a.hint]),
   ...MAPS.flatMap((m) => [m.label, m.short]),
   ...WEEKDAY_SHORT,

@@ -22,9 +22,22 @@ export { ical } from './ical';
 export { adminGetSettings, adminUpdateSettings, adminSetRole, adminListMods } from './admin';
 export { adminImportEvents } from './import';
 export {
+  submitFeedback,
+  listMyFeedback,
+  replyMyFeedback,
+  deleteMyFeedback,
+  modListFeedback,
+  modReplyFeedback,
+  modDeleteFeedbackReply,
+  modMarkFeedbackRead,
+  modDeleteFeedback,
+} from './feedback';
+export {
   modListEvents,
   modSetEventHidden,
-  adminDeleteEvents,
+  modGetEvent,
+  modDeleteEvents,
+  modDeleteRun,
   adminSetGuildSuspended,
   adminListMembers,
   adminBanMember,

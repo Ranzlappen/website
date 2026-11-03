@@ -1,8 +1,9 @@
 # WvW Hub (`wvw/`)
 
 A cross-guild, cross-team **raid calendar for Guild Wars 2 World vs. World**, plus matchups, a guild directory with activity/raid stats and
-attendee-only ratings. Live at **https://ranzlappen.com/wvw/** (React 19 + Vite SPA on GitHub Pages, backend in the shared Firebase project
-`proven-concept-436717-q3`).
+attendee-only ratings. Home: **https://wvwhub.de/** (built by the `Ranzlappen/wvw` Pages repo from this module — see *Custom domain*;
+the same build also still runs at `ranzlappen.com/wvw/`). React 19 + Vite SPA on GitHub Pages, backend in the shared Firebase project
+`proven-concept-436717-q3`. Nothing in the hub links to ranzlappen.com — footer, legal notice and privacy pages are the hub's own.
 
 ```
 wvw/                         React SPA (this module)                     → GitHub Pages /wvw/
@@ -58,6 +59,9 @@ placement logic in `lib/placement.ts`) — every raid of the matchup's three tea
 Jumper raids go to a three-column Jumper section. Window: *Now + 3h* / *Today* / *Until reset* (always clipped to the current matchup,
 since colours change at reset); any matchup of the region can be picked. Visibility is the calendar's: all public raids, plus your own
 team's team-only raids (admin: all).
+Pins show time, guild tag and icons for the **raid type** and **who can join** (`lib/icons.ts`; a legend sits above the maps and every
+pin explains itself on hover); each map's "N raids" list and the Jumper section show full rows (type + join labels, languages), the
+teams stacked one below the other.
 
 Map images are **curated** from `tiles.guildwars2.com` and committed (the browser never contacts ArenaNet):
 
@@ -85,11 +89,17 @@ Pure date math lives in `src/lib/calendar.ts` (tested in `src/__tests__/calendar
 ## Privacy & visibility model
 
 - **No account names in public.** Public surfaces identify raids by guild tag/name only. GW2 account names live on the member's own doc
-  (owner-read) and server-only docs; only admins see account names, in Moderation → Members / Raids.
+  (owner-read) and server-only docs; only admins see account names, in Moderation → Members / Raids and the Feedback admin view. The one
+  deliberate exception is a guild's **recruitment contact**: a leader who marks the guild as recruiting must enter a contact account name
+  (`GuildProfile.recruitContact`, validated `Name.1234`), shown on the guild page so applicants know whom to whisper.
 - **Tiers are enforced by which docs exist**: the browser reads `wvwPublic/*` index docs (no voice/goals/notes), `wvwGuildDir/*`, `wvwRuns/*`
   (no identities, no map), its own `wvwMembers/{uid}` and **its own team's** `wvwTeamIndex/{teamId}` (rules: verified, active, non-stale
   member of that team — or the admin session, which may read every team's index). Everything else is server-only.
-- **API keys**: encrypted at rest, used only to re-check the team after relinks; "Forget my key" / "Delete my data" on the Account page.
+- **API keys**: encrypted at rest (server-side only — never stored in or returned to the browser), used only to re-check the team after
+  relinks; the Account page shows **Stored API key** (`MemberDoc.keyInfo`: last 4 characters, key name, permissions, saved / last checked,
+  working / rejected) plus "Forget my key" / "Delete my data". Older members get `keyInfo` filled in on their next re-check.
+- **Staying signed in**: the Firebase session (a refresh token, not the API key) persists in IndexedDB → localStorage
+  (`initializeAuth` in `src/firebase.ts`), so refreshes and browser restarts keep you signed in until **Sign out**.
 - **Ratings**: only checked-in, same-team attendees, 72 h window, four axes, no free text, per-rater averaging.
 - **Roles are NOT Firebase custom claims** (the shared `setUserRole` replaces the whole claims object, and WvW mods must never get blog
   `admin`). Roles live in `wvwMembers.role`; admins come from `WVW_SECRETS.adminAccounts`.
@@ -166,19 +176,39 @@ browser, saved in `localStorage` `wvw.lang`). Tiny dependency-free layer in `src
 | Tab | Who | What |
 |---|---|---|
 | Reports | mods | dismiss, hide raid, suspend raid lead, suspend guild page, revert |
-| Raids | mods: hide / unhide / cancel · admins: + **delete** (single or bulk) and see the poster's account | every active raid incl. hidden, team-only, imported and independent ones, with search + filters |
+| Raids | mods + admins: **edit**, hide / unhide, cancel, **delete** (single or bulk) · admins also see the poster's account | *Upcoming & active* (incl. hidden, team-only, imported and independent raids) or **Past raids** (finished schedules, newest 600), with search + filters |
 | Members | admins | find by GW2 account name, newest / banned / moderators, **ban / unban**, make / remove moderator |
 | Import raids | admins | CSV seed pipeline (above) |
-| Settings | admins | site URL, community Discord link, banner, team-name overrides |
+| Settings | admins | site URL, community Discord link, banner, **legal notice (Impressum)**, team-name overrides |
 
-Guild pages additionally show an admin **Suspend / Restore guild page** button (hides all the guild's raids).
+Moderators can also **edit past raids** (the editor loads them via `modGetEvent`; dates may stay in the past — `validateEventInput(…,
+{ allowPast })`), delete a raid from its page, and **delete a run** (with its check-ins and ratings; guild stats are recomputed) from
+the run page. Guild pages additionally show an admin **Suspend / Restore guild page** button (hides all the guild's raids).
 
 **Bans (blacklist)** live in server-only `wvwBans`, keyed by GW2 account id (`id:<id>`, survives name changes and "Delete my data") and
 by lower-cased account name (`name:<name>`, so an account that never signed in can be banned up front). `wvw-signIn` refuses both. A ban
 also suspends the member (every callable refuses), revokes their Firebase sessions, deletes the stored API key and hides their raids
 (restored on unban) or deletes them. Admins (`WVW_SECRETS.adminAccounts`) and your own account can't be banned. Callables:
-`modListEvents`, `modSetEventHidden`, `adminDeleteEvents`, `adminSetGuildSuspended`, `adminListMembers`, `adminBanMember`,
-`adminUnbanMember` (`adminTools.ts`).
+`modListEvents`, `modGetEvent`, `modSetEventHidden`, `modDeleteEvents`, `modDeleteRun`, `adminSetGuildSuspended`, `adminListMembers`,
+`adminBanMember`, `adminUnbanMember` (`adminTools.ts`).
+
+## Feedback
+
+The **Feedback** tab (nav + footer; verified members and admins) lets members send a 🐞 bug, 💡 feature request, 👍 like, 💬 feedback or
+👎 dislike with a free-text message (≤ 2000 characters, 10 new threads per day), then see their own threads with the team's replies,
+follow up, or delete them. Admins get **All feedback**: filter by status / kind / text or account, reply as "WvW Hub team" while setting a
+status (*New → Acknowledged / Planned / Done / Declined*), delete single replies, mark read, delete threads (single or bulk). Unread
+markers work both ways. Server-only collection `wvwFeedback` (no client rule) behind the callables in `feedback.ts` (`submitFeedback`,
+`listMyFeedback`, `replyMyFeedback`, `deleteMyFeedback`, `modListFeedback`, `modReplyFeedback`, `modDeleteFeedbackReply`,
+`modMarkFeedbackRead`, `modDeleteFeedback`); "Delete my data" also removes a member's feedback.
+
+## Legal notice
+
+`/legal` is the hub's own **Impressum** (§ 5 DDG / § 18 MStV) — nothing links to ranzlappen.com. The operator's name, postal address,
+email (and optionally phone, responsible person, extra text) are **runtime settings**: Moderation → Settings → *Legal notice*
+(`wvwConfig/settings.legal` → published to `wvwPublic/config.legal`), so no personal address is committed to this public repo and it can
+change without a deploy. Until it's filled in the page shows a notice. The liability / links / copyright text is translated like every
+other page.
 
 ## One-time setup (admin) — all in the browser, no command line
 
@@ -201,6 +231,9 @@ No GitHub secret is needed — and nothing secret goes into the (public) repo.
    Creator**. Then enable the [IAM Service Account Credentials API](https://console.cloud.google.com/apis/library/iamcredentials.googleapis.com?project=proven-concept-436717-q3).
 3. **Deploy** — merge to `main`: `firebase-deploy.yml` deploys rules, indexes and `functions:wvw`; the Pages build ships the site. (Or
    GitHub → Actions → *Deploy Firebase* → **Re-run all jobs** after a failed run.)
+
+4. **Legal notice** — sign in, open **Moderation → Settings → Legal notice (Impressum)**, fill in name, postal address and email, save.
+   Set **Site URL** to `https://wvwhub.de/` there too (links inside iCal feeds; it's also the default).
 
 The first `wvw-poll` run fills matchups and the guild directory within 5 minutes — nothing else needed for Phase 0.
 
@@ -236,13 +269,15 @@ without a custom domain, `/` with one), copies `index.html` → `404.html` (SPA 
 3. **Actions → Deploy WvW Hub → Run workflow** (it also runs on every push to that repo and nightly, picking up changes merged here) →
    the hub is live at `https://<user>.github.io/<repo>/` (e.g. `ranzlappen.github.io/wvw/`). A 404 there means the workflow hasn't
    run successfully yet.
-4. Optional own domain: Settings → Pages → **Custom domain** `wvw.example.com` → Save, then **Run workflow** once more (the base path
+4. Own domain (ours: **`wvwhub.de`**): Settings → Pages → **Custom domain** `wvwhub.de` → Save, then **Run workflow** once more (the base path
    switches to `/`); tick **Enforce HTTPS** once the certificate is issued. Verifying the domain under your GitHub account → Settings →
    Pages is recommended.
 5. **DNS** at your registrar — use **one** of the two, never both:
-   - a **subdomain** (`wvw.example.com`, recommended): a single `CNAME wvw → ranzlappen.github.io`;
-   - the **bare domain** (`example.com` itself): the four `A` records `185.199.108.153`, `185.199.109.153`, `185.199.110.153`,
-     `185.199.111.153` (+ optional `AAAA` `2606:50c0:8000::153` … `2606:50c0:8003::153`). A CNAME isn't allowed on a bare domain.
+   - a **subdomain** (e.g. `wvw.example.com`): a single `CNAME wvw → ranzlappen.github.io`;
+   - the **bare domain** (e.g. `wvwhub.de` itself — our case): the four `A` records `185.199.108.153`, `185.199.109.153`,
+     `185.199.110.153`, `185.199.111.153` (+ optional `AAAA` `2606:50c0:8000::153` … `2606:50c0:8003::153`), and a
+     `CNAME www → ranzlappen.github.io` so `www.wvwhub.de` redirects too. A CNAME isn't allowed on the bare domain itself.
+
 6. In the hub: **Moderation → Settings → Site URL** = the new address (links inside iCal feeds).
 7. If the Firebase browser API key is restricted to HTTP referrers (Google Cloud console → APIs & Services → Credentials), add the new
    domain. Sign-in uses custom tokens, so no Firebase Auth "authorized domain" is needed.

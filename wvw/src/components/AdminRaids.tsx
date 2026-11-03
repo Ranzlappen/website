@@ -1,7 +1,8 @@
 /**
- * Moderation → Raids: every active raid incl. hidden and team-only ones.
- * Mods: hide / unhide / cancel. Admins additionally: hard delete (single or
- * bulk) and see the poster's GW2 account name.
+ * Moderation → Raids: every active raid incl. hidden and team-only ones, and
+ * the past raids (finished schedules, kept for the stats). Mods and admins:
+ * edit, hide / unhide, cancel, delete (single or bulk). Admins additionally
+ * see the poster's GW2 account name.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -23,6 +24,7 @@ export function AdminRaids({ admin }: { admin: boolean }) {
   const toast = useStore((s) => s.toast);
   const names = useTeamNames();
   const [region, setRegion] = useState<'all' | 'eu' | 'na'>('all');
+  const [when, setWhen] = useState<'active' | 'past'>('active');
   const [filter, setFilter] = useState<Filter>('all');
   const [q, setQ] = useState('');
   const [rows, setRows] = useState<AdminEventRow[] | null>(null);
@@ -30,7 +32,7 @@ export function AdminRaids({ admin }: { admin: boolean }) {
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(() => {
-    call<{ events: AdminEventRow[] }>('modListEvents', { region: region === 'all' ? null : region })
+    call<{ events: AdminEventRow[] }>('modListEvents', { region: region === 'all' ? null : region, archived: when === 'past' })
       .then((r) => {
         setRows(r.events);
         setSel(new Set());
@@ -39,7 +41,7 @@ export function AdminRaids({ admin }: { admin: boolean }) {
         toast(errorMessage(e), 'error');
         setRows([]);
       });
-  }, [region, toast]);
+  }, [region, when, toast]);
   useEffect(load, [load]);
 
   const shown = useMemo(() => {
@@ -74,7 +76,7 @@ export function AdminRaids({ admin }: { admin: boolean }) {
   };
   const remove = (ids: string[]) => {
     if (!ids.length || !confirm(t('Permanently delete {n} raid(s)? This cannot be undone.', { n: ids.length }))) return;
-    void run(() => call('adminDeleteEvents', { eventIds: ids }), t('Deleted.'));
+    void run(() => call('modDeleteEvents', { eventIds: ids }), t('Deleted.'));
   };
   const toggle = (id: string) => {
     const next = new Set(sel);
@@ -89,12 +91,27 @@ export function AdminRaids({ admin }: { admin: boolean }) {
       <div className="card card-pad flex flex-wrap items-end gap-3">
         <Segmented
           options={[
+            { id: 'active', label: t('Upcoming & active') },
+            { id: 'past', label: t('Past raids') },
+          ]}
+          value={when}
+          onChange={(w) => {
+            setRows(null);
+            setWhen(w);
+            setFilter('all');
+          }}
+        />
+        <Segmented
+          options={[
             { id: 'all', label: t('All') },
             { id: 'eu', label: 'EU' },
             { id: 'na', label: 'NA' },
           ]}
           value={region}
-          onChange={setRegion}
+          onChange={(r) => {
+            setRows(null);
+            setRegion(r);
+          }}
         />
         <label className="min-w-[14rem] flex-1">
           <span className="label">{t('Search')}</span>
@@ -115,7 +132,7 @@ export function AdminRaids({ admin }: { admin: boolean }) {
         </button>
       </div>
 
-      {admin && sel.size > 0 && (
+      {sel.size > 0 && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="muted">{t('{n} selected', { n: sel.size })}</span>
           <button className="btn btn-danger btn-sm" disabled={busy} onClick={() => remove([...sel])}>
@@ -136,16 +153,14 @@ export function AdminRaids({ admin }: { admin: boolean }) {
           <table className="table text-sm">
             <thead>
               <tr>
-                {admin && (
-                  <th>
-                    <input
-                      type="checkbox"
-                      aria-label={t('Select all')}
-                      checked={allShownSelected}
-                      onChange={() => setSel(allShownSelected ? new Set() : new Set(shown.map((e) => e.id)))}
-                    />
-                  </th>
-                )}
+                <th>
+                  <input
+                    type="checkbox"
+                    aria-label={t('Select all')}
+                    checked={allShownSelected}
+                    onChange={() => setSel(allShownSelected ? new Set() : new Set(shown.map((e) => e.id)))}
+                  />
+                </th>
                 <th>{t('Raid')}</th>
                 <th>{t('Team')}</th>
                 <th>{t('Map')}</th>
@@ -157,11 +172,9 @@ export function AdminRaids({ admin }: { admin: boolean }) {
             <tbody>
               {shown.map((e) => (
                 <tr key={e.id} className={e.visibility === 'hidden' ? 'opacity-70' : ''}>
-                  {admin && (
-                    <td>
-                      <input type="checkbox" aria-label={t('Select')} checked={sel.has(e.id)} onChange={() => toggle(e.id)} />
-                    </td>
-                  )}
+                  <td>
+                    <input type="checkbox" aria-label={t('Select')} checked={sel.has(e.id)} onChange={() => toggle(e.id)} />
+                  </td>
                   <td className="min-w-[14rem]">
                     <div className="flex flex-wrap items-center gap-1.5">
                       <GuildTag tag={e.guildTag} id={e.guildId} />
@@ -192,6 +205,9 @@ export function AdminRaids({ admin }: { admin: boolean }) {
                   {admin && <td className="font-mono text-xs">{e.commander ?? (e.seeded ? t('import') : '—')}</td>}
                   <td>
                     <div className="flex flex-wrap gap-1">
+                      <Link to={`/events/${e.id}/edit`} className="btn btn-sm">
+                        ✏️ {t('Edit')}
+                      </Link>
                       {e.visibility === 'hidden' ? (
                         <button className="btn btn-sm" disabled={busy} onClick={() => run(() => call('modSetEventHidden', { eventId: e.id, hidden: false }), t('Raid visible again.'))}>
                           {t('Unhide')}
@@ -201,7 +217,7 @@ export function AdminRaids({ admin }: { admin: boolean }) {
                           {t('Hide')}
                         </button>
                       )}
-                      {e.status === 'scheduled' && (
+                      {e.status === 'scheduled' && !e.archived && (
                         <button
                           className="btn btn-sm"
                           disabled={busy}
@@ -210,11 +226,10 @@ export function AdminRaids({ admin }: { admin: boolean }) {
                           {t('Cancel')}
                         </button>
                       )}
-                      {admin && (
-                        <button className="btn btn-danger btn-sm" disabled={busy} onClick={() => remove([e.id])}>
-                          {t('Delete')}
-                        </button>
-                      )}
+                      <button className="btn btn-danger btn-sm" disabled={busy} onClick={() => remove([e.id])}>
+                        {t('Delete')}
+                      </button>
+
                     </div>
                   </td>
                 </tr>

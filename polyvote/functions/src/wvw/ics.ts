@@ -56,7 +56,7 @@ export function buildIcs(
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//ranzlappen.com//WvW Hub//EN',
+    'PRODID:-//wvwhub.de//WvW Hub//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${icsEscape(opts.name)}`,
@@ -78,7 +78,7 @@ export function buildIcs(
       ].join('\n');
       lines.push(
         'BEGIN:VEVENT',
-        `UID:${e.id}-${icsDate(o.start)}@wvw.ranzlappen.com`,
+        `UID:${e.id}-${icsDate(o.start)}@wvwhub.de`,
         `DTSTAMP:${icsDate(e.updatedAt || now)}`,
         `DTSTART:${icsDate(o.start)}`,
         `DTEND:${icsDate(o.end)}`,

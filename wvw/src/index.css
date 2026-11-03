@@ -45,8 +45,12 @@ body {
   min-height: 100vh;
 }
 
-a {
-  color: inherit;
+/* In @layer base (like Tailwind's preflight) — an unlayered rule would beat the
+   layered .btn-gold and turn its dark text light on <a class="btn btn-gold">. */
+@layer base {
+  a {
+    color: inherit;
+  }
 }
 
 :focus-visible {
@@ -105,10 +109,14 @@ a {
   background: var(--gold);
   border-color: var(--gold);
   color: var(--gold-ink);
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(224, 179, 65, 0.25), 0 6px 18px -6px rgba(224, 179, 65, 0.55);
 }
 .btn-gold:hover {
   background: #ecc35a;
+  color: var(--gold-ink);
 }
+
 .btn-ghost {
   background: transparent;
   border-color: transparent;

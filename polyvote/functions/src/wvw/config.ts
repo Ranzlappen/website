@@ -9,13 +9,14 @@
  * enough) before this code reaches `main`. Missing fields disable the feature
  * that needs them with a clear error instead of crashing the deploy.
  *
- * Runtime settings (team-name overrides, hub invite link, banner) live in
+ * Runtime settings (team-name overrides, hub invite link, banner, legal notice) live in
  * Firestore `wvwConfig/settings`, edited from the site's Moderation → Settings
  * page, so they change without a deploy.
  */
 import { defineSecret } from 'firebase-functions/params';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { getFirestore } from 'firebase-admin/firestore';
+import type { LegalNotice } from './shared/types';
 
 export const WVW_SECRETS = defineSecret('WVW_SECRETS');
 
@@ -87,6 +88,7 @@ export const COL = {
   state: 'wvwState', // server-only: poller/maintenance cursors
   audit: 'wvwAudit', // server-only: moderation + transfer log
   bans: 'wvwBans', // server-only: banned GW2 accounts (by account id and by name)
+  feedback: 'wvwFeedback', // server-only: feedback threads (Feedback tab)
 } as const;
 
 export const db = () => getFirestore();
@@ -98,15 +100,18 @@ export interface Settings {
   /** Optional public link to a community Discord (plain link, no bot yet). */
   hubInviteUrl: string | null;
   announcement: string | null;
-  /** Public site origin + base, used in iCal links ("https://ranzlappen.com/wvw/"). */
+  /** Public site origin + base, used in iCal links ("https://wvwhub.de/"). */
   siteUrl: string;
+  /** Operator details for the /legal page (Impressum); null until an admin fills them in. */
+  legal: LegalNotice | null;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   teamNames: {},
   hubInviteUrl: null,
   announcement: null,
-  siteUrl: 'https://ranzlappen.com/wvw/',
+  siteUrl: 'https://wvwhub.de/',
+  legal: null,
 };
 
 let settingsCache: { at: number; value: Settings } | null = null;
@@ -121,7 +126,9 @@ export async function getSettings(fresh = false): Promise<Settings> {
     hubInviteUrl: data.hubInviteUrl ?? null,
     announcement: data.announcement ?? null,
     siteUrl: data.siteUrl ?? DEFAULT_SETTINGS.siteUrl,
+    legal: data.legal ?? null,
   };
+
   settingsCache = { at: Date.now(), value };
   return value;
 }

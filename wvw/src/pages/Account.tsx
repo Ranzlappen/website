@@ -7,7 +7,9 @@ import { auth, call, errorMessage } from '../firebase';
 import { API_KEY_URL, KEY_NAME } from '../config';
 import { isVerified, useStore } from '../store';
 import { COMMON_TIMEZONES } from '../shared/constants';
-import { browserTimeZone, relative } from '../lib/format';
+import { browserTimeZone, fmtDateTime, relative } from '../lib/format';
+import type { StoredKeyInfo } from '../shared/types';
+
 import { UI_LANGS, useT, type Lang } from '../i18n';
 
 const ADMIN_UID = 'wvw-admin';
@@ -59,6 +61,61 @@ function KeyInput({ busy, label, onSubmit }: { busy: boolean; label: string; onS
         {busy ? t('Checking…') : label}
       </button>
     </form>
+  );
+}
+
+/** The encrypted, server-side stored key as its owner sees it — never the key itself. */
+function StoredKey({ info }: { info: StoredKeyInfo | null | undefined }) {
+  const t = useT();
+  const tz = useStore((s) => s.displayTz);
+  const known = !!info?.last4;
+  return (
+    <div className="mb-4 rounded-xl border border-[var(--border)] bg-[var(--bg-2)] p-3 text-sm">
+      <div className="mb-1 flex flex-wrap items-center gap-2">
+        <span className="font-semibold">🔑 {t('Stored API key')}</span>
+        {info === null ? (
+          <span className="chip">{t('none')}</span>
+        ) : info?.status === 'invalid' ? (
+          <span className="chip chip-red">⚠️ {t('rejected by ArenaNet')}</span>
+        ) : info?.status === 'ok' ? (
+          <span className="chip chip-green">✓ {t('working')}</span>
+        ) : null}
+      </div>
+      {info === null ? (
+        <p className="muted text-xs">{t('No key is stored — after a relink you’ll need to paste one again. Re-verify below to store one.')}</p>
+      ) : known && info ? (
+
+        <dl className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-[auto_1fr]">
+          <dt className="faint">{t('Key')}</dt>
+          <dd className="font-mono">••••••••-••••-…-{info.last4}</dd>
+          {info.name && (
+            <>
+              <dt className="faint">{t('Name')}</dt>
+              <dd>“{info.name}”</dd>
+            </>
+          )}
+          {info.permissions?.length > 0 && (
+            <>
+              <dt className="faint">{t('Permissions')}</dt>
+              <dd>{info.permissions.join(', ')}</dd>
+            </>
+          )}
+          <dt className="faint">{t('Saved')}</dt>
+          <dd>{fmtDateTime(info.savedAt, tz)}</dd>
+          {info.checkedAt && (
+            <>
+              <dt className="faint">{t('Last checked')}</dt>
+              <dd>{relative(info.checkedAt)}</dd>
+            </>
+          )}
+        </dl>
+      ) : (
+        <p className="muted text-xs">{t('A key is stored. Its details appear after the next re-check — press “Re-check my team now”.')}</p>
+      )}
+      <p className="faint mt-2 text-xs">
+        {t('Encrypted on the server and only used to re-check your team after relinks — it is never sent back to your browser. You stay signed in on this device across refreshes until you sign out.')}
+      </p>
+    </div>
   );
 }
 
@@ -243,6 +300,7 @@ export default function Account() {
             </div>
           </div>
         </div>
+        <StoredKey info={member.keyInfo} />
         <p className="faint mb-3 text-xs">
           {t('After every relink the hub re-checks everyone automatically within about an hour and moves your raids to your new team. Use the button if you want it right now.')}
         </p>

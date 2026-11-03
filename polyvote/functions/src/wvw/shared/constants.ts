@@ -114,6 +114,28 @@ export const REPORT_REASONS = [
 ] as const;
 export type ReportReason = (typeof REPORT_REASONS)[number]['id'];
 
+/** Feedback kinds (Feedback tab — verified members; answered by admins). */
+export const FEEDBACK_KINDS = [
+  { id: 'bug', label: 'Bug' },
+  { id: 'feature', label: 'Feature request' },
+  { id: 'like', label: 'Like' },
+  { id: 'feedback', label: 'Feedback' },
+  { id: 'dislike', label: 'Dislike' },
+] as const;
+export type FeedbackKind = (typeof FEEDBACK_KINDS)[number]['id'];
+
+export const FEEDBACK_STATUSES = [
+  { id: 'open', label: 'New' },
+  { id: 'acknowledged', label: 'Acknowledged' },
+  { id: 'planned', label: 'Planned' },
+  { id: 'done', label: 'Done' },
+  { id: 'declined', label: 'Declined' },
+] as const;
+export type FeedbackStatus = (typeof FEEDBACK_STATUSES)[number]['id'];
+
+/** GW2 account name, e.g. "Some Name.1234" (recruitment contact, bans, roles). */
+export const ACCOUNT_NAME_RE = /^[^.\s][^\n]{1,40}\.\d{4}$/;
+
 /** Time zones offered in pickers (any valid IANA zone is accepted server-side). */
 export const COMMON_TIMEZONES = [
   'UTC',
@@ -156,6 +178,9 @@ export const LIMITS = {
   logsPerRun: 10,
   /** Check-ins are accepted this long after a run ended (late joiners). */
   checkinGraceMinutes: 30,
+  /** Feedback: characters per message, new threads per member per 24h. */
+  feedbackMax: 2000,
+  feedbackPerDay: 10,
 } as const;
 
 /**

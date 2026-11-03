@@ -18,7 +18,7 @@
  * that team) — see indexes.ts. Raids seeded by the CSV import (import.ts) may
  * be edited by any verified member of their guild, who then adopts them.
  */
-import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { onCall, HttpsError, type CallableRequest } from 'firebase-functions/v2/https';
 import { COL, db } from './config';
 import {
   AUDIENCES,
@@ -33,6 +33,7 @@ import {
 } from './shared/constants';
 import { regionOfTeam } from './shared/teams';
 import {
+  isScheduleFinished,
   nextOccurrence,
   normaliseSchedule,
   parseDate,
@@ -55,7 +56,11 @@ export interface DetailsDoc {
 
 const DAY_MS = 86_400_000;
 
-export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
+/**
+ * Validate + normalise an event form. `allowPast` (moderators editing a past
+ * raid) skips the "must still have a future date" checks.
+ */
+export function validateEventInput(raw: unknown, now = Date.now(), opts: { allowPast?: boolean } = {}): EventInput {
   const d = (raw ?? {}) as Record<string, unknown>;
   // null / "" = independent raid (no guild attached).
   const guildId = d.guildId == null || d.guildId === '' ? null : d.guildId;
@@ -74,7 +79,7 @@ export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
   const schedule = normaliseSchedule(d.schedule as Schedule);
   const first = parseDate(schedule.date)!;
   const firstMs = Date.UTC(first.y, first.m - 1, first.d);
-  if (firstMs > now + LIMITS.scheduleAheadDays * DAY_MS) {
+  if (!opts.allowPast && firstMs > now + LIMITS.scheduleAheadDays * DAY_MS) {
     throw new HttpsError('invalid-argument', `Schedule at most ${LIMITS.scheduleAheadDays} days ahead.`);
   }
   if (schedule.repeat === 'weekly' && schedule.until) {
@@ -83,7 +88,7 @@ export function validateEventInput(raw: unknown, now = Date.now()): EventInput {
       throw new HttpsError('invalid-argument', 'A series can run for at most a year — renew it later.');
     }
   }
-  if (!nextOccurrence(schedule, now)) {
+  if (!opts.allowPast && !nextOccurrence(schedule, now)) {
     throw new HttpsError('invalid-argument', 'That time is already in the past.');
   }
 
@@ -203,7 +208,9 @@ async function loadOwned(member: MemberDoc, eventId: string): Promise<{ e: Event
 
 export async function updateEventCore(member: MemberDoc, eventId: string, input: EventInput): Promise<PublicEvent> {
   const { e, details } = await loadOwned(member, eventId);
-  if (e.archived) throw new HttpsError('failed-precondition', 'This raid has ended.');
+  const isMod = effectiveRole(member) !== 'user';
+  // Past raids stay editable for moderators (fix titles, maps, types for the stats).
+  if (e.archived && !isMod) throw new HttpsError('failed-precondition', 'This raid has ended.');
   if ((input.guildId ?? null) !== (e.guildId ?? null)) throw new HttpsError('invalid-argument', 'The guild of a raid cannot change.');
   const now = Date.now();
   const next: EventDoc = {
@@ -217,6 +224,7 @@ export async function updateEventCore(member: MemberDoc, eventId: string, input:
     schedule: input.schedule,
     status: e.status === 'cancelled' ? 'scheduled' : e.status,
     updatedAt: now,
+    archived: isScheduleFinished(input.schedule, now),
   };
   const adopt = canAdopt(member, e) && e.commanderUid !== member.uid && member.teamId != null;
   if (adopt) {
@@ -322,13 +330,21 @@ export const createEvent = onCall(callableOpts, async (request) => {
   return { event };
 });
 
+/** Moderators (incl. the admin session, which has no team) edit any raid; members need to be verified. */
+async function requireEditor(request: CallableRequest): Promise<MemberDoc> {
+  const member = await requireMember(request);
+  return effectiveRole(member) === 'user' ? requireVerified(request) : member;
+}
+
 export const updateEvent = onCall(callableOpts, async (request) => {
-  const member = await requireVerified(request);
+  const member = await requireEditor(request);
   const { eventId, ...rest } = (request.data ?? {}) as { eventId?: string } & Record<string, unknown>;
-  const input = validateEventInput(rest);
+  const input = validateEventInput(rest, Date.now(), { allowPast: effectiveRole(member) !== 'user' });
   const event = await updateEventCore(member, String(eventId ?? ''), input);
+  if (effectiveRole(member) !== 'user') await audit(member.uid, 'mod.updateEvent', { eventId });
   return { event };
 });
+
 
 export const cancelEvent = onCall(callableOpts, async (request) => {
   const member = await requireMember(request);
