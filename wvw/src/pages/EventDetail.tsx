@@ -6,12 +6,12 @@ import { TzPicker } from '../components/TzPicker';
 import { useDocumentTitle, useEventIndex, useMatches, useMyTeamIndex, useNow, useTeamNames } from '../lib/hooks';
 import { fmtRange, relative } from '../lib/format';
 import { call, errorMessage } from '../firebase';
-import { isVerified, useStore } from '../store';
+import { isMod, isVerified, useStore } from '../store';
 import { EVENT_TYPES, LANGUAGES, OPENNESS, VOICE_KINDS, labelOf } from '../shared/constants';
 import { MapThumb, mapLabel } from '../components/MapPicker';
 import { SubscribeDialog } from '../components/SubscribeDialog';
 import { describeSchedule, occurrencesBetween } from '../shared/time';
-import { COLORS, type EventDetails, type PublicEvent, type PublicRun } from '../shared/types';
+import { COLORS, type AdminEventRow, type EventDetails, type PublicEvent, type PublicRun } from '../shared/types';
 import { useT } from '../i18n';
 
 function downloadIcs(e: PublicEvent, start: number, end: number) {
@@ -19,9 +19,9 @@ function downloadIcs(e: PublicEvent, start: number, end: number) {
   const text = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//ranzlappen.com//WvW Hub//EN',
+    'PRODID:-//wvwhub.de//WvW Hub//EN',
     'BEGIN:VEVENT',
-    `UID:${e.id}-${d(start)}@wvw.ranzlappen.com`,
+    `UID:${e.id}-${d(start)}@wvwhub.de`,
     `DTSTAMP:${d(Date.now())}`,
     `DTSTART:${d(start)}`,
     `DTEND:${d(end)}`,
@@ -52,10 +52,22 @@ export default function EventDetail() {
   const matches = useMatches().data;
   const [subscribe, setSubscribe] = useState(false);
 
-  const e = useMemo(
+  const mod = isMod(member);
+  const [modRow, setModRow] = useState<AdminEventRow | null>(null);
+  const [modTried, setModTried] = useState(false);
+  const indexed = useMemo(
     () => [...(eu.data?.events ?? []), ...(na.data?.events ?? []), ...(teamIdx?.events ?? [])].find((x) => x.id === id) ?? null,
     [eu.data, na.data, teamIdx, id],
   );
+  // Past or hidden raids are in no public index — moderators still see (and can fix or remove) them.
+  useEffect(() => {
+    if (!id || !mod || indexed || eu.loading || na.loading) return;
+    call<{ event: AdminEventRow }>('modGetEvent', { eventId: id })
+      .then((r) => setModRow(r.event))
+      .catch(() => setModRow(null))
+      .finally(() => setModTried(true));
+  }, [id, mod, indexed, eu.loading, na.loading]);
+  const e: PublicEvent | null = indexed ?? modRow;
   useDocumentTitle(e ? `${e.guildTag ? `[${e.guildTag}] ` : ''}${e.title}` : t('Raid'));
   // The organising team's colour in its current matchup → the third it shows in on the matchup map.
   const match = e ? matches?.matches.find((m) => COLORS.some((c) => m.sides[c].teamId === e.teamId)) : undefined;
@@ -73,7 +85,7 @@ export default function EventDetail() {
     };
   }, [uid, id, member?.teamId]);
 
-  if (eu.loading || na.loading) return <Skeleton h={300} />;
+  if (eu.loading || na.loading || (mod && !indexed && !modTried)) return <Skeleton h={300} />;
   if (!e) {
     return (
       <ErrorBox>
@@ -101,7 +113,22 @@ export default function EventDetail() {
     }
   };
 
+  const removeRaid = async () => {
+    if (!e || !confirm(t('Permanently delete {n} raid(s)? This cannot be undone.', { n: 1 }))) return;
+    setBusy(true);
+    try {
+      await call('modDeleteEvents', { eventIds: [e.id] });
+      toast(t('Deleted.'), 'ok');
+      navigate('/calendar');
+    } catch (err) {
+      toast(errorMessage(err), 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const cancel = async () => {
+
     if (!confirm(t('Cancel this raid?'))) return;
     setBusy(true);
     try {
@@ -281,13 +308,35 @@ export default function EventDetail() {
           )}
         </div>
 
+        {mod && (
+          <div className="card card-pad">
+            <h2 className="mb-2 font-bold">🛡️ {t('Moderation')}</h2>
+            {modRow && (
+              <p className="muted mb-2 text-xs">
+                {modRow.archived ? t('Past raid — kept for the stats.') : ''} {modRow.visibility === 'hidden' ? `${t('hidden')}${modRow.hiddenReason ? `: ${modRow.hiddenReason}` : ''}` : ''}
+              </p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              {!canEdit && (
+                <Link to={`/events/${e.id}/edit`} className="btn btn-sm">
+                  ✏️ {t('Edit')}
+                </Link>
+              )}
+              <button className="btn btn-danger btn-sm" onClick={removeRaid} disabled={busy}>
+                🗑 {t('Delete raid')}
+              </button>
+            </div>
+          </div>
+        )}
+
         {canEdit && (
           <div className="card card-pad">
             <h2 className="mb-3 font-bold">{t('Commander tools')}</h2>
             {e.seeded && <p className="muted mb-3 text-xs">{t('This raid was listed by the moderators. Editing it makes you its commander.')}</p>}
             <div className="flex flex-wrap gap-2">
-              {e.status === 'scheduled' && !e.liveRunId && (
+              {e.status === 'scheduled' && !e.liveRunId && !modRow?.archived && (
                 <button className="btn btn-gold" onClick={goLive} disabled={busy}>
+
                   🟢 {t('Go live')}
                 </button>
               )}

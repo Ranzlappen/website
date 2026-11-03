@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui';
 import { useDocumentTitle, usePublicConfig } from '../lib/hooks';
 import { COMMUNITY_RULES, LIMITS } from '../shared/constants';
-import { KOFI_URL, LEGAL_URL } from '../config';
+import { KOFI_URL } from '../config';
 import { msg, useT } from '../i18n';
 import { rich } from '../lib/rich';
 
@@ -81,21 +81,23 @@ const PRIVACY: [string, string[]][] = [
       msg('**API key:** stored encrypted (AES-256-GCM) and used only to re-check your team after relinks. Delete it any time on your Account page.'),
       msg('**Activity:** raids you post, runs you check in to, and your ratings (stored without being shown individually; only guild averages are published).'),
       msg('**Reports** you file are visible to moderators without your identity. If an account is banned for breaking the rules, its GW2 account id and name are kept on a block list.'),
+      msg('**Feedback** you send from the Feedback tab (kind, text, replies) is stored with your account and read only by the hub admins.'),
+      msg('**Recruitment contact:** if you lead a guild and mark it as recruiting, the contact account name you enter is shown publicly on the guild page — the only account name the hub ever shows.'),
     ],
   ],
   [
     msg('Deletion'),
     [
-      msg('“Delete my data” on the Account page removes your account, API key, check-ins and ratings and cancels your raids. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.'),
+      msg('“Delete my data” on the Account page removes your account, API key, check-ins, ratings and feedback and cancels your raids. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.'),
     ],
   ],
   [
     msg('Legal'),
-    [msg('Operator, contact and legal notice: [ranzlappen.com]({legal}). Under the GDPR you can request access, correction or deletion at any time.')],
+    [msg('Operator and contact: see the [legal notice](/legal). Under the GDPR you can request access, correction or deletion at any time.')],
   ],
 ];
 
-function Prose({ sections, vars }: { sections: [string, string[]][]; vars: Record<string, string | number> }) {
+export function Prose({ sections, vars = {} }: { sections: [string, string[]][]; vars?: Record<string, string | number> }) {
   const t = useT();
   return (
     <>
@@ -138,7 +140,8 @@ export function Privacy() {
   return (
     <div className="prose-hub mx-auto max-w-3xl">
       <PageHeader title={t('Privacy')} sub={t('What WvW Hub stores, why, and how to delete it.')} />
-      <Prose sections={PRIVACY} vars={{ legal: LEGAL_URL }} />
+      <Prose sections={PRIVACY} />
+
     </div>
   );
 }

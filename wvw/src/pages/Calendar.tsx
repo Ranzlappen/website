@@ -23,7 +23,8 @@ import {
   type DayColumn,
 } from '../lib/calendar';
 import { isVerified, useStore } from '../store';
-import { EVENT_TYPES, LANGUAGES, labelOf, type EventType, type Language, type MapId } from '../shared/constants';
+import { EVENT_TYPES, LANGUAGES, OPENNESS, labelOf, type EventType, type Language, type MapId } from '../shared/constants';
+import { OPENNESS_ICON, TYPE_ICON } from '../lib/icons';
 import { daysToCivil, occurrencesBetween } from '../shared/time';
 import { COLORS, type PublicEvent } from '../shared/types';
 import type { Region } from '../shared/teams';
@@ -60,7 +61,7 @@ function SlotChip({ s, tz, showTeam, compact }: { s: Slot; tz: string; showTeam:
     <Link
       to={`/events/${s.e.id}`}
       className={`block rounded-lg border border-[var(--border)] bg-[var(--bg-2)] px-2 py-1.5 text-xs transition hover:border-[var(--gold)] ${s.e.status === 'cancelled' ? 'opacity-50 line-through' : ''}`}
-      title={`${s.e.title} — ${t(labelOf(EVENT_TYPES, s.e.type))} · ${team(s.e.teamId, names)} · ${mapLabel(s.e.map, t)}`}
+      title={`${s.e.title}\n${TYPE_ICON[s.e.type]} ${t(labelOf(EVENT_TYPES, s.e.type))}\n${OPENNESS_ICON[s.e.openness]} ${t(labelOf(OPENNESS, s.e.openness))}\n${team(s.e.teamId, names)} · ${mapLabel(s.e.map, t)}`}
     >
       <div className="flex items-center gap-1 font-semibold tabular-nums">
         {s.e.liveRunId && <span className="live-dot" />}
@@ -70,7 +71,12 @@ function SlotChip({ s, tz, showTeam, compact }: { s: Slot; tz: string; showTeam:
       </div>
       {!compact && <div className="truncate">{s.e.title}</div>}
       <div className="faint truncate">
+        <span aria-hidden>
+          {TYPE_ICON[s.e.type]}
+          {OPENNESS_ICON[s.e.openness]}{' '}
+        </span>
         {compact ? s.e.title : t(labelOf(EVENT_TYPES, s.e.type))}
+
         {showTeam && !compact && ` · ${team(s.e.teamId, names)}`}
       </div>
       <div className="mt-0.5 truncate text-[0.65rem] text-[var(--gold)]">📍 {mapLabel(s.e.map, t, undefined, undefined, true)}</div>

@@ -10,7 +10,7 @@
  * polyvote/firestore.rules). Writes: callables only ("wvw-<name>").
  */
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { browserLocalPersistence, indexedDBLocalPersistence, initializeAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
@@ -24,7 +24,14 @@ const firebaseConfig = {
 };
 
 export const app = initializeApp(firebaseConfig, 'wvw-hub');
-export const auth = getAuth(app);
+/**
+ * Stay signed in across refreshes and browser restarts until "Sign out":
+ * the session (a refresh token — never the GW2 API key) lives in IndexedDB,
+ * falling back to localStorage. The API key itself is only stored server-side,
+ * encrypted (Account → "Stored API key").
+ */
+export const auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence] });
+
 export const firestore = getFirestore(app);
 const functions = getFunctions(app);
 

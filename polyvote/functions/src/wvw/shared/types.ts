@@ -12,6 +12,8 @@ import type { Region } from './teams';
 import type {
   Audience,
   EventType,
+  FeedbackKind,
+  FeedbackStatus,
   Language,
   MapId,
   Openness,
@@ -69,7 +71,22 @@ export interface PublicConfig {
   teamNames?: Record<string, string>;
   hubInviteUrl?: string | null;
   announcement?: string | null;
+  /** Operator details for the /legal page (Impressum), edited in Moderation → Settings. */
+  legal?: LegalNotice | null;
   updatedAt?: number;
+}
+
+/** Legal notice / Impressum (§ 5 DDG): who runs the site and how to reach them. */
+export interface LegalNotice {
+  name: string;
+  /** Postal address, multi-line. */
+  address: string;
+  email: string;
+  phone: string | null;
+  /** Person responsible for the content (§ 18 Abs. 2 MStV), if different. */
+  responsible: string | null;
+  /** Optional extra text (e.g. VAT id) — plain text. */
+  extra: string | null;
 }
 
 // ── Guild directory ───────────────────────────────────────────────────────
@@ -80,6 +97,12 @@ export interface GuildProfile {
   playstyles: Playstyle[];
   timezone: string | null;
   recruiting: boolean;
+  /**
+   * Public recruitment contact (GW2 account name, e.g. "Name.1234") — required
+   * while `recruiting`. Entered by the guild leader on purpose; the only
+   * account name that ever appears on a public surface.
+   */
+  recruitContact: string | null;
   /** The guild's own (public) Discord invite / website — set by the leader. */
   discordInvite: string | null;
   website: string | null;
@@ -260,8 +283,22 @@ export interface MemberDoc {
   /** The member must re-verify (relink happened and no stored key worked). */
   stale: boolean;
   prefs: { timezone: string | null };
+  /** The stored (encrypted) API key, as the owner sees it — never the key itself. */
+  keyInfo?: StoredKeyInfo | null;
   verifiedAt: number | null;
   createdAt: number;
+}
+
+export interface StoredKeyInfo {
+  /** Last 4 characters of the key, to recognise it. */
+  last4: string;
+  /** Key name from /v2/tokeninfo (contains "WvW Hub"). */
+  name: string;
+  permissions: string[];
+  savedAt: number;
+  /** Last successful re-check with the stored key. */
+  checkedAt: number | null;
+  status: 'ok' | 'invalid';
 }
 
 // ── Callable payloads ─────────────────────────────────────────────────────
@@ -335,6 +372,8 @@ export interface ImportRowResult {
 
 /** A raid as the Moderation → Raids tab sees it (incl. hidden ones). */
 export interface AdminEventRow extends PublicEvent {
+  /** Past raid (finished schedule) — kept for stats, editable/removable by moderators. */
+  archived: boolean;
   visibility: 'public' | 'hidden';
   hiddenReason: string | null;
   /** Poster's GW2 account name — admins only (null for mods and for seeded raids). */
@@ -357,6 +396,35 @@ export interface AdminMemberRow {
   guilds: string[];
   createdAt: number;
   verifiedAt: number | null;
+}
+
+// ── Feedback ──────────────────────────────────────────────────────────────
+
+export interface FeedbackMessage {
+  by: 'member' | 'admin';
+  text: string;
+  at: number;
+}
+
+/** A feedback thread as its author sees it (listMyFeedback). */
+export interface FeedbackRow {
+  id: string;
+  kind: FeedbackKind;
+  status: FeedbackStatus;
+  text: string;
+  thread: FeedbackMessage[];
+  createdAt: number;
+  updatedAt: number;
+  /** An admin replied since the author last looked. */
+  unread: boolean;
+}
+
+/** The admin view (modListFeedback) — adds who wrote it. */
+export interface AdminFeedbackRow extends FeedbackRow {
+  accountName: string | null;
+  teamId: number | null;
+  /** The author wrote since an admin last looked. */
+  unreadForAdmin: boolean;
 }
 
 /** wvwPublic/relink — when the current link started (observed) and ends. */

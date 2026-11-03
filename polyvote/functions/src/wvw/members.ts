@@ -16,10 +16,10 @@ import { logger } from 'firebase-functions/v2';
 import { getAuth } from 'firebase-admin/auth';
 import { COL, db, requireSecret } from './config';
 import { seal, unseal, type Sealed } from './crypto';
-import { Gw2Error, account, accountWvw, guildPublic, looksLikeApiKey, tokenInfo, type AccountInfo } from './gw2';
+import { Gw2Error, account, accountWvw, guildPublic, looksLikeApiKey, tokenInfo, type AccountInfo, type TokenInfo } from './gw2';
 import { regionOfTeam } from './shared/teams';
 import { isValidTimeZone } from './shared/time';
-import type { MemberDoc, MemberGuild } from './shared/types';
+import type { MemberDoc, MemberGuild, StoredKeyInfo } from './shared/types';
 import { audit, callableOpts, effectiveRole, requireMember, requireWvwUid, uidForAccount } from './util';
 import { retargetCommanderEvents } from './events';
 import { isBanned } from './adminTools';
@@ -41,7 +41,7 @@ interface Resolved {
   guilds: MemberGuild[];
 }
 
-async function checkKey(key: string): Promise<void> {
+async function checkKey(key: string): Promise<TokenInfo> {
   if (!looksLikeApiKey(key)) throw new HttpsError('invalid-argument', 'That does not look like a GW2 API key.');
   let info;
   try {
@@ -55,6 +55,19 @@ async function checkKey(key: string): Promise<void> {
   }
   const missing = REQUIRED_PERMISSIONS.filter((p) => !info.permissions.includes(p));
   if (missing.length) throw new HttpsError('failed-precondition', `The key is missing permissions: ${missing.join(', ')}.`);
+  return info;
+}
+
+/** What the owner sees about their stored key on the Account page — never the key itself. */
+export function keyInfoFor(key: string, info: Pick<TokenInfo, 'name' | 'permissions'>, now: number): StoredKeyInfo {
+  return {
+    last4: key.trim().slice(-4),
+    name: String(info.name ?? '').slice(0, 80),
+    permissions: [...(info.permissions ?? [])].sort(),
+    savedAt: now,
+    checkedAt: now,
+    status: 'ok',
+  };
 }
 
 async function resolveAccount(key: string): Promise<Resolved> {
@@ -119,7 +132,7 @@ async function upsertGuildDir(guilds: MemberGuild[], teamId: number | null): Pro
 }
 
 /** Create or refresh the member doc from a resolved account. */
-async function applyVerification(uid: string, r: Resolved, sealedKey: Sealed | null): Promise<MemberDoc> {
+async function applyVerification(uid: string, r: Resolved, sealedKey: Sealed | null, keyInfo: StoredKeyInfo | null = null): Promise<MemberDoc> {
   const ref = db().collection(COL.members).doc(uid);
   const now = Date.now();
   const snap = await ref.get();
@@ -154,6 +167,8 @@ async function applyVerification(uid: string, r: Resolved, sealedKey: Sealed | n
     verifiedAt: base.verifiedAt ?? now,
   };
   next.role = effectiveRole(next);
+  if (keyInfo) next.keyInfo = keyInfo;
+  else if (prev?.keyInfo) next.keyInfo = { ...prev.keyInfo, checkedAt: now, status: 'ok' };
   await ref.set({ ...next, accountId: r.acct.id, teamCheckedAt: now, lastVerifiedAt: now }, { merge: true });
   if (sealedKey) await db().collection(COL.keys).doc(uid).set({ sealed: sealedKey, at: now, status: 'ok' });
   await upsertGuildDir(r.guilds, r.teamId);
@@ -174,7 +189,7 @@ export const signIn = onCall(callableOpts, async (request) => {
   if (looksLikeAdminAttempt(key) && !looksLikeApiKey(key)) {
     return { token: await getAuth().createCustomToken(await adminSignIn(key)) };
   }
-  await checkKey(key);
+  const info = await checkKey(key);
   let r: Resolved;
   try {
     r = await resolveAccount(key);
@@ -186,7 +201,7 @@ export const signIn = onCall(callableOpts, async (request) => {
   if (await isBanned(uid, r.acct.name ?? null)) throw new HttpsError('permission-denied', 'This GW2 account is banned from the WvW Hub.');
   const existing = (await db().collection(COL.members).doc(uid).get()).data() as MemberDoc | undefined;
   if (existing?.status === 'suspended') throw new HttpsError('permission-denied', 'This WvW Hub account is suspended.');
-  const m = await applyVerification(uid, r, seal(key, requireSecret('keyEncryptionKey')));
+  const m = await applyVerification(uid, r, seal(key, requireSecret('keyEncryptionKey')), keyInfoFor(key, info, Date.now()));
   await audit(uid, 'member.signIn', { teamId: m.teamId, isNew: !existing });
   const token = await getAuth().createCustomToken(uid);
   return { token };
@@ -196,12 +211,12 @@ export const signIn = onCall(callableOpts, async (request) => {
 export const verifyApiKey = onCall(callableOpts, async (request) => {
   const member = await requireMember(request);
   const key = String((request.data as { apiKey?: unknown })?.apiKey ?? '').trim();
-  await checkKey(key);
+  const info = await checkKey(key);
   const r = await resolveAccount(key);
   if (uidForAccount(r.acct.id) !== member.uid) {
     throw new HttpsError('permission-denied', 'That key belongs to a different GW2 account — sign out and sign in with it instead.');
   }
-  const m = await applyVerification(member.uid, r, seal(key, requireSecret('keyEncryptionKey')));
+  const m = await applyVerification(member.uid, r, seal(key, requireSecret('keyEncryptionKey')), keyInfoFor(key, info, Date.now()));
   await audit(member.uid, 'member.verify', { teamId: m.teamId });
   return { member: m };
 });
@@ -229,12 +244,21 @@ export async function reverifyStored(uid: string): Promise<'ok' | 'stale' | 'ski
   try {
     const r = await resolveAccount(key);
     if (uidForAccount(r.acct.id) !== uid) return markStale();
-    await applyVerification(uid, r, null);
+    // Members from before keyInfo existed: fill it in once (one extra tokeninfo call).
+    let keyInfo: StoredKeyInfo | null = null;
+    if (!(await memberRef.get()).get('keyInfo.last4')) {
+      const info = await tokenInfo(key).catch(() => null);
+      keyInfo = keyInfoFor(key, info ?? { name: '', permissions: [] }, (keySnap.get('at') as number | undefined) ?? now);
+      keyInfo.checkedAt = now;
+    }
+    await applyVerification(uid, r, null, keyInfo);
     return 'ok';
+
   } catch (e) {
     const auth = (e instanceof Gw2Error && (e.status === 400 || e.status === 401 || e.status === 403)) || e instanceof HttpsError;
     if (auth) {
       await keySnap.ref.set({ status: 'invalid' }, { merge: true });
+      await memberRef.set({ keyInfo: { status: 'invalid' } }, { merge: true });
       return markStale();
     }
     // Transient: try again on a later sweep.
@@ -267,22 +291,26 @@ export const refreshMe = onCall(callableOpts, async (request) => {
 export const forgetApiKey = onCall(callableOpts, async (request) => {
   const uid = requireWvwUid(request);
   await db().collection(COL.keys).doc(uid).delete();
+  await db().collection(COL.members).doc(uid).set({ keyInfo: null }, { merge: true });
   return { ok: true };
+
 });
 
 /**
- * GDPR "delete my data": removes the member, their key, check-ins and raw
- * ratings; cancels their events; deletes the Firebase Auth user. Aggregated
+ * GDPR "delete my data": removes the member, their key, check-ins, raw
+ * ratings and feedback threads; cancels their events; deletes the Firebase Auth user. Aggregated
  * guild stats stay.
  */
 export const deleteMyData = onCall(callableOpts, async (request) => {
   const uid = requireWvwUid(request);
   const events = await db().collection(COL.events).where('commanderUid', '==', uid).get();
   const ratings = await db().collection(COL.ratings).where('uid', '==', uid).get();
+  const feedback = await db().collection(COL.feedback).where('uid', '==', uid).get();
   const checkins = await db().collectionGroup('checkins').where('uid', '==', uid).limit(400).get();
   const batch = db().batch();
   for (const e of events.docs) batch.update(e.ref, { status: 'cancelled', archived: true, updatedAt: Date.now() });
   for (const r of ratings.docs) batch.delete(r.ref);
+  for (const f of feedback.docs) batch.delete(f.ref);
   for (const c of checkins.docs) batch.delete(c.ref);
   batch.delete(db().collection(COL.keys).doc(uid));
   batch.delete(db().collection(COL.members).doc(uid));

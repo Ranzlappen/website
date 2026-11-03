@@ -731,9 +731,199 @@ export const de: Record<string, string> = {
   '**Reports** you file are visible to moderators without your identity. If an account is banned for breaking the rules, its GW2 account id and name are kept on a block list.':
     '**Meldungen**, die du einreichst, sehen Moderatoren ohne deine Identität. Wird ein Account wegen Regelverstößen gesperrt, bleiben seine GW2-Account-ID und sein Name auf einer Sperrliste.',
   Deletion: 'Löschung',
-  '“Delete my data” on the Account page removes your account, API key, check-ins and ratings and cancels your raids. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.':
-    '„Meine Daten löschen“ auf der Konto-Seite entfernt dein Konto, deinen API-Schlüssel, Check-ins und Bewertungen und sagt deine Raids ab. Aggregierte Gildenstatistiken bleiben bestehen. Die Historie der Zielobjekt-Beanspruchungen ist öffentliche Spieldaten und wird nach 120 Tagen gelöscht.',
   Legal: 'Rechtliches',
-  'Operator, contact and legal notice: [ranzlappen.com]({legal}). Under the GDPR you can request access, correction or deletion at any time.':
-    'Betreiber, Kontakt und Impressum: [ranzlappen.com]({legal}). Nach der DSGVO kannst du jederzeit Auskunft, Berichtigung oder Löschung verlangen.',
+
+  // ── Feedback, legal notice, stored key, recruitment, past raids, map legend ──
+  "**Feedback** you send from the Feedback tab (kind, text, replies) is stored with your account and read only by the hub admins.":
+    "**Feedback**, das du über den Feedback-Tab sendest (Art, Text, Antworten), wird mit deinem Konto gespeichert und nur von den Hub-Admins gelesen.",
+  "**Recruitment contact:** if you lead a guild and mark it as recruiting, the contact account name you enter is shown publicly on the guild page — the only account name the hub ever shows.":
+    "**Rekrutierungskontakt:** Wenn du eine Gilde leitest und sie als „rekrutiert“ markierst, wird der eingetragene Kontakt-Accountname öffentlich auf der Gildenseite angezeigt — der einzige Accountname, den der Hub je zeigt.",
+  "“Delete my data” on the Account page removes your account, API key, check-ins, ratings and feedback and cancels your raids. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.":
+    "„Meine Daten löschen“ auf der Konto-Seite entfernt dein Konto, deinen API-Schlüssel, Check-ins, Bewertungen und dein Feedback und sagt deine Raids ab. Aggregierte Gildenstatistiken bleiben bestehen. Die Historie der Zielobjekt-Beanspruchungen ist öffentliche Spieldaten und wird nach 120 Tagen gelöscht.",
+  "Operator and contact: see the [legal notice](/legal). Under the GDPR you can request access, correction or deletion at any time.":
+    "Betreiber und Kontakt: siehe [Impressum](/legal). Nach der DSGVO kannst du jederzeit Auskunft, Berichtigung oder Löschung verlangen.",
+  "Information according to § 5 DDG (German Digital Services Act).":
+    "Angaben gemäß § 5 DDG (Digitale-Dienste-Gesetz).",
+  "Operator":
+    "Betreiber",
+  "Contact":
+    "Kontakt",
+  "Email":
+    "E-Mail",
+  "Phone":
+    "Telefon",
+  "Responsible for the content (§ 18 (2) MStV)":
+    "Verantwortlich für den Inhalt (§ 18 Abs. 2 MStV)",
+  "The operator details haven’t been filled in yet.":
+    "Die Betreiberangaben wurden noch nicht eingetragen.",
+  "Moderation → Settings → Legal notice":
+    "Moderation → Einstellungen → Impressum",
+  "Liability for content":
+    "Haftung für Inhalte",
+  "Raids, guild pages and other entries are posted by players. We check them only when we learn of a problem (report button, Feedback tab) and then remove unlawful content promptly. We can’t guarantee that schedules, team assignments or match data taken from the GW2 API are correct, complete or up to date.":
+    "Raids, Gildenseiten und andere Einträge werden von Spielern veröffentlicht. Wir prüfen sie erst, wenn wir von einem Problem erfahren (Melden-Button, Feedback-Tab), und entfernen rechtswidrige Inhalte dann umgehend. Für Richtigkeit, Vollständigkeit und Aktualität von Zeitplänen, Teamzuordnungen oder Matchdaten aus der GW2-API übernehmen wir keine Gewähr.",
+  "Liability for links":
+    "Haftung für Links",
+  "Raid and guild pages can link to external sites (voice servers, guild websites, Discord). Their operators are solely responsible for their content; we had no knowledge of unlawful content when a link was added and remove such links as soon as we become aware of them.":
+    "Raid- und Gildenseiten können auf externe Seiten verlinken (Voice-Server, Gilden-Websites, Discord). Für deren Inhalte sind allein die jeweiligen Betreiber verantwortlich; rechtswidrige Inhalte waren uns beim Verlinken nicht bekannt, und wir entfernen solche Links, sobald wir davon erfahren.",
+  "Copyright and trademarks":
+    "Urheberrecht und Marken",
+  "WvW Hub is a non-commercial fan project and not affiliated with ArenaNet or NCSOFT. Guild Wars 2, its map art and all related marks are © ArenaNet, LLC / NCSOFT Corporation and used under ArenaNet’s content terms. Everything else on this site — code, texts and design — belongs to its operator unless stated otherwise.":
+    "WvW Hub ist ein nicht-kommerzielles Fanprojekt und nicht mit ArenaNet oder NCSOFT verbunden. Guild Wars 2, die Kartengrafiken und alle zugehörigen Marken sind © ArenaNet, LLC / NCSOFT Corporation und werden gemäß ArenaNets Content-Bedingungen genutzt. Alles andere auf dieser Seite — Code, Texte und Design — gehört, sofern nicht anders angegeben, dem Betreiber.",
+  "The fastest way to reach the team is the [Feedback](/feedback) tab (verified members). Data protection: see the [privacy page](/privacy).":
+    "Am schnellsten erreichst du das Team über den [Feedback](/feedback)-Tab (verifizierte Mitglieder). Datenschutz: siehe [Datenschutzseite](/privacy).",
+  "Legal notice (Impressum)":
+    "Impressum",
+  "Shown on the public /legal page. Required for a site run from Germany (§ 5 DDG): name, a postal address where you can be served, and an email address. Stored in the database, not in the code.":
+    "Erscheint auf der öffentlichen Seite /legal. Für eine aus Deutschland betriebene Seite Pflicht (§ 5 DDG): Name, eine ladungsfähige Postanschrift und eine E-Mail-Adresse. Gespeichert in der Datenbank, nicht im Code.",
+  "Name":
+    "Name",
+  "Postal address":
+    "Postanschrift",
+  "Phone (optional)":
+    "Telefon (optional)",
+  "Responsible for content (optional, if not you)":
+    "Verantwortlich für den Inhalt (optional, falls nicht du)",
+  "Additional information (optional)":
+    "Weitere Angaben (optional)",
+  "Feedback":
+    "Feedback",
+  "Feedback is open to members verified with a GW2 API key.":
+    "Feedback steht Mitgliedern offen, die mit einem GW2-API-Schlüssel verifiziert sind.",
+  "Found a bug, missing a feature, or just want to tell us what you think? We read everything and reply here.":
+    "Einen Bug gefunden, ein Feature vermisst oder einfach eine Meinung? Wir lesen alles und antworten hier.",
+  "My feedback":
+    "Mein Feedback",
+  "All feedback (admin)":
+    "Alles Feedback (Admin)",
+  "Send feedback":
+    "Feedback senden",
+  "Kind":
+    "Art",
+  "What happened, what would you like, what do you think? The more detail, the better.":
+    "Was ist passiert, was wünschst du dir, was denkst du? Je mehr Details, desto besser.",
+  "Only the hub admins read this.":
+    "Das lesen nur die Hub-Admins.",
+  "Send":
+    "Senden",
+  "Thanks! Your feedback was sent.":
+    "Danke! Dein Feedback wurde gesendet.",
+  "Your feedback":
+    "Dein Feedback",
+  "No feedback yet":
+    "Noch kein Feedback",
+  "Your messages and the team’s replies show up here.":
+    "Deine Nachrichten und die Antworten des Teams erscheinen hier.",
+  "new reply":
+    "neue Antwort",
+  "Reply":
+    "Antworten",
+  "Add a follow-up…":
+    "Etwas ergänzen…",
+  "Delete this feedback thread?":
+    "Diesen Feedback-Verlauf löschen?",
+  "WvW Hub team":
+    "WvW-Hub-Team",
+  "Author":
+    "Verfasser",
+  "You":
+    "Du",
+  "Text or account…":
+    "Text oder Account…",
+  "{n} thread":
+    "{n} Verlauf",
+  "{n} threads":
+    "{n} Verläufe",
+  "{n} unread":
+    "{n} ungelesen",
+  "No feedback matches":
+    "Kein passendes Feedback",
+  "unread":
+    "ungelesen",
+  "Delete this reply?":
+    "Diese Antwort löschen?",
+  "Reply as the WvW Hub team (the author sees it on their Feedback tab)…":
+    "Als WvW-Hub-Team antworten (der Verfasser sieht es in seinem Feedback-Tab)…",
+  "Mark read":
+    "Als gelesen markieren",
+  "Delete thread":
+    "Verlauf löschen",
+  "Delete {n} feedback thread(s)?":
+    "{n} Feedback-Verläufe löschen?",
+  "Bug":
+    "Bug",
+  "Feature request":
+    "Feature-Wunsch",
+  "Like":
+    "Gefällt mir",
+  "Dislike":
+    "Gefällt mir nicht",
+  "New":
+    "Neu",
+  "Acknowledged":
+    "Gesehen",
+  "Planned":
+    "Geplant",
+  "Done":
+    "Erledigt",
+  "Declined":
+    "Abgelehnt",
+  "Stored API key":
+    "Gespeicherter API-Schlüssel",
+  "none":
+    "keiner",
+  "rejected by ArenaNet":
+    "von ArenaNet abgelehnt",
+  "working":
+    "funktioniert",
+  "No key is stored — after a relink you’ll need to paste one again. Re-verify below to store one.":
+    "Es ist kein Schlüssel gespeichert — nach einem Relink musst du erneut einen einfügen. Verifiziere dich unten neu, um einen zu speichern.",
+  "Key":
+    "Schlüssel",
+  "Permissions":
+    "Berechtigungen",
+  "Saved":
+    "Gespeichert",
+  "Last checked":
+    "Zuletzt geprüft",
+  "A key is stored. Its details appear after the next re-check — press “Re-check my team now”.":
+    "Ein Schlüssel ist gespeichert. Seine Details erscheinen nach der nächsten Prüfung — klicke auf „Mein Team jetzt neu prüfen“.",
+  "Encrypted on the server and only used to re-check your team after relinks — it is never sent back to your browser. You stay signed in on this device across refreshes until you sign out.":
+    "Verschlüsselt auf dem Server gespeichert und nur genutzt, um dein Team nach Relinks neu zu prüfen — er wird nie an deinen Browser zurückgeschickt. Auf diesem Gerät bleibst du über Neuladen hinweg angemeldet, bis du dich abmeldest.",
+  "Recruitment contact (GW2 account name)":
+    "Rekrutierungskontakt (GW2-Accountname)",
+  "Required while recruiting. Shown publicly on the guild page so players know whom to whisper in-game.":
+    "Pflicht, solange ihr rekrutiert. Wird öffentlich auf der Gildenseite angezeigt, damit Spieler wissen, wem sie im Spiel flüstern können.",
+  "Interested? Whisper the recruitment contact in-game:":
+    "Interesse? Flüstere den Rekrutierungskontakt im Spiel an:",
+  "Copied.":
+    "Kopiert.",
+  "Upcoming & active":
+    "Anstehend & aktiv",
+  "Past raids":
+    "Vergangene Raids",
+  "Past raid — kept for the stats.":
+    "Vergangener Raid — bleibt für die Statistik erhalten.",
+  "Delete raid":
+    "Raid löschen",
+  "Delete run":
+    "Lauf löschen",
+  "Delete this run with its check-ins and ratings? This cannot be undone.":
+    "Diesen Lauf mit seinen Check-ins und Bewertungen löschen? Das kann nicht rückgängig gemacht werden.",
+  "This raid is in the past. As a moderator you can still correct it — the date may stay in the past.":
+    "Dieser Raid liegt in der Vergangenheit. Als Moderator kannst du ihn trotzdem korrigieren — das Datum darf in der Vergangenheit bleiben.",
+  "Legend":
+    "Legende",
+  "Marks":
+    "Markierungen",
+  "more dates":
+    "weitere Termine",
+  "+{n} more dates in this window":
+    "+{n} weitere Termine in diesem Zeitraum",
+  "The raid lead went live — check in on the run page.":
+    "Die Raidleitung ist live — auf der Laufseite einchecken.",
+  "The same weekly raid repeats in this window.":
+    "Derselbe wöchentliche Raid wiederholt sich in diesem Zeitraum.",
+  "Hover or tap a raid for details.":
+    "Für Details über einen Raid fahren oder darauf tippen.",
 };

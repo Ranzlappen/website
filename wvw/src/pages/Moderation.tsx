@@ -6,7 +6,7 @@ import { call, errorMessage } from '../firebase';
 import { isAdmin, isMod, useStore } from '../store';
 import { REPORT_REASONS, labelOf } from '../shared/constants';
 import { TEAM_NAMES } from '../shared/teams';
-import type { ReportRow } from '../shared/types';
+import type { LegalNotice, ReportRow } from '../shared/types';
 import { ImportRaids } from '../components/ImportRaids';
 import { AdminRaids } from '../components/AdminRaids';
 import { AdminMembers } from '../components/AdminMembers';
@@ -118,7 +118,10 @@ interface SettingsShape {
   hubInviteUrl: string | null;
   announcement: string | null;
   teamNames: Record<string, string>;
+  legal: LegalNotice | null;
 }
+
+const EMPTY_LEGAL: LegalNotice = { name: '', address: '', email: '', phone: null, responsible: null, extra: null };
 
 function Settings() {
   const t = useT();
@@ -159,8 +162,47 @@ function Settings() {
           <input className="input" maxLength={300} value={s.announcement ?? ''} onChange={(e) => setS({ ...s, announcement: e.target.value || null })} />
         </label>
       </div>
+      <details className="card card-pad" open={!s.legal}>
+        <summary className="cursor-pointer font-bold">⚖️ {t('Legal notice (Impressum)')}</summary>
+        <p className="faint my-2 text-xs">
+          {t('Shown on the public /legal page. Required for a site run from Germany (§ 5 DDG): name, a postal address where you can be served, and an email address. Stored in the database, not in the code.')}
+        </p>
+        {(() => {
+          const l = s.legal ?? EMPTY_LEGAL;
+          const setL = (patch: Partial<LegalNotice>) => setS({ ...s, legal: { ...l, ...patch } });
+          return (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label>
+                <span className="label">{t('Name')}</span>
+                <input className="input" maxLength={120} value={l.name} onChange={(e) => setL({ name: e.target.value })} />
+              </label>
+              <label>
+                <span className="label">{t('Email')}</span>
+                <input className="input" type="email" maxLength={200} value={l.email} onChange={(e) => setL({ email: e.target.value })} />
+              </label>
+              <label className="sm:col-span-2">
+                <span className="label">{t('Postal address')}</span>
+                <textarea className="textarea min-h-[4.5rem]" maxLength={400} value={l.address} onChange={(e) => setL({ address: e.target.value })} />
+              </label>
+              <label>
+                <span className="label">{t('Phone (optional)')}</span>
+                <input className="input" maxLength={60} value={l.phone ?? ''} onChange={(e) => setL({ phone: e.target.value || null })} />
+              </label>
+              <label>
+                <span className="label">{t('Responsible for content (optional, if not you)')}</span>
+                <input className="input" maxLength={300} value={l.responsible ?? ''} onChange={(e) => setL({ responsible: e.target.value || null })} />
+              </label>
+              <label className="sm:col-span-2">
+                <span className="label">{t('Additional information (optional)')}</span>
+                <textarea className="textarea" maxLength={1000} value={l.extra ?? ''} onChange={(e) => setL({ extra: e.target.value || null })} />
+              </label>
+            </div>
+          );
+        })()}
+      </details>
       <details className="card card-pad">
         <summary className="cursor-pointer font-bold">{t('Team name overrides')}</summary>
+
         <p className="faint my-2 text-xs">{t('Leave empty to use the built-in name. Use this if ArenaNet renames a team.')}</p>
         <div className="grid gap-2 sm:grid-cols-3">
           {Object.entries(TEAM_NAMES).map(([id, name]) => (

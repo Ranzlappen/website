@@ -147,7 +147,7 @@ describe('ics', () => {
   it('expands weekly events into UTC occurrences and skips cancelled ones', () => {
     const ics = buildIcs([ev(), ev({ id: 'e2', status: 'cancelled' })], {
       name: 'Test',
-      siteUrl: 'https://ranzlappen.com/wvw/',
+      siteUrl: 'https://wvwhub.de/',
       now: Date.parse('2026-10-31T12:00:00Z'),
       weeks: 2,
     });

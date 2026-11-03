@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ErrorBox, GuildTag, LiveBadge, Notice, PageHeader, Skeleton, Stat, TeamChip } from '../components/ui';
 import { ReportButton } from '../components/ReportDialog';
 import { useDocumentTitle, useNow, useRun } from '../lib/hooks';
 import { duration, fmtRange, relative } from '../lib/format';
 import { call, errorMessage } from '../firebase';
-import { isVerified, useStore } from '../store';
+import { isMod, isVerified, useStore } from '../store';
 import { EVENT_TYPES, LIMITS, RATING_AXES, labelOf, type RatingAxis } from '../shared/constants';
 import { mapLabel } from '../components/MapPicker';
 import { useT } from '../i18n';
@@ -46,6 +46,7 @@ export default function RunDetail() {
   const { id } = useParams();
   const { data: r, loading, error } = useRun(id);
   const { uid, member, displayTz: tz, toast } = useStore();
+  const navigate = useNavigate();
   const [st, setSt] = useState<RunState | null>(null);
   const [scores, setScores] = useState<Record<RatingAxis, number>>({ organisation: 0, communication: 0, newcomers: 0, fun: 0 });
   const [peak, setPeak] = useState('');
@@ -73,7 +74,22 @@ export default function RunDetail() {
   const m = r.metrics;
   const linkList = (s: string) => s.split(/\s+/).filter((x) => /^https:\/\/([a-z]\.)?dps\.report\//.test(x));
 
+  const deleteRun = async () => {
+    if (!confirm(t('Delete this run with its check-ins and ratings? This cannot be undone.'))) return;
+    setBusy(true);
+    try {
+      await call('modDeleteRun', { runId: r.id });
+      toast(t('Deleted.'), 'ok');
+      navigate(r.guildId ? `/guilds/${r.guildId}` : '/');
+    } catch (e) {
+      toast(errorMessage(e), 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const act = async (fn: () => Promise<unknown>, ok: string) => {
+
     setBusy(true);
     try {
       await fn();
@@ -104,7 +120,16 @@ export default function RunDetail() {
               )}
             </span>
           }
-          actions={<ReportButton targetType="run" targetId={r.id} />}
+          actions={
+            <>
+              {isMod(member) && (
+                <button className="btn btn-danger btn-sm" disabled={busy} onClick={deleteRun}>
+                  🗑 {t('Delete run')}
+                </button>
+              )}
+              <ReportButton targetType="run" targetId={r.id} />
+            </>
+          }
         />
         <p className="muted mb-4 text-sm">
           {live ? t('Started {when}', { when: relative(r.startedAt) }) : fmtRange(r.startedAt, r.endedAt ?? r.startedAt, tz)}

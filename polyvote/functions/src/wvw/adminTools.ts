@@ -10,22 +10,24 @@
  * (isBanned). A ban also suspends the member doc (every callable refuses),
  * revokes their Firebase sessions and hides (or deletes) their raids.
  *
- * Roles: mods may list, hide and unhide raids; deleting, banning and
- * suspending guilds is admin-only. Account names appear only in admin views.
+ * Roles: mods may list (active + past), edit, hide, unhide and delete raids
+ * and delete runs; banning and suspending guilds is admin-only. Account names
+ * appear only in admin views.
  */
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { getAuth } from 'firebase-admin/auth';
 import { logger } from 'firebase-functions/v2';
 import { COL, db } from './config';
-import type { AdminEventRow, AdminMemberRow, MemberDoc } from './shared/types';
+import type { AdminEventRow, AdminMemberRow, MemberDoc, PublicRun } from './shared/types';
+import { ACCOUNT_NAME_RE as ACCOUNT_NAME } from './shared/constants';
 import type { Region } from './shared/teams';
 import { hideEvent, retargetCommanderEvents, unhideEvent } from './events';
-import { rebuildEventIndex, toPublicEvent, type EventDoc } from './indexes';
+import { rebuildEventIndex, rebuildLiveIndex, toPublicEvent, type EventDoc } from './indexes';
+import { aggregateGuildStats } from './metrics';
 import { setGuildSuspended } from './reports';
 import { isGuildId } from './gw2';
 import { ADMIN_UID, UID_PREFIX, audit, callableOpts, cleanText, effectiveRole, requireRole } from './util';
 
-const ACCOUNT_NAME = /^[^.\s][^\n]{1,40}\.\d{4}$/;
 const BAN_HIDDEN_REASON = 'commander banned';
 
 export const banIdKey = (uid: string) => `id:${uid.slice(UID_PREFIX.length)}`;
@@ -76,31 +78,65 @@ export async function deleteEvents(ids: string[]): Promise<number> {
 
 // ── Raids ────────────────────────────────────────────────────────────────
 
-export const modListEvents = onCall(callableOpts, async (request) => {
-  const me = await requireRole(request, 'mod');
-  const d = (request.data ?? {}) as { region?: unknown };
-  let q = db().collection(COL.events).where('archived', '==', false);
-  if (d.region === 'eu' || d.region === 'na') q = q.where('region', '==', d.region);
-  const snap = await q.limit(500).get();
-  const events = snap.docs.map((s) => s.data() as EventDoc);
-  // Account names only for admins; one batched read for all commanders.
+/** Event docs → admin rows; account names only for admins (one batched read). */
+async function toAdminRows(events: EventDoc[], withNames: boolean): Promise<AdminEventRow[]> {
   const names = new Map<string, string | null>();
-  if (me.role === 'admin') {
+  if (withNames) {
     const uids = [...new Set(events.map((e) => e.commanderUid).filter((u) => u && u !== ADMIN_UID))];
     for (let i = 0; i < uids.length; i += 100) {
       const ms = await db().getAll(...uids.slice(i, i + 100).map((u) => db().collection(COL.members).doc(u)));
       for (const m of ms) names.set(m.id, (m.get('accountName') as string | undefined) ?? null);
     }
   }
-  const rows: AdminEventRow[] = events
-    .map((e) => ({
-      ...toPublicEvent(e),
-      visibility: e.visibility,
-      hiddenReason: e.hiddenReason ?? null,
-      commander: names.get(e.commanderUid) ?? null,
-    }))
-    .sort((a, b) => b.createdAt - a.createdAt);
+  return events.map((e) => ({
+    ...toPublicEvent(e),
+    archived: e.archived === true,
+    visibility: e.visibility,
+    hiddenReason: e.hiddenReason ?? null,
+    commander: names.get(e.commanderUid) ?? null,
+  }));
+}
+
+/**
+ * Active raids (default) or past ones (`archived: true` — finished schedules,
+ * kept for stats). Past raids are sorted newest first in memory (no composite
+ * index needed); the most recent 600 are returned.
+ */
+export const modListEvents = onCall(callableOpts, async (request) => {
+  const me = await requireRole(request, 'mod');
+  const d = (request.data ?? {}) as { region?: unknown; archived?: unknown };
+  const archived = d.archived === true;
+  let q = db().collection(COL.events).where('archived', '==', archived);
+  if (d.region === 'eu' || d.region === 'na') q = q.where('region', '==', d.region);
+  const snap = await q.limit(archived ? 600 : 500).get();
+  const events = snap.docs.map((s) => s.data() as EventDoc);
+  const rows = (await toAdminRows(events, me.role === 'admin')).sort((a, b) =>
+    archived ? b.updatedAt - a.updatedAt : b.createdAt - a.createdAt,
+  );
   return { events: rows };
+});
+
+/** One raid incl. its private tier — for editing past / hidden raids that are in no index. */
+export const modGetEvent = onCall(callableOpts, async (request) => {
+  const me = await requireRole(request, 'mod');
+  const id = (request.data as { eventId?: unknown })?.eventId;
+  if (typeof id !== 'string' || !id) throw new HttpsError('invalid-argument', 'Missing raid.');
+  const [es, ds] = await Promise.all([db().collection(COL.events).doc(id).get(), db().collection(COL.eventDetails).doc(id).get()]);
+  if (!es.exists) throw new HttpsError('not-found', 'Raid not found.');
+  const [row] = await toAdminRows([es.data() as EventDoc], me.role === 'admin');
+  const d = ds.data() ?? {};
+  return {
+    event: row,
+    details: {
+      eventId: id,
+      goals: (d.goals as string) ?? '',
+      expectedSize: (d.expectedSize as number | null) ?? null,
+      voice: d.voice ?? null,
+      buildsUrl: (d.buildsUrl as string | null) ?? null,
+      notes: (d.notes as string) ?? '',
+      canEdit: true,
+    },
+  };
 });
 
 export const modSetEventHidden = onCall(callableOpts, async (request) => {
@@ -113,14 +149,45 @@ export const modSetEventHidden = onCall(callableOpts, async (request) => {
   return { ok: true };
 });
 
-export const adminDeleteEvents = onCall(callableOpts, async (request) => {
-  const admin = await requireRole(request, 'admin');
+/** Permanently delete raids (active or past) — moderators and admins. */
+export const modDeleteEvents = onCall(callableOpts, async (request) => {
+  const mod = await requireRole(request, 'mod');
   const ids = (request.data as { eventIds?: unknown })?.eventIds;
   if (!Array.isArray(ids) || !ids.length) throw new HttpsError('invalid-argument', 'Pick at least one raid.');
   const deleted = await deleteEvents(ids as string[]);
-  await audit(admin.uid, 'admin.deleteEvents', { count: deleted, ids: (ids as string[]).slice(0, 50) });
+  await audit(mod.uid, 'mod.deleteEvents', { count: deleted, ids: (ids as string[]).slice(0, 50) });
   return { deleted };
 });
+
+/**
+ * Delete a run (a raid that happened): the public run doc, its private doc
+ * with check-ins, and its ratings; guild stats and the live list are rebuilt.
+ */
+export const modDeleteRun = onCall(callableOpts, async (request) => {
+  const mod = await requireRole(request, 'mod');
+  const id = (request.data as { runId?: unknown })?.runId;
+  if (typeof id !== 'string' || !id) throw new HttpsError('invalid-argument', 'Missing run.');
+  const ref = db().collection(COL.runs).doc(id);
+  const snap = await ref.get();
+  if (!snap.exists) throw new HttpsError('not-found', 'Run not found.');
+  const run = snap.data() as PublicRun;
+  const ratings = await db().collection(COL.ratings).where('runId', '==', id).get();
+  const batch = db().batch();
+  for (const r of ratings.docs) batch.delete(r.ref);
+  batch.delete(ref);
+  if (run.eventId) {
+    const ev = await db().collection(COL.events).doc(run.eventId).get();
+    if (ev.exists && ev.get('liveRunId') === id) batch.update(ev.ref, { liveRunId: null, updatedAt: Date.now() });
+  }
+  await batch.commit();
+  await db().recursiveDelete(db().collection(COL.runPrivate).doc(id));
+  await rebuildLiveIndex().catch((e) => logger.warn('live index after run delete', { e: String(e) }));
+  if (run.eventId) await rebuildEventIndex(run.region).catch(() => {});
+  if (run.guildId) await aggregateGuildStats(run.guildId).catch(() => {});
+  await audit(mod.uid, 'mod.deleteRun', { runId: id });
+  return { ok: true };
+});
+
 
 export const adminSetGuildSuspended = onCall(callableOpts, async (request) => {
   const admin = await requireRole(request, 'admin');
@@ -197,6 +264,7 @@ export const adminBanMember = onCall(callableOpts, async (request) => {
     batch.set(db().collection(COL.bans).doc(banIdKey(found.uid)), { ...base, kind: 'id', uid: found.uid });
     batch.set(db().collection(COL.members).doc(found.uid), { status: 'suspended', role: 'user' }, { merge: true });
     batch.delete(db().collection(COL.keys).doc(found.uid));
+    batch.set(db().collection(COL.members).doc(found.uid), { keyInfo: null }, { merge: true });
   }
   await batch.commit();
 

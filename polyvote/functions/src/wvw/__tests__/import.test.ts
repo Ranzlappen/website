@@ -96,3 +96,38 @@ describe('ban keys', () => {
     expect(banNameKey('  Some.Player.1234 ')).toBe('name:some.player.1234');
   });
 });
+
+describe('legal notice, stored key info, feedback rows', () => {
+  it('validates the legal notice and clears it when empty', async () => {
+    const { cleanLegal } = await import('../admin');
+    expect(cleanLegal(null)).toBeNull();
+    expect(cleanLegal({ name: '', address: '', email: '' })).toBeNull();
+    expect(() => cleanLegal({ name: 'A', address: '', email: 'a@b.de' })).toThrow(/postal address/);
+    expect(() => cleanLegal({ name: 'A', address: 'Street 1', email: 'nope' })).toThrow(/email/);
+    expect(cleanLegal({ name: ' A ', address: 'Street 1\n12345 Town', email: 'a@b.de', phone: '' })).toEqual({
+      name: 'A',
+      address: 'Street 1\n12345 Town',
+      email: 'a@b.de',
+      phone: null,
+      responsible: null,
+      extra: null,
+    });
+  });
+
+  it('keeps only a recognisable tail of the key', async () => {
+    const { keyInfoFor } = await import('../members');
+    const info = keyInfoFor('ABCDEFGH-1111-2222-3333-XYZ9 ', { name: 'WvW Hub', permissions: ['wvw', 'account', 'guilds'] }, 5);
+    expect(info).toEqual({ last4: 'XYZ9', name: 'WvW Hub', permissions: ['account', 'guilds', 'wvw'], savedAt: 5, checkedAt: 5, status: 'ok' });
+  });
+
+  it('never exposes the author in the member view', async () => {
+    const { toMemberRow } = await import('../feedback');
+    const row = toMemberRow({
+      id: 'f1', uid: 'wvw-gw2-x', accountName: 'Secret.1234', teamId: 12008, kind: 'bug', status: 'open', text: 'Broken',
+      thread: [{ by: 'admin', text: 'Fixed', at: 2 }], createdAt: 1, updatedAt: 2, unreadForUser: true, unreadForAdmin: false,
+    });
+    expect(row).not.toHaveProperty('accountName');
+    expect(row).not.toHaveProperty('uid');
+    expect(row.unread).toBe(true);
+  });
+});

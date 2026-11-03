@@ -7,6 +7,7 @@ import { useStore } from '../store';
 import { useNow } from '../lib/hooks';
 import { GuildTag, LiveBadge, TeamChip } from './ui';
 import { mapLabel } from './MapPicker';
+import { OPENNESS_ICON, TYPE_ICON, shortLabel } from '../lib/icons';
 import { useT } from '../i18n';
 
 export function EventCard({ e, start, end, compact = false }: { e: PublicEvent; start?: number; end?: number; compact?: boolean }) {
@@ -51,8 +52,12 @@ export function EventCard({ e, start, end, compact = false }: { e: PublicEvent; 
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <TeamChip teamId={e.teamId} region={e.region} />
           <span className="chip">📍 {mapLabel(e.map, t, undefined, undefined, true)}</span>
-          <span className="chip">{t(labelOf(EVENT_TYPES, e.type))}</span>
-          <span className="chip">{t(labelOf(OPENNESS, e.openness)).split(' — ')[0]}</span>
+          <span className="chip" title={t('Raid type')}>
+            {TYPE_ICON[e.type]} {t(labelOf(EVENT_TYPES, e.type))}
+          </span>
+          <span className="chip" title={`${t('Who can join')}: ${t(labelOf(OPENNESS, e.openness))}`}>
+            {OPENNESS_ICON[e.openness]} {shortLabel(t(labelOf(OPENNESS, e.openness)))}
+          </span>
           {e.languages.map((l) => (
             <span key={l} className="chip" title={labelOf(LANGUAGES, l)}>
               {l.toUpperCase()}
