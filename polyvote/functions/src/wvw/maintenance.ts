@@ -16,6 +16,7 @@ import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { logger } from 'firebase-functions/v2';
 import { COL, WVW_SECRETS, db } from './config';
 import { reverifyStored } from './members';
+import { retargetSeededEvents } from './import';
 import { rebuildAllEventIndexes, rebuildGuildIndex } from './indexes';
 import { takeDirty } from './state';
 import { aggregateGuildStats } from './metrics';
@@ -24,7 +25,9 @@ import type { PublicMatches, PublicRelink } from './shared/types';
 import type { Region } from './shared/teams';
 
 const SETTLE_MS = 30 * 60_000;
-const REVERIFY_BATCH = 40;
+/** Members re-checked per 10-minute run after a relink (≈2 GW2 API calls each). */
+const REVERIFY_BATCH = 120;
+const REVERIFY_CONCURRENCY = 4;
 const REFRESH_BATCH = 20;
 const REFRESH_AFTER_MS = 7 * 86_400_000;
 
@@ -34,6 +37,8 @@ interface RelinkState {
   guildIndexAt: number;
   eventIndexAt: number;
   purgeAt: number;
+  /** Last time seeded (imported) raids were moved to their guild's current team. */
+  seededAt?: number;
 }
 
 /** Pure: advance relink bookkeeping from the current timer values. */
@@ -66,10 +71,15 @@ async function reverifyBatch(region: Region, since: number): Promise<number> {
     .limit(REVERIFY_BATCH)
     .get();
   let n = 0;
-  for (const d of snap.docs) {
-    await reverifyStored(d.id).catch((e) => logger.warn('wvw reverify', { uid: d.id, e: String(e) }));
-    n++;
-  }
+  const queue = [...snap.docs];
+  await Promise.all(
+    Array.from({ length: REVERIFY_CONCURRENCY }, async () => {
+      for (let d = queue.shift(); d; d = queue.shift()) {
+        await reverifyStored(d.id).catch((e) => logger.warn('wvw reverify', { uid: d!.id, e: String(e) }));
+        n++;
+      }
+    }),
+  );
   return n;
 }
 
@@ -145,6 +155,13 @@ export async function maintainOnce(): Promise<Record<string, number | string>> {
   }
   for (const g of dirty.guildStatsIds.slice(0, 50)) await aggregateGuildStats(g).catch(() => {});
 
+  if (adv.happened.length || now - (state.seededAt ?? 0) > 30 * 60_000) {
+    out.seededMoved = await retargetSeededEvents().catch((e) => {
+      logger.warn('retarget seeded events', { e: String(e) });
+      return 0;
+    });
+    state.seededAt = now;
+  }
   if (now - state.eventIndexAt > 60 * 60_000) {
     await rebuildAllEventIndexes();
     state.eventIndexAt = now;

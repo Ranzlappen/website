@@ -1,5 +1,5 @@
 /**
- * GET wvw-ical?region=eu&team=12008&guild=<id>&type=zerg → text/calendar
+ * GET wvw-ical?region=eu&team=12008&guild=<id>&type=zerg&alarm=30 → text/calendar
  *
  * A subscribable feed per region / team / guild for Google Calendar, Apple
  * Calendar, Outlook… Reads the same public index docs as the website, so it
@@ -19,6 +19,8 @@ export const ical = onRequest({ cors: true, memory: '256MiB', timeoutSeconds: 30
   const team = q.team ? Number(q.team) : null;
   const guild = q.guild && isGuildId(q.guild) ? q.guild : null;
   const type = isOneOf(EVENT_TYPES, q.type) ? q.type : null;
+  const alarm = Number(q.alarm);
+  const alarmMin = Number.isInteger(alarm) && alarm > 0 && alarm <= 1440 ? alarm : null;
 
   const [settings, ...docs] = await Promise.all([
     getSettings(),
@@ -38,6 +40,7 @@ export const ical = onRequest({ cors: true, memory: '256MiB', timeoutSeconds: 30
     name: `WvW Hub — ${scope}`,
     siteUrl: siteLink(settings),
     teamNames: settings.teamNames,
+    alarmMin,
   });
   res.set('Content-Type', 'text/calendar; charset=utf-8');
   res.set('Cache-Control', 'public, max-age=900');

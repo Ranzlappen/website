@@ -4,6 +4,8 @@ import { PageHeader } from '../components/ui';
 import { useDocumentTitle, usePublicConfig } from '../lib/hooks';
 import { COMMUNITY_RULES, LIMITS } from '../shared/constants';
 import { KOFI_URL, LEGAL_URL } from '../config';
+import { msg, useT } from '../i18n';
+import { rich } from '../lib/rich';
 
 /** Render the rules' **bold** markers without dangerouslySetInnerHTML. */
 function bolded(s: string): ReactNode[] {
@@ -13,100 +15,143 @@ function bolded(s: string): ReactNode[] {
 }
 
 export function Rules() {
-  useDocumentTitle('Community rules');
+  const t = useT();
+  useDocumentTitle(t('Community rules'));
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="Community rules" sub="Rules for everyone posting or rating raids on the WvW Hub." />
+      <PageHeader title={t('Community rules')} sub={t('Rules for everyone posting or rating raids on the WvW Hub.')} />
       <ol className="card card-pad grid gap-4">
         {COMMUNITY_RULES.map((r, i) => (
           <li key={i} className="leading-relaxed text-[#cbd5e1]">
-            {bolded(r)}
+            {bolded(t(r))}
           </li>
         ))}
       </ol>
-      <p className="muted mt-4 text-sm">
-        Spotted a problem? Use the 🚩 Report button on any raid, run or guild page (verified accounts).
-      </p>
+      <p className="muted mt-4 text-sm">{t('Spotted a problem? Use the 🚩 Report button on any raid, run or guild page (verified accounts).')}</p>
     </div>
   );
 }
 
+/** About page: [heading, paragraphs[]] — every string is a dictionary key (markup: lib/rich.tsx). */
+const ABOUT: [string, string[]][] = [
+  [
+    msg('For everyone'),
+    [
+      msg('The [calendar](/calendar) opens on the **matchup map**: all four maps plus a Jumper section, with every raid of the three teams placed in the third of the team that organises it (a red-team raid on EBG sits in EBG’s red third). Day, Week, Link and Month views list the same raids week by week from reset, in your own time zone.'),
+      msg('**Subscribe** adds a live feed for a region, team or guild to Google / Apple / Outlook Calendar — your calendar app then reminds you. The website itself sends no notifications.'),
+      msg('[Matchups](/matchups), relink and reset countdowns and the [guild directory](/guilds) come straight from the official GW2 API — no sign-up needed. Guild activity is measured from public objective claims.'),
+    ],
+  ],
+  [
+    msg('Verification'),
+    [
+      msg('Sign in by pasting a GW2 API key named `WvW Hub` (account, guilds and wvw permissions). The name proves the key was made for us — keys made for other tools aren’t accepted.'),
+      msg('We read your guilds, whether you lead a guild, whether you own a commander tag, and your current WvW team. After every relink everyone is re-checked automatically and raids move to their commander’s new team; “Re-check my team now” on the Account page does it instantly.'),
+      msg('**Account names are never shown publicly.** Raids are identified only by guild tag — or shown as independent raids.'),
+    ],
+  ],
+  [
+    msg('Posting raids'),
+    [
+      msg('Any verified member of a guild can post raids for it — the GW2 API confirms the membership. Raids posted by the guild’s in-game leader carry the “✓ official” badge. You can also post an **independent raid** without a guild.'),
+      msg('Pick the map (EBG or a borderland) or “Jumper” for cross-map play. Where it shows on the matchup map follows from your team’s colour.'),
+      msg('Choose who sees it: **Everyone** (time, map and guild are public; voice, goals and notes stay with your team) or **Only my team** (the raid is hidden from the other teams entirely).'),
+    ],
+  ],
+  [
+    msg('Stats & ratings'),
+    [
+      msg('Each run records duration, check-ins and arcdps logs uploaded to dps.report — we keep counts only, never player names.'),
+      msg('Only players who checked in to a run can rate it, for {hours} hours, on four aspects. No free-text reviews. Guild averages appear only after {raters} different raters, and each person counts once.'),
+    ],
+  ],
+];
+
+const PRIVACY: [string, string[]][] = [
+  [
+    msg('Without an account'),
+    [
+      msg('Browsing is anonymous. Pages load data from our own Firebase backend (Google Cloud); your browser never contacts the GW2 API directly. We use no analytics or ad trackers. Your chosen display time zone and language are kept in your browser’s local storage.'),
+    ],
+  ],
+  [
+    msg('With an account'),
+    [
+      msg('**Guild Wars 2:** account id and name, guild memberships, guild-leader status, commander-tag ownership and current WvW team — read via the API key you sign in with. The account name is visible only to you (and to admins for moderation).'),
+      msg('**API key:** stored encrypted (AES-256-GCM) and used only to re-check your team after relinks. Delete it any time on your Account page.'),
+      msg('**Activity:** raids you post, runs you check in to, and your ratings (stored without being shown individually; only guild averages are published).'),
+      msg('**Reports** you file are visible to moderators without your identity. If an account is banned for breaking the rules, its GW2 account id and name are kept on a block list.'),
+    ],
+  ],
+  [
+    msg('Deletion'),
+    [
+      msg('“Delete my data” on the Account page removes your account, API key, check-ins and ratings and cancels your raids. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.'),
+    ],
+  ],
+  [
+    msg('Legal'),
+    [msg('Operator, contact and legal notice: [ranzlappen.com]({legal}). Under the GDPR you can request access, correction or deletion at any time.')],
+  ],
+];
+
+function Prose({ sections, vars }: { sections: [string, string[]][]; vars: Record<string, string | number> }) {
+  const t = useT();
+  return (
+    <>
+      {sections.map(([h, ps]) => (
+        <section key={h}>
+          <h2>{t(h)}</h2>
+          {ps.length > 1 ? (
+            <ul>
+              {ps.map((p) => (
+                <li key={p}>{rich(t(p, vars))}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>{rich(t(ps[0], vars))}</p>
+          )}
+        </section>
+      ))}
+    </>
+  );
+}
+
 export function About() {
-  useDocumentTitle('How it works');
+  const t = useT();
+  useDocumentTitle(t('How it works'));
   const config = usePublicConfig().data;
   return (
     <div className="prose-hub mx-auto max-w-3xl">
-      <PageHeader title="How WvW Hub works" sub="A cross-guild, cross-team calendar for Guild Wars 2 World vs. World." />
-      <h2>For everyone</h2>
-      <ul>
-        <li>The <Link to="/calendar">calendar</Link> lists every scheduled raid on every team, in your own time zone. Subscribe to a feed for any region, team or guild in Google/Apple/Outlook Calendar.</li>
-        <li><Link to="/matchups">Matchups</Link>, relink and reset countdowns, and the <Link to="/guilds">guild directory</Link> come straight from the official GW2 API — no sign-up needed.</li>
-        <li>Guild activity is measured from public objective claims, so the directory works even for guilds that never signed up.</li>
-      </ul>
-      <h2>Verification</h2>
-      <ul>
-        <li>Sign in by pasting a GW2 API key named <code>WvW Hub</code> (account, guilds and wvw permissions). The name proves the key was made for us — keys made for other tools aren’t accepted.</li>
-        <li>We read your guilds, whether you lead a guild, whether you own a commander tag, and your current WvW team. After every relink your team is re-checked automatically.</li>
-        <li><strong>Account names are never shown publicly.</strong> Raids are identified only by guild tag.</li>
-      </ul>
-      <h2>Posting raids</h2>
-      <ul>
-        <li>Any verified member of a guild can post raids for it — the GW2 API confirms the membership. Raids posted by the guild’s in-game leader carry the “✓ official” badge.</li>
-        <li>Pick where you’ll lead on a map of the current matchup: each map is split into thirds, one per team colour, plus “Jumper” for cross-map play.</li>
-        <li>The map third, voice link, goals and expected squad size are only shown to verified members of the raid’s own team — WvW is a competitive mode, so plans don’t leak to the enemy.</li>
-        <li>The calendar runs week by week from Friday reset; switch between Day, Week, Link (until the next relink) and Month.</li>
-      </ul>
-      <h2>Stats & ratings</h2>
-      <ul>
-        <li>Each run records duration, check-ins and arcdps logs uploaded to dps.report — we keep counts only, never player names.</li>
-        <li>Only players who checked in to a run can rate it, for {LIMITS.ratingWindowHours} hours, on four aspects. No free-text reviews. Guild averages appear only after {LIMITS.minRatingsToShow} different raters, and each person counts once.</li>
-      </ul>
-      <h2>Support</h2>
-      <p>
-        WvW Hub is a non-commercial passion project. If it helps your community, you can <a href={KOFI_URL}>buy me a coffee on Ko-fi</a>
-        {config?.hubInviteUrl && (
-          <>
-            {' '}or <a href={config.hubInviteUrl}>join the community Discord</a>
-          </>
-        )}
-        .
-      </p>
+      <PageHeader title={t('How WvW Hub works')} sub={t('A cross-guild, cross-team calendar for Guild Wars 2 World vs. World.')} />
+      <Prose sections={ABOUT} vars={{ hours: LIMITS.ratingWindowHours, raters: LIMITS.minRatingsToShow }} />
+      <h2>{t('Support')}</h2>
+      <p>{rich(t('WvW Hub is a non-commercial passion project. If it helps your community, you can [buy me a coffee on Ko-fi]({kofi}).', { kofi: KOFI_URL }))}</p>
+      {config?.hubInviteUrl && <p>{rich(t('Come and say hi in the [community Discord]({discord}).', { discord: config.hubInviteUrl }))}</p>}
     </div>
   );
 }
 
 export function Privacy() {
-  useDocumentTitle('Privacy');
+  const t = useT();
+  useDocumentTitle(t('Privacy'));
   return (
     <div className="prose-hub mx-auto max-w-3xl">
-      <PageHeader title="Privacy" sub="What WvW Hub stores, why, and how to delete it." />
-      <h2>Without an account</h2>
-      <p>Browsing is anonymous. Pages load data from our own Firebase backend (Google Cloud); your browser never contacts the GW2 API directly. We use no analytics or ad trackers. Your chosen display time zone is kept in your browser’s local storage.</p>
-      <h2>With an account</h2>
-      <ul>
-        <li><strong>Guild Wars 2:</strong> account id and name, guild memberships, guild-leader status, commander-tag ownership and current WvW team — read via the API key you sign in with. The account name is visible only to you (and to admins when promoting moderators).</li>
-        <li><strong>API key:</strong> stored encrypted (AES-256-GCM) and used only to re-check your team after relinks. Delete it any time on your Account page.</li>
-        <li><strong>Activity:</strong> raids you post, runs you check in to, and your ratings (stored without being shown individually; only guild averages are published).</li>
-        <li><strong>Reports</strong> you file are visible to moderators without your identity.</li>
-      </ul>
-      <h2>Deletion</h2>
-      <p>“Delete my data” on the Account page removes your account, API key, check-ins and ratings and cancels your raids. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.</p>
-      <h2>Legal</h2>
-      <p>
-        Operator, contact and legal notice: <a href={LEGAL_URL}>ranzlappen.com</a>. Under the GDPR you can request access, correction or deletion at any time.
-      </p>
+      <PageHeader title={t('Privacy')} sub={t('What WvW Hub stores, why, and how to delete it.')} />
+      <Prose sections={PRIVACY} vars={{ legal: LEGAL_URL }} />
     </div>
   );
 }
 
 export function NotFound() {
-  useDocumentTitle('Not found');
+  const t = useT();
+  useDocumentTitle(t('Not found'));
   return (
     <div className="py-16 text-center">
       <p className="text-6xl font-black text-[var(--gold)]">404</p>
-      <p className="muted mt-2">This page fell off the cliffs of Stonemist.</p>
+      <p className="muted mt-2">{t('This page fell off the cliffs of Stonemist.')}</p>
       <Link to="/" className="btn btn-gold mt-6">
-        Back home
+        {t('Back home')}
       </Link>
     </div>
   );

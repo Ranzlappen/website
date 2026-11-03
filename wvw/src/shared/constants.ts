@@ -15,29 +15,21 @@ export const WVW_MAPS = [
 ] as const;
 export type WvwMapId = (typeof WVW_MAPS)[number]['id'];
 
-/** Every map is split into thirds — one per team colour (nearest team spawn). */
+/**
+ * Every map is split into thirds — one per team colour (nearest team spawn).
+ * The thirds are a DISPLAY device: on the matchup map view a raid appears in
+ * the third of the colour of the team that posted it (red team's EBG raid →
+ * red third of EBG). Raid leaders only pick the map (or Jumper).
+ */
 export const THIRDS = ['red', 'blue', 'green'] as const;
 export type Third = (typeof THIRDS)[number];
 
-/**
- * Where a raid takes place: one third of one map ("ebg:red" = the red third
- * of Eternal Battlegrounds) or `jumper` (cross-map play, hopping between maps).
- * The visual picker lives in wvw/src/components/MapPicker.tsx.
- */
+/** Where a raid takes place: one of the four maps, or `jumper` (cross-map play). */
 export const MAPS = [
-  ...WVW_MAPS.flatMap((m) =>
-    THIRDS.map((t) => ({
-      id: `${m.id}:${t}` as `${WvwMapId}:${Third}`,
-      label: `${m.short} · ${t} third`,
-      short: `${m.short} ${t[0].toUpperCase()}`,
-      apiType: m.apiType as string | null,
-      map: m.id as WvwMapId | null,
-      third: t as Third | null,
-    })),
-  ),
-  { id: 'jumper' as const, label: 'Jumper — cross-map play', short: 'Jumper', apiType: null, map: null, third: null },
+  ...WVW_MAPS.map((m) => ({ id: m.id as WvwMapId | 'jumper', label: m.label as string, short: m.short as string, apiType: m.apiType as string | null })),
+  { id: 'jumper' as const, label: 'Jumper — cross-map play', short: 'Jumper', apiType: null },
 ];
-export type MapId = (typeof MAPS)[number]['id'];
+export type MapId = WvwMapId | 'jumper';
 
 export const EVENT_TYPES = [
   { id: 'zerg', label: 'Zerg / blob' },
@@ -52,12 +44,12 @@ export const EVENT_TYPES = [
 export type EventType = (typeof EVENT_TYPES)[number]['id'];
 
 /**
- * Who can SEE a raid. `everyone`: listed publicly (guild, team, time, type) —
- * map third, voice and goals still stay team-only. `team`: the whole raid is
- * visible only to verified members of the poster's team.
+ * Who can SEE a raid. `everyone`: listed publicly (guild, team, time, type,
+ * map) — voice, goals and notes still stay team-only. `team`: the whole raid
+ * is visible only to verified members of the poster's team.
  */
 export const AUDIENCES = [
-  { id: 'everyone', label: 'Everyone', hint: 'Listed publicly — map third, voice & goals stay team-only' },
+  { id: 'everyone', label: 'Everyone', hint: 'Listed publicly (also on the matchup map) — voice, goals & notes stay team-only' },
   { id: 'team', label: 'Only my team', hint: 'Hidden from other teams entirely' },
 ] as const;
 export type Audience = (typeof AUDIENCES)[number]['id'];

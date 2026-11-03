@@ -2,14 +2,14 @@
   "name": "WvW Hub — GW2 WvW raid calendar",
   "short_name": "WvW Hub",
   "description": "Every scheduled Guild Wars 2 WvW raid on every team, in your time zone.",
-  "start_url": "/wvw/",
-  "scope": "/wvw/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0c1016",
   "theme_color": "#0c1016",
   "icons": [
     {
-      "src": "/wvw/favicon.svg",
+      "src": "favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

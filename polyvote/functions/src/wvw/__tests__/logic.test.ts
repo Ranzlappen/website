@@ -123,6 +123,7 @@ const ev = (o: Partial<PublicEvent> = {}): PublicEvent => ({
   teamId: 12008,
   title: 'Monday, zerg; night',
   type: 'zerg',
+  map: 'ebg',
   audience: 'everyone',
   openness: 'open',
   languages: ['en', 'de'],
@@ -155,6 +156,10 @@ describe('ics', () => {
     expect(ics).toContain('DTSTART:20261109T190000Z');
     expect(ics).not.toContain('e2-');
     expect(ics).toContain('SUMMARY:[AoD] Monday\\, zerg\\; night');
+    expect(ics).toContain('Eternal Battlegrounds');
+    expect(ics).not.toContain('VALARM');
+    const withAlarm = buildIcs([ev()], { name: 'x', siteUrl: 'https://x/', now: Date.UTC(2026, 10, 1), alarmMin: 30 });
+    expect(withAlarm).toContain('TRIGGER:-PT30M');
     expect(ics).toContain('Frost Citadel');
     expect(ics.endsWith('END:VCALENDAR\r\n')).toBe(true);
   });
@@ -238,7 +243,7 @@ describe('event validation', () => {
     openness: 'open',
     languages: ['en', 'xx'],
     schedule: { tz: 'Europe/Berlin', date: '2026-11-02', time: '20:00', durationMin: 120, repeat: 'weekly', days: [3, 1] },
-    map: 'ebg:red',
+    map: 'ebg',
     goals: '',
     expectedSize: 30,
     voice: { kind: 'discord', url: 'https://discord.com/channels/1/2' },
@@ -259,6 +264,12 @@ describe('event validation', () => {
     expect(r.languages).toEqual(['en']);
     expect(r.schedule.days).toEqual([1, 3]);
     expect(r.schedule.until).toBeNull();
+  });
+
+  it('allows independent raids (no guild)', () => {
+    expect(validateEventInput({ ...base, guildId: null }, now).guildId).toBeNull();
+    expect(validateEventInput({ ...base, guildId: '' }, now).guildId).toBeNull();
+    expect(() => validateEventInput({ ...base, guildId: 42 }, now)).toThrow(/guild/);
   });
 
   it('rejects bad input', () => {
@@ -290,6 +301,7 @@ describe('sign-in + posting rules', () => {
     expect(isOfficial(member, G1)).toBe(true);
     expect(isOfficial(member, G2)).toBe(false);
     expect(isOfficial(member, 'other')).toBe(false);
+    expect(isOfficial(member, null)).toBe(false);
   });
 
   it('recognises the admin access key without leaking timing', () => {
@@ -303,12 +315,11 @@ describe('sign-in + posting rules', () => {
     expect(ADMIN_MAX_FAILS).toBeGreaterThan(0);
   });
 
-  it('knows every map third plus the jumper', () => {
-    expect(MAPS).toHaveLength(13);
-    expect(isOneOf(MAPS, 'ebg:red')).toBe(true);
-    expect(isOneOf(MAPS, 'green:blue')).toBe(true);
+  it('knows the four maps plus the jumper (no third selection)', () => {
+    expect(MAPS.map((m) => m.id)).toEqual(['ebg', 'red', 'blue', 'green', 'jumper']);
+    expect(isOneOf(MAPS, 'ebg')).toBe(true);
     expect(isOneOf(MAPS, 'jumper')).toBe(true);
-    expect(isOneOf(MAPS, 'any')).toBe(false);
-    expect(MAPS.find((m) => m.id === 'blue:red')?.apiType).toBe('BlueHome');
+    expect(isOneOf(MAPS, 'ebg:red')).toBe(false);
+    expect(MAPS.find((m) => m.id === 'blue')?.apiType).toBe('BlueHome');
   });
 });

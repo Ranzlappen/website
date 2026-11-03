@@ -70,6 +70,7 @@ jobs:
               - 'wvw/**'
               - '!wvw/.gitignore'
               - '!wvw/README.md'
+              - '!wvw/deploy/**'
               # Mirrored shared files are checked from the wvw job too.
               - 'polyvote/functions/src/wvw/shared/**'
               - '.github/workflows/ci.yml'

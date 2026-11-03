@@ -22,6 +22,7 @@ import { isValidTimeZone } from './shared/time';
 import type { MemberDoc, MemberGuild } from './shared/types';
 import { audit, callableOpts, effectiveRole, requireMember, requireWvwUid, uidForAccount } from './util';
 import { retargetCommanderEvents } from './events';
+import { isBanned } from './adminTools';
 import { adminSignIn, looksLikeAdminAttempt } from './adminLogin';
 import { markDirty } from './state';
 
@@ -71,16 +72,23 @@ async function resolveAccount(key: string): Promise<Resolved> {
     }
     logger.warn('wvw account/wvw failed', { error: String(e) });
   }
+  // Guild names: reuse the directory (no API call) and only look up unknown ones —
+  // keeps the relink sweep at ~2 GW2 API calls per member.
+  const ids = acct.guilds.slice(0, 5);
+  const known = ids.length ? await db().getAll(...ids.map((id) => db().collection(COL.guildDir).doc(id))) : [];
   const guilds: MemberGuild[] = [];
-  for (const id of acct.guilds.slice(0, 5)) {
-    let name = '';
-    let tag = '';
-    try {
-      const g = await guildPublic(id);
-      name = g.name;
-      tag = g.tag;
-    } catch {
-      /* keep blank; directory fills it later */
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i];
+    let name = (known[i]?.get('name') as string | undefined) ?? '';
+    let tag = (known[i]?.get('tag') as string | undefined) ?? '';
+    if (!name) {
+      try {
+        const g = await guildPublic(id);
+        name = g.name;
+        tag = g.tag;
+      } catch {
+        /* keep blank; directory fills it later */
+      }
     }
     guilds.push({ id, name, tag, leader: acct.guildLeader.includes(id) });
   }
@@ -175,6 +183,7 @@ export const signIn = onCall(callableOpts, async (request) => {
     throw new HttpsError('unavailable', 'Could not read your account from the GW2 API — try again shortly.');
   }
   const uid = uidForAccount(r.acct.id);
+  if (await isBanned(uid, r.acct.name ?? null)) throw new HttpsError('permission-denied', 'This GW2 account is banned from the WvW Hub.');
   const existing = (await db().collection(COL.members).doc(uid).get()).data() as MemberDoc | undefined;
   if (existing?.status === 'suspended') throw new HttpsError('permission-denied', 'This WvW Hub account is suspended.');
   const m = await applyVerification(uid, r, seal(key, requireSecret('keyEncryptionKey')));
@@ -244,6 +253,14 @@ export const updatePrefs = onCall(callableOpts, async (request) => {
   }
   await db().collection(COL.members).doc(m.uid).set({ prefs }, { merge: true });
   return { prefs };
+});
+
+/** "Re-check my team now": re-read team, guilds and leader status with the stored key. */
+export const refreshMe = onCall(callableOpts, async (request) => {
+  const member = await requireMember(request);
+  const result = await reverifyStored(member.uid);
+  if (result === 'skipped') throw new HttpsError('unavailable', 'The GW2 API is not responding — try again in a minute.');
+  return { result };
 });
 
 /** Forget the stored API key but stay verified until the next relink. */

@@ -30,7 +30,7 @@ async function resolveTarget(t: ReportInput['targetType'], id: string) {
   if (t === 'event') {
     const e = (await db().collection(COL.events).doc(id).get()).data() as EventDoc | undefined;
     if (!e) return null;
-    return { label: `[${e.guildTag}] ${e.title}`, ownerUid: e.commanderUid, guildId: e.guildId, eventId: id };
+    return { label: e.guildTag ? `[${e.guildTag}] ${e.title}` : `${e.title} (independent)`, ownerUid: e.commanderUid, guildId: e.guildId ?? null, eventId: id };
   }
   if (t === 'run') {
     const [r, p] = await Promise.all([
@@ -39,9 +39,9 @@ async function resolveTarget(t: ReportInput['targetType'], id: string) {
     ]);
     if (!r.exists) return null;
     return {
-      label: `Run by [${r.get('guildTag')}]`,
+      label: r.get('guildTag') ? `Run by [${r.get('guildTag')}]` : 'Independent run',
       ownerUid: (p.get('commanderUid') as string) ?? null,
-      guildId: r.get('guildId') as string,
+      guildId: (r.get('guildId') as string | null) ?? null,
       eventId: (r.get('eventId') as string | null) ?? null,
     };
   }
@@ -113,7 +113,7 @@ async function setMemberStatus(uid: string, status: 'active' | 'suspended') {
   await retargetCommanderEvents(uid);
 }
 
-async function setGuildSuspended(guildId: string, suspended: boolean) {
+export async function setGuildSuspended(guildId: string, suspended: boolean) {
   await db().collection(COL.guildDir).doc(guildId).set({ suspended }, { merge: true });
   const events = await db().collection(COL.events).where('guildId', '==', guildId).where('archived', '==', false).get();
   const batch = db().batch();

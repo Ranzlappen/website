@@ -1,0 +1,90 @@
+# WvW Hub on its own (custom) domain — workflow TEMPLATE.
+#
+# GitHub Pages serves ONE custom domain per repository, and this repository's
+# Pages site is already ranzlappen.com. So the hub gets a second, tiny repo
+# (e.g. Ranzlappen/wvw-hub) whose only content is this file at
+# `.github/workflows/deploy.yml`. It checks out the PUBLIC website repo, builds
+# `wvw/` for a domain root (WVW_BASE=/) and publishes it to that repo's Pages.
+# Nothing here is secret; the build needs no tokens.
+#
+# One-time setup — see wvw/README.md → "Custom domain":
+#   1. New repo → add this file under .github/workflows/ (any name)
+#   2. Settings → Pages → Source: "GitHub Actions"   ← without this the run fails
+#   3. Actions → "Deploy WvW Hub" → Run workflow (or push any commit)
+#      → live at https://<user>.github.io/<repo>/
+#   4. Optional own domain: Settings → Pages → Custom domain wvw.example.com,
+#      DNS  CNAME wvw → <user>.github.io , then Run workflow once more
+#      (+ Enforce HTTPS once the certificate is issued)
+#   5. Hub Moderation → Settings → Site URL = the new address
+#
+# The base path is detected (configure-pages `base_path`): "/<repo>/" while the
+# site lives at <user>.github.io/<repo>/, "/" once a custom domain is set — so
+# the same file works before and after the domain switch.
+# Runs on every push to this repo, on demand and nightly (picks up changes
+# merged into the website repo). ranzlappen.com/wvw/ keeps working in parallel
+# (same Firebase backend).
+name: Deploy WvW Hub (custom domain)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '23 3 * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the hub source (public website repo)
+        uses: actions/checkout@v7
+        with:
+          repository: Ranzlappen/website
+          ref: main
+          sparse-checkout: wvw
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: wvw/package-lock.json
+
+      # Where Pages serves this repo: base_path is "/<repo>" without a custom
+      # domain and "" with one. Fails with "Get Pages site failed" until
+      # Settings → Pages → Source is set to "GitHub Actions".
+      - id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Build for the Pages base path
+        working-directory: wvw
+        env:
+          WVW_BASE: ${{ steps.pages.outputs.base_path }}/
+        run: |
+          echo "Building for base '$WVW_BASE'"
+          npm ci
+          npm run build
+          # SPA deep links: Pages serves 404.html for unknown paths → the app boots and routes.
+          cp dist/index.html dist/404.html
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: wvw/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

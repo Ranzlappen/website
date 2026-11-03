@@ -142,7 +142,8 @@ export interface GuildIndexRow {
 
 export interface PublicEvent {
   id: string;
-  guildId: string;
+  /** null = independent raid (no guild attached); guildTag/guildName are then "". */
+  guildId: string | null;
   guildTag: string;
   guildName: string;
   /** Posted by the guild's leader (✓ official); any other guild member's raid shows without the badge. */
@@ -151,6 +152,8 @@ export interface PublicEvent {
   teamId: number;
   title: string;
   type: EventType;
+  /** Map (or `jumper`) — public, so every team sees where raids are on the matchup map. */
+  map: MapId;
   /** `team` raids never appear in public indexes — only in wvwTeamIndex/{teamId}. */
   audience: Audience;
   openness: Openness;
@@ -158,6 +161,8 @@ export interface PublicEvent {
   schedule: Schedule;
   status: 'scheduled' | 'cancelled' | 'suspended';
   liveRunId: string | null;
+  /** Listed by a moderator from a public schedule (CSV import), not posted by a verified member. */
+  seeded?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -171,7 +176,6 @@ export interface PublicEventIndex {
 /** Private tier — returned only to verified members of the same team. */
 export interface EventDetails {
   eventId: string;
-  map: MapId;
   goals: string;
   expectedSize: number | null;
   voice: { kind: VoiceKind; url: string } | null;
@@ -200,7 +204,8 @@ export interface RunMetrics {
 export interface PublicRun {
   id: string;
   eventId: string | null;
-  guildId: string;
+  /** null = independent raid. */
+  guildId: string | null;
   guildTag: string;
   guildName: string;
   region: Region;
@@ -262,7 +267,8 @@ export interface MemberDoc {
 // ── Callable payloads ─────────────────────────────────────────────────────
 
 export interface EventInput {
-  guildId: string;
+  /** null = independent raid (no guild): never ✓ official, shown without a guild tag. */
+  guildId: string | null;
   title: string;
   type: EventType;
   audience: Audience;
@@ -306,6 +312,51 @@ export interface TeamIndex {
   /** Team-only raids (audience "team") — absent from the public index. */
   events: PublicEvent[];
   details: Record<string, Omit<EventDetails, 'eventId' | 'canEdit'>>;
+}
+
+/** One CSV row of the admin raid import (`adminImportEvents`), as previewed / applied. */
+export interface ImportRowResult {
+  /** 1-based line in the CSV (header = line 1). */
+  line: number;
+  status: 'create' | 'update' | 'error';
+  error: string | null;
+  guildTag: string | null;
+  guildName: string | null;
+  teamId: number | null;
+  title: string;
+  type: EventType | null;
+  map: MapId | null;
+  /** Human summary of the schedule ("Weekly on Fri · 20:30 (Europe/Berlin)"). */
+  when: string;
+  audience: Audience | null;
+}
+
+// ── Admin views (admin/mod callables only — never public) ─────────────────
+
+/** A raid as the Moderation → Raids tab sees it (incl. hidden ones). */
+export interface AdminEventRow extends PublicEvent {
+  visibility: 'public' | 'hidden';
+  hiddenReason: string | null;
+  /** Poster's GW2 account name — admins only (null for mods and for seeded raids). */
+  commander: string | null;
+}
+
+/** A member as the Moderation → Members tab sees it (admins only). */
+export interface AdminMemberRow {
+  uid: string;
+  accountName: string | null;
+  role: MemberRole;
+  status: 'active' | 'suspended';
+  banned: boolean;
+  banReason: string | null;
+  verified: boolean;
+  stale: boolean;
+  region: Region | null;
+  teamId: number | null;
+  commander: boolean;
+  guilds: string[];
+  createdAt: number;
+  verifiedAt: number | null;
 }
 
 /** wvwPublic/relink — when the current link started (observed) and ends. */

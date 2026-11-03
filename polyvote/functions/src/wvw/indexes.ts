@@ -19,6 +19,8 @@ export interface EventDoc extends PublicEvent {
   archived: boolean;
   visibility: 'public' | 'hidden';
   hiddenReason?: string | null;
+  /** CSV import identity (import.ts) — re-imports update instead of duplicating. */
+  importKey?: string;
 }
 
 export const PUBLIC_EVENT_FIELDS: (keyof PublicEvent)[] = [
@@ -31,12 +33,14 @@ export const PUBLIC_EVENT_FIELDS: (keyof PublicEvent)[] = [
   'teamId',
   'title',
   'type',
+  'map',
   'audience',
   'openness',
   'languages',
   'schedule',
   'status',
   'liveRunId',
+  'seeded',
   'createdAt',
   'updatedAt',
 ];
@@ -45,6 +49,8 @@ export function toPublicEvent(e: EventDoc): PublicEvent {
   const out = {} as Record<string, unknown>;
   for (const k of PUBLIC_EVENT_FIELDS) out[k] = e[k] ?? null;
   out.audience = e.audience ?? 'everyone';
+  out.map = e.map ?? 'jumper';
+  out.seeded = e.seeded === true;
   return out as unknown as PublicEvent;
 }
 
@@ -98,7 +104,6 @@ async function rebuildTeamIndexes(region: Region, events: PublicEvent[], now: nu
     const d = detailSnaps[i]?.data();
     if (!d) return;
     t.details[e.id] = {
-      map: d.map,
       goals: d.goals ?? '',
       expectedSize: d.expectedSize ?? null,
       voice: d.voice ?? null,
@@ -177,7 +182,7 @@ export async function rebuildGuildIndex(
   ]);
   const upcoming = new Map<string, number>();
   for (const e of ((evIdx.data()?.events ?? []) as PublicEvent[])) {
-    if (e.status === 'scheduled') upcoming.set(e.guildId, (upcoming.get(e.guildId) ?? 0) + 1);
+    if (e.status === 'scheduled' && e.guildId) upcoming.set(e.guildId, (upcoming.get(e.guildId) ?? 0) + 1);
   }
 
   const rows: GuildIndexRow[] = [];

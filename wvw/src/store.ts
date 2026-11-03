@@ -8,7 +8,8 @@ import { onAuthStateChanged, signOut as fbSignOut } from 'firebase/auth';
 import { doc, onSnapshot, type Unsubscribe } from 'firebase/firestore';
 import { auth, firestore } from './firebase';
 import type { MemberDoc } from './shared/types';
-import { browserTimeZone } from './lib/format';
+import { browserTimeZone, setFormatLocale } from './lib/format';
+import { initialLang, LANG_KEY, type Lang } from './i18n/lang';
 import { isValidTimeZone } from './shared/time';
 
 export interface Toast {
@@ -23,8 +24,11 @@ interface State {
   member: MemberDoc | null;
   memberReady: boolean;
   displayTz: string;
+  /** UI language (persisted in localStorage `wvw.lang`, default from the browser). */
+  lang: Lang;
   toasts: Toast[];
   setDisplayTz: (tz: string) => void;
+  setLang: (lang: Lang) => void;
   toast: (text: string, kind?: Toast['kind']) => void;
   dismiss: (id: number) => void;
   signOut: () => Promise<void>;
@@ -43,6 +47,8 @@ function initialTz(): string {
 }
 
 let toastId = 0;
+const startLang = initialLang();
+setFormatLocale(startLang);
 
 export const useStore = create<State>((set, get) => ({
   uid: null,
@@ -50,6 +56,7 @@ export const useStore = create<State>((set, get) => ({
   member: null,
   memberReady: false,
   displayTz: initialTz(),
+  lang: startLang,
   toasts: [],
   setDisplayTz: (tz) => {
     if (!isValidTimeZone(tz)) return;
@@ -59,6 +66,16 @@ export const useStore = create<State>((set, get) => ({
       /* ignore */
     }
     set({ displayTz: tz });
+  },
+  setLang: (lang) => {
+    try {
+      localStorage.setItem(LANG_KEY, lang);
+    } catch {
+      /* ignore */
+    }
+    setFormatLocale(lang);
+    document.documentElement.lang = lang;
+    set({ lang });
   },
   toast: (text, kind = 'info') => {
     const id = ++toastId;
