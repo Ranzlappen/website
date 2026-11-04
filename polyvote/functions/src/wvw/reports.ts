@@ -114,7 +114,7 @@ async function setMemberStatus(uid: string, status: 'active' | 'suspended') {
 }
 
 export async function setGuildSuspended(guildId: string, suspended: boolean) {
-  await db().collection(COL.guildDir).doc(guildId).set({ suspended }, { merge: true });
+  await db().collection(COL.guildDir).doc(guildId).set({ suspended, updatedAt: Date.now() }, { merge: true });
   const events = await db().collection(COL.events).where('guildId', '==', guildId).where('archived', '==', false).get();
   const batch = db().batch();
   for (const e of events.docs) {

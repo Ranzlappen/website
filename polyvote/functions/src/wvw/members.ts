@@ -39,6 +39,8 @@ interface Resolved {
   teamId: number | null;
   wvwGuildId: string | null;
   guilds: MemberGuild[];
+  /** Directory docs of `guilds` as read during resolve (to skip unchanged writes). */
+  known?: Map<string, Record<string, unknown>>;
 }
 
 async function checkKey(key: string): Promise<TokenInfo> {
@@ -105,30 +107,45 @@ async function resolveAccount(key: string): Promise<Resolved> {
     }
     guilds.push({ id, name, tag, leader: acct.guildLeader.includes(id) });
   }
-  return { acct, teamId, wvwGuildId, guilds };
+  const knownMap = new Map<string, Record<string, unknown>>();
+  known.forEach((k, i) => {
+    if (k?.exists) knownMap.set(ids[i], k.data() ?? {});
+  });
+  return { acct, teamId, wvwGuildId, guilds, known: knownMap };
 }
 
-/** Directory docs for the member's guilds; guilds they lead become "leader verified". */
-async function upsertGuildDir(guilds: MemberGuild[], teamId: number | null): Promise<void> {
+/** The directory fields a member's verification implies for one of their guilds. */
+export function guildDirPatch(g: MemberGuild, teamId: number | null): Record<string, unknown> {
+  return {
+    id: g.id,
+    name: g.name,
+    tag: g.tag,
+    ...(g.leader ? { claimed: true, ...(teamId != null ? { teamId } : {}) } : {}),
+    ...(teamId != null ? { region: regionOfTeam(teamId) } : {}),
+  };
+}
+
+/**
+ * Directory docs for the member's guilds; guilds they lead become "leader
+ * verified". Skips guilds whose doc already says the same (relink sweeps and
+ * weekly re-checks re-verify everyone — no point rewriting identical docs).
+ */
+async function upsertGuildDir(guilds: MemberGuild[], teamId: number | null, known?: Map<string, Record<string, unknown>>): Promise<void> {
   const batch = db().batch();
   const now = Date.now();
+  let ops = 0;
+  let leaderChanged = false;
   for (const g of guilds) {
     if (!g.name) continue;
-    batch.set(
-      db().collection(COL.guildDir).doc(g.id),
-      {
-        id: g.id,
-        name: g.name,
-        tag: g.tag,
-        ...(g.leader ? { claimed: true, ...(teamId != null ? { teamId } : {}) } : {}),
-        ...(teamId != null ? { region: regionOfTeam(teamId) } : {}),
-        updatedAt: now,
-      },
-      { merge: true },
-    );
+    const patch = guildDirPatch(g, teamId);
+    const cur = known?.get(g.id);
+    if (cur && Object.entries(patch).every(([k, v]) => cur[k] === v)) continue;
+    batch.set(db().collection(COL.guildDir).doc(g.id), { ...patch, updatedAt: now }, { merge: true });
+    ops++;
+    if (g.leader) leaderChanged = true;
   }
-  await batch.commit();
-  if (guilds.some((g) => g.leader)) await markDirty('guildIndex');
+  if (ops) await batch.commit();
+  if (leaderChanged) await markDirty('guildIndex');
 }
 
 /** Create or refresh the member doc from a resolved account. */
@@ -171,7 +188,7 @@ async function applyVerification(uid: string, r: Resolved, sealedKey: Sealed | n
   else if (prev?.keyInfo) next.keyInfo = { ...prev.keyInfo, checkedAt: now, status: 'ok' };
   await ref.set({ ...next, accountId: r.acct.id, teamCheckedAt: now, lastVerifiedAt: now }, { merge: true });
   if (sealedKey) await db().collection(COL.keys).doc(uid).set({ sealed: sealedKey, at: now, status: 'ok' });
-  await upsertGuildDir(r.guilds, r.teamId);
+  await upsertGuildDir(r.guilds, r.teamId, r.known);
   await retargetCommanderEvents(uid).catch((e) => logger.warn('retarget events', { e: String(e) }));
   return next;
 }

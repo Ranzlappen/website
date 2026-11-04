@@ -8,9 +8,11 @@
  * makes the visibility tiers enforceable (a client can't query a field it
  * can't read).
  */
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, type DocumentSnapshot } from 'firebase-admin/firestore';
+import { logger } from 'firebase-functions/v2';
 import { COL, db } from './config';
-import type { GuildDirDoc, GuildIndexRow, PublicEvent, PublicRun, TeamIndex } from './shared/types';
+import { stableJson } from './util';
+import type { GuildDirDoc, GuildIndexRow, PublicEvent, PublicHeld, PublicRun, TeamIndex } from './shared/types';
 import type { Region } from './shared/teams';
 import { isScheduleFinished, isoWeekKey, nextOccurrence } from './shared/time';
 
@@ -36,6 +38,7 @@ export const PUBLIC_EVENT_FIELDS: (keyof PublicEvent)[] = [
   'map',
   'audience',
   'openness',
+  'tag',
   'languages',
   'schedule',
   'status',
@@ -78,12 +81,21 @@ export async function rebuildEventIndex(region: Region): Promise<PublicEvent[]> 
   );
   // Team-only raids never enter the public index (they live in wvwTeamIndex).
   const publicEvents = events.filter((e) => e.audience !== 'team');
+  const indexRef = db().collection(COL.public).doc(`events_${region}`);
+  // One read to skip an identical write — every write would also cost one
+  // read per browser that has the calendar open.
+  const prev = await indexRef.get();
   const batch = db().batch();
-  batch.set(db().collection(COL.public).doc(`events_${region}`), { updatedAt: now, events: publicEvents });
+  let ops = 0;
+  if (!prev.exists || stableJson(prev.get('events') ?? []) !== stableJson(publicEvents)) {
+    batch.set(indexRef, { updatedAt: now, events: publicEvents });
+    ops++;
+  }
   for (const id of toArchive.slice(0, 400)) {
     batch.update(db().collection(COL.events).doc(id), { archived: true, updatedAt: now });
+    ops++;
   }
-  await batch.commit();
+  if (ops) await batch.commit();
   await rebuildTeamIndexes(region, events, now);
   return publicEvents;
 }
@@ -109,17 +121,23 @@ async function rebuildTeamIndexes(region: Region, events: PublicEvent[], now: nu
       voice: d.voice ?? null,
       buildsUrl: d.buildsUrl ?? null,
       notes: d.notes ?? '',
+      squadJoin: d.squadJoin ?? null,
     };
   });
   const existing = await db().collection(COL.teamIndex).where('region', '==', region).get();
+  const stored = new Map(existing.docs.map((d) => [d.id, stableJson({ events: d.get('events') ?? [], details: d.get('details') ?? {} })]));
   const batch = db().batch();
+  let ops = 0;
+  const put = (teamId: string, t: Omit<TeamIndex, 'updatedAt'>) => {
+    if (stored.get(teamId) === stableJson(t)) return; // unchanged → no write
+    batch.set(db().collection(COL.teamIndex).doc(teamId), { region, updatedAt: now, ...t });
+    ops++;
+  };
   for (const doc of existing.docs) {
-    if (!byTeam.has(Number(doc.id))) batch.set(doc.ref, { region, updatedAt: now, events: [], details: {} });
+    if (!byTeam.has(Number(doc.id))) put(doc.id, { events: [], details: {} });
   }
-  for (const [teamId, t] of byTeam) {
-    batch.set(db().collection(COL.teamIndex).doc(String(teamId)), { region, updatedAt: now, ...t });
-  }
-  await batch.commit();
+  for (const [teamId, t] of byTeam) put(String(teamId), t);
+  if (ops) await batch.commit();
 }
 
 export async function rebuildAllEventIndexes(): Promise<void> {
@@ -163,29 +181,83 @@ export function claimsInWeeks(g: Pick<GuildDirDoc, 'activity'>, weeks: string[])
   return weeks.reduce((sum, w) => sum + (g.activity?.[w]?.claims ?? 0), 0);
 }
 
+/** A directory row for one guild doc, or null when it shouldn't be listed. */
+export function guildRow(
+  g: GuildDirDoc,
+  ctx: { keep8: Set<string>; weeks4: string[]; held: number; upcoming: number; teamId?: number | null },
+): GuildIndexRow | null {
+  if (g.suspended || !g.name) return null;
+  const claims8 = claimsInWeeks(g, [...ctx.keep8]);
+  if (!g.claimed && claims8 === 0 && ctx.upcoming === 0 && ctx.held === 0) return null;
+  return {
+    id: g.id,
+    tag: g.tag,
+    name: g.name,
+    teamId: ctx.teamId ?? g.teamId ?? null,
+    claims4w: claimsInWeeks(g, ctx.weeks4),
+    heldNow: ctx.held,
+    claimed: !!g.claimed,
+    recruiting: !!g.profile?.recruiting,
+    playstyles: g.profile?.playstyles ?? [],
+    languages: g.profile?.languages ?? [],
+    lastSeenAt: g.lastSeenAt ?? null,
+    upcoming: ctx.upcoming,
+  };
+}
+
+/** Clock-skew margin for the incremental "changed since" query. */
+const SINCE_OVERLAP_MS = 2 * 60_000;
+
 /**
- * Rebuild `wvwPublic/guildIndex_{region}`. Also prunes activity older than 8
- * weeks and syncs `teamId` from the public guild→team map when it changed
- * (relinks reshuffle teams; the map is refreshed by the poller).
+ * Rebuild `wvwPublic/guildIndex_{region}`.
+ *
+ * `since` = time of the previous build → **incremental**: only guild docs
+ * changed since then are read (claims, profile edits, sign-ins bump
+ * `updatedAt`) and merged into the stored rows; held counts + upcoming raids
+ * are refreshed for every row from their own docs. `since` = null → **full**:
+ * reads every guild doc of the region, prunes activity older than 8 weeks and
+ * syncs `teamId` from the public guild→team map (relinks reshuffle teams).
+ * Maintenance runs a full build daily and after relinks, incremental otherwise.
  */
 export async function rebuildGuildIndex(
   region: Region,
   guildTeamMap: Record<string, number> | null,
-): Promise<number> {
+  since: number | null = null,
+): Promise<{ rows: number; read: number; full: boolean }> {
   const now = Date.now();
   const keep8 = new Set(recentWeeks(now, 8));
   const weeks4 = recentWeeks(now, 4);
+  const indexRef = db().collection(COL.public).doc(`guildIndex_${region}`);
 
-  const [snap, evIdx] = await Promise.all([
-    db().collection(COL.guildDir).where('region', '==', region).get(),
+  const [prevSnap, evIdx, heldSnap] = await Promise.all([
+    indexRef.get(),
     db().collection(COL.public).doc(`events_${region}`).get(),
+    db().collection(COL.public).doc('held').get(),
   ]);
+  const held = ((heldSnap.data() as PublicHeld | undefined)?.[region] ?? {}) as Record<string, number>;
   const upcoming = new Map<string, number>();
   for (const e of ((evIdx.data()?.events ?? []) as PublicEvent[])) {
     if (e.status === 'scheduled' && e.guildId) upcoming.set(e.guildId, (upcoming.get(e.guildId) ?? 0) + 1);
   }
+  const prevRows = (prevSnap.get('guilds') ?? []) as GuildIndexRow[];
 
-  const rows: GuildIndexRow[] = [];
+  let full = since == null || !prevSnap.exists;
+  const dir = db().collection(COL.guildDir);
+  let docs: DocumentSnapshot[];
+  if (full) {
+    docs = (await dir.where('region', '==', region).get()).docs;
+  } else {
+    try {
+      docs = (await dir.where('region', '==', region).where('updatedAt', '>', since! - SINCE_OVERLAP_MS).get()).docs;
+    } catch (e) {
+      // e.g. the composite index is still building right after a deploy.
+      logger.warn('wvw guild index: incremental query failed, doing a full rebuild', { region, e: String(e) });
+      full = true;
+      docs = (await dir.where('region', '==', region).get()).docs;
+    }
+  }
+
+  const rows = new Map<string, GuildIndexRow>(full ? [] : prevRows.map((r) => [r.id, r]));
   let batch = db().batch();
   let ops = 0;
   const flush = async () => {
@@ -193,12 +265,16 @@ export async function rebuildGuildIndex(
     batch = db().batch();
     ops = 0;
   };
-
-  for (const d of snap.docs) {
+  const seen = new Set<string>();
+  const consider = async (d: DocumentSnapshot) => {
+    if (!d.exists) return;
     const g = d.data() as GuildDirDoc;
+    seen.add(g.id);
     const patch: Record<string, unknown> = {};
-    for (const w of Object.keys(g.activity ?? {})) {
-      if (!keep8.has(w)) patch[`activity.${w}`] = FieldValue.delete();
+    if (full) {
+      for (const w of Object.keys(g.activity ?? {})) {
+        if (!keep8.has(w)) patch[`activity.${w}`] = FieldValue.delete();
+      }
     }
     const mappedTeam = guildTeamMap?.[g.id];
     if (mappedTeam && mappedTeam !== g.teamId) patch.teamId = mappedTeam;
@@ -206,31 +282,42 @@ export async function rebuildGuildIndex(
       batch.update(d.ref, { ...patch, updatedAt: now });
       if (++ops >= 400) await flush();
     }
-    if (g.suspended || !g.name) continue;
-    const claims8 = claimsInWeeks(g, [...keep8]);
-    const up = upcoming.get(g.id) ?? 0;
-    if (!g.claimed && claims8 === 0 && up === 0 && (g.heldNow ?? 0) === 0) continue;
-    rows.push({
-      id: g.id,
-      tag: g.tag,
-      name: g.name,
-      teamId: (patch.teamId as number | undefined) ?? g.teamId ?? null,
-      claims4w: claimsInWeeks(g, weeks4),
-      heldNow: g.heldNow ?? 0,
-      claimed: !!g.claimed,
-      recruiting: !!g.profile?.recruiting,
-      playstyles: g.profile?.playstyles ?? [],
-      languages: g.profile?.languages ?? [],
-      lastSeenAt: g.lastSeenAt ?? null,
-      upcoming: up,
+    const row = guildRow(g, {
+      keep8,
+      weeks4,
+      held: held[g.id] ?? 0,
+      upcoming: upcoming.get(g.id) ?? 0,
+      teamId: (patch.teamId as number | undefined) ?? null,
     });
+    if (row) rows.set(g.id, row);
+    else rows.delete(g.id);
+  };
+  for (const d of docs) await consider(d);
+  let read = docs.length;
+
+  if (!full) {
+    // Guilds that started holding objectives / got a raid without a doc change.
+    const missing = [...new Set([...Object.keys(held), ...upcoming.keys()])].filter((id) => !rows.has(id) && !seen.has(id));
+    for (let i = 0; i < missing.length; i += 100) {
+      const snaps = await db().getAll(...missing.slice(i, i + 100).map((id) => dir.doc(id)));
+      read += snaps.length;
+      for (const s of snaps) if (s.exists && s.get('region') === region) await consider(s);
+    }
+    // Fresh counts for every listed guild (cheap: two docs already read).
+    for (const r of rows.values()) {
+      r.heldNow = held[r.id] ?? 0;
+      r.upcoming = upcoming.get(r.id) ?? 0;
+    }
   }
   await flush();
-  rows.sort((a, b) => b.claims4w - a.claims4w || b.heldNow - a.heldNow || a.tag.localeCompare(b.tag));
+
+  const list = [...rows.values()].sort(
+    (a, b) => b.claims4w - a.claims4w || b.heldNow - a.heldNow || a.tag.localeCompare(b.tag),
+  );
   // Stay well under the 1 MiB doc limit even in a busy region.
-  await db()
-    .collection(COL.public)
-    .doc(`guildIndex_${region}`)
-    .set({ updatedAt: now, guilds: rows.slice(0, 2500) });
-  return rows.length;
+  const guilds = list.slice(0, 2500);
+  if (!prevSnap.exists || stableJson(prevRows) !== stableJson(guilds)) {
+    await indexRef.set({ updatedAt: now, guilds });
+  }
+  return { rows: list.length, read, full };
 }

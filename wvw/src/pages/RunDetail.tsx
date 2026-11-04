@@ -103,7 +103,7 @@ export default function RunDetail() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.5fr_1fr]">
       <div>
         <PageHeader
           title={r.guildId ? r.guildName : t('Independent raid (no guild)')}

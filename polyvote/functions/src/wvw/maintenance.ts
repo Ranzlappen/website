@@ -6,11 +6,15 @@
  *    after it, members of that region are re-verified with their stored key
  *    in batches → new team, events retargeted.
  *  - Weekly refresh of every verification (guild changes, commander tag).
- *  - Debounced guild-directory rebuild + guild stats for dirty guilds.
+ *  - Guild-directory rebuild: incremental (only changed guild docs) hourly or
+ *    when flagged dirty, full once a day / after a relink; guild stats for
+ *    dirty guilds.
  *  - Event index rebuild (archives finished schedules) + publishes the relink
  *    history (`wvwPublic/relink`) the calendar's Link view uses.
  *  - Auto-end runs that were left live for > 12h.
  *  - Daily purge of old claim logs / samples / jobs.
+ *
+ * Docs that didn't change are not rewritten (see README "Usage & cost").
  */
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { logger } from 'firebase-functions/v2';
@@ -21,6 +25,7 @@ import { rebuildAllEventIndexes, rebuildGuildIndex } from './indexes';
 import { takeDirty } from './state';
 import { aggregateGuildStats } from './metrics';
 import { finalizeRun } from './runs';
+import { stableJson } from './util';
 import type { PublicMatches, PublicRelink } from './shared/types';
 import type { Region } from './shared/teams';
 
@@ -30,12 +35,19 @@ const REVERIFY_BATCH = 120;
 const REVERIFY_CONCURRENCY = 4;
 const REFRESH_BATCH = 20;
 const REFRESH_AFTER_MS = 7 * 86_400_000;
+const GUILD_FULL_EVERY_MS = 86_400_000;
+/** Claim logs only serve run metrics (computed when a run ends). */
+const CLAIM_LOG_KEEP_MS = 30 * 86_400_000;
 
 interface RelinkState {
   next: Partial<Record<Region, string>>;
   last: Partial<Record<Region, number>>;
   guildIndexAt: number;
+  /** Last full (all guild docs) directory rebuild. */
+  guildFullAt?: number;
   eventIndexAt: number;
+  /** Fingerprint of the last published wvwPublic/relink. */
+  relinkSig?: string;
   purgeAt: number;
   /** Last time seeded (imported) raids were moved to their guild's current team. */
   seededAt?: number;
@@ -106,9 +118,9 @@ async function endStaleRuns(now: number): Promise<number> {
   return n;
 }
 
-async function deleteOlderThan(col: string, field: string, cutoff: number): Promise<number> {
+async function deleteOlderThan(col: string, field: string, cutoff: number, rounds = 10): Promise<number> {
   let total = 0;
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < rounds; i++) {
     const snap = await db().collection(col).where(field, '<', cutoff).limit(400).get();
     if (snap.empty) break;
     const batch = db().batch();
@@ -122,7 +134,9 @@ async function deleteOlderThan(col: string, field: string, cutoff: number): Prom
 export async function maintainOnce(): Promise<Record<string, number | string>> {
   const now = Date.now();
   const ref = db().collection(COL.state).doc('relink');
-  const state: RelinkState = { next: {}, last: {}, guildIndexAt: 0, eventIndexAt: 0, purgeAt: 0, ...((await ref.get()).data() ?? {}) };
+  const loaded = (await ref.get()).data() ?? {};
+  const state: RelinkState = { next: {}, last: {}, guildIndexAt: 0, eventIndexAt: 0, purgeAt: 0, ...loaded };
+  const loadedJson = stableJson(loaded);
   const pub = (await db().collection(COL.public).doc('matches').get()).data() as PublicMatches | undefined;
   const out: Record<string, number | string> = {};
 
@@ -149,8 +163,14 @@ export async function maintainOnce(): Promise<Record<string, number | string>> {
       db().collection(COL.state).doc('guildMap_na').get(),
       db().collection(COL.state).doc('guildMap_eu').get(),
     ]);
-    out.guildsEu = await rebuildGuildIndex('eu', (euMap.get('map') as Record<string, number>) ?? null);
-    out.guildsNa = await rebuildGuildIndex('na', (naMap.get('map') as Record<string, number>) ?? null);
+    const full = !state.guildIndexAt || !state.guildFullAt || now - state.guildFullAt > GUILD_FULL_EVERY_MS;
+    const since = full ? null : state.guildIndexAt;
+    const eu = await rebuildGuildIndex('eu', (euMap.get('map') as Record<string, number>) ?? null, since);
+    const na = await rebuildGuildIndex('na', (naMap.get('map') as Record<string, number>) ?? null, since);
+    out.guildsEu = eu.rows;
+    out.guildsNa = na.rows;
+    out.guildDocsRead = eu.read + na.read;
+    if (full || (eu.full && na.full)) state.guildFullAt = now;
     state.guildIndexAt = now;
   }
   for (const g of dirty.guildStatsIds.slice(0, 50)) await aggregateGuildStats(g).catch(() => {});
@@ -171,21 +191,28 @@ export async function maintainOnce(): Promise<Record<string, number | string>> {
     last: { na: state.last.na ?? null, eu: state.last.eu ?? null },
     next: { na: pub?.timers.teamAssignment.na ?? null, eu: pub?.timers.teamAssignment.eu ?? null },
   };
-  await db().collection(COL.public).doc('relink').set(relink);
+  // Only rewrite when last/next moved (browsers on the Link view listen to it).
+  const relinkSig = stableJson({ last: relink.last, next: relink.next });
+  if (relinkSig !== state.relinkSig) {
+    await db().collection(COL.public).doc('relink').set(relink);
+    state.relinkSig = relinkSig;
+  }
   out.autoEnded = await endStaleRuns(now);
 
   if (now - state.purgeAt > 86_400_000) {
-    out.purgedClaims = await deleteOlderThan(COL.claimLog, 'claimedAt', now - 120 * 86_400_000);
+    out.purgedClaims = await deleteOlderThan(COL.claimLog, 'claimedAt', now - CLAIM_LOG_KEEP_MS, 25);
     out.purgedAudit = await deleteOlderThan(COL.audit, 'at', now - 365 * 86_400_000);
     const days = await db().collection(COL.matchDays).where('day', '<', utcKey(now - 60 * 86_400_000)).limit(400).get();
-    const b = db().batch();
-    for (const d of days.docs) b.delete(d.ref);
-    await b.commit();
+    if (!days.empty) {
+      const b = db().batch();
+      for (const d of days.docs) b.delete(d.ref);
+      await b.commit();
+    }
     out.purgedSamples = days.size;
     state.purgeAt = now;
   }
 
-  await ref.set(state);
+  if (stableJson(state) !== loadedJson) await ref.set(state);
   return out;
 }
 

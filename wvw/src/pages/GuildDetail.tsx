@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ChipToggle, Empty, ErrorBox, PageHeader, Section, Skeleton, Stat, TeamChip } from '../components/ui';
 import { EventCard, RunCard } from '../components/EventCard';
 import { ReportButton } from '../components/ReportDialog';
-import { useDocumentTitle, useGuild, useGuildRuns, useNow, useVisibleEvents } from '../lib/hooks';
+import { useDocumentTitle, useGuild, useGuildRuns, useHeld, useNow, useVisibleEvents } from '../lib/hooks';
 import { relative } from '../lib/format';
 import { call, errorMessage } from '../firebase';
 import { SubscribeDialog } from '../components/SubscribeDialog';
@@ -33,20 +33,30 @@ function ActivityBars({ activity }: { activity: Record<string, { claims: number 
   );
 }
 
-function LeaderTools({ guildId, profile }: { guildId: string; profile: GuildProfile | null }) {
+const EMPTY_PROFILE: GuildProfile = {
+  description: '',
+  languages: [],
+  playstyles: [],
+  timezone: null,
+  recruiting: false,
+  recruitContact: null,
+  discordInvite: null,
+  website: null,
+};
+
+/** The guild page editor — for the guild's leader, and for hub admins on any guild (`asAdmin`). */
+function LeaderTools({ guildId, profile, asAdmin = false }: { guildId: string; profile: GuildProfile | null; asAdmin?: boolean }) {
   const t = useT();
   const toast = useStore((s) => s.toast);
   const [p, setP] = useState<GuildProfile>(
-    profile
-      ? { ...profile, recruitContact: profile.recruitContact ?? null }
-      : { description: '', languages: ['en'], playstyles: [], timezone: null, recruiting: false, recruitContact: null, discordInvite: null, website: null },
+    profile ? { ...profile, recruitContact: profile.recruitContact ?? null } : { ...EMPTY_PROFILE, languages: asAdmin ? [] : ['en'] },
   );
   const [busy, setBusy] = useState(false);
 
-  const save = async () => {
+  const save = async (next: GuildProfile = p) => {
     setBusy(true);
     try {
-      await call('updateGuildProfile', { guildId, profile: p });
+      await call('updateGuildProfile', { guildId, profile: next });
       toast(t('Guild page saved.'), 'ok');
     } catch (e) {
       toast(errorMessage(e), 'error');
@@ -54,10 +64,16 @@ function LeaderTools({ guildId, profile }: { guildId: string; profile: GuildProf
       setBusy(false);
     }
   };
+  const clearAll = async () => {
+    if (!confirm(t('Remove every text, link and setting from this guild page? The leader can fill it in again.'))) return;
+    setP(EMPTY_PROFILE);
+    await save(EMPTY_PROFILE);
+  };
 
   return (
-    <div className="card card-pad grid gap-4">
-      <h2 className="font-bold">👑 {t('Guild page (you lead this guild)')}</h2>
+    <div className={`card card-pad grid gap-4 ${asAdmin ? 'border-[rgba(224,179,65,0.45)]' : ''}`}>
+      <h2 className="font-bold">{asAdmin ? `🛡️ ${t('Edit guild page (admin)')}` : `👑 ${t('Guild page (you lead this guild)')}`}</h2>
+      {asAdmin && <p className="faint -mt-2 text-xs">{t('You can change or remove anything the leader wrote. Name and tag come from the GW2 API — to take the whole page down, suspend it below.')}</p>}
       <label>
         <span className="label">{t('About the guild')}</span>
         <textarea className="textarea" maxLength={LIMITS.descriptionMax} value={p.description} onChange={(e) => setP({ ...p, description: e.target.value })} />
@@ -110,12 +126,17 @@ function LeaderTools({ guildId, profile }: { guildId: string; profile: GuildProf
           <input className="input" value={p.website ?? ''} onChange={(e) => setP({ ...p, website: e.target.value || null })} placeholder="https://…" />
         </label>
       </div>
-      <div className="flex justify-end">
-        <button className="btn btn-gold" onClick={save} disabled={busy || (p.recruiting && !ACCOUNT_NAME_RE.test(p.recruitContact ?? ''))}>
+      <div className="flex flex-wrap justify-end gap-2">
+        {asAdmin && (
+          <button className="btn btn-danger" onClick={clearAll} disabled={busy}>
+            🗑 {t('Clear everything')}
+          </button>
+        )}
+        <button className="btn btn-gold" onClick={() => save()} disabled={busy || (p.recruiting && !ACCOUNT_NAME_RE.test(p.recruitContact ?? ''))}>
           {t('Save guild page')}
         </button>
       </div>
-      <p className="faint text-xs">{t('Every member of the guild can post raids for it; raids you post as leader show ✓ official.')}</p>
+      {!asAdmin && <p className="faint text-xs">{t('Every member of the guild can post raids for it; raids you post as leader show ✓ official.')}</p>}
     </div>
   );
 }
@@ -152,6 +173,7 @@ export default function GuildDetail() {
   const { id } = useParams();
   const [subscribe, setSubscribe] = useState(false);
   const { data: g, loading, error } = useGuild(id);
+  const held = useHeld().data;
   const member = useStore((s) => s.member);
   const toast = useStore((s) => s.toast);
   const runs = useGuildRuns(id);
@@ -197,7 +219,7 @@ export default function GuildDetail() {
       <SubscribeDialog open={subscribe} onClose={() => setSubscribe(false)} params={{ guild: g.id }} scope={`[${g.tag}]`} />
 
 
-      <div className="mt-4 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+      <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[1.5fr_1fr]">
         <div>
           {g.profile?.description && (
             <Section title={t('About')}>
@@ -233,7 +255,7 @@ export default function GuildDetail() {
             <ActivityBars activity={g.activity ?? {}} />
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Stat label={t('Claims (4 weeks)')} value={claims4} />
-              <Stat label={t('Holding now')} value={g.heldNow ?? 0} />
+              <Stat label={t('Holding now')} value={(g.region && held ? held[g.region]?.[g.id] : undefined) ?? 0} />
             </div>
             <p className="faint mt-2 text-xs">{t('From public objective claims (GW2 API). Fight-focused guilds that rarely claim show low here.')}</p>
           </div>
@@ -278,7 +300,11 @@ export default function GuildDetail() {
               )}
             </div>
           )}
-          {isLeader && <LeaderTools guildId={g.id} profile={g.profile ?? null} />}
+          {isLeader ? (
+            <LeaderTools guildId={g.id} profile={g.profile ?? null} />
+          ) : (
+            isAdmin(member) && <LeaderTools key={g.id} guildId={g.id} profile={g.profile ?? null} asAdmin />
+          )}
           {isAdmin(member) && <GuildAdmin guildId={g.id} suspended={!!g.suspended} />}
           {!isLeader && myGuild && <p className="faint text-xs">{t('You’re a member — you can post raids for this guild.')}</p>}
 

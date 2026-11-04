@@ -185,3 +185,20 @@ export function asInt(v: unknown, field: string, min: number, max: number, nulla
   }
   return n;
 }
+
+/**
+ * JSON with object keys sorted at every level — Firestore returns map fields
+ * in its own order, so compare stored vs. computed docs with this to skip
+ * identical writes (each skipped write also saves a read per live listener).
+ */
+export function stableJson(v: unknown): string {
+  if (v === undefined) return 'null';
+  if (v === null || typeof v !== 'object') return JSON.stringify(v);
+  if (Array.isArray(v)) return `[${v.map(stableJson).join(',')}]`;
+  const o = v as Record<string, unknown>;
+  return `{${Object.keys(o)
+    .filter((k) => o[k] !== undefined)
+    .sort()
+    .map((k) => `${JSON.stringify(k)}:${stableJson(o[k])}`)
+    .join(',')}}`;
+}

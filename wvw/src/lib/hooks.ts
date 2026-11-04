@@ -8,6 +8,7 @@ import type {
   PublicConfig,
   PublicEvent,
   PublicEventIndex,
+  PublicHeld,
   PublicLive,
   PublicMatches,
   PublicRelink,
@@ -105,6 +106,8 @@ export const useGuildIndex = (region: Region) =>
   useDocLive<{ updatedAt: number; guilds: GuildIndexRow[] }>(`wvwPublic/guildIndex_${region}`);
 export const usePublicConfig = () => useDocLive<PublicConfig>('wvwPublic/config');
 export const useRelink = () => useDocLive<PublicRelink>('wvwPublic/relink');
+/** Objectives held per guild right now (one small doc, changes ≤ every 5 min). */
+export const useHeld = () => useDocLive<PublicHeld>('wvwPublic/held');
 export const useGuild = (id: string | undefined) => useDocLive<GuildDirDoc>(id ? `wvwGuildDir/${id}` : null);
 export const useRun = (id: string | undefined) => useDocLive<PublicRun>(id ? `wvwRuns/${id}` : null);
 
@@ -164,6 +167,19 @@ export function useMyTeamIndex(): TeamIndex | null {
       details: Object.assign({}, ...present.map((d) => d.details ?? {})),
     };
   }, [docs, teamIds]);
+}
+
+/**
+ * eventId → `/squadjoin` name, for the raids of the viewer's own team only
+ * (from wvwTeamIndex — other teams never receive these).
+ */
+export function useSquadJoins(): Record<string, string> {
+  const team = useMyTeamIndex();
+  return useMemo(() => {
+    const out: Record<string, string> = {};
+    for (const [id, d] of Object.entries(team?.details ?? {})) if (d.squadJoin) out[id] = d.squadJoin;
+    return out;
+  }, [team]);
 }
 
 /** Public raids of a region + the team-only raids the viewer may see. */

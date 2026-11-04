@@ -289,15 +289,25 @@ export default function Account() {
             {member.commander ? `✅ ${t('yes')}` : `— ${t('no')}`}
           </div>
           <div className="sm:col-span-2">
-            <span className="label">{t('Guilds — you can post raids for any of them')}</span>
+            <span className="label">{t('Your guilds')}</span>
             <div className="flex flex-wrap gap-1.5">
               {member.guilds.map((g) => (
-                <Link key={g.id} to={`/guilds/${g.id}`} className={`chip ${g.leader ? 'chip-gold' : ''}`} title={g.leader ? t('You lead this guild — your raids show ✓ official') : undefined}>
-                  [{g.tag}] {g.leader ? '👑' : ''}
+                <Link
+                  key={g.id}
+                  to={`/guilds/${g.id}`}
+                  className={`chip hover:border-[var(--gold)] hover:text-white ${g.leader ? 'chip-gold' : ''}`}
+                  title={g.leader ? t('You lead this guild — open it to edit the guild page and recruitment') : t('Open the guild page')}
+                >
+                  [{g.tag}] {g.leader ? '👑' : ''} <span aria-hidden>›</span>
                 </Link>
               ))}
               {!member.guilds.length && '—'}
             </div>
+            {member.guilds.length > 0 && (
+              <p className="faint mt-1.5 text-xs">
+                {t('Click a guild to see its page. As leader (👑) you manage its profile and recruitment there. You can post raids for any of them.')}
+              </p>
+            )}
           </div>
         </div>
         <StoredKey info={member.keyInfo} />

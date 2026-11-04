@@ -41,6 +41,7 @@ const COLUMN_HELP: Record<(typeof IMPORT_COLUMNS)[number], string> = {
   audience: 'everyone / team (default everyone)',
   openness: 'open / guild / invite (default open)',
   team: 'Team id override (11xxx NA, 12xxx EU) — else taken from the guild’s in-game WvW team',
+  tag: 'Commander tag colour: blue, cyan, green, magenta, orange, purple, red, white, yellow — add "cat" for a catmander (default blue)',
 };
 
 export function ImportRaids() {

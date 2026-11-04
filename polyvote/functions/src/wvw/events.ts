@@ -27,6 +27,8 @@ import {
   LIMITS,
   MAPS,
   OPENNESS,
+  TAG_COLORS,
+  TAG_SHAPES,
   VOICE_KINDS,
   isOneOf,
   type Language,
@@ -52,9 +54,46 @@ export interface DetailsDoc {
   voice: EventInput['voice'];
   buildsUrl: string | null;
   notes: string;
+  squadJoin?: string | null;
 }
 
 const DAY_MS = 86_400_000;
+
+/** Commander tag from input: unknown/missing values fall back to null (= default blue commander). */
+export function cleanTag(v: unknown): EventInput['tag'] {
+  const t = (v ?? null) as { color?: unknown; shape?: unknown } | null;
+  if (!t || typeof t !== 'object') return null;
+  if (!isOneOf(TAG_COLORS, t.color)) throw new HttpsError('invalid-argument', 'Pick a commander tag colour.');
+  const shape = t.shape == null ? 'commander' : t.shape;
+  if (!isOneOf(TAG_SHAPES, shape)) throw new HttpsError('invalid-argument', 'Pick a commander or catmander tag.');
+  return { color: t.color, shape };
+}
+
+/**
+ * Name for `/squadjoin <name>` (a character or account name). Accepts a pasted
+ * command (`/squadjoin Name`, `/sqjoin Name`) and keeps just the name.
+ */
+export function cleanSquadJoin(v: unknown): string | null {
+  if (v == null || v === '') return null;
+  if (typeof v !== 'string') throw new HttpsError('invalid-argument', 'Squad join must be text.');
+  const name = v
+    .trim()
+    .replace(/^\/(squadjoin|sqjoin)\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!name) return null;
+  if (name.length > LIMITS.squadJoinMax) throw new HttpsError('invalid-argument', `Squad join name is too long (max ${LIMITS.squadJoinMax}).`);
+  // Letters (any script), digits, spaces, dots, apostrophes and dashes — GW2 character / account names.
+  if (!/^[\p{L}\p{M}\p{N} .'-]+$/u.test(name)) {
+    throw new HttpsError('invalid-argument', 'Squad join: enter only the commander’s character or account name.');
+  }
+  return name;
+}
+
+/** Title for a raid posted without one: the raid type's name (same rule as the CSV import). */
+export function defaultTitle(type: string): string {
+  return EVENT_TYPES.find((t) => t.id === type)?.label ?? 'WvW raid';
+}
 
 /**
  * Validate + normalise an event form. `allowPast` (moderators editing a past
@@ -65,8 +104,9 @@ export function validateEventInput(raw: unknown, now = Date.now(), opts: { allow
   // null / "" = independent raid (no guild attached).
   const guildId = d.guildId == null || d.guildId === '' ? null : d.guildId;
   if (guildId !== null && typeof guildId !== 'string') throw new HttpsError('invalid-argument', 'Pick a guild (or none).');
-  const title = cleanText(d.title, LIMITS.titleMax, 'Title', true);
   if (!isOneOf(EVENT_TYPES, d.type)) throw new HttpsError('invalid-argument', 'Pick a raid type.');
+  // The title is optional — an empty one becomes the raid type's name.
+  const title = cleanText(d.title, LIMITS.titleMax, 'Title') || defaultTitle(d.type);
   if (!isOneOf(OPENNESS, d.openness)) throw new HttpsError('invalid-argument', 'Pick who can join.');
   const audience = d.audience == null ? 'everyone' : d.audience;
   if (!isOneOf(AUDIENCES, audience)) throw new HttpsError('invalid-argument', 'Pick who can see the raid.');
@@ -109,11 +149,13 @@ export function validateEventInput(raw: unknown, now = Date.now(), opts: { allow
     languages,
     schedule,
     map: d.map,
+    tag: cleanTag(d.tag),
     goals: cleanText(d.goals, LIMITS.goalsMax, 'Goals'),
     expectedSize: asInt(d.expectedSize, 'Expected size', 1, LIMITS.expectedSizeMax),
     voice,
     buildsUrl: cleanUrl(d.buildsUrl, 'Builds link'),
     notes: cleanText(d.notes, LIMITS.notesMax, 'Notes'),
+    squadJoin: cleanSquadJoin(d.squadJoin),
   };
 }
 
@@ -159,6 +201,7 @@ export async function createEventCore(member: MemberDoc, input: EventInput): Pro
     title: input.title,
     type: input.type,
     map: input.map,
+    tag: input.tag,
     audience: input.audience,
     openness: input.openness,
     languages: input.languages,
@@ -179,6 +222,7 @@ export async function createEventCore(member: MemberDoc, input: EventInput): Pro
     voice: input.voice,
     buildsUrl: input.buildsUrl,
     notes: input.notes,
+    squadJoin: input.squadJoin,
   };
   const batch = db().batch();
   batch.set(ref, e);
@@ -218,6 +262,7 @@ export async function updateEventCore(member: MemberDoc, eventId: string, input:
     title: input.title,
     type: input.type,
     map: input.map,
+    tag: input.tag,
     audience: input.audience,
     openness: input.openness,
     languages: input.languages,
@@ -247,6 +292,7 @@ export async function updateEventCore(member: MemberDoc, eventId: string, input:
     voice: input.voice,
     buildsUrl: input.buildsUrl,
     notes: input.notes,
+    squadJoin: input.squadJoin,
   };
   const batch = db().batch();
   batch.set(db().collection(COL.events).doc(e.id), next);
@@ -374,6 +420,7 @@ export async function detailsFor(member: MemberDoc, eventIds: string[]): Promise
       voice: d.voice,
       buildsUrl: d.buildsUrl,
       notes: d.notes,
+      squadJoin: d.squadJoin ?? null,
       canEdit: mine || isMod,
     });
   }
