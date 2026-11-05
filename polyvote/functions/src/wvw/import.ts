@@ -23,7 +23,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { logger } from 'firebase-functions/v2';
 import { COL, db } from './config';
-import { AUDIENCES, EVENT_TYPES, LANGUAGES, OPENNESS, isOneOf, type Language, type MapId } from './shared/constants';
+import { AUDIENCES, EVENT_TYPES, LANGUAGES, OPENNESS, TAG_COLORS, isOneOf, type Language, type MapId } from './shared/constants';
 import { csvToObjects } from './shared/csv';
 import { isTeamId, regionOfTeam, type Region } from './shared/teams';
 import { describeSchedule, isValidTimeZone, localParts, type Schedule } from './shared/time';
@@ -108,6 +108,16 @@ function pickOption<T extends { id: string; label: string }>(list: readonly T[],
     | null;
 }
 
+/** `tag` column: a colour, optionally with "cat" ("red", "cat purple", "catmander:white"). Empty = default blue. */
+export function parseTag(v: string | undefined): EventInput['tag'] {
+  const toks = lc(v).split(/[\s,/:_-]+/).filter(Boolean);
+  if (!toks.length) return null;
+  const shape = toks.some((t) => t === 'cat' || t === 'catmander') ? 'catmander' : 'commander';
+  const raw = toks.find((t) => t === 'pink' || isOneOf(TAG_COLORS, t));
+  if (!raw) throw new Error(`Unknown tag "${v}" — a colour (${TAG_COLORS.map((c) => c.id).join(', ')}), optionally with "cat".`);
+  return { color: raw === 'pink' ? 'magenta' : (raw as (typeof TAG_COLORS)[number]['id']), shape };
+}
+
 export interface ParsedRow {
   /** GUID or exact guild name. */
   guildRef: string;
@@ -175,11 +185,13 @@ export function parseImportRow(raw: Record<string, string>, now = Date.now()): P
       languages: [...new Set(langs)].slice(0, 4) as Language[],
       schedule,
       map,
+      tag: parseTag(raw.tag),
       goals: (raw.goals ?? '').trim(),
       expectedSize: null,
       voice: null,
       buildsUrl: null,
       notes: (raw.notes ?? '').trim(),
+      squadJoin: null,
     },
   };
 }
@@ -344,6 +356,7 @@ export const adminImportEvents = onCall({ ...callableOpts, timeoutSeconds: 120 }
         title: input.title,
         type: input.type,
         map: input.map,
+        tag: input.tag,
         audience: input.audience,
         openness: input.openness,
         languages: input.languages,

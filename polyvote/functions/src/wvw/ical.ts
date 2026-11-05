@@ -13,6 +13,23 @@ import { teamName, type Region } from './shared/teams';
 import type { PublicEvent } from './shared/types';
 import { isGuildId } from './gw2';
 
+/**
+ * Per-instance cache of the index docs: calendar apps poll feeds every few
+ * minutes to hours, and many feeds share the same two docs — a warm instance
+ * serves them without new Firestore reads.
+ */
+const CACHE_MS = 5 * 60_000;
+const cache = new Map<Region, { at: number; events: PublicEvent[] }>();
+
+async function regionEvents(r: Region): Promise<PublicEvent[]> {
+  const hit = cache.get(r);
+  if (hit && Date.now() - hit.at < CACHE_MS) return hit.events;
+  const snap = await db().collection(COL.public).doc(`events_${r}`).get();
+  const events = (snap.data()?.events ?? []) as PublicEvent[];
+  cache.set(r, { at: Date.now(), events });
+  return events;
+}
+
 export const ical = onRequest({ cors: true, memory: '256MiB', timeoutSeconds: 30 }, async (req, res) => {
   const q = req.query as Record<string, string | undefined>;
   const regions: Region[] = q.region === 'na' ? ['na'] : q.region === 'eu' ? ['eu'] : ['eu', 'na'];
@@ -22,11 +39,8 @@ export const ical = onRequest({ cors: true, memory: '256MiB', timeoutSeconds: 30
   const alarm = Number(q.alarm);
   const alarmMin = Number.isInteger(alarm) && alarm > 0 && alarm <= 1440 ? alarm : null;
 
-  const [settings, ...docs] = await Promise.all([
-    getSettings(),
-    ...regions.map((r) => db().collection(COL.public).doc(`events_${r}`).get()),
-  ]);
-  let events = docs.flatMap((d) => (d.data()?.events ?? []) as PublicEvent[]);
+  const [settings, ...lists] = await Promise.all([getSettings(), ...regions.map(regionEvents)]);
+  let events = lists.flat();
   if (team) events = events.filter((e) => e.teamId === team);
   if (guild) events = events.filter((e) => e.guildId === guild);
   if (type) events = events.filter((e) => e.type === type);

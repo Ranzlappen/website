@@ -12,13 +12,15 @@ import {
   PLAYSTYLES,
   RATING_AXES,
   REPORT_REASONS,
+  TAG_COLORS,
+  TAG_SHAPES,
   VOICE_KINDS,
 } from '../shared/constants';
 import { WEEKDAY_SHORT } from '../shared/time';
 
 /** Keys reaching t() through variables (option lists, nav/view labels, colours, statuses). */
 const DYNAMIC = [
-  ...[EVENT_TYPES, OPENNESS, PLAYSTYLES, VOICE_KINDS, RATING_AXES, REPORT_REASONS, FEEDBACK_KINDS, FEEDBACK_STATUSES].flatMap((l) =>
+  ...[EVENT_TYPES, OPENNESS, PLAYSTYLES, VOICE_KINDS, RATING_AXES, REPORT_REASONS, FEEDBACK_KINDS, FEEDBACK_STATUSES, TAG_COLORS, TAG_SHAPES].flatMap((l) =>
     l.map((o) => o.label as string),
   ),
   ...AUDIENCES.flatMap((a) => [a.label, a.hint]),

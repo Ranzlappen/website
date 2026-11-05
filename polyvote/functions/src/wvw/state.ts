@@ -24,7 +24,10 @@ export async function takeDirty(): Promise<{ guildIndex: boolean; guildStatsIds:
   return db().runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     const d = snap.data() ?? {};
-    tx.set(ref, { guildIndex: false, guildStats: false, guildStatsIds: [] });
+    // Nothing flagged → no write (this runs every 10 minutes).
+    if (d.guildIndex === true || d.guildStats === true || (d.guildStatsIds ?? []).length) {
+      tx.set(ref, { guildIndex: false, guildStats: false, guildStatsIds: [] });
+    }
     return { guildIndex: d.guildIndex === true, guildStatsIds: (d.guildStatsIds ?? []) as string[] };
   });
 }

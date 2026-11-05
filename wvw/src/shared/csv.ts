@@ -86,11 +86,12 @@ export const IMPORT_COLUMNS = [
   'audience',
   'openness',
   'team',
+  'tag',
 ] as const;
 
 export const IMPORT_TEMPLATE = [
   IMPORT_COLUMNS.join(','),
-  'Age Of Destiny,Reset night blob,zerg,ebg,fri,,20:30,Europe/Berlin,180,"en,de",everyone,open,',
-  'Apply Water To Burned Area,Havoc roam,havoc,red,"tue,thu",,21:00,Europe/Berlin,120,de,everyone,open,12008',
-  'Age Of Destiny,Training squad,training,jumper,,2026-11-15,19:00,Europe/London,90,en,team,open,',
+  'Age Of Destiny,Reset night blob,zerg,ebg,fri,,20:30,Europe/Berlin,180,"en,de",everyone,open,,red',
+  'Apply Water To Burned Area,Havoc roam,havoc,red,"tue,thu",,21:00,Europe/Berlin,120,de,everyone,open,12008,cat purple',
+  'Age Of Destiny,Training squad,training,jumper,,2026-11-15,19:00,Europe/London,90,en,team,open,,',
 ].join('\n');

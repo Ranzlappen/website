@@ -62,6 +62,32 @@ export const OPENNESS = [
 ] as const;
 export type Openness = (typeof OPENNESS)[number]['id'];
 
+/**
+ * The in-game commander tag a raid runs under (public, shown on the calendar).
+ * Icons: wvw/public/tags/{shape}-{color}.webp (scripts/build-tags.py).
+ * Raids without one show the default blue commander tag.
+ */
+export const TAG_COLORS = [
+  { id: 'blue', label: 'Blue' },
+  { id: 'cyan', label: 'Cyan' },
+  { id: 'green', label: 'Green' },
+  { id: 'magenta', label: 'Magenta' },
+  { id: 'orange', label: 'Orange' },
+  { id: 'purple', label: 'Purple' },
+  { id: 'red', label: 'Red' },
+  { id: 'white', label: 'White' },
+  { id: 'yellow', label: 'Yellow' },
+] as const;
+export type TagColor = (typeof TAG_COLORS)[number]['id'];
+
+export const TAG_SHAPES = [
+  { id: 'commander', label: 'Commander' },
+  { id: 'catmander', label: 'Catmander' },
+] as const;
+export type TagShape = (typeof TAG_SHAPES)[number]['id'];
+
+export const DEFAULT_TAG: { color: TagColor; shape: TagShape } = { color: 'blue', shape: 'commander' };
+
 export const LANGUAGES = [
   { id: 'en', label: 'English' },
   { id: 'de', label: 'Deutsch' },
@@ -157,6 +183,8 @@ export const COMMON_TIMEZONES = [
 
 export const LIMITS = {
   titleMax: 80,
+  /** `/squadjoin <name>` — a character or account name. */
+  squadJoinMax: 40,
   goalsMax: 500,
   notesMax: 1000,
   descriptionMax: 1500,

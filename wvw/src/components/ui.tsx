@@ -109,12 +109,29 @@ export function LiveBadge() {
   );
 }
 
-export function Countdown({ to, label }: { to: string | number | null | undefined; label: string }) {
+export function Countdown({
+  to,
+  label,
+  passed,
+}: {
+  to: string | number | null | undefined;
+  label: string;
+  /** Shown instead of 00:00:00:00 once the moment has passed. */
+  passed?: ReactNode;
+}) {
   const t = useT();
   const now = useNow(1000);
   if (!to) return null;
   const ms = typeof to === 'number' ? to : Date.parse(to);
   if (!Number.isFinite(ms)) return null;
+  if (ms <= now) {
+    return (
+      <div>
+        <div className="label">{label}</div>
+        <div className="rounded-lg bg-[var(--bg-2)] px-3 py-2.5 text-sm font-semibold">{passed ?? t('Now')}</div>
+      </div>
+    );
+  }
   const c = countdownParts(ms, now);
   const cell = (v: number, u: string) => (
     <div className="min-w-[3.1rem] rounded-lg bg-[var(--bg-2)] px-2 py-1.5 text-center">
@@ -217,14 +234,15 @@ export function Segmented<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="inline-flex rounded-xl border border-[var(--border-strong)] bg-[var(--bg-2)] p-0.5" role="tablist">
+    // Never wider than its container: on phones the tabs wrap onto a second row instead of widening the page.
+    <div className="inline-flex max-w-full flex-wrap rounded-xl border border-[var(--border-strong)] bg-[var(--bg-2)] p-0.5" role="tablist">
       {options.map((o) => (
         <button
           key={o.id}
           role="tab"
           aria-selected={value === o.id}
           onClick={() => onChange(o.id)}
-          className={`rounded-[10px] px-3 py-1.5 text-sm font-semibold transition ${
+          className={`shrink-0 whitespace-nowrap rounded-[10px] px-3 py-1.5 text-sm font-semibold transition ${
             value === o.id ? 'bg-[var(--gold)] text-[var(--gold-ink)]' : 'muted hover:text-white'
           }`}
         >

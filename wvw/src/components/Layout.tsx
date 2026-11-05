@@ -16,11 +16,11 @@ const NAV = [
 ];
 
 /** Language picker in the header (persisted; also on the Account page). */
-function LangSwitch() {
+function LangSwitch({ className = '' }: { className?: string }) {
   const lang = useStore((s) => s.lang);
   const setLang = useStore((s) => s.setLang);
   return (
-    <label className="relative inline-flex items-center" title="Language / Sprache / Langue / Idioma / Lingua">
+    <label className={`relative items-center ${className || 'inline-flex'}`} title="Language / Sprache / Langue / Idioma / Lingua">
       <span className="sr-only">Language</span>
       <select
         className="cursor-pointer appearance-none rounded-lg border border-[var(--border)] bg-[var(--bg-2)] py-1 pl-2 pr-5 text-xs font-bold text-[var(--ink)] hover:border-[var(--border-strong)]"
@@ -45,7 +45,7 @@ function PostRaidButton() {
   const { pathname } = useLocation();
   if (!isVerified(member) || pathname.startsWith('/events/new')) return null;
   return (
-    <Link to="/events/new" className="btn btn-gold btn-sm" title={t('Post a raid')}>
+    <Link to="/events/new" className="btn btn-gold btn-sm shrink-0" title={t('Post a raid')}>
       <span aria-hidden>＋</span>
       <span className="hidden sm:inline">{t('Post a raid')}</span>
       <span className="sm:hidden">{t('Raid')}</span>
@@ -60,16 +60,20 @@ function AccountButton() {
   if (!authReady) return <span className="skeleton inline-block h-8 w-24" />;
   if (!uid) {
     return (
-      <Link to="/account" className="btn btn-gold btn-sm">
+      <Link to="/account" className="btn btn-gold btn-sm shrink-0 whitespace-nowrap">
         {t('Sign in')}
       </Link>
     );
   }
   const verified = isVerified(member);
   return (
-    <Link to="/account" className="btn btn-sm">
-      <span className={`h-2 w-2 rounded-full ${verified ? 'bg-green-400' : member?.stale ? 'bg-orange-400' : 'bg-slate-500'}`} />
-      <span className="max-w-[9rem] truncate">
+    <Link to="/account" className="btn btn-sm min-w-0" title={t('Your account')}>
+      <span className={`h-2 w-2 shrink-0 rounded-full ${verified ? 'bg-green-400' : member?.stale ? 'bg-orange-400' : 'bg-slate-500'}`} />
+      {/* Phones: just the status dot + an icon, so the header never overflows. */}
+      <span aria-hidden className="sm:hidden">
+        {uid === 'wvw-admin' ? '🛡️' : '👤'}
+      </span>
+      <span className="hidden max-w-[9rem] truncate sm:inline">
         {uid === 'wvw-admin' ? '🛡️ Admin' : verified ? team(member!.teamId, config?.teamNames) : t('Account')}
       </span>
     </Link>
@@ -96,7 +100,7 @@ export function Layout() {
         {t('Skip to content')}
       </a>
       <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[rgba(12,16,22,0.85)] backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
+        <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4">
           <Link to="/" className="flex shrink-0 items-center gap-2 whitespace-nowrap font-extrabold tracking-tight" onClick={() => setOpen(false)}>
             <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-8 w-8" />
             <span>
@@ -117,9 +121,9 @@ export function Layout() {
               </NavLink>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2">
             <PostRaidButton />
-            <LangSwitch />
+            <LangSwitch className="hidden sm:inline-flex" />
             <AccountButton />
             <button className="btn btn-ghost btn-sm md:hidden" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={t('Menu')}>
               ☰
@@ -133,6 +137,10 @@ export function Layout() {
                 {n.label}
               </NavLink>
             ))}
+            <div className="flex items-center gap-2 px-3 py-2 sm:hidden">
+              <span className="muted text-sm">{t('Language')}</span>
+              <LangSwitch />
+            </div>
           </nav>
         )}
       </header>

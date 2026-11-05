@@ -5,7 +5,8 @@ import { TzPicker } from '../components/TzPicker';
 import { MapPicker, mapLabel } from '../components/MapPicker';
 import { MatchupMap } from '../components/MatchupMap';
 import { SubscribeDialog } from '../components/SubscribeDialog';
-import { useDocumentTitle, useMatches, useMySides, useNow, useRelink, useTeamNames, useVisibleEvents } from '../lib/hooks';
+import { useDocumentTitle, useMatches, useMySides, useNow, useRelink, useSquadJoins, useTeamNames, useVisibleEvents } from '../lib/hooks';
+import { SquadJoin, TagIcon, useTagLabel } from '../components/CommanderTag';
 import { friendlyLoadError } from '../firebase';
 import { fmtCivil, fmtDateTime, fmtTime, team } from '../lib/format';
 import {
@@ -57,30 +58,40 @@ function dayName(day: number, opts: Intl.DateTimeFormatOptions = { weekday: 'sho
 function SlotChip({ s, tz, showTeam, compact }: { s: Slot; tz: string; showTeam: boolean; compact?: boolean }) {
   const t = useT();
   const names = useTeamNames();
+  const tagLabel = useTagLabel();
+  const squad = useSquadJoins()[s.e.id];
   return (
-    <Link
-      to={`/events/${s.e.id}`}
-      className={`block rounded-lg border border-[var(--border)] bg-[var(--bg-2)] px-2 py-1.5 text-xs transition hover:border-[var(--gold)] ${s.e.status === 'cancelled' ? 'opacity-50 line-through' : ''}`}
-      title={`${s.e.title}\n${TYPE_ICON[s.e.type]} ${t(labelOf(EVENT_TYPES, s.e.type))}\n${OPENNESS_ICON[s.e.openness]} ${t(labelOf(OPENNESS, s.e.openness))}\n${team(s.e.teamId, names)} · ${mapLabel(s.e.map, t)}`}
-    >
-      <div className="flex items-center gap-1 font-semibold tabular-nums">
-        {s.e.liveRunId && <span className="live-dot" />}
-        {fmtTime(s.start, tz)} <GuildTag tag={s.e.guildTag} />
-        {s.e.official && <span className="text-[var(--gold)]" title={t('Posted by the guild leader')}>✓</span>}
-        {s.e.audience === 'team' && <span title={t('Team-only raid — hidden from other teams')}>🔒</span>}
-      </div>
-      {!compact && <div className="truncate">{s.e.title}</div>}
-      <div className="faint truncate">
-        <span aria-hidden>
-          {TYPE_ICON[s.e.type]}
-          {OPENNESS_ICON[s.e.openness]}{' '}
-        </span>
-        {compact ? s.e.title : t(labelOf(EVENT_TYPES, s.e.type))}
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-2)] text-xs transition hover:border-[var(--gold)]">
+      <Link
+        to={`/events/${s.e.id}`}
+        className={`block px-2 py-1.5 ${s.e.status === 'cancelled' ? 'opacity-50 line-through' : ''}`}
+        title={`${s.e.title}\n${tagLabel(s.e.tag)}\n${TYPE_ICON[s.e.type]} ${t(labelOf(EVENT_TYPES, s.e.type))}\n${OPENNESS_ICON[s.e.openness]} ${t(labelOf(OPENNESS, s.e.openness))}\n${team(s.e.teamId, names)} · ${mapLabel(s.e.map, t)}`}
+      >
+        <div className="flex items-center gap-1 font-semibold tabular-nums">
+          {s.e.liveRunId && <span className="live-dot" />}
+          <TagIcon tag={s.e.tag} size={14} />
+          {fmtTime(s.start, tz)} <GuildTag tag={s.e.guildTag} />
+          {s.e.official && <span className="text-[var(--gold)]" title={t('Posted by the guild leader')}>✓</span>}
+          {s.e.audience === 'team' && <span title={t('Team-only raid — hidden from other teams')}>🔒</span>}
+        </div>
+        {!compact && <div className="truncate">{s.e.title}</div>}
+        <div className="faint truncate">
+          <span aria-hidden>
+            {TYPE_ICON[s.e.type]}
+            {OPENNESS_ICON[s.e.openness]}{' '}
+          </span>
+          {compact ? s.e.title : t(labelOf(EVENT_TYPES, s.e.type))}
 
-        {showTeam && !compact && ` · ${team(s.e.teamId, names)}`}
-      </div>
-      <div className="mt-0.5 truncate text-[0.65rem] text-[var(--gold)]">📍 {mapLabel(s.e.map, t, undefined, undefined, true)}</div>
-    </Link>
+          {showTeam && !compact && ` · ${team(s.e.teamId, names)}`}
+        </div>
+        <div className="mt-0.5 truncate text-[0.65rem] text-[var(--gold)]">📍 {mapLabel(s.e.map, t, undefined, undefined, true)}</div>
+      </Link>
+      {squad && !compact && (
+        <div className="px-2 pb-1.5">
+          <SquadJoin name={squad} compact />
+        </div>
+      )}
+    </div>
   );
 }
 

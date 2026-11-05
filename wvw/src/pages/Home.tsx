@@ -41,7 +41,7 @@ export default function Home() {
     <div>
       <section className="card relative mb-8 overflow-hidden px-5 py-7 sm:px-8 sm:py-9">
         <div className="pointer-events-none absolute inset-0 opacity-30" style={{ background: 'conic-gradient(from 210deg at 85% 30%, rgba(229,83,75,.35), rgba(74,144,217,.35), rgba(79,191,106,.35), rgba(229,83,75,.35))', filter: 'blur(60px)' }} />
-        <div className="relative grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+        <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-center">
           <div>
             <p className="chip chip-gold mb-3">Guild Wars 2 · World vs. World</p>
             <h1 className="text-3xl font-black tracking-tight sm:text-5xl">
@@ -96,7 +96,7 @@ export default function Home() {
         )}
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.5fr_1fr]">
         <div>
           <Section title={`🟢 ${t('Live now')}`}>
             {live.loading ? (

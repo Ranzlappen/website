@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ErrorBox, GuildTag, LiveBadge, Notice, PageHeader, Skeleton, TeamChip } from '../components/ui';
+import { SquadJoin, TagIcon, useTagLabel } from '../components/CommanderTag';
 import { ReportButton } from '../components/ReportDialog';
 import { TzPicker } from '../components/TzPicker';
 import { useDocumentTitle, useEventIndex, useMatches, useMyTeamIndex, useNow, useTeamNames } from '../lib/hooks';
@@ -39,6 +40,7 @@ function downloadIcs(e: PublicEvent, start: number, end: number) {
 
 export default function EventDetail() {
   const t = useT();
+  const tagLabel = useTagLabel();
   const { id } = useParams();
   const navigate = useNavigate();
   const eu = useEventIndex('eu');
@@ -142,12 +144,15 @@ export default function EventDetail() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.6fr_1fr]">
       <div>
         <PageHeader
           title={e.title}
           sub={
             <span className="flex flex-wrap items-center gap-2">
+              <span className="chip" title={tagLabel(e.tag)}>
+                <TagIcon tag={e.tag} size={16} /> {tagLabel(e.tag)}
+              </span>
               <GuildTag tag={e.guildTag} id={e.guildId} /> {e.guildId ? e.guildName : t('Independent raid (no guild)')}
               {e.official ? (
                 <span className="chip chip-gold">✓ {t('official guild raid')}</span>
@@ -238,7 +243,7 @@ export default function EventDetail() {
         </div>
       </div>
 
-      <aside className="flex flex-col gap-4">
+      <aside className="flex min-w-0 flex-col gap-4">
         <div className="card card-pad">
           <h2 className="mb-2 font-bold">🔒 {t('Team-only details')}</h2>
           {!uid ? (
@@ -265,6 +270,10 @@ export default function EventDetail() {
             </p>
           ) : (
             <dl className="grid gap-2 text-sm">
+              <div>
+                <dt className="label">{t('Squad join (in-game)')}</dt>
+                <dd>{details.squadJoin ? <SquadJoin name={details.squadJoin} /> : '—'}</dd>
+              </div>
               <div>
                 <dt className="label">{t('Expected squad')}</dt>
                 <dd>{details.expectedSize ?? '—'}</dd>

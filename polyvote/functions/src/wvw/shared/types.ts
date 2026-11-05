@@ -20,6 +20,8 @@ import type {
   Playstyle,
   RatingAxis,
   ReportReason,
+  TagColor,
+  TagShape,
   VoiceKind,
 } from './constants';
 import type { Schedule } from './time';
@@ -63,6 +65,13 @@ export interface PublicMatches {
   timers: { lockout: Record<Region, string | null>; teamAssignment: Record<Region, string | null> };
   /** Guilds that selected each team as their WvW guild's team (from /v2/wvw/guilds/:region). */
   teamGuildCounts: Record<string, number>;
+}
+
+/** wvwPublic/held — objectives each guild holds right now (one doc, written only when a count changes). */
+export interface PublicHeld {
+  updatedAt: number;
+  eu: Record<string, number>;
+  na: Record<string, number>;
 }
 
 // ── Public config (wvwPublic/config) ──────────────────────────────────────
@@ -138,7 +147,8 @@ export interface GuildDirDoc {
   profile: GuildProfile | null;
   /** ISO week key → activity (last ~8 weeks kept). */
   activity: Record<string, GuildWeekActivity>;
-  heldNow: number;
+  /** Legacy (no longer written): live counts are in `wvwPublic/held`. */
+  heldNow?: number;
   lastSeenAt: number | null;
   commanderCount: number;
   stats: GuildStats | null;
@@ -163,6 +173,12 @@ export interface GuildIndexRow {
 
 // ── Events (public tier) ──────────────────────────────────────────────────
 
+/** The commander tag a raid runs under (colour + classic or cat shape). */
+export interface CommanderTag {
+  color: TagColor;
+  shape: TagShape;
+}
+
 export interface PublicEvent {
   id: string;
   /** null = independent raid (no guild attached); guildTag/guildName are then "". */
@@ -180,6 +196,8 @@ export interface PublicEvent {
   /** `team` raids never appear in public indexes — only in wvwTeamIndex/{teamId}. */
   audience: Audience;
   openness: Openness;
+  /** Commander tag (public). null/absent = default blue commander. */
+  tag?: CommanderTag | null;
   languages: Language[];
   schedule: Schedule;
   status: 'scheduled' | 'cancelled' | 'suspended';
@@ -204,6 +222,8 @@ export interface EventDetails {
   voice: { kind: VoiceKind; url: string } | null;
   buildsUrl: string | null;
   notes: string;
+  /** Name for the in-game `/squadjoin <name>` command — team-only like voice. */
+  squadJoin: string | null;
   /** True when the caller is the event's commander (can edit). */
   canEdit: boolean;
 }
@@ -313,11 +333,13 @@ export interface EventInput {
   languages: Language[];
   schedule: Schedule;
   map: MapId;
+  tag: CommanderTag | null;
   goals: string;
   expectedSize: number | null;
   voice: { kind: VoiceKind; url: string } | null;
   buildsUrl: string | null;
   notes: string;
+  squadJoin: string | null;
 }
 
 export interface ReportInput {

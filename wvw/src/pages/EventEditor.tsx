@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChipToggle, ErrorBox, Notice, PageHeader, Segmented, Skeleton } from '../components/ui';
 import { useDocumentTitle, useEventIndex, useMySides, useMyTeamIndex, useNow, useTeamNames } from '../lib/hooks';
 import { MapPicker, mapLabel } from '../components/MapPicker';
+import { SquadJoin, TagPicker } from '../components/CommanderTag';
 import { useT } from '../i18n';
 import { fmtRange } from '../lib/format';
 import { call, errorMessage } from '../firebase';
@@ -48,11 +49,13 @@ function blank(tz: string, guildId: string | null): EventInput {
     // One-off by default; "Weekly" pre-selects the date's weekday.
     schedule: { tz, date, time: '20:00', durationMin: 120, repeat: 'none' },
     map: 'ebg',
+    tag: { color: 'blue', shape: 'commander' },
     goals: '',
     expectedSize: null,
     voice: null,
     buildsUrl: null,
     notes: '',
+    squadJoin: null,
   };
 }
 
@@ -70,6 +73,8 @@ export default function EventEditor() {
   const [voiceUrl, setVoiceUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** New raids: the title follows the raid type until the poster types their own. */
+  const [titleTouched, setTitleTouched] = useState(false);
   const now = useNow(60_000);
   const { sides, myColor } = useMySides();
   const names = useTeamNames();
@@ -99,7 +104,8 @@ export default function EventEditor() {
     if (!member || form) return;
     const tz = member.prefs?.timezone || displayTz;
     if (!editing) {
-      setForm(blank(tz, member.guilds[0]?.id ?? null));
+      // Pre-filled with the raid type as title (editable, follows the type until changed).
+      setForm({ ...blank(tz, member.guilds[0]?.id ?? null), title: t(EVENT_TYPES[0].label) });
       return;
     }
     if (!existing) return;
@@ -118,19 +124,22 @@ export default function EventEditor() {
           languages: existing.languages,
           schedule: existing.schedule,
           map: existing.map ?? 'jumper',
+          tag: existing.tag ?? null,
           goals: d?.goals ?? '',
           expectedSize: d?.expectedSize ?? null,
           voice: d?.voice ?? null,
           buildsUrl: d?.buildsUrl ?? null,
           notes: d?.notes ?? '',
+          squadJoin: d?.squadJoin ?? null,
         });
+        setTitleTouched(true);
         if (d?.voice) {
           setVoiceKind(d.voice.kind);
           setVoiceUrl(d.voice.url);
         }
       })
       .catch((e) => setError(errorMessage(e)));
-  }, [member, existing, editing, form, displayTz, modLoaded]);
+  }, [member, existing, editing, form, displayTz, modLoaded, t]);
 
   if (!memberReady) return <Skeleton h={400} />;
   // Moderators (incl. the admin session, which has no team) may edit any raid, also past ones.
@@ -144,6 +153,7 @@ export default function EventEditor() {
   if (!form) return <Skeleton h={400} />;
 
   const set = <K extends keyof EventInput>(k: K, v: EventInput[K]) => setForm({ ...form, [k]: v });
+  const typeTitle = (type: EventType) => t(EVENT_TYPES.find((x) => x.id === type)!.label);
   const setSched = (patch: Partial<Schedule>) => setForm({ ...form, schedule: { ...form.schedule, ...patch } as Schedule });
   const schedErr = validateSchedule(form.schedule);
   const preview = schedErr ? [] : occurrencesBetween(form.schedule, now, now + 30 * 86_400_000, 4);
@@ -153,7 +163,13 @@ export default function EventEditor() {
     ev.preventDefault();
     setError(null);
     setBusy(true);
-    const payload: EventInput = { ...form, voice: voiceUrl.trim() ? { kind: voiceKind, url: voiceUrl.trim() } : null };
+    const payload: EventInput = {
+      ...form,
+      // No title needed — an empty one becomes the raid type (here in the poster's language).
+      title: form.title.trim() || typeTitle(form.type),
+      squadJoin: form.squadJoin?.trim() || null,
+      voice: voiceUrl.trim() ? { kind: voiceKind, url: voiceUrl.trim() } : null,
+    };
     try {
       if (editing) {
         await call('updateEvent', { eventId: id, ...payload });
@@ -175,7 +191,7 @@ export default function EventEditor() {
     <form onSubmit={submit} className="mx-auto max-w-3xl">
       <PageHeader
         title={t(editing ? 'Edit raid' : 'Post a raid')}
-        sub={t('Public: guild, team, time, map, type and languages. Team-only: voice, goals, size, builds and notes.')}
+        sub={t('Public: guild, team, time, map, type, tag and languages. Team-only: squad join, voice, goals, size, builds and notes.')}
       />
       {modLoaded?.event.archived && (
         <div className="mb-4">
@@ -217,12 +233,31 @@ export default function EventEditor() {
             </span>
           </label>
           <label>
-            <span className="label">{t('Title')}</span>
-            <input className="input" value={form.title} maxLength={LIMITS.titleMax} onChange={(e) => set('title', e.target.value)} placeholder={t('Monday night zerg')} required />
+            <span className="label">
+              {t('Title')} <span className="faint normal-case">· {t('optional')}</span>
+            </span>
+            <input
+              className="input"
+              value={form.title}
+              maxLength={LIMITS.titleMax}
+              onChange={(e) => {
+                setTitleTouched(true);
+                set('title', e.target.value);
+              }}
+              placeholder={typeTitle(form.type)}
+            />
           </label>
           <label>
             <span className="label">{t('Raid type')}</span>
-            <select className="select" value={form.type} onChange={(e) => set('type', e.target.value as EventType)}>
+            <select
+              className="select"
+              value={form.type}
+              onChange={(e) => {
+                const type = e.target.value as EventType;
+                // Keep the pre-filled default title in step with the type.
+                setForm({ ...form, type, title: titleTouched ? form.title : typeTitle(type) });
+              }}
+            >
               {EVENT_TYPES.map((x) => (
                 <option key={x.id} value={x.id}>
                   {t(x.label)}
@@ -336,6 +371,12 @@ export default function EventEditor() {
         )}
       </div>
 
+      <div className="card card-pad mb-4 grid gap-2">
+        <span className="label">{t('Commander tag')}</span>
+        <TagPicker value={form.tag} onChange={(v) => set('tag', v)} />
+        <p className="faint text-xs">{t('The tag players look for in-game — shown on the calendar and the matchup map.')}</p>
+      </div>
+
       <div className="card card-pad mb-4 grid gap-4">
         <div>
           <span className="label">{t('Where — pick the map, or Jumper for cross-map play')}</span>
@@ -348,6 +389,28 @@ export default function EventEditor() {
 
       <div className="card card-pad mb-4 grid gap-4">
         <h2 className="font-bold">🔒 {t('Team-only details')}</h2>
+        <label>
+          <span className="label">{t('Squad join (in-game)')}</span>
+          <div className="flex items-center gap-2">
+            <span className="faint shrink-0 font-mono text-sm">/squadjoin</span>
+            <input
+              className="input"
+              value={form.squadJoin ?? ''}
+              maxLength={LIMITS.squadJoinMax + 12}
+              onChange={(e) => set('squadJoin', e.target.value.replace(/^\/(squadjoin|sqjoin)\s+/i, '') || null)}
+              placeholder={t('Commander’s character name')}
+              autoComplete="off"
+            />
+          </div>
+          <span className="faint mt-1 block text-xs">
+            {t('Only players verified by API key to be on your team see this — with a copy button next to the raid on the calendar and map. Others never get it.')}
+          </span>
+          {form.squadJoin?.trim() && (
+            <span className="mt-2 block">
+              <SquadJoin name={form.squadJoin.trim()} />
+            </span>
+          )}
+        </label>
         <div className="grid gap-4 sm:grid-cols-2">
           <label>
             <span className="label">{t('Expected squad size')}</span>
@@ -398,7 +461,7 @@ export default function EventEditor() {
         <Link to={editing ? `/events/${id}` : '/calendar'} className="btn">
           {t('Cancel')}
         </Link>
-        <button className="btn btn-gold" disabled={busy || !!schedErr || !form.title.trim() || !form.languages.length}>
+        <button className="btn btn-gold" disabled={busy || !!schedErr || !form.languages.length}>
           {t(busy ? 'Saving…' : editing ? 'Save changes' : 'Post raid')}
 
         </button>

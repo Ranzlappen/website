@@ -119,13 +119,19 @@ export default function Matchups() {
         actions={<Segmented options={[{ id: 'eu', label: 'EU' }, { id: 'na', label: 'NA' }]} value={region} onChange={setRegion} />}
       />
       {error && <ErrorBox>{t('Could not load matchups: {error}', { error })}</ErrorBox>}
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      <div className={`mb-6 grid gap-4 ${data?.timers.lockout[region] ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
         <div className="card card-pad">
           <Countdown to={data?.timers.teamAssignment[region]} label={t('Next relink (team assignment)')} />
         </div>
-        <div className="card card-pad">
-          <Countdown to={data?.timers.lockout[region]} label={t('WvW guild selection lockout')} />
-        </div>
+        {data?.timers.lockout[region] && (
+          <div className="card card-pad">
+            <Countdown
+              to={data.timers.lockout[region]}
+              label={t('WvW guild selection lockout')}
+              passed={<span className="text-amber-200">🔒 {t('Locked until the relink')}</span>}
+            />
+          </div>
+        )}
         <div className="card card-pad">
           <Countdown to={list[0]?.end} label={t('Weekly reset')} />
 

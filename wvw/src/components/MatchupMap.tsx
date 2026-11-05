@@ -10,7 +10,7 @@
  * team-only raids of the viewer's own team (admins: all). Enemy team-only
  * raids never reach the browser (wvwTeamIndex rules).
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import type { Color, MatchSummary } from '../shared/types';
 import { COLORS } from '../shared/types';
@@ -18,7 +18,8 @@ import { EVENT_TYPES, OPENNESS, labelOf, type Third, type WvwMapId } from '../sh
 import { OPENNESS_ICON, TYPE_ICON, shortLabel } from '../lib/icons';
 import { placeRaids, type MapSlot, type Placed } from '../lib/placement';
 import { fmtDay, fmtTime, fmtWeekday, team } from '../lib/format';
-import { useTeamNames } from '../lib/hooks';
+import { useSquadJoins, useTeamNames } from '../lib/hooks';
+import { SquadJoin, TagIcon, useTagLabel } from './CommanderTag';
 import { useT, type TFn } from '../i18n';
 import { MAP_ATTRIBUTION, MAP_DATA, MAP_ORDER, THIRD_RGB, mapImage, mapLabel } from './MapPicker';
 
@@ -29,9 +30,13 @@ const MAX_ON_MAP = 3;
 function useRaidTooltip() {
   const t = useT();
   const names = useTeamNames();
+  const tagLabel = useTagLabel();
+  const squads = useSquadJoins();
   return (p: Placed) =>
     [
       p.e.guildTag ? `[${p.e.guildTag}] ${p.e.title}` : p.e.title,
+      `${t('Tag')}: ${tagLabel(p.e.tag)}`,
+      ...(squads[p.e.id] ? [`/squadjoin ${squads[p.e.id]}`] : []),
       `${TYPE_ICON[p.e.type]} ${t('Type')}: ${t(labelOf(EVENT_TYPES, p.e.type))}`,
       `${OPENNESS_ICON[p.e.openness]} ${t('Who can join')}: ${t(labelOf(OPENNESS, p.e.openness))}`,
       `${t('Team')}: ${team(p.e.teamId, names)} · ${p.e.languages.map((l) => l.toUpperCase()).join(', ')}`,
@@ -59,6 +64,7 @@ function Pin({ p, tz, now }: { p: Placed; tz: string; now: number }) {
       title={tip(p)}
     >
       {p.live && <span className="live-dot !h-1.5 !w-1.5" />}
+      <TagIcon tag={p.e.tag} size={14} />
       <span className="tabular-nums">{when(p, tz, now, t)}</span>
       <span className="font-mono">[{p.e.guildTag || '—'}]</span>
       <span aria-hidden>
@@ -76,41 +82,48 @@ function Pin({ p, tz, now }: { p: Placed; tz: string; now: number }) {
 function Row({ p, tz, now }: { p: Placed; tz: string; now: number }) {
   const t = useT();
   const tip = useRaidTooltip();
+  const squad = useSquadJoins()[p.e.id];
   return (
-    <Link
-      to={`/events/${p.e.id}`}
-      title={tip(p)}
+    <div
       className={`grid gap-1 rounded-lg border bg-[var(--bg-2)] px-2.5 py-2 text-xs transition hover:border-[var(--gold)] ${p.e.status === 'cancelled' ? 'opacity-60' : ''}`}
       style={{ borderColor: `rgba(${THIRD_RGB[p.color]},0.55)`, borderLeftWidth: 4 }}
     >
-      <div className="flex min-w-0 items-center gap-1.5 font-semibold">
-        {p.live && <span className="live-dot" />}
-        <span className="shrink-0 whitespace-nowrap tabular-nums" style={{ color: `rgb(${THIRD_RGB[p.color]})` }}>
-          {when(p, tz, now, t)}
-        </span>
-        <span className="shrink-0 font-mono">[{p.e.guildTag || '—'}]</span>
-        <span className={`min-w-0 truncate ${p.e.status === 'cancelled' ? 'line-through' : ''}`}>{p.e.title}</span>
-        {p.e.official && <span className="text-[var(--gold)]">✓</span>}
-        {p.e.audience === 'team' && <span>🔒</span>}
-      </div>
-      <div className="flex flex-wrap items-center gap-1">
-        <span className="chip !py-0 !text-[0.65rem]">
-          {TYPE_ICON[p.e.type]} {t(labelOf(EVENT_TYPES, p.e.type))}
-        </span>
-        <span className="chip !py-0 !text-[0.65rem]">
-          {OPENNESS_ICON[p.e.openness]} {shortLabel(t(labelOf(OPENNESS, p.e.openness)))}
-        </span>
-        <span className="faint">{p.e.languages.map((l) => l.toUpperCase()).join(' · ')}</span>
-        {p.more > 0 && <span className="faint">· {t('+{n} more dates in this window', { n: p.more })}</span>}
-      </div>
-    </Link>
+      <Link to={`/events/${p.e.id}`} title={tip(p)} className="grid gap-1">
+        <div className="flex min-w-0 items-center gap-1.5 font-semibold">
+          {p.live && <span className="live-dot" />}
+          <TagIcon tag={p.e.tag} size={18} />
+          <span className="shrink-0 whitespace-nowrap tabular-nums" style={{ color: `rgb(${THIRD_RGB[p.color]})` }}>
+            {when(p, tz, now, t)}
+          </span>
+          <span className="shrink-0 font-mono">[{p.e.guildTag || '—'}]</span>
+          <span className={`min-w-0 truncate ${p.e.status === 'cancelled' ? 'line-through' : ''}`}>{p.e.title}</span>
+          {p.e.official && <span className="text-[var(--gold)]">✓</span>}
+          {p.e.audience === 'team' && <span>🔒</span>}
+        </div>
+        <div className="flex flex-wrap items-center gap-1">
+          <span className="chip !py-0 !text-[0.65rem]">
+            {TYPE_ICON[p.e.type]} {t(labelOf(EVENT_TYPES, p.e.type))}
+          </span>
+          <span className="chip !py-0 !text-[0.65rem]">
+            {OPENNESS_ICON[p.e.openness]} {shortLabel(t(labelOf(OPENNESS, p.e.openness)))}
+          </span>
+          <span className="faint">{p.e.languages.map((l) => l.toUpperCase()).join(' · ')}</span>
+          {p.more > 0 && <span className="faint">· {t('+{n} more dates in this window', { n: p.more })}</span>}
+        </div>
+      </Link>
+      {squad && (
+        <div>
+          <SquadJoin name={squad} compact />
+        </div>
+      )}
+    </div>
   );
 }
 
 /** Icon legend under the team chips; every entry also explains itself on hover. */
 export function MapLegend() {
   const t = useT();
-  const item = (icon: string, label: string, hint?: string) => (
+  const item = (icon: ReactNode, label: string, hint?: string) => (
     <span key={label} className="inline-flex items-center gap-1 whitespace-nowrap" title={hint ?? label}>
       <span aria-hidden>{icon}</span>
       {label}
@@ -127,6 +140,11 @@ export function MapLegend() {
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="faint font-semibold uppercase tracking-wider">{t('Who can join')}</span>
           {OPENNESS.map((x) => item(OPENNESS_ICON[x.id], shortLabel(t(x.label)), t(x.label)))}
+        </div>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="faint font-semibold uppercase tracking-wider">{t('Tag')}</span>
+          {item(<TagIcon tag={null} size={14} />, t('commander tag colour'), t('The raid’s in-game commander tag (blue commander if none was picked).'))}
+          {item('⧉', '/squadjoin', t('Your team only: tap to copy the in-game squad join command.'))}
         </div>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="faint font-semibold uppercase tracking-wider">{t('Marks')}</span>

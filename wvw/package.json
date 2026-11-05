@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "format": "prettier --write src/",
     "check:mirror": "node scripts/check-mirror.mjs",
-    "build:maps": "python3 -I scripts/build-maps.py"
+    "build:maps": "python3 -I scripts/build-maps.py",
+    "build:tags": "python3 -I scripts/build-tags.py"
   },
   "dependencies": {
     "firebase": "^13.1.0",
