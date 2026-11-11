@@ -14,6 +14,7 @@ export default {
     { url: "https://ticked.ranzlappen.com", group: "apps" },
     { url: "https://tools.ranzlappen.com", group: "apps" },
     { url: "https://twitch-mood-radar.ranzlappen.com", group: "apps" },
+    { url: "https://old.ranzlappen.com", group: "apps" },
     { url: "https://ranzlappen.github.io", group: "gh-pages" },
   ],
 

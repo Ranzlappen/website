@@ -27,3 +27,7 @@
 - name: "tools"
   url: "https://tools.ranzlappen.com/"
   favicon: /assets/images/favicons/tools.png?v=3
+
+- name: "Old projects"
+  url: "https://old.ranzlappen.com"
+  favicon: /assets/images/favicons/oldstuff.png?v=3
