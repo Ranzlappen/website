@@ -89,6 +89,7 @@ export const COL = {
   audit: 'wvwAudit', // server-only: moderation + transfer log
   bans: 'wvwBans', // server-only: banned GW2 accounts (by account id and by name)
   feedback: 'wvwFeedback', // server-only: feedback threads (Feedback tab)
+  devices: 'wvwDevices', // server-only: "remember this device" sign-in tokens (hashed)
 } as const;
 
 export const db = () => getFirestore();

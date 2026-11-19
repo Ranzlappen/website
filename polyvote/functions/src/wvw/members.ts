@@ -314,8 +314,8 @@ export const forgetApiKey = onCall(callableOpts, async (request) => {
 });
 
 /**
- * GDPR "delete my data": removes the member, their key, check-ins, raw
- * ratings and feedback threads; cancels their events; deletes the Firebase Auth user. Aggregated
+ * GDPR "delete my data": removes the member, their key, remembered devices,
+ * check-ins, raw ratings and feedback threads; cancels their events; deletes the Firebase Auth user. Aggregated
  * guild stats stay.
  */
 export const deleteMyData = onCall(callableOpts, async (request) => {
@@ -332,6 +332,8 @@ export const deleteMyData = onCall(callableOpts, async (request) => {
   batch.delete(db().collection(COL.keys).doc(uid));
   batch.delete(db().collection(COL.members).doc(uid));
   await batch.commit();
+  const { deleteDevicesOf } = await import('./devices');
+  await deleteDevicesOf(uid).catch(() => {});
   const { rebuildAllEventIndexes } = await import('./indexes');
   await rebuildAllEventIndexes().catch(() => {});
   await audit(null, 'member.delete', { events: events.size });

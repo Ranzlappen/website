@@ -79,6 +79,7 @@ const PRIVACY: [string, string[]][] = [
     [
       msg('**Guild Wars 2:** account id and name, guild memberships, guild-leader status, commander-tag ownership and current WvW team — read via the API key you sign in with. The account name is visible only to you (and to admins for moderation).'),
       msg('**API key:** stored encrypted (AES-256-GCM) and used only to re-check your team after relinks. Delete it any time on your Account page.'),
+      msg('**Staying signed in:** your browser keeps the sign-in session (a Firebase refresh token) and — if you tick “Remember me” — a random device token, never your API key, so you can sign back in with one click. Both are strictly necessary for the login you asked for. Remove devices on the Account page or with “Sign out & forget this device”; unused device tokens expire after 400 days.'),
       msg('**Activity:** raids you post, runs you check in to, and your ratings (stored without being shown individually; only guild averages are published).'),
       msg('**Reports** you file are visible to moderators without your identity. If an account is banned for breaking the rules, its GW2 account id and name are kept on a block list.'),
       msg('**Feedback** you send from the Feedback tab (kind, text, replies) is stored with your account and read only by the hub admins.'),
@@ -88,7 +89,7 @@ const PRIVACY: [string, string[]][] = [
   [
     msg('Deletion'),
     [
-      msg('“Delete my data” on the Account page removes your account, API key, check-ins, ratings and feedback and cancels your raids. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.'),
+      msg('“Delete my data” on the Account page removes your account, API key, remembered devices, check-ins, ratings and feedback and cancels your raids. Aggregated guild statistics stay. Objective claims (public game data) are only logged while a raid is live and purged after 30 days.'),
     ],
   ],
   [

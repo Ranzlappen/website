@@ -309,6 +309,15 @@ export interface MemberDoc {
   createdAt: number;
 }
 
+/** A remembered device on the Account page (`listMyDevices`). `id` = first 12 hex chars of the token's SHA-256. */
+export interface DeviceRow {
+  id: string;
+  label: string;
+  createdAt: number;
+  lastUsedAt: number;
+  expiresAt: number;
+}
+
 export interface StoredKeyInfo {
   /** Last 4 characters of the key, to recognise it. */
   last4: string;

@@ -15,6 +15,7 @@ export { maintain } from './maintenance';
 
 // Phase 1 — sign-in/verification (GW2 API key), guilds, events, reports, calendar feeds
 export { signIn, verifyApiKey, refreshMe, updatePrefs, forgetApiKey, deleteMyData } from './members';
+export { rememberDevice, resumeDevice, forgetDevice, listMyDevices, forgetMyDevices } from './devices';
 export { updateGuildProfile } from './guilds';
 export { createEvent, updateEvent, cancelEvent, getEventDetails, listMyEvents } from './events';
 export { report, modListReports, modResolveReport } from './reports';

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signInWithCustomToken } from 'firebase/auth';
 import { ErrorBox, Notice, PageHeader, Skeleton, TeamChip } from '../components/ui';
@@ -8,7 +8,8 @@ import { API_KEY_URL, KEY_NAME } from '../config';
 import { isVerified, useStore } from '../store';
 import { COMMON_TIMEZONES } from '../shared/constants';
 import { browserTimeZone, fmtDateTime, relative } from '../lib/format';
-import type { StoredKeyInfo } from '../shared/types';
+import type { DeviceRow, StoredKeyInfo } from '../shared/types';
+import { clearDevice, deviceRowId, rememberPref, setRememberPref, type RememberedDevice } from '../lib/device';
 
 import { UI_LANGS, useT, type Lang } from '../i18n';
 
@@ -37,12 +38,23 @@ function KeySteps() {
   );
 }
 
-function KeyInput({ busy, label, onSubmit }: { busy: boolean; label: string; onSubmit: (key: string) => Promise<boolean> }) {
+function KeyInput({
+  busy,
+  label,
+  onSubmit,
+  remember,
+}: {
+  busy: boolean;
+  label: string;
+  onSubmit: (key: string) => Promise<boolean>;
+  /** Show the "Remember me on this device" checkbox (sign-in form). */
+  remember?: { value: boolean; onChange: (v: boolean) => void };
+}) {
   const t = useT();
   const [key, setKey] = useState('');
   return (
     <form
-      className="flex flex-col gap-2 sm:flex-row"
+      className="flex flex-col gap-2 sm:flex-row sm:flex-wrap"
       onSubmit={async (e) => {
         e.preventDefault();
         if (await onSubmit(key.trim())) setKey('');
@@ -60,7 +72,146 @@ function KeyInput({ busy, label, onSubmit }: { busy: boolean; label: string; onS
       <button className="btn btn-gold" disabled={busy || key.trim().length < 6}>
         {busy ? t('Checking…') : label}
       </button>
+      {remember && (
+        <label className="flex w-full items-start gap-2 text-sm">
+          <input type="checkbox" className="mt-1" checked={remember.value} onChange={(e) => remember.onChange(e.target.checked)} />
+          <span>
+            <b>{t('Remember me on this device')}</b>
+            <span className="faint block text-xs">
+              {t('Next time it’s one click — no need to look up your API key again. Untick on shared or public computers.')}
+            </span>
+          </span>
+        </label>
+      )}
     </form>
+  );
+}
+
+/** Signed out, but this browser is remembered → one click back in. */
+function WelcomeBack({ device }: { device: RememberedDevice }) {
+  const t = useT();
+  const navigate = useNavigate();
+  const { resume, resuming, forgetThisDevice } = useStore();
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <div className="card card-pad mb-4 grid gap-3 border-[rgba(224,179,65,0.45)]">
+      <div>
+        <h2 className="text-lg font-bold">👋 {t('Welcome back!')}</h2>
+        <p className="muted text-sm">{t('This device remembers you — no API key needed.')}</p>
+      </div>
+      {error && <ErrorBox>{error}</ErrorBox>}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          className="btn btn-gold"
+          disabled={resuming}
+          onClick={async () => {
+            setError(null);
+            const err = await resume();
+            if (err) setError(err);
+            else navigate('/account', { replace: true });
+          }}
+        >
+          {resuming ? t('Signing in…') : device.accountName ? t('Continue as {name}', { name: device.accountName }) : t('Continue')}
+        </button>
+        <button className="btn btn-ghost btn-sm" onClick={() => void forgetThisDevice()} disabled={resuming}>
+          {t('Forget this device')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Account → the browsers that can sign back in with one click. */
+function RememberedDevices() {
+  const t = useT();
+  const toast = useStore((s) => s.toast);
+  const device = useStore((s) => s.device);
+  const [rows, setRows] = useState<DeviceRow[] | null>(null);
+  const [current, setCurrent] = useState<string | null>(null);
+  const [remember, setRemember] = useState(rememberPref());
+  const [busy, setBusy] = useState(false);
+
+  const load = () =>
+    call<{ devices: DeviceRow[] }>('listMyDevices')
+      .then((r) => setRows(r.devices))
+      .catch(() => setRows([]));
+  // Reload when this browser's token appears / changes (it's issued right after sign-in).
+  const token = device?.token ?? null;
+  useEffect(() => {
+    let alive = true;
+    void (token ? deviceRowId(token) : Promise.resolve(null)).then((id) => alive && setCurrent(id));
+    call<{ devices: DeviceRow[] }>('listMyDevices')
+      .then((r) => alive && setRows(r.devices))
+      .catch(() => alive && setRows([]));
+    return () => {
+      alive = false;
+    };
+  }, [token]);
+
+  const forget = async (ids?: string[]) => {
+    setBusy(true);
+    try {
+      await call('forgetMyDevices', ids ? { ids } : {});
+      // This browser's token was among them → drop it locally too.
+      if (!ids || (current && ids.includes(current))) {
+        clearDevice();
+        useStore.setState({ device: null });
+      }
+      toast(t('Done.'), 'ok');
+      await load();
+    } catch (e) {
+      toast(errorMessage(e), 'error');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mb-4 rounded-xl border border-[var(--border)] bg-[var(--bg-2)] p-3 text-sm">
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+        <span className="font-bold">📱 {t('Remembered devices')}</span>
+        {!!rows?.length && (
+          <button className="btn btn-ghost btn-sm" disabled={busy} onClick={() => confirm(t('Forget every device? Each one then needs the API key again.')) && forget()}>
+            {t('Forget all')}
+          </button>
+        )}
+      </div>
+      <p className="faint mb-2 text-xs">
+        {t('You stay signed in until you sign out. A remembered device can sign back in with one click — it holds a random device token, never your API key. Unused tokens expire after 400 days.')}
+      </p>
+      {rows === null ? (
+        <div className="skeleton h-8" />
+      ) : rows.length === 0 ? (
+        <p className="muted text-xs">{t('No remembered devices.')}</p>
+      ) : (
+        <ul className="grid gap-1.5">
+          {rows.map((r) => (
+            <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[var(--surface)] px-2.5 py-1.5">
+              <span>
+                {r.label} {r.id === current && <span className="chip chip-gold ml-1">{t('this device')}</span>}
+                <span className="faint block text-xs">{t('last used {when}', { when: relative(r.lastUsedAt) })}</span>
+              </span>
+              <button className="btn btn-ghost btn-sm" disabled={busy} onClick={() => forget([r.id])} aria-label={t('Forget')}>
+                ✕ {t('Forget')}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <label className="mt-2 flex items-center gap-2 text-xs">
+        <input
+          type="checkbox"
+          checked={remember}
+          onChange={async (e) => {
+            setRemember(e.target.checked);
+            setRememberPref(e.target.checked);
+            if (!e.target.checked && current) await forget([current]);
+            else if (e.target.checked) await useStore.getState().rememberThisDevice();
+          }}
+        />
+        {t('Remember me on this device')}
+      </label>
+    </div>
   );
 }
 
@@ -141,9 +292,11 @@ export default function Account() {
   const t = useT();
   useDocumentTitle(t('Account'));
   const navigate = useNavigate();
-  const { uid, member, memberReady, authReady, toast, signOut } = useStore();
+  const { uid, member, memberReady, authReady, toast, signOut, device } = useStore();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [remember, setRemember] = useState(rememberPref());
+  const [useKey, setUseKey] = useState(false);
 
   const run = async (fn: () => Promise<unknown>, ok: string) => {
     setBusy(true);
@@ -186,13 +339,21 @@ export default function Account() {
             <ErrorBox>{error}</ErrorBox>
           </div>
         )}
+        {device && <WelcomeBack device={device} />}
+        {device && !useKey ? (
+          <button className="btn btn-ghost btn-sm" onClick={() => setUseKey(true)}>
+            🔑 {t('Use a different API key')}
+          </button>
+        ) : (
         <div className="card card-pad">
           <KeySteps />
           <KeyInput
             busy={busy}
             label={t('Sign in')}
+            remember={{ value: remember, onChange: setRemember }}
             onSubmit={(key) =>
               run(async () => {
+                setRememberPref(remember);
                 const { token } = await call<{ token: string }>('signIn', { apiKey: key });
                 await signInWithCustomToken(auth, token);
                 navigate('/account', { replace: true });
@@ -206,6 +367,7 @@ export default function Account() {
             </Link>
           </p>
         </div>
+        )}
         <div className="card card-pad mt-4">
           <LanguagePref />
         </div>
@@ -232,6 +394,7 @@ export default function Account() {
           <p>
             {t('You can see every team’s raids — including team-only raids with their voice and goals — and use the Moderation tools (reports, raid import, settings, moderators).')}
           </p>
+          <p className="faint text-xs">{t('The admin session is never remembered on a device — after signing out, enter the admin key again.')}</p>
           <p className="muted">
             {t('This session has no GW2 account, so it can’t post raids itself (use Moderation → Import to list raids). To post, sign out and sign in with your own API key — put your account name in WVW_SECRETS.adminAccounts to keep admin rights there too.')}
           </p>
@@ -255,9 +418,16 @@ export default function Account() {
         title={t('Your account')}
         sub={member.accountName ? `${member.accountName} · ${t('visible only to you')}` : undefined}
         actions={
-          <button className="btn btn-sm" onClick={() => signOut()}>
-            {t('Sign out')}
-          </button>
+          <div className="flex flex-wrap justify-end gap-2">
+            <button className="btn btn-sm" onClick={() => signOut()} title={t('This device stays remembered — one click to sign back in.')}>
+              {t('Sign out')}
+            </button>
+            {device && (
+              <button className="btn btn-ghost btn-sm" onClick={() => signOut({ forget: true })} title={t('Use this on shared or public computers.')}>
+                {t('Sign out & forget this device')}
+              </button>
+            )}
+          </div>
         }
       />
       {error && <ErrorBox>{error}</ErrorBox>}
@@ -311,6 +481,7 @@ export default function Account() {
           </div>
         </div>
         <StoredKey info={member.keyInfo} />
+        <RememberedDevices />
         <p className="faint mb-3 text-xs">
           {t('After every relink the hub re-checks everyone automatically within about an hour and moves your raids to your new team. Use the button if you want it right now.')}
         </p>
@@ -350,7 +521,7 @@ export default function Account() {
             disabled={busy}
             onClick={async () => {
               if (!confirm(t('Delete your WvW Hub account and data? Your raids are cancelled. This cannot be undone.'))) return;
-              if (await run(() => call('deleteMyData'), t('Your data was deleted.'))) await signOut();
+              if (await run(() => call('deleteMyData'), t('Your data was deleted.'))) await signOut({ forget: true });
             }}
           >
             {t('Delete my data')}

@@ -735,8 +735,6 @@ export const de: Record<string, string> = {
     "**Feedback**, das du über den Feedback-Tab sendest (Art, Text, Antworten), wird mit deinem Konto gespeichert und nur von den Hub-Admins gelesen.",
   "**Recruitment contact:** if you lead a guild and mark it as recruiting, the contact account name you enter is shown publicly on the guild page — the only account name the hub ever shows.":
     "**Rekrutierungskontakt:** Wenn du eine Gilde leitest und sie als „rekrutiert“ markierst, wird der eingetragene Kontakt-Accountname öffentlich auf der Gildenseite angezeigt — der einzige Accountname, den der Hub je zeigt.",
-  "“Delete my data” on the Account page removes your account, API key, check-ins, ratings and feedback and cancels your raids. Aggregated guild statistics stay. Objective-claim history is public game data and is purged after 120 days.":
-    "„Meine Daten löschen“ auf der Konto-Seite entfernt dein Konto, deinen API-Schlüssel, Check-ins, Bewertungen und dein Feedback und sagt deine Raids ab. Aggregierte Gildenstatistiken bleiben bestehen. Die Historie der Zielobjekt-Beanspruchungen ist öffentliche Spieldaten und wird nach 120 Tagen gelöscht.",
   "Operator and contact: see the [legal notice](/legal). Under the GDPR you can request access, correction or deletion at any time.":
     "Betreiber und Kontakt: siehe [Impressum](/legal). Nach der DSGVO kannst du jederzeit Auskunft, Berichtigung oder Löschung verlangen.",
   "Information according to § 5 DDG (German Digital Services Act).":
@@ -958,4 +956,28 @@ export const de: Record<string, string> = {
   "White": "Weiß",
   "Yellow": "Gelb",
   "Catmander": "Catmander",
+  // Remembered devices / staying signed in
+  "**Staying signed in:** your browser keeps the sign-in session (a Firebase refresh token) and — if you tick “Remember me” — a random device token, never your API key, so you can sign back in with one click. Both are strictly necessary for the login you asked for. Remove devices on the Account page or with “Sign out & forget this device”; unused device tokens expire after 400 days.": "**Angemeldet bleiben:** Dein Browser speichert die Anmeldesitzung (ein Firebase-Refresh-Token) und — wenn du „Angemeldet bleiben“ ankreuzt — ein zufälliges Geräte-Token, niemals deinen API-Schlüssel, damit du dich mit einem Klick wieder anmelden kannst. Beides ist für die von dir gewünschte Anmeldung unbedingt erforderlich. Geräte entfernst du auf der Konto-Seite oder mit „Abmelden & Gerät vergessen“; unbenutzte Geräte-Tokens laufen nach 400 Tagen ab.",
+  "Continue": "Weiter",
+  "Continue as {name}": "Weiter als {name}",
+  "Forget": "Vergessen",
+  "Forget all": "Alle vergessen",
+  "Forget every device? Each one then needs the API key again.": "Alle Geräte vergessen? Jedes braucht dann wieder den API-Schlüssel.",
+  "Forget this device": "Dieses Gerät vergessen",
+  "Next time it’s one click — no need to look up your API key again. Untick on shared or public computers.": "Beim nächsten Mal reicht ein Klick — du musst deinen API-Schlüssel nicht wieder heraussuchen. Auf geteilten oder öffentlichen Computern nicht ankreuzen.",
+  "No remembered devices.": "Keine gemerkten Geräte.",
+  "Remember me on this device": "Auf diesem Gerät angemeldet bleiben",
+  "Remembered devices": "Gemerkte Geräte",
+  "Sign out & forget this device": "Abmelden & Gerät vergessen",
+  "Signing in…": "Anmeldung läuft…",
+  "The admin session is never remembered on a device — after signing out, enter the admin key again.": "Die Admin-Sitzung wird nie auf einem Gerät gemerkt — gib nach dem Abmelden den Admin-Schlüssel erneut ein.",
+  "This device remembers you — no API key needed.": "Dieses Gerät kennt dich — kein API-Schlüssel nötig.",
+  "This device stays remembered — one click to sign back in.": "Dieses Gerät bleibt gemerkt — ein Klick, um dich wieder anzumelden.",
+  "Use a different API key": "Anderen API-Schlüssel verwenden",
+  "Use this on shared or public computers.": "Nutze das auf geteilten oder öffentlichen Computern.",
+  "Welcome back!": "Willkommen zurück!",
+  "You stay signed in until you sign out. A remembered device can sign back in with one click — it holds a random device token, never your API key. Unused tokens expire after 400 days.": "Du bleibst angemeldet, bis du dich abmeldest. Ein gemerktes Gerät meldet dich mit einem Klick wieder an — es enthält ein zufälliges Geräte-Token, niemals deinen API-Schlüssel. Unbenutzte Tokens laufen nach 400 Tagen ab.",
+  "last used {when}": "zuletzt genutzt {when}",
+  "this device": "dieses Gerät",
+  "“Delete my data” on the Account page removes your account, API key, remembered devices, check-ins, ratings and feedback and cancels your raids. Aggregated guild statistics stay. Objective claims (public game data) are only logged while a raid is live and purged after 30 days.": "„Meine Daten löschen“ auf der Konto-Seite entfernt dein Konto, deinen API-Schlüssel, gemerkte Geräte, Check-ins, Bewertungen und dein Feedback und sagt deine Raids ab. Aggregierte Gildenstatistiken bleiben bestehen. Beanspruchungen von Zielobjekten (öffentliche Spieldaten) werden nur während eines laufenden Raids protokolliert und nach 30 Tagen gelöscht.",
 };
