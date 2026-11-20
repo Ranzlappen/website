@@ -209,6 +209,10 @@ export const LIMITS = {
   /** Feedback: characters per message, new threads per member per 24h. */
   feedbackMax: 2000,
   feedbackPerDay: 10,
+  /** "Remember this device" sign-in tokens per member (oldest dropped first). */
+  devicesPerMember: 10,
+  /** A remembered device signs in again for this long after its last use. */
+  deviceTtlDays: 400,
 } as const;
 
 /**

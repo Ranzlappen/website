@@ -12,7 +12,7 @@
  *  - Event index rebuild (archives finished schedules) + publishes the relink
  *    history (`wvwPublic/relink`) the calendar's Link view uses.
  *  - Auto-end runs that were left live for > 12h.
- *  - Daily purge of old claim logs / samples / jobs.
+ *  - Daily purge of old claim logs / samples / jobs / expired remembered devices.
  *
  * Docs that didn't change are not rewritten (see README "Usage & cost").
  */
@@ -202,6 +202,7 @@ export async function maintainOnce(): Promise<Record<string, number | string>> {
   if (now - state.purgeAt > 86_400_000) {
     out.purgedClaims = await deleteOlderThan(COL.claimLog, 'claimedAt', now - CLAIM_LOG_KEEP_MS, 25);
     out.purgedAudit = await deleteOlderThan(COL.audit, 'at', now - 365 * 86_400_000);
+    out.purgedDevices = await deleteOlderThan(COL.devices, 'expiresAt', now, 2);
     const days = await db().collection(COL.matchDays).where('day', '<', utcKey(now - 60 * 86_400_000)).limit(400).get();
     if (!days.empty) {
       const b = db().batch();

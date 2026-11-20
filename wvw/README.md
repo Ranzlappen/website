@@ -47,6 +47,30 @@ teams or the iCal feeds, only `wvwTeamIndex/{teamId}`, and its runs stay out of 
 The key lives only in the secret, never in the repo; wrong attempts are rate-limited (10 per hour site-wide, `adminLogin.ts`). Pick a
 long random value — a short or common one is guessable.
 
+### Staying signed in & remembered devices
+
+Two layers keep members signed in without ever keeping the API key in the browser:
+
+1. **The Firebase session** — a refresh token in IndexedDB (localStorage fallback, `initializeAuth` in `src/firebase.ts`). It never
+   expires on its own: refreshes, closed tabs and restarts keep you signed in until **Sign out** (or a ban, which revokes it).
+2. **Remembered device** (`devices.ts`, `src/lib/device.ts`; "Remember me on this device" is ticked by default). After a sign-in the
+   SPA gets a random 256-bit **device token** (`wvw-rememberDevice`) and keeps it in localStorage; the server stores only its SHA-256
+   in server-only `wvwDevices/{hash}` (uid, label like "Firefox · Android", created / last used / expires). `wvw-resumeDevice` trades
+   a valid token for a new session after checking the member still exists, isn't suspended and isn't banned.
+   - **Session lost without a sign-out** (storage partly cleared, refresh token revoked, …) → the app silently resumes on load.
+   - **Sign out** keeps the device → the sign-in page shows **"Continue as Name.1234"**: one click, no API key lookup.
+   - **Sign out & forget this device** (shared / public computers), unticking "Remember me", Account → **Remembered devices** (per
+     device or "Forget all"), "Delete my data" and bans revoke tokens. Unused tokens expire after 400 days (rolling,
+     `LIMITS.deviceTtlDays`), at most 10 per member (`LIMITS.devicesPerMember`, oldest dropped), expired ones are purged daily.
+   - The admin access-key session is never remembered.
+   - The app also asks for **persistent storage** (`navigator.storage.persist()`) once after sign-in, so the browser doesn't evict
+     the session under storage pressure.
+
+What no website can beat: private/incognito windows, "clear site data" / clear-on-exit settings, and **Safari's 7-day cap on
+script-written storage for sites you haven't used in 7 days** — on iPhone/iPad, "Add to Home Screen" (the hub ships a web-app
+manifest) is exempt from that cap. Server-set HTTP-only cookies can't help either: the site is static on GitHub Pages and the
+functions run on another domain.
+
 ## Maps, thirds + the matchup map
 
 Every raid has a **map**: `ebg`, `red` / `blue` / `green` (the borderlands, by home colour — Red = Desert, Blue/Green = Alpine) or
@@ -119,7 +143,8 @@ Pure date math lives in `src/lib/calendar.ts` (tested in `src/__tests__/calendar
   relinks; the Account page shows **Stored API key** (`MemberDoc.keyInfo`: last 4 characters, key name, permissions, saved / last checked,
   working / rejected) plus "Forget my key" / "Delete my data". Older members get `keyInfo` filled in on their next re-check.
 - **Staying signed in**: the Firebase session (a refresh token, not the API key) persists in IndexedDB → localStorage
-  (`initializeAuth` in `src/firebase.ts`), so refreshes and browser restarts keep you signed in until **Sign out**.
+  (`initializeAuth` in `src/firebase.ts`), so refreshes and browser restarts keep you signed in until **Sign out**; a remembered
+  device holds only a random device token (hashed server-side) — see *Staying signed in & remembered devices*.
 - **Ratings**: only checked-in, same-team attendees, 72 h window, four axes, no free text, per-rater averaging.
 - **Roles are NOT Firebase custom claims** (the shared `setUserRole` replaces the whole claims object, and WvW mods must never get blog
   `admin`). Roles live in `wvwMembers.role`; admins come from `WVW_SECRETS.adminAccounts`.
@@ -210,7 +235,7 @@ from the GW2 API) and **Suspend / Restore** the page (hides all the guild's raid
 
 **Bans (blacklist)** live in server-only `wvwBans`, keyed by GW2 account id (`id:<id>`, survives name changes and "Delete my data") and
 by lower-cased account name (`name:<name>`, so an account that never signed in can be banned up front). `wvw-signIn` refuses both. A ban
-also suspends the member (every callable refuses), revokes their Firebase sessions, deletes the stored API key and hides their raids
+also suspends the member (every callable refuses), revokes their Firebase sessions and remembered devices, deletes the stored API key and hides their raids
 (restored on unban) or deletes them. Admins (`WVW_SECRETS.adminAccounts`) and your own account can't be banned. Callables:
 `modListEvents`, `modGetEvent`, `modSetEventHidden`, `modDeleteEvents`, `modDeleteRun`, `adminSetGuildSuspended`, `adminListMembers`,
 `adminBanMember`, `adminUnbanMember` (`adminTools.ts`).

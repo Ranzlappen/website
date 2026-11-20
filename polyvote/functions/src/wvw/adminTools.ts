@@ -273,6 +273,9 @@ export const adminBanMember = onCall(callableOpts, async (request) => {
     await getAuth()
       .revokeRefreshTokens(found.uid)
       .catch((e) => logger.warn('revoke tokens', { e: String(e) }));
+    // …and every remembered device, so one click can't sign them back in.
+    const { deleteDevicesOf } = await import('./devices');
+    await deleteDevicesOf(found.uid).catch((e) => logger.warn('ban: forget devices', { e: String(e) }));
     const events = await eventsOf(found.uid);
     if (d.raids === 'delete') raids = await deleteEvents(events.docs.map((s) => s.id));
     else {
